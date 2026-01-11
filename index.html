@@ -3,43 +3,759 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz om Första Världskriget</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Bionic Reading - Läs snabbare och mer fokuserat</title>
+    <meta name="description" content="Omvandla text för snabbare och mer fokuserad läsning med Bionic Reading-teknologi">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #8b5cf6;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            color: var(--text-dark);
+            background: var(--bg-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            min-height: 600px;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--text-dark) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
+        }
+
+        .secondary-btn {
+            background: var(--bg-white);
+            color: var(--primary);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .secondary-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+        }
+
+        .demo-card {
+            background: var(--bg-white);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .demo-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+        }
+
+        .demo-text strong {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Features Section */
+        .features {
+            background: var(--bg-white);
+            padding: 6rem 2rem;
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            padding: 2rem;
+            border-radius: 16px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Converter Section */
+        .converter {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+        }
+
+        .converter-container {
+            background: var(--bg-white);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .input-section, .output-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-label {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .char-count {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        textarea {
+            flex: 1;
+            min-height: 300px;
+            padding: 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--bg-white);
+        }
+
+        .output-box {
+            flex: 1;
+            min-height: 300px;
+            padding: 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-white);
+            overflow-y: auto;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        .output-box:empty::before {
+            content: 'Justera inställningarna till vänster och klicka på konvertera.';
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .controls {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: var(--bg-light);
+            border-radius: 12px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        select {
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            background: var(--bg-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .convert-btn {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            background: var(--bg-white);
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Social Proof */
+        .social-proof {
+            background: var(--bg-white);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 2rem 1.5rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .converter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .convert-btn, .action-btn {
+                width: 100%;
+            }
+
+            .demo-card {
+                order: -1;
+            }
+        }
+
+        /* Bionic Text Styling */
+        .bionic-text {
+            font-size: inherit;
+            line-height: inherit;
+        }
+
+        .bionic-text strong {
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+    </style>
 </head>
 <body>
-    <div class="quiz-container">
-        <div class="quiz-header">
-            <h1>Quiz om Första Världskriget</h1>
-            <div class="progress">
-                <p>Fråga <span id="current-question">1</span> av <span id="total-questions">15</span></p>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-fill"></div>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">⚡ Bionic Reading</div>
+            <button class="cta-button" onclick="document.getElementById('converter-section').scrollIntoView({behavior: 'smooth'})">
+                Prova gratis
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Läs snabbare med Bionic Reading</h1>
+            <p>Omvandla text för snabbare och mer fokuserad läsning. Öka din läshastighet med upp till 30% genom att markera nyckeldelar av orden.</p>
+            <div class="hero-buttons">
+                <button class="primary-btn" onclick="document.getElementById('converter-section').scrollIntoView({behavior: 'smooth'})">
+                    Kom igång gratis
+                </button>
+                <button class="secondary-btn" onclick="document.getElementById('features-section').scrollIntoView({behavior: 'smooth'})">
+                    Läs mer
+                </button>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="demo-card">
+                <p class="demo-text">
+                    <strong>Bi</strong>onic <strong>Rea</strong>ding <strong>hjäl</strong>per <strong>di</strong>na <strong>ö</strong>gon <strong>a</strong>tt <strong>gli</strong>da <strong>över</strong>re <strong>tex</strong>ten <strong>snab</strong>bare <strong>ge</strong>nom <strong>a</strong>tt <strong>mar</strong>kera <strong>de</strong>n <strong>vik</strong>tigaste <strong>de</strong>len <strong>a</strong>v <strong>var</strong>je <strong>o</strong>rd.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features-section">
+        <div class="features-container">
+            <h2 class="section-title">Varför Bionic Reading?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Snabbare läsning</h3>
+                    <p>Öka din läshastighet med upp till 30% genom att guida ögonen till de viktigaste delarna av texten.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Bättre fokus</h3>
+                    <p>Minska distraktion och förbättra koncentrationen genom visuellt stöd för din hjärna.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Mindre mental trötthet</h3>
+                    <p>Läs längre stunder utan att bli lika trött genom att underlätta för din hjärna att bearbeta text.</p>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div id="quiz-content" class="quiz-content">
-            <div class="question-section">
-                <h2 id="question-text"></h2>
-                <div id="answer-options" class="answer-options"></div>
+    <!-- Converter Section -->
+    <section class="converter" id="converter-section">
+        <div class="converter-container">
+            <h2 class="section-title">Prova konverteraren</h2>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="focus-level">Fokusnivå</label>
+                    <select id="focus-level">
+                        <option value="low">Låg</option>
+                        <option value="medium" selected>Medel</option>
+                        <option value="high">Hög</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="font-size">Typsnitt</label>
+                    <select id="font-size">
+                        <option value="16">Standard</option>
+                        <option value="18">Stor</option>
+                        <option value="20">Större</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="line-spacing">Radavstånd</label>
+                    <select id="line-spacing">
+                        <option value="1.5">Kompakt</option>
+                        <option value="1.8" selected>Normal</option>
+                        <option value="2.2">Luftig</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="quiz-controls">
-                <button id="next-btn" class="btn btn-next" style="display: none;">Nästa fråga</button>
+            <div class="converter-grid">
+                <div class="input-section">
+                    <div class="section-label">
+                        Källtext
+                        <span class="char-count"><span id="char-count">0</span> tecken</span>
+                    </div>
+                    <textarea id="input-text" placeholder="Klistra in text eller ladda upp en fil...">Bionic Reading är en läsmetod som hjälper dig att läsa snabbare och mer fokuserat. Genom att markera de viktigaste delarna av varje ord guidar metoden dina ögon genom texten på ett mer effektivt sätt. Detta gör att din hjärna kan bearbeta informationen snabbare och med mindre ansträngning. Resultatet är att du kan läsa längre stunder utan att bli lika trött, samtidigt som du behåller eller till och med förbättrar din förståelse av texten.</textarea>
+                </div>
+                <div class="output-section">
+                    <div class="section-label">
+                        Resultat
+                        <span class="char-count"></span>
+                    </div>
+                    <div id="output-text" class="output-box"></div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="convert-btn" id="convert-btn">🔄 Konvertera</button>
+                <button class="action-btn" id="copy-btn">📋 Kopiera HTML</button>
+                <button class="action-btn" id="clear-btn">🗑️ Rensa</button>
             </div>
         </div>
+    </section>
 
-        <div id="results-section" class="results-section" style="display: none;">
-            <h2>Quiz Slutförd! 🎉</h2>
-            <div class="results-content">
-                <p class="score">Du fick <span id="score"></span> av <span id="total"></span> rätt!</p>
-                <p class="percentage">Det är <span id="percentage"></span>%</p>
-                <div id="feedback" class="feedback"></div>
-                <button id="restart-btn" class="btn btn-restart">Gör om quizet</button>
+    <!-- Social Proof -->
+    <section class="social-proof">
+        <h2 class="section-title">Används av tusentals läsare</h2>
+        <div class="stats-grid">
+            <div class="stat">
+                <div class="stat-number">30%</div>
+                <div class="stat-label">Snabbare läsning</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">50K+</div>
+                <div class="stat-label">Aktiva användare</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">4.8/5</div>
+                <div class="stat-label">Användarrecension</div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <script src="js/quiz.js"></script>
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 Bionic Reading Konverterare. Läs snabbare, lär dig mer.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Bionic Reading Converter Logic
+        const inputText = document.getElementById('input-text');
+        const outputText = document.getElementById('output-text');
+        const convertBtn = document.getElementById('convert-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const charCount = document.getElementById('char-count');
+        const focusLevel = document.getElementById('focus-level');
+        const fontSize = document.getElementById('font-size');
+        const lineSpacing = document.getElementById('line-spacing');
+
+        // Update character count
+        inputText.addEventListener('input', () => {
+            charCount.textContent = inputText.value.length;
+        });
+
+        // Initialize character count
+        charCount.textContent = inputText.value.length;
+
+        // Convert text to bionic reading format
+        function convertToBionic(text, level = 'medium') {
+            const words = text.split(/(\s+)/);
+            const bionicWords = words.map(word => {
+                if (word.trim().length === 0) return word;
+
+                let boldLength;
+                const wordLength = word.length;
+
+                // Determine how much to bold based on focus level
+                switch(level) {
+                    case 'low':
+                        boldLength = Math.ceil(wordLength * 0.3);
+                        break;
+                    case 'high':
+                        boldLength = Math.ceil(wordLength * 0.5);
+                        break;
+                    default: // medium
+                        boldLength = Math.ceil(wordLength * 0.4);
+                }
+
+                // Handle minimum and maximum
+                boldLength = Math.max(1, Math.min(boldLength, wordLength));
+
+                const boldPart = word.substring(0, boldLength);
+                const normalPart = word.substring(boldLength);
+
+                return `<strong>${boldPart}</strong>${normalPart}`;
+            });
+
+            return bionicWords.join('');
+        }
+
+        // Convert button click
+        convertBtn.addEventListener('click', () => {
+            const text = inputText.value;
+            if (!text.trim()) {
+                outputText.innerHTML = '<p style="color: var(--text-light); font-style: italic;">Vänligen skriv in eller klistra in text att konvertera.</p>';
+                return;
+            }
+
+            const level = focusLevel.value;
+            const bionicText = convertToBionic(text, level);
+
+            // Apply settings
+            const fontSizeValue = fontSize.value + 'px';
+            const lineSpacingValue = lineSpacing.value;
+
+            outputText.innerHTML = `<div class="bionic-text" style="font-size: ${fontSizeValue}; line-height: ${lineSpacingValue};">${bionicText}</div>`;
+
+            // Smooth scroll to results
+            outputText.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        // Copy HTML to clipboard
+        copyBtn.addEventListener('click', async () => {
+            const html = outputText.innerHTML;
+            if (!html || html.includes('Justera inställningarna')) {
+                alert('Konvertera text först innan du kopierar.');
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(html);
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '✅ Kopierat!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            } catch (err) {
+                alert('Kunde inte kopiera till urklipp. Försök igen.');
+            }
+        });
+
+        // Clear button
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            outputText.innerHTML = '';
+            charCount.textContent = '0';
+        });
+
+        // Auto-convert on load with default text
+        window.addEventListener('load', () => {
+            convertBtn.click();
+        });
+
+        // Real-time update on setting changes
+        focusLevel.addEventListener('change', () => {
+            if (inputText.value.trim()) {
+                convertBtn.click();
+            }
+        });
+
+        fontSize.addEventListener('change', () => {
+            if (inputText.value.trim()) {
+                convertBtn.click();
+            }
+        });
+
+        lineSpacing.addEventListener('change', () => {
+            if (inputText.value.trim()) {
+                convertBtn.click();
+            }
+        });
+    </script>
 </body>
 </html>
