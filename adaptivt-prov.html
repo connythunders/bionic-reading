@@ -335,24 +335,51 @@
             <h1>📚 Skapa Adaptivt Prov</h1>
             <div class="info-box">
                 <strong>💡 Så här fungerar det:</strong><br>
-                Klistra in en text som innehåller viktiga begrepp och ämnen. Systemet identifierar nyckelord och skapar frågor som testar elevernas KUNSKAP om dessa ämnen (från alla källor de lärt sig). Frågorna anpassas automatiskt efter hur väl eleven svarar. De får en fråga åt gången och svarar på så många de hinner under tiden.
+                Skriv in vilket ämne provet ska handla om (t.ex. "Första världskriget", "Fotosyntesen", "Pythagoras sats"). Systemet skapar automatiskt frågor som anpassas efter årskurs och elevsvar. Eleverna får en fråga åt gången och kan svara på så många de hinner under tiden.
             </div>
 
             <div class="teacher-view">
-                <label for="sourceText" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
-                    Klistra in provtexten här:
+                <label for="examTopic" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
+                    Ämne för provet:
                 </label>
-                <textarea id="sourceText" placeholder="Klistra in den text som provet ska baseras på här...
-
-Exempel:
-Första världskriget (1914-1918) var en global konflikt som främst utspelade sig i Europa. Kriget utlöstes av mordet på den österrikisk-ungerske tronföljaren Franz Ferdinand i Sarajevo den 28 juni 1914. Kriget involverade världens stora makter och resulterade i miljontals dödsfall. Nya vapen som maskingevär och giftgas gjorde kriget särskilt dödligt. Skyttegravskriget på västfronten blev symboliskt för krigets stagnation och fruktansvärda förluster..."></textarea>
+                <input type="text" id="examTopic" placeholder="T.ex. Första världskriget, Fotosyntesen, Demokrati..." style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; margin-bottom: 20px; transition: border-color 0.3s;">
 
                 <div class="settings">
-                    <label for="timeLimit">Tid (minuter):</label>
-                    <input type="number" id="timeLimit" value="30" min="5" max="180">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label for="subject" style="display: block; margin-bottom: 5px;">Skolämne:</label>
+                        <select id="subject" style="width: 100%; padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                            <option value="historia">Historia</option>
+                            <option value="geografi">Geografi</option>
+                            <option value="samhällskunskap">Samhällskunskap</option>
+                            <option value="biologi">Biologi</option>
+                            <option value="fysik">Fysik</option>
+                            <option value="kemi">Kemi</option>
+                            <option value="matematik">Matematik</option>
+                            <option value="svenska">Svenska</option>
+                            <option value="engelska">Engelska</option>
+                            <option value="religion">Religion</option>
+                        </select>
+                    </div>
+
+                    <div style="flex: 1; min-width: 150px;">
+                        <label for="grade" style="display: block; margin-bottom: 5px;">Årskurs:</label>
+                        <select id="grade" style="width: 100%; padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                            <option value="7">Årskurs 7</option>
+                            <option value="8">Årskurs 8</option>
+                            <option value="9">Årskurs 9</option>
+                            <option value="10">Gymnasiet åk 1</option>
+                            <option value="11">Gymnasiet åk 2</option>
+                            <option value="12">Gymnasiet åk 3</option>
+                        </select>
+                    </div>
+
+                    <div style="flex: 1; min-width: 150px;">
+                        <label for="timeLimit" style="display: block; margin-bottom: 5px;">Tid (minuter):</label>
+                        <input type="number" id="timeLimit" value="30" min="5" max="180" style="width: 100%;">
+                    </div>
                 </div>
 
-                <button onclick="startExam()">🚀 Starta Prov</button>
+                <button onclick="startExam()" style="margin-top: 20px;">🚀 Starta Prov</button>
             </div>
         </div>
 
@@ -401,7 +428,9 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
     </div>
 
     <script>
-        let sourceText = '';
+        let examTopic = '';
+        let examSubject = '';
+        let examGrade = 7;
         let timeRemaining = 0;
         let totalTime = 0;
         let timerInterval = null;
@@ -411,8 +440,6 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
         let difficultyLevel = 1; // 0 = lätt, 1 = medel, 2 = svår
         let maxDifficulty = 1;
         let allAnswers = [];
-        let keywords = [];
-        let sentences = [];
         let hintCount = 0;
 
         const encouragements = [
@@ -421,7 +448,7 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
             "🎯 Tänk noga igenom - du har kunskap att använda!",
             "✨ Utmärkt! Fortsätt resonera.",
             "🔥 Du gör framsteg! Lita på din tankegång.",
-            "🌈 Kom ihåg att reflektera över texten. Du hittar svaret!",
+            "🌈 Fundera och resonera - du kan det här!",
             "⭐ Strålande resonemang! Fortsätt så.",
             "🚀 Du är på god väg! Lita på dig själv."
         ];
@@ -429,28 +456,38 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
         const difficultyNames = ['Lätt', 'Medel', 'Svår'];
 
         function startExam() {
-            const text = document.getElementById('sourceText').value.trim();
+            const topic = document.getElementById('examTopic').value.trim();
+            const subject = document.getElementById('subject').value;
+            const grade = parseInt(document.getElementById('grade').value);
             const minutes = parseInt(document.getElementById('timeLimit').value);
 
-            if (!text) {
-                alert('Du måste klistra in en text först!');
+            if (!topic) {
+                alert('Du måste ange ett ämne för provet!');
                 return;
             }
 
-            sourceText = text;
+            examTopic = topic;
+            examSubject = subject;
+            examGrade = grade;
             timeRemaining = minutes * 60;
             totalTime = minutes * 60;
 
-            // Analysera texten
-            analyzeText(text);
+            // Anpassa starting difficulty baserat på årskurs
+            if (grade <= 8) {
+                difficultyLevel = 0; // Börja på lätt för yngre elever
+            } else if (grade <= 10) {
+                difficultyLevel = 1; // Börja på medel för högstadiet
+            } else {
+                difficultyLevel = 1; // Gymnasiet börjar också på medel
+            }
+            maxDifficulty = difficultyLevel;
 
             // Visa elevvy
             document.getElementById('teacherView').classList.remove('active');
             document.getElementById('studentView').classList.add('active');
 
             // Sätt intro text
-            const intro = sourceText.length > 400 ? sourceText.substring(0, 400) + '...' : sourceText;
-            document.getElementById('introText').innerHTML = `<strong>📖 Referenstext med viktiga begrepp:</strong><br><br>${intro}<br><br><em>Du kommer att få frågor om dessa ämnen. Använd din kunskap från alla källor du lärt dig (lektioner, filmer, texter etc).</em>`;
+            document.getElementById('introText').innerHTML = `<strong>📖 Provämne:</strong> ${examTopic}<br><br><em>Du kommer att få frågor om detta ämne. Använd din kunskap från lektioner, böcker, filmer och andra källor. Frågorna anpassas efter hur du svarar.</em>`;
 
             // Visa första frågan
             showNextQuestion();
@@ -462,84 +499,31 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
             setInterval(showEncouragement, 90000); // Var 1.5:e minut
         }
 
-        function analyzeText(text) {
-            // Extrahera meningar
-            sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
-
-            // Generiska ord som ska filtreras bort
-            const stopWords = [
-                'kriget', 'krigen', 'världen', 'detta', 'detta', 'sådan', 'sådana',
-                'vilket', 'vilken', 'vilka', 'dessa', 'dessa', 'andra', 'första',
-                'andra', 'många', 'skulle', 'kunde', 'måste', 'olika', 'samma',
-                'också', 'eftersom', 'därför', 'alltså', 'således', 'mellan',
-                'under', 'genom', 'efter', 'innan', 'innan', 'Sverige', 'sverige'
-            ];
-
-            // Identifiera nyckelord och begrepp
-            const words = text.split(/\s+/);
-            const wordFreq = {};
-            const properNouns = new Set(); // Ord med stor bokstav (egennamn)
-
-            words.forEach(word => {
-                const cleaned = word.replace(/[^a-zåäöA-ZÅÄÖ]/gi, '');
-                const lowerCleaned = cleaned.toLowerCase();
-
-                // Spara ord med stor bokstav (troligen egennamn)
-                if (cleaned.length > 0 && cleaned[0] === cleaned[0].toUpperCase() && cleaned.length > 3) {
-                    properNouns.add(cleaned);
-                }
-
-                // Räkna frekvens för substantiv (längre ord)
-                if (cleaned.length > 5 && !stopWords.includes(lowerCleaned)) {
-                    wordFreq[lowerCleaned] = (wordFreq[lowerCleaned] || 0) + 1;
-                }
-            });
-
-            // Kombinera egennamn (hög prioritet) med frekventa ord
-            const properNounsList = Array.from(properNouns).slice(0, 10);
-            const frequentWords = Object.entries(wordFreq)
-                .filter(([word, freq]) => freq >= 2)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 15)
-                .map(([word]) => word);
-
-            // Egennamn först, sedan frekventa ord
-            keywords = [...properNounsList, ...frequentWords].slice(0, 20);
-        }
-
         function generateQuestion(difficulty) {
             let question, hints;
-
-            // Välj slumpmässig mening från texten för att bygga fråga på
-            const sentence = sentences[Math.floor(Math.random() * sentences.length)];
-            const sentenceParts = sentence.trim().split(',');
-
-            // Hämta nyckelord från meningen
-            const sentenceWords = sentence.toLowerCase().split(/\s+/);
-            const relevantKeywords = keywords.filter(kw => sentenceWords.some(w => w.includes(kw)));
-            const mainTopic = relevantKeywords[0] || keywords[0] || 'ämnet';
+            const topic = examTopic;
 
             if (difficulty === 0) {
                 // LÄTTA FRÅGOR - Faktabaserade kunskapsfrågor
                 const easyTypes = [
                     () => ({
-                        question: `Vad vet du om ${mainTopic}? Berätta vad du kan.`,
+                        question: `Vad vet du om ${topic}? Berätta vad du kan.`,
                         hints: [
-                            `Tänk på vad du lärt dig om ${mainTopic}.`,
+                            `Tänk på vad du lärt dig om ${topic}.`,
                             'Börja med grundläggande fakta.',
                             'Vad är viktigt att känna till?'
                         ]
                     }),
                     () => ({
-                        question: `Beskriv ${mainTopic}. Vad kännetecknar detta?`,
+                        question: `Beskriv ${topic}. Vad kännetecknar detta?`,
                         hints: [
-                            `Vilka egenskaper eller drag har ${mainTopic}?`,
+                            `Vilka egenskaper eller drag har ${topic}?`,
                             'Vad är typiskt eller särskiljande?',
                             'Försök måla upp en bild med ord.'
                         ]
                     }),
                     () => ({
-                        question: `Förklara vad ${mainTopic} är. Ge en överblick.`,
+                        question: `Förklara vad ${topic} är. Ge en överblick.`,
                         hints: [
                             'Börja med en definition eller beskrivning.',
                             'Vilka nyckelbegrepp hör ihop med detta?',
@@ -547,7 +531,7 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                         ]
                     }),
                     () => ({
-                        question: `Vilka viktiga fakta kan du nämna om ${mainTopic}?`,
+                        question: `Vilka viktiga fakta kan du nämna om ${topic}?`,
                         hints: [
                             'Tänk på datum, platser, personer eller händelser.',
                             'Vilka detaljer sticker ut?',
@@ -564,23 +548,23 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                 // MEDELFRÅGOR - Kräver förståelse och tillämpning
                 const mediumTypes = [
                     () => ({
-                        question: `Varför är ${mainTopic} viktigt? Förklara betydelsen.`,
+                        question: `Varför är ${topic} viktigt? Förklara betydelsen.`,
                         hints: [
-                            `Vilken roll spelar ${mainTopic}?`,
+                            `Vilken roll spelar ${topic}?`,
                             'Varför bör man känna till detta?',
                             'Vilka effekter eller konsekvenser finns?'
                         ]
                     }),
                     () => ({
-                        question: `Hur hänger ${mainTopic} ihop med andra händelser eller begrepp du lärt dig om?`,
+                        question: `Hur hänger ${topic} ihop med andra händelser eller begrepp du lärt dig om?`,
                         hints: [
-                            `Vilka kopplingar finns till ${mainTopic}?`,
+                            `Vilka kopplingar finns till ${topic}?`,
                             'Finns det orsakssamband?',
                             'Hur påverkas eller påverkar det andra?'
                         ]
                     }),
                     () => ({
-                        question: `Vad orsakade ${mainTopic} och vilka blev konsekvenserna?`,
+                        question: `Vad orsakade ${topic} och vilka blev konsekvenserna?`,
                         hints: [
                             'Tänk på orsak och verkan.',
                             'Vad hände innan och vad hände efter?',
@@ -588,7 +572,7 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                         ]
                     }),
                     () => ({
-                        question: `Förklara ${mainTopic} för någon som inte känner till det. Vad är viktigt att ta upp?`,
+                        question: `Förklara ${topic} för någon som inte känner till det. Vad är viktigt att ta upp?`,
                         hints: [
                             'Börja med grunderna och kontexten.',
                             'Vilken bakgrundsinformation behövs?',
@@ -596,7 +580,7 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                         ]
                     }),
                     () => ({
-                        question: `Vilka olika aspekter eller perspektiv finns på ${mainTopic}?`,
+                        question: `Vilka olika aspekter eller perspektiv finns på ${topic}?`,
                         hints: [
                             'Hur kan man se på detta på olika sätt?',
                             'Finns det flera sidor av myntet?',
@@ -611,30 +595,27 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
 
             } else {
                 // SVÅRA FRÅGOR - Kräver analys, utvärdering och kritiskt tänkande
-                const keyword1 = relevantKeywords[0] || keywords[0];
-                const keyword2 = relevantKeywords[1] || keywords[1] || keywords[0];
-
                 const hardTypes = [
                     () => ({
-                        question: `Analysera ${mainTopic}. Vilka olika perspektiv eller tolkningar finns?`,
+                        question: `Analysera ${topic}. Vilka olika perspektiv eller tolkningar finns?`,
                         hints: [
-                            `Hur kan man förstå ${mainTopic} på olika sätt?`,
+                            `Hur kan man förstå ${topic} på olika sätt?`,
                             'Vilka för- och nackdelar eller aspekter finns?',
                             'Vad beror olika synsätt på?',
                             'Finns det kontroversiella eller omdiskuterade delar?'
                         ]
                     }),
                     () => ({
-                        question: `Hur påverkar ${keyword1} och ${keyword2} varandra? Diskutera relationen.`,
+                        question: `Diskutera de viktigaste faktorerna som påverkade ${topic}.`,
                         hints: [
-                            `Vilka samband finns mellan ${keyword1} och ${keyword2}?`,
-                            'Hur är de kopplade till varandra?',
-                            'Vad händer med det ena om det andra förändras?',
-                            'Finns det orsakssamband?'
+                            `Vilka omständigheter eller orsaker var centrala för ${topic}?`,
+                            'Hur är olika delar kopplade till varandra?',
+                            'Vilka samband och orsakskedjor finns?',
+                            'Hur påverkade dessa faktorer slutresultatet?'
                         ]
                     }),
                     () => ({
-                        question: `Bedöm den historiska/samhälleliga betydelsen av ${mainTopic}. Hur viktigt är det?`,
+                        question: `Bedöm den historiska/samhälleliga betydelsen av ${topic}. Hur viktigt är det?`,
                         hints: [
                             'Vilken roll spelar detta i det större sammanhanget?',
                             'Vad hade varit annorlunda utan det?',
@@ -643,7 +624,7 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                         ]
                     }),
                     () => ({
-                        question: `Ta ställning: Vilken var den viktigaste aspekten av ${mainTopic}? Argumentera för din åsikt.`,
+                        question: `Ta ställning: Vilken var den viktigaste aspekten av ${topic}? Argumentera för din åsikt.`,
                         hints: [
                             'Vad tycker du är mest betydelsefullt och varför?',
                             'Vilka bevis eller exempel stödjer din åsikt?',
@@ -652,7 +633,7 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                         ]
                     }),
                     () => ({
-                        question: `Vilka lärdomar kan vi dra från ${mainTopic}? Reflektera och motivera.`,
+                        question: `Vilka lärdomar kan vi dra från ${topic}? Reflektera och motivera.`,
                         hints: [
                             'Vad kan vi lära oss från detta?',
                             'Vilka insikter eller slutsatser kan man dra?',
