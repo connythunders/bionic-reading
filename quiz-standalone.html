@@ -49,10 +49,22 @@
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
             padding: 40px;
             backdrop-filter: blur(10px);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .quiz-header {
@@ -118,9 +130,11 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: left;
+            position: relative;
+            overflow: hidden;
         }
 
-        .answer-option:hover {
+        .answer-option:hover:not(.disabled) {
             background: #e8e8e8;
             border-color: #999;
             transform: translateX(5px);
@@ -134,16 +148,76 @@
         .answer-option.correct {
             background: #d4edda;
             border-color: #28a745;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .answer-option.correct::before {
+            content: '✓';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+            color: #28a745;
+            font-weight: bold;
         }
 
         .answer-option.incorrect {
             background: #f8d7da;
             border-color: #dc3545;
+            animation: incorrectShake 0.5s ease;
+        }
+
+        .answer-option.incorrect::before {
+            content: '✗';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
         .answer-option.disabled {
             cursor: not-allowed;
-            opacity: 0.7;
+            opacity: 0.9;
+        }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 15px 20px;
+            background: #e7f3ff;
+            border-left: 4px solid #4a90e2;
+            border-radius: 8px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .explanation strong {
+            color: #2c5aa0;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .explanation p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .quiz-controls {
@@ -159,6 +233,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: bold;
+            margin: 5px;
         }
 
         .btn-next {
@@ -181,6 +256,18 @@
         .btn-restart:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-practice {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            font-size: 1.1em;
+            padding: 12px 35px;
+        }
+
+        .btn-practice:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(250, 112, 154, 0.4);
         }
 
         .results-section {
@@ -223,6 +310,71 @@
             border-left: 5px solid #4a90e2;
         }
 
+        .detailed-results {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .detailed-results h3 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ddd;
+        }
+
+        .result-item.correct-answer {
+            border-left-color: #28a745;
+        }
+
+        .result-item.wrong-answer {
+            border-left-color: #dc3545;
+        }
+
+        .result-item .question-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .result-item .answer-line {
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+
+        .result-item .your-answer {
+            color: #dc3545;
+        }
+
+        .result-item .correct-ans {
+            color: #28a745;
+        }
+
+        .result-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .result-status.correct {
+            background: #d4edda;
+            color: #28a745;
+        }
+
+        .result-status.wrong {
+            background: #f8d7da;
+            color: #dc3545;
+        }
+
         @media (max-width: 600px) {
             .quiz-container {
                 padding: 20px;
@@ -238,7 +390,18 @@
 
             .answer-option {
                 font-size: 1em;
-                padding: 12px 15px;
+                padding: 15px;
+            }
+
+            .btn {
+                padding: 14px 25px;
+                font-size: 1em;
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .btn-restart, .btn-practice {
+                padding: 14px 25px;
             }
         }
     </style>
@@ -259,6 +422,7 @@
             <div class="question-section">
                 <h2 id="question-text"></h2>
                 <div id="answer-options" class="answer-options"></div>
+                <div id="explanation" class="explanation" style="display: none;"></div>
             </div>
 
             <div class="quiz-controls">
@@ -272,97 +436,120 @@
                 <p class="score">Du fick <span id="score"></span> av <span id="total"></span> rätt!</p>
                 <p class="percentage">Det är <span id="percentage"></span>%</p>
                 <div id="feedback" class="feedback"></div>
-                <button id="restart-btn" class="btn btn-restart">Gör om quizet</button>
+
+                <div class="detailed-results" id="detailed-results"></div>
+
+                <div style="margin-top: 20px;">
+                    <button id="restart-btn" class="btn btn-restart">Gör om hela quizet</button>
+                    <button id="practice-btn" class="btn btn-practice" style="display: none;">Öva på fel svar</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Quiz om Första Världskriget
+        // Quiz om Första Världskriget med förklaringar
         const quizData = [
             {
                 question: "När började första världskriget?",
                 options: ["1912", "1914", "1916", "1918"],
-                correct: 1
+                correct: 1,
+                explanation: "Första världskriget började den 28 juli 1914 efter mordet på ärkehertig Franz Ferdinand i Sarajevo den 28 juni 1914."
             },
             {
                 question: "Vilket år slutade första världskriget?",
                 options: ["1917", "1918", "1919", "1920"],
-                correct: 1
+                correct: 1,
+                explanation: "Kriget slutade officiellt den 11 november 1918 klockan 11:00 (den 11:e timmen på den 11:e dagen i den 11:e månaden)."
             },
             {
                 question: "Vad hette mordet som utlöste kriget?",
                 options: ["Mordet på Napoleon", "Mordet på Franz Ferdinand", "Mordet på Tsar Nikolaj", "Mordet på Kaiser Wilhelm"],
-                correct: 1
+                correct: 1,
+                explanation: "Ärkehertig Franz Ferdinand av Österrike-Ungern mördades i Sarajevo av Gavrilo Princip, vilket utlöste en kedja av händelser som ledde till kriget."
             },
             {
                 question: "I vilken stad mördades ärkehertig Franz Ferdinand?",
                 options: ["Wien", "Berlin", "Sarajevo", "Budapest"],
-                correct: 2
+                correct: 2,
+                explanation: "Mordet skedde i Sarajevo, Bosnien-Hercegovina, den 28 juni 1914. Sarajevo var då en del av Österrike-Ungern."
             },
             {
                 question: "Vilka länder tillhörde trippelalliansen?",
                 options: ["Storbritannien, Frankrike, Ryssland", "Tyskland, Österrike-Ungern, Italien", "USA, Frankrike, Storbritannien", "Ryssland, Serbien, Rumänien"],
-                correct: 1
+                correct: 1,
+                explanation: "Trippelalliansen bildades 1882 och bestod av Tyskland, Österrike-Ungern och Italien. Dock bytte Italien sida 1915."
             },
             {
                 question: "Vilka länder tillhörde trippelententen?",
                 options: ["Tyskland, Österrike-Ungern, Italien", "Storbritannien, Frankrike, Ryssland", "USA, Japan, Kina", "Bulgarien, Turkiet, Tyskland"],
-                correct: 1
+                correct: 1,
+                explanation: "Trippelententen bildades mellan 1907 och bestod av Storbritannien, Frankrike och Ryssland som en motvikt till trippelalliansen."
             },
             {
                 question: "Vilket land förblev neutralt under första världskriget?",
                 options: ["Belgien", "Sverige", "Polen", "Serbien"],
-                correct: 1
+                correct: 1,
+                explanation: "Sverige förblev neutralt under hela kriget. Belgien invaderades 1914, Polen existerade inte som stat, och Serbien deltog i kriget."
             },
             {
                 question: "Vad kallas den typ av krigföring som var vanlig i första världskriget?",
                 options: ["Gerillakriget", "Skyttegravskrig", "Blitzkrieg", "Luftkrig"],
-                correct: 1
+                correct: 1,
+                explanation: "Skyttegravskrig blev typiskt för västfronten, där soldater grävde ner sig i långa skyttegravar som sträckte sig över hundratals kilometer."
             },
             {
                 question: "Vilket nytt vapen användes för första gången i stor skala under första världskriget?",
                 options: ["Atombomben", "Giftgas", "Raketer", "Granater"],
-                correct: 1
+                correct: 1,
+                explanation: "Giftgas användes första gången i stor skala vid Ypres 1915. Olika typer som klorgas, fosgen och senapsgas användes av båda sidor."
             },
             {
                 question: "När gick USA med i första världskriget?",
                 options: ["1914", "1915", "1917", "1918"],
-                correct: 2
+                correct: 2,
+                explanation: "USA förklarade krig mot Tyskland i april 1917, främst på grund av obegränsad ubåtskrigföring och Zimmermanntelegrammet."
             },
             {
                 question: "Vilken händelse bidrog till att USA gick med i kriget?",
                 options: ["Mordet på Franz Ferdinand", "Tyskt underrättelsemeddelande till Mexiko (Zimmermanntelegrammet)", "Pearl Harbor-attacken", "D-dagen"],
-                correct: 1
+                correct: 1,
+                explanation: "Zimmermanntelegrammet var ett hemligt meddelande där Tyskland föreslog att Mexiko skulle anfalla USA. När britterna avlyssnade och publicerade det blev amerikanska folket upprörda."
             },
             {
                 question: "Vad hette fredsfördraget som avslutade kriget?",
                 options: ["Wienkongressen", "Versaillesfreden", "Jaltakonferensen", "Westfaliska freden"],
-                correct: 1
+                correct: 1,
+                explanation: "Versaillesfreden undertecknades den 28 juni 1919, exakt fem år efter mordet i Sarajevo. Fördraget lade skulden på Tyskland och krävde stora reparationer."
             },
             {
                 question: "Vilket slag var ett av de blodigaste i första världskriget?",
                 options: ["Slaget vid Waterloo", "Slaget vid Somme", "Slaget vid Stalingrad", "Slaget vid Gettysburg"],
-                correct: 1
+                correct: 1,
+                explanation: "Slaget vid Somme 1916 pågick i över fyra månader och resulterade i över 1 miljon dödade och sårade. Första dagen dog 20 000 brittiska soldater."
             },
             {
                 question: "Vad ledde den ryska revolutionen 1917 till?",
                 options: ["Ryssland ökade sitt deltagande i kriget", "Ryssland drog sig ur kriget", "Ryssland bytte sida", "Ryssland blev ockuperat"],
-                correct: 1
+                correct: 1,
+                explanation: "Efter bolsjevikernas maktövertagande i november 1917 ingick Ryssland fredsavtal med Tyskland (freden i Brest-Litovsk 1918) och drog sig ur kriget."
             },
             {
                 question: "Cirka hur många människor dog i första världskriget?",
                 options: ["5 miljoner", "10 miljoner", "17 miljoner", "25 miljoner"],
-                correct: 2
+                correct: 2,
+                explanation: "Uppskattningsvis dog 17 miljoner människor under första världskriget, varav cirka 10 miljoner soldater och 7 miljoner civila."
             }
         ];
 
         class Quiz {
             constructor(data) {
+                this.allData = data;
                 this.data = data;
                 this.currentQuestion = 0;
                 this.score = 0;
                 this.answered = false;
+                this.userAnswers = [];
                 this.init();
             }
 
@@ -376,11 +563,14 @@
                 this.quizContent = document.getElementById('quiz-content');
                 this.resultsSection = document.getElementById('results-section');
                 this.restartBtn = document.getElementById('restart-btn');
+                this.practiceBtn = document.getElementById('practice-btn');
+                this.explanationDiv = document.getElementById('explanation');
 
                 this.totalQuestionsSpan.textContent = this.data.length;
 
                 this.nextBtn.addEventListener('click', () => this.nextQuestion());
                 this.restartBtn.addEventListener('click', () => this.restart());
+                this.practiceBtn.addEventListener('click', () => this.practiceWrong());
 
                 this.loadQuestion();
             }
@@ -401,6 +591,7 @@
                 this.progressFill.style.width = progress + '%';
 
                 this.answerOptions.innerHTML = '';
+                this.explanationDiv.style.display = 'none';
 
                 question.options.forEach((option, index) => {
                     const button = document.createElement('button');
@@ -420,6 +611,15 @@
                 const question = this.data[this.currentQuestion];
                 const options = this.answerOptions.querySelectorAll('.answer-option');
 
+                // Save user answer
+                this.userAnswers.push({
+                    question: question.question,
+                    userAnswer: selectedIndex,
+                    correctAnswer: question.correct,
+                    options: question.options,
+                    isCorrect: selectedIndex === question.correct
+                });
+
                 options.forEach((option, index) => {
                     option.classList.add('disabled');
 
@@ -435,6 +635,10 @@
                 if (selectedIndex === question.correct) {
                     this.score++;
                 }
+
+                // Show explanation
+                this.explanationDiv.innerHTML = `<strong>💡 Förklaring:</strong><p>${question.explanation}</p>`;
+                this.explanationDiv.style.display = 'block';
 
                 this.nextBtn.style.display = 'block';
             }
@@ -452,6 +656,7 @@
                 const totalSpan = document.getElementById('total');
                 const percentageSpan = document.getElementById('percentage');
                 const feedbackDiv = document.getElementById('feedback');
+                const detailedResultsDiv = document.getElementById('detailed-results');
 
                 scoreSpan.textContent = this.score;
                 totalSpan.textContent = this.data.length;
@@ -473,16 +678,67 @@
                 }
 
                 feedbackDiv.textContent = feedback;
+
+                // Show detailed results
+                let detailedHTML = '<h3>📊 Detaljerade resultat:</h3>';
+                this.userAnswers.forEach((answer, index) => {
+                    const statusClass = answer.isCorrect ? 'correct-answer' : 'wrong-answer';
+                    const statusBadge = answer.isCorrect
+                        ? '<span class="result-status correct">Rätt ✓</span>'
+                        : '<span class="result-status wrong">Fel ✗</span>';
+
+                    detailedHTML += `
+                        <div class="result-item ${statusClass}">
+                            <div class="question-title">${index + 1}. ${answer.question} ${statusBadge}</div>
+                            ${!answer.isCorrect ? `<div class="answer-line your-answer">❌ Ditt svar: ${answer.options[answer.userAnswer]}</div>` : ''}
+                            <div class="answer-line correct-ans">✓ Rätt svar: ${answer.options[answer.correctAnswer]}</div>
+                        </div>
+                    `;
+                });
+
+                detailedResultsDiv.innerHTML = detailedHTML;
+
+                // Show practice button if there are wrong answers
+                const wrongAnswers = this.userAnswers.filter(a => !a.isCorrect);
+                if (wrongAnswers.length > 0) {
+                    this.practiceBtn.style.display = 'inline-block';
+                }
             }
 
-            restart() {
+            practiceWrong() {
+                // Get questions that were answered incorrectly
+                const wrongQuestions = [];
+                this.userAnswers.forEach((answer, index) => {
+                    if (!answer.isCorrect) {
+                        wrongQuestions.push(this.allData[index]);
+                    }
+                });
+
+                // Reset quiz with only wrong questions
+                this.data = wrongQuestions;
                 this.currentQuestion = 0;
                 this.score = 0;
                 this.answered = false;
+                this.userAnswers = [];
 
                 this.quizContent.style.display = 'block';
                 this.resultsSection.style.display = 'none';
 
+                this.totalQuestionsSpan.textContent = this.data.length;
+                this.loadQuestion();
+            }
+
+            restart() {
+                this.data = this.allData;
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.answered = false;
+                this.userAnswers = [];
+
+                this.quizContent.style.display = 'block';
+                this.resultsSection.style.display = 'none';
+
+                this.totalQuestionsSpan.textContent = this.data.length;
                 this.loadQuestion();
             }
         }
