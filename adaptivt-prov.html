@@ -466,7 +466,7 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
             // Extrahera meningar
             sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
 
-            // Identifiera nyckelord
+            // Identifiera nyckelord och begrepp
             const words = text.toLowerCase().split(/\s+/);
             const wordFreq = {};
 
@@ -480,119 +480,143 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
             keywords = Object.entries(wordFreq)
                 .filter(([word, freq]) => freq >= 2)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 15)
+                .slice(0, 20)
                 .map(([word]) => word);
         }
 
         function generateQuestion(difficulty) {
-            const questionTypes = {
-                easy: [
-                    {
-                        template: (topic) => `Vad nämns om ${topic} i texten?`,
-                        hints: (topic) => [
-                            `Leta efter stycken där ${topic} beskrivs.`,
-                            `Finns det några fakta om ${topic}?`,
-                            `Vad är det första som sägs om ${topic}?`
-                        ]
-                    },
-                    {
-                        template: () => `Vad handlar texten om? Berätta kort.`,
-                        hints: () => [
-                            `Vad är textens huvudämne?`,
-                            `Vilken typ av information får du?`,
-                            `Beskriv texten i några meningar.`
-                        ]
-                    }
-                ],
-                medium: [
-                    {
-                        template: (topic) => `Förklara betydelsen av ${topic} baserat på texten.`,
-                        hints: (topic) => [
-                            `Varför tror du att ${topic} är viktigt?`,
-                            `Vilken roll spelar ${topic} i sammanhanget?`,
-                            `Hur beskrivs ${topic} och varför?`
-                        ]
-                    },
-                    {
-                        template: (sentence) => `Texten säger: "${sentence}". Vad betyder detta och varför är det viktigt?`,
-                        hints: () => [
-                            `Bryt ner meningen. Vad är huvudbudskapet?`,
-                            `Varför inkluderades denna information?`,
-                            `Hur relaterar detta till resten av texten?`
-                        ]
-                    }
-                ],
-                hard: [
-                    {
-                        template: (topic1, topic2) => `Hur hänger ${topic1} och ${topic2} ihop enligt texten? Analysera sambanden.`,
-                        hints: (topic1, topic2) => [
-                            `Vilka kopplingar finns mellan ${topic1} och ${topic2}?`,
-                            `Påverkar de varandra? På vilket sätt?`,
-                            `Vad skulle hända om det ena saknades?`
-                        ]
-                    },
-                    {
-                        template: () => `Analysera textens huvudbudskap och diskutera varför detta är viktigt att förstå.`,
-                        hints: () => [
-                            `Vad är det djupare budskapet?`,
-                            `Varför skrev författaren just detta?`,
-                            `Vilka konsekvenser eller lärdomar finns?`
-                        ]
-                    },
-                    {
-                        template: (topic) => `Diskutera ${topic} ur olika perspektiv baserat på informationen i texten.`,
-                        hints: (topic) => [
-                            `Vilka olika synvinklar finns på ${topic}?`,
-                            `Vad är för- och nackdelar eller olika aspekter?`,
-                            `Hur kan man tolka ${topic} på olika sätt?`
-                        ]
-                    }
-                ]
-            };
-
-            let questionType;
             let question, hints;
 
+            // Välj slumpmässig mening från texten för att bygga fråga på
+            const sentence = sentences[Math.floor(Math.random() * sentences.length)];
+            const sentenceParts = sentence.trim().split(',');
+
+            // Hämta nyckelord från meningen
+            const sentenceWords = sentence.toLowerCase().split(/\s+/);
+            const relevantKeywords = keywords.filter(kw => sentenceWords.some(w => w.includes(kw)));
+            const mainTopic = relevantKeywords[0] || keywords[0] || 'ämnet';
+
             if (difficulty === 0) {
-                // Lätt
-                questionType = questionTypes.easy[Math.floor(Math.random() * questionTypes.easy.length)];
-                if (keywords.length > 0) {
-                    const keyword = keywords[Math.floor(Math.random() * keywords.length)];
-                    question = questionType.template(keyword);
-                    hints = questionType.hints(keyword);
-                } else {
-                    question = questionType.template();
-                    hints = questionType.hints();
-                }
+                // LÄTTA FRÅGOR - Faktabaserade, direkt från texten
+                const easyTypes = [
+                    () => ({
+                        question: `Enligt texten: "${sentence.trim()}". Beskriv vad detta betyder med egna ord.`,
+                        hints: [
+                            'Läs meningen noga. Vilka är nyckelfakta?',
+                            'Försök förklara varje del av meningen.',
+                            'Vad är det viktigaste som sägs här?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Vad säger texten konkret om ${mainTopic}? Ge exempel från texten.`,
+                        hints: [
+                            `Leta efter de stycken där ${mainTopic} beskrivs.`,
+                            'Vilka fakta och detaljer ges?',
+                            'Försök citera eller referera till texten.'
+                        ]
+                    }),
+                    () => ({
+                        question: `Beskriv kortfattat vad som framgår i texten. Vilka är huvudpunkterna?`,
+                        hints: [
+                            'Tänk på vad texten handlar om i stora drag.',
+                            'Vilka är de viktigaste fakta som presenteras?',
+                            'Försök sammanfatta i 3-4 meningar.'
+                        ]
+                    })
+                ];
+
+                const selected = easyTypes[Math.floor(Math.random() * easyTypes.length)]();
+                question = selected.question;
+                hints = selected.hints;
+
             } else if (difficulty === 1) {
-                // Medel
-                questionType = questionTypes.medium[Math.floor(Math.random() * questionTypes.medium.length)];
-                if (questionType.template.length === 1 && keywords.length > 0) {
-                    const keyword = keywords[Math.floor(Math.random() * keywords.length)];
-                    question = questionType.template(keyword);
-                    hints = questionType.hints(keyword);
-                } else if (sentences.length > 0) {
-                    const sentence = sentences[Math.floor(Math.random() * sentences.length)].trim();
-                    const shortSentence = sentence.length > 100 ? sentence.substring(0, 100) + '...' : sentence;
-                    question = questionType.template(shortSentence);
-                    hints = questionType.hints();
-                }
+                // MEDELFRÅGOR - Kräver förståelse och tolkning
+                const mediumTypes = [
+                    () => ({
+                        question: `Texten nämner "${sentence.trim()}". Förklara varför detta är betydelsefullt i sammanhanget.`,
+                        hints: [
+                            'Varför tar texten upp just denna information?',
+                            'Hur hänger detta ihop med resten av texten?',
+                            'Vilken betydelse har detta för helheten?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Hur kan man förstå ${mainTopic} baserat på vad texten beskriver? Förklara med stöd från texten.`,
+                        hints: [
+                            `Vad säger texten om ${mainTopic}?`,
+                            'Vilka detaljer hjälper dig att förstå detta?',
+                            'Kan du förklara med exempel från texten?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Vad är sambandet mellan de olika delarna i texten? Hur hänger informationen ihop?`,
+                        hints: [
+                            'Tänk på textens struktur och upplägg.',
+                            'Vilka kopplingar finns mellan olika stycken?',
+                            'Hur bygger informationen på varandra?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Baserat på texten, vilka konsekvenser eller resultat beskrivs när det gäller ${mainTopic}?`,
+                        hints: [
+                            'Leta efter orsak och verkan i texten.',
+                            `Vad händer som följd av ${mainTopic}?`,
+                            'Vilka effekter eller resultat nämns?'
+                        ]
+                    })
+                ];
+
+                const selected = mediumTypes[Math.floor(Math.random() * mediumTypes.length)]();
+                question = selected.question;
+                hints = selected.hints;
+
             } else {
-                // Svår
-                questionType = questionTypes.hard[Math.floor(Math.random() * questionTypes.hard.length)];
-                if (questionType.template.length === 2 && keywords.length >= 2) {
-                    const keyword1 = keywords[Math.floor(Math.random() * keywords.length)];
-                    const keyword2 = keywords[Math.floor(Math.random() * keywords.length)];
-                    question = questionType.template(keyword1, keyword2);
-                    hints = questionType.hints(keyword1, keyword2);
-                } else if (questionType.template.length === 1 && keywords.length > 0) {
-                    const keyword = keywords[Math.floor(Math.random() * keywords.length)];
-                    question = questionType.template(keyword);
-                    hints = questionType.hints(keyword);
-                } else {
-                    question = questionType.template();
-                    hints = questionType.hints();
-                }
+                // SVÅRA FRÅGOR - Kräver analys, jämförelse och djupare resonemang
+                const keyword1 = relevantKeywords[0] || keywords[0];
+                const keyword2 = relevantKeywords[1] || keywords[1] || keywords[0];
+
+                const hardTypes = [
+                    () => ({
+                        question: `Analysera hur texten presenterar ${mainTopic}. Vilka perspektiv eller aspekter lyfts fram och varför tror du det är viktigt?`,
+                        hints: [
+                            `På vilket sätt beskrivs ${mainTopic}?`,
+                            'Vilken vinkel eller synvinkel används?',
+                            'Varför presenteras informationen på just detta sätt?',
+                            'Vad vill texten förmedla?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Texten säger: "${sentence.trim()}". Analysera detta påstående - vad innebär det på djupet och vilka implikationer kan det ha?`,
+                        hints: [
+                            'Gå bortom den bokstavliga betydelsen.',
+                            'Vilka slutsatser kan man dra?',
+                            'Vad betyder detta i ett större sammanhang?',
+                            'Finns det underliggande budskap?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Jämför och analysera relationen mellan ${keyword1} och ${keyword2} enligt texten. Hur påverkar de varandra?`,
+                        hints: [
+                            `Hur beskrivs både ${keyword1} och ${keyword2}?`,
+                            'Vilka samband eller kopplingar finns?',
+                            'Påverkar det ena det andra? I så fall hur?',
+                            'Vad händer om man ser dem tillsammans?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Bedöm textens huvudbudskap kring ${mainTopic}. Vilka argument eller bevis presenteras och hur övertygande är de?`,
+                        hints: [
+                            'Vad är textens huvudtes eller budskap?',
+                            'Vilka fakta eller exempel används som stöd?',
+                            'Är argumentationen logisk och välgrundad?',
+                            'Saknas några perspektiv eller information?'
+                        ]
+                    })
+                ];
+
+                const selected = hardTypes[Math.floor(Math.random() * hardTypes.length)]();
+                question = selected.question;
+                hints = selected.hints;
             }
 
             return { question, hints, difficulty };
