@@ -335,7 +335,7 @@
             <h1>📚 Skapa Adaptivt Prov</h1>
             <div class="info-box">
                 <strong>💡 Så här fungerar det:</strong><br>
-                Klistra in en text nedan. Eleverna får en fråga åt gången och systemet anpassar svårighetsgraden baserat på deras svar. De svarar på så många frågor de hinner under tiden.
+                Klistra in en text som innehåller viktiga begrepp och ämnen. Systemet identifierar nyckelord och skapar frågor som testar elevernas KUNSKAP om dessa ämnen (från alla källor de lärt sig). Frågorna anpassas automatiskt efter hur väl eleven svarar. De får en fråga åt gången och svarar på så många de hinner under tiden.
             </div>
 
             <div class="teacher-view">
@@ -450,7 +450,7 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
 
             // Sätt intro text
             const intro = sourceText.length > 400 ? sourceText.substring(0, 400) + '...' : sourceText;
-            document.getElementById('introText').innerHTML = `<strong>📖 Läs texten noga:</strong><br><br>${intro}`;
+            document.getElementById('introText').innerHTML = `<strong>📖 Referenstext med viktiga begrepp:</strong><br><br>${intro}<br><br><em>Du kommer att få frågor om dessa ämnen. Använd din kunskap från alla källor du lärt dig (lektioner, filmer, texter etc).</em>`;
 
             // Visa första frågan
             showNextQuestion();
@@ -497,30 +497,38 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
             const mainTopic = relevantKeywords[0] || keywords[0] || 'ämnet';
 
             if (difficulty === 0) {
-                // LÄTTA FRÅGOR - Faktabaserade, direkt från texten
+                // LÄTTA FRÅGOR - Faktabaserade kunskapsfrågor
                 const easyTypes = [
                     () => ({
-                        question: `Enligt texten: "${sentence.trim()}". Beskriv vad detta betyder med egna ord.`,
+                        question: `Vad innebär ${mainTopic}? Förklara begreppet.`,
                         hints: [
-                            'Läs meningen noga. Vilka är nyckelfakta?',
-                            'Försök förklara varje del av meningen.',
-                            'Vad är det viktigaste som sägs här?'
+                            `Vad vet du om ${mainTopic}?`,
+                            'Försök förklara med dina egna ord.',
+                            'Ge gärna exempel för att förtydliga.'
                         ]
                     }),
                     () => ({
-                        question: `Vad säger texten konkret om ${mainTopic}? Ge exempel från texten.`,
+                        question: `Beskriv ${mainTopic}. Vilka är de viktigaste fakta att känna till?`,
                         hints: [
-                            `Leta efter de stycken där ${mainTopic} beskrivs.`,
-                            'Vilka fakta och detaljer ges?',
-                            'Försök citera eller referera till texten.'
+                            `Tänk på vad du har lärt dig om ${mainTopic}.`,
+                            'Vilka detaljer är viktiga att komma ihåg?',
+                            'Vad kännetecknar eller definierar detta?'
                         ]
                     }),
                     () => ({
-                        question: `Beskriv kortfattat vad som framgår i texten. Vilka är huvudpunkterna?`,
+                        question: `Nämn och förklara kortfattat vad du vet om ${mainTopic}.`,
                         hints: [
-                            'Tänk på vad texten handlar om i stora drag.',
-                            'Vilka är de viktigaste fakta som presenteras?',
-                            'Försök sammanfatta i 3-4 meningar.'
+                            'Börja med grundläggande fakta.',
+                            'Vad har du lärt dig från lektionerna?',
+                            'Försök ge en översiktlig bild.'
+                        ]
+                    }),
+                    () => ({
+                        question: `Ge exempel på ${mainTopic} och förklara hur det fungerar.`,
+                        hints: [
+                            'Kan du komma på konkreta exempel?',
+                            `Hur visar sig ${mainTopic} i praktiken?`,
+                            'Vad är typiskt för detta?'
                         ]
                     })
                 ];
@@ -530,38 +538,46 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                 hints = selected.hints;
 
             } else if (difficulty === 1) {
-                // MEDELFRÅGOR - Kräver förståelse och tolkning
+                // MEDELFRÅGOR - Kräver förståelse och tillämpning
                 const mediumTypes = [
                     () => ({
-                        question: `Texten nämner "${sentence.trim()}". Förklara varför detta är betydelsefullt i sammanhanget.`,
+                        question: `Förklara varför ${mainTopic} är viktigt. Vilken betydelse har det?`,
                         hints: [
-                            'Varför tar texten upp just denna information?',
-                            'Hur hänger detta ihop med resten av texten?',
-                            'Vilken betydelse har detta för helheten?'
+                            `Varför spelar ${mainTopic} en viktig roll?`,
+                            'Vilka konsekvenser eller effekter har det?',
+                            'Hur påverkar det andra saker?'
                         ]
                     }),
                     () => ({
-                        question: `Hur kan man förstå ${mainTopic} baserat på vad texten beskriver? Förklara med stöd från texten.`,
+                        question: `Hur hänger ${mainTopic} ihop med andra begrepp eller händelser?`,
                         hints: [
-                            `Vad säger texten om ${mainTopic}?`,
-                            'Vilka detaljer hjälper dig att förstå detta?',
-                            'Kan du förklara med exempel från texten?'
+                            `Vad är kopplat till ${mainTopic}?`,
+                            'Finns det orsak och verkan?',
+                            'Hur påverkar det eller påverkas det av annat?'
                         ]
                     }),
                     () => ({
-                        question: `Vad är sambandet mellan de olika delarna i texten? Hur hänger informationen ihop?`,
+                        question: `Vilka orsaker och konsekvenser finns när det gäller ${mainTopic}?`,
                         hints: [
-                            'Tänk på textens struktur och upplägg.',
-                            'Vilka kopplingar finns mellan olika stycken?',
-                            'Hur bygger informationen på varandra?'
+                            'Vad ledde till eller orsakade detta?',
+                            'Vad blev följderna eller resultatet?',
+                            'Tänk på kedjan av händelser.'
                         ]
                     }),
                     () => ({
-                        question: `Baserat på texten, vilka konsekvenser eller resultat beskrivs när det gäller ${mainTopic}?`,
+                        question: `Jämför olika aspekter av ${mainTopic}. Vad är likheter och skillnader?`,
                         hints: [
-                            'Leta efter orsak och verkan i texten.',
-                            `Vad händer som följd av ${mainTopic}?`,
-                            'Vilka effekter eller resultat nämns?'
+                            `Vilka olika sidor eller aspekter finns av ${mainTopic}?`,
+                            'Hur skiljer de sig åt?',
+                            'Vad är gemensamt?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Hur skulle du förklara ${mainTopic} för någon som inte vet något om det?`,
+                        hints: [
+                            'Börja med grunderna.',
+                            'Vilken information behövs för förståelse?',
+                            'Använd gärna jämförelser eller exempel.'
                         ]
                     })
                 ];
@@ -571,45 +587,54 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                 hints = selected.hints;
 
             } else {
-                // SVÅRA FRÅGOR - Kräver analys, jämförelse och djupare resonemang
+                // SVÅRA FRÅGOR - Kräver analys, utvärdering och kritiskt tänkande
                 const keyword1 = relevantKeywords[0] || keywords[0];
                 const keyword2 = relevantKeywords[1] || keywords[1] || keywords[0];
 
                 const hardTypes = [
                     () => ({
-                        question: `Analysera hur texten presenterar ${mainTopic}. Vilka perspektiv eller aspekter lyfts fram och varför tror du det är viktigt?`,
+                        question: `Analysera ${mainTopic} från olika perspektiv. Vilka för- och nackdelar eller olika synvinklar finns?`,
                         hints: [
-                            `På vilket sätt beskrivs ${mainTopic}?`,
-                            'Vilken vinkel eller synvinkel används?',
-                            'Varför presenteras informationen på just detta sätt?',
-                            'Vad vill texten förmedla?'
+                            `Hur kan man se på ${mainTopic} på olika sätt?`,
+                            'Vilka positiva och negativa aspekter finns?',
+                            'Finns det olika tolkningar eller åsikter?',
+                            'Vad beror perspektiven på?'
                         ]
                     }),
                     () => ({
-                        question: `Texten säger: "${sentence.trim()}". Analysera detta påstående - vad innebär det på djupet och vilka implikationer kan det ha?`,
+                        question: `Diskutera relationen mellan ${keyword1} och ${keyword2}. Hur påverkar de varandra och varför?`,
                         hints: [
-                            'Gå bortom den bokstavliga betydelsen.',
-                            'Vilka slutsatser kan man dra?',
-                            'Vad betyder detta i ett större sammanhang?',
-                            'Finns det underliggande budskap?'
+                            `Hur hänger ${keyword1} och ${keyword2} ihop?`,
+                            'Påverkar det ena det andra?',
+                            'Vilka samband och orsakskedjor finns?',
+                            'Vad händer om man förändrar det ena?'
                         ]
                     }),
                     () => ({
-                        question: `Jämför och analysera relationen mellan ${keyword1} och ${keyword2} enligt texten. Hur påverkar de varandra?`,
+                        question: `Utvärdera betydelsen av ${mainTopic}. Hur viktigt är det och varför?`,
                         hints: [
-                            `Hur beskrivs både ${keyword1} och ${keyword2}?`,
-                            'Vilka samband eller kopplingar finns?',
-                            'Påverkar det ena det andra? I så fall hur?',
-                            'Vad händer om man ser dem tillsammans?'
+                            'Vilken roll spelar detta i helheten?',
+                            'Vad hade varit annorlunda utan det?',
+                            'Vilka långsiktiga effekter finns?',
+                            'Hur påverkar det oss idag eller historiskt?'
                         ]
                     }),
                     () => ({
-                        question: `Bedöm textens huvudbudskap kring ${mainTopic}. Vilka argument eller bevis presenteras och hur övertygande är de?`,
+                        question: `Argumentera för eller emot ett påstående om ${mainTopic}. Använd konkreta argument.`,
                         hints: [
-                            'Vad är textens huvudtes eller budskap?',
-                            'Vilka fakta eller exempel används som stöd?',
-                            'Är argumentationen logisk och välgrundad?',
-                            'Saknas några perspektiv eller information?'
+                            'Ta ställning baserat på fakta.',
+                            'Vilka bevis eller exempel kan du ge?',
+                            'Fundera över motargument också.',
+                            'Vilket resonemang är starkast?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Vad är de viktigaste slutsatserna man kan dra om ${mainTopic}? Motivera ditt svar.`,
+                        hints: [
+                            'Vad är det centrala budskapet?',
+                            'Vilka lärdomar eller insikter finns?',
+                            'Varför är just dessa slutsatser viktiga?',
+                            'Hur kan du motivera ditt resonemang?'
                         ]
                     })
                 ];
@@ -634,7 +659,7 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                 <div class="question-card">
                     <span class="difficulty-badge ${difficultyClass}">${difficultyName} nivå</span>
                     <h3>${currentQuestion.question}</h3>
-                    <textarea id="currentAnswer" placeholder="Skriv ditt svar här... Tänk noga igenom och använd texten som källa."></textarea>
+                    <textarea id="currentAnswer" placeholder="Skriv ditt svar här... Använd din kunskap från lektionerna och visa ditt resonemang."></textarea>
                     <div style="margin-top: 15px;">
                         <button class="hint-btn" onclick="showHint()">💡 Behöver du en ledtråd?</button>
                         <button class="next-btn" onclick="submitAnswer()">➡️ Nästa fråga</button>
