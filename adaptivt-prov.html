@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptiv Provplattform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Lärar-vy */
+        .teacher-view textarea {
+            width: 100%;
+            min-height: 250px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .teacher-view textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .settings {
+            margin: 25px 0;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .settings label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .settings input {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100px;
+            transition: border-color 0.3s;
+        }
+
+        .settings input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Elev-vy */
+        .timer {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+        }
+
+        .timer.warning {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .question-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .question-card textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .question-card textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .hint-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 10px 25px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .hint-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .hint-box.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hint-box p {
+            color: #856404;
+            font-weight: 500;
+        }
+
+        .encouragement {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 20px;
+            font-size: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .intro-text {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .result-view {
+            text-align: center;
+        }
+
+        .result-view h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .result-view p {
+            font-size: 1.2em;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Lärarvy -->
+        <div id="teacherView" class="view active">
+            <h1>📚 Skapa Adaptivt Prov</h1>
+            <div class="info-box">
+                <strong>💡 Så här fungerar det:</strong><br>
+                Klistra in en text nedan. Systemet skapar automatiskt adaptiva frågor som vägleder eleverna med sokratiska ledtrådar istället för att ge direkta svar.
+            </div>
+
+            <div class="teacher-view">
+                <label for="sourceText" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
+                    Klistra in provtexten här:
+                </label>
+                <textarea id="sourceText" placeholder="Klistra in den text som provet ska baseras på här...
+
+Exempel:
+Första världskriget (1914-1918) var en global konflikt som främst utspelade sig i Europa. Kriget utlöstes av mordet på den österrikisk-ungerske tronföljaren Franz Ferdinand i Sarajevo den 28 juni 1914. Kriget involverade världens stora makter och resulterade i miljontals dödsfall. Nya vapen som maskingevär och giftgas gjorde kriget särskilt dödligt..."></textarea>
+
+                <div class="settings">
+                    <label for="timeLimit">Tid (minuter):</label>
+                    <input type="number" id="timeLimit" value="30" min="5" max="180">
+
+                    <label for="questionCount">Antal frågor:</label>
+                    <input type="number" id="questionCount" value="5" min="3" max="15">
+                </div>
+
+                <button onclick="startExam()">🚀 Starta Prov</button>
+            </div>
+        </div>
+
+        <!-- Elevvy -->
+        <div id="studentView" class="view">
+            <h1>✍️ Ditt Prov</h1>
+
+            <div class="timer" id="timer">30:00</div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div id="encouragement" class="encouragement" style="display: none;"></div>
+
+            <div class="intro-text" id="introText"></div>
+
+            <div id="questionsContainer"></div>
+
+            <button class="submit-btn" onclick="submitExam()">✅ Lämna in Prov</button>
+        </div>
+
+        <!-- Resultatvy -->
+        <div id="resultView" class="view">
+            <div class="result-view">
+                <h2>🎉 Bra jobbat!</h2>
+                <p>Du har lämnat in ditt prov. Din lärare kommer att granska dina svar.</p>
+                <p style="margin-top: 20px;">Kom ihåg: Det viktigaste är inte alltid det rätta svaret, utan hur du tänker och resonerar!</p>
+                <button onclick="location.reload()" style="margin-top: 30px;">📝 Skapa nytt prov</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sourceText = '';
+        let timeRemaining = 0;
+        let timerInterval = null;
+        let questions = [];
+        let encouragements = [
+            "🌟 Du klarar det här! Fortsätt tänka.",
+            "💪 Bra jobbat hittills! Du är på rätt väg.",
+            "🎯 Tänk noga igenom - du har kunskap att använda!",
+            "✨ Utmärkt! Fortsätt resonera.",
+            "🔥 Du gör framsteg! Lita på din tankegång.",
+            "🌈 Kom ihåg att reflektera över texten. Du hittar svaret!",
+            "⭐ Strålande resonemang! Fortsätt så.",
+            "🚀 Du är på god väg! Lita på dig själv."
+        ];
+
+        function startExam() {
+            const text = document.getElementById('sourceText').value.trim();
+            const minutes = parseInt(document.getElementById('timeLimit').value);
+            const questionCount = parseInt(document.getElementById('questionCount').value);
+
+            if (!text) {
+                alert('Du måste klistra in en text först!');
+                return;
+            }
+
+            sourceText = text;
+            timeRemaining = minutes * 60;
+
+            // Generera frågor
+            questions = generateQuestions(text, questionCount);
+
+            // Visa elevvy
+            document.getElementById('teacherView').classList.remove('active');
+            document.getElementById('studentView').classList.add('active');
+
+            // Sätt intro text
+            const intro = sourceText.length > 300 ? sourceText.substring(0, 300) + '...' : sourceText;
+            document.getElementById('introText').innerHTML = `<strong>📖 Läs texten noga:</strong><br><br>${intro}`;
+
+            // Visa frågor
+            displayQuestions();
+
+            // Starta timer
+            startTimer();
+
+            // Visa uppmuntringar med jämna mellanrum
+            setInterval(showEncouragement, 120000); // Var 2:e minut
+        }
+
+        function generateQuestions(text, count) {
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
+            const words = text.toLowerCase().split(/\s+/);
+            const questions = [];
+
+            // Identifiera nyckelord (ord längre än 5 bokstäver som förekommer flera gånger)
+            const wordFreq = {};
+            words.forEach(word => {
+                const cleaned = word.replace(/[^a-zåäö]/gi, '');
+                if (cleaned.length > 5) {
+                    wordFreq[cleaned] = (wordFreq[cleaned] || 0) + 1;
+                }
+            });
+
+            const keywords = Object.entries(wordFreq)
+                .filter(([word, freq]) => freq >= 2)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10)
+                .map(([word]) => word);
+
+            const questionTypes = [
+                {
+                    template: (topic) => `Vad kan du berätta om ${topic} baserat på texten?`,
+                    hints: (topic) => [
+                        `Tänk på vad texten säger om ${topic}. Vilken information ges?`,
+                        `Finns det några specifika detaljer om ${topic} i texten?`,
+                        `Hur beskrivs ${topic}? Vad är viktigt att komma ihåg?`
+                    ]
+                },
+                {
+                    template: (topic) => `Förklara betydelsen av ${topic} i sammanhanget.`,
+                    hints: (topic) => [
+                        `Varför tror du att ${topic} nämns i texten?`,
+                        `Vilken roll spelar ${topic}? Fundera över sammanhanget.`,
+                        `Hur hänger ${topic} ihop med resten av texten?`
+                    ]
+                },
+                {
+                    template: (sentence) => `Texten säger: "${sentence}". Vad betyder detta och varför är det viktigt?`,
+                    hints: (sentence) => [
+                        `Bryt ner meningen. Vad är huvudbudskapet?`,
+                        `Varför tror du att författaren inkluderade just denna information?`,
+                        `Hur relaterar detta till textens övergripande tema?`
+                    ]
+                },
+                {
+                    template: () => `Sammanfatta textens huvudbudskap med egna ord.`,
+                    hints: () => [
+                        `Vad är det viktigaste som sägs i texten?`,
+                        `Om du skulle förklara texten för någon annan, vad skulle du säga?`,
+                        `Vilka är de centrala punkterna? Tänk igenom hela texten.`
+                    ]
+                },
+                {
+                    template: (topic) => `Hur skulle du förklara ${topic} för någon som inte läst texten?`,
+                    hints: (topic) => [
+                        `Tänk på vad som är mest grundläggande om ${topic}.`,
+                        `Vilken bakgrundsinformation behövs för att förstå ${topic}?`,
+                        `Använd texten som källa - vad framgår där?`
+                    ]
+                }
+            ];
+
+            // Generera önskad mängd frågor
+            for (let i = 0; i < Math.min(count, 15); i++) {
+                const typeIndex = i % questionTypes.length;
+                const type = questionTypes[typeIndex];
+
+                let question, hints;
+
+                if (typeIndex === 2 && sentences.length > i) {
+                    // Använd en mening från texten
+                    const sentence = sentences[Math.floor(Math.random() * sentences.length)].trim();
+                    question = type.template(sentence);
+                    hints = type.hints(sentence);
+                } else if (typeIndex === 3) {
+                    // Sammanfattningsfråga
+                    question = type.template();
+                    hints = type.hints();
+                } else if (keywords.length > 0) {
+                    // Använd nyckelord
+                    const keyword = keywords[i % keywords.length];
+                    question = type.template(keyword);
+                    hints = type.hints(keyword);
+                } else {
+                    // Fallback
+                    question = "Beskriv de viktigaste delarna av texten med egna ord.";
+                    hints = [
+                        "Vilka är huvudpunkterna i texten?",
+                        "Vad tycker du är mest betydelsefullt?",
+                        "Hur hänger informationen ihop?"
+                    ];
+                }
+
+                questions.push({ question, hints });
+            }
+
+            return questions;
+        }
+
+        function displayQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.innerHTML = `
+                    <h3>Fråga ${index + 1}</h3>
+                    <p style="margin-bottom: 15px; line-height: 1.6;">${q.question}</p>
+                    <textarea id="answer-${index}" placeholder="Skriv ditt svar här... Tänk noga igenom och använd texten som källa."></textarea>
+                    <button class="hint-btn" onclick="showHint(${index})">💡 Behöver du en ledtråd?</button>
+                    <div id="hint-${index}" class="hint-box">
+                        <p><strong>🤔 Tänk på detta:</strong><br><span id="hint-text-${index}"></span></p>
+                    </div>
+                `;
+                container.appendChild(card);
+
+                // Uppdatera progress när eleven skriver
+                document.getElementById(`answer-${index}`).addEventListener('input', updateProgress);
+            });
+        }
+
+        let hintIndex = {};
+        function showHint(questionIndex) {
+            const hintBox = document.getElementById(`hint-${questionIndex}`);
+            const hintText = document.getElementById(`hint-text-${questionIndex}`);
+
+            if (!hintIndex[questionIndex]) {
+                hintIndex[questionIndex] = 0;
+            }
+
+            const hints = questions[questionIndex].hints;
+            hintText.textContent = hints[hintIndex[questionIndex]];
+            hintBox.classList.add('show');
+
+            hintIndex[questionIndex] = (hintIndex[questionIndex] + 1) % hints.length;
+        }
+
+        function updateProgress() {
+            let answered = 0;
+            questions.forEach((q, index) => {
+                const answer = document.getElementById(`answer-${index}`).value.trim();
+                if (answer.length > 10) {
+                    answered++;
+                }
+            });
+
+            const progress = (answered / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    alert('⏰ Tiden är ute! Ditt prov lämnas in automatiskt.');
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            const timerEl = document.getElementById('timer');
+            timerEl.textContent = display;
+
+            // Varna när tiden nästan är ute
+            if (timeRemaining <= 60) {
+                timerEl.classList.add('warning');
+            }
+        }
+
+        function showEncouragement() {
+            const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+            const el = document.getElementById('encouragement');
+            el.textContent = encouragement;
+            el.style.display = 'block';
+
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 8000);
+        }
+
+        function submitExam() {
+            clearInterval(timerInterval);
+
+            // Samla svar
+            const answers = questions.map((q, index) => ({
+                question: q.question,
+                answer: document.getElementById(`answer-${index}`).value
+            }));
+
+            // I en riktig app skulle svaren skickas till servern här
+            console.log('Provsvaren:', answers);
+
+            // Visa resultatvy
+            document.getElementById('studentView').classList.remove('active');
+            document.getElementById('resultView').classList.add('active');
+        }
+    </script>
+</body>
+</html>
