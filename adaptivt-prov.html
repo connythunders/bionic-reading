@@ -136,23 +136,83 @@
             50% { transform: scale(1.05); }
         }
 
+        .stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .stat-box .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-box .label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
         .question-card {
             background: #f8f9fa;
             padding: 30px;
             border-radius: 15px;
             margin-bottom: 25px;
             border-left: 5px solid #667eea;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .difficulty-badge.easy {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .difficulty-badge.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty-badge.hard {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .question-card h3 {
             color: #333;
             margin-bottom: 20px;
-            font-size: 1.3em;
+            font-size: 1.4em;
+            line-height: 1.6;
         }
 
         .question-card textarea {
             width: 100%;
-            min-height: 120px;
+            min-height: 150px;
             padding: 15px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
@@ -171,6 +231,14 @@
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             padding: 10px 25px;
             font-size: 14px;
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 15px 50px;
+            font-size: 18px;
             margin-top: 10px;
         }
 
@@ -207,29 +275,7 @@
             margin-bottom: 20px;
             font-weight: 600;
             box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
-        }
-
-        .submit-btn {
-            width: 100%;
-            margin-top: 20px;
-            padding: 20px;
-            font-size: 20px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.3s ease;
+            animation: fadeIn 0.5s ease;
         }
 
         .intro-text {
@@ -239,6 +285,8 @@
             margin-bottom: 25px;
             color: #333;
             line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .result-view {
@@ -255,6 +303,19 @@
             font-size: 1.2em;
             color: #666;
             line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .result-stats {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .result-stats h3 {
+            color: #667eea;
+            margin-bottom: 20px;
         }
 
         .info-box {
@@ -263,6 +324,7 @@
             border-radius: 10px;
             margin-bottom: 20px;
             color: #333;
+            line-height: 1.6;
         }
     </style>
 </head>
@@ -273,7 +335,7 @@
             <h1>📚 Skapa Adaptivt Prov</h1>
             <div class="info-box">
                 <strong>💡 Så här fungerar det:</strong><br>
-                Klistra in en text nedan. Systemet skapar automatiskt adaptiva frågor som vägleder eleverna med sokratiska ledtrådar istället för att ge direkta svar.
+                Klistra in en text nedan. Eleverna får en fråga åt gången och systemet anpassar svårighetsgraden baserat på deras svar. De svarar på så många frågor de hinner under tiden.
             </div>
 
             <div class="teacher-view">
@@ -283,14 +345,11 @@
                 <textarea id="sourceText" placeholder="Klistra in den text som provet ska baseras på här...
 
 Exempel:
-Första världskriget (1914-1918) var en global konflikt som främst utspelade sig i Europa. Kriget utlöstes av mordet på den österrikisk-ungerske tronföljaren Franz Ferdinand i Sarajevo den 28 juni 1914. Kriget involverade världens stora makter och resulterade i miljontals dödsfall. Nya vapen som maskingevär och giftgas gjorde kriget särskilt dödligt..."></textarea>
+Första världskriget (1914-1918) var en global konflikt som främst utspelade sig i Europa. Kriget utlöstes av mordet på den österrikisk-ungerske tronföljaren Franz Ferdinand i Sarajevo den 28 juni 1914. Kriget involverade världens stora makter och resulterade i miljontals dödsfall. Nya vapen som maskingevär och giftgas gjorde kriget särskilt dödligt. Skyttegravskriget på västfronten blev symboliskt för krigets stagnation och fruktansvärda förluster..."></textarea>
 
                 <div class="settings">
                     <label for="timeLimit">Tid (minuter):</label>
                     <input type="number" id="timeLimit" value="30" min="5" max="180">
-
-                    <label for="questionCount">Antal frågor:</label>
-                    <input type="number" id="questionCount" value="5" min="3" max="15">
                 </div>
 
                 <button onclick="startExam()">🚀 Starta Prov</button>
@@ -303,8 +362,15 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
 
             <div class="timer" id="timer">30:00</div>
 
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressBar"></div>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="number" id="questionCount">0</div>
+                    <div class="label">Besvarade frågor</div>
+                </div>
+                <div class="stat-box">
+                    <div class="number" id="currentLevel">Medel</div>
+                    <div class="label">Nuvarande nivå</div>
+                </div>
             </div>
 
             <div id="encouragement" class="encouragement" style="display: none;"></div>
@@ -312,15 +378,22 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
             <div class="intro-text" id="introText"></div>
 
             <div id="questionsContainer"></div>
-
-            <button class="submit-btn" onclick="submitExam()">✅ Lämna in Prov</button>
         </div>
 
         <!-- Resultatvy -->
         <div id="resultView" class="view">
             <div class="result-view">
                 <h2>🎉 Bra jobbat!</h2>
-                <p>Du har lämnat in ditt prov. Din lärare kommer att granska dina svar.</p>
+                <p>Du har slutfört provet!</p>
+
+                <div class="result-stats">
+                    <h3>📊 Din prestation</h3>
+                    <p><strong>Antal frågor besvarade:</strong> <span id="finalQuestionCount">0</span></p>
+                    <p><strong>Högsta nivå:</strong> <span id="finalLevel">Medel</span></p>
+                    <p><strong>Tid använd:</strong> <span id="timeUsed">0</span> minuter</p>
+                </div>
+
+                <p>Din lärare kommer att granska dina svar.</p>
                 <p style="margin-top: 20px;">Kom ihåg: Det viktigaste är inte alltid det rätta svaret, utan hur du tänker och resonerar!</p>
                 <button onclick="location.reload()" style="margin-top: 30px;">📝 Skapa nytt prov</button>
             </div>
@@ -330,9 +403,19 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
     <script>
         let sourceText = '';
         let timeRemaining = 0;
+        let totalTime = 0;
         let timerInterval = null;
-        let questions = [];
-        let encouragements = [
+        let currentQuestion = null;
+        let currentAnswer = '';
+        let answeredQuestions = 0;
+        let difficultyLevel = 1; // 0 = lätt, 1 = medel, 2 = svår
+        let maxDifficulty = 1;
+        let allAnswers = [];
+        let keywords = [];
+        let sentences = [];
+        let hintCount = 0;
+
+        const encouragements = [
             "🌟 Du klarar det här! Fortsätt tänka.",
             "💪 Bra jobbat hittills! Du är på rätt väg.",
             "🎯 Tänk noga igenom - du har kunskap att använda!",
@@ -343,10 +426,11 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
             "🚀 Du är på god väg! Lita på dig själv."
         ];
 
+        const difficultyNames = ['Lätt', 'Medel', 'Svår'];
+
         function startExam() {
             const text = document.getElementById('sourceText').value.trim();
             const minutes = parseInt(document.getElementById('timeLimit').value);
-            const questionCount = parseInt(document.getElementById('questionCount').value);
 
             if (!text) {
                 alert('Du måste klistra in en text först!');
@@ -355,35 +439,37 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
 
             sourceText = text;
             timeRemaining = minutes * 60;
+            totalTime = minutes * 60;
 
-            // Generera frågor
-            questions = generateQuestions(text, questionCount);
+            // Analysera texten
+            analyzeText(text);
 
             // Visa elevvy
             document.getElementById('teacherView').classList.remove('active');
             document.getElementById('studentView').classList.add('active');
 
             // Sätt intro text
-            const intro = sourceText.length > 300 ? sourceText.substring(0, 300) + '...' : sourceText;
+            const intro = sourceText.length > 400 ? sourceText.substring(0, 400) + '...' : sourceText;
             document.getElementById('introText').innerHTML = `<strong>📖 Läs texten noga:</strong><br><br>${intro}`;
 
-            // Visa frågor
-            displayQuestions();
+            // Visa första frågan
+            showNextQuestion();
 
             // Starta timer
             startTimer();
 
             // Visa uppmuntringar med jämna mellanrum
-            setInterval(showEncouragement, 120000); // Var 2:e minut
+            setInterval(showEncouragement, 90000); // Var 1.5:e minut
         }
 
-        function generateQuestions(text, count) {
-            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
-            const words = text.toLowerCase().split(/\s+/);
-            const questions = [];
+        function analyzeText(text) {
+            // Extrahera meningar
+            sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
 
-            // Identifiera nyckelord (ord längre än 5 bokstäver som förekommer flera gånger)
+            // Identifiera nyckelord
+            const words = text.toLowerCase().split(/\s+/);
             const wordFreq = {};
+
             words.forEach(word => {
                 const cleaned = word.replace(/[^a-zåäö]/gi, '');
                 if (cleaned.length > 5) {
@@ -391,142 +477,249 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                 }
             });
 
-            const keywords = Object.entries(wordFreq)
+            keywords = Object.entries(wordFreq)
                 .filter(([word, freq]) => freq >= 2)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 10)
+                .slice(0, 15)
                 .map(([word]) => word);
+        }
 
-            const questionTypes = [
-                {
-                    template: (topic) => `Vad kan du berätta om ${topic} baserat på texten?`,
-                    hints: (topic) => [
-                        `Tänk på vad texten säger om ${topic}. Vilken information ges?`,
-                        `Finns det några specifika detaljer om ${topic} i texten?`,
-                        `Hur beskrivs ${topic}? Vad är viktigt att komma ihåg?`
-                    ]
-                },
-                {
-                    template: (topic) => `Förklara betydelsen av ${topic} i sammanhanget.`,
-                    hints: (topic) => [
-                        `Varför tror du att ${topic} nämns i texten?`,
-                        `Vilken roll spelar ${topic}? Fundera över sammanhanget.`,
-                        `Hur hänger ${topic} ihop med resten av texten?`
-                    ]
-                },
-                {
-                    template: (sentence) => `Texten säger: "${sentence}". Vad betyder detta och varför är det viktigt?`,
-                    hints: (sentence) => [
-                        `Bryt ner meningen. Vad är huvudbudskapet?`,
-                        `Varför tror du att författaren inkluderade just denna information?`,
-                        `Hur relaterar detta till textens övergripande tema?`
-                    ]
-                },
-                {
-                    template: () => `Sammanfatta textens huvudbudskap med egna ord.`,
-                    hints: () => [
-                        `Vad är det viktigaste som sägs i texten?`,
-                        `Om du skulle förklara texten för någon annan, vad skulle du säga?`,
-                        `Vilka är de centrala punkterna? Tänk igenom hela texten.`
-                    ]
-                },
-                {
-                    template: (topic) => `Hur skulle du förklara ${topic} för någon som inte läst texten?`,
-                    hints: (topic) => [
-                        `Tänk på vad som är mest grundläggande om ${topic}.`,
-                        `Vilken bakgrundsinformation behövs för att förstå ${topic}?`,
-                        `Använd texten som källa - vad framgår där?`
-                    ]
-                }
-            ];
+        function generateQuestion(difficulty) {
+            const questionTypes = {
+                easy: [
+                    {
+                        template: (topic) => `Vad nämns om ${topic} i texten?`,
+                        hints: (topic) => [
+                            `Leta efter stycken där ${topic} beskrivs.`,
+                            `Finns det några fakta om ${topic}?`,
+                            `Vad är det första som sägs om ${topic}?`
+                        ]
+                    },
+                    {
+                        template: () => `Vad handlar texten om? Berätta kort.`,
+                        hints: () => [
+                            `Vad är textens huvudämne?`,
+                            `Vilken typ av information får du?`,
+                            `Beskriv texten i några meningar.`
+                        ]
+                    }
+                ],
+                medium: [
+                    {
+                        template: (topic) => `Förklara betydelsen av ${topic} baserat på texten.`,
+                        hints: (topic) => [
+                            `Varför tror du att ${topic} är viktigt?`,
+                            `Vilken roll spelar ${topic} i sammanhanget?`,
+                            `Hur beskrivs ${topic} och varför?`
+                        ]
+                    },
+                    {
+                        template: (sentence) => `Texten säger: "${sentence}". Vad betyder detta och varför är det viktigt?`,
+                        hints: () => [
+                            `Bryt ner meningen. Vad är huvudbudskapet?`,
+                            `Varför inkluderades denna information?`,
+                            `Hur relaterar detta till resten av texten?`
+                        ]
+                    }
+                ],
+                hard: [
+                    {
+                        template: (topic1, topic2) => `Hur hänger ${topic1} och ${topic2} ihop enligt texten? Analysera sambanden.`,
+                        hints: (topic1, topic2) => [
+                            `Vilka kopplingar finns mellan ${topic1} och ${topic2}?`,
+                            `Påverkar de varandra? På vilket sätt?`,
+                            `Vad skulle hända om det ena saknades?`
+                        ]
+                    },
+                    {
+                        template: () => `Analysera textens huvudbudskap och diskutera varför detta är viktigt att förstå.`,
+                        hints: () => [
+                            `Vad är det djupare budskapet?`,
+                            `Varför skrev författaren just detta?`,
+                            `Vilka konsekvenser eller lärdomar finns?`
+                        ]
+                    },
+                    {
+                        template: (topic) => `Diskutera ${topic} ur olika perspektiv baserat på informationen i texten.`,
+                        hints: (topic) => [
+                            `Vilka olika synvinklar finns på ${topic}?`,
+                            `Vad är för- och nackdelar eller olika aspekter?`,
+                            `Hur kan man tolka ${topic} på olika sätt?`
+                        ]
+                    }
+                ]
+            };
 
-            // Generera önskad mängd frågor
-            for (let i = 0; i < Math.min(count, 15); i++) {
-                const typeIndex = i % questionTypes.length;
-                const type = questionTypes[typeIndex];
+            let questionType;
+            let question, hints;
 
-                let question, hints;
-
-                if (typeIndex === 2 && sentences.length > i) {
-                    // Använd en mening från texten
-                    const sentence = sentences[Math.floor(Math.random() * sentences.length)].trim();
-                    question = type.template(sentence);
-                    hints = type.hints(sentence);
-                } else if (typeIndex === 3) {
-                    // Sammanfattningsfråga
-                    question = type.template();
-                    hints = type.hints();
-                } else if (keywords.length > 0) {
-                    // Använd nyckelord
-                    const keyword = keywords[i % keywords.length];
-                    question = type.template(keyword);
-                    hints = type.hints(keyword);
+            if (difficulty === 0) {
+                // Lätt
+                questionType = questionTypes.easy[Math.floor(Math.random() * questionTypes.easy.length)];
+                if (keywords.length > 0) {
+                    const keyword = keywords[Math.floor(Math.random() * keywords.length)];
+                    question = questionType.template(keyword);
+                    hints = questionType.hints(keyword);
                 } else {
-                    // Fallback
-                    question = "Beskriv de viktigaste delarna av texten med egna ord.";
-                    hints = [
-                        "Vilka är huvudpunkterna i texten?",
-                        "Vad tycker du är mest betydelsefullt?",
-                        "Hur hänger informationen ihop?"
-                    ];
+                    question = questionType.template();
+                    hints = questionType.hints();
                 }
-
-                questions.push({ question, hints });
+            } else if (difficulty === 1) {
+                // Medel
+                questionType = questionTypes.medium[Math.floor(Math.random() * questionTypes.medium.length)];
+                if (questionType.template.length === 1 && keywords.length > 0) {
+                    const keyword = keywords[Math.floor(Math.random() * keywords.length)];
+                    question = questionType.template(keyword);
+                    hints = questionType.hints(keyword);
+                } else if (sentences.length > 0) {
+                    const sentence = sentences[Math.floor(Math.random() * sentences.length)].trim();
+                    const shortSentence = sentence.length > 100 ? sentence.substring(0, 100) + '...' : sentence;
+                    question = questionType.template(shortSentence);
+                    hints = questionType.hints();
+                }
+            } else {
+                // Svår
+                questionType = questionTypes.hard[Math.floor(Math.random() * questionTypes.hard.length)];
+                if (questionType.template.length === 2 && keywords.length >= 2) {
+                    const keyword1 = keywords[Math.floor(Math.random() * keywords.length)];
+                    const keyword2 = keywords[Math.floor(Math.random() * keywords.length)];
+                    question = questionType.template(keyword1, keyword2);
+                    hints = questionType.hints(keyword1, keyword2);
+                } else if (questionType.template.length === 1 && keywords.length > 0) {
+                    const keyword = keywords[Math.floor(Math.random() * keywords.length)];
+                    question = questionType.template(keyword);
+                    hints = questionType.hints(keyword);
+                } else {
+                    question = questionType.template();
+                    hints = questionType.hints();
+                }
             }
 
-            return questions;
+            return { question, hints, difficulty };
         }
 
-        function displayQuestions() {
+        function showNextQuestion() {
+            currentQuestion = generateQuestion(difficultyLevel);
+            hintCount = 0;
+
             const container = document.getElementById('questionsContainer');
-            container.innerHTML = '';
+            const difficultyClass = ['easy', 'medium', 'hard'][currentQuestion.difficulty];
+            const difficultyName = difficultyNames[currentQuestion.difficulty];
 
-            questions.forEach((q, index) => {
-                const card = document.createElement('div');
-                card.className = 'question-card';
-                card.innerHTML = `
-                    <h3>Fråga ${index + 1}</h3>
-                    <p style="margin-bottom: 15px; line-height: 1.6;">${q.question}</p>
-                    <textarea id="answer-${index}" placeholder="Skriv ditt svar här... Tänk noga igenom och använd texten som källa."></textarea>
-                    <button class="hint-btn" onclick="showHint(${index})">💡 Behöver du en ledtråd?</button>
-                    <div id="hint-${index}" class="hint-box">
-                        <p><strong>🤔 Tänk på detta:</strong><br><span id="hint-text-${index}"></span></p>
+            container.innerHTML = `
+                <div class="question-card">
+                    <span class="difficulty-badge ${difficultyClass}">${difficultyName} nivå</span>
+                    <h3>${currentQuestion.question}</h3>
+                    <textarea id="currentAnswer" placeholder="Skriv ditt svar här... Tänk noga igenom och använd texten som källa."></textarea>
+                    <div style="margin-top: 15px;">
+                        <button class="hint-btn" onclick="showHint()">💡 Behöver du en ledtråd?</button>
+                        <button class="next-btn" onclick="submitAnswer()">➡️ Nästa fråga</button>
                     </div>
-                `;
-                container.appendChild(card);
+                    <div id="hintBox" class="hint-box">
+                        <p><strong>🤔 Tänk på detta:</strong><br><span id="hintText"></span></p>
+                    </div>
+                </div>
+            `;
 
-                // Uppdatera progress när eleven skriver
-                document.getElementById(`answer-${index}`).addEventListener('input', updateProgress);
-            });
+            // Uppdatera statistik
+            document.getElementById('questionCount').textContent = answeredQuestions;
+            document.getElementById('currentLevel').textContent = difficultyNames[difficultyLevel];
         }
 
-        let hintIndex = {};
-        function showHint(questionIndex) {
-            const hintBox = document.getElementById(`hint-${questionIndex}`);
-            const hintText = document.getElementById(`hint-text-${questionIndex}`);
+        function showHint() {
+            const hintBox = document.getElementById('hintBox');
+            const hintText = document.getElementById('hintText');
 
-            if (!hintIndex[questionIndex]) {
-                hintIndex[questionIndex] = 0;
+            if (hintCount < currentQuestion.hints.length) {
+                hintText.textContent = currentQuestion.hints[hintCount];
+                hintBox.classList.add('show');
+                hintCount++;
+            } else {
+                hintText.textContent = "Du har fått alla ledtrådar för denna fråga. Försök ge ditt bästa svar!";
+                hintBox.classList.add('show');
+            }
+        }
+
+        function submitAnswer() {
+            const answer = document.getElementById('currentAnswer').value.trim();
+
+            if (answer.length < 10) {
+                alert('Försök skriva ett lite längre svar (minst 10 tecken).');
+                return;
             }
 
-            const hints = questions[questionIndex].hints;
-            hintText.textContent = hints[hintIndex[questionIndex]];
-            hintBox.classList.add('show');
-
-            hintIndex[questionIndex] = (hintIndex[questionIndex] + 1) % hints.length;
-        }
-
-        function updateProgress() {
-            let answered = 0;
-            questions.forEach((q, index) => {
-                const answer = document.getElementById(`answer-${index}`).value.trim();
-                if (answer.length > 10) {
-                    answered++;
-                }
+            // Spara svar
+            allAnswers.push({
+                question: currentQuestion.question,
+                answer: answer,
+                difficulty: currentQuestion.difficulty
             });
 
-            const progress = (answered / questions.length) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
+            // Analysera svar och anpassa svårighetsgrad
+            const quality = analyzeAnswer(answer);
+            adjustDifficulty(quality);
+
+            // Uppdatera räknare
+            answeredQuestions++;
+            document.getElementById('questionCount').textContent = answeredQuestions;
+
+            // Visa nästa fråga
+            showNextQuestion();
+
+            // Ibland visa uppmuntran
+            if (answeredQuestions % 3 === 0) {
+                showEncouragement();
+            }
+        }
+
+        function analyzeAnswer(answer) {
+            let quality = 0;
+
+            // Längd på svar (längre = bättre)
+            if (answer.length > 200) quality += 2;
+            else if (answer.length > 100) quality += 1;
+
+            // Innehåller nyckelord från texten
+            const answerLower = answer.toLowerCase();
+            let keywordMatches = 0;
+            keywords.forEach(keyword => {
+                if (answerLower.includes(keyword)) keywordMatches++;
+            });
+
+            if (keywordMatches >= 3) quality += 2;
+            else if (keywordMatches >= 1) quality += 1;
+
+            // Komplexitet (meningar, kommatecken, resonemang)
+            const sentenceCount = answer.split(/[.!?]+/).filter(s => s.trim().length > 5).length;
+            if (sentenceCount >= 4) quality += 1;
+
+            // Använder resonemangstermer
+            const reasoningWords = ['eftersom', 'därför', 'på grund av', 'vilket', 'detta', 'betyder', 'visar', 'förklarar'];
+            const hasReasoning = reasoningWords.some(word => answerLower.includes(word));
+            if (hasReasoning) quality += 1;
+
+            // Returnera kvalitetsnivå (0-3: dåligt, 4-5: okej, 6+: bra)
+            return quality;
+        }
+
+        function adjustDifficulty(quality) {
+            if (quality >= 6) {
+                // Bra svar - öka svårighetsgraden
+                if (difficultyLevel < 2) {
+                    difficultyLevel++;
+                }
+            } else if (quality <= 3) {
+                // Svagt svar - minska svårighetsgraden
+                if (difficultyLevel > 0) {
+                    difficultyLevel--;
+                }
+            }
+            // Quality 4-5: behåll nuvarande nivå
+
+            // Uppdatera max svårighetsgrad
+            if (difficultyLevel > maxDifficulty) {
+                maxDifficulty = difficultyLevel;
+            }
         }
 
         function startTimer() {
@@ -538,8 +731,7 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
 
                 if (timeRemaining <= 0) {
                     clearInterval(timerInterval);
-                    alert('⏰ Tiden är ute! Ditt prov lämnas in automatiskt.');
-                    submitExam();
+                    finishExam();
                 }
             }, 1000);
         }
@@ -569,17 +761,20 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
             }, 8000);
         }
 
-        function submitExam() {
+        function finishExam() {
             clearInterval(timerInterval);
 
-            // Samla svar
-            const answers = questions.map((q, index) => ({
-                question: q.question,
-                answer: document.getElementById(`answer-${index}`).value
-            }));
+            // Beräkna använd tid
+            const timeUsedSeconds = totalTime - timeRemaining;
+            const timeUsedMinutes = Math.round(timeUsedSeconds / 60);
 
-            // I en riktig app skulle svaren skickas till servern här
-            console.log('Provsvaren:', answers);
+            // Uppdatera resultatvy
+            document.getElementById('finalQuestionCount').textContent = answeredQuestions;
+            document.getElementById('finalLevel').textContent = difficultyNames[maxDifficulty];
+            document.getElementById('timeUsed').textContent = timeUsedMinutes;
+
+            // Logga alla svar (i en riktig app skulle de skickas till servern)
+            console.log('Alla svar:', allAnswers);
 
             // Visa resultatvy
             document.getElementById('studentView').classList.remove('active');
