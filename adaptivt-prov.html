@@ -732,22 +732,25 @@
             if (answer.length > 200) quality += 2;
             else if (answer.length > 100) quality += 1;
 
-            // Innehåller nyckelord från texten
+            // Innehåller ämnesrelaterade ord
             const answerLower = answer.toLowerCase();
-            let keywordMatches = 0;
-            keywords.forEach(keyword => {
-                if (answerLower.includes(keyword)) keywordMatches++;
+            const topicLower = examTopic.toLowerCase();
+            const topicWords = topicLower.split(/\s+/).filter(w => w.length > 3);
+
+            let topicMatches = 0;
+            topicWords.forEach(word => {
+                if (answerLower.includes(word)) topicMatches++;
             });
 
-            if (keywordMatches >= 3) quality += 2;
-            else if (keywordMatches >= 1) quality += 1;
+            if (topicMatches >= 2) quality += 2;
+            else if (topicMatches >= 1) quality += 1;
 
             // Komplexitet (meningar, kommatecken, resonemang)
             const sentenceCount = answer.split(/[.!?]+/).filter(s => s.trim().length > 5).length;
             if (sentenceCount >= 4) quality += 1;
 
             // Använder resonemangstermer
-            const reasoningWords = ['eftersom', 'därför', 'på grund av', 'vilket', 'detta', 'betyder', 'visar', 'förklarar'];
+            const reasoningWords = ['eftersom', 'därför', 'på grund av', 'vilket', 'detta', 'betyder', 'visar', 'förklarar', 'anledning', 'orsak', 'konsekvens'];
             const hasReasoning = reasoningWords.some(word => answerLower.includes(word));
             if (hasReasoning) quality += 1;
 
