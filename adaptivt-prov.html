@@ -466,22 +466,45 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
             // Extrahera meningar
             sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
 
+            // Generiska ord som ska filtreras bort
+            const stopWords = [
+                'kriget', 'krigen', 'världen', 'detta', 'detta', 'sådan', 'sådana',
+                'vilket', 'vilken', 'vilka', 'dessa', 'dessa', 'andra', 'första',
+                'andra', 'många', 'skulle', 'kunde', 'måste', 'olika', 'samma',
+                'också', 'eftersom', 'därför', 'alltså', 'således', 'mellan',
+                'under', 'genom', 'efter', 'innan', 'innan', 'Sverige', 'sverige'
+            ];
+
             // Identifiera nyckelord och begrepp
-            const words = text.toLowerCase().split(/\s+/);
+            const words = text.split(/\s+/);
             const wordFreq = {};
+            const properNouns = new Set(); // Ord med stor bokstav (egennamn)
 
             words.forEach(word => {
-                const cleaned = word.replace(/[^a-zåäö]/gi, '');
-                if (cleaned.length > 5) {
-                    wordFreq[cleaned] = (wordFreq[cleaned] || 0) + 1;
+                const cleaned = word.replace(/[^a-zåäöA-ZÅÄÖ]/gi, '');
+                const lowerCleaned = cleaned.toLowerCase();
+
+                // Spara ord med stor bokstav (troligen egennamn)
+                if (cleaned.length > 0 && cleaned[0] === cleaned[0].toUpperCase() && cleaned.length > 3) {
+                    properNouns.add(cleaned);
+                }
+
+                // Räkna frekvens för substantiv (längre ord)
+                if (cleaned.length > 5 && !stopWords.includes(lowerCleaned)) {
+                    wordFreq[lowerCleaned] = (wordFreq[lowerCleaned] || 0) + 1;
                 }
             });
 
-            keywords = Object.entries(wordFreq)
+            // Kombinera egennamn (hög prioritet) med frekventa ord
+            const properNounsList = Array.from(properNouns).slice(0, 10);
+            const frequentWords = Object.entries(wordFreq)
                 .filter(([word, freq]) => freq >= 2)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 20)
+                .slice(0, 15)
                 .map(([word]) => word);
+
+            // Egennamn först, sedan frekventa ord
+            keywords = [...properNounsList, ...frequentWords].slice(0, 20);
         }
 
         function generateQuestion(difficulty) {
@@ -500,35 +523,35 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                 // LÄTTA FRÅGOR - Faktabaserade kunskapsfrågor
                 const easyTypes = [
                     () => ({
-                        question: `Vad innebär ${mainTopic}? Förklara begreppet.`,
+                        question: `Vad vet du om ${mainTopic}? Berätta vad du kan.`,
                         hints: [
-                            `Vad vet du om ${mainTopic}?`,
-                            'Försök förklara med dina egna ord.',
-                            'Ge gärna exempel för att förtydliga.'
-                        ]
-                    }),
-                    () => ({
-                        question: `Beskriv ${mainTopic}. Vilka är de viktigaste fakta att känna till?`,
-                        hints: [
-                            `Tänk på vad du har lärt dig om ${mainTopic}.`,
-                            'Vilka detaljer är viktiga att komma ihåg?',
-                            'Vad kännetecknar eller definierar detta?'
-                        ]
-                    }),
-                    () => ({
-                        question: `Nämn och förklara kortfattat vad du vet om ${mainTopic}.`,
-                        hints: [
+                            `Tänk på vad du lärt dig om ${mainTopic}.`,
                             'Börja med grundläggande fakta.',
-                            'Vad har du lärt dig från lektionerna?',
-                            'Försök ge en översiktlig bild.'
+                            'Vad är viktigt att känna till?'
                         ]
                     }),
                     () => ({
-                        question: `Ge exempel på ${mainTopic} och förklara hur det fungerar.`,
+                        question: `Beskriv ${mainTopic}. Vad kännetecknar detta?`,
                         hints: [
-                            'Kan du komma på konkreta exempel?',
-                            `Hur visar sig ${mainTopic} i praktiken?`,
-                            'Vad är typiskt för detta?'
+                            `Vilka egenskaper eller drag har ${mainTopic}?`,
+                            'Vad är typiskt eller särskiljande?',
+                            'Försök måla upp en bild med ord.'
+                        ]
+                    }),
+                    () => ({
+                        question: `Förklara vad ${mainTopic} är. Ge en överblick.`,
+                        hints: [
+                            'Börja med en definition eller beskrivning.',
+                            'Vilka nyckelbegrepp hör ihop med detta?',
+                            'Vad behöver man veta för att förstå?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Vilka viktiga fakta kan du nämna om ${mainTopic}?`,
+                        hints: [
+                            'Tänk på datum, platser, personer eller händelser.',
+                            'Vilka detaljer sticker ut?',
+                            'Vad har du lärt dig på lektionerna?'
                         ]
                     })
                 ];
@@ -541,43 +564,43 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
                 // MEDELFRÅGOR - Kräver förståelse och tillämpning
                 const mediumTypes = [
                     () => ({
-                        question: `Förklara varför ${mainTopic} är viktigt. Vilken betydelse har det?`,
+                        question: `Varför är ${mainTopic} viktigt? Förklara betydelsen.`,
                         hints: [
-                            `Varför spelar ${mainTopic} en viktig roll?`,
-                            'Vilka konsekvenser eller effekter har det?',
-                            'Hur påverkar det andra saker?'
+                            `Vilken roll spelar ${mainTopic}?`,
+                            'Varför bör man känna till detta?',
+                            'Vilka effekter eller konsekvenser finns?'
                         ]
                     }),
                     () => ({
-                        question: `Hur hänger ${mainTopic} ihop med andra begrepp eller händelser?`,
+                        question: `Hur hänger ${mainTopic} ihop med andra händelser eller begrepp du lärt dig om?`,
                         hints: [
-                            `Vad är kopplat till ${mainTopic}?`,
-                            'Finns det orsak och verkan?',
-                            'Hur påverkar det eller påverkas det av annat?'
+                            `Vilka kopplingar finns till ${mainTopic}?`,
+                            'Finns det orsakssamband?',
+                            'Hur påverkas eller påverkar det andra?'
                         ]
                     }),
                     () => ({
-                        question: `Vilka orsaker och konsekvenser finns när det gäller ${mainTopic}?`,
+                        question: `Vad orsakade ${mainTopic} och vilka blev konsekvenserna?`,
                         hints: [
-                            'Vad ledde till eller orsakade detta?',
-                            'Vad blev följderna eller resultatet?',
-                            'Tänk på kedjan av händelser.'
+                            'Tänk på orsak och verkan.',
+                            'Vad hände innan och vad hände efter?',
+                            'Vilka följder fick det?'
                         ]
                     }),
                     () => ({
-                        question: `Jämför olika aspekter av ${mainTopic}. Vad är likheter och skillnader?`,
+                        question: `Förklara ${mainTopic} för någon som inte känner till det. Vad är viktigt att ta upp?`,
                         hints: [
-                            `Vilka olika sidor eller aspekter finns av ${mainTopic}?`,
-                            'Hur skiljer de sig åt?',
-                            'Vad är gemensamt?'
+                            'Börja med grunderna och kontexten.',
+                            'Vilken bakgrundsinformation behövs?',
+                            'Använd gärna exempel och jämförelser.'
                         ]
                     }),
                     () => ({
-                        question: `Hur skulle du förklara ${mainTopic} för någon som inte vet något om det?`,
+                        question: `Vilka olika aspekter eller perspektiv finns på ${mainTopic}?`,
                         hints: [
-                            'Börja med grunderna.',
-                            'Vilken information behövs för förståelse?',
-                            'Använd gärna jämförelser eller exempel.'
+                            'Hur kan man se på detta på olika sätt?',
+                            'Finns det flera sidor av myntet?',
+                            'Vad skiljer olika synsätt åt?'
                         ]
                     })
                 ];
@@ -593,48 +616,48 @@ Första världskriget (1914-1918) var en global konflikt som främst utspelade s
 
                 const hardTypes = [
                     () => ({
-                        question: `Analysera ${mainTopic} från olika perspektiv. Vilka för- och nackdelar eller olika synvinklar finns?`,
+                        question: `Analysera ${mainTopic}. Vilka olika perspektiv eller tolkningar finns?`,
                         hints: [
-                            `Hur kan man se på ${mainTopic} på olika sätt?`,
-                            'Vilka positiva och negativa aspekter finns?',
-                            'Finns det olika tolkningar eller åsikter?',
-                            'Vad beror perspektiven på?'
+                            `Hur kan man förstå ${mainTopic} på olika sätt?`,
+                            'Vilka för- och nackdelar eller aspekter finns?',
+                            'Vad beror olika synsätt på?',
+                            'Finns det kontroversiella eller omdiskuterade delar?'
                         ]
                     }),
                     () => ({
-                        question: `Diskutera relationen mellan ${keyword1} och ${keyword2}. Hur påverkar de varandra och varför?`,
+                        question: `Hur påverkar ${keyword1} och ${keyword2} varandra? Diskutera relationen.`,
                         hints: [
-                            `Hur hänger ${keyword1} och ${keyword2} ihop?`,
-                            'Påverkar det ena det andra?',
-                            'Vilka samband och orsakskedjor finns?',
-                            'Vad händer om man förändrar det ena?'
+                            `Vilka samband finns mellan ${keyword1} och ${keyword2}?`,
+                            'Hur är de kopplade till varandra?',
+                            'Vad händer med det ena om det andra förändras?',
+                            'Finns det orsakssamband?'
                         ]
                     }),
                     () => ({
-                        question: `Utvärdera betydelsen av ${mainTopic}. Hur viktigt är det och varför?`,
+                        question: `Bedöm den historiska/samhälleliga betydelsen av ${mainTopic}. Hur viktigt är det?`,
                         hints: [
-                            'Vilken roll spelar detta i helheten?',
+                            'Vilken roll spelar detta i det större sammanhanget?',
                             'Vad hade varit annorlunda utan det?',
-                            'Vilka långsiktiga effekter finns?',
-                            'Hur påverkar det oss idag eller historiskt?'
+                            'Vilka långsiktiga konsekvenser finns?',
+                            'Hur påverkar det oss eller världen?'
                         ]
                     }),
                     () => ({
-                        question: `Argumentera för eller emot ett påstående om ${mainTopic}. Använd konkreta argument.`,
+                        question: `Ta ställning: Vilken var den viktigaste aspekten av ${mainTopic}? Argumentera för din åsikt.`,
                         hints: [
-                            'Ta ställning baserat på fakta.',
-                            'Vilka bevis eller exempel kan du ge?',
-                            'Fundera över motargument också.',
-                            'Vilket resonemang är starkast?'
+                            'Vad tycker du är mest betydelsefullt och varför?',
+                            'Vilka bevis eller exempel stödjer din åsikt?',
+                            'Finns det motargument att överväga?',
+                            'Hur motiverar du ditt val?'
                         ]
                     }),
                     () => ({
-                        question: `Vad är de viktigaste slutsatserna man kan dra om ${mainTopic}? Motivera ditt svar.`,
+                        question: `Vilka lärdomar kan vi dra från ${mainTopic}? Reflektera och motivera.`,
                         hints: [
-                            'Vad är det centrala budskapet?',
-                            'Vilka lärdomar eller insikter finns?',
-                            'Varför är just dessa slutsatser viktiga?',
-                            'Hur kan du motivera ditt resonemang?'
+                            'Vad kan vi lära oss från detta?',
+                            'Vilka insikter eller slutsatser kan man dra?',
+                            'Hur är det relevant idag?',
+                            'Varför är det viktigt att förstå detta?'
                         ]
                     })
                 ];
