@@ -349,10 +349,41 @@
                     💡 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #667eea;">Få gratis API-nyckel här</a> - 1000 förfrågningar/dag gratis!
                 </p>
 
-                <label for="examTopic" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
-                    Ämne för provet:
-                </label>
-                <input type="text" id="examTopic" placeholder="T.ex. Första världskriget, Fotosyntesen, Demokrati..." style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; margin-bottom: 20px; transition: border-color 0.3s;">
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <label style="font-weight: 600; color: #333; margin-bottom: 10px; display: block;">Välj provtyp:</label>
+                    <div style="display: flex; gap: 20px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="examMode" value="topic" checked onchange="toggleExamMode()" style="margin-right: 8px;">
+                            <span>📚 Ämnesbaserat - Testa allmän kunskap om ämne</span>
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="examMode" value="text" onchange="toggleExamMode()" style="margin-right: 8px;">
+                            <span>📖 Textbaserat - Testa förståelse av specifik text</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="topicMode">
+                    <label for="examTopic" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
+                        Ämne för provet:
+                    </label>
+                    <input type="text" id="examTopic" placeholder="T.ex. Första världskriget, Fotosyntesen, Demokrati..." style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; margin-bottom: 20px; transition: border-color 0.3s;">
+                </div>
+
+                <div id="textMode" style="display: none;">
+                    <label for="examTopic2" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
+                        Ämne/Titel:
+                    </label>
+                    <input type="text" id="examTopic2" placeholder="T.ex. Första världskriget" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; margin-bottom: 15px;">
+
+                    <label for="sourceText" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
+                        Klistra in lärobokstexten här:
+                    </label>
+                    <textarea id="sourceText" placeholder="Klistra in den text som eleverna ska ha läst...
+
+Exempel:
+Första världskriget (1914-1918) var en global konflikt som främst utspelade sig i Europa. Kriget utlöstes av mordet på den österrikisk-ungerske tronföljaren Franz Ferdinand i Sarajevo den 28 juni 1914. Kriget involverade världens stora makter och resulterade i miljontals dödsfall. Nya vapen som maskingevär och giftgas gjorde kriget särskilt dödligt..." style="width: 100%; min-height: 200px; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; resize: vertical; font-family: inherit; margin-bottom: 20px;"></textarea>
+                </div>
 
                 <div class="settings">
                     <div style="flex: 1; min-width: 200px;">
@@ -441,6 +472,8 @@
         let examTopic = '';
         let examSubject = '';
         let examGrade = 7;
+        let examMode = 'topic'; // 'topic' eller 'text'
+        let sourceText = '';
         let geminiApiKey = '';
         let useAI = false;
         let timeRemaining = 0;
@@ -454,6 +487,19 @@
         let allAnswers = [];
         let hintCount = 0;
         let askedQuestions = []; // Håll koll på ställda frågor
+
+        function toggleExamMode() {
+            const mode = document.querySelector('input[name="examMode"]:checked').value;
+            examMode = mode;
+
+            if (mode === 'topic') {
+                document.getElementById('topicMode').style.display = 'block';
+                document.getElementById('textMode').style.display = 'none';
+            } else {
+                document.getElementById('topicMode').style.display = 'none';
+                document.getElementById('textMode').style.display = 'block';
+            }
+        }
 
         const encouragements = [
             "🌟 Du klarar det här! Fortsätt tänka.",
@@ -469,18 +515,33 @@
         const difficultyNames = ['Lätt', 'Medel', 'Svår'];
 
         function startExam() {
-            const topic = document.getElementById('examTopic').value.trim();
+            const mode = document.querySelector('input[name="examMode"]:checked').value;
+            examMode = mode;
+
             const subject = document.getElementById('subject').value;
             const grade = parseInt(document.getElementById('grade').value);
             const minutes = parseInt(document.getElementById('timeLimit').value);
             const apiKey = document.getElementById('apiKey').value.trim();
 
-            if (!topic) {
-                alert('Du måste ange ett ämne för provet!');
-                return;
+            if (mode === 'topic') {
+                const topic = document.getElementById('examTopic').value.trim();
+                if (!topic) {
+                    alert('Du måste ange ett ämne för provet!');
+                    return;
+                }
+                examTopic = topic;
+                sourceText = '';
+            } else {
+                const topic = document.getElementById('examTopic2').value.trim();
+                const text = document.getElementById('sourceText').value.trim();
+                if (!topic || !text) {
+                    alert('Du måste ange både ämne och klistra in en text!');
+                    return;
+                }
+                examTopic = topic;
+                sourceText = text;
             }
 
-            examTopic = topic;
             examSubject = subject;
             examGrade = grade;
             geminiApiKey = apiKey;
@@ -503,7 +564,12 @@
             document.getElementById('studentView').classList.add('active');
 
             // Sätt intro text
-            document.getElementById('introText').innerHTML = `<strong>📖 Provämne:</strong> ${examTopic}<br><br><em>Du kommer att få frågor om detta ämne. Använd din kunskap från lektioner, böcker, filmer och andra källor. Frågorna anpassas efter hur du svarar.</em>`;
+            if (examMode === 'topic') {
+                document.getElementById('introText').innerHTML = `<strong>📖 Provämne:</strong> ${examTopic}<br><br><em>Du kommer att få frågor om detta ämne. Använd din kunskap från lektioner, böcker, filmer och andra källor. Frågorna anpassas efter hur du svarar.</em>`;
+            } else {
+                const displayText = sourceText.length > 800 ? sourceText.substring(0, 800) + '...' : sourceText;
+                document.getElementById('introText').innerHTML = `<strong>📖 Läs texten noga:</strong><br><br>${displayText}<br><br><em>Frågorna kommer att baseras på denna text. Du kan scrolla upp och läsa den igen när som helst.</em>`;
+            }
 
             // Visa första frågan
             showNextQuestion();
@@ -521,7 +587,48 @@
 
             const previousQuestions = askedQuestions.join('\n');
 
-            const prompt = `Du är en lärare som skapar provfrågor i ${examSubject}.
+            let prompt;
+
+            if (examMode === 'text') {
+                // TEXTBASERAT LÄGE - Frågor om specifik text
+                prompt = `Du är en lärare som skapar provfrågor i ${examSubject}.
+
+ÄMNE: ${examTopic}
+SVÅRIGHETSGRAD: ${difficultyText}
+ÅRSKURS: ${gradeText}
+
+TEXTEN SOM ELEVERNA HAR LÄST:
+${sourceText}
+
+TIDIGARE FRÅGOR (undvik att upprepa dessa):
+${previousQuestions}
+
+Skapa EN unik ÖPPEN provfråga på ${difficultyText} nivå som testar elevens FÖRSTÅELSE AV JUST DENNA TEXT.
+
+VIKTIGT:
+- Frågan ska baseras på KONKRET information i texten
+- Frågan ska vara ÖPPEN - eleven ska skriva ett resonerande svar (INTE flerval!)
+- Eleven ska visa att de läst och förstått texten
+- Anpassa språk och komplexitet för årskursen
+- Lätt: Grundläggande förståelse (t.ex. "Enligt texten, vad...", "Beskriv hur texten beskriver...")
+- Medel: Förklara samband i texten (t.ex. "Varför nämner texten...", "Hur hänger ... ihop enligt texten...")
+- Svår: Analysera och reflektera över texten (t.ex. "Analysera hur texten presenterar...", "Vilka perspektiv saknas i texten...")
+
+UNDVIK:
+- Flervalsfrågor
+- Ja/nej-frågor
+- Frågor om kunskap UTANFÖR texten
+
+Skapa också 3 SOKRATISKA ledtrådar som hänvisar tillbaka till texten.
+
+Svara i JSON-format:
+{
+  "question": "din fråga baserad på texten",
+  "hints": ["ledtråd 1", "ledtråd 2", "ledtråd 3"]
+}`;
+            } else {
+                // ÄMNESBASERAT LÄGE - Frågor om allmän kunskap
+                prompt = `Du är en lärare som skapar provfrågor i ${examSubject}.
 
 ÄMNE: ${examTopic}
 SVÅRIGHETSGRAD: ${difficultyText}
@@ -552,6 +659,7 @@ Svara i JSON-format:
   "question": "din öppna fråga här",
   "hints": ["ledtråd 1", "ledtråd 2", "ledtråd 3"]
 }`;
+            }
 
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
