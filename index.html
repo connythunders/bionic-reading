@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bionic Reading - Läs snabbare och mer fokuserat</title>
     <meta name="description" content="Omvandla text för snabbare och mer fokuserad läsning med Bionic Reading-teknologi">
+
+    <!-- Libraries for file handling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -577,6 +582,8 @@
                         <span class="char-count"><span id="char-count">0</span> tecken</span>
                     </div>
                     <textarea id="input-text" placeholder="Klistra in text eller ladda upp en fil...">Bionic Reading är en läsmetod som hjälper dig att läsa snabbare och mer fokuserat. Genom att markera de viktigaste delarna av varje ord guidar metoden dina ögon genom texten på ett mer effektivt sätt. Detta gör att din hjärna kan bearbeta informationen snabbare och med mindre ansträngning. Resultatet är att du kan läsa längre stunder utan att bli lika trött, samtidigt som du behåller eller till och med förbättrar din förståelse av texten.</textarea>
+                    <input type="file" id="file-input" accept=".pdf,.doc,.docx" style="display: none;">
+                    <button class="action-btn" id="upload-btn" style="margin-top: 1rem;">📁 Ladda upp fil (PDF, Word)</button>
                 </div>
                 <div class="output-section">
                     <div class="section-label">
@@ -604,6 +611,11 @@
     </footer>
 
     <script>
+        // Configure PDF.js worker
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
         // Bionic Reading Converter Logic
         const inputText = document.getElementById('input-text');
         const outputText = document.getElementById('output-text');
@@ -611,6 +623,8 @@
         const copyTextBtn = document.getElementById('copy-text-btn');
         const copyHtmlBtn = document.getElementById('copy-html-btn');
         const clearBtn = document.getElementById('clear-btn');
+        const uploadBtn = document.getElementById('upload-btn');
+        const fileInput = document.getElementById('file-input');
         const charCount = document.getElementById('char-count');
         const focusLevel = document.getElementById('focus-level');
         const fontSize = document.getElementById('font-size');
@@ -726,6 +740,88 @@
             outputText.innerHTML = '';
             charCount.textContent = '0';
         });
+
+        // File upload button click
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const fileName = file.name.toLowerCase();
+
+            try {
+                uploadBtn.innerHTML = '⏳ Läser fil...';
+                uploadBtn.disabled = true;
+
+                let extractedText = '';
+
+                if (fileName.endsWith('.pdf')) {
+                    extractedText = await extractTextFromPDF(file);
+                } else if (fileName.endsWith('.docx')) {
+                    extractedText = await extractTextFromWord(file);
+                } else if (fileName.endsWith('.doc')) {
+                    alert('Gamla Word-filer (.doc) stöds inte. Spara filen som .docx och försök igen.');
+                    uploadBtn.innerHTML = '📁 Ladda upp fil (PDF, Word)';
+                    uploadBtn.disabled = false;
+                    return;
+                } else {
+                    alert('Filformatet stöds inte. Använd PDF eller Word (.docx).');
+                    uploadBtn.innerHTML = '📁 Ladda upp fil (PDF, Word)';
+                    uploadBtn.disabled = false;
+                    return;
+                }
+
+                if (extractedText.trim()) {
+                    inputText.value = extractedText;
+                    charCount.textContent = extractedText.length;
+                    convertBtn.click(); // Auto-convert
+                    uploadBtn.innerHTML = '✅ Fil uppladdad!';
+                    setTimeout(() => {
+                        uploadBtn.innerHTML = '📁 Ladda upp fil (PDF, Word)';
+                    }, 3000);
+                } else {
+                    alert('Kunde inte hitta någon text i filen.');
+                    uploadBtn.innerHTML = '📁 Ladda upp fil (PDF, Word)';
+                }
+
+                uploadBtn.disabled = false;
+                fileInput.value = ''; // Reset file input
+
+            } catch (error) {
+                console.error('Error reading file:', error);
+                alert('Fel vid läsning av fil: ' + error.message);
+                uploadBtn.innerHTML = '📁 Ladda upp fil (PDF, Word)';
+                uploadBtn.disabled = false;
+                fileInput.value = '';
+            }
+        });
+
+        // Extract text from PDF
+        async function extractTextFromPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let fullText = '';
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += pageText + '\n\n';
+            }
+
+            return fullText.trim();
+        }
+
+        // Extract text from Word (.docx)
+        async function extractTextFromWord(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+            return result.value;
+        }
 
         // Auto-convert on load with default text
         window.addEventListener('load', () => {
