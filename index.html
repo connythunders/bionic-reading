@@ -496,9 +496,6 @@
     <header>
         <nav>
             <div class="logo">⚡ Bionic Reading</div>
-            <button class="cta-button" onclick="document.getElementById('converter-section').scrollIntoView({behavior: 'smooth'})">
-                Prova gratis
-            </button>
         </nav>
     </header>
 
@@ -507,14 +504,6 @@
         <div class="hero-content">
             <h1>Läs snabbare med Bionic Reading</h1>
             <p>Omvandla text för snabbare och mer fokuserad läsning. Öka din läshastighet med upp till 30% genom att markera nyckeldelar av orden.</p>
-            <div class="hero-buttons">
-                <button class="primary-btn" onclick="document.getElementById('converter-section').scrollIntoView({behavior: 'smooth'})">
-                    Kom igång gratis
-                </button>
-                <button class="secondary-btn" onclick="document.getElementById('features-section').scrollIntoView({behavior: 'smooth'})">
-                    Läs mer
-                </button>
-            </div>
         </div>
         <div class="hero-visual">
             <div class="demo-card">
@@ -600,27 +589,9 @@
 
             <div class="action-buttons">
                 <button class="convert-btn" id="convert-btn">🔄 Konvertera</button>
-                <button class="action-btn" id="copy-btn">📋 Kopiera HTML</button>
+                <button class="action-btn" id="copy-text-btn">📄 Kopiera text (för Word)</button>
+                <button class="action-btn" id="copy-html-btn">📋 Kopiera HTML</button>
                 <button class="action-btn" id="clear-btn">🗑️ Rensa</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Social Proof -->
-    <section class="social-proof">
-        <h2 class="section-title">Används av tusentals läsare</h2>
-        <div class="stats-grid">
-            <div class="stat">
-                <div class="stat-number">30%</div>
-                <div class="stat-label">Snabbare läsning</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">50K+</div>
-                <div class="stat-label">Aktiva användare</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">4.8/5</div>
-                <div class="stat-label">Användarrecension</div>
             </div>
         </div>
     </section>
@@ -637,7 +608,8 @@
         const inputText = document.getElementById('input-text');
         const outputText = document.getElementById('output-text');
         const convertBtn = document.getElementById('convert-btn');
-        const copyBtn = document.getElementById('copy-btn');
+        const copyTextBtn = document.getElementById('copy-text-btn');
+        const copyHtmlBtn = document.getElementById('copy-html-btn');
         const clearBtn = document.getElementById('clear-btn');
         const charCount = document.getElementById('char-count');
         const focusLevel = document.getElementById('focus-level');
@@ -706,8 +678,30 @@
             outputText.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
 
+        // Copy plain text to clipboard (for Word)
+        copyTextBtn.addEventListener('click', async () => {
+            const html = outputText.innerHTML;
+            if (!html || html.includes('Justera inställningarna')) {
+                alert('Konvertera text först innan du kopierar.');
+                return;
+            }
+
+            try {
+                // Get plain text from the output div
+                const plainText = outputText.textContent || outputText.innerText;
+                await navigator.clipboard.writeText(plainText);
+                const originalText = copyTextBtn.innerHTML;
+                copyTextBtn.innerHTML = '✅ Kopierat!';
+                setTimeout(() => {
+                    copyTextBtn.innerHTML = originalText;
+                }, 2000);
+            } catch (err) {
+                alert('Kunde inte kopiera till urklipp. Försök igen.');
+            }
+        });
+
         // Copy HTML to clipboard
-        copyBtn.addEventListener('click', async () => {
+        copyHtmlBtn.addEventListener('click', async () => {
             const html = outputText.innerHTML;
             if (!html || html.includes('Justera inställningarna')) {
                 alert('Konvertera text först innan du kopierar.');
@@ -716,10 +710,10 @@
 
             try {
                 await navigator.clipboard.writeText(html);
-                const originalText = copyBtn.innerHTML;
-                copyBtn.innerHTML = '✅ Kopierat!';
+                const originalText = copyHtmlBtn.innerHTML;
+                copyHtmlBtn.innerHTML = '✅ Kopierat!';
                 setTimeout(() => {
-                    copyBtn.innerHTML = originalText;
+                    copyHtmlBtn.innerHTML = originalText;
                 }, 2000);
             } catch (err) {
                 alert('Kunde inte kopiera till urklipp. Försök igen.');
