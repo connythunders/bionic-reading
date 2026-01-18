@@ -439,18 +439,15 @@
         </div>
     </div>
 
-    <!-- ImageTracer.js library -->
-    <script>
-    // ImageTracer.js v1.2.6 - Public Domain
-    // https://github.com/jankovicsandras/imagetracerjs
-    var ImageTracer=function(){"use strict";var e={};return e.versionnumber="1.2.6",e.optionpresets={default:{corsenabled:!1,ltres:1,qtres:1,pathomit:8,rightangleenhance:!0,colorsampling:2,numberofcolors:16,mincolorratio:0,colorquantcycles:3,layering:0,strokewidth:1,linefilter:!1,scale:1,roundcoords:1,viewbox:!1,desc:!1,lcpr:0,qcpr:0,blurradius:0,blurdelta:20},posterized1:{colorsampling:0,numberofcolors:2},posterized2:{numberofcolors:4,blurradius:5},curvy:{ltres:.01,linefilter:!0,rightangleenhance:!1},sharp:{qtres:.01,linefilter:!1},detailed:{pathomit:0,roundcoords:2,ltres:.5,qtres:.5,numberofcolors:64},smoothed:{blurradius:5,blurdelta:64},grayscale:{colorsampling:0,colorquantcycles:1,numberofcolors:7},fixedpalette:{colorsampling:0,colorquantcycles:1,numberofcolors:27},randomsampling1:{colorsampling:1,numberofcolors:8},randomsampling2:{colorsampling:1,numberofcolors:64},artistic1:{colorsampling:0,colorquantcycles:1,pathomit:0,blurradius:5,blurdelta:64,ltres:.01,linefilter:!0,numberofcolors:16,strokewidth:2},artistic2:{qtres:.01,colorsampling:0,colorquantcycles:1,numberofcolors:4,strokewidth:0},artistic3:{qtres:10,ltres:10,numberofcolors:8},artistic4:{qtres:10,ltres:10,numberofcolors:64,blurradius:5,blurdelta:256,strokewidth:2},posterized3:{ltres:1,qtres:1,pathomit:20,rightangleenhance:!0,colorsampling:0,numberofcolors:3,mincolorratio:0,colorquantcycles:3,blurradius:3,blurdelta:20,strokewidth:0,linefilter:!1,roundcoords:1,pal:[{r:0,g:0,b:100,a:255},{r:255,g:255,b:255,a:255}]}},e.gks=[.27901,.44198,.27901],e.specpalette=[{r:0,g:0,b:0,a:255},{r:128,g:128,b:128,a:255},{r:0,g:0,b:128,a:255},{r:64,g:64,b:128,a:255},{r:192,g:192,b:192,a:255},{r:255,g:255,b:255,a:255},{r:128,g:128,b:192,a:255},{r:0,g:0,b:192,a:255},{r:128,g:0,b:0,a:255},{r:128,g:64,b:64,a:255},{r:128,g:0,b:128,a:255},{r:168,g:168,b:168,a:255},{r:192,g:128,b:128,a:255},{r:192,g:0,b:0,a:255},{r:255,g:0,b:0,a:255},{r:0,g:128,b:0,a:255},{r:128,g:128,b:0,a:255},{r:0,g:255,g:0,a:255},{r:128,g:255,b:128,a:255},{r:0,g:128,b:128,a:255},{r:128,g:128,b:255,a:255},{r:0,g:64,b:128,a:255},{r:64,g:128,b:255,a:255},{r:128,g:255,b:255,a:255},{r:64,g:0,b:64,a:255},{r:192,g:0,b:255,a:255},{r:128,g:0,b:255,a:255}],e.checkimageorientation=function(e,t){try{if(e.exifdata&&e.exifdata.Orientation)switch(e.exifdata.Orientation){case 2:t.translate(e.width,0),t.scale(-1,1);break;case 3:t.translate(e.width,e.height),t.rotate(Math.PI);break;case 4:t.translate(0,e.height),t.scale(1,-1);break;case 5:t.rotate(.5*Math.PI),t.scale(1,-1);break;case 6:t.rotate(.5*Math.PI),t.translate(0,-e.height);break;case 7:t.rotate(.5*Math.PI),t.translate(e.width,-e.height),t.scale(-1,1);break;case 8:t.rotate(-.5*Math.PI),t.translate(-e.width,0)}}catch(e){}},e.loadImage=function(t,r,o){var a=new Image;o&&(a.crossOrigin="Anonymous"),a.onload=function(){var o=document.createElement("canvas");o.width=a.width,o.height=a.height;var n=o.getContext("2d");e.checkimageorientation(a,n),n.drawImage(a,0,0),r(o)},a.onerror=function(){r(null)},a.src=t},e.getImgdata=function(e){var t=e.getContext("2d");return t.getImageData(0,0,e.width,e.height)},e.drawLayers=function(e,t,r,o){r=r||1;var a,n,l,i,s,c;o?(a=o,n=a.getContext("2d")):(a=document.createElement("canvas"),a.width=t.width*r,a.height=t.height*r,n=a.getContext("2d"));for(var g=0;g<e.length;g++)if(e[g].length)for(l=0;l<e[g].length;l++){if(n.fillStyle=e[g][l].fillcolor,n.beginPath(),n.moveTo(e[g][l].segments[0].x1*r,e[g][l].segments[0].y1*r),e[g][l].segments.length>0)for(i=0;i<e[g][l].segments.length;i++)s=e[g][l].segments[i],c=e[g][l].segments[(i+1)%e[g][l].segments.length],s.hasOwnProperty("x3")?n.bezierCurveTo(s.x2*r,s.y2*r,s.x3*r,s.y3*r,s.x4*r,s.y4*r):n.lineTo(s.x2*r,s.y2*r);n.closePath(),n.fill(),e[g][l].strokecolor&&(n.strokeStyle=e[g][l].strokecolor,n.lineWidth=e[g][l].strokewidth*r,n.stroke())}return a},e.imageToSVG=function(t,r,o){o=e.checkoptions(o),e.loadImage(t,function(t){r(e.imagedataToSVG(e.getImgdata(t),o))},o.cors)},e.imagedataToSVG=function(t,r){r=e.checkoptions(r);var o=e.imagedataTotracedata(t,r);return e.getsvgstring(o,r)},e.imageToTracedata=function(t,r,o){o=e.checkoptions(o),e.loadImage(t,function(t){r(e.imagedataTotracedata(e.getImgdata(t),o))},o.cors)},e.imagedataTotracedata=function(t,r){r=e.checkoptions(r);var o,a,n,l,i=e.colorquantization(t,r);if(r.layering===0)for(n=[],l=[],o=0;o<i.palette.length;o++)a=e.layeringstep(i,o),n.push(e.pathscan(a,r.pathomit)),l.push(e.internodes(n[o],r));else{for(n=e.layeringstep(i,-1),o=0;o<i.palette.length;o++)n[o]=e.pathscan(n[o],r.pathomit);for(l=[],o=0;o<i.palette.length;o++)l.push(e.internodes(n[o],r))}return{layers:l,palette:i.palette,width:t.width,height:t.height}},e.checkoptions=function(t){if("object"!=typeof t&&(t={}),t.hasOwnProperty("preset")&&e.optionpresets.hasOwnProperty(t.preset))for(var r in e.optionpresets[t.preset])e.optionpresets[t.preset].hasOwnProperty(r)&&(t[r]=e.optionpresets[t.preset][r]);for(var o in e.optionpresets.default)e.optionpresets.default.hasOwnProperty(o)&&!t.hasOwnProperty(o)&&(t[o]=e.optionpresets.default[o]);return t},e.colorquantization=function(t,r){var o,a,n,l,i,s,c,g,u,p,b,m=[],d=[];if(r.pal)d=r.pal;else if(r.colorsampling===0)for(l=Math.floor(r.numberofcolors/2)-1,o=0;o<r.numberofcolors;o++)d.push(o<l?{r:Math.floor(255*o/l),g:Math.floor(255*o/l),b:Math.floor(255*o/l),a:255}:{r:Math.floor(255*(o-l)/(r.numberofcolors-1-l)),g:Math.floor(255*(r.numberofcolors-1-o)/(r.numberofcolors-1-l)),b:Math.floor(255*(o-l)/(r.numberofcolors-1-l)),a:255});else if(r.colorsampling===1)for(o=0;o<r.numberofcolors;o++)d.push({r:Math.floor(256*Math.random()),g:Math.floor(256*Math.random()),b:Math.floor(256*Math.random()),a:Math.floor(256*Math.random())});else for(g=t.width*t.height,u=Math.ceil(Math.sqrt(r.numberofcolors)),p=Math.ceil(g/u),b=Math.floor(g/(r.numberofcolors+1)),o=0;o<r.numberofcolors;o++)s=4*Math.floor((o+1)*b/p)*t.width+4*(Math.floor((o+1)*b)%t.width),d.push({r:t.data[s],g:t.data[s+1],b:t.data[s+2],a:t.data[s+3]});if(r.blurradius>0&&(t=e.blur(t,r.blurradius,r.blurdelta)),r.colorquantcycles>0){for(c=0;c<r.colorquantcycles;c++){for(a=0;a<d.length;a++)m[a]={r:0,g:0,b:0,a:0,n:0};for(n=0;n<t.height;n++)for(o=0;o<t.width;o++)s=4*(n*t.width+o),i=e.colorqindex(d,t.data[s],t.data[s+1],t.data[s+2],t.data[s+3]),m[i].r+=t.data[s],m[i].g+=t.data[s+1],m[i].b+=t.data[s+2],m[i].a+=t.data[s+3],m[i].n++;for(a=0;a<d.length;a++)m[a].n>0?(d[a]={r:Math.floor(m[a].r/m[a].n),g:Math.floor(m[a].g/m[a].n),b:Math.floor(m[a].b/m[a].n),a:Math.floor(m[a].a/m[a].n)},m[a].n/g<r.mincolorratio&&c<r.colorquantcycles-1&&(d[a]={r:Math.floor(256*Math.random()),g:Math.floor(256*Math.random()),b:Math.floor(256*Math.random()),a:Math.floor(256*Math.random())})):d[a]={r:Math.floor(256*Math.random()),g:Math.floor(256*Math.random()),b:Math.floor(256*Math.random()),a:Math.floor(256*Math.random())}}var h=[];for(o=0;o<t.width;o++)h[o]=[];for(n=0;n<t.height;n++)for(o=0;o<t.width;o++)s=4*(n*t.width+o),h[o][n]=e.colorqindex(d,t.data[s],t.data[s+1],t.data[s+2],t.data[s+3]);return{array:h,palette:d}}return{array:t,palette:d}},e.colorqindex=function(e,t,r,o,a){for(var n,l=0,i=1024,s=0;s<e.length;s++)(n=Math.abs(e[s].r-t)+Math.abs(e[s].g-r)+Math.abs(e[s].b-o)+Math.abs(e[s].a-a))<i&&(i=n,l=s);return l},e.blur=function(t,r,o){var a,n,l,i,s,c=t.data.slice(0),g=Math.floor(r);if(g<1)return t;for(n=0;n<t.height;n++)for(a=0;a<t.width;a++)for(i=0;i<4;i++)for(l=-g,s=0;l<g+1;l++)s+=a+l<0||a+l>=t.width?c[4*(n*t.width+a)+i]:c[4*(n*t.width+a+l)+i];return t.data[4*(n*t.width+a)+i]=Math.floor(s/(2*g+1)),t},e.layeringstep=function(e,t){var r,o,a,n,l,i,s,c,g,u,p=e.array,b=e.palette,m=[];if(t<0){for(r=0;r<b.length;r++){for(m[r]=[],a=0;a<p[0].length+2;a++)for(m[r][a]=[],o=0;o<p.length+2;o++)m[r][a][o]=0;for(a=0;a<p[0].length;a++)for(o=0;o<p.length;o++)m[r][a+1][o+1]=p[o][a]===r?1:0}for(n=0;n<b.length;n++)for(a=1;a<m[n].length-1;a++)for(o=1;o<m[n][a].length-1;o++)m[n][a][o]===0&&(l=m[n][a-1][o-1],i=m[n][a-1][o],s=m[n][a-1][o+1],c=m[n][a][o-1],g=m[n][a][o+1],u=m[n][a+1][o-1],l===1&&u===1&&(m[n][a][o]=1),i===1&&(m[n][a][o]=1),s===1&&u===1&&(m[n][a][o]=1),c===1&&(m[n][a][o]=1),g===1&&(m[n][a][o]=1),l===1&&s===1&&(m[n][a][o]=1),l===1&&u===1&&(m[n][a][o]=1),s===1&&u===1&&(m[n][a][o]=1))}else{for(m[0]=[],a=0;a<p[0].length+2;a++)for(m[0][a]=[],o=0;o<p.length+2;o++)m[0][a][o]=0;for(a=0;a<p[0].length;a++)for(o=0;o<p.length;o++)m[0][a+1][o+1]=p[o][a]===t?1:0}return m},e.pathscan=function(e,t){var r,o,a,n,l,i,s,c,g,u,p,b=[];for(t=t||0,u=0;u<e.length;u++){for(b[u]=[],a=0;a<e[u].length;a++)for(r=0;r<e[u][a].length;r++)if(e[u][a][r]===1){n=a,l=r,i=!0,o={},o.points=[],o.boundingbox=[a,r,a,r],o.holechildren=[];do{o.points.push({x:l-1,y:n-1,t:8*(e[u][n-1][l-1]||0)+4*(e[u][n-1][l]||0)+2*(e[u][n][l]||0)+(e[u][n][l-1]||0)}),o.boundingbox[0]>n-1&&(o.boundingbox[0]=n-1),o.boundingbox[1]>l-1&&(o.boundingbox[1]=l-1),o.boundingbox[2]<n-1&&(o.boundingbox[2]=n-1),o.boundingbox[3]<l-1&&(o.boundingbox[3]=l-1),s=8*(e[u][n-1][l-1]||0)+4*(e[u][n-1][l]||0)+2*(e[u][n][l]||0)+(e[u][n][l-1]||0),(s===0||s===15)&&(i=!1),s===1||s===5||s===13?(l--,c=0):s===2||s===3||s===7?(n--,c=1):s===8||s===10||s===11?(l++,c=2):s===4||s===12||s===14?(n++,c=3):s===6?c===0?(n--,c=1):(n++,c=3):s===9&&(c===3?(l--,c=0):(l++,c=2))}while(n!==a||l!==r);o.points.length>t&&b[u].push(o),e[u][a][r]=0}}for(u=0;u<b.length;u++)for(p=0;p<b[u].length;p++)for(g=0;g<b[u].length;g++)g!==p&&b[u][g].boundingbox[0]<b[u][p].boundingbox[0]&&b[u][g].boundingbox[1]<b[u][p].boundingbox[1]&&b[u][g].boundingbox[2]>b[u][p].boundingbox[2]&&b[u][g].boundingbox[3]>b[u][p].boundingbox[3]&&b[u][g].holechildren.push(p);return b},e.internodes=function(t,r){var o,a,n,l,i,s=[];for(n=0;n<t.length;n++){for(s[n]=[],o=0;o<t[n].length;o++){for(s[n][o]={segments:[],boundingbox:t[n][o].boundingbox,holechildren:t[n][o].holechildren},l={},l.x=(t[n][o].points[0].x+t[n][o].points[t[n][o].points.length-1].x)/2,l.y=(t[n][o].points[0].y+t[n][o].points[t[n][o].points.length-1].y)/2,a=0;a<t[n][o].points.length;a++)i={},i.x=(t[n][o].points[a].x+t[n][o].points[(a+1)%t[n][o].points.length].x)/2,i.y=(t[n][o].points[a].y+t[n][o].points[(a+1)%t[n][o].points.length].y)/2,s[n][o].segments.push(e.fitseq(t[n][o],r,l,i)),l=i;s[n][o].segments=e.batchsmooth(s[n][o].segments,r)}s[n]=e.batchroundcoords(s[n],r.roundcoords)}return s},e.fitseq=function(t,r,o,a){var n,l,i,s,c,g,u,p,b,m,d,h,y,f,v,x;if(r.rightangleenhance&&(((h=(t.points[(o.x+1)%(t.points.length+1)].t||0)+(t.points[(a.x+1)%(t.points.length+1)].t||0))===17||h===15)&&(y=o.x===a.x,f=o.y===a.y,v={x:y?(o.x+a.x)/2:o.x,y:f?(o.y+a.y)/2:o.y},x={x:y?(o.x+a.x)/2:a.x,y:f?(o.y+a.y)/2:a.y}),f={type:"L",x1:o.x,y1:o.y,x2:a.x,y2:a.y}),r.linefilter&&(f.type="L"),!f){for(s=-1,u=0,n=o.x+1;n<a.x;n++)l=t.points[n].x-o.x,i=t.points[n].y-o.y,p=a.x-o.x,b=a.y-o.y,m=l*b-i*p,d=Math.sqrt(m*m/(p*p+b*b)),d>u&&(s=n,u=d);if(s!==-1&&u>r.ltres)return{type:"Q",x1:o.x,y1:o.y,x2:(c=t.points[s]).x,y2:c.y,x3:a.x,y3:a.y};for(g=0,s=-1,n=o.x+1;n<a.x;n++)l=t.points[n].x-o.x,i=t.points[n].y-o.y,p=a.x-o.x,b=a.y-o.y,m=Math.abs(l*p+i*b)/Math.sqrt(p*p+b*b),m>g&&(s=n,g=m);if(s!==-1&&g>r.qtres)return{type:"Q",x1:o.x,y1:o.y,x2:(c=t.points[s]).x,y2:c.y,x3:a.x,y3:a.y};f={type:"L",x1:o.x,y1:o.y,x2:a.x,y2:a.y}}return f},e.batchsmooth=function(e,t){var r,o=[];for(r=0;r<e.length;r++)o.push(e[r].type==="L"?e[r]:{type:"Q",x1:e[r].x1,y1:e[r].y1,x2:(e[r].x1+e[r].x2)/2,y2:(e[r].y1+e[r].y2)/2,x3:(e[r].x2+e[(r+1)%e.length].x1)/2,y3:(e[r].y2+e[(r+1)%e.length].y1)/2});return o},e.batchroundcoords=function(e,t){var r,o,a;for(t=t||1,r=0;r<e.length;r++)for(o=0;o<e[r].segments.length;o++)for(a in e[r].segments[o])e[r].segments[o].hasOwnProperty(a)&&"number"==typeof e[r].segments[o][a]&&(e[r].segments[o][a]=Math.round(e[r].segments[o][a]*t)/t);return e},e.getsvgstring=function(t,r){var o,a,n,l,i,s,c,g,u;for(r=e.checkoptions(r),u=r.viewbox?'viewBox="0 0 '+t.width+" "+t.height+'" width="'+t.width*r.scale+'" height="'+t.height*r.scale+'" ':"",g='<svg xmlns="http://www.w3.org/2000/svg" '+u+'version="1.1">',r.desc&&(g+="<desc>Created with ImageTracer.js version "+e.versionnumber+"</desc>"),c=0;c<t.layers.length;c++)for(s=0;s<t.layers[c].length;s++)for(g+='<path d="',a=0;a<t.layers[c][s].segments.length;a++)o=t.layers[c][s].segments[a],a===0&&(g+="M "+o.x1*r.scale+" "+o.y1*r.scale+" "),o.type==="L"?g+="L "+o.x2*r.scale+" "+o.y2*r.scale+" ":g+="Q "+o.x2*r.scale+" "+o.y2*r.scale+" "+o.x3*r.scale+" "+o.y3*r.scale+" ";for(g+='Z" ',n="fill:rgba("+(l=t.palette[c]).r+","+l.g+","+l.b+","+l.a/255+")",r.strokewidth>0&&(i="stroke:rgba("+l.r+","+l.g+","+l.b+","+l.a/255+"); stroke-width:"+r.strokewidth),g+='style="'+n+(r.strokewidth>0?"; "+i:"")+'"/>'}return g+="</svg>"},e}();
-    </script>
+    <!-- Load ImageTracer.js from CDN -->
+    <script src="https://unpkg.com/imagetracerjs@1.2.6/imagetracer_v1.2.6.js"></script>
 
     <script>
         // App State
-        let currentImage = null;
+        let currentImageData = null;
         let currentSvg = null;
         let originalFileName = '';
+        let canvasForImage = null;
 
         // DOM Elements
         const uploadZone = document.getElementById('uploadZone');
@@ -470,6 +467,13 @@
         const strokeValue = document.getElementById('strokeValue');
         const blurRadius = document.getElementById('blurRadius');
         const blurValue = document.getElementById('blurValue');
+
+        // Check if ImageTracer loaded
+        window.addEventListener('load', function() {
+            if (typeof ImageTracer === 'undefined') {
+                showStatus('Kunde inte ladda vektoriseringsbiblioteket. Ladda om sidan.', 'error');
+            }
+        });
 
         // Event Listeners
         uploadZone.addEventListener('click', () => fileInput.click());
@@ -511,7 +515,7 @@
 
         function processFile(file) {
             if (!file.type.startsWith('image/')) {
-                showStatus('Vänligen välj en bildfil.', 'error');
+                showStatus('Vanligen valj en bildfil.', 'error');
                 return;
             }
 
@@ -521,7 +525,31 @@
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    currentImage = img;
+                    // Scale down large images to prevent memory issues
+                    const maxSize = 1000;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxSize || height > maxSize) {
+                        if (width > height) {
+                            height = Math.round(height * maxSize / width);
+                            width = maxSize;
+                        } else {
+                            width = Math.round(width * maxSize / height);
+                            height = maxSize;
+                        }
+                    }
+
+                    // Create canvas and draw image
+                    canvasForImage = document.createElement('canvas');
+                    canvasForImage.width = width;
+                    canvasForImage.height = height;
+                    const ctx = canvasForImage.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Store image data
+                    currentImageData = ctx.getImageData(0, 0, width, height);
+
                     originalPreview.src = e.target.result;
 
                     // Update UI
@@ -530,14 +558,14 @@
                         <div class="upload-icon">✓</div>
                         <h3>Bild laddad!</h3>
                         <p>${file.name}</p>
-                        <p style="margin-top: 10px; font-size: 0.9em;">Klicka för att byta bild</p>
+                        <p style="margin-top: 10px; font-size: 0.9em;">Klicka for att byta bild</p>
                     `;
 
                     // Show file info
                     fileInfo.innerHTML = `
                         <strong>Filnamn:</strong> ${file.name}<br>
                         <strong>Storlek:</strong> ${formatFileSize(file.size)}<br>
-                        <strong>Dimensioner:</strong> ${img.width} x ${img.height} px
+                        <strong>Dimensioner:</strong> ${width} x ${height} px
                     `;
 
                     // Show panels
@@ -546,28 +574,36 @@
                     vectorizeBtn.disabled = false;
 
                     // Hide SVG preview until vectorized
-                    svgPreview.innerHTML = '<p style="color: #999;">Klicka på "Vektorisera" för att se resultatet</p>';
+                    svgPreview.innerHTML = '<p style="color: #999;">Klicka pa "Vektorisera" for att se resultatet</p>';
                     svgInfo.innerHTML = '';
                     downloadBtn.style.display = 'none';
                     resetBtn.style.display = 'inline-flex';
 
-                    showStatus('Bild laddad! Justera inställningarna och klicka på "Vektorisera".', 'success');
+                    showStatus('Bild laddad! Justera installningarna och klicka pa "Vektorisera".', 'success');
                 };
                 img.onerror = function() {
-                    showStatus('Kunde inte ladda bilden. Försök med en annan fil.', 'error');
+                    showStatus('Kunde inte ladda bilden. Forsok med en annan fil.', 'error');
                 };
                 img.src = e.target.result;
             };
 
             reader.onerror = function() {
-                showStatus('Fel vid läsning av fil.', 'error');
+                showStatus('Fel vid lasning av fil.', 'error');
             };
 
             reader.readAsDataURL(file);
         }
 
         function vectorizeImage() {
-            if (!currentImage) return;
+            if (!currentImageData) {
+                showStatus('Ingen bild laddad.', 'error');
+                return;
+            }
+
+            if (typeof ImageTracer === 'undefined') {
+                showStatus('Vektoriseringsbiblioteket ar inte laddat. Ladda om sidan.', 'error');
+                return;
+            }
 
             loading.classList.add('visible');
             vectorizeBtn.disabled = true;
@@ -576,21 +612,15 @@
             // Use setTimeout to allow UI to update
             setTimeout(() => {
                 try {
-                    // Create canvas from image
-                    const canvas = document.createElement('canvas');
-                    canvas.width = currentImage.width;
-                    canvas.height = currentImage.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(currentImage, 0, 0);
-
-                    // Get image data
-                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
                     // Build options based on settings
                     const options = buildOptions();
 
                     // Perform vectorization
-                    const svgString = ImageTracer.imagedataToSVG(imgData, options);
+                    const svgString = ImageTracer.imagedataToSVG(currentImageData, options);
+
+                    if (!svgString || svgString.length < 50) {
+                        throw new Error('Vektoriseringen producerade inget resultat');
+                    }
 
                     // Display result
                     currentSvg = svgString;
@@ -601,6 +631,7 @@
                     if (svgElement) {
                         svgElement.style.maxWidth = '100%';
                         svgElement.style.height = 'auto';
+                        svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
                     }
 
                     // Update SVG info
@@ -608,7 +639,7 @@
                     svgInfo.innerHTML = `
                         <strong>Format:</strong> SVG (Vektorgrafik)<br>
                         <strong>Storlek:</strong> ${formatFileSize(svgSize)}<br>
-                        <strong>Skalbar:</strong> Ja (utan kvalitetsförlust)
+                        <strong>Skalbar:</strong> Ja (utan kvalitetsforlust)
                     `;
 
                     // Show download button
@@ -618,7 +649,7 @@
 
                 } catch (error) {
                     console.error('Vectorization error:', error);
-                    showStatus('Ett fel uppstod vid vektoriseringen. Försök igen.', 'error');
+                    showStatus('Ett fel uppstod: ' + error.message, 'error');
                 } finally {
                     loading.classList.remove('visible');
                     vectorizeBtn.disabled = false;
@@ -635,6 +666,9 @@
             let options = {
                 strokewidth: stroke,
                 blurradius: blur,
+                scale: 1,
+                roundcoords: 1,
+                viewbox: true,
             };
 
             // Color mode settings
@@ -697,18 +731,19 @@
         }
 
         function resetApp() {
-            currentImage = null;
+            currentImageData = null;
             currentSvg = null;
             originalFileName = '';
+            canvasForImage = null;
             fileInput.value = '';
 
             uploadZone.classList.remove('has-image');
             uploadZone.innerHTML = `
                 <div class="upload-icon">📁</div>
-                <h3>Dra och släpp din bild här</h3>
-                <p>eller klicka för att välja fil</p>
+                <h3>Dra och slapp din bild har</h3>
+                <p>eller klicka for att valja fil</p>
                 <p style="margin-top: 10px; font-size: 0.9em; color: #888;">
-                    Stödda format: PNG, JPG, GIF, BMP, WebP
+                    Stodda format: PNG, JPG, GIF, BMP, WebP
                 </p>
             `;
 
