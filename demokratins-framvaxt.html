@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demokratins framväxt i Sverige</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1e3a5f;
+            --secondary: #fecc00;
+            --accent: #005293;
+            --text-dark: #1a1a2e;
+            --text-light: #4a4a68;
+            --bg-light: #f0f4f8;
+            --bg-white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .presentation-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .presentation-header {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .presentation-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .slide-counter {
+            background: var(--secondary);
+            color: var(--primary);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Slides Container */
+        .slides-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 2rem 3rem;
+            display: none;
+            flex-direction: column;
+            animation: slideIn 0.4s ease;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Slide Types */
+        .slide-title {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .slide-title h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .slide-title .subtitle {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            max-width: 700px;
+        }
+
+        .slide-content {
+            background: var(--bg-white);
+        }
+
+        .slide-content h2 {
+            color: var(--primary);
+            font-size: 1.9rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 4px solid var(--secondary);
+            display: inline-block;
+        }
+
+        .slide-content .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            flex: 1;
+        }
+
+        .slide-content .content-full {
+            flex: 1;
+        }
+
+        .content-box {
+            background: var(--bg-light);
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            border-left: 5px solid var(--secondary);
+        }
+
+        .content-box h3 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-size: 1.15rem;
+        }
+
+        .content-box ul {
+            margin-left: 1.25rem;
+        }
+
+        .content-box li {
+            margin-bottom: 0.3rem;
+            font-size: 1rem;
+        }
+
+        .key-points {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .key-point {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-light);
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .key-point-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .key-point-text {
+            font-size: 1rem;
+        }
+
+        .key-point-text strong {
+            color: var(--primary);
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .timeline-year {
+            background: var(--primary);
+            color: white;
+            padding: 0.4rem 0.75rem;
+            border-radius: 8px;
+            font-weight: bold;
+            min-width: 90px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .timeline-event {
+            flex: 1;
+            background: var(--bg-light);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        /* Quote */
+        .quote-box {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin: 0.75rem 0;
+            font-style: italic;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .quote-author {
+            margin-top: 0.5rem;
+            font-style: normal;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Highlight boxes */
+        .highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+
+        .highlight-box {
+            background: var(--bg-light);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border-top: 4px solid var(--secondary);
+        }
+
+        .highlight-box h4 {
+            color: var(--primary);
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .highlight-box p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        /* Summary slide */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .summary-card {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 12px;
+            border-left: 5px solid var(--secondary);
+        }
+
+        .summary-card h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .summary-card ul {
+            margin-left: 1.25rem;
+        }
+
+        .summary-card li {
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        /* Navigation */
+        .navigation {
+            background: var(--bg-white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dot.active {
+            background: var(--secondary);
+            transform: scale(1.2);
+        }
+
+        .dot:hover {
+            background: var(--accent);
+        }
+
+        /* Facts box */
+        .facts-box {
+            background: var(--secondary);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+
+        .facts-box h4 {
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .facts-box p {
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .slide {
+                padding: 2rem;
+            }
+
+            .slide-title h1 {
+                font-size: 2.5rem;
+            }
+
+            .slide-content h2 {
+                font-size: 1.8rem;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .highlight-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .slide {
+                padding: 1.5rem;
+            }
+
+            .slide-title h1 {
+                font-size: 2rem;
+            }
+
+            .highlight-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .navigation, .presentation-header {
+                display: none;
+            }
+
+            .slide {
+                display: flex !important;
+                page-break-after: always;
+                position: relative;
+                height: auto;
+                min-height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <header class="presentation-header">
+            <span class="presentation-title">Demokratins framväxt i Sverige</span>
+            <span class="slide-counter" id="slideCounter">1 / 12</span>
+        </header>
+
+        <div class="slides-wrapper">
+            <!-- Slide 1: Titel -->
+            <div class="slide slide-title active" data-slide="1">
+                <h1>Demokratins framväxt i Sverige</h1>
+                <p class="subtitle">Kampen för rösträtt och parlamentarism under 1800- och 1900-talet</p>
+            </div>
+
+            <!-- Slide 2: Bakgrund -->
+            <div class="slide slide-content" data-slide="2">
+                <h2>Sverige förändras</h2>
+                <div class="content-grid">
+                    <div class="content-box">
+                        <h3>1800-talets stora förändringar</h3>
+                        <ul>
+                            <li>Den agrara revolutionen förändrade jordbruket</li>
+                            <li>Den industriella revolutionen skapade fabriker och städer</li>
+                            <li>Sociala, politiska och kulturella förhållanden ändrades radikalt</li>
+                        </ul>
+                    </div>
+                    <div class="content-box">
+                        <h3>Från envälde till folkvälde</h3>
+                        <ul>
+                            <li>Sverige gick från auktoritär monarki till demokrati</li>
+                            <li>Fåtalsväldet ersattes av folkvälde</li>
+                            <li>De två viktigaste frågorna: <strong>rösträtt</strong> och <strong>parlamentarism</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="facts-box">
+                    <h4>Viktigt att förstå</h4>
+                    <p>Demokratiseringen var en lång process som tog över 100 år. Det handlade om vem som skulle få vara med och bestämma.</p>
+                </div>
+            </div>
+
+            <!-- Slide 3: Individen träder fram -->
+            <div class="slide slide-content" data-slide="3">
+                <h2>Individen träder fram</h2>
+                <div class="key-points">
+                    <div class="key-point">
+                        <span class="key-point-icon">&#128101;</span>
+                        <div class="key-point-text">
+                            <strong>Ståndssamhället:</strong> Människor föddes in i en grupp (adelsmän, prästmän, borgare eller bönder) och stannade där hela livet. Gruppens intressen var viktigare än individens.
+                        </div>
+                    </div>
+                    <div class="key-point">
+                        <span class="key-point-icon">&#128100;</span>
+                        <div class="key-point-text">
+                            <strong>Ny tid:</strong> Under 1800-talets senare del kom individen i centrum. Det var individen som kunde göra sin röst hörd i tidningar och föreningar.
+                        </div>
+                    </div>
+                    <div class="key-point">
+                        <span class="key-point-icon">&#128200;</span>
+                        <div class="key-point-text">
+                            <strong>Nya klasser:</strong> Istället för stånd talade man nu om klasser - arbetarklassen, medelklassen och överklassen - baserat på ekonomiska förutsättningar.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Staten får en ny roll -->
+            <div class="slide slide-content" data-slide="4">
+                <h2>Staten får en ny roll</h2>
+                <div class="content-grid">
+                    <div class="content-box">
+                        <h3>Före reformerna</h3>
+                        <ul>
+                            <li>Staten och kungen var ett</li>
+                            <li>Kungen styrde som om staten var hans privata egendom</li>
+                            <li>Regeringen bestod av kungens anhängare</li>
+                            <li>Det som var bra för kungen ansågs vara bra för landet</li>
+                        </ul>
+                    </div>
+                    <div class="content-box">
+                        <h3>Efter reformerna</h3>
+                        <ul>
+                            <li>Kungens makt begränsades</li>
+                            <li>Riksdagens makt ökade</li>
+                            <li>Regeringen och riksdagen representerade folkviljan</li>
+                            <li>Staten blev ett instrument för att tjäna alla</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="facts-box">
+                    <h4>Viktig förändring</h4>
+                    <p>"Allas bästa" bestämdes nu i en politisk process där olika intressen jämkades samman genom dialog - inte av kungen ensam.</p>
+                </div>
+            </div>
+
+            <!-- Slide 5: Folkrörelserna -->
+            <div class="slide slide-content" data-slide="5">
+                <h2>Folkrörelserna - demokratiskolan</h2>
+                <p style="margin-bottom: 1.5rem; font-size: 1.15rem;">Folkrörelserna var massorganisationer där medlemmar lärde sig demokratins grunder: hålla möten, debattera och fatta beslut tillsammans.</p>
+                <div class="highlight-grid">
+                    <div class="highlight-box">
+                        <h4>Väckelserörelserna</h4>
+                        <p>Religiösa föreningar som samlade människor utanför statskyrkan</p>
+                    </div>
+                    <div class="highlight-box">
+                        <h4>Nykterhetsrörelsen</h4>
+                        <p>Kämpade mot alkoholens skadeverkningar i samhället</p>
+                    </div>
+                    <div class="highlight-box">
+                        <h4>Kvinnorörelsen</h4>
+                        <p>Kämpade för kvinnors rättigheter och rösträtt</p>
+                    </div>
+                    <div class="highlight-box">
+                        <h4>Arbetarrörelsen</h4>
+                        <p>Organiserade arbetare för bättre villkor och politiskt inflytande</p>
+                    </div>
+                </div>
+                <div class="facts-box">
+                    <h4>Folkrörelsernas betydelse</h4>
+                    <p>Genom att arbeta i föreningar lärde sig vanliga människor hur demokrati fungerar i praktiken. De blev en politisk kraft genom sin storlek.</p>
+                </div>
+            </div>
+
+            <!-- Slide 6: Politiska partier och press -->
+            <div class="slide slide-content" data-slide="6">
+                <h2>Partier och dagspress</h2>
+                <div class="content-grid">
+                    <div class="content-box">
+                        <h3>Politiska partier växer fram</h3>
+                        <ul>
+                            <li><strong>1889:</strong> SAP (Socialdemokraterna) - Sveriges första moderna parti</li>
+                            <li>Liberala samlingspartiet - för rösträtt</li>
+                            <li>Allmänna valmansförbundet - högerns organisation</li>
+                            <li><strong>1913:</strong> Bondeförbundet bildas</li>
+                        </ul>
+                    </div>
+                    <div class="content-box">
+                        <h3>Dagspressen skapar opinion</h3>
+                        <ul>
+                            <li>Bättre tryckteknik och billigare papper</li>
+                            <li>Fler lärde sig läsa i folkskolan</li>
+                            <li>1920: 189 dagstidningar i Sverige</li>
+                            <li>Många tidningar hade koppling till partier</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="facts-box">
+                    <h4>Viktigt</h4>
+                    <p>Dagspressen blev Sveriges första verkliga massmedium och spelade en viktig roll för att sprida politiska idéer.</p>
+                </div>
+            </div>
+
+            <!-- Slide 7: Tvåkammarriksdag -->
+            <div class="slide slide-content" data-slide="7">
+                <h2>Från ståndsriksdag till tvåkammarriksdag</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <span class="timeline-year">1866</span>
+                        <span class="timeline-event">Ståndsriksdagen avskaffas och tvåkammarriksdagen införs. Första kammaren valdes indirekt, andra kammaren direkt.</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1880-talet</span>
+                        <span class="timeline-event">Tullfrågan splittrar riksdagen. Första gången man går till val för att avgöra en särskild fråga.</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">Konflikter</span>
+                        <span class="timeline-event">Första kammaren (högadel, rika) mot andra kammaren (bönder) om försvar och skatter.</span>
+                    </div>
+                </div>
+                <div class="facts-box">
+                    <h4>Problem med systemet</h4>
+                    <p>Inte många hade rätt att rösta, och få deltog i det första valet. Vägen mot parlamentarism och allmän rösträtt var lång.</p>
+                </div>
+            </div>
+
+            <!-- Slide 8: Kampen om rösträtten -->
+            <div class="slide slide-content" data-slide="8">
+                <h2>Kampen om rösträtten</h2>
+                <div class="content-grid">
+                    <div class="content-box">
+                        <h3>Så orättvist var det</h3>
+                        <ul>
+                            <li>Mindre än <strong>7%</strong> av befolkningen hade rösträtt</li>
+                            <li>Bara <strong>män</strong> fick rösta i riksdagsvalet</li>
+                            <li>Man måste ha minst <strong>800 kr</strong> i årsinkomst</li>
+                            <li>Gifta kvinnor var oftast inte myndiga</li>
+                            <li>Ju högre inkomst, desto fler röster</li>
+                        </ul>
+                    </div>
+                    <div class="content-box">
+                        <h3>I kommunalvalen</h3>
+                        <ul>
+                            <li>Både kvinnor och män hade rösträtt</li>
+                            <li>Men bara med inkomst över 500 kr/år</li>
+                            <li>Inkomsten avgjorde hur många röster man hade</li>
+                            <li>Även företag hade rösträtt!</li>
+                            <li>Endast ca 12% fick rösta</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="quote-box">
+                    "Det är skam, det är fläck på Sveriges baner, att medborgarrätt heter pengar."
+                    <div class="quote-author">- Verner von Heidenstam, 1899</div>
+                </div>
+            </div>
+
+            <!-- Slide 9: Rösträttsrörelsen -->
+            <div class="slide slide-content" data-slide="9">
+                <h2>Rösträttsrörelsen</h2>
+                <div class="key-points">
+                    <div class="key-point">
+                        <span class="key-point-icon">&#128227;</span>
+                        <div class="key-point-text">
+                            <strong>1890:</strong> Sveriges Allmänna Rösträttsförbund bildas. Lokala föreningar går ihop för att kräva att fler ska få rösta.
+                        </div>
+                    </div>
+                    <div class="key-point">
+                        <span class="key-point-icon">&#128170;</span>
+                        <div class="key-point-text">
+                            <strong>Viktigt argument:</strong> Med allmän värnplikt på 1890-talet: "Den som försvarar sitt land ska ha rätt att påverka hur det styrs." Slagord: <em>"En man, en röst, ett gevär"</em>
+                        </div>
+                    </div>
+                    <div class="key-point">
+                        <span class="key-point-icon">&#9792;</span>
+                        <div class="key-point-text">
+                            <strong>Kvinnornas kamp:</strong> 1899 lämnade Fredrika-Bremer-Förbundet in begäran om kvinnlig rösträtt. Landsföreningen för kvinnans politiska rösträtt bildades senare.
+                        </div>
+                    </div>
+                </div>
+                <div class="facts-box">
+                    <h4>Klass eller kön?</h4>
+                    <p>Arbetarrörelsen och kvinnorörelsen var inte alltid överens. En del ansåg att kvinnors rösträtt var ett "särintresse" som kunde vänta.</p>
+                </div>
+            </div>
+
+            <!-- Slide 10: Allmän rösträtt -->
+            <div class="slide slide-content" data-slide="10">
+                <h2>Allmän rösträtt - till slut!</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <span class="timeline-year">1905</span>
+                        <span class="timeline-event">Vänstern (liberaler och socialdemokrater) får majoritet i andra kammaren. Karl Staaff blir första liberala statsminister.</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1909</span>
+                        <span class="timeline-event">Arvid Lindmans konservativa regering inför proportionellt valsystem - fler män får rösta. Men ännu inte kvinnorna.</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1919-1921</span>
+                        <span class="timeline-event">Allmän rösträtt för både män och kvinnor införs. Hösten 1921 kan för första gången alla myndiga delta i val.</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1921</span>
+                        <span class="timeline-event">Fyra kvinnor väljs in i andra kammaren och en kvinna i första. Kerstin Hesselgren blir första kvinnan i första kammaren.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 11: Parlamentarism -->
+            <div class="slide slide-content" data-slide="11">
+                <h2>Vägen till parlamentarism</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <span class="timeline-year">1905</span>
+                        <span class="timeline-event">Unionen med Norge upplöses fredligt. En nationell samlingsregering bildas - första steget mot parlamentarism.</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1909</span>
+                        <span class="timeline-event"><strong>Storstrejken:</strong> 300 000 arbetare strejkar. LO förlorar, men konflikten visar på spänningarna i samhället.</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1914</span>
+                        <span class="timeline-event"><strong>Borggårdskrisen:</strong> Kung Gustaf V talar mot regeringen inför 30 000 bondetågsdeltagare. Karl Staaff avgår i protest.</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1917</span>
+                        <span class="timeline-event"><strong>Genombrottet:</strong> Socialdemokraterna blir största parti. Nils Edén bildar regering - riksdagens sammansättning bestämmer nu vem som bildar regering.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 12: Sammanfattning -->
+            <div class="slide slide-content" data-slide="12">
+                <h2>Sammanfattning</h2>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <h3>&#127959; Ny riksdag</h3>
+                        <ul>
+                            <li>1866: Ståndsriksdagen ersätts av tvåkammarriksdag</li>
+                            <li>Stridsfrågor: tullar, försvar, skatter</li>
+                        </ul>
+                    </div>
+                    <div class="summary-card">
+                        <h3>&#128221; Rösträtt</h3>
+                        <ul>
+                            <li>Från 7% till alla myndiga</li>
+                            <li>1919-1921: Allmän och lika rösträtt</li>
+                        </ul>
+                    </div>
+                    <div class="summary-card">
+                        <h3>&#128101; Viktiga aktörer</h3>
+                        <ul>
+                            <li>Folkrörelser: väckelse, nykterhet, kvinnor, arbetare</li>
+                            <li>Politiska partier och dagspressen</li>
+                        </ul>
+                    </div>
+                    <div class="summary-card">
+                        <h3>&#127968; Parlamentarism</h3>
+                        <ul>
+                            <li>1917: Första parlamentariska regeringen</li>
+                            <li>Riksdagen - inte kungen - bestämmer</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="quote-box" style="margin-top: 1.5rem;">
+                    Demokratins framväxt var en lång kamp för att alla människor skulle få vara med och bestämma över samhället.
+                </div>
+            </div>
+        </div>
+
+        <nav class="navigation">
+            <button class="nav-btn" id="prevBtn" disabled>&#8592; Föregående</button>
+            <div class="slide-dots" id="slideDots"></div>
+            <button class="nav-btn" id="nextBtn">Nästa &#8594;</button>
+        </nav>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const slideCounter = document.getElementById('slideCounter');
+        const slideDots = document.getElementById('slideDots');
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        // Create dots
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('span');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            dot.addEventListener('click', () => goToSlide(i));
+            slideDots.appendChild(dot);
+        }
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            // Update dots
+            const dots = slideDots.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+
+            // Update counter
+            slideCounter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+
+            // Update buttons
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlide();
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                goToSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                goToSlide(totalSlides - 1);
+            }
+        });
+
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
+            }
+        }
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+</html>
