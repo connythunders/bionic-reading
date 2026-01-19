@@ -1,0 +1,2895 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Judendom - Interaktivt Läromedel för Åk 7-9</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2c5aa0;
+            --secondary: #d4af37;
+            --accent: #6b9bd1;
+            --text-dark: #1a1a1a;
+            --text-light: #666;
+            --bg-light: #f5f7fa;
+            --bg-white: #ffffff;
+            --border: #e0e0e0;
+            --success: #4caf50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: var(--bg-light);
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 20px 30px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: rgba(44, 90, 160, 0.05);
+            color: var(--primary);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: white;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--secondary);
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: var(--primary);
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-dark);
+            font-size: 1.1em;
+        }
+
+        /* Info Cards */
+        .info-card {
+            background: var(--bg-light);
+            border-left: 5px solid var(--secondary);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .info-card.highlight {
+            background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
+            border-left-color: var(--primary);
+        }
+
+        /* Symbol Grid */
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .symbol-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .symbol-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-color: var(--primary);
+        }
+
+        .symbol-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .symbol-card h4 {
+            color: var(--primary);
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 30px 0;
+        }
+
+        .timeline-item {
+            background: var(--bg-light);
+            padding: 20px;
+            margin: 20px 0 20px 40px;
+            border-left: 4px solid var(--primary);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '●';
+            position: absolute;
+            left: -13px;
+            top: 20px;
+            color: var(--primary);
+            font-size: 20px;
+            background: white;
+        }
+
+        .timeline-year {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        /* Interactive Quiz */
+        .quiz-container {
+            background: var(--bg-light);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .quiz-question {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .quiz-option {
+            background: white;
+            padding: 20px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        .quiz-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .quiz-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .quiz-feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .quiz-feedback.incorrect {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        /* Reflection Box */
+        .reflection-box {
+            background: linear-gradient(135deg, #e8f4f8 0%, #d4e9f7 100%);
+            border: 2px solid var(--accent);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .reflection-box h3 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .reflection-question {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+
+        /* AI Quiz Section */
+        .ai-quiz-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .ai-quiz-section h3 {
+            color: white;
+            margin-top: 0;
+        }
+
+        .ai-quiz-btn {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .ai-quiz-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* List styling */
+        ul, ol {
+            margin: 20px 0;
+            padding-left: 40px;
+        }
+
+        li {
+            margin: 10px 0;
+            font-size: 1.1em;
+            color: var(--text-dark);
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .nav-tab {
+                padding: 15px 20px;
+                font-size: 14px;
+            }
+
+            .symbol-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ============================================
+           ÖVNINGAR - EXTRA CSS
+           ============================================ */
+
+        /* Matchning Övning */
+        .matching-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .matching-column h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .matching-item {
+            background: white;
+            border: 3px solid var(--border);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.05em;
+        }
+
+        .matching-item:hover {
+            transform: translateX(5px);
+            border-color: var(--accent);
+        }
+
+        .matching-item.selected {
+            background: var(--accent);
+            color: white;
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .matching-item.correct {
+            background: #d4edda;
+            border-color: var(--success);
+            color: #155724;
+        }
+
+        .matching-item.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Tidslinje Övning */
+        .timeline-exercise {
+            margin: 30px 0;
+        }
+
+        .timeline-items-container {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .timeline-draggable {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed var(--border);
+            cursor: move;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .timeline-draggable:hover {
+            background: #e8f4f8;
+            border-color: var(--accent);
+        }
+
+        .timeline-draggable.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .timeline-number {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .timeline-number.placeholder {
+            background: var(--border);
+        }
+
+        /* Jämförelse Tabell */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-size: 1.1em;
+        }
+
+        .comparison-table td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--bg-light);
+        }
+
+        .comparison-table tr:hover {
+            background: #e8f4f8;
+        }
+
+        .comparison-category {
+            font-weight: bold;
+            color: var(--primary);
+            width: 200px;
+        }
+
+        /* Analys Övning */
+        .analysis-exercise {
+            margin: 30px 0;
+        }
+
+        .scenario-card {
+            background: linear-gradient(135deg, #e8f4f8 0%, #d4e9f7 100%);
+            border: 2px solid var(--accent);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .scenario-card h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .reflection-questions {
+            margin: 20px 0;
+        }
+
+        .reflection-questions .question {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .answer-area {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1em;
+            margin: 10px 0;
+            resize: vertical;
+        }
+
+        .answer-area:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Kreativ Övning */
+        .creative-exercise {
+            margin: 30px 0;
+        }
+
+        .task-card {
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+        }
+
+        .task-card h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .task-requirements {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .task-requirements ul {
+            margin: 10px 0;
+            padding-left: 30px;
+        }
+
+        .task-requirements li {
+            margin: 8px 0;
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 10px 5px 10px 0;
+        }
+
+        .difficulty-badge.e-niva {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .difficulty-badge.c-niva {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty-badge.a-niva {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: var(--bg-light);
+            height: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Assessment Criteria Box */
+        .criteria-box {
+            background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
+            border: 2px solid var(--secondary);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .criteria-box h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .criteria-level {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 5px solid;
+        }
+
+        .criteria-level.e { border-left-color: #4caf50; }
+        .criteria-level.c { border-left-color: #ffc107; }
+        .criteria-level.a { border-left-color: #dc3545; }
+
+        .criteria-level strong {
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .matching-container {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.9em;sed -n '701,1400p' judendom-laromedel.html
+            .comparison-category {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>✡️ Judendom</h1>
+            <p>Interaktivt läromedel för religionskunskap åk 7-9</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('intro')">📖 Introduktion</button>
+            <button class="nav-tab" onclick="showSection('gud-folket')">⭐ Gud & Folket</button>
+            <button class="nav-tab" onclick="showSection('heliga-skrifter')">📖 Heliga Skrifter</button>
+            <button class="nav-tab" onclick="showSection('patriarker')">👑 Patriarker & Kungar</button>
+            <button class="nav-tab" onclick="showSection('leva-jude')">🕊️ Leva som Jude</button>
+            <button class="nav-tab" onclick="showSection('judarnas-historia')">🏛️ Judarnas Historia</button>
+            <button class="nav-tab" onclick="showSection('inriktningar')">🕍 Inriktningar</button>
+            <button class="nav-tab" onclick="showSection('hogtider')">🎉 Högtider</button>
+            <button class="nav-tab" onclick="showSection('symboler')">✡️ Symboler</button>
+            <button class="nav-tab" onclick="showSection('quiz')">🎯 Quiz</button>
+            <button class="nav-tab" onclick="showSection('ovningar')">📝 Övningar</button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Introduktion -->
+            <div id="intro" class="section active">
+                <h2>Välkommen till världens äldsta monoteistiska religion</h2>
+
+                <p>Judendom är en av världens äldsta religioner och den första som trodde på en enda gud (monoteism). Med en historia som sträcker sig över 3 500 år har judendomen format hur vi tänker om religion, etik och samhälle idag.</p>
+
+                <div class="info-card highlight">
+                    <h3>💡 Visste du att?</h3>
+                    <p>Det finns cirka 15 miljoner judar i världen idag. De flesta bor i Israel och USA. I Sverige bor ungefär 20 000 judar, främst i Stockholm, Göteborg och Malmö.</p>
+                </div>
+
+                <h3>Vad är judendom?</h3>
+                <p>Judendom är både en religion och en kulturell identitet. För många judar handlar det inte bara om vad man tror, utan också om:</p>
+                <ul>
+                    <li><strong>Tradition och historia</strong> - Att vara en del av ett folk med tusentals års historia</li>
+                    <li><strong>Gemenskap</strong> - Att tillhöra en gemenskap som delar samma traditioner</li>
+                    <li><strong>Etik och värderingar</strong> - Att leva efter judiska värderingar om rättvisa och medmänsklighet</li>
+                    <li><strong>Kultur</strong> - Mat, språk (hebreiska och jiddisch), musik och konst</li>
+                </ul>
+
+                <h3>De tre grenarna inom judendomen</h3>
+                <div class="symbol-grid">
+                    <div class="symbol-card">
+                        <div class="symbol-icon">🕍</div>
+                        <h4>Ortodox judendom</h4>
+                        <p>Följer traditionella regler strikt. Tror att Tora är Guds direkta ord. Män och kvinnor sitter separat i synagogan.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📖</div>
+                        <h4>Konservativ judendom</h4>
+                        <p>Balanserar tradition med moderna värderingar. Respekterar gamla seder men anpassar dem efter samtiden.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">🌟</div>
+                        <h4>Reform/Liberal judendom</h4>
+                        <p>Mer flexibel tolkning av reglerna. Män och kvinnor behandlas lika. Anpassar traditionen till modern tid.</p>
+                    </div>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>🤔 Fundera på detta:</h3>
+                    <div class="reflection-question">
+                        Varför tror du att samma religion kan ha så olika sätt att praktiseras? Vad säger det om hur religioner förändras över tid?
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.2 Gud och det judiska folket -->
+            <div id="gud-folket" class="section">
+                <h2>2.2 Gud och det judiska folket</h2>
+
+                <div class="info-card highlight">
+                    <h3>💫 Förbundet mellan Gud och judarna</h3>
+                    <p>I hjärtat av judendomen finns tanken om ett särskilt <strong>förbund</strong> (på hebreiska: <em>brit</em>) mellan Gud och det judiska folket. Detta förbund är som ett heligt löfte - ett avtal som binder Gud och judarna samman genom historien.</p>
+                </div>
+
+                <h3>Vem är Gud i judendomen?</h3>
+                <p>Judar tror på <strong>en enda Gud</strong> som skapade himmel och jord. Denna Gud är:</p>
+                <ul>
+                    <li><strong>Evig</strong> - Gud har alltid funnits och kommer alltid att finnas</li>
+                    <li><strong>Allsmäktig</strong> - Gud har obegränsad makt</li>
+                    <li><strong>Allvetande</strong> - Gud vet allt</li>
+                    <li><strong>Osynlig</strong> - Gud har ingen fysisk form och kan inte avbildas</li>
+                    <li><strong>Helig och fullkomlig</strong> - Gud är fri från synder och brister</li>
+                    <li><strong>Barmhärtig och rättvis</strong> - Gud är både kärleksfull och kräver rättvisa</li>
+                </ul>
+
+                <div class="info-card">
+                    <h3>📛 Guds namn</h3>
+                    <p>Guds heliga namn skrivs med fyra hebreiska bokstäver: <strong>YHWH</strong> (kallas Tetragrammaton). Detta namn är så heligt att ortodoxa judar aldrig uttalar det. Istället säger man:</p>
+                    <ul>
+                        <li><strong>Adonai</strong> - "Min Herre"</li>
+                        <li><strong>HaShem</strong> - "Namnet"</li>
+                        <li><strong>Elohim</strong> - "Gud"</li>
+                    </ul>
+                    <p>Respekten för Guds namn är så stor att många judar skriver "G-d" istället för "God" för att inte riskera att vanhelga namnet.</p>
+                </div>
+
+                <h3>🤝 Förbundet - Ett särskilt löfte</h3>
+                <p>Judendomen lär att Gud valde ut det judiska folket för ett särskilt uppdrag. Detta gör dem inte <em>bättre</em> än andra folk, men det ger dem ett särskilt <em>ansvar</em>.</p>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">Förbundet med Abraham</div>
+                        <p><strong>Guds löfte:</strong> "Dina ättlingar ska bli ett stort folk. Jag ska ge dig landet Kanaan. Genom dig ska alla folk på jorden bli välsignade."</p>
+                        <p><strong>Folkets löfte:</strong> Att följa Gud och hålla förbundet levande. Tecken på förbundet: omskärelse.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Förbundet på Sinai</div>
+                        <p><strong>Guds löfte:</strong> "Ni ska vara mitt folk och jag ska vara er Gud. Jag ska skydda er och vägleda er."</p>
+                        <p><strong>Folkets löfte:</strong> Att följa Tora och de 613 budorden. När Moses kom ner från Sinai svarade folket: "Allt som Herren har sagt ska vi göra."</p>
+                    </div>
+                </div>
+
+                <h3>👥 Att vara Guds folk - Ansvar och uppgift</h3>
+                <div class="info-card">
+                    <p>Att vara det "utvalda folket" betyder inte att judarna är bättre än andra. Istället innebär det:</p>
+                    <ul>
+                        <li><strong>Ett ansvar</strong> - Att leva enligt Guds lagar och vara ett föredöme</li>
+                        <li><strong>Ett vittnesbörd</strong> - Att sprida kunskap om den ende Guden</li>
+                        <li><strong>En uppgift</strong> - Att arbeta för rättvisa och fred i världen (tikkun olam)</li>
+                        <li><strong>En utmaning</strong> - Att hålla fast vid tron trots svårigheter</li>
+                    </ul>
+                </div>
+
+                <h3>🙏 Hur kommunicerar människor med Gud?</h3>
+                <div class="symbol-grid">
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📿</div>
+                        <h4>Bön</h4>
+                        <p>Judar ber tre gånger om dagen: morgon, eftermiddag och kväll. Den viktigaste bönen är Shema som bekräftar tron på en enda Gud.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📖</div>
+                        <h4>Studier</h4>
+                        <p>Att studera Tora är att komma närmare Gud. Många judar ägnar tid varje dag åt att studera heliga texter.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">🤲</div>
+                        <h4>Goda gärningar</h4>
+                        <p>Genom att hjälpa andra (tzedakah) och utföra mitzvot (bud) hedrar man Gud och lever enligt förbundet.</p>
+                    </div>
+                </div>
+
+                <div class="info-card highlight">
+                    <h3>✨ Shema - Judendomens viktigaste bön</h3>
+                    <p><em>"Shema Israel, Adonai Eloheinu, Adonai Echad"</em></p>
+                    <p><strong>Översättning:</strong> "Hör, Israel! Herren är vår Gud, Herren är en."</p>
+                    <p>Denna bön sägs varje morgon och kväll. Den uttrycker kärnan i judisk tro: det finns bara en Gud. Många judar säger Shema som sina sista ord innan de dör.</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>🤔 Reflektera:</h3>
+                    <div class="reflection-question">
+                        Vad tror du det innebär att vara "utvald" för ett ansvar snarare än en privilegium? Hur skiljer sig detta från att tro att man är "bättre" än andra?
+                    </div>
+                    <div class="reflection-question">
+                        Varför tror du att judar behandlar Guds namn med så stor respekt? Vad säger det om deras relation till Gud?
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.3 Judendomens heliga skrifter -->
+            <div id="heliga-skrifter" class="section">
+                <h2>2.3 Judendomens heliga skrifter</h2>
+
+                <div class="info-card highlight">
+                    <h3>📚 En religion byggd på texter</h3>
+                    <p>Judendomen är en <strong>skriftreligion</strong>. De heliga texterna är inte bara religiösa böcker - de är grunden för judisk identitet, lag, etik och kultur. Att studera dessa texter är en av de viktigaste religiösa handlingarna en jude kan utföra.</p>
+                </div>
+
+                <h3>📜 Tora - Den heligaste texten</h3>
+                <p><strong>Tora</strong> (תּוֹרָה) betyder "undervisning" eller "lag" på hebreiska. Den består av de fem Moseböckerna och innehåller:</p>
+                <ul>
+                    <li>Berättelser om världens skapelse</li>
+                    <li>Patriarkernas historia (Abraham, Isak, Jakob)</li>
+                    <li>Uttåget ur Egypten</li>
+                    <li>De 613 budorden (mitzvot)</li>
+                    <li>Instruktioner för hur man ska leva ett heligt liv</li>
+                </ul>
+
+                <h3>De fem böckerna i Tora</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">1. Genesis (Bereshit - "I begynnelsen")</div>
+                        <p><strong>Innehåll:</strong> Skapelsen, Adam och Eva, syndafloden, patriarkerna Abraham, Isak och Jakob, Josef i Egypten.</p>
+                        <p><strong>Tema:</strong> Början - hur världen och det judiska folket började.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">2. Exodus (Shemot - "Namn")</div>
+                        <p><strong>Innehåll:</strong> Slaveri i Egypten, Moses, de tio plågorna, uttåget genom Röda havet, de tio budorden på Sinai.</p>
+                        <p><strong>Tema:</strong> Befrielse från slaveri och förbundet med Gud.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">3. Leviticus (Vayikra - "Och han kallade")</div>
+                        <p><strong>Innehåll:</strong> Offerlagar, renhetsregler, helgdagar, kosher-regler, prästernas plikter.</p>
+                        <p><strong>Tema:</strong> Helighet - hur man lever ett liv i Guds närhet.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">4. Numeri (Bamidbar - "I öknen")</div>
+                        <p><strong>Innehåll:</strong> 40 år i öknen, folkets klagomål, Mirjams och Arons död, kopparormen.</p>
+                        <p><strong>Tema:</strong> Vandring och prövning på väg till det utlovade landet.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">5. Deuteronomium (Devarim - "Ord")</div>
+                        <p><strong>Innehåll:</strong> Moses upprepar lagarna, hans avskedstal, Shema-bönen, Moses död.</p>
+                        <p><strong>Tema:</strong> Påminnelse och förberedelse innan folket går in i Kanaan.</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3>✍️ Hur Tora skapas</h3>
+                    <p>Tora-rullar skrivs för hand av en <strong>sofer</strong> (skrivare) som har utbildats i många år:</p>
+                    <ul>
+                        <li>Skrivs på speciellt pergament från kohudar</li>
+                        <li>Använder speciellt svart bläck</li>
+                        <li>Varje bokstav måste vara perfekt - ett enda fel gör rullen ogiltig</li>
+                        <li>Tar cirka 1-2 år att skriva en hel rulle</li>
+                        <li>Kostar hundratusentals kronor</li>
+                        <li>Innehåller exakt 304 805 bokstäver</li>
+                    </ul>
+                </div>
+
+                <h3>📖 Tanakh - Den hebreiska bibeln</h3>
+                <div class="info-card highlight">
+                    <p>Tanakh (תנ״ך) är den kompletta hebreiska bibeln. Namnet kommer från de tre delarnas första bokstäver:</p>
+                    <ul>
+                        <li><strong>T</strong> - <strong>Tora</strong> (Lagen) - De fem Moseböckerna</li>
+                        <li><strong>N</strong> - <strong>Neviim</strong> (Profeterna) - Böcker som Josua, Domarnas bok, Samuel, Kungarnas bok, Jesaja, Jeremia, Hesekiel och de tolv mindre profeterna</li>
+                        <li><strong>K</strong> - <strong>Ketuvim</strong> (Skrifterna) - Psaltaren, Job, Ordspråksboken, Ruth, Höga Visan, Predikaren, Klagovisorna, Ester, Daniel, Esra, Nehemja och Krönikeboken</li>
+                    </ul>
+                    <p><em>Kristen bakgrund? Tanakh motsvarar Gamla testamentet i den kristna bibeln, men i en annan ordning.</em></p>
+                </div>
+
+                <h3>📚 Talmud - Diskussionernas bok</h3>
+                <div class="info-card">
+                    <p><strong>Talmud</strong> (תלמוד) betyder "studium" eller "lärande". Det är en ENORM samling av rabbinska diskussioner om hur man ska tolka och tillämpa Toras lagar.</p>
+
+                    <p><strong>Talmud består av två delar:</strong></p>
+                    <ul>
+                        <li><strong>Mishna</strong> - Den muntliga lagen som slutligen skrevs ner cirka år 200 e.Kr. av Rabbi Yehuda HaNasi. Innehåller 6 delar (sedarim) med totalt 63 traktater.</li>
+                        <li><strong>Gemara</strong> - Rabbinernas kommentarer och diskussioner om Mishna, slutförd cirka år 500 e.Kr.</li>
+                    </ul>
+
+                    <p><strong>Storlek:</strong> Talmud består av cirka 6 200 sidor och innehåller miljontals ord! Det tar flera år av daglig studier att läsa igenom.</p>
+
+                    <p><strong>Två versioner:</strong></p>
+                    <ul>
+                        <li><strong>Babyloniska Talmud</strong> - Den mest studerade versionen, redigerad i Babylonien</li>
+                        <li><strong>Jerusalems Talmud</strong> - Kortare version, redigerad i Israel</li>
+                    </ul>
+                </div>
+
+                <div class="symbol-grid">
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📜</div>
+                        <h4>Tora</h4>
+                        <p>5 böcker<br>Guds direkta ord<br>Den heligaste texten</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📖</div>
+                        <h4>Tanakh</h4>
+                        <p>24 böcker<br>Inkluderar Tora<br>Den hebreiska bibeln</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📚</div>
+                        <h4>Talmud</h4>
+                        <p>6 200 sidor<br>Rabbinska diskussioner<br>Tolkningar av lagen</p>
+                    </div>
+                </div>
+
+                <h3>🎓 Studietradition - Ett livslångt lärande</h3>
+                <div class="info-card highlight">
+                    <p>I judendomen är <strong>studier</strong> en form av gudstjänst. Många judar ägnar en del av varje dag åt att studera Tora och Talmud.</p>
+
+                    <p><strong>Studiecirklar (Chevrutot):</strong></p>
+                    <p>Judar studerar ofta i par eller grupper och diskuterar, debatterar och utforskar texterna tillsammans. Det finns ett talesätt: "Två judar, tre åsikter" - diskussion och olika tolkningar uppmuntras!</p>
+
+                    <p><strong>Yeshiva:</strong></p>
+                    <p>Judiska lärosäten där män (och i liberala riktningar även kvinnor) studerar heliga texter på heltid. Vissa tillbringar hela sitt liv i yeshiva.</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>🤔 Reflektera:</h3>
+                    <div class="reflection-question">
+                        Varför tror du att judarna lägger så stor vikt vid att studera gamla texter? Vad kan man lära sig från texter som är tusentals år gamla?
+                    </div>
+                    <div class="reflection-question">
+                        Talmud visar hur rabbiner diskuterade och hade olika åsikter om samma text. Varför kan det vara värdefullt att ha olika tolkningar istället för bara en "rätt" tolkning?
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.4 Patriarker, kungar och profeter -->
+            <div id="patriarker" class="section">
+                <h2>2.4 Patriarker, kungar och profeter</h2>
+
+                <div class="info-card highlight">
+                    <h3>👴 De stora ledarna som formade judendomen</h3>
+                    <p>Genom historien har vissa personer spelat en avgörande roll för det judiska folkets utveckling. Dessa ledare - patriarker, kungar och profeter - är centrala i judisk berättelse och tro.</p>
+                </div>
+
+                <h3>🌟 Patriarkerna - Förf äderna</h3>
+                <p><strong>Patriarker</strong> betyder "fäder" eller "förfäder". De tre stora patriarkerna är grundpelare
+
+rna i judisk historia:</p>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">Abraham - "Alla folks fader"</div>
+                        <p><strong>Levde:</strong> Cirka 1800 f.Kr. (enligt traditionen)</p>
+                        <p><strong>Betydelse:</strong> Abraham är den första patriarken och anses vara judendomens, kristendomens och islams gemensamma förfader.</p>
+                        <p><strong>Hans historia:</strong></p>
+                        <ul>
+                            <li>Bodde i Ur i Mesopotamien (nuvarande Irak)</li>
+                            <li>Fick en uppenbarelse från Gud som sa: "Lämna ditt land och gå till landet jag ska visa dig"</li>
+                            <li>Slog ett förbund (brit) med Gud - blev löfte om land och många ättlingar</li>
+                            <li>Fick en son, Isak, i hög ålder med sin hustru Sara</li>
+                            <li>Testad av Gud: befalld att offra sin son (men stoppades i sista sekunden)</li>
+                        </ul>
+                        <p><strong>Symbol:</strong> Omskärelse blev tecknet på förbundet mellan Gud och Abrahams ättlingar</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Isak - Löftets son</div>
+                        <p><strong>Betydelse:</strong> Abrahams son genom vilken förbundet fortsatte.</p>
+                        <p><strong>Hans historia:</strong></p>
+                        <ul>
+                            <li>Född när hans föräldrar var mycket gamla - ett mirakel</li>
+                            <li>Gifte sig med Rebecka</li>
+                            <li>Fick tvillingarna Esau och Jakob</li>
+                            <li>Levde större delen av sitt liv i Kanaan</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Jakob/Israel - Stammarnas fader</div>
+                        <p><strong>Betydelse:</strong> Blev far till de tolv stammarna och fick namnet "Israel"</p>
+                        <p><strong>Hans historia:</strong></p>
+                        <ul>
+                            <li>Var tvillingbror med Esau</li>
+                            <li>Lurade sin bror på förstfödslorätten</li>
+                            <li>Brottades med en ängel och fick namnet Israel ("den som kämpar med Gud")</li>
+                            <li>Fick tolv söner som blev fäder till Israels tolv stammar</li>
+                            <li>Hans favoritson Josef såldes av sina bröder till Egypten</li>
+                        </ul>
+                        <p><strong>Viktig detalj:</strong> Namnet "Israel" används för det judiska folket och den moderna staten</p>
+                    </div>
+                </div>
+
+                <h3>⚡ Moses - Den störste profeten</h3>
+                <div class="info-card highlight">
+                    <p><strong>Moses</strong> är den viktigaste profeten i judendomen. Han ledde judarna ut ur slaveriet i Egypten och tog emot Tora från Gud.</p>
+
+                    <p><strong>Moses liv i korthet:</strong></p>
+                    <ul>
+                        <li><strong>Födelse:</strong> Född i Egypten när judarna var slavar. Hans mor gömde honom i en korg i Nilen</li>
+                        <li><strong>Uppväxt:</strong> Hittades av faraos dotter och växte upp i palatset</li>
+                        <li><strong>Flykt:</strong> Dödade en egyptisk slavdrivare och flydde till Midjan</li>
+                        <li><strong>Kallelse:</strong> Såg den brinnande busken där Gud kallade honom att befria sitt folk</li>
+                        <li><strong>Plågorna:</strong> Återvände till Egypten och med Guds hjälp sände tio plågor över Egypten</li>
+                        <li><strong>Uttåget:</strong> Ledde judarna genom Röda havet när det delades</li>
+                        <li><strong>Sinai:</strong> Tog emot de tio budorden och hela Tora på berget Sinai</li>
+                        <li><strong>Ökenvandringen:</strong> Ledde folket i 40 år genom öknen</li>
+                        <li><strong>Död:</strong> Dog på berget Nebo med utsikt över det utlovade landet (men gick aldrig in där)</li>
+                    </ul>
+                </div>
+
+                <h3>👑 Kungarna - Davids och Salomos rike</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">Kung Saul - Den första kungen (ca 1050-1010 f.Kr.)</div>
+                        <p>Israels första kung, utvald av profeten Samuel. Hans regeringstid slutade tragiskt på grund av olydnad mot Gud.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Kung David - Psalmsångaren (ca 1010-970 f.Kr.)</div>
+                        <p><strong>Betydelse:</strong> Judendomens mest älskade kung. Enade kungariket och gjorde Jerusalem till huvudstad.</p>
+                        <p><strong>Hans bedrifter:</strong></p>
+                        <ul>
+                            <li>Som ung herde dödade jätten Goliat med en slunga</li>
+                            <li>Blev kung över både Juda och Israel</li>
+                            <li>Erövrade Jerusalem och gjorde den till Israels huvudstad</li>
+                            <li>Förde förbundsarken till Jerusalem</li>
+                            <li>Skrev många av psalmerna i Psaltaren</li>
+                            <li>Davidsstjärnan (Magen David) är uppkallad efter honom</li>
+                        </ul>
+                        <p><strong>Löfte:</strong> Gud lovade att Messias skulle komma från Davids släkt</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Kung Salomo - Den vise (ca 970-931 f.Kr.)</div>
+                        <p><strong>Betydelse:</strong> Känd för sin visdom och för att ha byggt det första templet.</p>
+                        <p><strong>Hans bedrifter:</strong></p>
+                        <ul>
+                            <li>Byggde det första templet i Jerusalem - judendomens heligaste plats</li>
+                            <li>Känd över hela världen för sin vishet (drottningen av Saba besökte honom)</li>
+                            <li>Skrev eller tillskrivs Ordspråksboken, Predikaren och Höga Visan</li>
+                            <li>Israel upplevde en guldålder under hans regeringstid</li>
+                        </ul>
+                        <p><strong>Problem:</strong> Efter Salomos död delades riket i två: Israel i norr och Juda i söder</p>
+                    </div>
+                </div>
+
+                <h3>📢 Profeterna - Guds budbärare</h3>
+                <div class="info-card">
+                    <p><strong>Profeter</strong> var personer som Gud talade genom för att varna, uppmuntra och vägleda folket. De spelade en viktig roll i judisk historia.</p>
+
+                    <p><strong>Vad gjorde profeterna?</strong></p>
+                    <ul>
+                        <li>Förmedlade Guds budskap till folket</li>
+                        <li>Varnade när folket bröt mot förbundet</li>
+                        <li>Krävde social rättvisa och omsorg om fattiga</li>
+                        <li>Förutsade framtida händelser</li>
+                        <li>Gav hopp under svåra tider</li>
+                    </ul>
+                </div>
+
+                <div class="symbol-grid">
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📣</div>
+                        <h4>Jesaja</h4>
+                        <p>Profeterade under 700-talet f.Kr. Talade om Messias och tröstade folket. Känd för visionen om fredens rike.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">💔</div>
+                        <h4>Jeremia</h4>
+                        <p>"Den gråtande profeten". Varnade för Jerusalems förstörelse. Levde under den babyloniska exilen.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">🦴</div>
+                        <h4>Hesekiel</h4>
+                        <p>Profeterade i exil i Babylon. Känd för visionen om de torra benen som blev levande (symbol för Israels återuppståndelse).</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">🐟</div>
+                        <h4>Jona</h4>
+                        <p>Försökte fly från Gud, svald av en stor fisk. Visade att Guds nåd gäller alla folk, inte bara Israel.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">⚖️</div>
+                        <h4>Amos</h4>
+                        <p>En herde som blev profet. Kämpade för social rättvisa: "Låt rätten flöda fram som vatten!"</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">💕</div>
+                        <h4>Hosea</h4>
+                        <p>Använde sitt äktenskap som symbol för Guds relation till Israel. Tema: Trogen kärlek trots otrohet.</p>
+                    </div>
+                </div>
+
+                <div class="info-card highlight">
+                    <h3>🌅 Elias - Profeten som skulle återkomma</h3>
+                    <p>Profeten <strong>Elias</strong> (Elia) har en särskild plats i judisk tradition:</p>
+                    <ul>
+                        <li>Känd för dramatiska under (t.ex. eld från himlen)</li>
+                        <li>Enligt berättelsen togs han upp till himlen i en stridsva gn av eld - dog aldrig</li>.comparison-category {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>✡️ Judendom</h1>
+            <p>Interaktivt läromedel för religionskunskap åk 7-9</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('intro')">📖 Introduktion</button>
+            <button class="nav-tab" onclick="showSection('gud-folket')">⭐ Gud & Folket</button>
+            <button class="nav-tab" onclick="showSection('heliga-skrifter')">📖 Heliga Skrifter</button>
+            <button class="nav-tab" onclick="showSection('patriarker')">👑 Patriarker & Kungar</button>
+            <button class="nav-tab" onclick="showSection('leva-jude')">🕊️ Leva som Jude</button>
+            <button class="nav-tab" onclick="showSection('judarnas-historia')">🏛️ Judarnas Historia</button>
+            <button class="nav-tab" onclick="showSection('inriktningar')">🕍 Inriktningar</button>
+            <button class="nav-tab" onclick="showSection('hogtider')">🎉 Högtider</button>
+            <button class="nav-tab" onclick="showSection('symboler')">✡️ Symboler</button>
+            <button class="nav-tab" onclick="showSection('quiz')">🎯 Quiz</button>
+            <button class="nav-tab" onclick="showSection('ovningar')">📝 Övningar</button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Introduktion -->
+            <div id="intro" class="section active">
+                <h2>Välkommen till världens äldsta monoteistiska religion</h2>
+
+                <p>Judendom är en av världens äldsta religioner och den första som trodde på en enda gud (monoteism). Med en historia som sträcker sig över 3 500 år har judendomen format hur vi tänker om religion, etik och samhälle idag.</p>
+
+                <div class="info-card highlight">
+                    <h3>💡 Visste du att?</h3>
+                    <p>Det finns cirka 15 miljoner judar i världen idag. De flesta bor i Israel och USA. I Sverige bor ungefär 20 000 judar, främst i Stockholm, Göteborg och Malmö.</p>
+                </div>
+
+                <h3>Vad är judendom?</h3>
+                <p>Judendom är både en religion och en kulturell identitet. För många judar handlar det inte bara om vad man tror, utan också om:</p>
+                <ul>
+                    <li><strong>Tradition och historia</strong> - Att vara en del av ett folk med tusentals års historia</li>
+                    <li><strong>Gemenskap</strong> - Att tillhöra en gemenskap som delar samma traditioner</li>
+                    <li><strong>Etik och värderingar</strong> - Att leva efter judiska värderingar om rättvisa och medmänsklighet</li>
+                    <li><strong>Kultur</strong> - Mat, språk (hebreiska och jiddisch), musik och konst</li>
+                </ul>
+
+                <h3>De tre grenarna inom judendomen</h3>
+                <div class="symbol-grid">
+                    <div class="symbol-card">
+                        <div class="symbol-icon">🕍</div>
+                        <h4>Ortodox judendom</h4>
+                        <p>Följer traditionella regler strikt. Tror att Tora är Guds direkta ord. Män och kvinnor sitter separat i synagogan.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📖</div>
+                        <h4>Konservativ judendom</h4>
+                        <p>Balanserar tradition med moderna värderingar. Respekterar gamla seder men anpassar dem efter samtiden.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">🌟</div>
+                        <h4>Reform/Liberal judendom</h4>
+                        <p>Mer flexibel tolkning av reglerna. Män och kvinnor behandlas lika. Anpassar traditionen till modern tid.</p>
+                    </div>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>🤔 Fundera på detta:</h3>
+                    <div class="reflection-question">
+                        Varför tror du att samma religion kan ha så olika sätt att praktiseras? Vad säger det om hur religioner förändras över tid?
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.2 Gud och det judiska folket -->
+            <div id="gud-folket" class="section">
+                <h2>2.2 Gud och det judiska folket</h2>
+
+                <div class="info-card highlight">
+                    <h3>💫 Förbundet mellan Gud och judarna</h3>
+                    <p>I hjärtat av judendomen finns tanken om ett särskilt <strong>förbund</strong> (på hebreiska: <em>brit</em>) mellan Gud och det judiska folket. Detta förbund är som ett heligt löfte - ett avtal som binder Gud och judarna samman genom historien.</p>
+                </div>
+
+                <h3>Vem är Gud i judendomen?</h3>
+                <p>Judar tror på <strong>en enda Gud</strong> som skapade himmel och jord. Denna Gud är:</p>
+                <ul>
+                    <li><strong>Evig</strong> - Gud har alltid funnits och kommer alltid att finnas</li>
+                    <li><strong>Allsmäktig</strong> - Gud har obegränsad makt</li>
+                    <li><strong>Allvetande</strong> - Gud vet allt</li>
+                    <li><strong>Osynlig</strong> - Gud har ingen fysisk form och kan inte avbildas</li>
+                    <li><strong>Helig och fullkomlig</strong> - Gud är fri från synder och brister</li>
+                    <li><strong>Barmhärtig och rättvis</strong> - Gud är både kärleksfull och kräver rättvisa</li>
+                </ul>
+
+                <div class="info-card">
+                    <h3>📛 Guds namn</h3>
+                    <p>Guds heliga namn skrivs med fyra hebreiska bokstäver: <strong>YHWH</strong> (kallas Tetragrammaton). Detta namn är så heligt att ortodoxa judar aldrig uttalar det. Istället säger man:</p>
+                    <ul>
+                        <li><strong>Adonai</strong> - "Min Herre"</li>
+                        <li><strong>HaShem</strong> - "Namnet"</li>
+                        <li><strong>Elohim</strong> - "Gud"</li>
+                    </ul>
+                    <p>Respekten för Guds namn är så stor att många judar skriver "G-d" istället för "God" för att inte riskera att vanhelga namnet.</p>
+                </div>
+
+                <h3>🤝 Förbundet - Ett särskilt löfte</h3>
+                <p>Judendomen lär att Gud valde ut det judiska folket för ett särskilt uppdrag. Detta gör dem inte <em>bättre</em> än andra folk, men det ger dem ett särskilt <em>ansvar</em>.</p>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">Förbundet med Abraham</div>
+                        <p><strong>Guds löfte:</strong> "Dina ättlingar ska bli ett stort folk. Jag ska ge dig landet Kanaan. Genom dig ska alla folk på jorden bli välsignade."</p>
+                        <p><strong>Folkets löfte:</strong> Att följa Gud och hålla förbundet levande. Tecken på förbundet: omskärelse.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Förbundet på Sinai</div>
+                        <p><strong>Guds löfte:</strong> "Ni ska vara mitt folk och jag ska vara er Gud. Jag ska skydda er och vägleda er."</p>
+                        <p><strong>Folkets löfte:</strong> Att följa Tora och de 613 budorden. När Moses kom ner från Sinai svarade folket: "Allt som Herren har sagt ska vi göra."</p>
+                    </div>
+                </div>
+
+                <h3>👥 Att vara Guds folk - Ansvar och uppgift</h3>
+                <div class="info-card">
+                    <p>Att vara det "utvalda folket" betyder inte att judarna är bättre än andra. Istället innebär det:</p>
+                    <ul>
+                        <li><strong>Ett ansvar</strong> - Att leva enligt Guds lagar och vara ett föredöme</li>
+                        <li><strong>Ett vittnesbörd</strong> - Att sprida kunskap om den ende Guden</li>
+                        <li><strong>En uppgift</strong> - Att arbeta för rättvisa och fred i världen (tikkun olam)</li>
+                        <li><strong>En utmaning</strong> - Att hålla fast vid tron trots svårigheter</li>
+                    </ul>
+                </div>
+
+                <h3>🙏 Hur kommunicerar människor med Gud?</h3>
+                <div class="symbol-grid">
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📿</div>
+                        <h4>Bön</h4>
+                        <p>Judar ber tre gånger om dagen: morgon, eftermiddag och kväll. Den viktigaste bönen är Shema som bekräftar tron på en enda Gud.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📖</div>
+                        <h4>Studier</h4>
+                        <p>Att studera Tora är att komma närmare Gud. Många judar ägnar tid varje dag åt att studera heliga texter.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">🤲</div>
+                        <h4>Goda gärningar</h4>
+                        <p>Genom att hjälpa andra (tzedakah) och utföra mitzvot (bud) hedrar man Gud och lever enligt förbundet.</p>
+                    </div>
+                </div>
+
+                <div class="info-card highlight">
+                    <h3>✨ Shema - Judendomens viktigaste bön</h3>
+                    <p><em>"Shema Israel, Adonai Eloheinu, Adonai Echad"</em></p>
+                    <p><strong>Översättning:</strong> "Hör, Israel! Herren är vår Gud, Herren är en."</p>
+                    <p>Denna bön sägs varje morgon och kväll. Den uttrycker kärnan i judisk tro: det finns bara en Gud. Många judar säger Shema som sina sista ord innan de dör.</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>🤔 Reflektera:</h3>
+                    <div class="reflection-question">
+                        Vad tror du det innebär att vara "utvald" för ett ansvar snarare än en privilegium? Hur skiljer sig detta från att tro att man är "bättre" än andra?
+                    </div>
+                    <div class="reflection-question">
+                        Varför tror du att judar behandlar Guds namn med så stor respekt? Vad säger det om deras relation till Gud?
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.3 Judendomens heliga skrifter -->
+            <div id="heliga-skrifter" class="section">
+                <h2>2.3 Judendomens heliga skrifter</h2>
+
+                <div class="info-card highlight">
+                    <h3>📚 En religion byggd på texter</h3>
+                    <p>Judendomen är en <strong>skriftreligion</strong>. De heliga texterna är inte bara religiösa böcker - de är grunden för judisk identitet, lag, etik och kultur. Att studera dessa texter är en av de viktigaste religiösa handlingarna en jude kan utföra.</p>
+                </div>
+
+                <h3>📜 Tora - Den heligaste texten</h3>
+                <p><strong>Tora</strong> (תּוֹרָה) betyder "undervisning" eller "lag" på hebreiska. Den består av de fem Moseböckerna och innehåller:</p>
+                <ul>
+                    <li>Berättelser om världens skapelse</li>
+                    <li>Patriarkernas historia (Abraham, Isak, Jakob)</li>
+                    <li>Uttåget ur Egypten</li>
+                    <li>De 613 budorden (mitzvot)</li>
+                    <li>Instruktioner för hur man ska leva ett heligt liv</li>
+                </ul>
+
+                <h3>De fem böckerna i Tora</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">1. Genesis (Bereshit - "I begynnelsen")</div>
+                        <p><strong>Innehåll:</strong> Skapelsen, Adam och Eva, syndafloden, patriarkerna Abraham, Isak och Jakob, Josef i Egypten.</p>
+                        <p><strong>Tema:</strong> Början - hur världen och det judiska folket började.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">2. Exodus (Shemot - "Namn")</div>
+                        <p><strong>Innehåll:</strong> Slaveri i Egypten, Moses, de tio plågorna, uttåget genom Röda havet, de tio budorden på Sinai.</p>
+                        <p><strong>Tema:</strong> Befrielse från slaveri och förbundet med Gud.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">3. Leviticus (Vayikra - "Och han kallade")</div>
+                        <p><strong>Innehåll:</strong> Offerlagar, renhetsregler, helgdagar, kosher-regler, prästernas plikter.</p>
+                        <p><strong>Tema:</strong> Helighet - hur man lever ett liv i Guds närhet.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">4. Numeri (Bamidbar - "I öknen")</div>
+                        <p><strong>Innehåll:</strong> 40 år i öknen, folkets klagomål, Mirjams och Arons död, kopparormen.</p>
+                        <p><strong>Tema:</strong> Vandring och prövning på väg till det utlovade landet.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">5. Deuteronomium (Devarim - "Ord")</div>
+                        <p><strong>Innehåll:</strong> Moses upprepar lagarna, hans avskedstal, Shema-bönen, Moses död.</p>
+                        <p><strong>Tema:</strong> Påminnelse och förberedelse innan folket går in i Kanaan.</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3>✍️ Hur Tora skapas</h3>
+                    <p>Tora-rullar skrivs för hand av en <strong>sofer</strong> (skrivare) som har utbildats i många år:</p>
+                    <ul>
+                        <li>Skrivs på speciellt pergament från kohudar</li>
+                        <li>Använder speciellt svart bläck</li>
+                        <li>Varje bokstav måste vara perfekt - ett enda fel gör rullen ogiltig</li>
+                        <li>Tar cirka 1-2 år att skriva en hel rulle</li>
+                        <li>Kostar hundratusentals kronor</li>
+                        <li>Innehåller exakt 304 805 bokstäver</li>
+                    </ul>
+                </div>
+
+                <h3>📖 Tanakh - Den hebreiska bibeln</h3>
+                <div class="info-card highlight">
+                    <p>Tanakh (תנ״ך) är den kompletta hebreiska bibeln. Namnet kommer från de tre delarnas första bokstäver:</p>
+                    <ul>
+                        <li><strong>T</strong> - <strong>Tora</strong> (Lagen) - De fem Moseböckerna</li>
+                        <li><strong>N</strong> - <strong>Neviim</strong> (Profeterna) - Böcker som Josua, Domarnas bok, Samuel, Kungarnas bok, Jesaja, Jeremia, Hesekiel och de tolv mindre profeterna</li>
+                        <li><strong>K</strong> - <strong>Ketuvim</strong> (Skrifterna) - Psaltaren, Job, Ordspråksboken, Ruth, Höga Visan, Predikaren, Klagovisorna, Ester, Daniel, Esra, Nehemja och Krönikeboken</li>
+                    </ul>
+                    <p><em>Kristen bakgrund? Tanakh motsvarar Gamla testamentet i den kristna bibeln, men i en annan ordning.</em></p>
+                </div>
+
+                <h3>📚 Talmud - Diskussionernas bok</h3>
+                <div class="info-card">
+                    <p><strong>Talmud</strong> (תלמוד) betyder "studium" eller "lärande". Det är en ENORM samling av rabbinska diskussioner om hur man ska tolka och tillämpa Toras lagar.</p>
+
+                    <p><strong>Talmud består av två delar:</strong></p>
+                    <ul>
+                        <li><strong>Mishna</strong> - Den muntliga lagen som slutligen skrevs ner cirka år 200 e.Kr. av Rabbi Yehuda HaNasi. Innehåller 6 delar (sedarim) med totalt 63 traktater.</li>
+                        <li><strong>Gemara</strong> - Rabbinernas kommentarer och diskussioner om Mishna, slutförd cirka år 500 e.Kr.</li>
+                    </ul>
+
+                    <p><strong>Storlek:</strong> Talmud består av cirka 6 200 sidor och innehåller miljontals ord! Det tar flera år av daglig studier att läsa igenom.</p>
+
+                    <p><strong>Två versioner:</strong></p>
+                    <ul>
+                        <li><strong>Babyloniska Talmud</strong> - Den mest studerade versionen, redigerad i Babylonien</li>
+                        <li><strong>Jerusalems Talmud</strong> - Kortare version, redigerad i Israel</li>
+                    </ul>
+                </div>
+
+                <div class="symbol-grid">
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📜</div>
+                        <h4>Tora</h4>
+                        <p>5 böcker<br>Guds direkta ord<br>Den heligaste texten</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📖</div>
+                        <h4>Tanakh</h4>
+                        <p>24 böcker<br>Inkluderar Tora<br>Den hebreiska bibeln</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📚</div>
+                        <h4>Talmud</h4>
+                        <p>6 200 sidor<br>Rabbinska diskussioner<br>Tolkningar av lagen</p>
+                    </div>
+                </div>
+
+                <h3>🎓 Studietradition - Ett livslångt lärande</h3>
+                <div class="info-card highlight">
+                    <p>I judendomen är <strong>studier</strong> en form av gudstjänst. Många judar ägnar en del av varje dag åt att studera Tora och Talmud.</p>
+
+                    <p><strong>Studiecirklar (Chevrutot):</strong></p>
+                    <p>Judar studerar ofta i par eller grupper och diskuterar, debatterar och utforskar texterna tillsammans. Det finns ett talesätt: "Två judar, tre åsikter" - diskussion och olika tolkningar uppmuntras!</p>
+
+                    <p><strong>Yeshiva:</strong></p>
+                    <p>Judiska lärosäten där män (och i liberala riktningar även kvinnor) studerar heliga texter på heltid. Vissa tillbringar hela sitt liv i yeshiva.</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>🤔 Reflektera:</h3>
+                    <div class="reflection-question">
+                        Varför tror du att judarna lägger så stor vikt vid att studera gamla texter? Vad kan man lära sig från texter som är tusentals år gamla?
+                    </div>
+                    <div class="reflection-question">
+                        Talmud visar hur rabbiner diskuterade och hade olika åsikter om samma text. Varför kan det vara värdefullt att ha olika tolkningar istället för bara en "rätt" tolkning?
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.4 Patriarker, kungar och profeter -->
+            <div id="patriarker" class="section">
+                <h2>2.4 Patriarker, kungar och profeter</h2>
+
+                <div class="info-card highlight">
+                    <h3>👴 De stora ledarna som formade judendomen</h3>
+                    <p>Genom historien har vissa personer spelat en avgörande roll för det judiska folkets utveckling. Dessa ledare - patriarker, kungar och profeter - är centrala i judisk berättelse och tro.</p>
+                </div>
+
+                <h3>🌟 Patriarkerna - Förf äderna</h3>
+                <p><strong>Patriarker</strong> betyder "fäder" eller "förfäder". De tre stora patriarkerna är grundpelare
+
+rna i judisk historia:</p>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">Abraham - "Alla folks fader"</div>
+                        <p><strong>Levde:</strong> Cirka 1800 f.Kr. (enligt traditionen)</p>
+                        <p><strong>Betydelse:</strong> Abraham är den första patriarken och anses vara judendomens, kristendomens och islams gemensamma förfader.</p>
+                        <p><strong>Hans historia:</strong></p>
+                        <ul>
+                            <li>Bodde i Ur i Mesopotamien (nuvarande Irak)</li>
+                            <li>Fick en uppenbarelse från Gud som sa: "Lämna ditt land och gå till landet jag ska visa dig"</li>
+                            <li>Slog ett förbund (brit) med Gud - blev löfte om land och många ättlingar</li>
+                            <li>Fick en son, Isak, i hög ålder med sin hustru Sara</li>
+                            <li>Testad av Gud: befalld att offra sin son (men stoppades i sista sekunden)</li>
+                        </ul>
+                        <p><strong>Symbol:</strong> Omskärelse blev tecknet på förbundet mellan Gud och Abrahams ättlingar</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Isak - Löftets son</div>
+                        <p><strong>Betydelse:</strong> Abrahams son genom vilken förbundet fortsatte.</p>
+                        <p><strong>Hans historia:</strong></p>
+                        <ul>
+                            <li>Född när hans föräldrar var mycket gamla - ett mirakel</li>
+                            <li>Gifte sig med Rebecka</li>
+                            <li>Fick tvillingarna Esau och Jakob</li>
+                            <li>Levde större delen av sitt liv i Kanaan</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Jakob/Israel - Stammarnas fader</div>
+                        <p><strong>Betydelse:</strong> Blev far till de tolv stammarna och fick namnet "Israel"</p>
+                        <p><strong>Hans historia:</strong></p>
+                        <ul>
+                            <li>Var tvillingbror med Esau</li>
+                            <li>Lurade sin bror på förstfödslorätten</li>
+                            <li>Brottades med en ängel och fick namnet Israel ("den som kämpar med Gud")</li>
+                            <li>Fick tolv söner som blev fäder till Israels tolv stammar</li>
+                            <li>Hans favoritson Josef såldes av sina bröder till Egypten</li>
+                        </ul>
+                        <p><strong>Viktig detalj:</strong> Namnet "Israel" används för det judiska folket och den moderna staten</p>
+                    </div>
+                </div>
+
+                <h3>⚡ Moses - Den störste profeten</h3>
+                <div class="info-card highlight">
+                    <p><strong>Moses</strong> är den viktigaste profeten i judendomen. Han ledde judarna ut ur slaveriet i Egypten och tog emot Tora från Gud.</p>
+
+                    <p><strong>Moses liv i korthet:</strong></p>
+                    <ul>
+                        <li><strong>Födelse:</strong> Född i Egypten när judarna var slavar. Hans mor gömde honom i en korg i Nilen</li>
+                        <li><strong>Uppväxt:</strong> Hittades av faraos dotter och växte upp i palatset</li>
+                        <li><strong>Flykt:</strong> Dödade en egyptisk slavdrivare och flydde till Midjan</li>
+                        <li><strong>Kallelse:</strong> Såg den brinnande busken där Gud kallade honom att befria sitt folk</li>
+                        <li><strong>Plågorna:</strong> Återvände till Egypten och med Guds hjälp sände tio plågor över Egypten</li>
+                        <li><strong>Uttåget:</strong> Ledde judarna genom Röda havet när det delades</li>
+                        <li><strong>Sinai:</strong> Tog emot de tio budorden och hela Tora på berget Sinai</li>
+                        <li><strong>Ökenvandringen:</strong> Ledde folket i 40 år genom öknen</li>
+                        <li><strong>Död:</strong> Dog på berget Nebo med utsikt över det utlovade landet (men gick aldrig in där)</li>
+                    </ul>
+                </div>
+
+                <h3>👑 Kungarna - Davids och Salomos rike</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">Kung Saul - Den första kungen (ca 1050-1010 f.Kr.)</div>
+                        <p>Israels första kung, utvald av profeten Samuel. Hans regeringstid slutade tragiskt på grund av olydnad mot Gud.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Kung David - Psalmsångaren (ca 1010-970 f.Kr.)</div>
+                        <p><strong>Betydelse:</strong> Judendomens mest älskade kung. Enade kungariket och gjorde Jerusalem till huvudstad.</p>
+                        <p><strong>Hans bedrifter:</strong></p>
+                        <ul>
+                            <li>Som ung herde dödade jätten Goliat med en slunga</li>
+                            <li>Blev kung över både Juda och Israel</li>
+                            <li>Erövrade Jerusalem och gjorde den till Israels huvudstad</li>
+                            <li>Förde förbundsarken till Jerusalem</li>
+                            <li>Skrev många av psalmerna i Psaltaren</li>
+                            <li>Davidsstjärnan (Magen David) är uppkallad efter honom</li>
+                        </ul>
+                        <p><strong>Löfte:</strong> Gud lovade att Messias skulle komma från Davids släkt</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Kung Salomo - Den vise (ca 970-931 f.Kr.)</div>
+                        <p><strong>Betydelse:</strong> Känd för sin visdom och för att ha byggt det första templet.</p>
+                        <p><strong>Hans bedrifter:</strong></p>
+                        <ul>
+                            <li>Byggde det första templet i Jerusalem - judendomens heligaste plats</li>
+                            <li>Känd över hela världen för sin vishet (drottningen av Saba besökte honom)</li>
+                            <li>Skrev eller tillskrivs Ordspråksboken, Predikaren och Höga Visan</li>
+                            <li>Israel upplevde en guldålder under hans regeringstid</li>
+                        </ul>
+                        <p><strong>Problem:</strong> Efter Salomos död delades riket i två: Israel i norr och Juda i söder</p>
+                    </div>
+                </div>
+
+                <h3>📢 Profeterna - Guds budbärare</h3>
+                <div class="info-card">
+                    <p><strong>Profeter</strong> var personer som Gud talade genom för att varna, uppmuntra och vägleda folket. De spelade en viktig roll i judisk historia.</p>
+
+                    <p><strong>Vad gjorde profeterna?</strong></p>
+                    <ul>
+                        <li>Förmedlade Guds budskap till folket</li>
+                        <li>Varnade när folket bröt mot förbundet</li>
+                        <li>Krävde social rättvisa och omsorg om fattiga</li>
+                        <li>Förutsade framtida händelser</li>
+                        <li>Gav hopp under svåra tider</li>
+                    </ul>
+                </div>
+
+                <div class="symbol-grid">
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📣</div>
+                        <h4>Jesaja</h4>
+                        <p>Profeterade under 700-talet f.Kr. Talade om Messias och tröstade folket. Känd för visionen om fredens rike.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">💔</div>
+                        <h4>Jeremia</h4>
+                        <p>"Den gråtande profeten". Varnade för Jerusalems förstörelse. Levde under den babyloniska exilen.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">🦴</div>
+                        <h4>Hesekiel</h4>
+                        <p>Profeterade i exil i Babylon. Känd för visionen om de torra benen som blev levande (symbol för Israels återuppståndelse).</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">🐟</div>
+                        <h4>Jona</h4>
+                        <p>Försökte fly från Gud, svald av en stor fisk. Visade att Guds nåd gäller alla folk, inte bara Israel.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">⚖️</div>
+                        <h4>Amos</h4>
+                        <p>En herde som blev profet. Kämpade för social rättvisa: "Låt rätten flöda fram som vatten!"</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">💕</div>
+                        <h4>Hosea</h4>
+                        <p>Använde sitt äktenskap som symbol för Guds relation till Israel. Tema: Trogen kärlek trots otrohet.</p>
+                    </div>
+                </div>
+
+                <div class="info-card highlight">
+                    <h3>🌅 Elias - Profeten som skulle återkomma</h3>
+                    <p>Profeten <strong>Elias</strong> (Elia) har en särskild plats i judisk tradition:</p>
+                    <ul>
+                        <li>Känd för dramatiska under (t.ex. eld från himlen)</li>
+                        <li>Enligt berättelsen togs han upp till himlen i en stridsva gn av eld - dog aldrig</li>
+                     
+
+... [226 lines truncated] ...
+✅ DEL 2 av 5 (ovanför detta meddelande)
+KOPIERA ALLT OVANFÖR och klistra in det direkt efter DEL 1 i GitHub-editorn (ingen rad mellan delarna).
+
+Säg "del 3" när du är redo för nästa del! 🚀
+
+Här kommer DEL 3 av 5:
+
+Bash
+sed -n '1401,2100p' judendom-laromedel.html
+                <h3>📅 Från getton till frihet - 1700-1800-talen</h3>
+                <div class="info-card">
+                    <p><strong>Demokratins genombrott</strong> under 1700-talet och 1800-talet ledde till att Europas getton avskaffades. Judar fick rösträtt och rättigheter i många länder.</p>
+                    <p>Trots det fortsatte judeförföljelserna (<strong>pogromerna</strong>), främst i Östeuropa. Det ledde till en stor utvandring till USA där miljontals judar sökte ett nytt liv.</p>
+                    <p>Under 1900-talet började en liten men betydelsefull utvandring till <strong>Palestina</strong> – det gamla hemlandet.</p>
+                </div>
+
+                <h3>🇮🇱 Sionismen - Drömmen om hemland</h3>
+                <div class="info-card highlight">
+                    <p>Fientligheten mot judarna hade gjort att en nationalistisk rörelse växt fram. Rörelsens mål var att få judar att utvandra till Palestina och där skapa en judisk stat. Ett folk måste ha en egen nation, var tanken.</p>
+                    <p>Denna judiska nationalism kallades <strong>sionism</strong>. Namnet kom av <strong>Sion</strong>, den befästa delen av Jerusalem, som blivit ett smeknamn på det gamla hemlandet.</p>
+                    <p><strong>Theodor Herzl</strong> var en av de första att försöka organisera detta nationsbygge. Efter att ha bevittnat antisemitism i Europa skrev han boken "Judestaten" (1896) där han argumenterade för att judarna behövde ett eget land.</p>
+                    <p>År 1920 bodde 60 000 judar i Palestina, som under den här tiden var ett brittiskt protektorat (besittning).</p>
+                    <p>De flesta av världens judar kände sig dock rotade i de länder de bodde i, som Tyskland, Österrike, Polen med flera. Ett liv i Palestina var inget de på allvar drömde om.</p>
+                    <p><strong>Men så kom Förintelsen...</strong></p>
+                </div>
+
+                <h3>💔 Förintelsen (Shoah) - 1939-1945</h3>
+                <div class="info-card">
+                    <p>Men så bröt andra världskriget ut 1939 och <strong>sex miljoner judar mördades av nazisterna</strong>. Förintelsen kallas detta folkmord på svenska. På hebreiska används ordet <strong>shoa</strong> ('katastrof').</p>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">Nazisternas plan</div>
+                        <p>Från början var nazisternas mål att alla judar skulle emigrera så att Tyskland skulle bli "fritt från judar" (<em>Judenfrei</em>). Men i omvärlden var man ovillig att ta emot judar - landet efter land stängde sina gränser.</p>
+                        <p>När Tyskland erövrade länder med stor judisk befolkning (Polen, Ukraina, etc.) började planen på att systematiskt utrota dem växa fram.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Koncentrations- och förintelseläger</div>
+                        <p>Judarna transporterades i godsvagnar till koncentrations- och förintelseläger. Många användes som slavarbetare innan de dödades.</p>
+                        <p>Eftersom det tog tid att döda med skjutvapen och ammunitionen behövdes till kriget började man döda lägerfångarna med <strong>giftgas</strong>. Över hälften av de mördade judarna gasades ihjäl i speciella gaskamrar maskerade som duschutrymmen.</p>
+                        <p>Övriga sköts eller dog av svält, köld och sjukdomar.</p>
+                        <p><strong>Läger:</strong> Auschwitz, Treblinka, Majdanek, Sobibor, Belzec, Chelmno - dessa namn står för ofattbar ondska.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Världen vaknar</div>
+                        <p>När koncentrationslägrens fasansfulla hemligheter avslöjades vid krigsslutet 1945 kunde världen inte tro sina ögon. Allierade soldater fann skelettlika överlevande och högar med döda kroppar.</p>
+                        <p>Tyska civila tvingades besöka lägren och se vad som hänt i deras grannskap.</p>
+                    </div>
+                </div>
+
+                <div class="info-card highlight">
+                    <h4>🕯️ Vi glömmer aldrig</h4>
+                    <p>Förintelsen är den mörkaste perioden i judisk historia. <strong>"Aldrig mer"</strong> blev löftet efter kriget.</p>
+                    <p>I Israel och runt om i världen finns minnesdagen <strong>Yom HaShoah</strong> när man minns de sex miljoner som dog. Museer som Yad Vashem i Jerusalem och United States Holocaust Memorial Museum bevarar minnet för framtida generationer.</p>
+                </div>
+
+                <h3>🇮🇱 Staten Israel grundas - 1948</h3>
+                <div class="info-card">
+                    <p>Den judiska befolkningen i Palestina växte sig så stor att det ledde till <strong>konflikt med landets arabiska befolkning</strong>.</p>
+                    <p>Områdets hela befolkning uppgick till strax under 2 miljoner människor. Den större delen av befolkningen var araber. När allt fler judar började flytta in i landet började araberna kalla sig <strong>palestinier</strong>. De hade bott i landet under lång tid och ville också ha en egen nation. Den nationen kallade de Palestina.</p>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">1947 - FN:s delningsplan</div>
+                        <p>Efter stormiga förhandlingar i FN bestämdes 1947 att Palestina skulle delas i <strong>en arabisk och en judisk stat</strong>. Eftersom palestinierna och alla andra arabstater röstat nej till planen kunde den inte genomföras i praktiken.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">14 maj 1948 - Israels självständighet</div>
+                        <p>Sionisterna tog saken i egna händer. År 1948 utropade de <strong>staten Israel</strong>, som genast anfölls av de arabiska grannländerna.</p>
+                        <p>Mot alla odds lyckades den nygrundade staten besegra anfallarna. Israel hade blivit en självständig judisk nation - för första gången på nästan 2000 år.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Konflikten fortsätter</div>
+                        <p>Staten Israels gränser har sedan dess varit <strong>omtvistade och ändrats flera gånger</strong> genom krig 1956, 1967 och 1973.</p>
+                        <p>Den israeliska staten har byggt en lång barriär, ofta bestående av en hög mur, som separerar det judiska Israel från det palestinska området Västbanken.</p>
+                        <p>Konflikten mellan israeler och palestinier fortsätter än idag och är en av världens mest komplicerade politiska frågor.</p>
+                    </div>
+                </div>
+
+                <div class="info-card highlight">
+                    <h4>🕊️ Idag</h4>
+                    <p>Idag bor cirka <strong>7 miljoner judar i Israel</strong> och cirka <strong>8 miljoner i diasporan</strong>, främst i USA. Det judiska folket har överlevt 3 500 år av historia - genom kungariken och krig, genom exil och förintelse, och har bevarat sin religion och identitet mot alla odds.</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>🤔 Reflektera:</h3>
+                    <div class="reflection-question">
+                        Hur tror du att judarna lyckades bevara sin religion och identitet trots att de var spridda över hela världen i 2000 år? Vad håller en gemenskap samman?
+                    </div>
+                    <div class="reflection-question">
+                        Templets förstörelse år 70 e.Kr. förändrade judendomen för alltid - synagogan ersatte templet. Hur kan katastrofer ibland leda till nya former av religion?
+                    </div>
+                    <div class="reflection-question">
+                        Förintelsen är en extrem påminnelse om vad som kan hända när hat och fördomar får fritt spelrum. Vad kan vi lära oss från denna historia?
+                    </div>
+                    <div class="reflection-question">
+                        Sionismen uppstod som svar på förföljelser. Grundandet av Israel löste vissa problem men skapade också nya konflikter. Hur kan man hantera situationer där olika folk har rättmätiga anspråk på samma land?
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.7 Inriktningar inom judendomen -->
+            <div id="inriktningar" class="section">
+                <h2>2.7 Inriktningar inom judendomen</h2>
+
+                <div class="info-card highlight">
+                    <h3>🌈 Ett folk, många vägar</h3>
+                    <p>Precis som andra världsreligioner har judendomen utvecklat olika <strong>inriktningar</strong> eller grenar över tid. Alla delar samma grundläggande tro på en Gud och vikten av Tora, men de tolkar och praktiserar judendomen på olika sätt.</p>
+                </div>
+
+                <h3>Varför finns det olika inriktningar?</h3>
+                <div class="info-card">
+                    <p>Under 1700- och 1800-talen började judar i Europa möta moderniseringen. Några frågor uppstod:</p>
+                    <ul>
+                        <li>Hur ska judendomen förhålla sig till det moderna samhället?</li>
+                        <li>Måste man följa alla 613 bud exakt som för 3000 år sedan?</li>
+                        <li>Kan kvinnor och män ha samma roller i religiösa ceremonier?</li>
+                        <li>Hur viktig är den hebreiska traditionen jämfört med det land man bor i?</li>
+                    </ul>
+                    <p>Olika svar på dessa frågor ledde till olika inriktningar.</p>
+                </div>
+
+                <h3>🕍 De tre huvudinriktningarna</h3>
+
+                <div class="symbol-grid">
+                    <div class="symbol-card">
+                        <div class="symbol-icon">📖</div>
+                        <h4>Ortodox judendom</h4>
+                        <p><strong>Motto:</strong> "Tora förändras inte"</p>
+                        <p><strong>Grundtanke:</strong> Tora och de 613 budorden är Guds ord och måste följas exakt som de alltid har gjorts.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">⚖️</div>
+                        <h4>Konservativ judendom</h4>
+                        <p><strong>Motto:</strong> "Tradition och förändring"</p>
+                        <p><strong>Grundtanke:</strong> Respektera traditionen men anpassa den försiktigt till moderna tider.</p>
+                    </div>
+                    <div class="symbol-card">
+                        <div class="symbol-icon">🌟</div>
+                        <h4>Reform/Liberal judendom</h4>
+                        <p><strong>Motto:</strong> "Individuell tro och jämlikhet"</p>
+                        <p><strong>Grundtanke:</strong> Varje person kan tolka judendomen på sitt sätt. Anpassa till nutiden.</p>
+                    </div>
+                </div>
+
+                <h3>📊 Jämförelse mellan inriktningarna</h3>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">Ortodox judendom</div>
+                        <p><strong>Syn på Tora:</strong> Tora är Guds exakta ord, ordagrant sant och oföränderligt.</p>
+                        <p><strong>Lagar och regler:</strong></p>
+                        <ul>
+                            <li>Följer alla 613 bud strikt</li>
+                            <li>Kosher-regler följs noggrant</li>
+                            <li>Shabbat firar s strikt (ingen elektronik, ingen resa, inget arbete)</li>
+                            <li>Män och kvinnor sitter separat i synagogan</li>
+                            <li>Bara män kan bli rabbiner</li>
+                            <li>Män bär kippa hela tiden</li>
+                        </ul>
+                        <p><strong>Syn på moderna samhället:</strong> Försiktiga mot förändring. Vissa ultraortodoxa grupper lever avsides från det sekulära samhället.</p>
+                        <p><strong>Exempel:</strong> Chassidiska judar (ultraortodoxa) bär traditionella kläder, män har långa skägg och lockar vid tinningarna.</p>
+                        <p><strong>Utbredning:</strong> Stark närvaro i Israel, New York och andra judiska centra.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Konservativ judendom (Masorti)</div>
+                        <p><strong>Syn på Tora:</strong> Tora är helig och gudomligt inspirerad, men kan tolkas i ljuset av historisk kontext.</p>
+                        <p><strong>Lagar och regler:</strong></p>
+                        <ul>
+                            <li>Följer traditionerna men med viss flexibilitet</li>
+                            <li>Kosher hemma, kanske inte ute</li>
+                            <li>Shabbat firas, men med viss anpassning (vissa kör bil till synagogan)</li>
+                            <li>Män och kvinnor kan sitta tillsammans</li>
+                            <li>Både män och kvinnor kan bli rabbiner (sedan 1980-talet)</li>
+                            <li>Betonar judisk utbildning och hebreiska</li>
+                        </ul>
+                        <p><strong>Syn på moderna samhället:</strong> Balans mellan tradition och modern värld. "Förändring inom kontinuitet".</p>
+                        <p><strong>Utbredning:</strong> Populär i USA, mindre i Europa.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Reform/Liberal judendom</div>
+                        <p><strong>Syn på Tora:</strong> Tora är skriven av människor som var inspirerade av Gud. Innehåller tidlösa värderingar men behöver tolkas för varje tid.</p>
+                        <p><strong>Lagar och regler:</strong></p>
+                        <ul>
+                            <li>Varje individ bestämmer vilka regler de följer</li>
+                            <li>Kosher är valfritt, många följer inte det</li>
+                            <li>Shabbat firas mer flexibelt, fokus på andlig mening</li>
+                            <li>Män och kvinnor är helt jämlika</li>
+                            <li>Kvinnliga rabbiner sedan 1972</li>
+                            <li>HBTQ+-personer välkomnas fullt ut</li>
+                            <li>Gudstjänster ofta på lokalt språk, inte bara hebreiska</li>
+                        </ul>
+                        <p><strong>Syn på moderna samhället:</strong> Omfamnar modernitet. Ser judisk tradition som en del av ett modernt liv.</p>
+                        <p><strong>Innovationer:</strong> Erkänner patrilineär härkomst (judisk far räcker), inte bara moderlinjen.</p>
+                        <p><strong>Utbredning:</strong> Största grenen i USA. Växande i Europa och Israel.</p>
+                    </div>
+                </div>
+
+                <h3>🌍 Andra judiska grupper och rörelser</h3>
+
+                <div class="info-card">
+                    <p><strong>Chassidism</strong> - En ultraortodox rörelse grundad på 1700-talet i Östeuropa. Fokuserar på glädje, mystik och andlighet. Ledare kallas "Rebbe". Exempel: Chabad-Lubavitch.</p>
+
+                    <p><strong>Rekonstruktionistisk judendom</strong> - En amerikansk gren från 1900-talet. Ser judendomen som en "civilisation" som ständigt utvecklas. Mycket progressiv.</p>
+
+                    <p><strong>Humanistisk judendom</strong> - Sekulär gren som firar judisk kultur och historia utan tro på Gud.</p>
+
+                    <p><strong>Sefardiska och Ashkenaziska judar</strong> - Inte religiösa grenar, utan etniska/kulturella grupper:</p>
+                    <ul>
+                        <li><strong>Sefardiska judar</strong> - Härstammar från Spanien, Portugal, Nordafrika och Mellanöstern. Har egna traditioner och liturgi.</li>
+                        <li><strong>Ashkenaziska judar</strong> - Härstammar från Tyskland och Östeuropa. Majoriteten av världens judar idag. Talade jiddisch.</li>
+                    </ul>
+                </div>
+
+                <h3>📉 Gemensamt trots skillnader</h3>
+                <div class="info-card highlight">
+                    <p>Trots skillnader delar alla judiska inriktningar vissa grundläggande övertygelser:</p>
+                    <ul>
+                        <li>✡️ Tro på <strong>en enda Gud</strong></li>
+                        <li>📜 <strong>Tora</strong> är central och helig (även om tolkningarna varierar)</li>
+                        <li>🕍 Vikten av <strong>gemenskap</strong> och judisk identitet</li>
+                        <li>🎉 Firar samma <strong>högtider</strong> (Pesach, Yom Kippur, Rosh Hashana, etc.)</li>
+                        <li>❤️ Betonar <strong>etik och rättvisa</strong> (tikkun olam)</li>
+                        <li>🇮🇱 Koppling till <strong>Israel</strong> och judisk historia</li>
+                    </ul>
+                </div>
+
+                <h3>🇸🇪 Judendomen i Sverige</h3>
+                <div class="info-card">
+                    <p>I Sverige finns cirka 20 000 judar, främst i Stockholm, Göteborg och Malmö.</p>
+                    <p><strong>Svenska judiska församlingar:</strong></p>
+                    <ul>
+                        <li><strong>Officiella församlingen:</strong> Konservativ-till-liberal i praktiken. De flesta svenska judar tillhör denna.</li>
+                        <li><strong>Ortodoxa grupper:</strong> Chabad i Stockholm och andra städer erbjuder ortodoxa gudstjänster.</li>
+                        <li><strong>Liberala grupper:</strong> Egalitära gudstjänster där kvinnor och män deltar lika.</li>
+                    </ul>
+                    <p>Svenska judar har stor valfrihet i hur de praktiserar sin tro!</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>🤔 Reflektera:</h3>
+                    <div class="reflection-question">
+                        Varför tror du att samma religion kan tolkas så olika av ortodox a, konservativa och reformjudar? Är det bra eller dåligt att en religion kan anpassas till olika tider och kulturer?
+                    </div>
+                    <div class="reflection-question">
+                        Trots stora skillnader i hur de praktiserar sin religion ser sig alla som "judar". Vad håller en gemenskap samman när människor har olika åsikter?
+                    </div>
+                    <div class="reflection-question">
+                        Reform/liberal judendom betonar jämställdhet och inkludering av HBTQ+-personer. Ortodox judendom håller fast vid traditionella könroller. Vem "har rätt"? Kan båda vara legitima vägar att vara jude?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Högtider -->
+            <div id="hogtider" class="section">
+                <h2>Judiska högtider - En årscykel av firande</h2>
+
+                <div class="info-card highlight">
+                    <p>Judiska högtider följer den <strong>judiska kalendern</strong>, som är månadbaserad (lunar). Därför infaller högtiderna olika datum varje år i den vanliga (gregorianska) kalendern.</p>
+                    <p>Många högtider minns viktiga händelser i den judiska historien och knyter samman historiska minnen med andligt liv. Genom att fira samma högtider år efter år håller judiska familjer traditionen levande och förstärker sin identitet.</p>
+                </div>
+
+                <h3>🕯️ Shabbat - Den viktigaste veckodagen</h3>
+                <div class="info-card highlight">
+                    <p><strong>När:</strong> Varje vecka från fredag kväll (när den första stjärnan syns) till lördag kväll (när tre stjärnor syns)</p>
+                    <p><strong>Betydelse:</strong> Shabbat är den viktigaste högtiden i judendomen - viktigare än alla andra! Den kommer varje vecka och ger judarna en regelbunden andningspaus från vardagens stress.</p>
+                </div>
+
+                <h4>📖 Biblisk bakgrund</h4>
+                <div class="info-card">
+                    <p>I skapelseberättelsen i Genesis står det att Gud skapade världen på sex dagar och vilade på den sjunde dagen. Därför ska även människor vila på sjunde dagen - det är ett av de tio budorden:</p>
+                    <p><em>"Kom ihåg sabbatsdagen och håll den helig. Sex dagar ska du arbeta och göra allt ditt arbete, men den sjunde dagen är sabbat åt Herren, din Gud."</em></p>
+                    <p>Shabbat börjar alltid på kvällen eftersom judiska dagar räknas från solnedgång till solnedgång (som i skapelseberättelsen: "Det blev kväll och det blev morgon").</p>
+                </div>
+
+                <h4>🏠 Hur firas Shabbat?</h4>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">Fredag kväll - Välkomna Shabbat</div>
+                        <p>Innan solnedgången tänder modern (eller en kvinna i familjen) <strong>två ljus</strong> och säger en välsignelse. Ljusen symboliserar de två versioner av sabbatsbudet i Tora.</p>
+                        <p>Familjen äter en festmåltid tillsammans. Fadern välsignar <strong>vin</strong> (kiddush) och två <strong>challah-bröd</strong> (flätade bröd som symboliserar manna i öknen). Ofta sjungs shabbatssånger.</p>
+                        <p>Många går till synagogan för fredagskväll-gudstjänst (Kabbalat Shabbat).</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Lördag - Vila och gemenskap</div>
+                        <p>Ingen arbetar. Man går till synagogan på morgonen där Tora-avsnittet för veckan läses.</p>
+                        <p>Resten av dagen ägnas åt vila, familj, studier av heliga texter, eller promenader. Det är en dag för att <strong>vara</strong> istället för att <strong>göra</strong>.</p>
+                        <p><strong>Ortodoxa judar:</strong> Använder ingen elektronik, kör ingen bil, tänder ingen eld, hanterar inga pengar. Man ska vila totalt.</p>
+                        <p><strong>Liberala judar:</strong> Tolkar viloreglerna mer flexibelt - kanske kör till synagogan eller använder telefon för att ringa familj.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">Lördag kväll - Havdala (Avsked)</div>
+                        <p>När tre stjärnor syns på himlen avslutas Shabbat med <strong>Havdala-ceremonin</strong>:</p>
+                        <ul>
+                            <li>Man tänder ett speciellt flätad ljus med flera vekar</li>
+                            <li>Luktar på kryddor (besamim) för att behålla Shabbats sötma</li>
+                            <li>Säger välsignelser över vin</li>
+                            <li>Önskar varandra "Shavua tov" (En god vecka)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h4>💭 Shabbats betydelse idag</h4>
+                    <p>I vår stressiga värld erbjuder Shabbat något unikt: <strong>En dag utan mobiler, jobb och stress</strong>. Många sekulära judar som inte följer andra regler håller fortfarande Shabbat för familjegemenskapens skull.</p>
+                    <p>Författaren Abraham Joshua Heschel kallade Shabbat för "en katedral i tiden" - en helig stund mitt i veckan.</p>
+                </div>
+
+                <h3>📅 De höga högtiderna (Yamim Noraim)</h3>
+                <div class="info-card highlight">
+                    <p>Perioden från <strong>Rosh Hashana</strong> till <strong>Yom Kippur</strong> kallas <strong>"De höga högtiderna"</strong> eller <strong>"De fruktansvärda dagarna"</strong> (Yamim Noraim). Det är den allvarligaste tiden på det judiska året.</p>
+                </div>
+
+                <h3>🍎 Rosh Hashana - Det judiska nyåret</h3>
+                <div class="info-card">
+                    <p><strong>När:</strong> 1-2:a dagen i månaden Tishri (september-oktober)</p>
+                    <p><strong>Betydelse:</strong> Rosh Hashana betyder "årets huvud" och markerar början på det judiska nya året. Men det är inte som nyårsafton med fyrverkerier och fest - det är en allvarlig tid för <strong>självrannsakan</strong>.</p>
+                </div>
+
+                <h4>🎺 Shofarens ljud</h4>
+                <div class="info-card highlight">
+                    <p>Det mest karakteristiska med Rosh Hashana är ljudet av <strong>shofar</strong> - ett horn från en vädur eller bagge som blåses i synagogan.</p>
+                    <p><strong>Shofaren har flera betydelser:</strong></p>
+                    <ul>
+                        <li>Väcker människor från andlig sömn: "Vakna! Granska dina handlingar!"</li>
+                        <li>Påminner om Abrahams offervilja när Gud skonade Isak och gav en bagge istället</li>
+                        <li>Ljuder som en trumpet inför Guds domstol - Gud bedömer människors handlingar</li>
+                        <li>100 stötar blåses under gudstjänsten med olika mönster (tekiah, shevarim, teruah)</li>
+                    </ul>
+                </div>
+
+                <h4>🍯 Traditioner</h4>
+                <div class="info-card">
+                    <p><strong>Äpplen och honung:</strong> Man äter äppelskivor doppade i honung och säger: "Må det vara din vilja att förnya för oss ett gott och sött år."</p>
+                    <p><strong>Tashlich:</strong> På eftermiddagen går många till en flod eller sjö och kastar brödsmulor i vattnet som symboliserar att kasta bort sina synder.</p>
+                    <p><strong>Hälsning:</strong> "Shana Tova" (Ett gott år) eller "Shana Tova U'metuka" (Ett gott och sött år)</p>
+                    <p><strong>Vitt:</strong> Många klär sig i vitt som symbol för renhet och en ny början.</p>
+                </div>
+
+                <h4>📚 Teologisk betydelse</h4>
+                <div class="info-card highlight">
+                    <p>Enligt judisk tradition öppnar Gud <strong>"Livets bok"</strong> på Rosh Hashana och bedömer varje människas handlingar under det gångna året. Under de tio dagarna fram till Yom Kippur är domen inte fastställd - människor kan ångra sig och förbättra sig.</p>
+                </div>
+
+                <h3>🙏 Yom Kippur - Försoningsdagen</h3>
+                <div class="info-card highlight">
+                    <p><strong>När:</strong> 10:e dagen i Tishri, 10 dagar efter Rosh Hashana</p>
+                    <p><strong>Betydelse:</strong> <strong>Den heligaste dagen på året.</strong> Yom Kippur betyder "Försoningsdagen" - dagen då Gud förlåter synder. Till och med sekulära judar som inte följer andra traditioner tar ofta Yom Kippur på allvar.</p>
+                </div>
+
+                <h4>🚫 Fastan</h4>
+                <div class="info-card">
+                    <p>Judar fastar i <strong>25 timmar</strong> - från solnedgång till solnedgång. Ingen mat, inget vatten.</p>
+                    <p><strong>Andra restriktioner:</strong></p>
+                    <ul>
+                        <li>Ingen tvätt eller smink</li>
+                        <li>Inga läderskor (man bär tygskor eller sandaler)</li>
+                        <li>Ingen intimitet mellan makar</li>
+                    </ul>
+                    <p>Syftet är att fokusera helt på andliga saker och ångra sina misstag.</p>
+                    <p><strong>Undantag:</strong> Barn under 13 år, gravida, sjuka eller de som skulle sätta sitt liv i fara fastar inte (pikuach nefesh).</p>
+                </div>
+
+                <h4>🕍 Gudstjänsten</h4>
+                <div class="info-card">
+                    <p>Många tillbringar <strong>hela dagen i synagogan</strong> i bön och läsning av heliga texter.</p>
+                    <p><strong>Kol Nidre:</strong> Dagen börjar kvällen innan med Kol Nidre-bönen - en av de mest berörande bönerna i judendomen. Den sjungs med en gripande melodi.</p>
+                    <p><strong>Viddui:</strong> Bekännelse av synder. Gemenskapen bekänner tillsammans - inte individuellt - vilket visar att alla delar ansvar.</p>
+                    <p><strong>Neilah:</strong> Avslutande bön när "portarna stängs". Den sista chansen att be om förlåtelse innan Gud "stänger boken".</p>
+                    <p><strong>Shofarstöt:</strong> Dagen avslutas med en lång shofarstöt som signalerar att fastan är över.</p>
+                </div>
+
+                <h4>🤝 Mänsklig försoning</h4>
+                <div class="info-card highlight">
+                    <p><strong>Viktigt:</strong> Innan Yom Kippur måste man be om förlåtelse från människor man sårat. Gud kan bara förlåta synder mot honom - <strong>inte mot andra människor</strong>.</p>
+                    <p>Om du har sårat någon ska du aktivt söka upp personen och be om förlåtelse. Detta kallas <em>teshuvah</em> (återvändo/omvändelse).</p>
+                    <p>Judisk etik är tydlig: Du kan inte be Gud om förlåtelse för saker du gjort mot andra människor förrän du bett dessa människor om förlåtelse först.</p>
+                </div>
+
+                <h3>🍷 Pesach (Påsk) - Friheten</h3>
+                <div class="info-card">
+                    <p><strong>När:</strong> 15-22/23 Nissan (mars-april), varar i 7-8 dagar</p>
+                    <p><strong>Betydelse:</strong> Pesach firar <strong>uttåget ur Egypten</strong> - den mest centrala händelsen i judisk historia. Den dagen blev slavar till ett fritt folk.</p>
+                </div><h3>📿 Tefillin (Böneremmar)</h3>
+                <div class="info-card">
+                    <p><strong>Tefillin</strong> är två små svarta läderkuber som innehåller pergament med Tora-texter. De binds fast med läderremmar - en på pannans och en på vänster arm (närmare hjärtat).</p>
+                </div>
+
+                <h4>📖 Bibliskt ursprung</h4>
+                <div class="info-card highlight">
+                    <p>Tefillin kommer från Tora (5 Mos 6:8): <em>"Du ska binda dem som ett tecken på din hand och de ska vara som en minnesband mellan dina ögon."</em></p>
+                    <p><strong>Innehåll:</strong> Fyra Tora-texter om Guds enhet och uttåget ur Egypten</p>
+                    <p><strong>När används de?</strong> Vid morgonbön på vardagar (inte shabbat eller högtider)</p>
+                    <p><strong>Symbolik:</strong> Tefillin symboliserar att hela människan - tankar (huvudet), känslor (hjärtat) och handlingar (armen) - ska ägnas åt Gud.</p>
+                </div>
+
+                <h3>🏛️ Synagogan - Det judiska bönehusets</h3>
+                <div class="info-card highlight">
+                    <p>Efter att templet i Jerusalem förstördes år 70 e.Kr. ersattes det av <strong>synagogor</strong> (från grekiskans "samlingshus"). En synagoga är inte bara ett bönehus - det är också en plats för gemenskap, studier och firande.</p>
+                    <p><strong>Tre funktioner:</strong></p>
+                    <ul>
+                        <li><strong>Bet Tefillah</strong> - Bönehus</li>
+                        <li><strong>Bet Midrash</strong> - Studiehus (för Tora-studier)</li>
+                        <li><strong>Bet Knesset</strong> - Samlingshus (för gemenskapen)</li>
+                    </ul>
+                </div>
+
+                <h4>🏛️ Synagogans inredning</h4>
+                <div class="info-card">
+                    <p><strong>Aron ha-Kodesh</strong> (Det heliga skåpet):</p>
+                    <ul>
+                        <li>Ett stort skåp där Tora-rullarna förvaras</li>
+                        <li>Placerat vid den vägg som pekar mot Jerusalem</li>
+                        <li>Ofta vackert dekorerat och dolt av en förhänge (parokhet)</li>
+                        <li>Det heligaste föremålet i synagogan</li>
+                    </ul>
+
+                    <p><strong>Ner Tamid</strong> (Det eviga ljuset):</p>
+                    <ul>
+                        <li>Ett litet ljus som <strong>alltid</strong> brinner ovanför Aron ha-Kodesh</li>
+                        <li>Symboliserar Guds ständiga närvaro</li>
+                        <li>Påminner om menoran som brann i templet</li>
+                    </ul>
+
+                    <p><strong>Bima</strong> (Podiet):</p>
+                    <ul>
+                        <li>Ett upphöjt podium i mitten av synagogan (eller framme)</li>
+                        <li>Här läses Tora högt</li>
+                        <li>Här leder rabbinen eller kantorn gudstjänsten</li>
+                    </ul>
+
+                    <p><strong>Andra detaljer:</strong></p>
+                    <ul>
+                        <li>Davidsstjärna och menora som dekoration</li>
+                        <li>Plats för kvinnor (i ortodoxa synagogor separerat av en mechitza - skiljevägg)</li>
+                        <li>Sittplatser vända mot Jerusalem</li>
+                    </ul>
+                </div>
+
+                <h3>⚖️ Klagomuren - Judendomens heligaste plats</h3>
+                <div class="info-card highlight">
+                    <p>I Jerusalem står <strong>Klagomuren</strong> (Västra muren, Kotel), den sista kvarvarande delen av templets stödmur. Hit kommer judar från hela världen för att be.</p>
+                </div>
+
+                <h4>🏛️ Historia</h4>
+                <div class="info-card">
+                    <p>När romarna förstörde templet år 70 e.Kr. lämnades bara den västra stödmuren kvar. Under 2000 år har judar kommit hit för att sörja templets förstörelse och be för dess återbyggnad.</p>
+                    <p><strong>Namnet:</strong> Kallas "Klagomuren" eftersom judar sörjde templet här. På hebreiska heter den helt enkelt <strong>Hakotel HaMaaravi</strong> - "Västra muren".</p>
+                </div>
+
+                <h4>🙏 Traditioner vid muren</h4>
+                <div class="info-card">
+                    <p><strong>Bönelapper:</strong> Många stoppar små lappar med skrivna böner i murens sprickor. Enligt tradition läses alla böner som lämnas här.</p>
+                    <p><strong>Bar/Bat Mitzvah:</strong> Många familjer firar denna ceremoni vid Klagomuren - den heligaste platsen.</p>
+                    <p><strong>Soldaters ed:</strong> Israeliska soldater avlägger ofta sin ed vid Klagomuren.</p>
+                    <p><strong>Separation:</strong> Böneplatsen är uppdelad - män till vänster, kvinnor till höger.</p>
+                    <p><strong>Respekt:</strong> Man närmar sig muren bakåt för att inte vända ryggen till det heliga.</p>
+                </div>
+
+                <div class="info-card highlight">
+                    <h3>📋 Sammanfattning - Symbolernas budskap</h3>
+                    <p>Judiska symboler är inte bara dekoration. De är <strong>konkreta påminnelser</strong> om:</p>
+                    <ul>
+                        <li><strong>Guds närvaro:</strong> Mezuza, Ner Tamid, Menoran</li>
+                        <li><strong>Guds bud:</strong> Tzitzit, Tefillin</li>
+                        <li><strong>Judisk identitet:</strong> Davidsstjärnan, Kippa</li>
+                        <li><strong>Historiska händelser:</strong> Shofar, Klagomuren</li>
+                        <li><strong>Gemenskap:</strong> Synagogan</li>
+                    </ul>
+                    <p>Genom att se och använda dessa symboler dagligen håller judar sin tro levande och påminns om vem de är.</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>🤔 Reflektera:</h3>
+                    <div class="reflection-question">
+                        Varför använder religioner symboler? Vad kan en symbol kommunicera som ord inte kan? Finns det symboler i ditt eget liv som betyder något speciellt för dig?
+                    </div>
+                    <div class="reflection-question">
+                        Mezuza påminner judar om Gud varje gång de går genom en dörr. Hur kan fysiska påminnelser i vardagen hjälpa människor att leva efter sina värderingar?
+                    </div>
+                    <div class="reflection-question">
+                        Davidsstjärnan blev en symbol för judisk identitet, men användes också av nazister för att märka ut judar. Hur kan samma symbol ha både positiv och negativ betydelse?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tora & Skrifter -->
+            <div id="tora" class="section">
+                <h2>Tora och heliga skrifter</h2>
+
+                <div class="info-card highlight">
+                    <h3>📜 Vad är Tora?</h3>
+                    <p><strong>Tora</strong> betyder "undervisning" eller "lag" på hebreiska. Den består av de fem Moseböckerna och är den heligaste texten i judendomen. Judar tror att Tora innehåller Guds ord som gavs till Moses på berget Sinai.</p>
+                </div>
+
+                <h3>De fem Moseböckerna</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">1. Genesis (Bereshit)</div>
+                        <p>Skapelseberättelsen, Adam och Eva, Noak och syndafloden, patriarkerna Abraham, Isak och Jakob, samt Josef i Egypten.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">2. Exodus (Shemot)</div>
+                        <p>Judarna är slavar i Egypten, Moses leder dem ut (Pesach), De tio budorden ges på Sinai.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">3. Leviticus (Vayikra)</div>
+                        <p>Lagar om offer, renhet, och hur man ska leva ett heligt liv. Kosherregler beskrivs här.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">4. Numeri (Bamidbar)</div>
+                        <p>Judarna vandrar i öknen i 40 år på väg till det utlovade landet.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-year">5. Deuteronomium (Devarim)</div>
+                        <p>Moses upprepar lagarna och håller avskedstal innan folket går in i Kanaan.</p>
+                    </div>
+                </div>
+
+                <h3>📖 Tanakh - Den hebreiska bibeln</h3>
+                <div class="info-card">
+                    <p>Tanakh består av tre delar:</p>
+                    <ul>
+                        <li><strong>Tora</strong> - De fem Moseböckerna (lagen)</li>
+                        <li><strong>Neviim</strong> - Profeterna (som Jesaja, Jeremia)</li>
+                        <li><strong>Ketuvim</strong> - Skrifterna (som Psaltaren, Job, Ordspråksboken)</li>
+                    </ul>
+                    <p><em>Tips: Namnet TANAKH kommer från de tre delarnas första bokstäver: T-N-K</em></p>
+                </div>
+
+                <h3>📚 Talmud - Judarnas "diskussionsbok"</h3>
+                <div class="info-card">
+                    <p>Talmud är en enorm samling av diskussioner om hur man ska tolka och följa Toras lagar. Den skrevs av rabbiner (judiska lärare) under många hundra år.</p>
+                    <p>Talmud innehåller:</p>
+                    <ul>
+                        <li><strong>Mishna</strong> - Muntliga traditioner nedskrivna cirka år 200</li>
+                        <li><strong>Gemara</strong> - Rabbinernas diskussioner och tolkningar av Mishna</li>
+                    </ul>
+                    <p>Talmud är ENORM - nästan 6 000 sidor! Ortodoxa judar studerar den dagligen.</p>
+                </div>
+
+                <h3>✍️ Hur Tora används idag</h3>
+                <div class="info-card highlight">
+                    <p>Tora skrivs för hand på pergament av en speciellt utbildad skrivare (sofer). Det tar ungefär ett år att skriva en hel Tora-rulle!</p>
+                    <p>I synagogan:</p>
+                    <ul>
+                        <li>Tora-rullen förvaras i det heliga skåpet (Aron ha-Kodesh)</li>
+                        <li>Varje shabbat läses ett avsnitt högt i synagogan</li>
+                        <li>På ett år läser man igenom hela Tora</li>
+                        <li>Man får aldrig röra texten med fingrarna - man använder en speciell pekpinne (yad)</li>
+                    </ul>
+                </div>
+
+                <h3>🎓 Bar/Bat Mitzvah - Att bli vuxen</h3>
+                <div class="info-card">
+                    <p>När en judisk pojke fyller 13 år (Bar Mitzvah) eller en flicka fyller 12 år (Bat Mitzvah - främst i liberala grupper) blir de religiöst vuxna.</p>
+                    <p>Vid ceremonin:</p>
+                    <ul>
+                        <li>Läser de från Tora för första gången i synagogan</li>
+                        <li>Tar ansvar för att följa Guds bud</li>
+                        <li>Familjen firar med en stor fest</li>
+                    </ul>
+                    <p>Det är som en inträdesbiljett till vuxenvärlden i den judiska gemenskapen!</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>🤔 Reflektera:</h3>
+                    <div class="reflection-question">
+                        Varför tror du att judar fortfarande läser samma texter som skrevs för över 2500 år sedan? Vad kan gamla berättelser lära oss om hur vi ska leva idag?
+                    </div>
+                    <div class="reflection-question">
+                        Talmud visar hur rabbiner diskuterade och oenades om hur lagar skulle tolkas. Varför kan det vara bra att ha olika tolkningar av samma text?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Levnadsregler -->
+            <div id="levnad" class="section">
+                <h2>Att leva som jude - Levnadsregler och etik</h2>
+
+                <p>Judendomen är inte bara en religion om tro - det är en religion om <strong>hur man lever</strong>. Det finns 613 bud (mitzvot) i Tora som vägleder judars liv.</p>
+
+                <h3>⚖️ De Tio budorden - Grundpelarna</h3>
+                <div class="info-card highlight">
+                    <p>De tio budorden gavs till Moses på berget Sinai. De är grunden för judisk (och senare kristen) etik:</p>
+                    <ol>
+                        <li>Du ska inte ha andra gudar</li>
+                        <li>Du ska inte göra dig några avgudabilder</li>
+                        <li>Du ska inte missbruka Guds namn</li>
+                        <li>Kom ihåg sabbatsdagen och håll den helig</li>
+                        <li>Hedra din far och din mor</li>
+                        <li>Du ska inte slå ihjäl</li>
+                        <li>Du ska inte begå äktenskapsbrott</li>
+                        <li>Du ska inte stjäla</li>
+                        <li>Du ska inte vittna falskt</li>
+                        <li>Du ska inte ha begär</li>
+                    </ol>
+                </div>
+
+                <h3>🍽️ Kosher - Vad får man äta?</h3>
+                <div class="info-card">
+                    <p><strong>Kosher</strong> (kashrut) är de judiska reglerna för mat. Många ortodoxa judar följer dessa regler strikt, medan liberala judar kan välja att inte följa dem.</p>
+
+                    <p><strong>✅ Tillåtet (kosher):</strong></p>
+                    <ul>
+                        <li>Djur med klövhovar som idisslar (ko, lamm, get)</li>
+                        <li>Fåglar som höns, kalkoner, ankor</li>
+                        <li>Fisk med både fenor och fjäll</li>
+                        <li>Alla grönsaker och frukter</li>
+                    </ul>
+
+                    <p><strong>❌ Förbjudet (treif):</strong></p>
+                    <ul>
+                        <li>Fläsk (gris)</li>
+                        <li>Skaldjur (räkor, hummer, krabba)</li>
+                        <li>Fisk utan fjäll (ål, haj)</li>
+                        <li>Rovdjur och rovfåglar</li>
+                        <li>Insekter (utom vissa gräshoppor)</li>
+                    </ul>
+
+                    <p><strong>📋 Extra regler:</strong></p>
+                    <ul>
+                        <li>Djur måste slaktas på ett humant sätt (shechita)</li>
+                        <li>Allt blod måste avlägsnas från köttet</li>
+                        <li>Man får INTE blanda mjölk och kött i samma måltid</li>
+                        <li>Många har separata tallrikar och bestick för mjölk- och köttmat</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h4>💭 Varför kosher?</h4>
+                    <p>Det finns olika förklaringar:</p>
+                    <ul>
+                        <li><strong>Religiös lydnad</strong> - Gud befallde det i Tora</li>
+                        <li><strong>Hälsa</strong> - Vissa regler kan ha haft praktiska hälsoskäl</li>
+                        <li><strong>Medkänsla</strong> - Reglerna lär respekt för djur</li>
+                        <li><strong>Identitet</strong> - Att äta kosher påminner om judisk identitet varje dag</li>
+                    </ul>
+                </div>
+
+                <h3>❤️ Tzedakah - Rättvisa och välgörenhet</h3>
+                <div class="info-card highlight">
+                    <p><strong>Tzedakah</strong> betyder "rättvisa" eller "rättfärdighet" på hebreiska. Det handlar om att hjälpa andra som behöver det.</p>
+                    <p>Viktigt att veta:</p>
+                    <ul>
+                        <li>Tzedakah är inte frivillig välgörenhet - det är en <strong>plikt</strong></li>
+                        <li>Alla bör ge, även fattiga (som kan ge mindre)</li>
+                        <li>Den högsta formen av tzedakah är att hjälpa någon bli självförsörjande</li>
+                        <li>Man ska ge utan att skryta</li>
+                    </ul>
+                </div>
+
+                <h3>🤝 Tikkun Olam - Att reparera världen</h3>
+                <div class="info-card">
+                    <p><strong>Tikkun Olam</strong> betyder "att reparera världen". Det är idén att människor har ett ansvar att göra världen bättre.</p>
+                    <p>Detta kan innebära:</p>
+                    <ul>
+                        <li>Kämpa mot orättvisa och fattigdom</li>
+                        <li>Ta hand om miljön</li>
+                        <li>Främja fred och förståelse</li>
+                        <li>Hjälpa de som behöver stöd</li>
+                    </ul>
+                    <p>Många judar idag ser tikkun olam som kärnan i vad det innebär att vara jude.</p>
+                </div>
+
+                <h3>🕊️ Shalom - Frid och helhet</h3>
+                <div class="info-card">
+                    <p><strong>Shalom</strong> är det hebreiska ordet för "frid" eller "hej". Men det betyder mer än så - det betyder också:</p>
+                    <ul>
+                        <li>Helhet och fullständighet</li>
+                        <li>Harmoni mellan människor</li>
+                        <li>Inre frid</li>
+                        <li>Välmående</li>
+                    </ul>
+                    <p>Att önska någon "shalom" är att önska dem allt gott i livet!</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>🤔 Diskutera:</h3>
+                    <div class="reflection-question">
+                        Varför tror du att judendomen har så många regler om hur man ska leva? Kan regler och traditioner hjälpa människor att känna tillhörighet och mening?
+                    </div>
+                    <div class="reflection-question">
+                        Konceptet "tikkun olam" (att reparera världen) innebär att varje människa har ansvar för att göra världen bättre. Vad kan du göra i ditt liv för att bidra till att "reparera världen"?
+                    </div>
+                    <div class="reflection-question">
+                        Kosher-reglerna påminner judar om deras religion varje gång de äter. Hur tror du att dagliga ritualer och regler påverkar en persons identitet?
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz -->
+            <div id="quiz" class="section">
+                <h2>Testa dina kunskaper!</h2>
+
+                <div class="quiz-container">
+                    <div id="quiz-content">
+                        <!-- Quiz kommer att laddas här -->
+                    </div>
+                    <div id="quiz-result" style="display: none; text-align: center;">
+                        <h3>🎉 Resultat</h3>
+                        <p style="font-size: 2em; margin: 20px 0;">
+                            <span id="score"></span> av <span id="total"></span> rätt!
+                        </p>
+                        <p id="result-message" style="font-size: 1.2em; margin: 20px 0;"></p>
+                        <button class="ai-quiz-btn" onclick="restartQuiz()">🔄 Försök igen</button>
+                    </div>
+                </div>
+
+                <div class="ai-quiz-section">
+                    <h3>🤖 Vill du ha ett personligt anpassat quiz?</h3>
+                    <p>Använd vår AI-drivna provplattform för att få unika frågor anpassade efter din nivå!</p>
+                    <button class="ai-quiz-btn" onclick="goToAIQuiz()">Starta AI-quiz om judendom</button>
+                </div>
+            </div>
+
+            <!-- Övningar -->
+            <div id="ovningar" class="section">
+                <h2>Varierade övningar - Visa din förståelse</h2>
+
+                <div class="info-card highlight">
+                    <p>Här hittar du fem olika typer av övningar som hjälper dig att fördjupa din förståelse för judendom. Välj de övningar som passar din nivå och lärstil!</p>
+                </div>
+
+                <!-- Övning 1: Matchning -->
+                <section style="margin: 50px 0;">
+                    <h3>Övning 1: Matchning - Hebreiska begrepp och symboler</h3>
+
+                    <div class="info-card">
+                        <p><strong>Instruktion:</strong> Klicka först på ett begrepp i vänster kolumn, sedan på motsvarande förklaring i höger kolumn.</p>
+                        <div class="difficulty-badge e-niva">E-nivå</div>
+                        <p><strong>Lgr22:</strong> Kunna identifiera och beskriva centrala begrepp.</p>
+                    </div>
+
+                    <div class="matching-container">
+                        <div class="matching-column">
+                            <h4>Begrepp</h4>
+                            <div class="matching-item" data-id="1" onclick="selectMatching(1, 'left')">Shabbat</div>
+                            <div class="matching-item" data-id="2" onclick="selectMatching(2, 'left')">Kosher</div>
+                            <div class="matching-item" data-id="3" onclick="selectMatching(3, 'left')">Tikkun Olam</div>
+                            <div class="matching-item" data-id="4" onclick="selectMatching(4, 'left')">Bar Mitzvah</div>
+                            <div class="matching-item" data-id="5" onclick="selectMatching(5, 'left')">Menora</div>
+                            <div class="matching-item" data-id="6" onclick="selectMatching(6, 'left')">Tzedakah</div>
+                            <div class="matching-item" data-id="7" onclick="selectMatching(7, 'left')">Mezuza</div>
+                            <div class="matching-item" data-id="8" onclick="selectMatching(8, 'left')">Pesach</div>
+                        </div>
+
+                        <div class="matching-column">
+                            <h4>Förklaring</h4>
+                            <div class="matching-item" data-id="1" onclick="selectMatching(1, 'right')">Vilodag från fredag kväll till lördag kväll</div>
+                            <div class="matching-item" data-id="2" onclick="selectMatching(2, 'right')">Judiska matlagar - vad som är tillåtet att äta</div>
+                            <div class="matching-item" data-id="3" onclick="selectMatching(3, 'right')">Att reparera/förbättra världen</div>
+                            <div class="matching-item" data-id="4" onclick="selectMatching(4, 'right')">Ceremoni när pojke blir religiöst vuxen vid 13 år</div>
+                            <div class="matching-item" data-id="5" onclick="selectMatching(5, 'right')">Sjuarmad ljusstake som stod i templet</div>
+                            <div class="matching-item" data-id="6" onclick="selectMatching(6, 'right')">Välgörenhet och rättvisa - en helig plikt</div>
+                            <div class="matching-item" data-id="7" onclick="selectMatching(7, 'right')">Fodral med bibeltext på dörrposten</div>
+                            <div class="matching-item" data-id="8" onclick="selectMatching(8, 'right')">Högtid som firar uttåget ur Egypten</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-bar" id="matching-progress" style="width: 0%;">0/8</div>
+                    </div>
+
+                    <div id="matching-feedback" class="quiz-feedback"></div>
+                    <button class="ai-quiz-btn" onclick="resetMatching()">Börja om</button>
+                </section>
+
+                <!-- Övning 2: Tidslinje -->
+                <section style="margin: 50px 0;">
+                    <h3>Övning 2: Tidslinje - Ordna historiska händelser</h3>
+
+                    <div class="info-card">
+                        <p><strong>Instruktion:</strong> Dra och släpp händelserna i rätt kronologisk ordning.</p>
+                        <div class="difficulty-badge c-niva">C-nivå</div>
+                        <p><strong>Lgr22:</strong> Relatera religiösa företeelser till historiska skeenden.</p>
+                    </div>
+
+                    <div class="timeline-exercise">
+                        <h4>Dra händelserna i rätt ordning:</h4>
+                        <div id="timeline-items" class="timeline-items-container">
+                            <div class="timeline-draggable" draggable="true" data-order="3">
+                                <div class="timeline-number placeholder">?</div>
+                                <div>
+                                    <strong>Moses tar emot Tio budorden</strong><br>
+                                    <small>På berget Sinai ger Gud Moses Tora</small>
+                                </div>
+                            </div>
+                            <div class="timeline-draggable" draggable="true" data-order="1">
+                                <div class="timeline-number placeholder">?</div>
+                                <div>
+                                    <strong>Abraham får kallelse från Gud</strong><br>
+                                    <small>Förbundet upprättas</small>
+                                </div>
+                            </div>
+                            <div class="timeline-draggable" draggable="true" data-order="6">
+                                <div class="timeline-number placeholder">?</div>
+                                <div>
+                                    <strong>Templet förstörs år 70 e.Kr.</strong><br>
+                                    <small>Romarna förstör templet i Jerusalem</small>
+                                </div>
+                            </div>
+                            <div class="timeline-draggable" draggable="true" data-order="4">
+                                <div class="timeline-number placeholder">?</div>
+                                <div>
+                                    <strong>Kung David gör Jerusalem till huvudstad</strong><br>
+                                    <small>Skapar ett enat kungarike</small>
+                                </div>
+                            </div>
+                            <div class="timeline-draggable" draggable="true" data-order="2">
+                                <div class="timeline-number placeholder">?</div>
+                                <div>
+                                    <strong>Jakob får namnet Israel</strong><br>
+                                    <small>Blir far till de tolv stammarna</small>
+                                </div>
+                            </div>
+                            <div class="timeline-draggable" draggable="true" data-order="5">
+                                <div class="timeline-number placeholder">?</div>
+                                <div>
+                                    <strong>Kung Salomo bygger första templet</strong><br>
+                                    <small>Blir religiöst centrum</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="ai-quiz-btn" onclick="checkTimeline()">Kontrollera ordning</button>
+                    <button class="ai-quiz-btn secondary" onclick="resetTimeline()" style="background: var(--secondary);">Börja om</button>
+
+                    <div id="timeline-feedback" class="quiz-feedback"></div>
+                </section>
+
+                <!-- Övning 3: Jämförelse -->
+                <section style="margin: 50px 0;">
+                    <h3>Övning 3: Jämförelse - Inriktningar inom judendomen</h3>
+
+                    <div class="info-card">
+                        <div class="difficulty-badge c-niva">C-nivå</div>
+                        <div class="difficulty-badge a-niva">A-nivå</div>
+                        <p><strong>Lgr22:</strong> Jämföra olika uttryck inom samma tradition.</p>
+                    </div>
+
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Aspekt</th>
+                                <th>Ortodox</th>
+                                <th>Konservativ</th>
+                                <th>Reform</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="comparison-category">Syn på Tora</td>
+                                <td>Guds direkta ord</td>
+                                <td>Gudomligt inspirerad</td>
+                                <td>Skriven av människor</td>
+                            </tr>
+                            <tr>
+                                <td class="comparison-category">Kosher</td>
+                                <td>Följs strikt alltid</td>
+                                <td>Hemma, flexibelt ute</td>
+                                <td>Individuellt val</td>
+                            </tr>
+                            <tr>
+                                <td class="comparison-category">Kvinnors roll</td>
+                                <td>Separata platser</td>
+                                <td>Kan sitta tillsammans</td>
+                                <td>Full jämställdhet</td>
+                            </tr>
+                            <tr>
+                                <td class="comparison-category">Modern samhälle</td>
+                                <td>Försiktig inställning</td>
+                                <td>Balans tradition/modernt</td>
+                                <td>Omfamnar modernitet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="reflection-box">
+                        <h3>🤔 Reflektera (A-nivå):</h3>"Yom Kippur",
+                    "Pesach",
+                    "Rosh Hashana"
+                ],
+                correct: 2,
+                explanation: "Rätt! Pesach (påsk) firar när Moses ledde judarna ut ur slaveriet i Egypten."
+            },
+            {
+                question: "Vad heter den hebreiska bibeln?",
+                options: [
+                    "Koranen",
+                    "Tanakh",
+                    "Bibeln",
+                    "Veda"
+                ],
+                correct: 1,
+                explanation: "Korrekt! Tanakh är den hebreiska bibeln som består av Tora, Neviim och Ketuvim."
+            },
+            {
+                question: "Hur många ljus har en menora?",
+                options: [
+                    "5 ljus",
+                    "7 ljus",
+                    "9 ljus",
+                    "12 ljus"
+                ],
+                correct: 1,
+                explanation: "Rätt! En menora har 7 armar. (Chanukka-ljusstaken har 9 armar och kallas chanukka.)"
+            },
+            {
+                question: "Vad betyder kosher?",
+                options: [
+                    "Helgdagar",
+                    "Böner",
+                    "Mat som är tillåten enligt judiska regler",
+                    "Synagogans inredning"
+                ],
+                correct: 2,
+                explanation: "Korrekt! Kosher (kashrut) är de judiska reglerna för vad man får äta."
+            },
+            {
+                question: "Vad heter den viktigaste veckohögtiden i judendomen?",
+                options: [
+                    "Shabbat",
+                    "Söndagen",
+                    "Pesach",
+                    "Chanukka"
+                ],
+                correct: 0,
+                explanation: "Rätt! Shabbat firas varje vecka från fredag kväll till lördag kväll som en vilodag."
+            },
+            {
+                question: "Vilket år förstördes det andra templet i Jerusalem?",
+                options: [
+                    "586 f.Kr.",
+                    "70 e.Kr.",
+                    "1948",
+                    "1000 f.Kr."
+                ],
+                correct: 1,
+                explanation: "Korrekt! År 70 e.Kr. förstörde romarna det andra templet. Bara Klagomuren finns kvar."
+            },
+            {
+                question: "Vad kallas konceptet om att 'reparera världen'?",
+                options: [
+                    "Shalom",
+                    "Kosher",
+                    "Tikkun Olam",
+                    "Tzedakah"
+                ],
+                correct: 2,
+                explanation: "Rätt! Tikkun Olam betyder att reparera världen och handlar om att göra världen bättre."
+            },
+            {
+                question: "Hur många bud finns det totalt i Tora?",
+                options: [
+                    "10 bud",
+                    "100 bud",
+                    "613 bud",
+                    "365 bud"
+                ],
+                correct: 2,
+                explanation: "Korrekt! Det finns 613 bud (mitzvot) i Tora, även om de 10 budorden är de mest kända."
+            }
+        ];
+
+        let currentQuizQuestion = 0;
+        let quizScore = 0;
+        let quizAnswered = false;
+
+        function loadQuiz() {
+            if (currentQuizQuestion >= quizData.length) {
+                showQuizResult();
+                return;
+            }
+
+            const question = quizData[currentQuizQuestion];
+            const quizContent = document.getElementById('quiz-content');
+
+            quizContent.innerHTML = `
+                <div class="quiz-question">
+                    Fråga ${currentQuizQuestion + 1} av ${quizData.length}: ${question.question}
+                </div>
+                <div class="quiz-options" id="quiz-options">
+                    ${question.options.map((option, index) => `
+                        <div class="quiz-option" onclick="selectAnswer(${index})">
+                            ${option}
+                        </div>
+                    `).join('')}
+                </div>
+                <div id="quiz-feedback" class="quiz-feedback"></div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <button class="ai-quiz-btn" id="next-btn" style="display: none;" onclick="nextQuestion()">
+                        Nästa fråga →
+                    </button>
+                </div>
+            `;
+
+            quizAnswered = false;
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (quizAnswered) return;
+
+            quizAnswered = true;
+            const question = quizData[currentQuizQuestion];
+            const options = document.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById('quiz-feedback');
+            const nextBtn = document.getElementById('next-btn');
+
+            options[question.correct].classList.add('correct');
+
+            if (selectedIndex === question.correct) {
+                quizScore++;
+                feedback.innerHTML = `<strong>✅ Rätt!</strong><br>${question.explanation}`;
+                feedback.className = 'quiz-feedback show correct';
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                feedback.innerHTML = `<strong>❌ Fel svar.</strong><br>${question.explanation}`;
+                feedback.className = 'quiz-feedback show incorrect';
+            }
+
+            nextBtn.style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            currentQuizQuestion++;
+            loadQuiz();
+        }
+
+        function showQuizResult() {
+            const percentage = Math.round((quizScore / quizData.length) * 100);
+            let message = '';
+
+            if (percentage === 100) {
+                message = '🌟 Perfekt! Du är en expert på judendom!';
+            } else if (percentage >= 80) {
+                message = '👏 Utmärkt! Du har mycket goda kunskaper!';
+            } else if (percentage >= 60) {
+                message = '👍 Bra jobbat! Du har bra grundkunskaper!';
+            } else if (percentage >= 40) {
+                message = '📚 Okej! Läs igenom materialet igen så blir du bättre!';
+            } else {
+                message = '💪 Fortsätt studera! Läs igenom avsnitten igen.';
+            }
+
+            document.getElementById('quiz-content').style.display = 'none';
+            document.getElementById('quiz-result').style.display = 'block';
+            document.getElementById('score').textContent = quizScore;
+            document.getElementById('total').textContent = quizData.length;
+            document.getElementById('result-message').textContent = message;
+        }
+
+        function restartQuiz() {
+            currentQuizQuestion = 0;
+            quizScore = 0;
+            document.getElementById('quiz-content').style.display = 'block';
+            document.getElementById('quiz-result').style.display = 'none';
+            loadQuiz();
+        }
+
+        function goToAIQuiz() {
+            // Öppna adaptivt prov med judendom som ämne
+            window.location.href = 'adaptivt-prov.html';
+        }
+
+        // ============================================
+        // ÖVNINGAR - JAVASCRIPT
+        // ============================================
+
+        // Matchningsövning
+        let selectedLeft = null;
+        let selectedRight = null;
+        let matchedPairs = 0;
+        const totalPairs = 8;
+
+        function selectMatching(id, side) {
+            const item = document.querySelector(`.matching-column:${side === 'left' ? 'first' : 'last'}-child .matching-item[data-id="${id}"]`);
+
+            if (item.classList.contains('correct')) return;
+
+            if (side === 'left') {
+                const prevSelected = document.querySelector('.matching-column:first-child .matching-item.selected');
+                if (prevSelected) prevSelected.classList.remove('selected');
+                selectedLeft = id;
+            } else {
+                const prevSelected = document.querySelector('.matching-column:last-child .matching-item.selected');
+                if (prevSelected) prevSelected.classList.remove('selected');
+                selectedRight = id;
+            }
+
+            item.classList.add('selected');
+
+            if (selectedLeft !== null && selectedRight !== null) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const leftItem = document.querySelector(`.matching-column:first-child .matching-item[data-id="${selectedLeft}"]`);
+            const rightItem = document.querySelector(`.matching-column:last-child .matching-item[data-id="${selectedRight}"]`);
+
+            if (selectedLeft === selectedRight) {
+                leftItem.classList.remove('selected');
+                rightItem.classList.remove('selected');
+                leftItem.classList.add('correct');
+                rightItem.classList.add('correct');
+                matchedPairs++;
+                updateMatchingProgress();
+
+                if (matchedPairs === totalPairs) {
+                    const feedback = document.getElementById('matching-feedback');
+                    feedback.className = 'quiz-feedback show correct';
+                    feedback.innerHTML = '<strong>Utmärkt! 🎉</strong><br>Du har matchat alla begrepp korrekt!';
+                }
+            } else {
+                leftItem.classList.add('incorrect');
+                rightItem.classList.add('incorrect');
+
+                setTimeout(() => {
+                    leftItem.classList.remove('selected', 'incorrect');
+                    rightItem.classList.remove('selected', 'incorrect');
+                }, 1000);
+            }
+
+            selectedLeft = null;
+            selectedRight = null;
+        }
+
+        function updateMatchingProgress() {
+            const progressBar = document.getElementById('matching-progress');
+            const percentage = (matchedPairs / totalPairs) * 100;
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = `${matchedPairs}/${totalPairs}`;
+        }
+
+        function resetMatching() {
+            matchedPairs = 0;
+            selectedLeft = null;
+            selectedRight = null;
+            document.querySelectorAll('.matching-item').forEach(item => {
+                item.classList.remove('selected', 'correct', 'incorrect');
+            });
+            updateMatchingProgress();
+            document.getElementById('matching-feedback').classList.remove('show');
+        }
+
+        // Tidslinjeövning
+        let draggedElement = null;
+
+        function initTimeline() {
+            const draggables = document.querySelectorAll('.timeline-draggable');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', () => {
+                    draggedElement = draggable;
+                    draggable.classList.add('dragging');
+                });
+
+                draggable.addEventListener('dragend', () => {
+                    draggable.classList.remove('dragging');
+                });
+
+                draggable.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+
+                draggable.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (draggedElement !== draggable) {
+                        const container = document.getElementById('timeline-items');
+                        const allDraggables = [...container.querySelectorAll('.timeline-draggable')];
+                        const draggedIndex = allDraggables.indexOf(draggedElement);
+                        const targetIndex = allDraggables.indexOf(draggable);
+
+                        if (draggedIndex < targetIndex) {
+                            draggable.after(draggedElement);
+                        } else {
+                            draggable.before(draggedElement);
+                        }
+                    }
+                });
+            });
+        }
+
+        function checkTimeline() {
+            const items = document.querySelectorAll('.timeline-draggable');
+            let correct = true;
+
+            items.forEach((item, index) => {
+                const expectedOrder = parseInt(item.dataset.order);
+                const numberDiv = item.querySelector('.timeline-number');
+
+                numberDiv.textContent = index + 1;
+                numberDiv.classList.remove('placeholder');
+
+                if (expectedOrder !== index + 1) {
+                    correct = false;
+                }
+            });
+
+            const feedback = document.getElementById('timeline-feedback');
+            feedback.className = 'quiz-feedback show';
+
+            if (correct) {
+                feedback.className += ' correct';
+                feedback.innerHTML = '<strong>Perfekt! 🎉</strong><br>Du har ordnat alla händelser i rätt kronologisk ordning!';
+            } else {
+                feedback.className += ' incorrect';
+                feedback.innerHTML = '<strong>Inte helt rätt ännu.</strong><br>Några händelser är i fel ordning. Försök igen!';
+            }
+        }
+
+        function resetTimeline() {
+            const container = document.getElementById('timeline-items');
+            const items = [...document.querySelectorAll('.timeline-draggable')];
+
+            items.sort(() => Math.random() - 0.5);
+
+            items.forEach(item => {
+                const numberDiv = item.querySelector('.timeline-number');
+                numberDiv.textContent = '?';
+                numberDiv.classList.add('placeholder');
+                container.appendChild(item);
+            });
+
+            document.getElementById('timeline-feedback').classList.remove('show');
+        }
+
+        // Load quiz when quiz section is shown
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuiz();
+            initTimeline();
+            updateMatchingProgress();
+        });
+    </script>
+</body>
+</html>

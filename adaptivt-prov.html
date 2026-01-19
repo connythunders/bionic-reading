@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptiv Provplattform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Lärar-vy */
+        .teacher-view textarea {
+            width: 100%;
+            min-height: 250px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .teacher-view textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .settings {
+            margin: 25px 0;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .settings label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .settings input {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100px;
+            transition: border-color 0.3s;
+        }
+
+        .settings input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Elev-vy */
+        .timer {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+        }
+
+        .timer.warning {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .stat-box .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-box .label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .difficulty-badge.easy {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .difficulty-badge.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty-badge.hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .question-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            line-height: 1.6;
+        }
+
+        .question-card textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .question-card textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .hint-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 10px 25px;
+            font-size: 14px;
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 15px 50px;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .hint-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .hint-box.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hint-box p {
+            color: #856404;
+            font-weight: 500;
+        }
+
+        .encouragement {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .intro-text {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            color: #333;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .result-view {
+            text-align: center;
+        }
+
+        .result-view h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .result-view p {
+            font-size: 1.2em;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .result-stats {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .result-stats h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Lärarvy -->
+        <div id="teacherView" class="view active">
+            <h1>📚 Skapa Adaptivt Prov</h1>
+            <div class="info-box">
+                <strong>💡 Så här fungerar det:</strong><br>
+                <strong>MED AI (rekommenderat):</strong> Ange en Gemini API-nyckel för unika, intelligent genererade frågor. Gratis upp till 1000 frågor/dag!<br>
+                <strong>UTAN AI:</strong> Grundläggande frågemallar som fungerar men kan upprepa sig.<br><br>
+                Systemet anpassar frågornas svårighetsgrad efter årskurs och hur väl eleven svarar. Eleverna får en fråga åt gången och kan svara på så många de hinner.
+            </div>
+
+            <div class="teacher-view">
+                <label for="apiKey" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
+                    🔑 Gemini API-nyckel (valfritt - för AI-genererade frågor):
+                </label>
+                <input type="password" id="apiKey" placeholder="Din Gemini API-nyckel (lämna tom för grundläggande frågor)" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; margin-bottom: 10px; transition: border-color 0.3s;">
+                <p style="font-size: 0.9em; color: #666; margin-bottom: 20px;">
+                    💡 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: #667eea;">Få gratis API-nyckel här</a> - 1000 förfrågningar/dag gratis!
+                </p>
+
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <label style="font-weight: 600; color: #333; margin-bottom: 10px; display: block;">Välj provtyp:</label>
+                    <div style="display: flex; gap: 20px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="examMode" value="topic" checked onchange="toggleExamMode()" style="margin-right: 8px;">
+                            <span>📚 Ämnesbaserat - Testa allmän kunskap om ämne</span>
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="radio" name="examMode" value="text" onchange="toggleExamMode()" style="margin-right: 8px;">
+                            <span>📖 Textbaserat - Testa förståelse av specifik text</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="topicMode">
+                    <label for="examTopic" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
+                        Ämne för provet:
+                    </label>
+                    <input type="text" id="examTopic" placeholder="T.ex. Första världskriget, Fotosyntesen, Demokrati..." style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; margin-bottom: 20px; transition: border-color 0.3s;">
+                </div>
+
+                <div id="textMode" style="display: none;">
+                    <label for="examTopic2" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
+                        Ämne/Titel:
+                    </label>
+                    <input type="text" id="examTopic2" placeholder="T.ex. Första världskriget" style="width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; margin-bottom: 15px;">
+
+                    <label for="sourceText" style="display: block; margin-bottom: 10px; font-weight: 600; color: #333;">
+                        Klistra in lärobokstexten här:
+                    </label>
+                    <textarea id="sourceText" placeholder="Klistra in den text som eleverna ska ha läst...
+
+Exempel:
+Första världskriget (1914-1918) var en global konflikt som främst utspelade sig i Europa. Kriget utlöstes av mordet på den österrikisk-ungerske tronföljaren Franz Ferdinand i Sarajevo den 28 juni 1914. Kriget involverade världens stora makter och resulterade i miljontals dödsfall. Nya vapen som maskingevär och giftgas gjorde kriget särskilt dödligt..." style="width: 100%; min-height: 200px; padding: 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; resize: vertical; font-family: inherit; margin-bottom: 20px;"></textarea>
+                </div>
+
+                <div class="settings">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label for="subject" style="display: block; margin-bottom: 5px;">Skolämne:</label>
+                        <select id="subject" style="width: 100%; padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                            <option value="historia">Historia</option>
+                            <option value="geografi">Geografi</option>
+                            <option value="samhällskunskap">Samhällskunskap</option>
+                            <option value="biologi">Biologi</option>
+                            <option value="fysik">Fysik</option>
+                            <option value="kemi">Kemi</option>
+                            <option value="matematik">Matematik</option>
+                            <option value="svenska">Svenska</option>
+                            <option value="engelska">Engelska</option>
+                            <option value="religion">Religion</option>
+                        </select>
+                    </div>
+
+                    <div style="flex: 1; min-width: 150px;">
+                        <label for="grade" style="display: block; margin-bottom: 5px;">Årskurs:</label>
+                        <select id="grade" style="width: 100%; padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                            <option value="7">Årskurs 7</option>
+                            <option value="8">Årskurs 8</option>
+                            <option value="9">Årskurs 9</option>
+                            <option value="10">Gymnasiet åk 1</option>
+                            <option value="11">Gymnasiet åk 2</option>
+                            <option value="12">Gymnasiet åk 3</option>
+                        </select>
+                    </div>
+
+                    <div style="flex: 1; min-width: 150px;">
+                        <label for="timeLimit" style="display: block; margin-bottom: 5px;">Tid (minuter):</label>
+                        <input type="number" id="timeLimit" value="30" min="5" max="180" style="width: 100%;">
+                    </div>
+                </div>
+
+                <button onclick="startExam()" style="margin-top: 20px;">🚀 Starta Prov</button>
+            </div>
+        </div>
+
+        <!-- Elevvy -->
+        <div id="studentView" class="view">
+            <h1>✍️ Ditt Prov</h1>
+
+            <div class="timer" id="timer">30:00</div>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="number" id="questionCount">0</div>
+                    <div class="label">Besvarade frågor</div>
+                </div>
+                <div class="stat-box">
+                    <div class="number" id="currentLevel">Medel</div>
+                    <div class="label">Nuvarande nivå</div>
+                </div>
+            </div>
+
+            <div id="encouragement" class="encouragement" style="display: none;"></div>
+
+            <div class="intro-text" id="introText"></div>
+
+            <div id="questionsContainer"></div>
+        </div>
+
+        <!-- Resultatvy -->
+        <div id="resultView" class="view">
+            <div class="result-view">
+                <h2>🎉 Bra jobbat!</h2>
+                <p>Du har slutfört provet!</p>
+
+                <div class="result-stats">
+                    <h3>📊 Din prestation</h3>
+                    <p><strong>Antal frågor besvarade:</strong> <span id="finalQuestionCount">0</span></p>
+                    <p><strong>Högsta nivå:</strong> <span id="finalLevel">Medel</span></p>
+                    <p><strong>Tid använd:</strong> <span id="timeUsed">0</span> minuter</p>
+                </div>
+
+                <p>Din lärare kommer att granska dina svar.</p>
+                <p style="margin-top: 20px;">Kom ihåg: Det viktigaste är inte alltid det rätta svaret, utan hur du tänker och resonerar!</p>
+                <button onclick="location.reload()" style="margin-top: 30px;">📝 Skapa nytt prov</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let examTopic = '';
+        let examSubject = '';
+        let examGrade = 7;
+        let examMode = 'topic'; // 'topic' eller 'text'
+        let sourceText = '';
+        let geminiApiKey = '';
+        let useAI = false;
+        let timeRemaining = 0;
+        let totalTime = 0;
+        let timerInterval = null;
+        let currentQuestion = null;
+        let currentAnswer = '';
+        let answeredQuestions = 0;
+        let difficultyLevel = 1; // 0 = lätt, 1 = medel, 2 = svår
+        let maxDifficulty = 1;
+        let allAnswers = [];
+        let hintCount = 0;
+        let askedQuestions = []; // Håll koll på ställda frågor
+
+        function toggleExamMode() {
+            const mode = document.querySelector('input[name="examMode"]:checked').value;
+            examMode = mode;
+
+            if (mode === 'topic') {
+                document.getElementById('topicMode').style.display = 'block';
+                document.getElementById('textMode').style.display = 'none';
+            } else {
+                document.getElementById('topicMode').style.display = 'none';
+                document.getElementById('textMode').style.display = 'block';
+            }
+        }
+
+        const encouragements = [
+            "🌟 Du klarar det här! Fortsätt tänka.",
+            "💪 Bra jobbat hittills! Du är på rätt väg.",
+            "🎯 Tänk noga igenom - du har kunskap att använda!",
+            "✨ Utmärkt! Fortsätt resonera.",
+            "🔥 Du gör framsteg! Lita på din tankegång.",
+            "🌈 Fundera och resonera - du kan det här!",
+            "⭐ Strålande resonemang! Fortsätt så.",
+            "🚀 Du är på god väg! Lita på dig själv."
+        ];
+
+        const difficultyNames = ['Lätt', 'Medel', 'Svår'];
+
+        function startExam() {
+            const mode = document.querySelector('input[name="examMode"]:checked').value;
+            examMode = mode;
+
+            const subject = document.getElementById('subject').value;
+            const grade = parseInt(document.getElementById('grade').value);
+            const minutes = parseInt(document.getElementById('timeLimit').value);
+            const apiKey = document.getElementById('apiKey').value.trim();
+
+            if (mode === 'topic') {
+                const topic = document.getElementById('examTopic').value.trim();
+                if (!topic) {
+                    alert('Du måste ange ett ämne för provet!');
+                    return;
+                }
+                examTopic = topic;
+                sourceText = '';
+            } else {
+                const topic = document.getElementById('examTopic2').value.trim();
+                const text = document.getElementById('sourceText').value.trim();
+                if (!topic || !text) {
+                    alert('Du måste ange både ämne och klistra in en text!');
+                    return;
+                }
+                examTopic = topic;
+                sourceText = text;
+            }
+
+            examSubject = subject;
+            examGrade = grade;
+            geminiApiKey = apiKey;
+            useAI = apiKey.length > 0;
+            timeRemaining = minutes * 60;
+            totalTime = minutes * 60;
+
+            // Anpassa starting difficulty baserat på årskurs
+            if (grade <= 8) {
+                difficultyLevel = 0; // Börja på lätt för yngre elever
+            } else if (grade <= 10) {
+                difficultyLevel = 1; // Börja på medel för högstadiet
+            } else {
+                difficultyLevel = 1; // Gymnasiet börjar också på medel
+            }
+            maxDifficulty = difficultyLevel;
+
+            // Visa elevvy
+            document.getElementById('teacherView').classList.remove('active');
+            document.getElementById('studentView').classList.add('active');
+
+            // Sätt intro text
+            if (examMode === 'topic') {
+                document.getElementById('introText').innerHTML = `<strong>📖 Provämne:</strong> ${examTopic}<br><br><em>Du kommer att få frågor om detta ämne. Använd din kunskap från lektioner, böcker, filmer och andra källor. Frågorna anpassas efter hur du svarar.</em>`;
+            } else {
+                document.getElementById('introText').innerHTML = `<strong>📖 Textbaserat prov:</strong> ${examTopic}<br><br><em>Frågorna kommer att baseras på texten du har läst. Använd det du minns från texten för att svara så fullständigt som möjligt.</em>`;
+            }
+
+            // Visa första frågan
+            showNextQuestion();
+
+            // Starta timer
+            startTimer();
+
+            // Visa uppmuntringar med jämna mellanrum
+            setInterval(showEncouragement, 90000); // Var 1.5:e minut
+        }
+
+        async function generateQuestionWithAI(difficulty) {
+            const difficultyText = difficultyNames[difficulty];
+            const gradeText = examGrade <= 9 ? `högstadiet årskurs ${examGrade}` : `gymnasiet årskurs ${examGrade - 9}`;
+
+            const previousQuestions = askedQuestions.join('\n');
+
+            let prompt;
+
+            if (examMode === 'text') {
+                // TEXTBASERAT LÄGE - Frågor om specifik text
+                prompt = `Du är en lärare som skapar provfrågor i ${examSubject}.
+
+ÄMNE: ${examTopic}
+SVÅRIGHETSGRAD: ${difficultyText}
+ÅRSKURS: ${gradeText}
+
+TEXTEN SOM ELEVERNA HAR LÄST:
+${sourceText}
+
+TIDIGARE FRÅGOR (undvik att upprepa dessa):
+${previousQuestions}
+
+Skapa EN unik ÖPPEN provfråga på ${difficultyText} nivå som testar elevens FÖRSTÅELSE AV JUST DENNA TEXT.
+
+VIKTIGT:
+- Frågan ska baseras på KONKRET information i texten
+- Frågan ska vara ÖPPEN - eleven ska skriva ett resonerande svar (INTE flerval!)
+- Eleven har läst texten men kan INTE se den under provet - frågor ska testa vad de MINNS
+- Anpassa språk och komplexitet för årskursen
+- Lätt: Grundläggande förståelse (t.ex. "Vad handlade texten om?", "Beskriv...")
+- Medel: Förklara samband (t.ex. "Varför...", "Hur hänger ... ihop...")
+- Svår: Analysera och reflektera (t.ex. "Analysera...", "Diskutera...")
+
+UNDVIK:
+- Flervalsfrågor
+- Ja/nej-frågor
+- Frågor om kunskap UTANFÖR texten
+- fraser som "enligt texten", "använd exempel från texten", "citera texten"
+- be eleven referera till specifika delar eller citat
+
+Skapa också 3 SOKRATISKA ledtrådar som hjälper eleven minnas och resonera.
+
+Svara i JSON-format:
+{
+  "question": "din fråga baserad på texten",
+  "hints": ["ledtråd 1", "ledtråd 2", "ledtråd 3"]
+}`;
+            } else {
+                // ÄMNESBASERAT LÄGE - Frågor om allmän kunskap
+                prompt = `Du är en lärare som skapar provfrågor i ${examSubject}.
+
+ÄMNE: ${examTopic}
+SVÅRIGHETSGRAD: ${difficultyText}
+ÅRSKURS: ${gradeText}
+
+TIDIGARE FRÅGOR (undvik att upprepa dessa):
+${previousQuestions}
+
+Skapa EN unik ÖPPEN provfråga på ${difficultyText} nivå om ${examTopic} för ${gradeText}.
+
+VIKTIGT:
+- Frågan ska vara HELT UNIK och inte likna tidigare frågor
+- Frågan ska vara ÖPPEN - eleven ska skriva ett resonerande svar (INTE flerval!)
+- Anpassa språk och komplexitet för årskursen
+- Lätt: Grundläggande fakta och förståelse (t.ex. "Beskriv...", "Vad innebär...", "Förklara...")
+- Medel: Förklara samband, orsaker och konsekvenser (t.ex. "Varför...", "Hur påverkade...")
+- Svår: Analysera, utvärdera, jämför perspektiv (t.ex. "Analysera...", "Diskutera...", "Bedöm...")
+
+UNDVIK:
+- Flervalsfrågor ("Vilket av följande...")
+- Ja/nej-frågor
+- Frågor som kräver endast ett ord som svar
+
+Skapa också 3 SOKRATISKA ledtrådar som hjälper eleven att tänka själv (ge INTE svaret direkt).
+
+Svara i JSON-format:
+{
+  "question": "din öppna fråga här",
+  "hints": ["ledtråd 1", "ledtråd 2", "ledtråd 3"]
+}`;
+            }
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.9,
+                            maxOutputTokens: 500,
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+                const text = data.candidates[0].content.parts[0].text;
+
+                // Extrahera JSON från svaret (ibland kommer det med ```json wrapper)
+                const jsonMatch = text.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const result = JSON.parse(jsonMatch[0]);
+                    askedQuestions.push(result.question);
+                    return {
+                        question: result.question,
+                        hints: result.hints,
+                        difficulty: difficulty
+                    };
+                } else {
+                    throw new Error('Could not parse AI response');
+                }
+            } catch (error) {
+                console.error('AI generation failed:', error);
+                // Fallback till vanliga frågor om AI misslyckas
+                return generateQuestionFallback(difficulty);
+            }
+        }
+
+        function generateQuestionFallback(difficulty) {
+            let question, hints;
+            const topic = examTopic;
+
+            if (difficulty === 0) {
+                // LÄTTA FRÅGOR - Faktabaserade kunskapsfrågor
+                const easyTypes = [
+                    () => ({
+                        question: `Vad vet du om ${topic}? Berätta vad du kan.`,
+                        hints: [
+                            `Tänk på vad du lärt dig om ${topic}.`,
+                            'Börja med grundläggande fakta.',
+                            'Vad är viktigt att känna till?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Beskriv ${topic}. Vad kännetecknar detta?`,
+                        hints: [
+                            `Vilka egenskaper eller drag har ${topic}?`,
+                            'Vad är typiskt eller särskiljande?',
+                            'Försök måla upp en bild med ord.'
+                        ]
+                    }),
+                    () => ({
+                        question: `Förklara vad ${topic} är. Ge en överblick.`,
+                        hints: [
+                            'Börja med en definition eller beskrivning.',
+                            'Vilka nyckelbegrepp hör ihop med detta?',
+                            'Vad behöver man veta för att förstå?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Vilka viktiga fakta kan du nämna om ${topic}?`,
+                        hints: [
+                            'Tänk på datum, platser, personer eller händelser.',
+                            'Vilka detaljer sticker ut?',
+                            'Vad har du lärt dig på lektionerna?'
+                        ]
+                    })
+                ];
+
+                const selected = easyTypes[Math.floor(Math.random() * easyTypes.length)]();
+                question = selected.question;
+                hints = selected.hints;
+
+            } else if (difficulty === 1) {
+                // MEDELFRÅGOR - Kräver förståelse och tillämpning
+                const mediumTypes = [
+                    () => ({
+                        question: `Varför är ${topic} viktigt? Förklara betydelsen.`,
+                        hints: [
+                            `Vilken roll spelar ${topic}?`,
+                            'Varför bör man känna till detta?',
+                            'Vilka effekter eller konsekvenser finns?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Hur hänger ${topic} ihop med andra händelser eller begrepp du lärt dig om?`,
+                        hints: [
+                            `Vilka kopplingar finns till ${topic}?`,
+                            'Finns det orsakssamband?',
+                            'Hur påverkas eller påverkar det andra?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Vad orsakade ${topic} och vilka blev konsekvenserna?`,
+                        hints: [
+                            'Tänk på orsak och verkan.',
+                            'Vad hände innan och vad hände efter?',
+                            'Vilka följder fick det?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Förklara ${topic} för någon som inte känner till det. Vad är viktigt att ta upp?`,
+                        hints: [
+                            'Börja med grunderna och kontexten.',
+                            'Vilken bakgrundsinformation behövs?',
+                            'Använd gärna exempel och jämförelser.'
+                        ]
+                    }),
+                    () => ({
+                        question: `Vilka olika aspekter eller perspektiv finns på ${topic}?`,
+                        hints: [
+                            'Hur kan man se på detta på olika sätt?',
+                            'Finns det flera sidor av myntet?',
+                            'Vad skiljer olika synsätt åt?'
+                        ]
+                    })
+                ];
+
+                const selected = mediumTypes[Math.floor(Math.random() * mediumTypes.length)]();
+                question = selected.question;
+                hints = selected.hints;
+
+            } else {
+                // SVÅRA FRÅGOR - Kräver analys, utvärdering och kritiskt tänkande
+                const hardTypes = [
+                    () => ({
+                        question: `Analysera ${topic}. Vilka olika perspektiv eller tolkningar finns?`,
+                        hints: [
+                            `Hur kan man förstå ${topic} på olika sätt?`,
+                            'Vilka för- och nackdelar eller aspekter finns?',
+                            'Vad beror olika synsätt på?',
+                            'Finns det kontroversiella eller omdiskuterade delar?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Diskutera de viktigaste faktorerna som påverkade ${topic}.`,
+                        hints: [
+                            `Vilka omständigheter eller orsaker var centrala för ${topic}?`,
+                            'Hur är olika delar kopplade till varandra?',
+                            'Vilka samband och orsakskedjor finns?',
+                            'Hur påverkade dessa faktorer slutresultatet?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Bedöm den historiska/samhälleliga betydelsen av ${topic}. Hur viktigt är det?`,
+                        hints: [
+                            'Vilken roll spelar detta i det större sammanhanget?',
+                            'Vad hade varit annorlunda utan det?',
+                            'Vilka långsiktiga konsekvenser finns?',
+                            'Hur påverkar det oss eller världen?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Ta ställning: Vilken var den viktigaste aspekten av ${topic}? Argumentera för din åsikt.`,
+                        hints: [
+                            'Vad tycker du är mest betydelsefullt och varför?',
+                            'Vilka bevis eller exempel stödjer din åsikt?',
+                            'Finns det motargument att överväga?',
+                            'Hur motiverar du ditt val?'
+                        ]
+                    }),
+                    () => ({
+                        question: `Vilka lärdomar kan vi dra från ${topic}? Reflektera och motivera.`,
+                        hints: [
+                            'Vad kan vi lära oss från detta?',
+                            'Vilka insikter eller slutsatser kan man dra?',
+                            'Hur är det relevant idag?',
+                            'Varför är det viktigt att förstå detta?'
+                        ]
+                    })
+                ];
+
+                const selected = hardTypes[Math.floor(Math.random() * hardTypes.length)]();
+                question = selected.question;
+                hints = selected.hints;
+            }
+
+            return { question, hints, difficulty };
+        }
+
+        async function showNextQuestion() {
+            // Visa laddningsmeddelande
+            const container = document.getElementById('questionsContainer');
+            if (useAI) {
+                container.innerHTML = `<div class="question-card" style="text-align: center; padding: 40px;">
+                    <p style="font-size: 1.2em; color: #667eea;">🤖 AI genererar en unik fråga...</p>
+                </div>`;
+            }
+
+            // Generera fråga (AI eller fallback)
+            if (useAI) {
+                currentQuestion = await generateQuestionWithAI(difficultyLevel);
+            } else {
+                currentQuestion = generateQuestionFallback(difficultyLevel);
+            }
+
+            hintCount = 0;
+
+            const difficultyClass = ['easy', 'medium', 'hard'][currentQuestion.difficulty];
+            const difficultyName = difficultyNames[currentQuestion.difficulty];
+
+            container.innerHTML = `
+                <div class="question-card">
+                    <span class="difficulty-badge ${difficultyClass}">${difficultyName} nivå</span>
+                    ${useAI ? '<span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.75em; margin-left: 10px;">🤖 AI-genererad</span>' : ''}
+                    <h3>${currentQuestion.question}</h3>
+                    <textarea id="currentAnswer" placeholder="Skriv ditt svar här... Använd din kunskap från lektionerna och visa ditt resonemang."></textarea>
+                    <div style="margin-top: 15px;">
+                        <button class="hint-btn" onclick="showHint()">💡 Behöver du en ledtråd?</button>
+                        <button class="next-btn" onclick="submitAnswer()">➡️ Nästa fråga</button>
+                    </div>
+                    <div id="hintBox" class="hint-box">
+                        <p><strong>🤔 Tänk på detta:</strong><br><span id="hintText"></span></p>
+                    </div>
+                </div>
+            `;
+
+            // Uppdatera statistik
+            document.getElementById('questionCount').textContent = answeredQuestions;
+            document.getElementById('currentLevel').textContent = difficultyNames[difficultyLevel];
+        }
+
+        function showHint() {
+            const hintBox = document.getElementById('hintBox');
+            const hintText = document.getElementById('hintText');
+
+            if (hintCount < currentQuestion.hints.length) {
+                hintText.textContent = currentQuestion.hints[hintCount];
+                hintBox.classList.add('show');
+                hintCount++;
+            } else {
+                hintText.textContent = "Du har fått alla ledtrådar för denna fråga. Försök ge ditt bästa svar!";
+                hintBox.classList.add('show');
+            }
+        }
+
+        function submitAnswer() {
+            const answer = document.getElementById('currentAnswer').value.trim();
+
+            if (answer.length < 10) {
+                alert('Försök skriva ett lite längre svar (minst 10 tecken).');
+                return;
+            }
+
+            // Spara svar
+            allAnswers.push({
+                question: currentQuestion.question,
+                answer: answer,
+                difficulty: currentQuestion.difficulty
+            });
+
+            // Analysera svar och anpassa svårighetsgrad
+            const quality = analyzeAnswer(answer);
+            adjustDifficulty(quality);
+
+            // Uppdatera räknare
+            answeredQuestions++;
+            document.getElementById('questionCount').textContent = answeredQuestions;
+
+            // Visa nästa fråga
+            showNextQuestion();
+
+            // Ibland visa uppmuntran
+            if (answeredQuestions % 3 === 0) {
+                showEncouragement();
+            }
+        }
+
+        function analyzeAnswer(answer) {
+            let quality = 0;
+
+            // Längd på svar (längre = bättre)
+            if (answer.length > 200) quality += 2;
+            else if (answer.length > 100) quality += 1;
+
+            // Innehåller ämnesrelaterade ord
+            const answerLower = answer.toLowerCase();
+            const topicLower = examTopic.toLowerCase();
+            const topicWords = topicLower.split(/\s+/).filter(w => w.length > 3);
+
+            let topicMatches = 0;
+            topicWords.forEach(word => {
+                if (answerLower.includes(word)) topicMatches++;
+            });
+
+            if (topicMatches >= 2) quality += 2;
+            else if (topicMatches >= 1) quality += 1;
+
+            // Komplexitet (meningar, kommatecken, resonemang)
+            const sentenceCount = answer.split(/[.!?]+/).filter(s => s.trim().length > 5).length;
+            if (sentenceCount >= 4) quality += 1;
+
+            // Använder resonemangstermer
+            const reasoningWords = ['eftersom', 'därför', 'på grund av', 'vilket', 'detta', 'betyder', 'visar', 'förklarar', 'anledning', 'orsak', 'konsekvens'];
+            const hasReasoning = reasoningWords.some(word => answerLower.includes(word));
+            if (hasReasoning) quality += 1;
+
+            // Returnera kvalitetsnivå (0-3: dåligt, 4-5: okej, 6+: bra)
+            return quality;
+        }
+
+        function adjustDifficulty(quality) {
+            if (quality >= 6) {
+                // Bra svar - öka svårighetsgraden
+                if (difficultyLevel < 2) {
+                    difficultyLevel++;
+                }
+            } else if (quality <= 3) {
+                // Svagt svar - minska svårighetsgraden
+                if (difficultyLevel > 0) {
+                    difficultyLevel--;
+                }
+            }
+            // Quality 4-5: behåll nuvarande nivå
+
+            // Uppdatera max svårighetsgrad
+            if (difficultyLevel > maxDifficulty) {
+                maxDifficulty = difficultyLevel;
+            }
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    finishExam();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            const timerEl = document.getElementById('timer');
+            timerEl.textContent = display;
+
+            // Varna när tiden nästan är ute
+            if (timeRemaining <= 60) {
+                timerEl.classList.add('warning');
+            }
+        }
+
+        function showEncouragement() {
+            const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+            const el = document.getElementById('encouragement');
+            el.textContent = encouragement;
+            el.style.display = 'block';
+
+            setTimeout(() => {
+                el.style.display = 'none';
+            }, 8000);
+        }
+
+        function finishExam() {
+            clearInterval(timerInterval);
+
+            // Beräkna använd tid
+            const timeUsedSeconds = totalTime - timeRemaining;
+            const timeUsedMinutes = Math.round(timeUsedSeconds / 60);
+
+            // Uppdatera resultatvy
+            document.getElementById('finalQuestionCount').textContent = answeredQuestions;
+            document.getElementById('finalLevel').textContent = difficultyNames[maxDifficulty];
+            document.getElementById('timeUsed').textContent = timeUsedMinutes;
+
+            // Logga alla svar (i en riktig app skulle de skickas till servern)
+            console.log('Alla svar:', allAnswers);
+
+            // Visa resultatvy
+            document.getElementById('studentView').classList.remove('active');
+            document.getElementById('resultView').classList.add('active');
+        }
+    </script>
+</body>
+</html>
