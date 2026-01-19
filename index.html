@@ -597,7 +597,6 @@
             <div class="action-buttons">
                 <button class="convert-btn" id="convert-btn">🔄 Konvertera</button>
                 <button class="action-btn" id="copy-text-btn">📄 Kopiera text (för Word)</button>
-                <button class="action-btn" id="copy-html-btn">📋 Kopiera HTML</button>
                 <button class="action-btn" id="clear-btn">🗑️ Rensa</button>
             </div>
         </div>
@@ -621,7 +620,6 @@
         const outputText = document.getElementById('output-text');
         const convertBtn = document.getElementById('convert-btn');
         const copyTextBtn = document.getElementById('copy-text-btn');
-        const copyHtmlBtn = document.getElementById('copy-html-btn');
         const clearBtn = document.getElementById('clear-btn');
         const uploadBtn = document.getElementById('upload-btn');
         const fileInput = document.getElementById('file-input');
@@ -708,26 +706,6 @@
                 copyTextBtn.innerHTML = '✅ Kopierat!';
                 setTimeout(() => {
                     copyTextBtn.innerHTML = originalText;
-                }, 2000);
-            } catch (err) {
-                alert('Kunde inte kopiera till urklipp. Försök igen.');
-            }
-        });
-
-        // Copy HTML to clipboard
-        copyHtmlBtn.addEventListener('click', async () => {
-            const html = outputText.innerHTML;
-            if (!html || html.includes('Justera inställningarna')) {
-                alert('Konvertera text först innan du kopierar.');
-                return;
-            }
-
-            try {
-                await navigator.clipboard.writeText(html);
-                const originalText = copyHtmlBtn.innerHTML;
-                copyHtmlBtn.innerHTML = '✅ Kopierat!';
-                setTimeout(() => {
-                    copyHtmlBtn.innerHTML = originalText;
                 }, 2000);
             } catch (err) {
                 alert('Kunde inte kopiera till urklipp. Försök igen.');
