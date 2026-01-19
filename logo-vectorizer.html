@@ -98,20 +98,38 @@
             <h3>Installningar</h3>
             <div class="settings-grid">
                 <div class="setting-group">
+                    <label>Lage</label>
+                    <select id="presetMode">
+                        <option value="logo" selected>Logotyp (rekommenderas)</option>
+                        <option value="photo">Foto/Detaljerad</option>
+                        <option value="simple">Enkel/Ikon</option>
+                        <option value="custom">Anpassad</option>
+                    </select>
+                </div>
+                <div class="setting-group">
                     <label>Farger</label>
                     <select id="colorMode">
+                        <option value="8" selected>8 farger</option>
                         <option value="16">16 farger</option>
-                        <option value="8">8 farger</option>
                         <option value="4">4 farger</option>
                         <option value="2">Svartvit</option>
                     </select>
                 </div>
                 <div class="setting-group">
-                    <label>Detaljer</label>
-                    <select id="detailLevel">
-                        <option value="low">Lag</option>
+                    <label>Utjamning</label>
+                    <select id="blurLevel">
+                        <option value="0">Ingen</option>
+                        <option value="1" selected>Lite</option>
+                        <option value="2">Medium</option>
+                        <option value="4">Mycket</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>Forenkling</label>
+                    <select id="simplifyLevel">
+                        <option value="low">Lite</option>
                         <option value="medium" selected>Medium</option>
-                        <option value="high">Hog</option>
+                        <option value="high">Mycket</option>
                     </select>
                 </div>
             </div>
@@ -1447,16 +1465,58 @@ if(typeof define === 'function' && define.amd){
         vectorizeBtn.disabled = true;
         setTimeout(function() {
             try {
+                var preset = document.getElementById('presetMode').value;
                 var colors = parseInt(document.getElementById('colorMode').value);
-                var detail = document.getElementById('detailLevel').value;
-                console.log('Settings: colors=' + colors + ', detail=' + detail);
+                var blur = parseInt(document.getElementById('blurLevel').value);
+                var simplify = document.getElementById('simplifyLevel').value;
+                console.log('Settings: preset=' + preset + ', colors=' + colors + ', blur=' + blur + ', simplify=' + simplify);
 
-                var opts = { numberofcolors: colors, colorsampling: 2, strokewidth: 0 };
+                // Base options
+                var opts = {
+                    numberofcolors: colors,
+                    colorsampling: 2,
+                    strokewidth: 0,
+                    blurradius: blur,
+                    blurdelta: 20,
+                    rightangleenhance: true
+                };
+
+                // Apply preset
+                if (preset === 'logo') {
+                    opts.ltres = 1;
+                    opts.qtres = 1;
+                    opts.pathomit = 20;
+                    opts.colorquantcycles = 3;
+                    opts.mincolorratio = 0.02;
+                    opts.rightangleenhance = true;
+                } else if (preset === 'simple') {
+                    opts.ltres = 2;
+                    opts.qtres = 2;
+                    opts.pathomit = 50;
+                    opts.colorquantcycles = 2;
+                    opts.mincolorratio = 0.05;
+                } else if (preset === 'photo') {
+                    opts.ltres = 0.5;
+                    opts.qtres = 0.5;
+                    opts.pathomit = 8;
+                    opts.colorquantcycles = 5;
+                }
+
+                // Apply simplification level
+                if (simplify === 'low') {
+                    opts.ltres = Math.max(0.5, opts.ltres - 0.5);
+                    opts.qtres = Math.max(0.5, opts.qtres - 0.5);
+                    opts.pathomit = Math.max(4, opts.pathomit / 2);
+                } else if (simplify === 'high') {
+                    opts.ltres = opts.ltres + 1;
+                    opts.qtres = opts.qtres + 1;
+                    opts.pathomit = opts.pathomit * 2;
+                }
+
+                // Black and white mode
                 if (colors === 2) opts.colorsampling = 0;
-                if (detail === 'low') { opts.ltres = 2; opts.qtres = 2; opts.pathomit = 16; }
-                else if (detail === 'high') { opts.ltres = 0.5; opts.qtres = 0.5; opts.pathomit = 4; }
-                else { opts.ltres = 1; opts.qtres = 1; opts.pathomit = 8; }
 
+                console.log('Final options:', opts);
                 console.log('Calling ImageTracer.imagedataToSVG...');
                 svgResult = ImageTracer.imagedataToSVG(imgData, opts);
                 console.log('SVG result length:', svgResult ? svgResult.length : 'null');
