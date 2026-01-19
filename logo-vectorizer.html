@@ -1355,6 +1355,13 @@ if(typeof define === 'function' && define.amd){
 })();</script>
 <script>
 (function(){
+    // Debug: Check if ImageTracer loaded correctly
+    console.log('App starting...');
+    console.log('ImageTracer defined:', typeof ImageTracer !== 'undefined');
+    if (typeof ImageTracer !== 'undefined') {
+        console.log('ImageTracer version:', ImageTracer.versionnumber);
+    }
+
     let imgData = null, svgResult = null, fileName = '';
     const uploadZone = document.getElementById('uploadZone');
     const fileInput = document.getElementById('fileInput');
@@ -1369,6 +1376,11 @@ if(typeof define === 'function' && define.amd){
     const statusMessage = document.getElementById('statusMessage');
     const fileInfo = document.getElementById('fileInfo');
     const svgInfo = document.getElementById('svgInfo');
+
+    // Show error immediately if ImageTracer is missing
+    if (typeof ImageTracer === 'undefined') {
+        alert('Fel: ImageTracer biblioteket kunde inte laddas. Prova att ladda om sidan (Ctrl+Shift+R)');
+    }
 
     function showStatus(msg, type) {
         statusMessage.textContent = msg;
@@ -1419,9 +1431,16 @@ if(typeof define === 'function' && define.amd){
     }
 
     function vectorize() {
-        if (!imgData) return;
+        console.log('Vectorize called');
+        console.log('imgData:', imgData);
+        console.log('ImageTracer:', typeof ImageTracer);
+
+        if (!imgData) {
+            showStatus('Fel: Ingen bild laddad', 'error');
+            return;
+        }
         if (typeof ImageTracer === 'undefined') {
-            showStatus('Fel: ImageTracer saknas', 'error');
+            showStatus('Fel: ImageTracer saknas - ladda om sidan (Ctrl+Shift+R)', 'error');
             return;
         }
         loading.classList.add('visible');
@@ -1430,12 +1449,18 @@ if(typeof define === 'function' && define.amd){
             try {
                 var colors = parseInt(document.getElementById('colorMode').value);
                 var detail = document.getElementById('detailLevel').value;
+                console.log('Settings: colors=' + colors + ', detail=' + detail);
+
                 var opts = { numberofcolors: colors, colorsampling: 2, strokewidth: 0 };
                 if (colors === 2) opts.colorsampling = 0;
                 if (detail === 'low') { opts.ltres = 2; opts.qtres = 2; opts.pathomit = 16; }
                 else if (detail === 'high') { opts.ltres = 0.5; opts.qtres = 0.5; opts.pathomit = 4; }
                 else { opts.ltres = 1; opts.qtres = 1; opts.pathomit = 8; }
+
+                console.log('Calling ImageTracer.imagedataToSVG...');
                 svgResult = ImageTracer.imagedataToSVG(imgData, opts);
+                console.log('SVG result length:', svgResult ? svgResult.length : 'null');
+
                 svgPreview.innerHTML = svgResult;
                 var svg = svgPreview.querySelector('svg');
                 if (svg) { svg.style.maxWidth = '100%'; svg.style.maxHeight = '300px'; }
@@ -1443,7 +1468,8 @@ if(typeof define === 'function' && define.amd){
                 downloadBtn.style.display = 'inline-block';
                 showStatus('Klar!', 'success');
             } catch(err) {
-                console.error(err);
+                console.error('Vectorization error:', err);
+                console.error('Error stack:', err.stack);
                 showStatus('Fel: ' + err.message, 'error');
             }
             loading.classList.remove('visible');
