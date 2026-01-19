@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>English Exercises - Gymnasiet</title>
-    <!-- Updated: 2026-01-16 -->
     <style>
         * {
             margin: 0;
@@ -43,7 +42,7 @@
 
         header {
             text-align: center;
-            padding: 40px 20px;
+            padding: 40px 20px 20px;
             color: white;
         }
 
@@ -55,6 +54,50 @@
 
         header p {
             font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* Level Selector */
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .level-btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: 3px solid white;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: white;
+        }
+
+        .level-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+        }
+
+        .level-btn.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .level-btn.b2-btn.active {
+            background: #fbbf24;
+            border-color: #fbbf24;
+            color: #1e293b;
+        }
+
+        .level-description {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
             opacity: 0.9;
         }
 
@@ -126,6 +169,10 @@
             font-size: 0.9rem;
             font-weight: 600;
             margin-top: 10px;
+        }
+
+        .level-badge.b2 {
+            background: #f59e0b;
         }
 
         /* Reading Exercise Styles */
@@ -493,6 +540,11 @@
                 font-size: 1.8rem;
             }
 
+            .level-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+
             .nav-tab {
                 padding: 12px 18px;
                 font-size: 0.9rem;
@@ -516,6 +568,14 @@
     <header>
         <h1>English Exercises</h1>
         <p>Träna din engelska med interaktiva övningar</p>
+
+        <div class="level-selector">
+            <button class="level-btn active" onclick="setLevel('B1')">B1</button>
+            <button class="level-btn b2-btn" onclick="setLevel('B2')">B2</button>
+        </div>
+        <div class="level-description" id="level-description">
+            Grundnivå - passar de flesta elever
+        </div>
     </header>
 
     <div class="container">
@@ -530,7 +590,7 @@
             <div class="exercise-header">
                 <h2>Reading Comprehension</h2>
                 <p>Läs texten och välj den rubrik som passar bäst</p>
-                <span class="level-badge">CEFR B2</span>
+                <span class="level-badge" id="reading-level-badge">CEFR B1</span>
             </div>
 
             <div class="progress-container">
@@ -568,7 +628,7 @@
             <div class="exercise-header">
                 <h2>Gap Fill / Lucktexter</h2>
                 <p>Fyll i det saknade ordet (endast ETT ord per lucka)</p>
-                <span class="level-badge">CEFR B2</span>
+                <span class="level-badge" id="gap-level-badge">CEFR B1</span>
             </div>
 
             <div class="progress-container">
@@ -610,7 +670,7 @@
             <div class="exercise-header">
                 <h2>Translation / Översättning</h2>
                 <p>Översätt meningarna från svenska till engelska</p>
-                <span class="level-badge">CEFR B1</span>
+                <span class="level-badge" id="trans-level-badge">CEFR B1</span>
             </div>
 
             <div class="category-select" id="category-select">
@@ -661,9 +721,11 @@
     </div>
 
     <script>
-        // ============ DATA ============
+        // ============ CURRENT LEVEL ============
+        let currentLevel = 'B1';
 
-        const readingData = [
+        // ============ B1 DATA ============
+        const readingDataB1 = [
             {
                 "id": 1,
                 "text": "Artificial intelligence has revolutionized numerous industries, yet concerns about its ethical implications continue to mount. While proponents argue that AI enhances efficiency and enables groundbreaking discoveries in medicine and science, critics warn of potential job displacement and privacy violations. The challenge lies not in halting technological progress, but in establishing robust regulatory frameworks that ensure AI development aligns with human values.",
@@ -726,7 +788,70 @@
             }
         ];
 
-        const gapFillData = [
+        const readingDataB2 = [
+            {
+                "id": 1,
+                "text": "The proliferation of algorithmic decision-making systems has catalysed unprecedented ethical quandaries. While proponents extol their purported objectivity, critics contend that these mechanisms perpetuate systemic biases inherent in their training data. The opaque nature of neural networks exacerbates accountability concerns, rendering it increasingly arduous to discern whether discriminatory outcomes stem from flawed data or algorithmic design itself.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "The Promise of Artificial Intelligence in Modern Society",
+                    "Accountability Challenges in Automated Decision Systems",
+                    "How Neural Networks Process Information",
+                    "The Future of Data Collection and Privacy"
+                ],
+                "correct": 1
+            },
+            {
+                "id": 2,
+                "text": "Phenomenological approaches to consciousness posit that subjective experience cannot be adequately reduced to purely neurobiological mechanisms. This philosophical stance challenges reductionist paradigms, asserting that first-person perspectives constitute irreducible aspects of reality. Whilst neuroscience has elucidated correlations between brain states and conscious experiences, the explanatory gap persists: how do electrochemical processes engender qualitative sensations?",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "Neuroscience Discoveries About Brain Function",
+                    "The Limits of Biological Explanations of Mind",
+                    "Comparing Scientific Research Methods",
+                    "The History of Consciousness Studies"
+                ],
+                "correct": 1
+            },
+            {
+                "id": 3,
+                "text": "Contemporary discourse surrounding anthropogenic climate disruption increasingly emphasizes tipping points—thresholds beyond which ecosystems undergo irreversible transformations. The melting of permafrost exemplifies such concerns, as thawing releases sequestered methane, thereby amplifying warming in a self-perpetuating cycle. These non-linear dynamics confound traditional predictive models, which typically assume gradual, proportional responses to environmental stressors.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "Understanding Climate Change Effects Globally",
+                    "Why Gradual Climate Solutions May Be Insufficient",
+                    "The Science Behind Permafrost Formation",
+                    "Improving Environmental Prediction Technologies"
+                ],
+                "correct": 1
+            },
+            {
+                "id": 4,
+                "text": "Linguistic relativity, often termed the Sapir-Whorf hypothesis, proposes that language structures fundamentally shape cognitive processes and worldview. Whilst strong deterministic interpretations have been largely discredited, contemporary research reveals subtle yet significant influences. For instance, languages lacking future tense constructions correlate with enhanced long-term planning behaviours, suggesting linguistic frameworks modulate temporal cognition.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "How Language Learning Affects Brain Development",
+                    "The Moderate Influence of Language on Thinking",
+                    "Cultural Differences in Time Perception",
+                    "Debunking Myths About Bilingualism"
+                ],
+                "correct": 1
+            },
+            {
+                "id": 5,
+                "text": "The commodification of authenticity represents a paradoxical facet of late capitalism, whereby genuine cultural expressions become appropriated and marketed as consumable experiences. Tourism industries epitomize this phenomenon, staging 'authentic' encounters that are fundamentally contrived for commercial purposes. This process simultaneously erodes the very authenticity being commodified whilst generating economic incentives for cultural preservation.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "The Economic Benefits of Cultural Tourism",
+                    "The Contradictions of Marketing Authenticity",
+                    "How Globalization Preserves Local Traditions",
+                    "The Growth of the Modern Tourism Industry"
+                ],
+                "correct": 1
+            }
+        ];
+
+        const gapFillDataB1 = [
             {
                 "id": 1,
                 "sentence": "She managed to complete the project _____ the tight deadline.",
@@ -791,169 +916,230 @@
             }
         ];
 
-        const translationData = [
+        const gapFillDataB2 = [
+            {
+                "id": 1,
+                "sentence": "_____ had she entered the room when everyone fell silent.",
+                "answer": "scarcely",
+                "alternativeAnswers": ["hardly", "barely"],
+                "hint": "Ledtråd: negativt adverb vid inversion"
+            },
+            {
+                "id": 2,
+                "sentence": "It is imperative that he _____ present at tomorrow's hearing.",
+                "answer": "be",
+                "hint": "Ledtråd: subjunctive (basform)"
+            },
+            {
+                "id": 3,
+                "sentence": "The defendant was acquitted _____ lack of substantial evidence.",
+                "answer": "for",
+                "hint": "Ledtråd: preposition"
+            },
+            {
+                "id": 4,
+                "sentence": "Should the need _____, we have contingency plans in place.",
+                "answer": "arise",
+                "hint": "Ledtråd: verb vid conditional inversion"
+            },
+            {
+                "id": 5,
+                "sentence": "The proposal was met with _____ opposition from environmental groups.",
+                "answer": "fierce",
+                "alternativeAnswers": ["strong", "considerable", "vehement"],
+                "hint": "Ledtråd: adjektiv som beskriver starkt motstånd"
+            },
+            {
+                "id": 6,
+                "sentence": "Had I _____ the consequences, I would never have agreed.",
+                "answer": "foreseen",
+                "alternativeAnswers": ["anticipated", "known"],
+                "hint": "Ledtråd: perfekt particip som betyder 'förutsett'"
+            },
+            {
+                "id": 7,
+                "sentence": "Under no _____ should classified information be shared publicly.",
+                "answer": "circumstances",
+                "hint": "Ledtråd: substantiv i fast uttryck"
+            },
+            {
+                "id": 8,
+                "sentence": "The merger fell _____ due to regulatory concerns.",
+                "answer": "through",
+                "hint": "Ledtråd: partikel i phrasal verb som betyder 'misslyckades'"
+            },
+            {
+                "id": 9,
+                "sentence": "Were it not _____ his intervention, the situation would have escalated.",
+                "answer": "for",
+                "hint": "Ledtråd: preposition vid conditional inversion"
+            },
+            {
+                "id": 10,
+                "sentence": "The witness provided a _____ account that corroborated the victim's testimony.",
+                "answer": "detailed",
+                "alternativeAnswers": ["compelling", "credible", "vivid"],
+                "hint": "Ledtråd: adjektiv som beskriver en grundlig redogörelse"
+            }
+        ];
+
+        const translationDataB1 = [
             {
                 "category": "ekonomi",
                 "categoryName": "Ekonomi",
                 "sentences": [
-                    {
-                        "id": 1,
-                        "swedish": "Företaget har ökat sin vinst med 20 procent.",
-                        "english": "The company has increased its profit by 20 percent.",
-                        "alternativeAnswers": ["The company has raised its profit by 20 percent."]
-                    },
-                    {
-                        "id": 2,
-                        "swedish": "Vi måste minska våra utgifter för att spara pengar.",
-                        "english": "We must reduce our expenses to save money.",
-                        "alternativeAnswers": ["We need to reduce our expenses to save money.", "We have to reduce our expenses to save money."]
-                    },
-                    {
-                        "id": 3,
-                        "swedish": "Inflationen har påverkat priserna på matvaror.",
-                        "english": "Inflation has affected the prices of food.",
-                        "alternativeAnswers": ["Inflation has affected food prices.", "The inflation has affected the prices of food."]
-                    },
-                    {
-                        "id": 4,
-                        "swedish": "Arbetslösheten har minskat under det senaste året.",
-                        "english": "Unemployment has decreased during the last year.",
-                        "alternativeAnswers": ["Unemployment has decreased over the last year.", "Unemployment has declined during the last year."]
-                    },
-                    {
-                        "id": 5,
-                        "swedish": "Exporten av svenska produkter fortsätter att växa.",
-                        "english": "The export of Swedish products continues to grow.",
-                        "alternativeAnswers": ["Exports of Swedish products continue to grow.", "The exports of Swedish products continue to grow."]
-                    }
+                    { "id": 1, "swedish": "Företaget har ökat sin vinst med 20 procent.", "english": "The company has increased its profit by 20 percent.", "alternativeAnswers": ["The company has raised its profit by 20 percent."] },
+                    { "id": 2, "swedish": "Vi måste minska våra utgifter för att spara pengar.", "english": "We must reduce our expenses to save money.", "alternativeAnswers": ["We need to reduce our expenses to save money.", "We have to reduce our expenses to save money."] },
+                    { "id": 3, "swedish": "Inflationen har påverkat priserna på matvaror.", "english": "Inflation has affected the prices of food.", "alternativeAnswers": ["Inflation has affected food prices."] },
+                    { "id": 4, "swedish": "Arbetslösheten har minskat under det senaste året.", "english": "Unemployment has decreased during the last year.", "alternativeAnswers": ["Unemployment has decreased over the last year."] },
+                    { "id": 5, "swedish": "Exporten av svenska produkter fortsätter att växa.", "english": "The export of Swedish products continues to grow.", "alternativeAnswers": ["Exports of Swedish products continue to grow."] }
                 ]
             },
             {
                 "category": "samhalle",
                 "categoryName": "Samhälle",
                 "sentences": [
-                    {
-                        "id": 6,
-                        "swedish": "Alla medborgare har rätt att rösta i valet.",
-                        "english": "All citizens have the right to vote in the election.",
-                        "alternativeAnswers": ["Every citizen has the right to vote in the election."]
-                    },
-                    {
-                        "id": 7,
-                        "swedish": "Kommunen planerar att bygga ett nytt bibliotek.",
-                        "english": "The municipality is planning to build a new library.",
-                        "alternativeAnswers": ["The municipality plans to build a new library.", "The council is planning to build a new library."]
-                    },
-                    {
-                        "id": 8,
-                        "swedish": "Vi behöver förbättra kollektivtrafiken i staden.",
-                        "english": "We need to improve public transport in the city.",
-                        "alternativeAnswers": ["We need to improve the public transport in the city.", "We need to improve public transportation in the city."]
-                    },
-                    {
-                        "id": 9,
-                        "swedish": "Regeringen har beslutat om nya miljölagar.",
-                        "english": "The government has decided on new environmental laws.",
-                        "alternativeAnswers": ["The government has decided about new environmental laws."]
-                    },
-                    {
-                        "id": 10,
-                        "swedish": "Många ungdomar engagerar sig i frivilligorganisationer.",
-                        "english": "Many young people engage in voluntary organizations.",
-                        "alternativeAnswers": ["Many young people get involved in voluntary organizations.", "Many youth engage in voluntary organizations."]
-                    }
+                    { "id": 6, "swedish": "Alla medborgare har rätt att rösta i valet.", "english": "All citizens have the right to vote in the election.", "alternativeAnswers": ["Every citizen has the right to vote in the election."] },
+                    { "id": 7, "swedish": "Kommunen planerar att bygga ett nytt bibliotek.", "english": "The municipality is planning to build a new library.", "alternativeAnswers": ["The municipality plans to build a new library."] },
+                    { "id": 8, "swedish": "Vi behöver förbättra kollektivtrafiken i staden.", "english": "We need to improve public transport in the city.", "alternativeAnswers": ["We need to improve public transportation in the city."] },
+                    { "id": 9, "swedish": "Regeringen har beslutat om nya miljölagar.", "english": "The government has decided on new environmental laws.", "alternativeAnswers": [] },
+                    { "id": 10, "swedish": "Många ungdomar engagerar sig i frivilligorganisationer.", "english": "Many young people engage in voluntary organizations.", "alternativeAnswers": ["Many young people get involved in voluntary organizations."] }
                 ]
             },
             {
                 "category": "jordbruk",
                 "categoryName": "Naturbruk & Jordbruk",
                 "sentences": [
-                    {
-                        "id": 11,
-                        "swedish": "Bonden odlar potatis och morötter på sin gård.",
-                        "english": "The farmer grows potatoes and carrots on his farm.",
-                        "alternativeAnswers": ["The farmer cultivates potatoes and carrots on his farm."]
-                    },
-                    {
-                        "id": 12,
-                        "swedish": "Ekologiskt jordbruk blir allt mer populärt i Sverige.",
-                        "english": "Organic farming is becoming more and more popular in Sweden.",
-                        "alternativeAnswers": ["Organic farming is becoming increasingly popular in Sweden.", "Ecological farming is becoming more and more popular in Sweden."]
-                    },
-                    {
-                        "id": 13,
-                        "swedish": "Djuren betar på ängen under sommarmånaderna.",
-                        "english": "The animals graze in the meadow during the summer months.",
-                        "alternativeAnswers": ["The animals graze on the meadow during the summer months."]
-                    },
-                    {
-                        "id": 14,
-                        "swedish": "Torrkan har påverkat skörden negativt i år.",
-                        "english": "The drought has affected the harvest negatively this year.",
-                        "alternativeAnswers": ["The drought has negatively affected the harvest this year.", "Drought has affected the harvest negatively this year."]
-                    },
-                    {
-                        "id": 15,
-                        "swedish": "Vi måste skydda den biologiska mångfalden i naturen.",
-                        "english": "We must protect the biodiversity in nature.",
-                        "alternativeAnswers": ["We need to protect the biodiversity in nature.", "We have to protect the biodiversity in nature."]
-                    }
+                    { "id": 11, "swedish": "Bonden odlar potatis och morötter på sin gård.", "english": "The farmer grows potatoes and carrots on his farm.", "alternativeAnswers": ["The farmer cultivates potatoes and carrots on his farm."] },
+                    { "id": 12, "swedish": "Ekologiskt jordbruk blir allt mer populärt i Sverige.", "english": "Organic farming is becoming more and more popular in Sweden.", "alternativeAnswers": ["Organic farming is becoming increasingly popular in Sweden."] },
+                    { "id": 13, "swedish": "Djuren betar på ängen under sommarmånaderna.", "english": "The animals graze in the meadow during the summer months.", "alternativeAnswers": ["The animals graze on the meadow during the summer months."] },
+                    { "id": 14, "swedish": "Torrkan har påverkat skörden negativt i år.", "english": "The drought has affected the harvest negatively this year.", "alternativeAnswers": ["The drought has negatively affected the harvest this year."] },
+                    { "id": 15, "swedish": "Vi måste skydda den biologiska mångfalden i naturen.", "english": "We must protect the biodiversity in nature.", "alternativeAnswers": ["We need to protect the biodiversity in nature."] }
                 ]
             },
             {
                 "category": "allman",
                 "categoryName": "Allmänt",
                 "sentences": [
-                    {
-                        "id": 16,
-                        "swedish": "Jag brukar träna på gymmet tre gånger i veckan.",
-                        "english": "I usually work out at the gym three times a week.",
-                        "alternativeAnswers": ["I usually exercise at the gym three times a week.", "I usually train at the gym three times a week."]
-                    },
-                    {
-                        "id": 17,
-                        "swedish": "Min syster studerar medicin på universitetet.",
-                        "english": "My sister studies medicine at the university.",
-                        "alternativeAnswers": ["My sister is studying medicine at the university.", "My sister studies medicine at university."]
-                    },
-                    {
-                        "id": 18,
-                        "swedish": "Det är viktigt att äta hälsosam mat varje dag.",
-                        "english": "It is important to eat healthy food every day.",
-                        "alternativeAnswers": ["It's important to eat healthy food every day."]
-                    },
-                    {
-                        "id": 19,
-                        "swedish": "Vi planerar att resa till Italien nästa sommar.",
-                        "english": "We are planning to travel to Italy next summer.",
-                        "alternativeAnswers": ["We plan to travel to Italy next summer.", "We are planning to go to Italy next summer."]
-                    },
-                    {
-                        "id": 20,
-                        "swedish": "Han har bott i Stockholm i över tio år.",
-                        "english": "He has lived in Stockholm for over ten years.",
-                        "alternativeAnswers": ["He has lived in Stockholm for more than ten years."]
-                    }
+                    { "id": 16, "swedish": "Jag brukar träna på gymmet tre gånger i veckan.", "english": "I usually work out at the gym three times a week.", "alternativeAnswers": ["I usually exercise at the gym three times a week."] },
+                    { "id": 17, "swedish": "Min syster studerar medicin på universitetet.", "english": "My sister studies medicine at the university.", "alternativeAnswers": ["My sister is studying medicine at the university."] },
+                    { "id": 18, "swedish": "Det är viktigt att äta hälsosam mat varje dag.", "english": "It is important to eat healthy food every day.", "alternativeAnswers": ["It's important to eat healthy food every day."] },
+                    { "id": 19, "swedish": "Vi planerar att resa till Italien nästa sommar.", "english": "We are planning to travel to Italy next summer.", "alternativeAnswers": ["We plan to travel to Italy next summer."] },
+                    { "id": 20, "swedish": "Han har bott i Stockholm i över tio år.", "english": "He has lived in Stockholm for over ten years.", "alternativeAnswers": ["He has lived in Stockholm for more than ten years."] }
                 ]
             }
         ];
 
-        // ============ READING EXERCISE ============
+        const translationDataB2 = [
+            {
+                "category": "ekonomi",
+                "categoryName": "Ekonomi",
+                "sentences": [
+                    { "id": 1, "swedish": "Företagets omsättningstillgångar översteg förväntningarna trots den volatila marknaden.", "english": "The company's current assets exceeded expectations despite the volatile market.", "alternativeAnswers": ["The firm's current assets surpassed expectations despite the volatile market."] },
+                    { "id": 2, "swedish": "Aktieägarna godkände fusionen efter månadslånga förhandlingar om vinstfördelningen.", "english": "The shareholders approved the merger after month-long negotiations regarding profit distribution.", "alternativeAnswers": ["Shareholders approved the merger following month-long negotiations on profit allocation."] },
+                    { "id": 3, "swedish": "Den nya finanspolitiken syftar till att stimulera inhemsk konsumtion och minska handelsunderskottet.", "english": "The new fiscal policy aims to stimulate domestic consumption and reduce the trade deficit.", "alternativeAnswers": ["The new financial policy aims at stimulating domestic consumption and reducing the trade deficit."] },
+                    { "id": 4, "swedish": "Riskkapitalbolaget drog sig ur investeringen på grund av företagets undermåliga balansräkning.", "english": "The venture capital firm withdrew from the investment due to the company's inadequate balance sheet.", "alternativeAnswers": ["The private equity firm pulled out of the investment because of the company's poor balance sheet."] },
+                    { "id": 5, "swedish": "Centralbanken höjde styrräntan för att dämpa den accelererande inflationstakten.", "english": "The central bank raised the key interest rate to curb the accelerating inflation rate.", "alternativeAnswers": ["The central bank increased the policy rate to dampen the accelerating pace of inflation."] }
+                ]
+            },
+            {
+                "category": "samhalle",
+                "categoryName": "Samhälle",
+                "sentences": [
+                    { "id": 6, "swedish": "Välfärdsstaten står inför utmaningar när den åldrande befolkningen ökar trycket på de offentliga finanserna.", "english": "The welfare state faces challenges as the ageing population increases pressure on public finances.", "alternativeAnswers": ["The welfare state is facing challenges as the aging population puts pressure on public finances."] },
+                    { "id": 7, "swedish": "Oppositionsledaren kritiserade regeringens brist på transparens i beslutsprocessen.", "english": "The opposition leader criticized the government's lack of transparency in the decision-making process.", "alternativeAnswers": ["The leader of the opposition criticized the government's lack of transparency in decision-making."] },
+                    { "id": 8, "swedish": "Medborgarnas förtroende för demokratiska institutioner har gradvis urholkats under det senaste decenniet.", "english": "Citizens' trust in democratic institutions has gradually eroded over the past decade.", "alternativeAnswers": ["Public confidence in democratic institutions has been gradually undermined during the last decade."] },
+                    { "id": 9, "swedish": "Den nya integrationslagen syftar till att motverka segregation och främja social sammanhållning.", "english": "The new integration law aims to counteract segregation and promote social cohesion.", "alternativeAnswers": ["The new integration act aims at combating segregation and promoting social cohesion."] },
+                    { "id": 10, "swedish": "Expertpanelen varnade för att inkomstskillnaderna riskerar att undergräva samhällsstabiliteten.", "english": "The expert panel warned that income disparities risk undermining social stability.", "alternativeAnswers": ["The panel of experts warned that income inequality risks undermining societal stability."] }
+                ]
+            },
+            {
+                "category": "jordbruk",
+                "categoryName": "Naturbruk & Jordbruk",
+                "sentences": [
+                    { "id": 11, "swedish": "Kväveutlakningen från åkermarken försämrar vattenkvaliteten i närliggande ekosystem.", "english": "Nitrogen leaching from arable land deteriorates water quality in adjacent ecosystems.", "alternativeAnswers": ["Nitrogen leaching from agricultural land impairs water quality in nearby ecosystems."] },
+                    { "id": 12, "swedish": "Jordbrukarna övergår gradvis till regenerativa odlingsmetoder för att förbättra markens bördighet.", "english": "Farmers are gradually transitioning to regenerative farming methods to improve soil fertility.", "alternativeAnswers": ["Farmers are progressively shifting to regenerative cultivation practices to enhance soil fertility."] },
+                    { "id": 13, "swedish": "Växtförädlingsprogrammet har resulterat i mer torktåliga sädesslag som är anpassade till klimatförändringarna.", "english": "The plant breeding program has resulted in more drought-resistant cereal crops adapted to climate change.", "alternativeAnswers": ["The crop breeding programme has produced more drought-tolerant grain varieties adapted to climate change."] },
+                    { "id": 14, "swedish": "Det hållbara skogsbruket måste balansera ekonomiska intressen mot bevarandet av biologisk mångfald.", "english": "Sustainable forestry must balance economic interests against the preservation of biodiversity.", "alternativeAnswers": ["Sustainable forest management must balance economic interests with biodiversity conservation."] },
+                    { "id": 15, "swedish": "Precision farming-tekniken möjliggör optimering av gödselåtgången och minskar miljöbelastningen.", "english": "Precision farming technology enables optimization of fertilizer use and reduces environmental impact.", "alternativeAnswers": ["Precision agriculture technology allows for the optimization of fertiliser consumption and decreases environmental burden."] }
+                ]
+            },
+            {
+                "category": "allman",
+                "categoryName": "Allmänt",
+                "sentences": [
+                    { "id": 16, "swedish": "Man ska inte sälja skinnet förrän björnen är skjuten, som man brukar säga inom affärsvärlden.", "english": "You shouldn't count your chickens before they hatch, as they say in the business world.", "alternativeAnswers": ["Don't count your chickens before they're hatched, as the saying goes in business."] },
+                    { "id": 17, "swedish": "Hennes diplomatiska skicklighet gjorde att hon lyckades bryta isen vid de känsliga förhandlingarna.", "english": "Her diplomatic skills enabled her to break the ice during the sensitive negotiations.", "alternativeAnswers": ["Her diplomatic prowess allowed her to break the ice at the delicate negotiations."] },
+                    { "id": 18, "swedish": "Projektet fastnade i byråkratiska processer och hamnade på is i över ett år.", "english": "The project got stuck in bureaucratic processes and was put on ice for over a year.", "alternativeAnswers": ["The project became mired in bureaucratic procedures and was shelved for more than a year."] },
+                    { "id": 19, "swedish": "Det är ingen mening att gråta över spilld mjölk – vi måste fokusera på att lösa problemen framåt.", "english": "There's no point crying over spilt milk – we must focus on solving the problems going forward.", "alternativeAnswers": ["It's no use crying over spilled milk – we need to focus on solving the problems ahead."] },
+                    { "id": 20, "swedish": "Han tog tjuren vid hornen och konfronterade chefen angående de orättvisa arbetsvillkoren.", "english": "He took the bull by the horns and confronted the boss regarding the unfair working conditions.", "alternativeAnswers": ["He grasped the nettle and confronted his manager about the unjust working conditions."] }
+                ]
+            }
+        ];
 
+        // ============ GET CURRENT DATA ============
+        function getReadingData() {
+            return currentLevel === 'B1' ? readingDataB1 : readingDataB2;
+        }
+
+        function getGapFillData() {
+            return currentLevel === 'B1' ? gapFillDataB1 : gapFillDataB2;
+        }
+
+        function getTranslationData() {
+            return currentLevel === 'B1' ? translationDataB1 : translationDataB2;
+        }
+
+        // ============ LEVEL SELECTION ============
+        function setLevel(level) {
+            currentLevel = level;
+
+            // Update buttons
+            document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+            if (level === 'B1') {
+                document.querySelectorAll('.level-btn')[0].classList.add('active');
+                document.getElementById('level-description').textContent = 'Grundnivå - passar de flesta elever';
+            } else {
+                document.querySelectorAll('.level-btn')[1].classList.add('active');
+                document.getElementById('level-description').textContent = 'Avancerad nivå - för dig som siktar på högre betyg';
+            }
+
+            // Update badges
+            const badgeClass = level === 'B2' ? 'level-badge b2' : 'level-badge';
+            document.getElementById('reading-level-badge').className = badgeClass;
+            document.getElementById('reading-level-badge').textContent = 'CEFR ' + level;
+            document.getElementById('gap-level-badge').className = badgeClass;
+            document.getElementById('gap-level-badge').textContent = 'CEFR ' + level;
+            document.getElementById('trans-level-badge').className = badgeClass;
+            document.getElementById('trans-level-badge').textContent = 'CEFR ' + level;
+
+            // Reset all exercises
+            resetReading();
+            resetGap();
+            resetTranslation();
+        }
+
+        // ============ READING EXERCISE ============
         let readingIndex = 0;
         let readingScore = 0;
         let readingAnswered = [];
 
         function initReading() {
+            const data = getReadingData();
             readingIndex = 0;
             readingScore = 0;
-            readingAnswered = new Array(readingData.length).fill(null);
-            document.getElementById('reading-total').textContent = readingData.length;
+            readingAnswered = new Array(data.length).fill(null);
+            document.getElementById('reading-total').textContent = data.length;
+            document.getElementById('reading-score').textContent = 'Poäng: 0';
+            document.getElementById('reading-content').style.display = 'block';
+            document.getElementById('reading-nav').style.display = 'flex';
+            document.getElementById('reading-complete').style.display = 'none';
             loadReading();
         }
 
         function loadReading() {
-            const item = readingData[readingIndex];
+            const data = getReadingData();
+            const item = data[readingIndex];
             document.getElementById('reading-text').textContent = item.text;
             document.getElementById('reading-question').textContent = item.question;
             document.getElementById('reading-current').textContent = readingIndex + 1;
@@ -984,7 +1170,8 @@
             if (readingAnswered[readingIndex] !== null) return;
 
             readingAnswered[readingIndex] = index;
-            const item = readingData[readingIndex];
+            const data = getReadingData();
+            const item = data[readingIndex];
 
             if (index === item.correct) {
                 readingScore++;
@@ -995,8 +1182,9 @@
         }
 
         function updateReadingProgress() {
+            const data = getReadingData();
             const answered = readingAnswered.filter(a => a !== null).length;
-            const progress = (answered / readingData.length) * 100;
+            const progress = (answered / data.length) * 100;
             document.getElementById('reading-progress').style.width = progress + '%';
         }
 
@@ -1013,7 +1201,8 @@
         }
 
         function nextReading() {
-            if (readingIndex < readingData.length - 1) {
+            const data = getReadingData();
+            if (readingIndex < data.length - 1) {
                 readingIndex++;
                 loadReading();
             } else {
@@ -1029,28 +1218,30 @@
         }
 
         function resetReading() {
-            document.getElementById('reading-content').style.display = 'block';
-            document.getElementById('reading-nav').style.display = 'flex';
-            document.getElementById('reading-complete').style.display = 'none';
             initReading();
         }
 
         // ============ GAP FILL EXERCISE ============
-
         let gapIndex = 0;
         let gapScore = 0;
         let gapAnswered = [];
 
         function initGap() {
+            const data = getGapFillData();
             gapIndex = 0;
             gapScore = 0;
-            gapAnswered = new Array(gapFillData.length).fill(null);
-            document.getElementById('gap-total').textContent = gapFillData.length;
+            gapAnswered = new Array(data.length).fill(null);
+            document.getElementById('gap-total').textContent = data.length;
+            document.getElementById('gap-score').textContent = 'Poäng: 0';
+            document.getElementById('gap-content').style.display = 'block';
+            document.getElementById('gap-nav').style.display = 'flex';
+            document.getElementById('gap-complete').style.display = 'none';
             loadGap();
         }
 
         function loadGap() {
-            const item = gapFillData[gapIndex];
+            const data = getGapFillData();
+            const item = data[gapIndex];
             document.getElementById('gap-text').innerHTML = item.sentence.replace('_____', '<strong style="color: var(--primary);">_____</strong>');
             document.getElementById('gap-hint').textContent = item.hint;
             document.getElementById('gap-current').textContent = gapIndex + 1;
@@ -1086,7 +1277,8 @@
         }
 
         function checkGap() {
-            const item = gapFillData[gapIndex];
+            const data = getGapFillData();
+            const item = data[gapIndex];
             const input = document.getElementById('gap-input');
             const feedback = document.getElementById('gap-feedback');
             const userAnswer = input.value.trim().toLowerCase();
@@ -1123,8 +1315,9 @@
         }
 
         function updateGapProgress() {
+            const data = getGapFillData();
             const answered = gapAnswered.filter(a => a?.checked).length;
-            const progress = (answered / gapFillData.length) * 100;
+            const progress = (answered / data.length) * 100;
             document.getElementById('gap-progress').style.width = progress + '%';
         }
 
@@ -1141,7 +1334,8 @@
         }
 
         function nextGap() {
-            if (gapIndex < gapFillData.length - 1) {
+            const data = getGapFillData();
+            if (gapIndex < data.length - 1) {
                 gapIndex++;
                 loadGap();
             } else {
@@ -1157,14 +1351,10 @@
         }
 
         function resetGap() {
-            document.getElementById('gap-content').style.display = 'block';
-            document.getElementById('gap-nav').style.display = 'flex';
-            document.getElementById('gap-complete').style.display = 'none';
             initGap();
         }
 
         // ============ TRANSLATION EXERCISE ============
-
         let currentCategory = 'ekonomi';
         let transIndex = 0;
         let transScore = 0;
@@ -1172,13 +1362,26 @@
         let waitingForCorrection = false;
 
         function initTranslation() {
+            const data = getTranslationData();
             transIndex = 0;
             transScore = 0;
             transAnswered = {};
             waitingForCorrection = false;
-            translationData.forEach(cat => {
+            data.forEach(cat => {
                 transAnswered[cat.category] = new Array(cat.sentences.length).fill(null);
             });
+            document.getElementById('trans-score').textContent = 'Poäng: 0';
+            document.getElementById('trans-content').style.display = 'block';
+            document.getElementById('trans-nav').style.display = 'flex';
+            document.getElementById('category-select').style.display = 'flex';
+            document.getElementById('trans-complete').style.display = 'none';
+
+            // Reset category buttons
+            const buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            buttons[0].classList.add('active');
+            currentCategory = 'ekonomi';
+
             loadTranslation();
         }
 
@@ -1188,14 +1391,6 @@
             currentCategory = category;
             transIndex = 0;
 
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.textContent.toLowerCase().includes(category.substring(0, 4))) {
-                    btn.classList.add('active');
-                }
-            });
-
-            // Fix button matching
             const buttons = document.querySelectorAll('.category-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
             if (category === 'ekonomi') buttons[0].classList.add('active');
@@ -1207,7 +1402,8 @@
         }
 
         function getCurrentCategoryData() {
-            return translationData.find(cat => cat.category === currentCategory);
+            const data = getTranslationData();
+            return data.find(cat => cat.category === currentCategory);
         }
 
         function loadTranslation() {
@@ -1327,7 +1523,6 @@
         }
 
         function updateTransNav() {
-            const categoryData = getCurrentCategoryData();
             document.getElementById('trans-prev').disabled = transIndex === 0 || waitingForCorrection;
             document.getElementById('trans-next').disabled = !transAnswered[currentCategory][transIndex]?.completed;
         }
@@ -1358,15 +1553,10 @@
         }
 
         function resetTranslation() {
-            document.getElementById('trans-content').style.display = 'block';
-            document.getElementById('trans-nav').style.display = 'flex';
-            document.getElementById('category-select').style.display = 'flex';
-            document.getElementById('trans-complete').style.display = 'none';
             initTranslation();
         }
 
         // ============ TAB NAVIGATION ============
-
         function showExercise(type) {
             document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.exercise-container').forEach(ex => ex.classList.remove('active'));
@@ -1376,7 +1566,6 @@
         }
 
         // ============ KEYBOARD SUPPORT ============
-
         document.getElementById('gap-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') checkGap();
         });
@@ -1386,7 +1575,6 @@
         });
 
         // ============ INITIALIZE ============
-
         document.addEventListener('DOMContentLoaded', () => {
             initReading();
             initGap();
