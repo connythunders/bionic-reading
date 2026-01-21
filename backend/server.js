@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // PostgreSQL pool
 const pool = new Pool({
@@ -28,10 +29,19 @@ pool.query('SELECT NOW()', (err, res) => {
   }
 });
 
+// Gör pool tillgänglig för routes
+app.locals.pool = pool;
+
+// Import routes
+const quizRoutes = require('./routes/quiz');
+
 // Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Backend körs!' });
 });
+
+// AI Quiz routes
+app.use('/api/quiz', quizRoutes);
 
 // Hämta alla quiz-resultat
 app.get('/api/results', async (req, res) => {
