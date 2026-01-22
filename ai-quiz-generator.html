@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Quiz Generator - Skapa Quiz från Dina Dokument</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(
+                135deg,
+                #ff0000 0%,
+                #ff7f00 14%,
+                #ffff00 28%,
+                #00ff00 42%,
+                #0000ff 56%,
+                #4b0082 70%,
+                #9400d3 84%,
+                #ff0000 100%
+            );
+            background-size: 400% 400%;
+            animation: rainbowShift 15s ease infinite;
+        }
+
+        @keyframes rainbowShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        /* Upload Section */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 3px dashed #ccc;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .upload-area.drag-over {
+            border-color: #667eea;
+            background: #e8eeff;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .upload-area h2 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .upload-area p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .file-info {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .file-info.show {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-icon {
+            font-size: 2em;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .file-size {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .remove-file {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .remove-file:hover {
+            background: #c82333;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            border-left: 5px solid #dc3545;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .generate-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+        }
+
+        /* Generating Section */
+        .loading-container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .loading-subtext {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .loading-steps {
+            text-align: left;
+            margin-top: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .loading-step {
+            padding: 10px 0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .loading-step.completed {
+            color: #28a745;
+        }
+
+        .loading-step.active {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .step-icon {
+            font-size: 1.2em;
+        }
+
+        /* Quiz Section */
+        .progress {
+            margin-bottom: 30px;
+        }
+
+        .progress p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .question-section h2 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .answer-option {
+            background: #f8f8f8;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .answer-option:hover:not(.disabled) {
+            background: #e8e8e8;
+            border-color: #999;
+            transform: translateX(5px);
+        }
+
+        .answer-option.selected {
+            background: #d0e8ff;
+            border-color: #4a90e2;
+        }
+
+        .answer-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .answer-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .answer-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .quiz-controls {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Results Section */
+        .results-content {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .results-header {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .score {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .percentage {
+            font-size: 1.5em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .ai-feedback {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 5px solid #667eea;
+            text-align: left;
+        }
+
+        .ai-feedback h3 {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-feedback p {
+            color: #555;
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .feedback-loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .feedback-loading .spinner {
+            width: 40px;
+            height: 40px;
+            border-width: 4px;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            font-size: 1.2em;
+            padding: 15px 40px;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .upload-area {
+                padding: 40px 20px;
+            }
+
+            .upload-area h2 {
+                font-size: 1.4em;
+            }
+
+            .question-section h2 {
+                font-size: 1.2em;
+            }
+
+            .answer-option {
+                font-size: 1em;
+                padding: 12px 15px;
+            }
+
+            .file-info.show {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .results-header {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>AI Quiz Generator</h1>
+            <p>Ladda upp ett dokument och få ett personligt quiz genererat av AI</p>
+        </div>
+
+        <!-- Upload Section -->
+        <section id="upload-section" class="section active">
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon">📄</div>
+                <h2>Dra och släpp ditt dokument här</h2>
+                <p>eller klicka för att välja fil</p>
+                <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">
+                    Välj fil
+                </button>
+                <p style="margin-top: 20px; font-size: 0.9em; color: #999;">
+                    Stödda format: PDF, DOCX (max 10MB)
+                </p>
+            </div>
+
+            <input type="file" id="file-input" class="file-input" accept=".pdf,.docx">
+
+            <div class="file-info" id="file-info">
+                <div class="file-details">
+                    <div class="file-icon">📎</div>
+                    <div>
+                        <div class="file-name" id="file-name"></div>
+                        <div class="file-size" id="file-size"></div>
+                    </div>
+                </div>
+                <button class="remove-file" onclick="removeFile()">Ta bort</button>
+            </div>
+
+            <div class="error-message" id="error-message"></div>
+
+            <button class="btn btn-primary generate-btn" id="generate-btn" onclick="generateQuiz()" disabled>
+                Generera Quiz
+            </button>
+        </section>
+
+        <!-- Generating Section -->
+        <section id="generating-section" class="section">
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <div class="loading-text">Skapar ditt quiz...</div>
+                <div class="loading-subtext">Detta kan ta en liten stund</div>
+
+                <div class="loading-steps">
+                    <div class="loading-step completed" id="step-upload">
+                        <span class="step-icon">✓</span>
+                        <span>Dokument uppladdat</span>
+                    </div>
+                    <div class="loading-step active" id="step-analyze">
+                        <span class="step-icon">⚙</span>
+                        <span>Analyserar innehåll...</span>
+                    </div>
+                    <div class="loading-step" id="step-generate">
+                        <span class="step-icon">○</span>
+                        <span>Genererar frågor...</span>
+                    </div>
+                    <div class="loading-step" id="step-ready">
+                        <span class="step-icon">○</span>
+                        <span>Förbereder quiz...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section id="quiz-section" class="section">
+            <div class="progress">
+                <p>Fråga <span id="current-question">1</span> av <span id="total-questions">25</span></p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="question-section">
+                <h2 id="question-text"></h2>
+                <div id="answer-options" class="answer-options"></div>
+            </div>
+
+            <div class="quiz-controls">
+                <button id="next-btn" class="btn btn-next" style="display: none;">Nästa fråga</button>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results-section" class="section">
+            <div class="results-content">
+                <h2 class="results-header">Quiz Slutförd!</h2>
+                <p class="score">Du fick <span id="score"></span> av <span id="total"></span> rätt!</p>
+                <p class="percentage">Det är <span id="percentage"></span>%</p>
+
+                <div class="ai-feedback">
+                    <h3>🤖 Personlig AI-feedback</h3>
+                    <div id="ai-feedback-content">
+                        <div class="feedback-loading">
+                            <div class="spinner"></div>
+                            <p>AI analyserar dina svar och skapar personlig feedback...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-restart" onclick="restartApp()">Skapa nytt quiz</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000';
+
+        let selectedFile = null;
+        let documentId = null;
+        let quizSessionId = null;
+        let quizData = null;
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let score = 0;
+        let answered = false;
+
+        // Upload Area functionality
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const fileInfo = document.getElementById('file-info');
+        const errorMessage = document.getElementById('error-message');
+        const generateBtn = document.getElementById('generate-btn');
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            hideError();
+
+            // Validate file type
+            const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|docx)$/i)) {
+                showError('Felaktigt filformat. Endast PDF och DOCX är tillåtna.');
+                return;
+            }
+
+            // Validate file size (10MB)
+            const maxSize = 10 * 1024 * 1024;
+            if (file.size > maxSize) {
+                showError('Filen är för stor. Maximal filstorlek är 10MB.');
+                return;
+            }
+
+            selectedFile = file;
+            displayFileInfo(file);
+            generateBtn.disabled = false;
+        }
+
+        function displayFileInfo(file) {
+            const fileName = document.getElementById('file-name');
+            const fileSize = document.getElementById('file-size');
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.add('show');
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function removeFile() {
+            selectedFile = null;
+            fileInput.value = '';
+            fileInfo.classList.remove('show');
+            generateBtn.disabled = true;
+            hideError();
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        function hideError() {
+            errorMessage.classList.remove('show');
+        }
+
+        // Generate Quiz
+        async function generateQuiz() {
+            if (!selectedFile) return;
+
+            try {
+                generateBtn.disabled = true;
+                showSection('generating-section');
+
+                // Upload file
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const uploadResponse = await fetch(`${API_BASE_URL}/api/quiz/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error('Filuppladdning misslyckades');
+                }
+
+                const uploadData = await uploadResponse.json();
+                documentId = uploadData.documentId;
+
+                // Update loading steps
+                updateLoadingStep('step-analyze', 'completed');
+                updateLoadingStep('step-generate', 'active');
+
+                // Generate quiz
+                const generateResponse = await fetch(`${API_BASE_URL}/api/quiz/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ documentId })
+                });
+
+                if (!generateResponse.ok) {
+                    throw new Error('Quiz-generering misslyckades');
+                }
+
+                const generateData = await generateResponse.json();
+                quizSessionId = generateData.quizSessionId;
+                quizData = generateData.questions;
+
+                // Update loading steps
+                updateLoadingStep('step-generate', 'completed');
+                updateLoadingStep('step-ready', 'active');
+
+                // Wait a bit for better UX
+                setTimeout(() => {
+                    updateLoadingStep('step-ready', 'completed');
+                    startQuiz();
+                }, 500);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showSection('upload-section');
+                showError('Ett fel uppstod: ' + error.message + '. Försök igen.');
+                generateBtn.disabled = false;
+            }
+        }
+
+        function updateLoadingStep(stepId, status) {
+            const step = document.getElementById(stepId);
+            step.classList.remove('active', 'completed');
+            if (status === 'active') {
+                step.classList.add('active');
+                step.querySelector('.step-icon').textContent = '⚙';
+            } else if (status === 'completed') {
+                step.classList.add('completed');
+                step.querySelector('.step-icon').textContent = '✓';
+            }
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            userAnswers = [];
+            score = 0;
+            answered = false;
+
+            document.getElementById('total-questions').textContent = quizData.length;
+            showSection('quiz-section');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= quizData.length) {
+                finishQuiz();
+                return;
+            }
+
+            answered = false;
+            const question = quizData[currentQuestion];
+
+            document.getElementById('question-text').textContent = question.question;
+            document.getElementById('current-question').textContent = currentQuestion + 1;
+
+            const progress = (currentQuestion / quizData.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+
+            const answerOptions = document.getElementById('answer-options');
+            answerOptions.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'answer-option';
+                button.textContent = option;
+                button.addEventListener('click', () => selectAnswer(index));
+                answerOptions.appendChild(button);
+            });
+
+            document.getElementById('next-btn').style.display = 'none';
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+
+            answered = true;
+            const question = quizData[currentQuestion];
+            const options = document.querySelectorAll('.answer-option');
+
+            options.forEach((option, index) => {
+                option.classList.add('disabled');
+
+                if (index === question.correctAnswer) {
+                    option.classList.add('correct');
+                }
+
+                if (index === selectedIndex && selectedIndex !== question.correctAnswer) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            if (selectedIndex === question.correctAnswer) {
+                score++;
+            }
+
+            userAnswers.push({
+                questionId: question.id || currentQuestion,
+                selectedAnswer: selectedIndex,
+                correctAnswer: question.correctAnswer
+            });
+
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        document.getElementById('next-btn').addEventListener('click', () => {
+            currentQuestion++;
+            loadQuestion();
+        });
+
+        async function finishQuiz() {
+            showSection('results-section');
+
+            // Display score
+            document.getElementById('score').textContent = score;
+            document.getElementById('total').textContent = quizData.length;
+
+            const percentage = Math.round((score / quizData.length) * 100);
+            document.getElementById('percentage').textContent = percentage;
+
+            // Get AI feedback
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/quiz/evaluate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        quizSessionId,
+                        userAnswers
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Kunde inte hämta AI-feedback');
+                }
+
+                const data = await response.json();
+                displayAIFeedback(data.feedback);
+
+            } catch (error) {
+                console.error('Error getting feedback:', error);
+                displayAIFeedback(getDefaultFeedback(percentage));
+            }
+        }
+
+        function displayAIFeedback(feedback) {
+            const feedbackContent = document.getElementById('ai-feedback-content');
+
+            if (typeof feedback === 'string') {
+                feedbackContent.innerHTML = `<p>${feedback}</p>`;
+            } else if (feedback.overall) {
+                let html = `<p><strong>Sammanfattning:</strong> ${feedback.overall}</p>`;
+
+                if (feedback.strengths) {
+                    html += `<p><strong>Styrkor:</strong> ${feedback.strengths}</p>`;
+                }
+
+                if (feedback.improvements) {
+                    html += `<p><strong>Förbättringsområden:</strong> ${feedback.improvements}</p>`;
+                }
+
+                if (feedback.encouragement) {
+                    html += `<p><strong>Uppmuntran:</strong> ${feedback.encouragement}</p>`;
+                }
+
+                feedbackContent.innerHTML = html;
+            } else {
+                feedbackContent.innerHTML = `<p>${feedback}</p>`;
+            }
+        }
+
+        function getDefaultFeedback(percentage) {
+            if (percentage === 100) {
+                return 'Perfekt resultat! Du har visat utmärkt förståelse för materialet. Fortsätt det fantastiska arbetet!';
+            } else if (percentage >= 80) {
+                return 'Mycket bra jobbat! Du har god förståelse för ämnet. Några småsaker att titta närmare på, men överlag ett starkt resultat.';
+            } else if (percentage >= 60) {
+                return 'Bra jobbat! Du har grundläggande kunskaper, men det finns utrymme för förbättring. Läs igenom materialet igen och fokusera på de områden där du svarade fel.';
+            } else if (percentage >= 40) {
+                return 'Du är på rätt väg, men behöver studera materialet mer noggrant. Ta dig tid att gå igenom texten igen och anteckna viktiga punkter.';
+            } else {
+                return 'Du behöver lägga mer tid på att studera materialet. Försök att bryta ner informationen i mindre delar och fokusera på huvudpunkterna först.';
+            }
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function restartApp() {
+            // Reset all state
+            selectedFile = null;
+            documentId = null;
+            quizSessionId = null;
+            quizData = null;
+            currentQuestion = 0;
+            userAnswers = [];
+            score = 0;
+            answered = false;
+
+            // Reset UI
+            removeFile();
+            generateBtn.disabled = true;
+            hideError();
+
+            // Reset loading steps
+            document.querySelectorAll('.loading-step').forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index === 0) {
+                    step.classList.add('completed');
+                    step.querySelector('.step-icon').textContent = '✓';
+                } else if (index === 1) {
+                    step.classList.add('active');
+                    step.querySelector('.step-icon').textContent = '⚙';
+                } else {
+                    step.querySelector('.step-icon').textContent = '○';
+                }
+            });
+
+            // Show upload section
+            showSection('upload-section');
+        }
+    </script>
+</body>
+</html>
