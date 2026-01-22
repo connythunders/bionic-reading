@@ -1,10 +1,9 @@
-const Anthropic = require('@anthropic-ai/sdk');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 class AIEvaluator {
   constructor() {
-    this.client = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
   }
 
   /**
@@ -52,16 +51,11 @@ SPRÅK: Svenska
 FORMAT: Löpande text i paragrafer. INGEN markdown, INGA punktlistor, INGA rubriker.`;
 
     try {
-      const message = await this.client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 1024,
-        messages: [{
-          role: 'user',
-          content: prompt
-        }]
-      });
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
 
-      return message.content[0].text.trim();
+      return text.trim();
     } catch (error) {
       console.error('AI Evaluation Error:', error);
       // Fallback feedback om AI-anropet misslyckas

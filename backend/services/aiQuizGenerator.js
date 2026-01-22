@@ -1,14 +1,13 @@
-const Anthropic = require('@anthropic-ai/sdk');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 class AIQuizGenerator {
   constructor() {
-    this.client = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY
-    });
+    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
   }
 
   /**
-   * Genererar quiz-frågor från text med Claude AI
+   * Genererar quiz-frågor från text med Google Gemini AI
    * @param {string} text - Text att skapa quiz från
    * @param {number} questionCount - Antal frågor (standard: 25)
    * @returns {Promise<Array>} - Array av quiz-frågor
@@ -62,16 +61,10 @@ ${truncatedText}
 Returnera ENDAST JSON-arrayen med exakt ${questionCount} frågor. Ingen annan text.`;
 
     try {
-      const message = await this.client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 8192,
-        messages: [{
-          role: 'user',
-          content: prompt
-        }]
-      });
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      const content = response.text();
 
-      const content = message.content[0].text;
       const questions = this.parseQuestions(content, questionCount);
 
       return questions;
@@ -90,8 +83,11 @@ Returnera ENDAST JSON-arrayen med exakt ${questionCount} frågor. Ingen annan te
   parseQuestions(content, expectedCount) {
     try {
       // Extrahera JSON från svaret
+      // Ta bort eventuella markdown code blocks
+      let cleanedContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+
       // Försök först hitta JSON direkt
-      let jsonMatch = content.match(/\[[\s\S]*\]/);
+      let jsonMatch = cleanedContent.match(/\[[\s\S]*\]/);
 
       if (!jsonMatch) {
         // Om ingen JSON hittas, kasta fel
