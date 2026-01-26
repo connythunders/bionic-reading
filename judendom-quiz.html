@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz om Judendomen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(
+                135deg,
+                #1a237e 0%,
+                #303f9f 25%,
+                #3949ab 50%,
+                #5c6bc0 75%,
+                #7986cb 100%
+            );
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quiz-header h1 {
+            color: #1a237e;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress {
+            margin-top: 20px;
+        }
+
+        .progress p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1a237e, #3949ab, #5c6bc0, #7986cb);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .quiz-content {
+            margin-top: 30px;
+        }
+
+        .question-section h2 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .answer-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .answer-option {
+            background: #f8f8f8;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .answer-option:hover {
+            background: #e8e8f8;
+            border-color: #3949ab;
+            transform: translateX(5px);
+        }
+
+        .answer-option.selected {
+            background: #d0e8ff;
+            border-color: #3949ab;
+        }
+
+        .answer-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .answer-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .answer-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .quiz-controls {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+            color: white;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 35, 126, 0.4);
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #5c6bc0 0%, #3949ab 100%);
+            color: white;
+            font-size: 1.2em;
+            padding: 15px 40px;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(57, 73, 171, 0.4);
+        }
+
+        .results-section {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .results-section h2 {
+            color: #1a237e;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+
+        .results-content {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .score {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .percentage {
+            font-size: 1.5em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .feedback {
+            font-size: 1.2em;
+            color: #555;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 5px solid #1a237e;
+        }
+
+        @media (max-width: 600px) {
+            .quiz-container {
+                padding: 20px;
+            }
+
+            .quiz-header h1 {
+                font-size: 1.8em;
+            }
+
+            .question-section h2 {
+                font-size: 1.2em;
+            }
+
+            .answer-option {
+                font-size: 1em;
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1>Quiz om Judendomen</h1>
+            <div class="progress">
+                <p>Fråga <span id="current-question">1</span> av <span id="total-questions">15</span></p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="quiz-content" class="quiz-content">
+            <div class="question-section">
+                <h2 id="question-text"></h2>
+                <div id="answer-options" class="answer-options"></div>
+            </div>
+
+            <div class="quiz-controls">
+                <button id="next-btn" class="btn btn-next" style="display: none;">Nästa fråga</button>
+            </div>
+        </div>
+
+        <div id="results-section" class="results-section" style="display: none;">
+            <h2>Quiz Slutförd!</h2>
+            <div class="results-content">
+                <p class="score">Du fick <span id="score"></span> av <span id="total"></span> rätt!</p>
+                <p class="percentage">Det är <span id="percentage"></span>%</p>
+                <div id="feedback" class="feedback"></div>
+                <button id="restart-btn" class="btn btn-restart">Gör om quizet</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz om Judendomen
+        const quizData = [
+            {
+                question: "Vad heter judendomens heliga skrift?",
+                options: ["Bibeln", "Koranen", "Toran", "Vedorna"],
+                correct: 2
+            },
+            {
+                question: "Vem betraktas som judendomens stamfader?",
+                options: ["Mose", "Abraham", "David", "Salomo"],
+                correct: 1
+            },
+            {
+                question: "Vad kallas den judiska vilodagen?",
+                options: ["Söndag", "Fredag", "Sabbat", "Pesach"],
+                correct: 2
+            },
+            {
+                question: "Vilken högtid firar judarna till minne av uttåget ur Egypten?",
+                options: ["Chanukka", "Pesach", "Yom Kippur", "Purim"],
+                correct: 1
+            },
+            {
+                question: "Vad kallas den sjuarmade ljusstaken som är en viktig symbol inom judendomen?",
+                options: ["Chanukkia", "Menora", "Kippa", "Mezuza"],
+                correct: 1
+            },
+            {
+                question: "Vad heter den lilla huvudbonaden som judiska män ofta bär?",
+                options: ["Tallit", "Tefillin", "Kippa", "Tzitzit"],
+                correct: 2
+            },
+            {
+                question: "Vilken profet ledde israeliterna ut ur Egypten enligt judisk tradition?",
+                options: ["Abraham", "Jakob", "Mose", "Elia"],
+                correct: 2
+            },
+            {
+                question: "Vad kallas judendomens försoningsdag, den heligaste dagen på året?",
+                options: ["Rosh Hashana", "Yom Kippur", "Sukkot", "Shavuot"],
+                correct: 1
+            },
+            {
+                question: "Vad kallas den judiska platsen för gudstjänst?",
+                options: ["Moské", "Kyrka", "Synagoga", "Tempel"],
+                correct: 2
+            },
+            {
+                question: "Hur många bud finns det i Toran enligt judisk tradition?",
+                options: ["10", "100", "613", "1000"],
+                correct: 2
+            },
+            {
+                question: "Vad kallas den judiska åttadagarshögtiden som kallas 'ljusets fest'?",
+                options: ["Pesach", "Purim", "Chanukka", "Sukkot"],
+                correct: 2
+            },
+            {
+                question: "Vilken symbol är mest förknippad med judendomen?",
+                options: ["Korset", "Halvmånen", "Davidsstjärnan", "Om-symbolen"],
+                correct: 2
+            },
+            {
+                question: "Vad kallas ceremonin när en judisk pojke blir religiöst myndig vid 13 års ålder?",
+                options: ["Brit mila", "Bar mitzva", "Bat mitzva", "Kiddush"],
+                correct: 1
+            },
+            {
+                question: "Vad kallas det judiska nyåret?",
+                options: ["Yom Kippur", "Pesach", "Rosh Hashana", "Chanukka"],
+                correct: 2
+            },
+            {
+                question: "Vad är kosher inom judendomen?",
+                options: ["En bön", "Matregler om vad som är tillåtet att äta", "En högtid", "En religiös ledare"],
+                correct: 1
+            }
+        ];
+
+        class Quiz {
+            constructor(data) {
+                this.data = data;
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.answered = false;
+                this.init();
+            }
+
+            init() {
+                this.questionText = document.getElementById('question-text');
+                this.answerOptions = document.getElementById('answer-options');
+                this.nextBtn = document.getElementById('next-btn');
+                this.currentQuestionSpan = document.getElementById('current-question');
+                this.totalQuestionsSpan = document.getElementById('total-questions');
+                this.progressFill = document.getElementById('progress-fill');
+                this.quizContent = document.getElementById('quiz-content');
+                this.resultsSection = document.getElementById('results-section');
+                this.restartBtn = document.getElementById('restart-btn');
+
+                this.totalQuestionsSpan.textContent = this.data.length;
+
+                this.nextBtn.addEventListener('click', () => this.nextQuestion());
+                this.restartBtn.addEventListener('click', () => this.restart());
+
+                this.loadQuestion();
+            }
+
+            loadQuestion() {
+                if (this.currentQuestion >= this.data.length) {
+                    this.showResults();
+                    return;
+                }
+
+                this.answered = false;
+                const question = this.data[this.currentQuestion];
+
+                this.questionText.textContent = question.question;
+                this.currentQuestionSpan.textContent = this.currentQuestion + 1;
+
+                const progress = ((this.currentQuestion) / this.data.length) * 100;
+                this.progressFill.style.width = progress + '%';
+
+                this.answerOptions.innerHTML = '';
+
+                question.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'answer-option';
+                    button.textContent = option;
+                    button.addEventListener('click', () => this.selectAnswer(index));
+                    this.answerOptions.appendChild(button);
+                });
+
+                this.nextBtn.style.display = 'none';
+            }
+
+            selectAnswer(selectedIndex) {
+                if (this.answered) return;
+
+                this.answered = true;
+                const question = this.data[this.currentQuestion];
+                const options = this.answerOptions.querySelectorAll('.answer-option');
+
+                options.forEach((option, index) => {
+                    option.classList.add('disabled');
+
+                    if (index === question.correct) {
+                        option.classList.add('correct');
+                    }
+
+                    if (index === selectedIndex && selectedIndex !== question.correct) {
+                        option.classList.add('incorrect');
+                    }
+                });
+
+                if (selectedIndex === question.correct) {
+                    this.score++;
+                }
+
+                this.nextBtn.style.display = 'block';
+            }
+
+            nextQuestion() {
+                this.currentQuestion++;
+                this.loadQuestion();
+            }
+
+            showResults() {
+                this.quizContent.style.display = 'none';
+                this.resultsSection.style.display = 'block';
+
+                const scoreSpan = document.getElementById('score');
+                const totalSpan = document.getElementById('total');
+                const percentageSpan = document.getElementById('percentage');
+                const feedbackDiv = document.getElementById('feedback');
+
+                scoreSpan.textContent = this.score;
+                totalSpan.textContent = this.data.length;
+
+                const percentage = Math.round((this.score / this.data.length) * 100);
+                percentageSpan.textContent = percentage;
+
+                let feedback = '';
+                if (percentage === 100) {
+                    feedback = 'Perfekt! Du är en expert på judendomen!';
+                } else if (percentage >= 80) {
+                    feedback = 'Utmärkt! Du har mycket goda kunskaper om judendomen!';
+                } else if (percentage >= 60) {
+                    feedback = 'Bra jobbat! Du har goda grundkunskaper!';
+                } else if (percentage >= 40) {
+                    feedback = 'Okej resultat! Läs på lite mer så kommer du bli bättre!';
+                } else {
+                    feedback = 'Du behöver studera mer om judendomen. Försök igen!';
+                }
+
+                feedbackDiv.textContent = feedback;
+            }
+
+            restart() {
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.answered = false;
+
+                this.quizContent.style.display = 'block';
+                this.resultsSection.style.display = 'none';
+
+                this.loadQuestion();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new Quiz(quizData);
+        });
+    </script>
+</body>
+</html>
