@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibelns tillkomst och innehåll - Interaktivt Läromedel för Åk 7-9</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #7b3f00;
+            --primary-light: #a0522d;
+            --secondary: #c49a6c;
+            --accent: #8b6914;
+            --text-dark: #1a1a1a;
+            --text-light: #555;
+            --bg-light: #faf6f0;
+            --bg-white: #ffffff;
+            --border: #e0d5c8;
+            --success: #4caf50;
+            --ot-color: #6b4226;
+            --nt-color: #2c5f7c;
+            --timeline-color: #8b6914;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #8b6914 0%, #7b3f00 50%, #5c3317 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--accent) 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+            position: relative;
+        }
+
+        .header .book-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: var(--bg-light);
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 18px 24px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: rgba(123, 63, 0, 0.05);
+            color: var(--primary);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: white;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--secondary);
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: var(--primary);
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+
+        h4 {
+            color: var(--primary-light);
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-dark);
+            font-size: 1.1em;
+        }
+
+        /* Info Cards */
+        .info-card {
+            background: var(--bg-light);
+            border-left: 5px solid var(--secondary);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .info-card.highlight {
+            background: linear-gradient(135deg, #fdf6e3 0%, #faf0d7 100%);
+            border-left-color: var(--accent);
+        }
+
+        .info-card.ot {
+            border-left-color: var(--ot-color);
+            background: linear-gradient(135deg, #f5ebe0 0%, #faf6f0 100%);
+        }
+
+        .info-card.nt {
+            border-left-color: var(--nt-color);
+            background: linear-gradient(135deg, #e8f0f5 0%, #f0f6fa 100%);
+        }
+
+        .info-card strong {
+            color: var(--primary);
+        }
+
+        /* Key concept box */
+        .key-concept {
+            background: linear-gradient(135deg, #fdf6e3 0%, #fff8e7 100%);
+            border: 2px solid var(--accent);
+            padding: 20px 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .key-concept::before {
+            content: 'Nyckelbegrepp';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--accent);
+            color: white;
+            padding: 2px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .key-concept ul {
+            margin: 10px 0 0 20px;
+        }
+
+        .key-concept li {
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        /* Book Grid */
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .book-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            border-color: var(--primary);
+        }
+
+        .book-card .card-icon {
+            font-size: 2.5em;
+            margin-bottom: 12px;
+        }
+
+        .book-card h4 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 1.2em;
+        }
+
+        .book-card p {
+            font-size: 1em;
+            color: var(--text-light);
+        }
+
+        .book-card.ot-card {
+            border-top: 4px solid var(--ot-color);
+        }
+
+        .book-card.nt-card {
+            border-top: 4px solid var(--nt-color);
+        }
+
+        /* Two-column layout */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 25px 0;
+        }
+
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+            .nav-tab {
+                padding: 14px 16px;
+                font-size: 13px;
+            }
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .content {
+                padding: 25px;
+            }
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 18px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--ot-color), var(--accent), var(--nt-color));
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 25px 0 25px 55px;
+            padding: 20px 25px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -49px;
+            top: 24px;
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px var(--primary);
+        }
+
+        .timeline-item.ot-item {
+            border-left-color: var(--ot-color);
+        }
+
+        .timeline-item.ot-item::before {
+            background: var(--ot-color);
+            box-shadow: 0 0 0 3px var(--ot-color);
+        }
+
+        .timeline-item.nt-item {
+            border-left-color: var(--nt-color);
+        }
+
+        .timeline-item.nt-item::before {
+            background: var(--nt-color);
+            box-shadow: 0 0 0 3px var(--nt-color);
+        }
+
+        .timeline-item.canon-item {
+            border-left-color: var(--accent);
+        }
+
+        .timeline-item.canon-item::before {
+            background: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent);
+        }
+
+        .timeline-year {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.15em;
+            margin-bottom: 8px;
+        }
+
+        .timeline-item p {
+            margin-bottom: 0;
+            font-size: 1em;
+        }
+
+        /* Interactive Quiz */
+        .quiz-container {
+            background: var(--bg-light);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .quiz-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .quiz-progress .progress-text {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .quiz-progress .score {
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .quiz-question {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            background: white;
+            padding: 18px 22px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.05em;
+            text-align: left;
+        }
+
+        .quiz-option:hover:not(.disabled) {
+            border-color: var(--primary);
+            background: rgba(123, 63, 0, 0.04);
+        }
+
+        .quiz-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .quiz-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .quiz-option.disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        .quiz-feedback {
+            margin-top: 15px;
+            padding: 18px;
+            border-radius: 10px;
+            display: none;
+            font-size: 1em;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .quiz-feedback.incorrect {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .quiz-nav {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .quiz-nav button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-nav button:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .quiz-nav button:disabled {
+            background: #ccc;
+            cursor: default;
+            transform: none;
+        }
+
+        .quiz-result {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+        .quiz-result h3 {
+            margin-top: 0;
+        }
+
+        .quiz-result .result-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        /* Reflection Box */
+        .reflection-box {
+            background: linear-gradient(135deg, #fdf6e3 0%, #faf0d7 100%);
+            border: 2px solid var(--accent);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .reflection-box h3 {
+            color: var(--accent);
+            margin-top: 0;
+        }
+
+        .reflection-box textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1em;
+            resize: vertical;
+            margin-top: 10px;
+        }
+
+        .reflection-box textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Fact box */
+        .fact-box {
+            background: linear-gradient(135deg, #fff8e7 0%, #fdf2d4 100%);
+            border: 2px solid var(--secondary);
+            border-radius: 12px;
+            padding: 20px 25px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .fact-box::before {
+            content: 'Visste du att...';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--secondary);
+            color: white;
+            padding: 2px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .fact-box p {
+            margin-top: 5px;
+            margin-bottom: 0;
+        }
+
+        /* Compare table */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .compare-table th {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .compare-table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-dark);
+        }
+
+        .compare-table tr:nth-child(even) {
+            background: var(--bg-light);
+        }
+
+        .compare-table tr:hover {
+            background: rgba(123, 63, 0, 0.04);
+        }
+
+        /* Matching exercise */
+        .matching-exercise {
+            margin: 25px 0;
+        }
+
+        .match-pairs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .match-item {
+            padding: 15px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            text-align: center;
+            user-select: none;
+        }
+
+        .match-left {
+            background: #f5ebe0;
+            border: 2px solid var(--ot-color);
+            color: var(--ot-color);
+            font-weight: 600;
+        }
+
+        .match-right {
+            background: #e8f0f5;
+            border: 2px solid var(--nt-color);
+            color: var(--nt-color);
+        }
+
+        .match-item.selected {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .match-item.matched {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+            cursor: default;
+        }
+
+        .match-item.wrong {
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .match-result {
+            text-align: center;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 10px;
+            display: none;
+            font-weight: 600;
+        }
+
+        /* Expandable sections */
+        .expandable {
+            margin: 15px 0;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            padding: 18px 22px;
+            background: var(--bg-light);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--primary);
+            transition: background 0.3s ease;
+        }
+
+        .expandable-header:hover {
+            background: rgba(123, 63, 0, 0.06);
+        }
+
+        .expandable-header .arrow {
+            transition: transform 0.3s ease;
+            font-size: 1.2em;
+        }
+
+        .expandable-header.open .arrow {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            padding: 0 22px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s ease;
+        }
+
+        .expandable-content.open {
+            padding: 20px 22px;
+            max-height: 800px;
+        }
+
+        /* Print */
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; }
+            .nav-tabs { display: none; }
+            .section { display: block !important; page-break-inside: avoid; }
+            .quiz-option { border: 1px solid #ccc; }
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-light);
+            padding: 20px 40px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9em;
+            border-top: 2px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="book-icon">&#128216;</div>
+            <h1>Bibelns tillkomst och innehåll</h1>
+            <p class="subtitle">Kristendom - Interaktivt läromedel för årskurs 7-9</p>
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('intro', event)">Introduktion</button>
+            <button class="nav-tab" onclick="showSection('gt', event)">Gamla testamentet</button>
+            <button class="nav-tab" onclick="showSection('nt', event)">Nya testamentet</button>
+            <button class="nav-tab" onclick="showSection('tillkomst', event)">Bibelns tillkomst</button>
+            <button class="nav-tab" onclick="showSection('betydelse', event)">Bibeln idag</button>
+            <button class="nav-tab" onclick="showSection('ovningar', event)">Quiz &amp; Övningar</button>
+        </div>
+
+        <div class="content">
+
+            <!-- ============================================== -->
+            <!-- SEKTION 1: INTRODUKTION                        -->
+            <!-- ============================================== -->
+            <div id="intro" class="section active">
+                <h2>Vad är Bibeln?</h2>
+
+                <p>Tänk dig att du hittar en bokhylla med 66 böcker, skrivna av helt olika
+                    författare under mer än tusen år. Böckerna innehåller allt från dramatiska
+                    berättelser och kärlekspoesi till lagtexter och brev. Trots att de är så
+                    olika bildar de tillsammans en helhet som har förändrat världen. Den
+                    bokhyllan - det är Bibeln.</p>
+
+                <div class="info-card highlight">
+                    <strong>Ordet "Bibel"</strong> kommer från det grekiska ordet <em>biblia</em>,
+                    som helt enkelt betyder "böckerna". Bibeln är alltså inte en enda bok - den
+                    är ett helt bibliotek av texter samlade mellan två pärmar.
+                </div>
+
+                <h3>Bibelns uppbyggnad</h3>
+                <p>Bibeln är uppdelad i två huvuddelar:</p>
+
+                <div class="two-columns">
+                    <div class="book-card ot-card">
+                        <div class="card-icon">&#128220;</div>
+                        <h4>Gamla testamentet (GT)</h4>
+                        <p><strong>39 böcker</strong> som handlar om skapelsen, det judiska
+                            folkets historia, Guds lagar och profeternas budskap. Dessa texter
+                            delas av judar och kristna.</p>
+                        <p><em>Skrevs ca 1200-165 f.Kr.</em></p>
+                    </div>
+                    <div class="book-card nt-card">
+                        <div class="card-icon">&#128214;</div>
+                        <h4>Nya testamentet (NT)</h4>
+                        <p><strong>27 böcker</strong> som handlar om Jesus liv, den tidiga
+                            kyrkans historia och brev till de första kristna församlingarna.</p>
+                        <p><em>Skrevs ca 50-100 e.Kr.</em></p>
+                    </div>
+                </div>
+
+                <div class="key-concept">
+                    <ul>
+                        <li><strong>Testamente</strong> - betyder "förbund" eller "avtal", alltså ett löfte mellan Gud och människorna</li>
+                        <li><strong>Kanon</strong> - de texter som officiellt godkänts som heliga skrifter</li>
+                        <li><strong>Evangelium</strong> - betyder "goda nyheter", syftar på berättelserna om Jesus</li>
+                        <li><strong>Profet</strong> - en person som talar å Guds vägnar</li>
+                    </ul>
+                </div>
+
+                <div class="fact-box">
+                    <p>Bibeln är den mest spridda boken i världshistorien. Den har översatts
+                        till över 700 språk i sin helhet, och delar av den finns på över 3 500
+                        språk. Varje år trycks uppskattningsvis 100 miljoner exemplar.</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>Fundera...</h3>
+                    <p>Varför tror du att en så gammal text fortfarande är viktig för så många
+                        människor idag? Skriv ner dina tankar:</p>
+                    <textarea placeholder="Skriv dina tankar här..."></textarea>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- SEKTION 2: GAMLA TESTAMENTET                   -->
+            <!-- ============================================== -->
+            <div id="gt" class="section">
+                <h2>Gamla testamentet</h2>
+
+                <p>Gamla testamentet (GT) är den äldre och större delen av Bibeln. Texterna
+                    är heliga för både judar och kristna. I judendomen kallas dessa texter
+                    <strong>Tanakh</strong>. De berättar om världens skapelse, det judiska
+                    folkets historia och Guds förhållande till människorna.</p>
+
+                <h3>Gamla testamentets delar</h3>
+                <p>De 39 böckerna i GT brukar delas in i fyra grupper:</p>
+
+                <div class="book-grid">
+                    <div class="book-card ot-card">
+                        <div class="card-icon">&#128216;</div>
+                        <h4>Moseböckerna (1-5 Mos)</h4>
+                        <p>De fem första böckerna - kallas även <em>Torah</em> eller
+                            <em>Pentateuken</em>. Innehåller skapelseberättelsen, berättelsen
+                            om Adam och Eva, Noa, Abraham, Mose och uttåget ur Egypten, samt
+                            de tio budorden och andra lagar.</p>
+                    </div>
+                    <div class="book-card ot-card">
+                        <div class="card-icon">&#9876;</div>
+                        <h4>Historiska böcker</h4>
+                        <p>Berättar om Israels historia - erövringen av Kanaan, kungarna
+                            (Saul, David, Salomo), templets byggande, och folkets exil i
+                            Babylon. Hit hör t.ex. Josua, Domarboken, Samuelsboken och
+                            Kungaböckerna.</p>
+                    </div>
+                    <div class="book-card ot-card">
+                        <div class="card-icon">&#127926;</div>
+                        <h4>Poetiska böcker</h4>
+                        <p>Visdomslitteratur och poesi - Psaltaren (150 psalmer/sånger), Jobs
+                            bok (om lidande), Ordspråksboken (livsvisdom) och Höga visan
+                            (kärlekspoesi).</p>
+                    </div>
+                    <div class="book-card ot-card">
+                        <div class="card-icon">&#128227;</div>
+                        <h4>Profetböcker</h4>
+                        <p>Budskap från profeter som Jesaja, Jeremia, Hesekiel och Daniel,
+                            samt de tolv "mindre profeterna". Profeterna varnade folket,
+                            krävde rättvisa och talade om framtiden.</p>
+                    </div>
+                </div>
+
+                <h3>Centrala berättelser i GT</h3>
+
+                <div class="expandable">
+                    <div class="expandable-header" onclick="toggleExpand(this)">
+                        Skapelseberättelsen (1 Mos 1-2)
+                        <span class="arrow">&#9660;</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>Bibeln börjar med att Gud skapar världen på sex dagar och vilar den
+                            sjunde. Berättelsen beskriver hur ljuset, himlen, havet, djuren
+                            och till sist människan skapas. "Och Gud såg att det var gott."</p>
+                        <p>Den andra skapelseberättelsen fokuserar på människan - Adam formas
+                            av jord och Eva skapas ur hans revben. De lever i Edens lustgård
+                            tills de äter av kunskapens frukt.</p>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <div class="expandable-header" onclick="toggleExpand(this)">
+                        Noa och syndafloden (1 Mos 6-9)
+                        <span class="arrow">&#9660;</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>Gud ser att människorna blivit onda och ångrar att han skapat dem.
+                            Men Noa är en rättfärdig man. Gud ber Noa bygga en ark och ta med
+                            sig djurpar av alla arter. En stor flod dränker allt liv, men Noa
+                            och djuren överlever. Efteråt lovar Gud att aldrig mer förgöra
+                            jorden med vatten - regnbågen blir tecknet på det löftet.</p>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <div class="expandable-header" onclick="toggleExpand(this)">
+                        Abraham - trons fader (1 Mos 12-25)
+                        <span class="arrow">&#9660;</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>Abraham kallas av Gud att lämna sitt hem och resa till ett nytt
+                            land. Gud lovar att göra Abraham till fader för ett stort folk.
+                            Trots att Abraham och Sara är mycket gamla får de sonen Isak.
+                            Abraham betraktas som stamfar inom judendom, kristendom och islam.</p>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <div class="expandable-header" onclick="toggleExpand(this)">
+                        Mose och uttåget ur Egypten (2 Mos)
+                        <span class="arrow">&#9660;</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>Israeliterna är slavar i Egypten. Gud kallar Mose att leda folket
+                            till frihet. Efter tio plågor släpper farao folket. Havet delas och
+                            israeliterna vandrar genom på torr mark. Vid berget Sinai ger Gud
+                            de tio budorden till Mose. Folket vandrar sedan 40 år i öknen
+                            innan de når det utlovade landet.</p>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <div class="expandable-header" onclick="toggleExpand(this)">
+                        Kung David (1-2 Sam)
+                        <span class="arrow">&#9660;</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>David är en fåraherde som som ung besegrar jätten Goljat med en
+                            slungsten. Han blir Israels mest berömde kung och enar riket.
+                            David beskrivs som "en man efter Guds hjärta", men gör också stora
+                            misstag. Många psalmer i Psaltaren tillskrivs honom.</p>
+                    </div>
+                </div>
+
+                <div class="fact-box">
+                    <p>Gamla testamentet skrevs huvudsakligen på <strong>hebreiska</strong>,
+                        med några delar på <strong>arameiska</strong>. Det var inte skrivet
+                        med vokaler - läsaren fick själv lägga till dem!</p>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- SEKTION 3: NYA TESTAMENTET                     -->
+            <!-- ============================================== -->
+            <div id="nt" class="section">
+                <h2>Nya testamentet</h2>
+
+                <p>Nya testamentet (NT) är den del av Bibeln som är unik för kristendomen.
+                    Texterna handlar om Jesus från Nasaret - hans liv, undervisning, död och
+                    uppståndelse - samt den tidiga kristna kyrkans framväxt. Allt skrevs på
+                    <strong>grekiska</strong>, som var det vanligaste språket i Medelhavsområdet
+                    vid den tiden.</p>
+
+                <h3>Nya testamentets delar</h3>
+
+                <div class="book-grid">
+                    <div class="book-card nt-card">
+                        <div class="card-icon">&#128220;</div>
+                        <h4>De fyra evangelierna</h4>
+                        <p><strong>Matteus, Markus, Lukas och Johannes</strong> - Fyra
+                            författare berättar om Jesus liv ur lite olika perspektiv.
+                            Markus är kortast och troligen äldst. Johannes är mest
+                            teologiskt reflekterande.</p>
+                    </div>
+                    <div class="book-card nt-card">
+                        <div class="card-icon">&#127758;</div>
+                        <h4>Apostlagärningarna</h4>
+                        <p>En fortsättning på Lukasevangeliet som berättar hur de första
+                            kristna spred sin tro från Jerusalem ut i Romarriket. Vi följer
+                            särskilt Petrus och Paulus resor.</p>
+                    </div>
+                    <div class="book-card nt-card">
+                        <div class="card-icon">&#9993;</div>
+                        <h4>Breven (epistlarna)</h4>
+                        <p><strong>21 brev</strong> skrivna till tidiga kristna församlingar
+                            och individer. De flesta är skrivna av Paulus och behandlar
+                            teologiska frågor, etik och vardagslivet som kristen.</p>
+                    </div>
+                    <div class="book-card nt-card">
+                        <div class="card-icon">&#128302;</div>
+                        <h4>Uppenbarelseboken</h4>
+                        <p>Bibelns sista bok - en apokalyptisk text full av symboler och
+                            visioner om de sista tiderna. Troligen skriven under en tid av
+                            förföljelse för att ge hopp åt de kristna.</p>
+                    </div>
+                </div>
+
+                <h3>De fyra evangelierna - en jämförelse</h3>
+
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th>Evangelium</th>
+                            <th>Ca år</th>
+                            <th>Målgrupp</th>
+                            <th>Kännetecken</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Markus</strong></td>
+                            <td>65-70 e.Kr.</td>
+                            <td>Kristna i Rom</td>
+                            <td>Kortast, mest handlingsinriktat. Jesus som den lidande tjänaren.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Matteus</strong></td>
+                            <td>80-90 e.Kr.</td>
+                            <td>Judekristna</td>
+                            <td>Många GT-hänvisningar. Jesus som den nye Mose. Bergspredikan.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lukas</strong></td>
+                            <td>80-90 e.Kr.</td>
+                            <td>Icke-judar (hedningar)</td>
+                            <td>Historiskt berättande. Fokus på fattiga, kvinnor, utstötta.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Johannes</strong></td>
+                            <td>90-100 e.Kr.</td>
+                            <td>Kristna församlingar</td>
+                            <td>Mest teologiskt. Jesus som "Guds Ord". Unika berättelser.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Centralt i Nya testamentet</h3>
+
+                <div class="expandable">
+                    <div class="expandable-header" onclick="toggleExpand(this)">
+                        Jesus födelse och barndom
+                        <span class="arrow">&#9660;</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>Enligt Matteus och Lukas föds Jesus i Betlehem av jungfru Maria.
+                            Änglar förkunnar hans födelse för herdar, och visa män från
+                            österlandet kommer med gåvor. Familjen flyr till Egypten för att
+                            undkomma kung Herodes. Jesus växer upp i Nasaret.</p>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <div class="expandable-header" onclick="toggleExpand(this)">
+                        Jesus undervisning
+                        <span class="arrow">&#9660;</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>Jesus undervisar genom <strong>liknelser</strong> - korta berättelser
+                            med ett djupare budskap. Han talar om Guds rike, kärlek till nästan,
+                            förlåtelse och rättvisa. Bergspredikan (Matt 5-7) samlar hans mest
+                            kända undervisning, inklusive "Saliga är de fattiga i anden" och
+                            Herrens bön (Fader vår).</p>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <div class="expandable-header" onclick="toggleExpand(this)">
+                        Korsfästelsen och uppståndelsen
+                        <span class="arrow">&#9660;</span>
+                    </div>
+                    <div class="expandable-content">
+                        <p>Jesus grips, ställs inför rätta och korsfästs av romarna i
+                            Jerusalem. Han dör på korset och begravs i en klippgrav. Tre
+                            dagar senare, på söndagsmorgonen, är graven tom. Enligt
+                            evangelierna visar sig den uppståndne Jesus för sina lärjungar.
+                            Uppståndelsen är den centrala händelsen i kristen tro.</p>
+                    </div>
+                </div>
+
+                <div class="info-card nt">
+                    <strong>Paulus - kristendomens stora missionär:</strong> Paulus (tidigare
+                    Saulus) var en jude som först förföljde de kristna, men efter en dramatisk
+                    upplevelse på vägen till Damaskus blev han kristen. Han reste runt
+                    Medelhavet och grundade församlingar. Hans brev i NT blev grundläggande
+                    för kristen teologi.
+                </div>
+
+                <div class="fact-box">
+                    <p>Nya testamentets texter skrevs inte som en "helig bok" från början.
+                        Evangelierna samlade muntliga berättelser om Jesus, och breven var
+                        verkliga brev skickade till verkliga församlingar med konkreta
+                        problem att lösa!</p>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- SEKTION 4: BIBELNS TILLKOMST (TIDSLINJE)       -->
+            <!-- ============================================== -->
+            <div id="tillkomst" class="section">
+                <h2>Hur Bibeln blev till</h2>
+
+                <p>Bibeln skrevs inte av en person vid ett tillfälle. Den växte fram under
+                    mer än tusen år, genom en fascinerande process av muntligt berättande,
+                    nedskrivning, redigering och slutligen ett urval av vilka texter som
+                    skulle räknas som heliga.</p>
+
+                <h3>Från mun till skrift</h3>
+
+                <div class="info-card highlight">
+                    <p><strong>Tre steg:</strong></p>
+                    <p><strong>1. Muntlig tradition</strong> - Berättelserna levde först som
+                        muntliga traditioner, berättade runt lägereldar och i tempel, ibland
+                        i hundratals år innan de skrevs ner.</p>
+                    <p><strong>2. Nedskrivning</strong> - Olika författare skrev ner
+                        berättelserna, lagarna och profetiorna. Texterna kopierades för hand
+                        på papyrusrullar eller pergament.</p>
+                    <p><strong>3. Kanonbildning</strong> - Religiösa ledare bestämde vilka
+                        texter som var "äkta" heliga skrifter och vilka som inte fick vara
+                        med. Denna process kallas kanonbildning.</p>
+                </div>
+
+                <h3>Tidslinje: Bibelns tillkomst</h3>
+
+                <div class="timeline">
+                    <div class="timeline-item ot-item">
+                        <div class="timeline-year">Ca 1200 f.Kr.</div>
+                        <p>De äldsta berättelserna i GT börjar berättas muntligt - sånger,
+                            lagar och berättelser om patriarkerna (Abraham, Isak, Jakob).</p>
+                    </div>
+
+                    <div class="timeline-item ot-item">
+                        <div class="timeline-year">Ca 1000-900 f.Kr.</div>
+                        <p>De första texterna börjar skrivas ner under kungadömets tid. Kung
+                            Davids och Salomos tid anses vara en period då skriftkultur
+                            utvecklades i Israel.</p>
+                    </div>
+
+                    <div class="timeline-item ot-item">
+                        <div class="timeline-year">Ca 700-600 f.Kr.</div>
+                        <p>Under kung Josias regeringstid "hittas" en lagbok i templet
+                            (troligen en tidig version av 5 Mosebok). Profeterna Jesaja och
+                            Jeremia är verksamma.</p>
+                    </div>
+
+                    <div class="timeline-item ot-item">
+                        <div class="timeline-year">586 f.Kr. - Babyloniska fångenskapen</div>
+                        <p>Jerusalem erövras och folket förs bort till Babylon. Under exilen
+                            blir det extra viktigt att bevara texterna. Mycket av GT
+                            sammanställs och redigeras under denna period.</p>
+                    </div>
+
+                    <div class="timeline-item ot-item">
+                        <div class="timeline-year">Ca 450-400 f.Kr.</div>
+                        <p>Efter återkomsten från Babylon samlas och redigeras Moseböckerna
+                            (Torah) i sin slutgiltiga form under ledning av Esra.</p>
+                    </div>
+
+                    <div class="timeline-item ot-item">
+                        <div class="timeline-year">Ca 250 f.Kr.</div>
+                        <p>GT översätts till grekiska (<em>Septuaginta</em>) i Alexandria,
+                            Egypten. Detta gör texterna tillgängliga för en mycket bredare
+                            publik i den grekisktalande världen.</p>
+                    </div>
+
+                    <div class="timeline-item nt-item">
+                        <div class="timeline-year">Ca 30 e.Kr.</div>
+                        <p>Jesus verkar i Palestina. Hans undervisning sprids muntligt av
+                            hans lärjungar efter korsfästelsen och uppståndelsen.</p>
+                    </div>
+
+                    <div class="timeline-item nt-item">
+                        <div class="timeline-year">Ca 50-65 e.Kr.</div>
+                        <p>Paulus skriver sina brev till församlingar runt Medelhavet. Dessa
+                            är de äldsta texterna i NT - äldre än evangelierna!</p>
+                    </div>
+
+                    <div class="timeline-item nt-item">
+                        <div class="timeline-year">Ca 65-100 e.Kr.</div>
+                        <p>Evangelierna skrivs: först Markus (ca 65-70), sedan Matteus och
+                            Lukas (ca 80-90), sist Johannes (ca 90-100).</p>
+                    </div>
+
+                    <div class="timeline-item canon-item">
+                        <div class="timeline-year">Ca 90 e.Kr. - Jamnia</div>
+                        <p>Judiska lärda fastställer den judiska kanon - vilka böcker som
+                            hör till Tanakh. De 39 böckerna i GT fastställs.</p>
+                    </div>
+
+                    <div class="timeline-item canon-item">
+                        <div class="timeline-year">300-talet e.Kr.</div>
+                        <p>Den kristna kyrkan diskuterar vilka böcker som ska ingå i NT.
+                            Biskop Athanasius listar år 367 de 27 böcker som vi har idag.</p>
+                    </div>
+
+                    <div class="timeline-item canon-item">
+                        <div class="timeline-year">397 e.Kr. - Konciliet i Karthago</div>
+                        <p>Den kristna kanon med 27 NT-böcker bekräftas officiellt. Bibeln
+                            som vi känner den är nu komplett.</p>
+                    </div>
+
+                    <div class="timeline-item canon-item">
+                        <div class="timeline-year">Ca 400 e.Kr.</div>
+                        <p>Hieronymus översätter hela Bibeln till latin (<em>Vulgata</em>).
+                            Under medeltiden är detta den dominerande versionen i Europa.</p>
+                    </div>
+
+                    <div class="timeline-item canon-item">
+                        <div class="timeline-year">1455 - Gutenbergs tryckpress</div>
+                        <p>Den första tryckta boken i Europa är Bibeln! Boktryckarkonsten
+                            gör att Bibeln kan spridas till många fler människor.</p>
+                    </div>
+
+                    <div class="timeline-item canon-item">
+                        <div class="timeline-year">1541 - Svenska Bibeln</div>
+                        <p>Den första fullständiga Bibeln på svenska trycks under Gustav
+                            Vasas tid, och kallas därför "Gustav Vasas Bibel".</p>
+                    </div>
+                </div>
+
+                <div class="fact-box">
+                    <p>Innan tryckpressen uppfanns kopierades Bibeln helt för hand av munkar.
+                        En enda kopia kunde ta ett helt år att skriva! De arbetade i rum som
+                        kallades <em>scriptorium</em> och använde fjäderpennor och bläck.</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>Diskutera!</h3>
+                    <p>Hur kan det påverka texterna att de först berättades muntligt i
+                        hundratals år innan de skrevs ner? Vad kan ha ändrats, lagts till
+                        eller försvunnit?</p>
+                    <textarea placeholder="Skriv dina tankar här..."></textarea>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- SEKTION 5: BIBELNS BETYDELSE IDAG              -->
+            <!-- ============================================== -->
+            <div id="betydelse" class="section">
+                <h2>Bibelns betydelse idag</h2>
+
+                <p>Bibeln är inte bara en historisk text - den är en levande bok som
+                    fortfarande spelar en enorm roll i världen. Men hur den läses och tolkas
+                    varierar kraftigt.</p>
+
+                <h3>Olika sätt att läsa Bibeln</h3>
+
+                <div class="book-grid">
+                    <div class="book-card">
+                        <div class="card-icon">&#128209;</div>
+                        <h4>Bokstavlig läsning</h4>
+                        <p>Bibeln läses som exakt sanning, ord för ord. Skapelseberättelsen
+                            beskriver t.ex. exakt hur världen blev till. Vanligt inom
+                            konservativa och evangelikala rörelser.</p>
+                    </div>
+                    <div class="book-card">
+                        <div class="card-icon">&#128300;</div>
+                        <h4>Historisk-kritisk läsning</h4>
+                        <p>Texterna analyseras som historiska dokument. Man frågar: Vem
+                            skrev? När? Varför? Vad är historia och vad är symbol? Vanligt
+                            i akademisk forskning och många kyrkor.</p>
+                    </div>
+                    <div class="book-card">
+                        <div class="card-icon">&#128156;</div>
+                        <h4>Andlig/existentiell läsning</h4>
+                        <p>Fokus ligger på vad texterna kan betyda för ens eget liv och
+                            andliga utveckling. Berättelserna ses som bärare av djupare
+                            sanningar om livet.</p>
+                    </div>
+                </div>
+
+                <h3>Bibeln i Sverige och världen</h3>
+
+                <div class="info-card">
+                    <strong>I Sverige:</strong> Sverige har historiskt varit ett kristet land
+                    med stark koppling till Bibeln. Idag är samhället mer sekulariserat, men
+                    Bibeln har fortfarande inflytande genom kultur, konst, språk och
+                    traditioner. Uttryck som "syndabock", "Davids stjärna", "den gode
+                    samariern" och "vända andra kinden till" kommer från Bibeln.
+                </div>
+
+                <div class="info-card">
+                    <strong>I världen:</strong> Cirka 2,4 miljarder människor - ungefär en
+                    tredjedel av världens befolkning - identifierar sig som kristna. I delar av
+                    Afrika, Sydamerika och Asien växer kristendomen snabbt. Bibeln tolkas och
+                    används på vitt skilda sätt i olika kulturer och sammanhang.
+                </div>
+
+                <h3>Bibeln och de andra abrahamitiska religionerna</h3>
+
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th>Religion</th>
+                            <th>Helig skrift</th>
+                            <th>Relation till Bibeln</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Judendom</strong></td>
+                            <td>Tanakh (+ Talmud)</td>
+                            <td>GT = Tanakh. Samma texter, men annorlunda ordning och tolkning.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kristendom</strong></td>
+                            <td>Bibeln (GT + NT)</td>
+                            <td>GT tolkas i ljuset av Jesus. NT är den kristna kyrkans unika texter.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Islam</strong></td>
+                            <td>Koranen</td>
+                            <td>Erkänner Bibeln som helig men menar att den ändrats. Koranen ses som Guds slutgiltiga ord.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="fact-box">
+                    <p>Många svenska ord och uttryck kommer från Bibeln: "stenkast" (Lukas),
+                        "syndabock" (3 Mosebok), "den som gräver en grop åt andra" (Predikaren),
+                        "att vända andra kinden till" (Matteus). Kan du komma på fler?</p>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>Reflektionsfrågor</h3>
+                    <p>1. Spelar det roll om Bibelns berättelser verkligen hänt, eller är det
+                        budskapet som är det viktiga? Motivera din åsikt.</p>
+                    <p>2. Kan en text som skrevs för tusentals år sedan fortfarande vara
+                        relevant? Varför/varför inte?</p>
+                    <textarea placeholder="Skriv dina reflektioner här..."></textarea>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- SEKTION 6: QUIZ & ÖVNINGAR                     -->
+            <!-- ============================================== -->
+            <div id="ovningar" class="section">
+                <h2>Quiz &amp; Övningar</h2>
+
+                <p>Dags att testa vad du har lärt dig! Här finns ett quiz, en
+                    matchningsövning och fördjupningsfrågor.</p>
+
+                <!-- QUIZ -->
+                <h3>Quiz: Bibelns tillkomst och innehåll</h3>
+                <div class="quiz-container" id="quizContainer">
+                    <div class="quiz-progress">
+                        <span class="progress-text">Fråga <span id="qNum">1</span> av <span id="qTotal">10</span></span>
+                        <span class="score">Poäng: <span id="qScore">0</span></span>
+                    </div>
+                    <div id="quizContent">
+                        <div class="quiz-question" id="quizQuestion"></div>
+                        <div class="quiz-options" id="quizOptions"></div>
+                        <div class="quiz-feedback" id="quizFeedback"></div>
+                        <div class="quiz-nav">
+                            <button id="nextBtn" onclick="nextQuestion()" disabled>Nästa fråga</button>
+                        </div>
+                    </div>
+                    <div class="quiz-result" id="quizResult">
+                        <div class="result-icon" id="resultIcon"></div>
+                        <h3 id="resultTitle"></h3>
+                        <p id="resultText"></p>
+                        <br>
+                        <button onclick="restartQuiz()" style="background:var(--primary);color:white;border:none;padding:12px 28px;border-radius:8px;font-size:1em;font-weight:600;cursor:pointer;">Gör om quizet</button>
+                    </div>
+                </div>
+
+                <!-- MATCHNING -->
+                <h3>Matchningsövning: Koppla ihop rätt!</h3>
+                <p>Klicka på ett begrepp till vänster och sedan på rätt beskrivning till höger.</p>
+
+                <div class="matching-exercise" id="matchExercise">
+                    <div class="match-pairs" id="matchPairs"></div>
+                    <div class="match-result" id="matchResult"></div>
+                </div>
+
+                <!-- FÖRDJUPNING -->
+                <h3>Fördjupningsfrågor</h3>
+
+                <div class="reflection-box">
+                    <h3>Resonera och analysera (E/C/A-nivå)</h3>
+                    <p><strong>E-nivå:</strong> Beskriv Bibelns uppbyggnad. Vilka är de
+                        två huvuddelarna och vad innehåller de?</p>
+                    <p><strong>C-nivå:</strong> Förklara hur Bibeln kom till. Beskriv
+                        processen från muntlig tradition till färdig bok och ge exempel.</p>
+                    <p><strong>A-nivå:</strong> Resonera kring hur olika sätt att läsa Bibeln
+                        (bokstavligt, historisk-kritiskt, andligt) kan leda till olika
+                        slutsatser. Ge konkreta exempel och argumentera för och emot olika
+                        tolkningssätt.</p>
+                    <textarea placeholder="Skriv ditt svar här..." style="min-height: 150px;"></textarea>
+                </div>
+
+                <div class="reflection-box">
+                    <h3>Jämförelseuppgift</h3>
+                    <p>Jämför Bibelns roll i kristendomen med Tanakhs roll i judendomen
+                        och Koranens roll i islam. Vilka likheter och skillnader finns det?
+                        Tänk på hur texterna kom till, hur de används och vilken status de
+                        har.</p>
+                    <textarea placeholder="Skriv ditt svar här..."></textarea>
+                </div>
+            </div>
+
+        </div><!-- end content -->
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <p>Bibelns tillkomst och innehåll - Interaktivt läromedel | Religionskunskap åk 7-9 | Lgr22</p>
+        </div>
+    </div>
+
+    <script>
+        // ============================
+        // NAVIGATION
+        // ============================
+        function showSection(id, evt) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ============================
+        // EXPANDABLE SECTIONS
+        // ============================
+        function toggleExpand(header) {
+            header.classList.toggle('open');
+            const content = header.nextElementSibling;
+            content.classList.toggle('open');
+        }
+
+        // ============================
+        // QUIZ
+        // ============================
+        const quizData = [
+            {
+                question: "Vad betyder ordet 'Bibel'?",
+                options: ["Den heliga boken", "Böckerna", "Guds ord", "Den eviga skriften"],
+                correct: 1,
+                feedback: {
+                    correct: "Rätt! 'Bibel' kommer från grekiskans 'biblia' som betyder 'böckerna'. Bibeln är alltså ett helt bibliotek av texter!",
+                    incorrect: "Inte riktigt. 'Bibel' kommer från grekiskans 'biblia' som betyder 'böckerna'."
+                }
+            },
+            {
+                question: "Hur många böcker innehåller Bibeln totalt (protestantisk tradition)?",
+                options: ["27 böcker", "39 böcker", "66 böcker", "73 böcker"],
+                correct: 2,
+                feedback: {
+                    correct: "Helt rätt! 39 böcker i GT + 27 böcker i NT = 66 böcker totalt.",
+                    incorrect: "Inte riktigt. Bibeln har 39 böcker i GT + 27 böcker i NT = 66 böcker totalt."
+                }
+            },
+            {
+                question: "Vilka är Moseböckerna också kända som?",
+                options: ["Tanakh", "Torah / Pentateuken", "Septuaginta", "Evangelierna"],
+                correct: 1,
+                feedback: {
+                    correct: "Rätt! Moseböckerna kallas Torah (hebreiska) eller Pentateuken (grekiska, 'de fem böckerna').",
+                    incorrect: "Inte riktigt. Moseböckerna kallas Torah (hebreiska) eller Pentateuken (grekiska)."
+                }
+            },
+            {
+                question: "Vilket evangelium anses vara det äldsta?",
+                options: ["Matteus", "Markus", "Lukas", "Johannes"],
+                correct: 1,
+                feedback: {
+                    correct: "Rätt! Markusevangeliet skrevs troligen ca 65-70 e.Kr. och anses vara det äldsta evangeliet.",
+                    incorrect: "Inte riktigt. Markusevangeliet (ca 65-70 e.Kr.) anses vara det äldsta."
+                }
+            },
+            {
+                question: "Vad är de äldsta texterna i Nya testamentet?",
+                options: ["Evangelierna", "Uppenbarelseboken", "Paulus brev", "Apostlagärningarna"],
+                correct: 2,
+                feedback: {
+                    correct: "Helt rätt! Paulus brev skrevs ca 50-65 e.Kr. - alltså innan evangelierna skrevs ner!",
+                    incorrect: "Inte riktigt. Paulus brev (ca 50-65 e.Kr.) är äldre än evangelierna."
+                }
+            },
+            {
+                question: "På vilket språk skrevs Gamla testamentet huvudsakligen?",
+                options: ["Grekiska", "Latin", "Hebreiska", "Arameiska"],
+                correct: 2,
+                feedback: {
+                    correct: "Rätt! GT skrevs huvudsakligen på hebreiska, med vissa delar på arameiska.",
+                    incorrect: "Inte riktigt. GT skrevs huvudsakligen på hebreiska (med delar på arameiska)."
+                }
+            },
+            {
+                question: "Vad kallas den process där man bestämde vilka texter som är heliga?",
+                options: ["Reformation", "Kanonbildning", "Profetia", "Evangelisation"],
+                correct: 1,
+                feedback: {
+                    correct: "Rätt! Kanonbildning är processen där religiösa ledare bestämde vilka texter som skulle ingå i Bibeln.",
+                    incorrect: "Inte riktigt. Det kallas kanonbildning - att bestämma vilka texter som ska räknas som heliga."
+                }
+            },
+            {
+                question: "Vad hände vid den babyloniska fångenskapen (586 f.Kr.)?",
+                options: [
+                    "Jesus föddes i Betlehem",
+                    "Bibeln trycktes för första gången",
+                    "Jerusalem erövrades och folket fördes bort till Babylon",
+                    "Nya testamentet skrevs"
+                ],
+                correct: 2,
+                feedback: {
+                    correct: "Rätt! Jerusalem erövrades och judarna fördes bort till Babylon. Under exilen blev det extra viktigt att bevara texterna.",
+                    incorrect: "Inte riktigt. Vid den babyloniska fångenskapen erövrades Jerusalem och folket fördes bort till Babylon."
+                }
+            },
+            {
+                question: "Vad kallas den första svenska Bibeln (1541)?",
+                options: ["Karl XII:s Bibel", "Gustav Vasas Bibel", "Luthers Bibel", "Uppsalabibeln"],
+                correct: 1,
+                feedback: {
+                    correct: "Rätt! Den första fullständiga svenska Bibeln trycktes 1541 under Gustav Vasas tid.",
+                    incorrect: "Inte riktigt. Den kallas Gustav Vasas Bibel och trycktes 1541."
+                }
+            },
+            {
+                question: "Vad är gemensamt för judendom, kristendom och islam när det gäller Bibeln?",
+                options: [
+                    "Alla tre har exakt samma heliga bok",
+                    "Alla tre erkänner GT:s berättelser och personer som viktiga",
+                    "Ingen av dem anser att Bibeln är viktig",
+                    "Alla tre har Nya testamentet som helig skrift"
+                ],
+                correct: 1,
+                feedback: {
+                    correct: "Rätt! Alla tre abrahamitiska religioner delar viktiga gestalter (Abraham, Mose) och berättelser, även om de tolkar dem olika.",
+                    incorrect: "Inte riktigt. Alla tre abrahamitiska religioner delar viktiga berättelser och gestalter från GT, även om de tolkar dem olika."
+                }
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQuestion];
+            document.getElementById('qNum').textContent = currentQuestion + 1;
+            document.getElementById('qTotal').textContent = quizData.length;
+            document.getElementById('qScore').textContent = score;
+            document.getElementById('quizQuestion').textContent = q.question;
+            document.getElementById('quizFeedback').className = 'quiz-feedback';
+            document.getElementById('quizFeedback').textContent = '';
+            document.getElementById('nextBtn').disabled = true;
+
+            const optionsEl = document.getElementById('quizOptions');
+            optionsEl.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.textContent = opt;
+                btn.onclick = () => selectAnswer(i);
+                optionsEl.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+            answered = true;
+
+            const q = quizData[currentQuestion];
+            const options = document.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById('quizFeedback');
+
+            options.forEach((opt, i) => {
+                opt.classList.add('disabled');
+                if (i === q.correct) opt.classList.add('correct');
+                if (i === index && i !== q.correct) opt.classList.add('incorrect');
+            });
+
+            if (index === q.correct) {
+                score++;
+                document.getElementById('qScore').textContent = score;
+                feedback.className = 'quiz-feedback correct show';
+                feedback.textContent = q.feedback.correct;
+            } else {
+                feedback.className = 'quiz-feedback incorrect show';
+                feedback.textContent = q.feedback.incorrect;
+            }
+
+            document.getElementById('nextBtn').disabled = false;
+            if (currentQuestion === quizData.length - 1) {
+                document.getElementById('nextBtn').textContent = 'Visa resultat';
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion >= quizData.length) {
+                showResult();
+                return;
+            }
+            loadQuestion();
+        }
+
+        function showResult() {
+            document.getElementById('quizContent').style.display = 'none';
+            const result = document.getElementById('quizResult');
+            result.style.display = 'block';
+
+            const pct = Math.round((score / quizData.length) * 100);
+            let icon, title, text;
+
+            if (pct >= 80) {
+                icon = '&#127942;';
+                title = 'Fantastiskt!';
+                text = `Du fick ${score} av ${quizData.length} rätt (${pct}%). Du har riktigt bra koll på Bibelns tillkomst och innehåll!`;
+            } else if (pct >= 50) {
+                icon = '&#128170;';
+                title = 'Bra jobbat!';
+                text = `Du fick ${score} av ${quizData.length} rätt (${pct}%). Du har bra grundkunskaper - läs igenom materialet igen för att fylla i luckorna.`;
+            } else {
+                icon = '&#128218;';
+                title = 'Fortsätt plugga!';
+                text = `Du fick ${score} av ${quizData.length} rätt (${pct}%). Gå tillbaka och läs igenom materialet en gång till - du kommer att lära dig massor!`;
+            }
+
+            document.getElementById('resultIcon').innerHTML = icon;
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultText').textContent = text;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answered = false;
+            document.getElementById('quizContent').style.display = 'block';
+            document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('nextBtn').textContent = 'Nästa fråga';
+            loadQuestion();
+        }
+
+        // ============================
+        // MATCHING EXERCISE
+        // ============================
+        const matchData = [
+            { left: "Torah", right: "Moseböckerna (de fem första böckerna)" },
+            { left: "Evangelium", right: "Berättelse om Jesus liv" },
+            { left: "Kanon", right: "Godkända heliga skrifter" },
+            { left: "Septuaginta", right: "GT översatt till grekiska" },
+            { left: "Paulus", right: "Skrev brev till församlingar" },
+            { left: "Vulgata", right: "Bibelöversättning till latin" }
+        ];
+
+        let selectedLeft = null;
+        let matchedCount = 0;
+
+        function initMatching() {
+            const container = document.getElementById('matchPairs');
+            container.innerHTML = '';
+            matchedCount = 0;
+            selectedLeft = null;
+            document.getElementById('matchResult').style.display = 'none';
+
+            const shuffledRight = [...matchData].sort(() => Math.random() - 0.5);
+
+            const leftCol = document.createElement('div');
+            const rightCol = document.createElement('div');
+
+            matchData.forEach((item, i) => {
+                const leftEl = document.createElement('div');
+                leftEl.className = 'match-item match-left';
+                leftEl.textContent = item.left;
+                leftEl.dataset.index = i;
+                leftEl.onclick = () => selectLeft(leftEl, i);
+                leftCol.appendChild(leftEl);
+            });
+
+            shuffledRight.forEach((item) => {
+                const rightEl = document.createElement('div');
+                rightEl.className = 'match-item match-right';
+                rightEl.textContent = item.right;
+                rightEl.dataset.answer = matchData.indexOf(item);
+                rightEl.onclick = () => selectRight(rightEl, matchData.indexOf(item));
+                rightCol.appendChild(rightEl);
+            });
+
+            container.appendChild(leftCol);
+            container.appendChild(rightCol);
+        }
+
+        function selectLeft(el, index) {
+            if (el.classList.contains('matched')) return;
+            document.querySelectorAll('.match-left').forEach(e => e.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedLeft = index;
+        }
+
+        function selectRight(el, answerIndex) {
+            if (el.classList.contains('matched') || selectedLeft === null) return;
+
+            if (selectedLeft === answerIndex) {
+                // Correct match
+                el.classList.add('matched');
+                const leftEl = document.querySelector(`.match-left[data-index="${selectedLeft}"]`);
+                leftEl.classList.add('matched');
+                leftEl.classList.remove('selected');
+                selectedLeft = null;
+                matchedCount++;
+
+                if (matchedCount === matchData.length) {
+                    const result = document.getElementById('matchResult');
+                    result.style.display = 'block';
+                    result.style.background = '#d4edda';
+                    result.style.color = '#155724';
+                    result.textContent = 'Bra jobbat! Du matchade alla begrepp rätt!';
+                }
+            } else {
+                // Wrong match
+                el.classList.add('wrong');
+                setTimeout(() => el.classList.remove('wrong'), 500);
+            }
+        }
+
+        // ============================
+        // INIT
+        // ============================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuestion();
+            initMatching();
+        });
+    </script>
+</body>
+</html>
