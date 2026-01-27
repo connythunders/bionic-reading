@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missionscentralen - Agent Rekryt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .agent-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #1a73e8, #4fc3f7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #4fc3f7;
+        }
+
+        .agent-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-title .label {
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #58a6ff;
+            font-weight: 700;
+        }
+
+        .header-title .name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #e6edf3;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat .stat-label {
+            font-size: 0.65em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #8b949e;
+            font-weight: 600;
+        }
+
+        .stat .stat-value {
+            font-size: 1.1em;
+            font-weight: 800;
+        }
+
+        .stat .xp-value {
+            color: #ffd700;
+        }
+
+        .stat .streak-value {
+            color: #f85149;
+        }
+
+        .stat .streak-value .bolt {
+            color: #ffd700;
+        }
+
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        /* Warning message */
+        .warning-message {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #1c2333;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            max-width: 640px;
+        }
+
+        .terminal-icon {
+            width: 32px;
+            height: 32px;
+            background: #282e3a;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .terminal-icon span {
+            color: #8b949e;
+            font-family: monospace;
+            font-size: 1em;
+        }
+
+        .warning-text {
+            color: #e6edf3;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .warning-text .warning-icon {
+            color: #f0883e;
+            margin-right: 4px;
+        }
+
+        /* Chat area (empty space) */
+        .chat-area {
+            flex: 1;
+        }
+
+        /* Bottom section */
+        .bottom-section {
+            padding: 0 24px 24px;
+        }
+
+        /* Category buttons */
+        .category-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 28px;
+            background: #1c2333;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 130px;
+        }
+
+        .category-btn:hover {
+            background: #242d3d;
+            border-color: #58a6ff;
+            transform: translateY(-2px);
+        }
+
+        .category-btn .icon {
+            font-size: 1.6em;
+        }
+
+        .category-btn .btn-label {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            color: #e6edf3;
+        }
+
+        .icon-purple { color: #bc8cff; }
+        .icon-green { color: #3fb950; }
+        .icon-orange { color: #f0883e; }
+        .icon-red { color: #f85149; }
+        .icon-yellow { color: #d29922; }
+
+        /* Input area */
+        .input-area {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            justify-content: center;
+        }
+
+        .text-input {
+            flex: 1;
+            max-width: 800px;
+            padding: 14px 18px;
+            background: #1c2333;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            color: #e6edf3;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .text-input::placeholder {
+            color: #6e7681;
+        }
+
+        .text-input:focus {
+            border-color: #58a6ff;
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            background: #1a73e8;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #1567d3;
+        }
+
+        .send-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: white;
+        }
+
+        /* Footer links */
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        .footer-link {
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #8b949e;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover {
+            color: #e6edf3;
+        }
+
+        .footer-link .info-icon {
+            width: 16px;
+            height: 16px;
+            border: 1.5px solid #8b949e;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .category-buttons {
+                gap: 8px;
+            }
+
+            .category-btn {
+                min-width: 100px;
+                padding: 14px 16px;
+            }
+
+            .category-btn .btn-label {
+                font-size: 0.65em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .category-buttons {
+                flex-wrap: wrap;
+            }
+
+            .category-btn {
+                flex: 1 1 calc(33% - 8px);
+                min-width: 90px;
+            }
+
+            .header-right {
+                gap: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="agent-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+            </div>
+            <div class="header-title">
+                <span class="label">Missionscentralen</span>
+                <span class="name">Agent Rekryt</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="stat">
+                <div class="stat-label">Erfarenhet</div>
+                <div class="stat-value xp-value">&#x2727; 0 XP</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value streak-value"><span class="bolt">&#9889;</span> 1 DAGAR</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="warning-message">
+            <div class="terminal-icon"><span>&gt;_</span></div>
+            <div class="warning-text">
+                <span class="warning-icon">&#9888;</span> Kritisk st&ouml;rning i kommunikationen. Kontrollera din anslutning, Agent.
+            </div>
+        </div>
+        <div class="chat-area" id="chatArea"></div>
+    </div>
+
+    <!-- Bottom section -->
+    <div class="bottom-section">
+        <!-- Category buttons -->
+        <div class="category-buttons">
+            <div class="category-btn" data-category="motsatser">
+                <span class="icon icon-purple">&#x2698;</span>
+                <span class="btn-label">Motsatser</span>
+            </div>
+            <div class="category-btn" data-category="ljud">
+                <span class="icon icon-green">&#x1F50A;</span>
+                <span class="btn-label">Ljud/Ord</span>
+            </div>
+            <div class="category-btn" data-category="beratta">
+                <span class="icon icon-orange">&#x1F4D6;</span>
+                <span class="btn-label">Ber&auml;tta</span>
+            </div>
+            <div class="category-btn" data-category="lasa">
+                <span class="icon icon-red">&#x1F4D5;</span>
+                <span class="btn-label">L&auml;sa</span>
+            </div>
+            <div class="category-btn" data-category="grammatik">
+                <span class="icon icon-yellow">&#x2756;</span>
+                <span class="btn-label">Grammatik</span>
+            </div>
+        </div>
+
+        <!-- Input area -->
+        <div class="input-area">
+            <input type="text" class="text-input" id="userInput" placeholder="Skriv ditt svar, Agent..." />
+            <button class="send-btn" id="sendBtn" title="Skicka">
+                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+        </div>
+
+        <!-- Footer links -->
+        <div class="footer-links">
+            <a class="footer-link" href="#" id="hintBtn">
+                <span class="info-icon">i</span>
+                Be om ledtr&aring;d
+            </a>
+            <a class="footer-link" href="#" id="changeMissionBtn">
+                Byt uppdrag
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Mission Central - Interactive agent interface
+        const chatArea = document.getElementById('chatArea');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const changeMissionBtn = document.getElementById('changeMissionBtn');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+
+        let currentCategory = null;
+        let xp = 0;
+        let streak = 1;
+
+        // Category button click
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.style.borderColor = '#30363d');
+                btn.style.borderColor = '#58a6ff';
+                currentCategory = btn.dataset.category;
+                addMessage('system', `Uppdrag valt: ${btn.querySelector('.btn-label').textContent.toUpperCase()}. Skriv ditt svar nedan, Agent.`);
+            });
+        });
+
+        // Send message
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            addMessage('user', text);
+            userInput.value = '';
+
+            if (!currentCategory) {
+                addMessage('system', 'Valj en kategori forst, Agent.');
+                return;
+            }
+
+            // Simulate response
+            setTimeout(() => {
+                addMessage('system', 'Meddelandet mottaget. Analyserar...');
+            }, 500);
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Add message to chat
+        function addMessage(type, text) {
+            const msg = document.createElement('div');
+            msg.style.cssText = `
+                padding: 12px 16px;
+                margin-bottom: 10px;
+                border-radius: 8px;
+                font-size: 0.95em;
+                line-height: 1.5;
+                max-width: 80%;
+                ${type === 'user'
+                    ? 'background: #1a73e8; color: white; margin-left: auto;'
+                    : 'background: #1c2333; border: 1px solid #30363d; color: #e6edf3;'}
+            `;
+            msg.textContent = text;
+            chatArea.appendChild(msg);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // Hint button
+        hintBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            addMessage('system', 'Ledtrad: Forsokt tanka utanfor boxen, Agent. Svaret ar narmare an du tror.');
+        });
+
+        // Change mission
+        changeMissionBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentCategory = null;
+            categoryBtns.forEach(b => b.style.borderColor = '#30363d');
+            addMessage('system', 'Uppdraget aterkallt. Valj ett nytt uppdrag, Agent.');
+        });
+
+        // Update XP display
+        function updateXP(points) {
+            xp += points;
+            document.querySelector('.xp-value').innerHTML = `&#x2727; ${xp} XP`;
+        }
+    </script>
+</body>
+</html>
