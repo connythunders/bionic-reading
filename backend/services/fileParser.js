@@ -1,6 +1,7 @@
 const fs = require('fs').promises;
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
+const officeParser = require('officeparser');
 
 class FileParser {
   /**
@@ -17,6 +18,8 @@ class FileParser {
         extractedText = await this.parsePDF(filePath);
       } else if (fileType === 'docx') {
         extractedText = await this.parseDOCX(filePath);
+      } else if (fileType === 'pptx') {
+        extractedText = await this.parsePPTX(filePath);
       } else {
         throw new Error(`Unsupported file type: ${fileType}`);
       }
@@ -65,6 +68,20 @@ class FileParser {
   }
 
   /**
+   * Extraherar text från PPTX-fil
+   * @param {string} filePath
+   * @returns {Promise<string>}
+   */
+  async parsePPTX(filePath) {
+    try {
+      const data = await officeParser.parseOfficeAsync(filePath);
+      return data;
+    } catch (error) {
+      throw new Error(`PPTX-parsning misslyckades: ${error.message}`);
+    }
+  }
+
+  /**
    * Rensar och normaliserar text
    * @param {string} text
    * @returns {string}
@@ -96,7 +113,8 @@ class FileParser {
   validateFileType(mimetype) {
     const validTypes = {
       'application/pdf': 'pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx'
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx'
     };
 
     return validTypes[mimetype] || null;

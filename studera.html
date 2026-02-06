@@ -1,0 +1,2226 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studieplatformen - ADHD-anpassad studiehjalp</title>
+    <style>
+        /* ===== CSS Custom Properties ===== */
+        :root {
+            --bg-primary: #fafbfc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f0f2f5;
+            --text-primary: #1a1a2e;
+            --text-secondary: #555770;
+            --text-muted: #8e8ea0;
+            --accent: #6c63ff;
+            --accent-light: #8b83ff;
+            --accent-bg: #f0eeff;
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+            --warning: #f59e0b;
+            --warning-bg: #fffbeb;
+            --danger: #ef4444;
+            --danger-bg: #fef2f2;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --font-size-base: 17px;
+            --line-height: 1.8;
+            --letter-spacing: 0.01em;
+            --transition: 0.2s ease;
+        }
+
+        /* Dark mode */
+        [data-theme="dark"] {
+            --bg-primary: #13131a;
+            --bg-secondary: #1e1e2d;
+            --bg-tertiary: #2a2a3d;
+            --text-primary: #e8e8ed;
+            --text-secondary: #a0a0b8;
+            --text-muted: #6e6e85;
+            --accent: #8b83ff;
+            --accent-light: #a59dff;
+            --accent-bg: #2a2750;
+            --success: #34d399;
+            --success-bg: #1a2e28;
+            --warning: #fbbf24;
+            --warning-bg: #2e2a1a;
+            --danger: #f87171;
+            --danger-bg: #2e1a1a;
+            --border: #333348;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+            --shadow-lg: 0 8px 30px rgba(0,0,0,0.4);
+        }
+
+        /* ===== Reset & Base ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height);
+            letter-spacing: var(--letter-spacing);
+            min-height: 100vh;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        /* ===== Top Bar ===== */
+        .top-bar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover { color: var(--accent); }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* ===== Icon Buttons ===== */
+        .icon-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all var(--transition);
+        }
+        .icon-btn:hover {
+            background: var(--accent-bg);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* ===== Layout ===== */
+        .app-layout {
+            display: flex;
+            min-height: calc(100vh - 54px);
+        }
+
+        .main-content {
+            flex: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            width: 100%;
+        }
+
+        /* ===== Views ===== */
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* ===== Upload View ===== */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-xl);
+            padding: 3rem 2rem;
+            text-align: center;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-bg);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+
+        .upload-zone h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .upload-zone p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .format-tags {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .format-tag {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .file-input { display: none; }
+
+        /* File selected card */
+        .file-card {
+            display: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin-top: 1rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .file-card.show { display: flex; }
+
+        .file-card-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .file-card-icon { font-size: 1.5rem; }
+        .file-card-name { font-weight: 600; font-size: 0.95rem; }
+        .file-card-size { font-size: 0.8rem; color: var(--text-muted); }
+
+        .file-card-remove {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        /* ===== Buttons ===== */
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: var(--accent-bg);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-full { width: 100%; justify-content: center; margin-top: 1.25rem; padding: 0.9rem; }
+
+        /* ===== Document list ===== */
+        .doc-list {
+            margin-top: 2rem;
+        }
+
+        .doc-list h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .doc-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .doc-item:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .doc-item-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .doc-item-icon { font-size: 1.3rem; }
+        .doc-item-name { font-weight: 600; font-size: 0.95rem; }
+        .doc-item-meta { font-size: 0.8rem; color: var(--text-muted); }
+
+        .doc-item-xp {
+            background: var(--accent-bg);
+            color: var(--accent);
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* ===== Study Mode Selector ===== */
+        .study-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .study-doc-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .study-modes {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .mode-btn {
+            background: var(--bg-secondary);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.7rem 1.2rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .mode-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .mode-btn.active {
+            background: var(--accent-bg);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .mode-btn-icon { font-size: 1.1rem; }
+
+        /* ===== Reading View ===== */
+        .reading-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .bionic-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--border);
+            border-radius: 22px;
+            transition: var(--transition);
+        }
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--accent);
+        }
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(18px);
+        }
+
+        /* Chunk navigation */
+        .chunk-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+        }
+
+        .chunk-progress-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            margin: 0 1rem;
+            overflow: hidden;
+        }
+        .chunk-progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .chunk-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .chunk-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 34px;
+            height: 34px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all var(--transition);
+        }
+        .chunk-btn:hover:not(:disabled) {
+            background: var(--accent-bg);
+            color: var(--accent);
+        }
+        .chunk-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* Reading content */
+        .reading-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem 2.5rem;
+            line-height: var(--line-height);
+            font-size: var(--font-size-base);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .reading-content strong {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ===== Flashcard View ===== */
+        .flashcard-container {
+            perspective: 1000px;
+            margin-bottom: 1.5rem;
+        }
+
+        .flashcard {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.5s ease, box-shadow var(--transition);
+            transform-style: preserve-3d;
+            position: relative;
+            box-shadow: var(--shadow-md);
+        }
+        .flashcard:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background: var(--accent-bg);
+            border-radius: var(--radius-xl);
+        }
+
+        .flashcard-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .flashcard-text {
+            font-size: 1.15rem;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .flashcard-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+        }
+
+        .flashcard-controls {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .fc-btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: var(--bg-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .fc-btn-wrong {
+            color: var(--danger);
+        }
+        .fc-btn-wrong:hover {
+            background: var(--danger-bg);
+            border-color: var(--danger);
+        }
+        .fc-btn-right {
+            color: var(--success);
+        }
+        .fc-btn-right:hover {
+            background: var(--success-bg);
+            border-color: var(--success);
+        }
+        .fc-btn-skip {
+            color: var(--text-muted);
+        }
+        .fc-btn-skip:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .flashcard-progress {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== Summary View ===== */
+        .summary-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-heading {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .summary-points {
+            list-style: none;
+            padding: 0;
+        }
+
+        .summary-points li {
+            padding: 0.4rem 0;
+            padding-left: 1.2rem;
+            position: relative;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .summary-points li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.85rem;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .memory-tip {
+            margin-top: 0.75rem;
+            padding: 0.6rem 0.8rem;
+            background: var(--warning-bg);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .memory-tip-icon { font-size: 1rem; flex-shrink: 0; }
+
+        /* ===== Pomodoro Timer ===== */
+        .pomodoro-bar {
+            display: none;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 0.6rem 1.5rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .pomodoro-bar.show { display: flex; }
+
+        .pomo-time {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-primary);
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .pomo-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .pomo-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: all var(--transition);
+        }
+        .pomo-btn:hover {
+            background: var(--accent-bg);
+            color: var(--accent);
+        }
+
+        .pomo-sessions {
+            display: flex;
+            gap: 4px;
+        }
+        .pomo-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+        .pomo-dot.completed { background: var(--success); }
+        .pomo-dot.active { background: var(--accent); }
+
+        /* ===== Progress Sidebar ===== */
+        .progress-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .xp-display {
+            display: flex;
+            align-items: baseline;
+            gap: 0.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .xp-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .xp-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .stat-item {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: 0.6rem 0.75rem;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .stat-label-small {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        /* ===== Loading States ===== */
+        .loading-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* ===== Settings Panel ===== */
+        .settings-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 200;
+        }
+        .settings-overlay.show { display: block; }
+
+        .settings-panel {
+            position: fixed;
+            top: 0; right: -360px; bottom: 0;
+            width: 340px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            z-index: 201;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            padding: 1.5rem;
+        }
+        .settings-panel.show { right: 0; }
+
+        .settings-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-close {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .setting-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .setting-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .setting-range {
+            width: 100%;
+            margin-top: 0.25rem;
+        }
+
+        .setting-value {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        /* ===== Error message ===== */
+        .error-msg {
+            background: var(--danger-bg);
+            color: var(--danger);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            display: none;
+            border-left: 3px solid var(--danger);
+        }
+        .error-msg.show { display: block; }
+
+        /* ===== XP Animation ===== */
+        .xp-toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--accent);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 1rem;
+            z-index: 300;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .xp-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            .reading-content {
+                padding: 1.25rem;
+            }
+            .flashcard {
+                min-height: 200px;
+            }
+            .study-modes {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 0.5rem;
+            }
+            .mode-btn {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+            }
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Adjust body padding when pomodoro is visible */
+        body.pomo-active {
+            padding-bottom: 60px;
+        }
+    </style>
+</head>
+<body>
+    <!-- XP Toast -->
+    <div class="xp-toast" id="xp-toast">+10 XP</div>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <a href="index.html" class="logo">Studieplatformen</a>
+            <a href="index.html" class="back-link">Tillbaka</a>
+        </div>
+        <div class="top-bar-right">
+            <button class="icon-btn" id="timer-toggle-btn" title="Pomodoro-timer">&#9201;</button>
+            <button class="icon-btn" id="settings-btn" title="Installningar">&#9881;</button>
+        </div>
+    </div>
+
+    <!-- Settings Overlay -->
+    <div class="settings-overlay" id="settings-overlay"></div>
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-title">
+            Anpassningar
+            <button class="settings-close" id="settings-close">&times;</button>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Tema</label>
+            <select class="setting-select" id="setting-theme">
+                <option value="light">Ljust</option>
+                <option value="dark">Morkt</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Textstorlek</label>
+            <input type="range" class="setting-range" id="setting-fontsize" min="14" max="24" value="17" step="1">
+            <div class="setting-value" id="fontsize-value">17px</div>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Radavstand</label>
+            <input type="range" class="setting-range" id="setting-lineheight" min="1.4" max="2.4" value="1.8" step="0.1">
+            <div class="setting-value" id="lineheight-value">1.8</div>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Bokstavsavstand</label>
+            <input type="range" class="setting-range" id="setting-letterspacing" min="0" max="0.1" value="0.01" step="0.01">
+            <div class="setting-value" id="letterspacing-value">0.01em</div>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Typsnitt</label>
+            <select class="setting-select" id="setting-font">
+                <option value="'Segoe UI', -apple-system, sans-serif">Standard</option>
+                <option value="'OpenDyslexic', sans-serif">OpenDyslexic</option>
+                <option value="'Verdana', sans-serif">Verdana</option>
+                <option value="'Arial', sans-serif">Arial</option>
+                <option value="'Georgia', serif">Georgia</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Bionic Reading-niva</label>
+            <select class="setting-select" id="setting-bionic">
+                <option value="none">Av</option>
+                <option value="low">Lag</option>
+                <option value="medium">Medel</option>
+                <option value="high">Hog</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Pomodoro-langd (minuter)</label>
+            <select class="setting-select" id="setting-pomodoro">
+                <option value="15">15 min</option>
+                <option value="20">20 min</option>
+                <option value="25" selected>25 min</option>
+                <option value="30">30 min</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Paus-langd (minuter)</label>
+            <select class="setting-select" id="setting-break">
+                <option value="3">3 min</option>
+                <option value="5" selected>5 min</option>
+                <option value="10">10 min</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Ord per studiesektion</label>
+            <select class="setting-select" id="setting-chunksize">
+                <option value="100">100 (kort)</option>
+                <option value="150" selected>150 (standard)</option>
+                <option value="200">200 (lang)</option>
+                <option value="300">300 (extra lang)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- App Layout -->
+    <div class="app-layout">
+        <div class="main-content">
+
+            <!-- ===== UPLOAD VIEW ===== -->
+            <div class="view active" id="view-upload">
+                <div class="upload-zone" id="upload-zone">
+                    <div class="upload-icon">&#128218;</div>
+                    <h2>Ladda upp ditt studiematerial</h2>
+                    <p>Dra och slapp din fil har, eller klicka for att valja</p>
+                    <div class="format-tags">
+                        <span class="format-tag">PDF</span>
+                        <span class="format-tag">Word (.docx)</span>
+                        <span class="format-tag">PowerPoint (.pptx)</span>
+                    </div>
+                </div>
+                <input type="file" id="file-input" class="file-input" accept=".pdf,.docx,.pptx">
+
+                <div class="file-card" id="file-card">
+                    <div class="file-card-info">
+                        <div class="file-card-icon" id="file-icon">&#128196;</div>
+                        <div>
+                            <div class="file-card-name" id="file-name"></div>
+                            <div class="file-card-size" id="file-size"></div>
+                        </div>
+                    </div>
+                    <button class="file-card-remove" id="file-remove">Ta bort</button>
+                </div>
+
+                <div class="error-msg" id="upload-error"></div>
+
+                <button class="btn btn-primary btn-full" id="start-study-btn" disabled>
+                    Borja studera
+                </button>
+
+                <div class="doc-list" id="doc-list">
+                    <h3>Tidigare material</h3>
+                    <div id="doc-list-items"></div>
+                </div>
+            </div>
+
+            <!-- ===== LOADING VIEW ===== -->
+            <div class="view" id="view-loading">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <div class="loading-text" id="loading-text">Laddar upp och analyserar...</div>
+                </div>
+            </div>
+
+            <!-- ===== STUDY VIEW ===== -->
+            <div class="view" id="view-study">
+                <!-- Progress panel -->
+                <div class="progress-panel" id="progress-panel">
+                    <div class="progress-title">Dina framsteg</div>
+                    <div class="xp-display">
+                        <span class="xp-number" id="total-xp">0</span>
+                        <span class="xp-label">XP</span>
+                    </div>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-streak">0</div>
+                            <div class="stat-label-small">Dagars streak</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-time">0m</div>
+                            <div class="stat-label-small">Studietid</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-cards">0</div>
+                            <div class="stat-label-small">Flashcards</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-quiz">0%</div>
+                            <div class="stat-label-small">Basta quiz</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Study doc title -->
+                <div class="study-header">
+                    <div class="study-doc-title" id="study-doc-title"></div>
+                    <div class="study-modes">
+                        <button class="mode-btn active" data-mode="read">
+                            <span class="mode-btn-icon">&#128214;</span> Lasa
+                        </button>
+                        <button class="mode-btn" data-mode="summary">
+                            <span class="mode-btn-icon">&#128221;</span> Sammanfattning
+                        </button>
+                        <button class="mode-btn" data-mode="flashcards">
+                            <span class="mode-btn-icon">&#127183;</span> Flashcards
+                        </button>
+                        <button class="mode-btn" data-mode="quiz">
+                            <span class="mode-btn-icon">&#10004;</span> Quiz
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reading mode -->
+                <div id="study-read" class="study-mode-content">
+                    <div class="reading-controls">
+                        <div class="bionic-toggle">
+                            Bionic Reading
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="bionic-toggle-input">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <button class="btn btn-secondary" id="back-to-upload" style="margin-left:auto;">&#8592; Byt material</button>
+                    </div>
+
+                    <div class="chunk-nav" id="chunk-nav">
+                        <button class="chunk-btn" id="chunk-prev" disabled>&#8592;</button>
+                        <div class="chunk-progress-bar">
+                            <div class="chunk-progress-fill" id="chunk-progress"></div>
+                        </div>
+                        <span class="chunk-label" id="chunk-label">1 / 1</span>
+                        <button class="chunk-btn" id="chunk-next">&#8594;</button>
+                    </div>
+
+                    <div class="reading-content" id="reading-content"></div>
+                </div>
+
+                <!-- Summary mode -->
+                <div id="study-summary" class="study-mode-content" style="display:none;">
+                    <div id="summary-content">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <div class="loading-text">AI skapar din sammanfattning...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flashcards mode -->
+                <div id="study-flashcards" class="study-mode-content" style="display:none;">
+                    <div id="flashcards-content">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <div class="loading-text">AI skapar flashcards...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz mode -->
+                <div id="study-quiz" class="study-mode-content" style="display:none;">
+                    <div style="text-align:center; padding: 2rem;">
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">Starta ett AI-genererat quiz baserat pa ditt material.</p>
+                        <button class="btn btn-primary" id="start-quiz-btn">Starta Quiz</button>
+                        <div id="quiz-container" style="margin-top: 1.5rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pomodoro Bar -->
+    <div class="pomodoro-bar" id="pomodoro-bar">
+        <div class="pomo-sessions" id="pomo-sessions">
+            <div class="pomo-dot"></div>
+            <div class="pomo-dot"></div>
+            <div class="pomo-dot"></div>
+            <div class="pomo-dot"></div>
+        </div>
+        <span class="pomo-label" id="pomo-label">Fokus</span>
+        <span class="pomo-time" id="pomo-time">25:00</span>
+        <button class="pomo-btn" id="pomo-start" title="Starta">&#9654;</button>
+        <button class="pomo-btn" id="pomo-reset" title="Aterstall">&#8634;</button>
+    </div>
+
+    <script>
+    // ========================================
+    // State
+    // ========================================
+    const API = 'http://localhost:3000';
+    const state = {
+        selectedFile: null,
+        documentId: null,
+        documentName: '',
+        chunks: [],
+        currentChunk: 0,
+        bionicEnabled: false,
+        bionicLevel: 'medium',
+        flashcards: [],
+        currentFlashcard: 0,
+        flashcardFlipped: false,
+        summary: null,
+        summaryLoaded: false,
+        flashcardsLoaded: false,
+        progress: { xp_earned: 0, study_streak: 0, total_study_time: 0, flashcards_mastered: 0, quizzes_completed: 0, best_quiz_score: 0 },
+        // Pomodoro
+        pomoRunning: false,
+        pomoInterval: null,
+        pomoTimeLeft: 25 * 60,
+        pomoDuration: 25 * 60,
+        pomoBreakDuration: 5 * 60,
+        pomoIsBreak: false,
+        pomoSessions: 0,
+        // Settings
+        chunkSize: 150,
+        // Study timer
+        studyStartTime: null,
+    };
+
+    // ========================================
+    // DOM Elements
+    // ========================================
+    const $ = id => document.getElementById(id);
+
+    // ========================================
+    // Settings
+    // ========================================
+    function initSettings() {
+        // Theme
+        $('setting-theme').addEventListener('change', e => {
+            document.documentElement.setAttribute('data-theme', e.target.value);
+            localStorage.setItem('study-theme', e.target.value);
+        });
+
+        // Font size
+        $('setting-fontsize').addEventListener('input', e => {
+            const val = e.target.value + 'px';
+            document.documentElement.style.setProperty('--font-size-base', val);
+            $('fontsize-value').textContent = val;
+            localStorage.setItem('study-fontsize', e.target.value);
+        });
+
+        // Line height
+        $('setting-lineheight').addEventListener('input', e => {
+            document.documentElement.style.setProperty('--line-height', e.target.value);
+            $('lineheight-value').textContent = e.target.value;
+            localStorage.setItem('study-lineheight', e.target.value);
+        });
+
+        // Letter spacing
+        $('setting-letterspacing').addEventListener('input', e => {
+            const val = e.target.value + 'em';
+            document.documentElement.style.setProperty('--letter-spacing', val);
+            $('letterspacing-value').textContent = val;
+            localStorage.setItem('study-letterspacing', e.target.value);
+        });
+
+        // Font family
+        $('setting-font').addEventListener('change', e => {
+            document.body.style.fontFamily = e.target.value;
+            localStorage.setItem('study-font', e.target.value);
+        });
+
+        // Bionic level
+        $('setting-bionic').addEventListener('change', e => {
+            state.bionicLevel = e.target.value;
+            if (e.target.value !== 'none') {
+                state.bionicEnabled = true;
+                $('bionic-toggle-input').checked = true;
+            } else {
+                state.bionicEnabled = false;
+                $('bionic-toggle-input').checked = false;
+            }
+            localStorage.setItem('study-bionic', e.target.value);
+            if (state.chunks.length > 0) renderChunk();
+        });
+
+        // Pomodoro duration
+        $('setting-pomodoro').addEventListener('change', e => {
+            state.pomoDuration = parseInt(e.target.value) * 60;
+            if (!state.pomoRunning && !state.pomoIsBreak) {
+                state.pomoTimeLeft = state.pomoDuration;
+                renderPomoTime();
+            }
+            localStorage.setItem('study-pomodoro', e.target.value);
+        });
+
+        // Break duration
+        $('setting-break').addEventListener('change', e => {
+            state.pomoBreakDuration = parseInt(e.target.value) * 60;
+            localStorage.setItem('study-break', e.target.value);
+        });
+
+        // Chunk size
+        $('setting-chunksize').addEventListener('change', e => {
+            state.chunkSize = parseInt(e.target.value);
+            localStorage.setItem('study-chunksize', e.target.value);
+            if (state.documentId) reloadDocument();
+        });
+
+        // Settings panel toggle
+        $('settings-btn').addEventListener('click', () => {
+            $('settings-panel').classList.add('show');
+            $('settings-overlay').classList.add('show');
+        });
+        $('settings-close').addEventListener('click', closeSettings);
+        $('settings-overlay').addEventListener('click', closeSettings);
+
+        // Load saved settings
+        loadSavedSettings();
+    }
+
+    function closeSettings() {
+        $('settings-panel').classList.remove('show');
+        $('settings-overlay').classList.remove('show');
+    }
+
+    function loadSavedSettings() {
+        const theme = localStorage.getItem('study-theme');
+        if (theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            $('setting-theme').value = theme;
+        }
+
+        const fontSize = localStorage.getItem('study-fontsize');
+        if (fontSize) {
+            document.documentElement.style.setProperty('--font-size-base', fontSize + 'px');
+            $('setting-fontsize').value = fontSize;
+            $('fontsize-value').textContent = fontSize + 'px';
+        }
+
+        const lineHeight = localStorage.getItem('study-lineheight');
+        if (lineHeight) {
+            document.documentElement.style.setProperty('--line-height', lineHeight);
+            $('setting-lineheight').value = lineHeight;
+            $('lineheight-value').textContent = lineHeight;
+        }
+
+        const letterSpacing = localStorage.getItem('study-letterspacing');
+        if (letterSpacing) {
+            document.documentElement.style.setProperty('--letter-spacing', letterSpacing + 'em');
+            $('setting-letterspacing').value = letterSpacing;
+            $('letterspacing-value').textContent = letterSpacing + 'em';
+        }
+
+        const font = localStorage.getItem('study-font');
+        if (font) {
+            document.body.style.fontFamily = font;
+            $('setting-font').value = font;
+        }
+
+        const bionic = localStorage.getItem('study-bionic');
+        if (bionic) {
+            state.bionicLevel = bionic;
+            $('setting-bionic').value = bionic;
+            state.bionicEnabled = bionic !== 'none';
+            $('bionic-toggle-input').checked = state.bionicEnabled;
+        }
+
+        const pomodoro = localStorage.getItem('study-pomodoro');
+        if (pomodoro) {
+            state.pomoDuration = parseInt(pomodoro) * 60;
+            state.pomoTimeLeft = state.pomoDuration;
+            $('setting-pomodoro').value = pomodoro;
+        }
+
+        const breakTime = localStorage.getItem('study-break');
+        if (breakTime) {
+            state.pomoBreakDuration = parseInt(breakTime) * 60;
+            $('setting-break').value = breakTime;
+        }
+
+        const chunkSize = localStorage.getItem('study-chunksize');
+        if (chunkSize) {
+            state.chunkSize = parseInt(chunkSize);
+            $('setting-chunksize').value = chunkSize;
+        }
+    }
+
+    // ========================================
+    // File Upload
+    // ========================================
+    function initUpload() {
+        const zone = $('upload-zone');
+        const input = $('file-input');
+
+        zone.addEventListener('click', () => input.click());
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+        });
+
+        input.addEventListener('change', e => {
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        });
+
+        $('file-remove').addEventListener('click', removeFile);
+        $('start-study-btn').addEventListener('click', startStudy);
+        $('back-to-upload').addEventListener('click', backToUpload);
+    }
+
+    function handleFile(file) {
+        hideError();
+        const validTypes = [
+            'application/pdf',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        ];
+        const validExt = /\.(pdf|docx|pptx)$/i;
+
+        if (!validTypes.includes(file.type) && !file.name.match(validExt)) {
+            showError('Bara PDF, Word och PowerPoint-filer godkanns.');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            showError('Filen ar for stor. Max 10 MB.');
+            return;
+        }
+
+        state.selectedFile = file;
+        $('file-name').textContent = file.name;
+        $('file-size').textContent = formatSize(file.size);
+
+        const ext = file.name.split('.').pop().toLowerCase();
+        const icons = { pdf: '&#128211;', docx: '&#128196;', pptx: '&#128202;' };
+        $('file-icon').innerHTML = icons[ext] || '&#128196;';
+
+        $('file-card').classList.add('show');
+        $('start-study-btn').disabled = false;
+    }
+
+    function removeFile() {
+        state.selectedFile = null;
+        $('file-input').value = '';
+        $('file-card').classList.remove('show');
+        $('start-study-btn').disabled = true;
+        hideError();
+    }
+
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function showError(msg) {
+        const el = $('upload-error');
+        el.textContent = msg;
+        el.classList.add('show');
+    }
+    function hideError() {
+        $('upload-error').classList.remove('show');
+    }
+
+    // ========================================
+    // Start Study Session
+    // ========================================
+    async function startStudy() {
+        if (!state.selectedFile) return;
+        showView('view-loading');
+        $('loading-text').textContent = 'Laddar upp och analyserar ditt material...';
+
+        try {
+            const formData = new FormData();
+            formData.append('file', state.selectedFile);
+
+            const uploadRes = await fetch(`${API}/api/study/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!uploadRes.ok) {
+                const err = await uploadRes.json();
+                throw new Error(err.error || 'Uppladdning misslyckades');
+            }
+
+            const uploadData = await uploadRes.json();
+            state.documentId = uploadData.documentId;
+            state.documentName = uploadData.filename;
+
+            await loadDocument();
+            await loadProgress();
+
+            state.studyStartTime = Date.now();
+            state.summaryLoaded = false;
+            state.flashcardsLoaded = false;
+
+            showView('view-study');
+            showStudyMode('read');
+        } catch (error) {
+            console.error('Start study error:', error);
+            showView('view-upload');
+            showError('Nagot gick fel: ' + error.message);
+        }
+    }
+
+    async function loadDocumentById(docId) {
+        showView('view-loading');
+        $('loading-text').textContent = 'Hamtar ditt material...';
+
+        try {
+            state.documentId = docId;
+            await loadDocument();
+            await loadProgress();
+
+            state.studyStartTime = Date.now();
+            state.summaryLoaded = false;
+            state.flashcardsLoaded = false;
+
+            showView('view-study');
+            showStudyMode('read');
+        } catch (error) {
+            console.error('Load document error:', error);
+            showView('view-upload');
+            showError('Kunde inte ladda dokumentet: ' + error.message);
+        }
+    }
+
+    async function loadDocument() {
+        const bionic = state.bionicEnabled ? state.bionicLevel : 'none';
+        const res = await fetch(`${API}/api/study/document/${state.documentId}?bionic=${bionic}`);
+        if (!res.ok) throw new Error('Kunde inte hamta dokument');
+
+        const data = await res.json();
+        state.chunks = data.chunks;
+        state.documentName = data.filename;
+        state.currentChunk = 0;
+
+        $('study-doc-title').textContent = state.documentName;
+        renderChunk();
+    }
+
+    async function reloadDocument() {
+        if (!state.documentId) return;
+        await loadDocument();
+    }
+
+    async function loadProgress() {
+        try {
+            const res = await fetch(`${API}/api/study/progress/${state.documentId}`);
+            if (res.ok) {
+                state.progress = await res.json();
+                renderProgress();
+            }
+        } catch (e) {
+            console.error('Load progress error:', e);
+        }
+    }
+
+    // ========================================
+    // Reading View
+    // ========================================
+    function renderChunk() {
+        if (state.chunks.length === 0) return;
+        const chunk = state.chunks[state.currentChunk];
+
+        if (state.bionicEnabled && chunk.bionicHtml) {
+            $('reading-content').innerHTML = chunk.bionicHtml;
+        } else if (state.bionicEnabled) {
+            $('reading-content').innerHTML = convertToBionic(chunk.text, state.bionicLevel);
+        } else {
+            $('reading-content').textContent = chunk.text;
+        }
+
+        const total = state.chunks.length;
+        const current = state.currentChunk + 1;
+        $('chunk-label').textContent = `${current} / ${total}`;
+        $('chunk-progress').style.width = ((current / total) * 100) + '%';
+        $('chunk-prev').disabled = state.currentChunk === 0;
+        $('chunk-next').disabled = state.currentChunk >= total - 1;
+    }
+
+    function convertToBionic(text, level) {
+        const words = text.split(/(\s+)/);
+        return words.map(word => {
+            if (word.trim().length === 0) return word;
+            let ratio;
+            switch (level) {
+                case 'low': ratio = 0.3; break;
+                case 'high': ratio = 0.5; break;
+                default: ratio = 0.4;
+            }
+            const bl = Math.max(1, Math.ceil(word.length * ratio));
+            return `<strong>${word.substring(0, bl)}</strong>${word.substring(bl)}`;
+        }).join('');
+    }
+
+    function initChunkNav() {
+        $('chunk-prev').addEventListener('click', () => {
+            if (state.currentChunk > 0) {
+                state.currentChunk--;
+                renderChunk();
+                $('reading-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+        $('chunk-next').addEventListener('click', () => {
+            if (state.currentChunk < state.chunks.length - 1) {
+                state.currentChunk++;
+                renderChunk();
+                $('reading-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                awardXP(5);
+            }
+        });
+
+        $('bionic-toggle-input').addEventListener('change', e => {
+            state.bionicEnabled = e.target.checked;
+            if (e.target.checked && state.bionicLevel === 'none') {
+                state.bionicLevel = 'medium';
+                $('setting-bionic').value = 'medium';
+            }
+            localStorage.setItem('study-bionic', state.bionicEnabled ? state.bionicLevel : 'none');
+            reloadDocument();
+        });
+    }
+
+    // ========================================
+    // Study Modes
+    // ========================================
+    function initStudyModes() {
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.dataset.mode;
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                showStudyMode(mode);
+            });
+        });
+    }
+
+    function showStudyMode(mode) {
+        document.querySelectorAll('.study-mode-content').forEach(el => el.style.display = 'none');
+        $(`study-${mode}`).style.display = 'block';
+
+        if (mode === 'summary' && !state.summaryLoaded) {
+            loadSummary();
+        }
+        if (mode === 'flashcards' && !state.flashcardsLoaded) {
+            loadFlashcards();
+        }
+    }
+
+    // ========================================
+    // Summary
+    // ========================================
+    async function loadSummary() {
+        $('summary-content').innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <div class="loading-text">AI skapar din sammanfattning...</div>
+            </div>`;
+
+        try {
+            const res = await fetch(`${API}/api/study/summary`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ documentId: state.documentId })
+            });
+
+            if (!res.ok) throw new Error('Kunde inte skapa sammanfattning');
+            const data = await res.json();
+            state.summary = data.summary;
+            state.summaryLoaded = true;
+            renderSummary();
+            awardXP(15);
+        } catch (error) {
+            console.error('Summary error:', error);
+            $('summary-content').innerHTML = `
+                <div class="error-msg show">Kunde inte skapa sammanfattning. Kontrollera att backend kors.</div>`;
+        }
+    }
+
+    function renderSummary() {
+        if (!state.summary) return;
+        const s = state.summary;
+
+        let html = `<h2 style="font-size:1.3rem; margin-bottom:1rem; color:var(--text-primary);">${s.title || 'Sammanfattning'}</h2>`;
+
+        if (s.estimatedStudyTime) {
+            html += `<p style="color:var(--text-muted); margin-bottom:1.5rem; font-size:0.9rem;">Beraknad studietid: ${s.estimatedStudyTime}</p>`;
+        }
+
+        s.sections.forEach((section, i) => {
+            html += `<div class="summary-section">
+                <div class="summary-heading">${section.heading}</div>
+                <ul class="summary-points">
+                    ${section.keyPoints.map(p => `<li>${p}</li>`).join('')}
+                </ul>
+                ${section.memoryTip ? `
+                    <div class="memory-tip">
+                        <span class="memory-tip-icon">&#128161;</span>
+                        <span>${section.memoryTip}</span>
+                    </div>` : ''}
+            </div>`;
+        });
+
+        $('summary-content').innerHTML = html;
+    }
+
+    // ========================================
+    // Flashcards
+    // ========================================
+    async function loadFlashcards() {
+        $('flashcards-content').innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <div class="loading-text">AI skapar flashcards fran ditt material...</div>
+            </div>`;
+
+        try {
+            const res = await fetch(`${API}/api/study/flashcards`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ documentId: state.documentId, count: 15 })
+            });
+
+            if (!res.ok) throw new Error('Kunde inte skapa flashcards');
+            const data = await res.json();
+            state.flashcards = data.flashcards;
+            state.currentFlashcard = 0;
+            state.flashcardFlipped = false;
+            state.flashcardsLoaded = true;
+            renderFlashcard();
+            awardXP(15);
+        } catch (error) {
+            console.error('Flashcard error:', error);
+            $('flashcards-content').innerHTML = `
+                <div class="error-msg show">Kunde inte skapa flashcards. Kontrollera att backend kors.</div>`;
+        }
+    }
+
+    function renderFlashcard() {
+        if (state.flashcards.length === 0) return;
+        const fc = state.flashcards[state.currentFlashcard];
+        const total = state.flashcards.length;
+        const current = state.currentFlashcard + 1;
+
+        const diffColors = { easy: 'var(--success)', medium: 'var(--warning)', hard: 'var(--danger)' };
+        const diffLabels = { easy: 'Latt', medium: 'Medel', hard: 'Svar' };
+
+        $('flashcards-content').innerHTML = `
+            <div class="flashcard-container">
+                <div class="flashcard ${state.flashcardFlipped ? 'flipped' : ''}" id="flashcard">
+                    <div class="flashcard-front">
+                        <div class="flashcard-label">Fraga ${current}/${total}</div>
+                        <div class="flashcard-text">${fc.front}</div>
+                        <div class="flashcard-hint">Klicka for att visa svaret</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div class="flashcard-label" style="color:${diffColors[fc.difficulty]}">${diffLabels[fc.difficulty]}</div>
+                        <div class="flashcard-text">${fc.back}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="flashcard-controls">
+                ${state.flashcardFlipped ? `
+                    <button class="fc-btn fc-btn-wrong" id="fc-wrong">Fel</button>
+                    <button class="fc-btn fc-btn-skip" id="fc-skip">Hoppa over</button>
+                    <button class="fc-btn fc-btn-right" id="fc-right">Ratt!</button>
+                ` : `
+                    <button class="fc-btn fc-btn-skip" id="fc-flip">Visa svar</button>
+                `}
+            </div>
+            <div class="flashcard-progress">
+                ${current} av ${total} flashcards
+            </div>
+        `;
+
+        // Attach events
+        const card = $('flashcard');
+        if (card) {
+            card.addEventListener('click', flipFlashcard);
+        }
+
+        if ($('fc-flip')) $('fc-flip').addEventListener('click', flipFlashcard);
+        if ($('fc-wrong')) $('fc-wrong').addEventListener('click', () => nextFlashcard(false));
+        if ($('fc-right')) $('fc-right').addEventListener('click', () => nextFlashcard(true));
+        if ($('fc-skip')) $('fc-skip').addEventListener('click', () => nextFlashcard(null));
+    }
+
+    function flipFlashcard() {
+        state.flashcardFlipped = !state.flashcardFlipped;
+        renderFlashcard();
+    }
+
+    function nextFlashcard(correct) {
+        if (correct === true) awardXP(3);
+        state.flashcardFlipped = false;
+
+        if (state.currentFlashcard < state.flashcards.length - 1) {
+            state.currentFlashcard++;
+            renderFlashcard();
+        } else {
+            // Flashcards done
+            $('flashcards-content').innerHTML = `
+                <div style="text-align:center; padding:3rem;">
+                    <div style="font-size:3rem; margin-bottom:1rem;">&#127881;</div>
+                    <h3 style="margin-bottom:0.5rem;">Alla flashcards klara!</h3>
+                    <p style="color:var(--text-muted); margin-bottom:1.5rem;">Bra jobbat! Vill du ga igenom dem igen?</p>
+                    <button class="btn btn-primary" id="fc-restart">Borja om</button>
+                </div>`;
+            $('fc-restart').addEventListener('click', () => {
+                state.currentFlashcard = 0;
+                state.flashcardFlipped = false;
+                renderFlashcard();
+            });
+            awardXP(20);
+        }
+    }
+
+    // ========================================
+    // Quiz
+    // ========================================
+    function initQuiz() {
+        $('start-quiz-btn').addEventListener('click', async () => {
+            $('start-quiz-btn').disabled = true;
+            $('start-quiz-btn').textContent = 'Skapar quiz...';
+
+            try {
+                // Generate quiz using existing quiz API
+                const genRes = await fetch(`${API}/api/quiz/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ documentId: state.documentId, questionCount: 10 })
+                });
+
+                if (!genRes.ok) throw new Error('Kunde inte skapa quiz');
+                const quizData = await genRes.json();
+
+                renderInlineQuiz(quizData);
+            } catch (error) {
+                console.error('Quiz error:', error);
+                $('quiz-container').innerHTML = `
+                    <div class="error-msg show">Kunde inte skapa quiz. Kontrollera att backend kors.</div>`;
+                $('start-quiz-btn').disabled = false;
+                $('start-quiz-btn').textContent = 'Starta Quiz';
+            }
+        });
+    }
+
+    function renderInlineQuiz(quizData) {
+        const questions = quizData.questions;
+        let currentQ = 0;
+        let score = 0;
+        let userAnswers = [];
+
+        function renderQuestion() {
+            const q = questions[currentQ];
+            const progress = ((currentQ) / questions.length * 100);
+
+            $('quiz-container').innerHTML = `
+                <div style="text-align:left;">
+                    <div class="chunk-nav">
+                        <span class="chunk-label">Fraga ${currentQ + 1} / ${questions.length}</span>
+                        <div class="chunk-progress-bar">
+                            <div class="chunk-progress-fill" style="width:${progress}%"></div>
+                        </div>
+                    </div>
+                    <h3 style="margin: 1rem 0; font-size:1.1rem; line-height:1.5;">${q.question}</h3>
+                    <div class="answer-options-quiz">
+                        ${q.options.map((opt, i) => `
+                            <button class="quiz-option" data-index="${i}">${opt}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            $('start-quiz-btn').style.display = 'none';
+
+            document.querySelectorAll('.quiz-option').forEach(btn => {
+                btn.addEventListener('click', () => selectQuizAnswer(parseInt(btn.dataset.index)));
+            });
+        }
+
+        function selectQuizAnswer(idx) {
+            const q = questions[currentQ];
+            const correct = q.correct;
+            const options = document.querySelectorAll('.quiz-option');
+
+            options.forEach((btn, i) => {
+                btn.style.pointerEvents = 'none';
+                if (i === correct) {
+                    btn.style.background = 'var(--success-bg)';
+                    btn.style.borderColor = 'var(--success)';
+                    btn.style.color = 'var(--success)';
+                }
+                if (i === idx && idx !== correct) {
+                    btn.style.background = 'var(--danger-bg)';
+                    btn.style.borderColor = 'var(--danger)';
+                    btn.style.color = 'var(--danger)';
+                }
+            });
+
+            if (idx === correct) score++;
+            userAnswers.push(idx);
+
+            setTimeout(() => {
+                currentQ++;
+                if (currentQ < questions.length) {
+                    renderQuestion();
+                } else {
+                    showQuizResults();
+                }
+            }, 1200);
+        }
+
+        function showQuizResults() {
+            const pct = Math.round((score / questions.length) * 100);
+            awardXP(Math.round(pct / 5));
+
+            $('quiz-container').innerHTML = `
+                <div style="text-align:center; padding:1.5rem;">
+                    <div style="font-size:2.5rem; margin-bottom:0.5rem;">${pct >= 80 ? '&#127881;' : pct >= 50 ? '&#128170;' : '&#128218;'}</div>
+                    <h3 style="margin-bottom:0.5rem;">Du fick ${score} av ${questions.length} ratt!</h3>
+                    <p style="color:var(--text-muted); margin-bottom:1rem;">${pct}%</p>
+                    <button class="btn btn-primary" id="quiz-retry">Forsok igen</button>
+                </div>
+            `;
+
+            $('quiz-retry').addEventListener('click', () => {
+                currentQ = 0;
+                score = 0;
+                userAnswers = [];
+                renderQuestion();
+            });
+
+            updateProgress({ quizScore: pct });
+        }
+
+        renderQuestion();
+    }
+
+    // ========================================
+    // Progress & XP
+    // ========================================
+    function renderProgress() {
+        const p = state.progress;
+        $('total-xp').textContent = p.xp_earned || 0;
+        $('stat-streak').textContent = p.study_streak || 0;
+
+        const totalMin = Math.round((p.total_study_time || 0) / 60);
+        $('stat-time').textContent = totalMin > 0 ? totalMin + 'm' : '0m';
+        $('stat-cards').textContent = p.flashcards_mastered || 0;
+        $('stat-quiz').textContent = (p.best_quiz_score || 0) + '%';
+    }
+
+    function awardXP(amount) {
+        state.progress.xp_earned = (state.progress.xp_earned || 0) + amount;
+        renderProgress();
+        showXPToast(amount);
+        updateProgress({ xpEarned: amount });
+    }
+
+    function showXPToast(amount) {
+        const toast = $('xp-toast');
+        toast.textContent = `+${amount} XP`;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1500);
+    }
+
+    async function updateProgress(data) {
+        if (!state.documentId) return;
+        try {
+            const studyTime = state.studyStartTime
+                ? Math.round((Date.now() - state.studyStartTime) / 1000)
+                : 0;
+
+            await fetch(`${API}/api/study/progress`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    documentId: state.documentId,
+                    studyTime: data.studyTime || studyTime,
+                    ...data
+                })
+            });
+        } catch (e) {
+            console.error('Update progress error:', e);
+        }
+    }
+
+    // ========================================
+    // Pomodoro Timer
+    // ========================================
+    function initPomodoro() {
+        $('timer-toggle-btn').addEventListener('click', () => {
+            const bar = $('pomodoro-bar');
+            bar.classList.toggle('show');
+            document.body.classList.toggle('pomo-active', bar.classList.contains('show'));
+        });
+
+        $('pomo-start').addEventListener('click', togglePomodoro);
+        $('pomo-reset').addEventListener('click', resetPomodoro);
+
+        renderPomoTime();
+    }
+
+    function togglePomodoro() {
+        if (state.pomoRunning) {
+            clearInterval(state.pomoInterval);
+            state.pomoRunning = false;
+            $('pomo-start').innerHTML = '&#9654;';
+        } else {
+            state.pomoRunning = true;
+            $('pomo-start').innerHTML = '&#10074;&#10074;';
+            state.pomoInterval = setInterval(() => {
+                state.pomoTimeLeft--;
+                renderPomoTime();
+
+                if (state.pomoTimeLeft <= 0) {
+                    clearInterval(state.pomoInterval);
+                    state.pomoRunning = false;
+                    $('pomo-start').innerHTML = '&#9654;';
+
+                    if (state.pomoIsBreak) {
+                        state.pomoIsBreak = false;
+                        state.pomoTimeLeft = state.pomoDuration;
+                        $('pomo-label').textContent = 'Fokus';
+                    } else {
+                        state.pomoSessions++;
+                        awardXP(10);
+                        state.pomoIsBreak = true;
+                        state.pomoTimeLeft = state.pomoBreakDuration;
+                        $('pomo-label').textContent = 'Paus';
+                        renderPomoDots();
+                    }
+                    renderPomoTime();
+                    notifyPomodoro();
+                }
+            }, 1000);
+        }
+    }
+
+    function resetPomodoro() {
+        clearInterval(state.pomoInterval);
+        state.pomoRunning = false;
+        state.pomoIsBreak = false;
+        state.pomoTimeLeft = state.pomoDuration;
+        $('pomo-start').innerHTML = '&#9654;';
+        $('pomo-label').textContent = 'Fokus';
+        renderPomoTime();
+    }
+
+    function renderPomoTime() {
+        const min = Math.floor(state.pomoTimeLeft / 60);
+        const sec = state.pomoTimeLeft % 60;
+        $('pomo-time').textContent = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    }
+
+    function renderPomoDots() {
+        const dots = $('pomo-sessions').children;
+        for (let i = 0; i < dots.length; i++) {
+            dots[i].classList.remove('completed', 'active');
+            if (i < state.pomoSessions) dots[i].classList.add('completed');
+            if (i === state.pomoSessions) dots[i].classList.add('active');
+        }
+    }
+
+    function notifyPomodoro() {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            const msg = state.pomoIsBreak ? 'Dags for paus! Vila ogonen.' : 'Pausen ar slut! Dags att fokusera.';
+            new Notification('Studieplatformen', { body: msg });
+        }
+    }
+
+    // ========================================
+    // Document List
+    // ========================================
+    async function loadDocumentList() {
+        try {
+            const res = await fetch(`${API}/api/study/documents`);
+            if (!res.ok) return;
+            const docs = await res.json();
+
+            if (docs.length === 0) {
+                $('doc-list').style.display = 'none';
+                return;
+            }
+
+            const icons = { pdf: '&#128211;', docx: '&#128196;', pptx: '&#128202;' };
+
+            $('doc-list-items').innerHTML = docs.map(doc => `
+                <div class="doc-item" data-id="${doc.id}">
+                    <div class="doc-item-left">
+                        <span class="doc-item-icon">${icons[doc.file_type] || '&#128196;'}</span>
+                        <div>
+                            <div class="doc-item-name">${doc.original_filename}</div>
+                            <div class="doc-item-meta">${doc.word_count} ord</div>
+                        </div>
+                    </div>
+                    ${doc.xp_earned ? `<span class="doc-item-xp">${doc.xp_earned} XP</span>` : ''}
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.doc-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    loadDocumentById(parseInt(item.dataset.id));
+                });
+            });
+        } catch (e) {
+            console.error('Load doc list error:', e);
+        }
+    }
+
+    // ========================================
+    // Navigation
+    // ========================================
+    function showView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        $(viewId).classList.add('active');
+    }
+
+    function backToUpload() {
+        // Save study time
+        if (state.studyStartTime && state.documentId) {
+            const studyTime = Math.round((Date.now() - state.studyStartTime) / 1000);
+            updateProgress({ studyTime });
+        }
+        state.studyStartTime = null;
+        state.documentId = null;
+        state.chunks = [];
+        state.summaryLoaded = false;
+        state.flashcardsLoaded = false;
+        removeFile();
+        showView('view-upload');
+        loadDocumentList();
+    }
+
+    // ========================================
+    // Quiz option styles (inline)
+    // ========================================
+    function addQuizStyles() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .quiz-option {
+                display: block;
+                width: 100%;
+                text-align: left;
+                padding: 0.8rem 1rem;
+                margin-bottom: 0.5rem;
+                background: var(--bg-secondary);
+                border: 1.5px solid var(--border);
+                border-radius: var(--radius-sm);
+                font-size: 0.95rem;
+                cursor: pointer;
+                transition: all var(--transition);
+                color: var(--text-primary);
+                font-family: inherit;
+            }
+            .quiz-option:hover {
+                border-color: var(--accent);
+                background: var(--accent-bg);
+            }
+            .answer-options-quiz {
+                display: flex;
+                flex-direction: column;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // ========================================
+    // Init
+    // ========================================
+    function init() {
+        addQuizStyles();
+        initSettings();
+        initUpload();
+        initChunkNav();
+        initStudyModes();
+        initQuiz();
+        initPomodoro();
+        loadDocumentList();
+        renderPomoTime();
+
+        // Request notification permission
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    }
+
+    init();
+    </script>
+</body>
+</html>
