@@ -1773,14 +1773,33 @@
     // Flashcards - generated client-side
     // ========================================
     function generateFlashcards(text) {
-        const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+        // Split into sentences - handle PDF text with poor formatting
+        let sentences = text.match(/[^.!?\n]+[.!?\n]+/g);
+        if (!sentences || sentences.length < 3) {
+            // Fallback: split by newlines or long spaces
+            sentences = text.split(/\n+/).filter(s => s.trim().length > 20);
+        }
+        if (!sentences || sentences.length < 2) {
+            // Last resort: split into chunks of ~15 words
+            const words = text.split(/\s+/);
+            sentences = [];
+            for (let i = 0; i < words.length; i += 15) {
+                sentences.push(words.slice(i, i + 15).join(' '));
+            }
+        }
+
         const cards = [];
 
-        // Strategy 1: Key sentences become flashcards (term → definition style)
         const importantSentences = sentences.filter(s => {
             const words = s.trim().split(/\s+/);
-            return words.length > 5 && words.length < 40;
+            return words.length > 4 && words.length < 50;
         });
+
+        if (importantSentences.length === 0) {
+            state.flashcards = [];
+            renderFlashcardUI();
+            return;
+        }
 
         // Pick diverse sentences spread across the text
         const step = Math.max(1, Math.floor(importantSentences.length / 12));
@@ -1790,8 +1809,8 @@
 
             // Find a key word to blank out (longer words are usually more important)
             const candidates = words
-                .map((w, idx) => ({ word: w.replace(/[^a-zåäöA-ZÅÄÖ]/g, ''), idx, len: w.length }))
-                .filter(c => c.len > 4);
+                .map((w, idx) => ({ word: w.replace(/[^a-zåäöA-ZÅÄÖ0-9]/gi, ''), idx, len: w.replace(/[^a-zåäöA-ZÅÄÖ0-9]/gi, '').length }))
+                .filter(c => c.len > 3 && c.word.length > 3);
 
             if (candidates.length > 0) {
                 const target = candidates.reduce((a, b) => a.len > b.len ? a : b);
@@ -1887,15 +1906,27 @@
     // Quiz - generated client-side
     // ========================================
     function generateQuiz(text) {
-        const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+        // Split into sentences - handle PDF text with poor formatting
+        let sentences = text.match(/[^.!?\n]+[.!?\n]+/g);
+        if (!sentences || sentences.length < 3) {
+            sentences = text.split(/\n+/).filter(s => s.trim().length > 20);
+        }
+        if (!sentences || sentences.length < 2) {
+            const words = text.split(/\s+/);
+            sentences = [];
+            for (let i = 0; i < words.length; i += 15) {
+                sentences.push(words.slice(i, i + 15).join(' '));
+            }
+        }
+
         const questions = [];
 
         // Collect all significant words for wrong answers
         const allSignificantWords = [];
         sentences.forEach(s => {
             s.trim().split(/\s+/).forEach(w => {
-                const clean = w.replace(/[^a-zåäöA-ZÅÄÖ]/g, '');
-                if (clean.length > 4) allSignificantWords.push(clean);
+                const clean = w.replace(/[^a-zåäöA-ZÅÄÖ0-9]/gi, '');
+                if (clean.length > 3) allSignificantWords.push(clean);
             });
         });
 
@@ -1908,12 +1939,12 @@
             if (usedSentences.has(sentence)) continue;
 
             const words = sentence.split(/\s+/);
-            if (words.length < 6 || words.length > 35) continue;
+            if (words.length < 4 || words.length > 50) continue;
 
             // Find a good word to blank out
             const candidates = words
-                .map((w, idx) => ({ word: w.replace(/[^a-zåäöA-ZÅÄÖ]/g, ''), original: w, idx }))
-                .filter(c => c.word.length > 4);
+                .map((w, idx) => ({ word: w.replace(/[^a-zåäöA-ZÅÄÖ0-9]/gi, ''), original: w, idx }))
+                .filter(c => c.word.length > 3);
 
             if (candidates.length === 0) continue;
 
