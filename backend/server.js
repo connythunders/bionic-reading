@@ -34,6 +34,7 @@ app.locals.pool = pool;
 
 // Import routes
 const quizRoutes = require('./routes/quiz');
+const studyRoutes = require('./routes/study');
 
 // Routes
 app.get('/api/health', (req, res) => {
@@ -42,6 +43,9 @@ app.get('/api/health', (req, res) => {
 
 // AI Quiz routes
 app.use('/api/quiz', quizRoutes);
+
+// Study platform routes
+app.use('/api/study', studyRoutes);
 
 // Hämta alla quiz-resultat
 app.get('/api/results', async (req, res) => {

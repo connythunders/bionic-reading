@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studieplatformen - ADHD-anpassad studiehjalp</title>
+    <style>
+        /* ===== CSS Custom Properties ===== */
+        :root {
+            --bg-primary: #fafbfc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f0f2f5;
+            --text-primary: #1a1a2e;
+            --text-secondary: #555770;
+            --text-muted: #8e8ea0;
+            --accent: #6c63ff;
+            --accent-light: #8b83ff;
+            --accent-bg: #f0eeff;
+            --success: #10b981;
+            --success-bg: #ecfdf5;
+            --warning: #f59e0b;
+            --warning-bg: #fffbeb;
+            --danger: #ef4444;
+            --danger-bg: #fef2f2;
+            --border: #e5e7eb;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --font-size-base: 17px;
+            --line-height: 1.8;
+            --letter-spacing: 0.01em;
+            --transition: 0.2s ease;
+        }
+
+        /* Dark mode */
+        [data-theme="dark"] {
+            --bg-primary: #13131a;
+            --bg-secondary: #1e1e2d;
+            --bg-tertiary: #2a2a3d;
+            --text-primary: #e8e8ed;
+            --text-secondary: #a0a0b8;
+            --text-muted: #6e6e85;
+            --accent: #8b83ff;
+            --accent-light: #a59dff;
+            --accent-bg: #2a2750;
+            --success: #34d399;
+            --success-bg: #1a2e28;
+            --warning: #fbbf24;
+            --warning-bg: #2e2a1a;
+            --danger: #f87171;
+            --danger-bg: #2e1a1a;
+            --border: #333348;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+            --shadow-lg: 0 8px 30px rgba(0,0,0,0.4);
+        }
+
+        /* ===== Reset & Base ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height);
+            letter-spacing: var(--letter-spacing);
+            min-height: 100vh;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        /* ===== Top Bar ===== */
+        .top-bar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover { color: var(--accent); }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* ===== Icon Buttons ===== */
+        .icon-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            height: 38px;
+            padding: 0 0.8rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            transition: all var(--transition);
+        }
+        .icon-btn .btn-icon { font-size: 1.1rem; }
+        .icon-btn .btn-label { font-size: 0.8rem; font-weight: 500; }
+        .icon-btn:hover {
+            background: var(--accent-bg);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* ===== Layout ===== */
+        .app-layout {
+            display: flex;
+            min-height: calc(100vh - 54px);
+        }
+
+        .main-content {
+            flex: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            width: 100%;
+        }
+
+        /* ===== Views ===== */
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* ===== Upload View ===== */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-xl);
+            padding: 3rem 2rem;
+            text-align: center;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-bg);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+
+        .upload-zone h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .upload-zone p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .format-tags {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .format-tag {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .file-input { display: none; }
+
+        /* File selected card */
+        .file-card {
+            display: none;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin-top: 1rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .file-card.show { display: flex; }
+
+        .file-card-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .file-card-icon { font-size: 1.5rem; }
+        .file-card-name { font-weight: 600; font-size: 0.95rem; }
+        .file-card-size { font-size: 0.8rem; color: var(--text-muted); }
+
+        .file-card-remove {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        /* ===== Buttons ===== */
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: var(--accent-bg);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-full { width: 100%; justify-content: center; margin-top: 1.25rem; padding: 0.9rem; }
+
+        /* ===== Document list ===== */
+        .doc-list {
+            margin-top: 2rem;
+        }
+
+        .doc-list h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .doc-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .doc-item:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .doc-item-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .doc-item-icon { font-size: 1.3rem; }
+        .doc-item-name { font-weight: 600; font-size: 0.95rem; }
+        .doc-item-meta { font-size: 0.8rem; color: var(--text-muted); }
+
+        .doc-item-xp {
+            background: var(--accent-bg);
+            color: var(--accent);
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* ===== Study Mode Selector ===== */
+        .study-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .study-doc-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .study-modes {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .mode-btn {
+            background: var(--bg-secondary);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.7rem 1.2rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .mode-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .mode-btn.active {
+            background: var(--accent-bg);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .mode-btn-icon { font-size: 1.1rem; }
+
+        /* ===== Reading View ===== */
+        .reading-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .bionic-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--border);
+            border-radius: 22px;
+            transition: var(--transition);
+        }
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--accent);
+        }
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(18px);
+        }
+
+        /* Chunk navigation */
+        .chunk-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+        }
+
+        .chunk-progress-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            margin: 0 1rem;
+            overflow: hidden;
+        }
+        .chunk-progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .chunk-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .chunk-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 34px;
+            height: 34px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all var(--transition);
+        }
+        .chunk-btn:hover:not(:disabled) {
+            background: var(--accent-bg);
+            color: var(--accent);
+        }
+        .chunk-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* Reading content */
+        .reading-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem 2.5rem;
+            line-height: var(--line-height);
+            font-size: var(--font-size-base);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .reading-content strong {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ===== Flashcard View ===== */
+        .flashcard-container {
+            perspective: 1000px;
+            margin-bottom: 1.5rem;
+        }
+
+        .flashcard {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.5s ease, box-shadow var(--transition);
+            transform-style: preserve-3d;
+            position: relative;
+            box-shadow: var(--shadow-md);
+        }
+        .flashcard:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background: var(--accent-bg);
+            border-radius: var(--radius-xl);
+        }
+
+        .flashcard-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .flashcard-text {
+            font-size: 1.15rem;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .flashcard-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+        }
+
+        .flashcard-controls {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .fc-btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: var(--bg-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .fc-btn-wrong {
+            color: var(--danger);
+        }
+        .fc-btn-wrong:hover {
+            background: var(--danger-bg);
+            border-color: var(--danger);
+        }
+        .fc-btn-right {
+            color: var(--success);
+        }
+        .fc-btn-right:hover {
+            background: var(--success-bg);
+            border-color: var(--success);
+        }
+        .fc-btn-skip {
+            color: var(--text-muted);
+        }
+        .fc-btn-skip:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .flashcard-progress {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== Summary View ===== */
+        .summary-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-heading {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .summary-points {
+            list-style: none;
+            padding: 0;
+        }
+
+        .summary-points li {
+            padding: 0.4rem 0;
+            padding-left: 1.2rem;
+            position: relative;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .summary-points li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.85rem;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .memory-tip {
+            margin-top: 0.75rem;
+            padding: 0.6rem 0.8rem;
+            background: var(--warning-bg);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        .memory-tip-icon { font-size: 1rem; flex-shrink: 0; }
+
+        /* ===== Pomodoro Timer ===== */
+        .pomodoro-bar {
+            display: none;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 0.6rem 1.5rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .pomodoro-bar.show { display: flex; }
+
+        .pomo-time {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-primary);
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .pomo-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .pomo-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: all var(--transition);
+        }
+        .pomo-btn:hover {
+            background: var(--accent-bg);
+            color: var(--accent);
+        }
+
+        .pomo-sessions {
+            display: flex;
+            gap: 4px;
+        }
+        .pomo-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+        .pomo-dot.completed { background: var(--success); }
+        .pomo-dot.active { background: var(--accent); }
+
+        /* ===== Progress Sidebar ===== */
+        .progress-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .xp-display {
+            display: flex;
+            align-items: baseline;
+            gap: 0.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .xp-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .xp-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .stat-item {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            padding: 0.6rem 0.75rem;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .stat-label-small {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        /* ===== Loading States ===== */
+        .loading-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* ===== Settings Panel ===== */
+        .settings-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 200;
+        }
+        .settings-overlay.show { display: block; }
+
+        .settings-panel {
+            position: fixed;
+            top: 0; right: -360px; bottom: 0;
+            width: 340px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            z-index: 201;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            padding: 1.5rem;
+        }
+        .settings-panel.show { right: 0; }
+
+        .settings-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-close {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .setting-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .setting-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .setting-range {
+            width: 100%;
+            margin-top: 0.25rem;
+        }
+
+        .setting-value {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        /* ===== Error message ===== */
+        .error-msg {
+            background: var(--danger-bg);
+            color: var(--danger);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            display: none;
+            border-left: 3px solid var(--danger);
+        }
+        .error-msg.show { display: block; }
+
+        /* ===== XP Animation ===== */
+        .xp-toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--accent);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 1rem;
+            z-index: 300;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .xp-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            .reading-content {
+                padding: 1.25rem;
+            }
+            .flashcard {
+                min-height: 200px;
+            }
+            .study-modes {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 0.5rem;
+            }
+            .mode-btn {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+            }
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Adjust body padding when pomodoro is visible */
+        body.pomo-active {
+            padding-bottom: 60px;
+        }
+    </style>
+</head>
+<body>
+    <!-- XP Toast -->
+    <div class="xp-toast" id="xp-toast">+10 XP</div>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <a href="index.html" class="logo">Studieplatformen</a>
+            <a href="index.html" class="back-link">Tillbaka</a>
+        </div>
+        <div class="top-bar-right">
+            <button class="icon-btn" id="timer-toggle-btn" title="Pomodoro-timer">
+                <span class="btn-icon">&#9201;</span><span class="btn-label">Timer</span>
+            </button>
+            <button class="icon-btn" id="settings-btn" title="Installningar">
+                <span class="btn-icon">&#9881;</span><span class="btn-label">Anpassa</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Overlay -->
+    <div class="settings-overlay" id="settings-overlay"></div>
+    <div class="settings-panel" id="settings-panel">
+        <div class="settings-title">
+            Anpassningar
+            <button class="settings-close" id="settings-close">&times;</button>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Tema</label>
+            <select class="setting-select" id="setting-theme">
+                <option value="light">Ljust</option>
+                <option value="dark">Morkt</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Textstorlek</label>
+            <input type="range" class="setting-range" id="setting-fontsize" min="14" max="24" value="17" step="1">
+            <div class="setting-value" id="fontsize-value">17px</div>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Radavstand</label>
+            <input type="range" class="setting-range" id="setting-lineheight" min="1.4" max="2.4" value="1.8" step="0.1">
+            <div class="setting-value" id="lineheight-value">1.8</div>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Bokstavsavstand</label>
+            <input type="range" class="setting-range" id="setting-letterspacing" min="0" max="0.1" value="0.01" step="0.01">
+            <div class="setting-value" id="letterspacing-value">0.01em</div>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Typsnitt</label>
+            <select class="setting-select" id="setting-font">
+                <option value="'Segoe UI', -apple-system, sans-serif">Standard</option>
+                <option value="'OpenDyslexic', sans-serif">OpenDyslexic</option>
+                <option value="'Verdana', sans-serif">Verdana</option>
+                <option value="'Arial', sans-serif">Arial</option>
+                <option value="'Georgia', serif">Georgia</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Bionic Reading-niva</label>
+            <select class="setting-select" id="setting-bionic">
+                <option value="none">Av</option>
+                <option value="low">Lag</option>
+                <option value="medium">Medel</option>
+                <option value="high">Hog</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Pomodoro-langd (minuter)</label>
+            <select class="setting-select" id="setting-pomodoro">
+                <option value="15">15 min</option>
+                <option value="20">20 min</option>
+                <option value="25" selected>25 min</option>
+                <option value="30">30 min</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Paus-langd (minuter)</label>
+            <select class="setting-select" id="setting-break">
+                <option value="3">3 min</option>
+                <option value="5" selected>5 min</option>
+                <option value="10">10 min</option>
+            </select>
+        </div>
+
+        <div class="setting-group">
+            <label class="setting-label">Ord per studiesektion</label>
+            <select class="setting-select" id="setting-chunksize">
+                <option value="100">100 (kort)</option>
+                <option value="150" selected>150 (standard)</option>
+                <option value="200">200 (lang)</option>
+                <option value="300">300 (extra lang)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- App Layout -->
+    <div class="app-layout">
+        <div class="main-content">
+
+            <!-- ===== UPLOAD VIEW ===== -->
+            <div class="view active" id="view-upload">
+                <div class="upload-zone" id="upload-zone">
+                    <div class="upload-icon">&#128218;</div>
+                    <h2>Ladda upp ditt studiematerial</h2>
+                    <p>Dra och slapp din fil har, eller klicka for att valja</p>
+                    <div class="format-tags">
+                        <span class="format-tag">PDF</span>
+                        <span class="format-tag">Word (.docx)</span>
+                        <span class="format-tag">PowerPoint (.pptx)</span>
+                        <span class="format-tag">Text (.txt)</span>
+                    </div>
+                </div>
+                <input type="file" id="file-input" class="file-input" accept=".pdf,.docx,.pptx,.txt">
+
+                <div class="file-card" id="file-card">
+                    <div class="file-card-info">
+                        <div class="file-card-icon" id="file-icon">&#128196;</div>
+                        <div>
+                            <div class="file-card-name" id="file-name"></div>
+                            <div class="file-card-size" id="file-size"></div>
+                        </div>
+                    </div>
+                    <button class="file-card-remove" id="file-remove">Ta bort</button>
+                </div>
+
+                <div class="error-msg" id="upload-error"></div>
+
+                <button class="btn btn-primary btn-full" id="start-study-btn" disabled>
+                    Borja studera
+                </button>
+
+                <div class="doc-list" id="doc-list">
+                    <h3>Tidigare material</h3>
+                    <div id="doc-list-items"></div>
+                </div>
+            </div>
+
+            <!-- ===== LOADING VIEW ===== -->
+            <div class="view" id="view-loading">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <div class="loading-text" id="loading-text">Laddar upp och analyserar...</div>
+                </div>
+            </div>
+
+            <!-- ===== STUDY VIEW ===== -->
+            <div class="view" id="view-study">
+                <!-- Progress panel -->
+                <div class="progress-panel" id="progress-panel">
+                    <div class="progress-title">Dina framsteg</div>
+                    <div class="xp-display">
+                        <span class="xp-number" id="total-xp">0</span>
+                        <span class="xp-label">XP</span>
+                    </div>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-streak">0</div>
+                            <div class="stat-label-small">Dagars streak</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-time">0m</div>
+                            <div class="stat-label-small">Studietid</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-cards">0</div>
+                            <div class="stat-label-small">Flashcards</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stat-quiz">0%</div>
+                            <div class="stat-label-small">Basta quiz</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Study doc title -->
+                <div class="study-header">
+                    <div class="study-doc-title" id="study-doc-title"></div>
+                    <div class="study-modes">
+                        <button class="mode-btn active" data-mode="read">
+                            <span class="mode-btn-icon">&#128214;</span> Lasa
+                        </button>
+                        <button class="mode-btn" data-mode="summary">
+                            <span class="mode-btn-icon">&#128221;</span> Sammanfattning
+                        </button>
+                        <button class="mode-btn" data-mode="flashcards">
+                            <span class="mode-btn-icon">&#127183;</span> Flashcards
+                        </button>
+                        <button class="mode-btn" data-mode="quiz">
+                            <span class="mode-btn-icon">&#10004;</span> Quiz
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reading mode -->
+                <div id="study-read" class="study-mode-content">
+                    <div class="reading-controls">
+                        <div class="bionic-toggle">
+                            Bionic Reading
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="bionic-toggle-input">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <button class="btn btn-secondary" id="back-to-upload" style="margin-left:auto;">&#8592; Byt material</button>
+                    </div>
+
+                    <div class="chunk-nav" id="chunk-nav">
+                        <button class="chunk-btn" id="chunk-prev" disabled>&#8592;</button>
+                        <div class="chunk-progress-bar">
+                            <div class="chunk-progress-fill" id="chunk-progress"></div>
+                        </div>
+                        <span class="chunk-label" id="chunk-label">1 / 1</span>
+                        <button class="chunk-btn" id="chunk-next">&#8594;</button>
+                    </div>
+
+                    <div class="reading-content" id="reading-content"></div>
+                </div>
+
+                <!-- Summary mode -->
+                <div id="study-summary" class="study-mode-content" style="display:none;">
+                    <div id="summary-content">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <div class="loading-text">AI skapar din sammanfattning...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flashcards mode -->
+                <div id="study-flashcards" class="study-mode-content" style="display:none;">
+                    <div id="flashcards-content">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <div class="loading-text">AI skapar flashcards...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz mode -->
+                <div id="study-quiz" class="study-mode-content" style="display:none;">
+                    <div style="text-align:center; padding: 2rem;">
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">Testa dina kunskaper med ett quiz baserat pa ditt material!</p>
+                        <button class="btn btn-primary" id="start-quiz-btn">Starta Quiz</button>
+                        <div id="quiz-container" style="margin-top: 1.5rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pomodoro Bar -->
+    <div class="pomodoro-bar" id="pomodoro-bar">
+        <div class="pomo-sessions" id="pomo-sessions">
+            <div class="pomo-dot"></div>
+            <div class="pomo-dot"></div>
+            <div class="pomo-dot"></div>
+            <div class="pomo-dot"></div>
+        </div>
+        <span class="pomo-label" id="pomo-label">Fokus</span>
+        <span class="pomo-time" id="pomo-time">25:00</span>
+        <button class="pomo-btn" id="pomo-start" title="Starta">&#9654;</button>
+        <button class="pomo-btn" id="pomo-reset" title="Aterstall">&#8634;</button>
+    </div>
+
+    <!-- pdf.js for reading PDFs in browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- mammoth.js for reading DOCX in browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+    <!-- JSZip for reading PPTX files (ZIP archives) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script>
+    // Robust pdf.js worker setup - handles both file:// and https://
+    (function setupPdfWorker() {
+        if (typeof pdfjsLib === 'undefined') {
+            console.error('pdf.js did not load - check internet connection');
+            return;
+        }
+        try {
+            pdfjsLib.GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        } catch (e) {
+            console.warn('PDF worker setup failed:', e);
+        }
+    })();
+
+    // ========================================
+    // State - works 100% offline, no backend
+    // ========================================
+    const state = {
+        selectedFile: null,
+        documentName: '',
+        fullText: '',
+        chunks: [],
+        currentChunk: 0,
+        bionicEnabled: false,
+        bionicLevel: 'medium',
+        progress: { xp_earned: 0, study_streak: 0, total_study_time: 0, flashcards_mastered: 0, quizzes_completed: 0, best_quiz_score: 0 },
+        pomoRunning: false,
+        pomoInterval: null,
+        pomoTimeLeft: 25 * 60,
+        pomoDuration: 25 * 60,
+        pomoBreakDuration: 5 * 60,
+        pomoIsBreak: false,
+        pomoSessions: 0,
+        chunkSize: 150,
+        studyStartTime: null,
+    };
+
+    const $ = id => document.getElementById(id);
+
+    // ========================================
+    // Text extraction - runs IN the browser
+    // ========================================
+    async function extractText(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext === 'pdf') return await extractPDF(file);
+        if (ext === 'docx') return await extractDOCX(file);
+        if (ext === 'pptx') return await extractPPTX(file);
+        if (ext === 'txt') return await file.text();
+        throw new Error('Filtypen stods inte. Anvand PDF, DOCX eller PPTX.');
+    }
+
+    async function extractPDF(file) {
+        if (typeof pdfjsLib === 'undefined') {
+            throw new Error('PDF-biblioteket kunde inte laddas. Kontrollera din internetanslutning och ladda om sidan.');
+        }
+
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({
+                data: arrayBuffer,
+                useSystemFonts: true
+            }).promise;
+
+            console.log('PDF laddad:', pdf.numPages, 'sidor');
+
+            let text = '';
+            let totalItems = 0;
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                const pageText = content.items
+                    .map(item => item.str)
+                    .filter(s => s.length > 0)
+                    .join(' ');
+                totalItems += content.items.length;
+                if (pageText.trim()) {
+                    text += pageText.trim() + '\n\n';
+                }
+                console.log('Sida ' + i + ':', content.items.length, 'element,', pageText.length, 'tecken');
+            }
+
+            const result = text.trim();
+
+            if (!result && pdf.numPages > 0) {
+                throw new Error(
+                    'PDF:en har ' + pdf.numPages + ' sidor men innehaller ingen markbar text. ' +
+                    'Den ar troligen skannad (bildbaserad). ' +
+                    'Tips: Prova att exportera materialet som Word-dokument istallet, ' +
+                    'eller kopiera och klistra in texten manuellt i en .txt-fil.'
+                );
+            }
+
+            return result;
+        } catch (error) {
+            console.error('PDF-lasfel:', error);
+            if (error.message && error.message.includes('sidor men')) {
+                throw error;
+            }
+            throw new Error('Kunde inte lasa PDF-filen: ' + (error.message || 'okant fel'));
+        }
+    }
+
+    async function extractDOCX(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        return result.value;
+    }
+
+    async function extractPPTX(file) {
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const zip = await JSZip.loadAsync(arrayBuffer);
+
+            // Find all slide XML files (ppt/slides/slide1.xml, slide2.xml, etc.)
+            const slideFiles = [];
+            zip.forEach((path, entry) => {
+                if (path.match(/^ppt\/slides\/slide\d+\.xml$/)) {
+                    slideFiles.push({ path, entry });
+                }
+            });
+
+            // Sort slides by number
+            slideFiles.sort((a, b) => {
+                const numA = parseInt(a.path.match(/slide(\d+)/)[1]);
+                const numB = parseInt(b.path.match(/slide(\d+)/)[1]);
+                return numA - numB;
+            });
+
+            let allText = '';
+            for (const slide of slideFiles) {
+                const xml = await slide.entry.async('text');
+                // Extract text from <a:t> tags (PowerPoint text elements)
+                const matches = xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g);
+                if (matches) {
+                    const slideText = matches
+                        .map(m => m.replace(/<[^>]+>/g, ''))
+                        .filter(t => t.trim())
+                        .join(' ');
+                    if (slideText.trim()) {
+                        allText += slideText.trim() + '\n\n';
+                    }
+                }
+            }
+
+            return allText.trim() || 'Kunde inte lasa texten fran PowerPoint-filen. Prova att spara som PDF istallet.';
+        } catch (error) {
+            console.error('PPTX-lasfel:', error);
+            throw new Error('Kunde inte lasa PowerPoint-filen: ' + (error.message || 'okant fel'));
+        }
+    }
+
+    // ========================================
+    // Content chunking - splits text into sections
+    // ========================================
+    function chunkText(text, maxWords) {
+        const sentences = text.match(/[^.!?\n]+[.!?\n]+/g) || [text];
+        const chunks = [];
+        let current = '';
+        let wordCount = 0;
+
+        sentences.forEach(s => {
+            const sWords = s.trim().split(/\s+/).length;
+            if (wordCount + sWords > maxWords && current.length > 0) {
+                chunks.push({ text: current.trim(), wordCount, index: chunks.length });
+                current = '';
+                wordCount = 0;
+            }
+            current += s;
+            wordCount += sWords;
+        });
+
+        if (current.trim().length > 0) {
+            chunks.push({ text: current.trim(), wordCount, index: chunks.length });
+        }
+
+        return chunks.length > 0 ? chunks : [{ text, wordCount: text.split(/\s+/).length, index: 0 }];
+    }
+
+    // ========================================
+    // Bionic reading - converts text client-side
+    // ========================================
+    function convertToBionic(text, level) {
+        const words = text.split(/(\s+)/);
+        return words.map(word => {
+            if (word.trim().length === 0) return word;
+            let ratio;
+            switch (level) {
+                case 'low': ratio = 0.3; break;
+                case 'high': ratio = 0.5; break;
+                default: ratio = 0.4;
+            }
+            const bl = Math.max(1, Math.ceil(word.length * ratio));
+            return `<strong>${word.substring(0, bl)}</strong>${word.substring(bl)}`;
+        }).join('');
+    }
+
+    // ========================================
+    // Settings
+    // ========================================
+    function initSettings() {
+        $('setting-theme').addEventListener('change', e => {
+            document.documentElement.setAttribute('data-theme', e.target.value);
+            localStorage.setItem('study-theme', e.target.value);
+        });
+
+        $('setting-fontsize').addEventListener('input', e => {
+            const val = e.target.value + 'px';
+            document.documentElement.style.setProperty('--font-size-base', val);
+            $('fontsize-value').textContent = val;
+            localStorage.setItem('study-fontsize', e.target.value);
+        });
+
+        $('setting-lineheight').addEventListener('input', e => {
+            document.documentElement.style.setProperty('--line-height', e.target.value);
+            $('lineheight-value').textContent = e.target.value;
+            localStorage.setItem('study-lineheight', e.target.value);
+        });
+
+        $('setting-letterspacing').addEventListener('input', e => {
+            const val = e.target.value + 'em';
+            document.documentElement.style.setProperty('--letter-spacing', val);
+            $('letterspacing-value').textContent = val;
+            localStorage.setItem('study-letterspacing', e.target.value);
+        });
+
+        $('setting-font').addEventListener('change', e => {
+            document.body.style.fontFamily = e.target.value;
+            localStorage.setItem('study-font', e.target.value);
+        });
+
+        $('setting-bionic').addEventListener('change', e => {
+            state.bionicLevel = e.target.value;
+            state.bionicEnabled = e.target.value !== 'none';
+            $('bionic-toggle-input').checked = state.bionicEnabled;
+            localStorage.setItem('study-bionic', e.target.value);
+            if (state.chunks.length > 0) renderChunk();
+        });
+
+        $('setting-pomodoro').addEventListener('change', e => {
+            state.pomoDuration = parseInt(e.target.value) * 60;
+            if (!state.pomoRunning && !state.pomoIsBreak) {
+                state.pomoTimeLeft = state.pomoDuration;
+                renderPomoTime();
+            }
+            localStorage.setItem('study-pomodoro', e.target.value);
+        });
+
+        $('setting-break').addEventListener('change', e => {
+            state.pomoBreakDuration = parseInt(e.target.value) * 60;
+            localStorage.setItem('study-break', e.target.value);
+        });
+
+        $('setting-chunksize').addEventListener('change', e => {
+            state.chunkSize = parseInt(e.target.value);
+            localStorage.setItem('study-chunksize', e.target.value);
+            if (state.fullText) {
+                state.chunks = chunkText(state.fullText, state.chunkSize);
+                state.currentChunk = 0;
+                renderChunk();
+            }
+        });
+
+        $('settings-btn').addEventListener('click', () => {
+            $('settings-panel').classList.add('show');
+            $('settings-overlay').classList.add('show');
+        });
+        $('settings-close').addEventListener('click', closeSettings);
+        $('settings-overlay').addEventListener('click', closeSettings);
+
+        loadSavedSettings();
+    }
+
+    function closeSettings() {
+        $('settings-panel').classList.remove('show');
+        $('settings-overlay').classList.remove('show');
+    }
+
+    function loadSavedSettings() {
+        const theme = localStorage.getItem('study-theme');
+        if (theme) { document.documentElement.setAttribute('data-theme', theme); $('setting-theme').value = theme; }
+
+        const fontSize = localStorage.getItem('study-fontsize');
+        if (fontSize) { document.documentElement.style.setProperty('--font-size-base', fontSize + 'px'); $('setting-fontsize').value = fontSize; $('fontsize-value').textContent = fontSize + 'px'; }
+
+        const lineHeight = localStorage.getItem('study-lineheight');
+        if (lineHeight) { document.documentElement.style.setProperty('--line-height', lineHeight); $('setting-lineheight').value = lineHeight; $('lineheight-value').textContent = lineHeight; }
+
+        const letterSpacing = localStorage.getItem('study-letterspacing');
+        if (letterSpacing) { document.documentElement.style.setProperty('--letter-spacing', letterSpacing + 'em'); $('setting-letterspacing').value = letterSpacing; $('letterspacing-value').textContent = letterSpacing + 'em'; }
+
+        const font = localStorage.getItem('study-font');
+        if (font) { document.body.style.fontFamily = font; $('setting-font').value = font; }
+
+        const bionic = localStorage.getItem('study-bionic');
+        if (bionic) { state.bionicLevel = bionic; $('setting-bionic').value = bionic; state.bionicEnabled = bionic !== 'none'; $('bionic-toggle-input').checked = state.bionicEnabled; }
+
+        const pomodoro = localStorage.getItem('study-pomodoro');
+        if (pomodoro) { state.pomoDuration = parseInt(pomodoro) * 60; state.pomoTimeLeft = state.pomoDuration; $('setting-pomodoro').value = pomodoro; }
+
+        const breakTime = localStorage.getItem('study-break');
+        if (breakTime) { state.pomoBreakDuration = parseInt(breakTime) * 60; $('setting-break').value = breakTime; }
+
+        const chunkSize = localStorage.getItem('study-chunksize');
+        if (chunkSize) { state.chunkSize = parseInt(chunkSize); $('setting-chunksize').value = chunkSize; }
+
+        // Load saved progress
+        const savedProgress = localStorage.getItem('study-progress');
+        if (savedProgress) { state.progress = JSON.parse(savedProgress); renderProgress(); }
+    }
+
+    // ========================================
+    // File Upload
+    // ========================================
+    function initUpload() {
+        const zone = $('upload-zone');
+        const input = $('file-input');
+
+        zone.addEventListener('click', () => input.click());
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+        });
+
+        input.addEventListener('change', e => {
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        });
+
+        $('file-remove').addEventListener('click', removeFile);
+        $('start-study-btn').addEventListener('click', startStudy);
+        $('back-to-upload').addEventListener('click', backToUpload);
+    }
+
+    function handleFile(file) {
+        hideError();
+        const validExt = /\.(pdf|docx|pptx|txt)$/i;
+
+        if (!file.name.match(validExt)) {
+            showError('Bara PDF, Word (.docx), PowerPoint (.pptx) och textfiler stods.');
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            showError('Filen ar for stor. Max 10 MB.');
+            return;
+        }
+
+        state.selectedFile = file;
+        $('file-name').textContent = file.name;
+        $('file-size').textContent = formatSize(file.size);
+
+        const ext = file.name.split('.').pop().toLowerCase();
+        const icons = { pdf: '&#128211;', docx: '&#128196;', pptx: '&#128202;', txt: '&#128196;' };
+        $('file-icon').innerHTML = icons[ext] || '&#128196;';
+
+        $('file-card').classList.add('show');
+        $('start-study-btn').disabled = false;
+    }
+
+    function removeFile() {
+        state.selectedFile = null;
+        $('file-input').value = '';
+        $('file-card').classList.remove('show');
+        $('start-study-btn').disabled = true;
+        hideError();
+    }
+
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function showError(msg) { const el = $('upload-error'); el.textContent = msg; el.classList.add('show'); }
+    function hideError() { $('upload-error').classList.remove('show'); }
+
+    // ========================================
+    // Start Study - reads file IN the browser
+    // ========================================
+    async function startStudy() {
+        if (!state.selectedFile) return;
+        showView('view-loading');
+        $('loading-text').textContent = 'Laser och analyserar din fil...';
+
+        try {
+            const text = await extractText(state.selectedFile);
+
+            if (!text || text.trim().length < 20) {
+                const chars = text ? text.trim().length : 0;
+                throw new Error(
+                    'Filen innehaller for lite lasbar text (' + chars + ' tecken). ' +
+                    'Om det ar en PDF kan den vara skannad (bildbaserad). ' +
+                    'Prova att exportera som Word (.docx) istallet, eller klistra in texten i en .txt-fil.'
+                );
+            }
+
+            state.fullText = text;
+            state.documentName = state.selectedFile.name;
+            state.chunks = chunkText(text, state.chunkSize);
+            state.currentChunk = 0;
+            state.studyStartTime = Date.now();
+
+            $('study-doc-title').textContent = state.documentName;
+            renderChunk();
+            renderProgress();
+
+            // Generate client-side summary, flashcards and quiz
+            renderSummary(text);
+            generateFlashcards(text);
+            generateQuiz(text);
+
+            showView('view-study');
+            showStudyMode('read');
+        } catch (error) {
+            console.error('Start study error:', error);
+            showView('view-upload');
+            showError(error.message);
+        }
+    }
+
+    // ========================================
+    // Reading View
+    // ========================================
+    function renderChunk() {
+        if (state.chunks.length === 0) return;
+        const chunk = state.chunks[state.currentChunk];
+
+        if (state.bionicEnabled) {
+            $('reading-content').innerHTML = convertToBionic(chunk.text, state.bionicLevel);
+        } else {
+            $('reading-content').textContent = chunk.text;
+        }
+
+        const total = state.chunks.length;
+        const current = state.currentChunk + 1;
+        $('chunk-label').textContent = `${current} / ${total}`;
+        $('chunk-progress').style.width = ((current / total) * 100) + '%';
+        $('chunk-prev').disabled = state.currentChunk === 0;
+        $('chunk-next').disabled = state.currentChunk >= total - 1;
+    }
+
+    function initChunkNav() {
+        $('chunk-prev').addEventListener('click', () => {
+            if (state.currentChunk > 0) {
+                state.currentChunk--;
+                renderChunk();
+                $('reading-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+        $('chunk-next').addEventListener('click', () => {
+            if (state.currentChunk < state.chunks.length - 1) {
+                state.currentChunk++;
+                renderChunk();
+                $('reading-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                awardXP(5);
+            }
+        });
+
+        $('bionic-toggle-input').addEventListener('change', e => {
+            state.bionicEnabled = e.target.checked;
+            if (e.target.checked && state.bionicLevel === 'none') {
+                state.bionicLevel = 'medium';
+                $('setting-bionic').value = 'medium';
+            }
+            localStorage.setItem('study-bionic', state.bionicEnabled ? state.bionicLevel : 'none');
+            if (state.chunks.length > 0) renderChunk();
+        });
+    }
+
+    // ========================================
+    // Summary - extractive (client-side)
+    // ========================================
+    function renderSummary(text) {
+        const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+        if (sentences.length === 0) {
+            $('summary-content').innerHTML = '<p style="color:var(--text-muted); padding:2rem; text-align:center;">Kunde inte skapa sammanfattning - for lite text.</p>';
+            return;
+        }
+
+        // Score sentences by position, length, and keyword density
+        const wordFreq = {};
+        const allWords = text.toLowerCase().replace(/[^a-zåäö\s]/g, '').split(/\s+/).filter(w => w.length > 3);
+        allWords.forEach(w => { wordFreq[w] = (wordFreq[w] || 0) + 1; });
+
+        // Remove very common words
+        const totalWords = allWords.length;
+        Object.keys(wordFreq).forEach(w => {
+            if (wordFreq[w] / totalWords > 0.05) delete wordFreq[w];
+        });
+
+        const scored = sentences.map((s, i) => {
+            const words = s.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+            const keyScore = words.reduce((sum, w) => sum + (wordFreq[w] || 0), 0);
+            const posScore = i < 3 ? 3 : (i < sentences.length * 0.2 ? 2 : 1);
+            const lenScore = (words.length > 5 && words.length < 30) ? 2 : 1;
+            return { text: s.trim(), score: keyScore * posScore * lenScore, index: i };
+        });
+
+        scored.sort((a, b) => b.score - a.score);
+        const topSentences = scored.slice(0, Math.min(8, Math.ceil(sentences.length * 0.2)));
+        topSentences.sort((a, b) => a.index - b.index);
+
+        // Extract key terms
+        const topTerms = Object.entries(wordFreq)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([word]) => word);
+
+        let html = '<div style="padding: 1.5rem;">';
+        html += '<h3 style="margin-bottom: 1rem; color: var(--accent);">Sammanfattning</h3>';
+        html += '<div style="line-height: 1.8; margin-bottom: 1.5rem;">';
+        topSentences.forEach(s => {
+            html += '<p style="margin-bottom: 0.8rem;">' + s.text + '</p>';
+        });
+        html += '</div>';
+
+        if (topTerms.length > 0) {
+            html += '<h4 style="margin-bottom: 0.5rem; color: var(--accent);">Nyckelbegrepp</h4>';
+            html += '<div style="display:flex; flex-wrap:wrap; gap:0.5rem;">';
+            topTerms.forEach(t => {
+                html += '<span style="background:var(--accent-light); color:var(--accent); padding:0.3rem 0.8rem; border-radius:1rem; font-size:0.9rem;">' + t + '</span>';
+            });
+            html += '</div>';
+        }
+        html += '</div>';
+
+        $('summary-content').innerHTML = html;
+    }
+
+    // ========================================
+    // Flashcards - generated client-side
+    // ========================================
+    function generateFlashcards(text) {
+        const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+        const cards = [];
+
+        // Strategy 1: Key sentences become flashcards (term → definition style)
+        const importantSentences = sentences.filter(s => {
+            const words = s.trim().split(/\s+/);
+            return words.length > 5 && words.length < 40;
+        });
+
+        // Pick diverse sentences spread across the text
+        const step = Math.max(1, Math.floor(importantSentences.length / 12));
+        for (let i = 0; i < importantSentences.length && cards.length < 12; i += step) {
+            const sentence = importantSentences[i].trim();
+            const words = sentence.split(/\s+/);
+
+            // Find a key word to blank out (longer words are usually more important)
+            const candidates = words
+                .map((w, idx) => ({ word: w.replace(/[^a-zåäöA-ZÅÄÖ]/g, ''), idx, len: w.length }))
+                .filter(c => c.len > 4);
+
+            if (candidates.length > 0) {
+                const target = candidates.reduce((a, b) => a.len > b.len ? a : b);
+                const blanked = words.map((w, idx) =>
+                    idx === target.idx ? '________' : w
+                ).join(' ');
+
+                cards.push({
+                    front: blanked,
+                    back: target.word
+                });
+            }
+        }
+
+        state.flashcards = cards;
+        state.currentCard = 0;
+        state.cardFlipped = false;
+        state.flashcardsMastered = 0;
+
+        renderFlashcardUI();
+    }
+
+    function renderFlashcardUI() {
+        const cards = state.flashcards || [];
+        if (cards.length === 0) {
+            $('flashcards-content').innerHTML = '<p style="color:var(--text-muted); padding:2rem; text-align:center;">Kunde inte skapa flashcards - for lite text.</p>';
+            return;
+        }
+
+        const card = cards[state.currentCard];
+        const num = state.currentCard + 1;
+        const total = cards.length;
+
+        let html = '<div style="padding: 1.5rem; text-align: center;">';
+        html += '<div style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.85rem;">Kort ' + num + ' av ' + total + '</div>';
+
+        html += '<div id="flashcard-box" style="background: var(--surface); border: 2px solid var(--accent-light); border-radius: 1rem; padding: 2rem; min-height: 150px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s;" onclick="flipCard()">';
+
+        if (state.cardFlipped) {
+            html += '<div style="font-size: 1.3rem; font-weight: 700; color: var(--accent);">' + card.back + '</div>';
+        } else {
+            html += '<div style="font-size: 1.1rem; line-height: 1.6;">' + card.front + '</div>';
+        }
+
+        html += '</div>';
+        html += '<p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">Klicka pa kortet for att vanda</p>';
+
+        html += '<div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">';
+        html += '<button class="btn btn-secondary" onclick="prevCard()" ' + (state.currentCard === 0 ? 'disabled' : '') + '>&#8592; Foregaende</button>';
+
+        if (state.cardFlipped) {
+            html += '<button class="btn btn-primary" style="background: var(--success);" onclick="masterCard()">Kan det! +10 XP</button>';
+        }
+
+        html += '<button class="btn btn-secondary" onclick="nextCard()" ' + (state.currentCard >= total - 1 ? 'disabled' : '') + '>Nasta &#8594;</button>';
+        html += '</div>';
+
+        html += '<div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem;">Beharska: ' + state.flashcardsMastered + ' / ' + total + '</div>';
+        html += '</div>';
+
+        $('flashcards-content').innerHTML = html;
+    }
+
+    function flipCard() {
+        state.cardFlipped = !state.cardFlipped;
+        renderFlashcardUI();
+    }
+
+    function nextCard() {
+        if (state.currentCard < (state.flashcards || []).length - 1) {
+            state.currentCard++;
+            state.cardFlipped = false;
+            renderFlashcardUI();
+        }
+    }
+
+    function prevCard() {
+        if (state.currentCard > 0) {
+            state.currentCard--;
+            state.cardFlipped = false;
+            renderFlashcardUI();
+        }
+    }
+
+    function masterCard() {
+        state.flashcardsMastered++;
+        state.progress.flashcards_mastered = (state.progress.flashcards_mastered || 0) + 1;
+        awardXP(10);
+        nextCard();
+    }
+
+    // ========================================
+    // Quiz - generated client-side
+    // ========================================
+    function generateQuiz(text) {
+        const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+        const questions = [];
+
+        // Collect all significant words for wrong answers
+        const allSignificantWords = [];
+        sentences.forEach(s => {
+            s.trim().split(/\s+/).forEach(w => {
+                const clean = w.replace(/[^a-zåäöA-ZÅÄÖ]/g, '');
+                if (clean.length > 4) allSignificantWords.push(clean);
+            });
+        });
+
+        // Generate fill-in-the-blank questions
+        const usedSentences = new Set();
+        const step = Math.max(1, Math.floor(sentences.length / 10));
+
+        for (let i = 0; i < sentences.length && questions.length < 10; i += step) {
+            const sentence = sentences[i].trim();
+            if (usedSentences.has(sentence)) continue;
+
+            const words = sentence.split(/\s+/);
+            if (words.length < 6 || words.length > 35) continue;
+
+            // Find a good word to blank out
+            const candidates = words
+                .map((w, idx) => ({ word: w.replace(/[^a-zåäöA-ZÅÄÖ]/g, ''), original: w, idx }))
+                .filter(c => c.word.length > 4);
+
+            if (candidates.length === 0) continue;
+
+            const target = candidates[Math.floor(candidates.length / 2)];
+            const blanked = words.map((w, idx) =>
+                idx === target.idx ? '________' : w
+            ).join(' ');
+
+            // Generate wrong alternatives from the text
+            const wrongs = allSignificantWords
+                .filter(w => w.toLowerCase() !== target.word.toLowerCase() && w.length > 3)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3);
+
+            if (wrongs.length < 2) continue;
+
+            const options = [target.word, ...wrongs.slice(0, 3)].sort(() => Math.random() - 0.5);
+
+            questions.push({
+                question: blanked,
+                correct: target.word,
+                options: options
+            });
+
+            usedSentences.add(sentence);
+        }
+
+        state.quizQuestions = questions;
+        state.quizAnswers = {};
+        state.quizSubmitted = false;
+
+        renderQuizStart();
+    }
+
+    function renderQuizStart() {
+        const q = state.quizQuestions || [];
+        if (q.length === 0) {
+            $('quiz-container').innerHTML = '<p style="color:var(--text-muted);">Kunde inte skapa quiz - for lite text.</p>';
+            return;
+        }
+        $('quiz-container').innerHTML = '';
+        $('start-quiz-btn').textContent = 'Starta Quiz (' + q.length + ' fragor)';
+        $('start-quiz-btn').onclick = renderQuizQuestions;
+    }
+
+    function renderQuizQuestions() {
+        const questions = state.quizQuestions;
+        state.quizAnswers = {};
+        state.quizSubmitted = false;
+
+        let html = '';
+        questions.forEach((q, i) => {
+            html += '<div class="quiz-question" style="background: var(--surface); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem; text-align: left;">';
+            html += '<div style="font-weight: 600; margin-bottom: 0.8rem; color: var(--accent); font-size: 0.85rem;">Fraga ' + (i + 1) + '</div>';
+            html += '<div style="line-height: 1.6; margin-bottom: 1rem;">' + q.question + '</div>';
+            html += '<div style="display: grid; gap: 0.5rem;">';
+            q.options.forEach((opt, j) => {
+                html += '<button class="quiz-opt" data-q="' + i + '" data-opt="' + j + '" onclick="selectQuizAnswer(' + i + ',' + j + ')" style="text-align:left; padding: 0.7rem 1rem; border: 2px solid var(--border); border-radius: 0.5rem; background: var(--bg); cursor: pointer; transition: all 0.2s; font-size: 0.95rem;">' + opt + '</button>';
+            });
+            html += '</div></div>';
+        });
+
+        html += '<button class="btn btn-primary" id="quiz-submit-btn" onclick="submitQuiz()" style="width: 100%; margin-top: 1rem;">Ratta quiz</button>';
+
+        $('quiz-container').innerHTML = html;
+        $('start-quiz-btn').style.display = 'none';
+    }
+
+    function selectQuizAnswer(qIndex, optIndex) {
+        if (state.quizSubmitted) return;
+        state.quizAnswers[qIndex] = optIndex;
+
+        // Visual feedback
+        document.querySelectorAll('[data-q="' + qIndex + '"]').forEach(btn => {
+            btn.style.borderColor = 'var(--border)';
+            btn.style.background = 'var(--bg)';
+            btn.style.fontWeight = 'normal';
+        });
+        const selected = document.querySelector('[data-q="' + qIndex + '"][data-opt="' + optIndex + '"]');
+        if (selected) {
+            selected.style.borderColor = 'var(--accent)';
+            selected.style.background = 'var(--accent-light)';
+            selected.style.fontWeight = '600';
+        }
+    }
+
+    function submitQuiz() {
+        state.quizSubmitted = true;
+        const questions = state.quizQuestions;
+        let correct = 0;
+
+        questions.forEach((q, i) => {
+            const selectedOpt = state.quizAnswers[i];
+            document.querySelectorAll('[data-q="' + i + '"]').forEach((btn, j) => {
+                const optText = btn.textContent;
+                if (optText === q.correct) {
+                    btn.style.borderColor = 'var(--success)';
+                    btn.style.background = '#e8f5e9';
+                    btn.style.fontWeight = '700';
+                }
+                if (j === selectedOpt && optText !== q.correct) {
+                    btn.style.borderColor = '#e53935';
+                    btn.style.background = '#ffebee';
+                }
+                btn.style.cursor = 'default';
+            });
+            if (selectedOpt !== undefined && q.options[selectedOpt] === q.correct) {
+                correct++;
+            }
+        });
+
+        const score = Math.round((correct / questions.length) * 100);
+        const xp = correct * 10;
+
+        state.progress.quizzes_completed = (state.progress.quizzes_completed || 0) + 1;
+        if (score > (state.progress.best_quiz_score || 0)) {
+            state.progress.best_quiz_score = score;
+        }
+        awardXP(xp);
+
+        const submitBtn = $('quiz-submit-btn');
+        submitBtn.outerHTML = '<div style="text-align: center; padding: 1.5rem; background: var(--surface); border-radius: 0.75rem; margin-top: 1rem;">' +
+            '<div style="font-size: 2rem; font-weight: 700; color: var(--accent);">' + score + '%</div>' +
+            '<div style="color: var(--text-muted); margin-bottom: 1rem;">' + correct + ' av ' + questions.length + ' ratt &mdash; +' + xp + ' XP</div>' +
+            '<button class="btn btn-primary" onclick="retryQuiz()">Gora om quizet</button></div>';
+    }
+
+    function retryQuiz() {
+        $('start-quiz-btn').style.display = '';
+        renderQuizQuestions();
+    }
+
+    // ========================================
+    // Study Modes
+    // ========================================
+    function initStudyModes() {
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.dataset.mode;
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                showStudyMode(mode);
+            });
+        });
+    }
+
+    function showStudyMode(mode) {
+        document.querySelectorAll('.study-mode-content').forEach(el => el.style.display = 'none');
+        $(`study-${mode}`).style.display = 'block';
+    }
+
+    // ========================================
+    // Progress & XP (saved in localStorage)
+    // ========================================
+    function renderProgress() {
+        const p = state.progress;
+        $('total-xp').textContent = p.xp_earned || 0;
+        $('stat-streak').textContent = p.study_streak || 0;
+        const totalMin = Math.round((p.total_study_time || 0) / 60);
+        $('stat-time').textContent = totalMin > 0 ? totalMin + 'm' : '0m';
+        $('stat-cards').textContent = p.flashcards_mastered || 0;
+        $('stat-quiz').textContent = (p.best_quiz_score || 0) + '%';
+    }
+
+    function awardXP(amount) {
+        state.progress.xp_earned = (state.progress.xp_earned || 0) + amount;
+        renderProgress();
+        showXPToast(amount);
+        localStorage.setItem('study-progress', JSON.stringify(state.progress));
+    }
+
+    function showXPToast(amount) {
+        const toast = $('xp-toast');
+        toast.textContent = `+${amount} XP`;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1500);
+    }
+
+    // ========================================
+    // Pomodoro Timer
+    // ========================================
+    function initPomodoro() {
+        $('timer-toggle-btn').addEventListener('click', () => {
+            const bar = $('pomodoro-bar');
+            bar.classList.toggle('show');
+            document.body.classList.toggle('pomo-active', bar.classList.contains('show'));
+        });
+
+        $('pomo-start').addEventListener('click', togglePomodoro);
+        $('pomo-reset').addEventListener('click', resetPomodoro);
+        renderPomoTime();
+    }
+
+    function togglePomodoro() {
+        if (state.pomoRunning) {
+            clearInterval(state.pomoInterval);
+            state.pomoRunning = false;
+            $('pomo-start').innerHTML = '&#9654;';
+        } else {
+            state.pomoRunning = true;
+            $('pomo-start').innerHTML = '&#10074;&#10074;';
+            state.pomoInterval = setInterval(() => {
+                state.pomoTimeLeft--;
+                renderPomoTime();
+
+                if (state.pomoTimeLeft <= 0) {
+                    clearInterval(state.pomoInterval);
+                    state.pomoRunning = false;
+                    $('pomo-start').innerHTML = '&#9654;';
+
+                    if (state.pomoIsBreak) {
+                        state.pomoIsBreak = false;
+                        state.pomoTimeLeft = state.pomoDuration;
+                        $('pomo-label').textContent = 'Fokus';
+                    } else {
+                        state.pomoSessions++;
+                        awardXP(10);
+                        state.pomoIsBreak = true;
+                        state.pomoTimeLeft = state.pomoBreakDuration;
+                        $('pomo-label').textContent = 'Paus';
+                        renderPomoDots();
+                    }
+                    renderPomoTime();
+                    notifyPomodoro();
+                }
+            }, 1000);
+        }
+    }
+
+    function resetPomodoro() {
+        clearInterval(state.pomoInterval);
+        state.pomoRunning = false;
+        state.pomoIsBreak = false;
+        state.pomoTimeLeft = state.pomoDuration;
+        $('pomo-start').innerHTML = '&#9654;';
+        $('pomo-label').textContent = 'Fokus';
+        renderPomoTime();
+    }
+
+    function renderPomoTime() {
+        const min = Math.floor(state.pomoTimeLeft / 60);
+        const sec = state.pomoTimeLeft % 60;
+        $('pomo-time').textContent = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    }
+
+    function renderPomoDots() {
+        const dots = $('pomo-sessions').children;
+        for (let i = 0; i < dots.length; i++) {
+            dots[i].classList.remove('completed', 'active');
+            if (i < state.pomoSessions) dots[i].classList.add('completed');
+            if (i === state.pomoSessions) dots[i].classList.add('active');
+        }
+    }
+
+    function notifyPomodoro() {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            const msg = state.pomoIsBreak ? 'Dags for paus! Vila ogonen.' : 'Pausen ar slut! Dags att fokusera.';
+            new Notification('Studieplatformen', { body: msg });
+        }
+    }
+
+    // ========================================
+    // Navigation
+    // ========================================
+    function showView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        $(viewId).classList.add('active');
+    }
+
+    function backToUpload() {
+        if (state.studyStartTime) {
+            const studyTime = Math.round((Date.now() - state.studyStartTime) / 1000);
+            state.progress.total_study_time = (state.progress.total_study_time || 0) + studyTime;
+            localStorage.setItem('study-progress', JSON.stringify(state.progress));
+        }
+        state.studyStartTime = null;
+        state.fullText = '';
+        state.chunks = [];
+        removeFile();
+        showView('view-upload');
+    }
+
+    // ========================================
+    // Init
+    // ========================================
+    function init() {
+        initSettings();
+        initUpload();
+        initChunkNav();
+        initStudyModes();
+        initPomodoro();
+        renderPomoTime();
+
+        // Hide doc list (no backend)
+        $('doc-list').style.display = 'none';
+
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    }
+
+    init();
+    </script>
+</body>
+</html>
