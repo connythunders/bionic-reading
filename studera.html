@@ -117,16 +117,19 @@
             background: var(--bg-tertiary);
             border: 1px solid var(--border);
             color: var(--text-secondary);
-            width: 38px;
             height: 38px;
+            padding: 0 0.8rem;
             border-radius: var(--radius-sm);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            gap: 0.4rem;
+            font-size: 0.85rem;
             transition: all var(--transition);
         }
+        .icon-btn .btn-icon { font-size: 1.1rem; }
+        .icon-btn .btn-label { font-size: 0.8rem; font-weight: 500; }
         .icon-btn:hover {
             background: var(--accent-bg);
             color: var(--accent);
@@ -964,8 +967,12 @@
             <a href="index.html" class="back-link">Tillbaka</a>
         </div>
         <div class="top-bar-right">
-            <button class="icon-btn" id="timer-toggle-btn" title="Pomodoro-timer">&#9201;</button>
-            <button class="icon-btn" id="settings-btn" title="Installningar">&#9881;</button>
+            <button class="icon-btn" id="timer-toggle-btn" title="Pomodoro-timer">
+                <span class="btn-icon">&#9201;</span><span class="btn-label">Timer</span>
+            </button>
+            <button class="icon-btn" id="settings-btn" title="Installningar">
+                <span class="btn-icon">&#9881;</span><span class="btn-label">Anpassa</span>
+            </button>
         </div>
     </div>
 
@@ -1200,7 +1207,7 @@
                 <!-- Quiz mode -->
                 <div id="study-quiz" class="study-mode-content" style="display:none;">
                     <div style="text-align:center; padding: 2rem;">
-                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">Starta ett AI-genererat quiz baserat pa ditt material.</p>
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">Testa dina kunskaper med ett quiz baserat pa ditt material!</p>
                         <button class="btn btn-primary" id="start-quiz-btn">Starta Quiz</button>
                         <div id="quiz-container" style="margin-top: 1.5rem;"></div>
                     </div>
@@ -1639,9 +1646,10 @@
             renderChunk();
             renderProgress();
 
-            // Hide summary/flashcards/quiz (no backend)
-            $('study-summary').querySelector('div').innerHTML = '<p style="color:var(--text-muted); padding:2rem; text-align:center;">Sammanfattning kraver backend (docker-compose up). Anvand Lasa-laget med Bionic Reading!</p>';
-            $('flashcards-content').innerHTML = '<p style="color:var(--text-muted); padding:2rem; text-align:center;">Flashcards kraver backend (docker-compose up). Anvand Lasa-laget med Bionic Reading!</p>';
+            // Generate client-side summary, flashcards and quiz
+            renderSummary(text);
+            generateFlashcards(text);
+            generateQuiz(text);
 
             showView('view-study');
             showStudyMode('read');
@@ -1699,6 +1707,343 @@
             localStorage.setItem('study-bionic', state.bionicEnabled ? state.bionicLevel : 'none');
             if (state.chunks.length > 0) renderChunk();
         });
+    }
+
+    // ========================================
+    // Summary - extractive (client-side)
+    // ========================================
+    function renderSummary(text) {
+        const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+        if (sentences.length === 0) {
+            $('summary-content').innerHTML = '<p style="color:var(--text-muted); padding:2rem; text-align:center;">Kunde inte skapa sammanfattning - for lite text.</p>';
+            return;
+        }
+
+        // Score sentences by position, length, and keyword density
+        const wordFreq = {};
+        const allWords = text.toLowerCase().replace(/[^a-zåäö\s]/g, '').split(/\s+/).filter(w => w.length > 3);
+        allWords.forEach(w => { wordFreq[w] = (wordFreq[w] || 0) + 1; });
+
+        // Remove very common words
+        const totalWords = allWords.length;
+        Object.keys(wordFreq).forEach(w => {
+            if (wordFreq[w] / totalWords > 0.05) delete wordFreq[w];
+        });
+
+        const scored = sentences.map((s, i) => {
+            const words = s.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+            const keyScore = words.reduce((sum, w) => sum + (wordFreq[w] || 0), 0);
+            const posScore = i < 3 ? 3 : (i < sentences.length * 0.2 ? 2 : 1);
+            const lenScore = (words.length > 5 && words.length < 30) ? 2 : 1;
+            return { text: s.trim(), score: keyScore * posScore * lenScore, index: i };
+        });
+
+        scored.sort((a, b) => b.score - a.score);
+        const topSentences = scored.slice(0, Math.min(8, Math.ceil(sentences.length * 0.2)));
+        topSentences.sort((a, b) => a.index - b.index);
+
+        // Extract key terms
+        const topTerms = Object.entries(wordFreq)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([word]) => word);
+
+        let html = '<div style="padding: 1.5rem;">';
+        html += '<h3 style="margin-bottom: 1rem; color: var(--accent);">Sammanfattning</h3>';
+        html += '<div style="line-height: 1.8; margin-bottom: 1.5rem;">';
+        topSentences.forEach(s => {
+            html += '<p style="margin-bottom: 0.8rem;">' + s.text + '</p>';
+        });
+        html += '</div>';
+
+        if (topTerms.length > 0) {
+            html += '<h4 style="margin-bottom: 0.5rem; color: var(--accent);">Nyckelbegrepp</h4>';
+            html += '<div style="display:flex; flex-wrap:wrap; gap:0.5rem;">';
+            topTerms.forEach(t => {
+                html += '<span style="background:var(--accent-light); color:var(--accent); padding:0.3rem 0.8rem; border-radius:1rem; font-size:0.9rem;">' + t + '</span>';
+            });
+            html += '</div>';
+        }
+        html += '</div>';
+
+        $('summary-content').innerHTML = html;
+    }
+
+    // ========================================
+    // Flashcards - generated client-side
+    // ========================================
+    function generateFlashcards(text) {
+        const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+        const cards = [];
+
+        // Strategy 1: Key sentences become flashcards (term → definition style)
+        const importantSentences = sentences.filter(s => {
+            const words = s.trim().split(/\s+/);
+            return words.length > 5 && words.length < 40;
+        });
+
+        // Pick diverse sentences spread across the text
+        const step = Math.max(1, Math.floor(importantSentences.length / 12));
+        for (let i = 0; i < importantSentences.length && cards.length < 12; i += step) {
+            const sentence = importantSentences[i].trim();
+            const words = sentence.split(/\s+/);
+
+            // Find a key word to blank out (longer words are usually more important)
+            const candidates = words
+                .map((w, idx) => ({ word: w.replace(/[^a-zåäöA-ZÅÄÖ]/g, ''), idx, len: w.length }))
+                .filter(c => c.len > 4);
+
+            if (candidates.length > 0) {
+                const target = candidates.reduce((a, b) => a.len > b.len ? a : b);
+                const blanked = words.map((w, idx) =>
+                    idx === target.idx ? '________' : w
+                ).join(' ');
+
+                cards.push({
+                    front: blanked,
+                    back: target.word
+                });
+            }
+        }
+
+        state.flashcards = cards;
+        state.currentCard = 0;
+        state.cardFlipped = false;
+        state.flashcardsMastered = 0;
+
+        renderFlashcardUI();
+    }
+
+    function renderFlashcardUI() {
+        const cards = state.flashcards || [];
+        if (cards.length === 0) {
+            $('flashcards-content').innerHTML = '<p style="color:var(--text-muted); padding:2rem; text-align:center;">Kunde inte skapa flashcards - for lite text.</p>';
+            return;
+        }
+
+        const card = cards[state.currentCard];
+        const num = state.currentCard + 1;
+        const total = cards.length;
+
+        let html = '<div style="padding: 1.5rem; text-align: center;">';
+        html += '<div style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.85rem;">Kort ' + num + ' av ' + total + '</div>';
+
+        html += '<div id="flashcard-box" style="background: var(--surface); border: 2px solid var(--accent-light); border-radius: 1rem; padding: 2rem; min-height: 150px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s;" onclick="flipCard()">';
+
+        if (state.cardFlipped) {
+            html += '<div style="font-size: 1.3rem; font-weight: 700; color: var(--accent);">' + card.back + '</div>';
+        } else {
+            html += '<div style="font-size: 1.1rem; line-height: 1.6;">' + card.front + '</div>';
+        }
+
+        html += '</div>';
+        html += '<p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">Klicka pa kortet for att vanda</p>';
+
+        html += '<div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">';
+        html += '<button class="btn btn-secondary" onclick="prevCard()" ' + (state.currentCard === 0 ? 'disabled' : '') + '>&#8592; Foregaende</button>';
+
+        if (state.cardFlipped) {
+            html += '<button class="btn btn-primary" style="background: var(--success);" onclick="masterCard()">Kan det! +10 XP</button>';
+        }
+
+        html += '<button class="btn btn-secondary" onclick="nextCard()" ' + (state.currentCard >= total - 1 ? 'disabled' : '') + '>Nasta &#8594;</button>';
+        html += '</div>';
+
+        html += '<div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem;">Beharska: ' + state.flashcardsMastered + ' / ' + total + '</div>';
+        html += '</div>';
+
+        $('flashcards-content').innerHTML = html;
+    }
+
+    function flipCard() {
+        state.cardFlipped = !state.cardFlipped;
+        renderFlashcardUI();
+    }
+
+    function nextCard() {
+        if (state.currentCard < (state.flashcards || []).length - 1) {
+            state.currentCard++;
+            state.cardFlipped = false;
+            renderFlashcardUI();
+        }
+    }
+
+    function prevCard() {
+        if (state.currentCard > 0) {
+            state.currentCard--;
+            state.cardFlipped = false;
+            renderFlashcardUI();
+        }
+    }
+
+    function masterCard() {
+        state.flashcardsMastered++;
+        state.progress.flashcards_mastered = (state.progress.flashcards_mastered || 0) + 1;
+        awardXP(10);
+        nextCard();
+    }
+
+    // ========================================
+    // Quiz - generated client-side
+    // ========================================
+    function generateQuiz(text) {
+        const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
+        const questions = [];
+
+        // Collect all significant words for wrong answers
+        const allSignificantWords = [];
+        sentences.forEach(s => {
+            s.trim().split(/\s+/).forEach(w => {
+                const clean = w.replace(/[^a-zåäöA-ZÅÄÖ]/g, '');
+                if (clean.length > 4) allSignificantWords.push(clean);
+            });
+        });
+
+        // Generate fill-in-the-blank questions
+        const usedSentences = new Set();
+        const step = Math.max(1, Math.floor(sentences.length / 10));
+
+        for (let i = 0; i < sentences.length && questions.length < 10; i += step) {
+            const sentence = sentences[i].trim();
+            if (usedSentences.has(sentence)) continue;
+
+            const words = sentence.split(/\s+/);
+            if (words.length < 6 || words.length > 35) continue;
+
+            // Find a good word to blank out
+            const candidates = words
+                .map((w, idx) => ({ word: w.replace(/[^a-zåäöA-ZÅÄÖ]/g, ''), original: w, idx }))
+                .filter(c => c.word.length > 4);
+
+            if (candidates.length === 0) continue;
+
+            const target = candidates[Math.floor(candidates.length / 2)];
+            const blanked = words.map((w, idx) =>
+                idx === target.idx ? '________' : w
+            ).join(' ');
+
+            // Generate wrong alternatives from the text
+            const wrongs = allSignificantWords
+                .filter(w => w.toLowerCase() !== target.word.toLowerCase() && w.length > 3)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3);
+
+            if (wrongs.length < 2) continue;
+
+            const options = [target.word, ...wrongs.slice(0, 3)].sort(() => Math.random() - 0.5);
+
+            questions.push({
+                question: blanked,
+                correct: target.word,
+                options: options
+            });
+
+            usedSentences.add(sentence);
+        }
+
+        state.quizQuestions = questions;
+        state.quizAnswers = {};
+        state.quizSubmitted = false;
+
+        renderQuizStart();
+    }
+
+    function renderQuizStart() {
+        const q = state.quizQuestions || [];
+        if (q.length === 0) {
+            $('quiz-container').innerHTML = '<p style="color:var(--text-muted);">Kunde inte skapa quiz - for lite text.</p>';
+            return;
+        }
+        $('quiz-container').innerHTML = '';
+        $('start-quiz-btn').textContent = 'Starta Quiz (' + q.length + ' fragor)';
+        $('start-quiz-btn').onclick = renderQuizQuestions;
+    }
+
+    function renderQuizQuestions() {
+        const questions = state.quizQuestions;
+        state.quizAnswers = {};
+        state.quizSubmitted = false;
+
+        let html = '';
+        questions.forEach((q, i) => {
+            html += '<div class="quiz-question" style="background: var(--surface); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem; text-align: left;">';
+            html += '<div style="font-weight: 600; margin-bottom: 0.8rem; color: var(--accent); font-size: 0.85rem;">Fraga ' + (i + 1) + '</div>';
+            html += '<div style="line-height: 1.6; margin-bottom: 1rem;">' + q.question + '</div>';
+            html += '<div style="display: grid; gap: 0.5rem;">';
+            q.options.forEach((opt, j) => {
+                html += '<button class="quiz-opt" data-q="' + i + '" data-opt="' + j + '" onclick="selectQuizAnswer(' + i + ',' + j + ')" style="text-align:left; padding: 0.7rem 1rem; border: 2px solid var(--border); border-radius: 0.5rem; background: var(--bg); cursor: pointer; transition: all 0.2s; font-size: 0.95rem;">' + opt + '</button>';
+            });
+            html += '</div></div>';
+        });
+
+        html += '<button class="btn btn-primary" id="quiz-submit-btn" onclick="submitQuiz()" style="width: 100%; margin-top: 1rem;">Ratta quiz</button>';
+
+        $('quiz-container').innerHTML = html;
+        $('start-quiz-btn').style.display = 'none';
+    }
+
+    function selectQuizAnswer(qIndex, optIndex) {
+        if (state.quizSubmitted) return;
+        state.quizAnswers[qIndex] = optIndex;
+
+        // Visual feedback
+        document.querySelectorAll('[data-q="' + qIndex + '"]').forEach(btn => {
+            btn.style.borderColor = 'var(--border)';
+            btn.style.background = 'var(--bg)';
+            btn.style.fontWeight = 'normal';
+        });
+        const selected = document.querySelector('[data-q="' + qIndex + '"][data-opt="' + optIndex + '"]');
+        if (selected) {
+            selected.style.borderColor = 'var(--accent)';
+            selected.style.background = 'var(--accent-light)';
+            selected.style.fontWeight = '600';
+        }
+    }
+
+    function submitQuiz() {
+        state.quizSubmitted = true;
+        const questions = state.quizQuestions;
+        let correct = 0;
+
+        questions.forEach((q, i) => {
+            const selectedOpt = state.quizAnswers[i];
+            document.querySelectorAll('[data-q="' + i + '"]').forEach((btn, j) => {
+                const optText = btn.textContent;
+                if (optText === q.correct) {
+                    btn.style.borderColor = 'var(--success)';
+                    btn.style.background = '#e8f5e9';
+                    btn.style.fontWeight = '700';
+                }
+                if (j === selectedOpt && optText !== q.correct) {
+                    btn.style.borderColor = '#e53935';
+                    btn.style.background = '#ffebee';
+                }
+                btn.style.cursor = 'default';
+            });
+            if (selectedOpt !== undefined && q.options[selectedOpt] === q.correct) {
+                correct++;
+            }
+        });
+
+        const score = Math.round((correct / questions.length) * 100);
+        const xp = correct * 10;
+
+        state.progress.quizzes_completed = (state.progress.quizzes_completed || 0) + 1;
+        if (score > (state.progress.best_quiz_score || 0)) {
+            state.progress.best_quiz_score = score;
+        }
+        awardXP(xp);
+
+        const submitBtn = $('quiz-submit-btn');
+        submitBtn.outerHTML = '<div style="text-align: center; padding: 1.5rem; background: var(--surface); border-radius: 0.75rem; margin-top: 1rem;">' +
+            '<div style="font-size: 2rem; font-weight: 700; color: var(--accent);">' + score + '%</div>' +
+            '<div style="color: var(--text-muted); margin-bottom: 1rem;">' + correct + ' av ' + questions.length + ' ratt &mdash; +' + xp + ' XP</div>' +
+            '<button class="btn btn-primary" onclick="retryQuiz()">Gora om quizet</button></div>';
+    }
+
+    function retryQuiz() {
+        $('start-quiz-btn').style.display = '';
+        renderQuizQuestions();
     }
 
     // ========================================
