@@ -1231,8 +1231,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <script>
-    // Configure pdf.js worker (required for PDF parsing)
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    // Robust pdf.js worker setup - handles both file:// and https://
+    (function setupPdfWorker() {
+        if (typeof pdfjsLib === 'undefined') {
+            console.error('pdf.js did not load - check internet connection');
+            return;
+        }
+        try {
+            pdfjsLib.GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        } catch (e) {
+            console.warn('PDF worker setup failed:', e);
+        }
+    })();
 
     // ========================================
     // State - works 100% offline, no backend
@@ -1272,18 +1283,53 @@
     }
 
     async function extractPDF(file) {
+        if (typeof pdfjsLib === 'undefined') {
+            throw new Error('PDF-biblioteket kunde inte laddas. Kontrollera din internetanslutning och ladda om sidan.');
+        }
+
         try {
             const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const pdf = await pdfjsLib.getDocument({
+                data: arrayBuffer,
+                useSystemFonts: true
+            }).promise;
+
+            console.log('PDF laddad:', pdf.numPages, 'sidor');
+
             let text = '';
+            let totalItems = 0;
+
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const content = await page.getTextContent();
-                text += content.items.map(item => item.str).join(' ') + '\n\n';
+                const pageText = content.items
+                    .map(item => item.str)
+                    .filter(s => s.length > 0)
+                    .join(' ');
+                totalItems += content.items.length;
+                if (pageText.trim()) {
+                    text += pageText.trim() + '\n\n';
+                }
+                console.log('Sida ' + i + ':', content.items.length, 'element,', pageText.length, 'tecken');
             }
-            return text.trim();
+
+            const result = text.trim();
+
+            if (!result && pdf.numPages > 0) {
+                throw new Error(
+                    'PDF:en har ' + pdf.numPages + ' sidor men innehaller ingen markbar text. ' +
+                    'Den ar troligen skannad (bildbaserad). ' +
+                    'Tips: Prova att exportera materialet som Word-dokument istallet, ' +
+                    'eller kopiera och klistra in texten manuellt i en .txt-fil.'
+                );
+            }
+
+            return result;
         } catch (error) {
             console.error('PDF-lasfel:', error);
+            if (error.message && error.message.includes('sidor men')) {
+                throw error;
+            }
             throw new Error('Kunde inte lasa PDF-filen: ' + (error.message || 'okant fel'));
         }
     }
@@ -1575,7 +1621,12 @@
             const text = await extractText(state.selectedFile);
 
             if (!text || text.trim().length < 20) {
-                throw new Error('Kunde inte lasa text fran filen. Prova en annan fil.');
+                const chars = text ? text.trim().length : 0;
+                throw new Error(
+                    'Filen innehaller for lite lasbar text (' + chars + ' tecken). ' +
+                    'Om det ar en PDF kan den vara skannad (bildbaserad). ' +
+                    'Prova att exportera som Word (.docx) istallet, eller klistra in texten i en .txt-fil.'
+                );
             }
 
             state.fullText = text;
