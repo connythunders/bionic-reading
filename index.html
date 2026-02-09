@@ -489,6 +489,42 @@
             font-weight: 700;
             color: var(--text-dark);
         }
+
+        /* File upload */
+        .upload-area {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .upload-btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            background: var(--bg-white);
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .upload-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .upload-info {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        .upload-status {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -545,11 +581,6 @@
                     <h3>Mindre mental trötthet</h3>
                     <p>Läs längre stunder utan att bli lika trött genom att underlätta för din hjärna att bearbeta text.</p>
                 </div>
-                <div class="feature-card" style="cursor: pointer; border: 2px solid var(--primary);" onclick="window.location.href='ai-quiz-generator.html'">
-                    <div class="feature-icon">🤖</div>
-                    <h3>AI Quiz-Generator</h3>
-                    <p>Ladda upp dina studiematerial (PDF/Word) och få AI att skapa 25 quiz-frågor automatiskt. Med personlig feedback!</p>
-                </div>
             </div>
         </div>
     </section>
@@ -591,6 +622,12 @@
                     <div class="section-label">
                         Källtext
                         <span class="char-count"><span id="char-count">0</span> tecken</span>
+                    </div>
+                    <div class="upload-area">
+                        <input type="file" id="file-input" accept=".pdf,.docx,.pptx,.txt" style="display:none;">
+                        <button class="upload-btn" onclick="document.getElementById('file-input').click()">📁 Ladda upp fil</button>
+                        <span class="upload-info">PDF, Word, PowerPoint, Text</span>
+                        <span class="upload-status" id="upload-status"></span>
                     </div>
                     <textarea id="input-text" placeholder="Klistra in text eller ladda upp en fil...">Bionic Reading är en läsmetod som hjälper dig att läsa snabbare och mer fokuserat. Genom att markera de viktigaste delarna av varje ord guidar metoden dina ögon genom texten på ett mer effektivt sätt. Detta gör att din hjärna kan bearbeta informationen snabbare och med mindre ansträngning. Resultatet är att du kan läsa längre stunder utan att bli lika trött, samtidigt som du behåller eller till och med förbättrar din förståelse av texten.</textarea>
                 </div>
@@ -637,7 +674,17 @@
         </div>
     </footer>
 
+    <!-- Libraries for file reading -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <script>
+        // Setup pdf.js worker
+        if (typeof pdfjsLib !== 'undefined') {
+            try { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; } catch(e) {}
+        }
+
         // Bionic Reading Converter Logic
         const inputText = document.getElementById('input-text');
         const outputText = document.getElementById('output-text');
@@ -760,6 +807,75 @@
             if (inputText.value.trim()) {
                 convertBtn.click();
             }
+        });
+
+        // File upload handler
+        document.getElementById('file-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const status = document.getElementById('upload-status');
+            status.textContent = 'Läser ' + file.name + '...';
+
+            try {
+                const ext = file.name.split('.').pop().toLowerCase();
+                let text = '';
+
+                if (ext === 'pdf') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, useSystemFonts: true }).promise;
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        const pageText = content.items.map(item => item.str).filter(s => s.length > 0).join(' ');
+                        if (pageText.trim()) text += pageText.trim() + '\n\n';
+                    }
+                } else if (ext === 'docx') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer });
+                    text = result.value;
+                } else if (ext === 'pptx') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const zip = await JSZip.loadAsync(arrayBuffer);
+                    const slideFiles = [];
+                    zip.forEach((path, entry) => {
+                        if (path.match(/^ppt\/slides\/slide\d+\.xml$/)) slideFiles.push({ path, entry });
+                    });
+                    slideFiles.sort((a, b) => parseInt(a.path.match(/slide(\d+)/)[1]) - parseInt(b.path.match(/slide(\d+)/)[1]));
+                    for (const slide of slideFiles) {
+                        const xml = await slide.entry.async('text');
+                        const matches = xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g);
+                        if (matches) {
+                            const slideText = matches.map(m => m.replace(/<[^>]+>/g, '')).filter(t => t.trim()).join(' ');
+                            if (slideText.trim()) text += slideText.trim() + '\n\n';
+                        }
+                    }
+                } else if (ext === 'txt') {
+                    text = await file.text();
+                } else {
+                    throw new Error('Filtypen stöds inte. Använd PDF, Word, PowerPoint eller Text.');
+                }
+
+                if (!text || text.trim().length < 10) {
+                    status.textContent = 'Ingen text hittades - filen kan vara skannad.';
+                    status.style.color = '#e53935';
+                    setTimeout(() => { status.style.color = ''; }, 3000);
+                    return;
+                }
+
+                inputText.value = text.trim();
+                charCount.textContent = inputText.value.length;
+                status.textContent = file.name + ' laddad!';
+                convertBtn.click();
+                setTimeout(() => { status.textContent = ''; }, 3000);
+            } catch (err) {
+                console.error('Upload error:', err);
+                status.textContent = 'Fel: ' + err.message;
+                status.style.color = '#e53935';
+                setTimeout(() => { status.textContent = ''; status.style.color = ''; }, 5000);
+            }
+
+            e.target.value = '';
         });
     </script>
 </body>
