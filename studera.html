@@ -954,6 +954,76 @@
         body.pomo-active {
             padding-bottom: 60px;
         }
+
+        /* Para ihop - matching game */
+        .match-container { padding: 1.5rem; }
+        .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .match-score { font-size: 0.9rem; color: var(--text-muted); }
+        .match-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        .match-column-title {
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .match-item {
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            text-align: center;
+            user-select: none;
+            background: var(--bg);
+            margin-bottom: 0.5rem;
+        }
+        .match-item:hover:not(.matched):not(.wrong) {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        .match-item.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            font-weight: 600;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        .match-item.matched {
+            border-color: var(--success);
+            background: #e8f5e9;
+            opacity: 0.7;
+            cursor: default;
+        }
+        .match-item.wrong {
+            border-color: #e53935;
+            background: #ffebee;
+            animation: shake 0.4s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .match-result {
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            background: var(--surface);
+            border-radius: 0.75rem;
+        }
+        .match-result-score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
     </style>
 </head>
 <body>
@@ -1151,7 +1221,7 @@
                             <span class="mode-btn-icon">&#128221;</span> Sammanfattning
                         </button>
                         <button class="mode-btn" data-mode="flashcards">
-                            <span class="mode-btn-icon">&#127183;</span> Flashcards
+                            <span class="mode-btn-icon">&#127183;</span> Para ihop
                         </button>
                         <button class="mode-btn" data-mode="quiz">
                             <span class="mode-btn-icon">&#10004;</span> Quiz
@@ -1770,136 +1840,206 @@
     }
 
     // ========================================
-    // Flashcards - generated client-side
+    // Para ihop - matching game (client-side)
     // ========================================
     function generateFlashcards(text) {
-        // Split into sentences - handle PDF text with poor formatting
-        let sentences = text.match(/[^.!?\n]+[.!?\n]+/g);
-        if (!sentences || sentences.length < 3) {
-            // Fallback: split by newlines or long spaces
-            sentences = text.split(/\n+/).filter(s => s.trim().length > 20);
+        // Split text into usable segments
+        let segments = text.match(/[^.!?\n]+[.!?\n]+/g);
+        if (!segments || segments.length < 3) {
+            segments = text.split(/\n+/).filter(s => s.trim().length > 15);
         }
-        if (!sentences || sentences.length < 2) {
-            // Last resort: split into chunks of ~15 words
+        if (!segments || segments.length < 2) {
             const words = text.split(/\s+/);
-            sentences = [];
-            for (let i = 0; i < words.length; i += 15) {
-                sentences.push(words.slice(i, i + 15).join(' '));
+            segments = [];
+            for (let i = 0; i < words.length; i += 12) {
+                segments.push(words.slice(i, i + 12).join(' '));
             }
         }
 
-        const cards = [];
+        // Filter to good segments
+        const good = segments
+            .map(s => s.trim())
+            .filter(s => {
+                const words = s.split(/\s+/);
+                return words.length > 3 && words.length < 40;
+            });
 
-        const importantSentences = sentences.filter(s => {
-            const words = s.trim().split(/\s+/);
-            return words.length > 4 && words.length < 50;
-        });
-
-        if (importantSentences.length === 0) {
-            state.flashcards = [];
-            renderFlashcardUI();
+        if (good.length < 4) {
+            state.matchPairs = [];
+            renderMatchGame();
             return;
         }
 
-        // Pick diverse sentences spread across the text
-        const step = Math.max(1, Math.floor(importantSentences.length / 12));
-        for (let i = 0; i < importantSentences.length && cards.length < 12; i += step) {
-            const sentence = importantSentences[i].trim();
+        // Create pairs: keyword ↔ sentence context
+        const pairs = [];
+        const usedWords = new Set();
+        const step = Math.max(1, Math.floor(good.length / 8));
+
+        for (let i = 0; i < good.length && pairs.length < 6; i += step) {
+            const sentence = good[i];
             const words = sentence.split(/\s+/);
-
-            // Find a key word to blank out (longer words are usually more important)
             const candidates = words
-                .map((w, idx) => ({ word: w.replace(/[^a-zåäöA-ZÅÄÖ0-9]/gi, ''), idx, len: w.replace(/[^a-zåäöA-ZÅÄÖ0-9]/gi, '').length }))
-                .filter(c => c.len > 3 && c.word.length > 3);
+                .map(w => w.replace(/[^a-zåäöA-ZÅÄÖ0-9]/gi, ''))
+                .filter(w => w.length > 3 && !usedWords.has(w.toLowerCase()));
 
-            if (candidates.length > 0) {
-                const target = candidates.reduce((a, b) => a.len > b.len ? a : b);
-                const blanked = words.map((w, idx) =>
-                    idx === target.idx ? '________' : w
-                ).join(' ');
+            if (candidates.length === 0) continue;
 
-                cards.push({
-                    front: blanked,
-                    back: target.word
-                });
-            }
+            // Pick the longest word as the key term
+            const keyWord = candidates.reduce((a, b) => a.length > b.length ? a : b);
+            usedWords.add(keyWord.toLowerCase());
+
+            // Create a shortened context (remove the keyword, keep ~8 words around it)
+            const context = sentence.replace(new RegExp(keyWord, 'gi'), '___').trim();
+            const shortContext = context.split(/\s+/).slice(0, 10).join(' ');
+
+            pairs.push({
+                term: keyWord,
+                description: shortContext.length > 60 ? shortContext.substring(0, 60) + '...' : shortContext
+            });
         }
 
-        state.flashcards = cards;
-        state.currentCard = 0;
-        state.cardFlipped = false;
-        state.flashcardsMastered = 0;
+        state.matchPairs = pairs;
+        state.matchSelected = null;
+        state.matchMatched = new Set();
+        state.matchAttempts = 0;
+        state.matchCorrect = 0;
 
-        renderFlashcardUI();
+        renderMatchGame();
     }
 
-    function renderFlashcardUI() {
-        const cards = state.flashcards || [];
-        if (cards.length === 0) {
-            $('flashcards-content').innerHTML = '<p style="color:var(--text-muted); padding:2rem; text-align:center;">Kunde inte skapa flashcards - for lite text.</p>';
+    function renderMatchGame() {
+        const pairs = state.matchPairs || [];
+        if (pairs.length === 0) {
+            $('flashcards-content').innerHTML = '<p style="color:var(--text-muted); padding:2rem; text-align:center;">Kunde inte skapa para ihop-spelet - for lite text.</p>';
             return;
         }
 
-        const card = cards[state.currentCard];
-        const num = state.currentCard + 1;
-        const total = cards.length;
+        // Check if all matched
+        if (state.matchMatched.size === pairs.length) {
+            const xp = state.matchCorrect * 10;
+            state.progress.flashcards_mastered = (state.progress.flashcards_mastered || 0) + state.matchCorrect;
+            awardXP(xp);
 
-        let html = '<div style="padding: 1.5rem; text-align: center;">';
-        html += '<div style="margin-bottom: 1rem; color: var(--text-muted); font-size: 0.85rem;">Kort ' + num + ' av ' + total + '</div>';
-
-        html += '<div id="flashcard-box" style="background: var(--surface); border: 2px solid var(--accent-light); border-radius: 1rem; padding: 2rem; min-height: 150px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s;" onclick="flipCard()">';
-
-        if (state.cardFlipped) {
-            html += '<div style="font-size: 1.3rem; font-weight: 700; color: var(--accent);">' + card.back + '</div>';
-        } else {
-            html += '<div style="font-size: 1.1rem; line-height: 1.6;">' + card.front + '</div>';
+            let html = '<div class="match-container">';
+            html += '<div class="match-result">';
+            html += '<div class="match-result-score">' + state.matchCorrect + ' / ' + pairs.length + '</div>';
+            html += '<div style="color:var(--text-muted); margin: 0.5rem 0 1rem;">+' + xp + ' XP</div>';
+            html += '<button class="btn btn-primary" onclick="restartMatch()">Spela igen</button>';
+            html += '</div></div>';
+            $('flashcards-content').innerHTML = html;
+            return;
         }
 
-        html += '</div>';
-        html += '<p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">Klicka pa kortet for att vanda</p>';
+        // Shuffle terms and descriptions separately
+        const shuffledTerms = pairs.map((p, i) => ({ text: p.term, idx: i }));
+        const shuffledDescs = pairs.map((p, i) => ({ text: p.description, idx: i }));
 
-        html += '<div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">';
-        html += '<button class="btn btn-secondary" onclick="prevCard()" ' + (state.currentCard === 0 ? 'disabled' : '') + '>&#8592; Foregaende</button>';
-
-        if (state.cardFlipped) {
-            html += '<button class="btn btn-primary" style="background: var(--success);" onclick="masterCard()">Kan det! +10 XP</button>';
+        // Simple shuffle (keep matched ones in place visually but use a stable order)
+        for (let i = shuffledTerms.length - 1; i > 0; i--) {
+            if (!state.matchShuffledTerms) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledTerms[i], shuffledTerms[j]] = [shuffledTerms[j], shuffledTerms[i]];
+            }
+            if (!state.matchShuffledDescs) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledDescs[i], shuffledDescs[j]] = [shuffledDescs[j], shuffledDescs[i]];
+            }
         }
 
-        html += '<button class="btn btn-secondary" onclick="nextCard()" ' + (state.currentCard >= total - 1 ? 'disabled' : '') + '>Nasta &#8594;</button>';
+        // Save shuffle order so it stays stable between re-renders
+        if (!state.matchShuffledTerms) state.matchShuffledTerms = shuffledTerms;
+        if (!state.matchShuffledDescs) state.matchShuffledDescs = shuffledDescs;
+
+        const terms = state.matchShuffledTerms;
+        const descs = state.matchShuffledDescs;
+
+        let html = '<div class="match-container">';
+        html += '<div class="match-header">';
+        html += '<h3 style="color: var(--accent); margin: 0;">Para ihop</h3>';
+        html += '<div class="match-score">Matchade: ' + state.matchMatched.size + ' / ' + pairs.length + '</div>';
+        html += '</div>';
+        html += '<p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">Klicka pa ett begrepp till vanster, sedan pa ratt beskrivning till hoger.</p>';
+
+        html += '<div class="match-grid">';
+
+        // Left column - terms
+        html += '<div>';
+        html += '<div class="match-column-title">Begrepp</div>';
+        terms.forEach((t, i) => {
+            const matched = state.matchMatched.has(t.idx);
+            const selected = state.matchSelected && state.matchSelected.side === 'term' && state.matchSelected.idx === t.idx;
+            const cls = matched ? 'matched' : (selected ? 'selected' : '');
+            html += '<div class="match-item ' + cls + '" data-side="term" data-idx="' + t.idx + '" onclick="matchClick(\'term\',' + t.idx + ')">';
+            html += '<strong>' + t.text + '</strong>';
+            html += '</div>';
+        });
         html += '</div>';
 
-        html += '<div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem;">Beharska: ' + state.flashcardsMastered + ' / ' + total + '</div>';
+        // Right column - descriptions
+        html += '<div>';
+        html += '<div class="match-column-title">Beskrivning</div>';
+        descs.forEach((d, i) => {
+            const matched = state.matchMatched.has(d.idx);
+            const selected = state.matchSelected && state.matchSelected.side === 'desc' && state.matchSelected.idx === d.idx;
+            const cls = matched ? 'matched' : (selected ? 'selected' : '');
+            html += '<div class="match-item ' + cls + '" data-side="desc" data-idx="' + d.idx + '" onclick="matchClick(\'desc\',' + d.idx + ')">';
+            html += d.text;
+            html += '</div>';
+        });
         html += '</div>';
 
+        html += '</div></div>';
         $('flashcards-content').innerHTML = html;
     }
 
-    function flipCard() {
-        state.cardFlipped = !state.cardFlipped;
-        renderFlashcardUI();
-    }
+    function matchClick(side, idx) {
+        if (state.matchMatched.has(idx) && side === 'term') return;
+        if (state.matchMatched.has(idx) && side === 'desc') return;
 
-    function nextCard() {
-        if (state.currentCard < (state.flashcards || []).length - 1) {
-            state.currentCard++;
-            state.cardFlipped = false;
-            renderFlashcardUI();
+        if (!state.matchSelected) {
+            // First selection
+            state.matchSelected = { side, idx };
+            renderMatchGame();
+        } else if (state.matchSelected.side === side) {
+            // Same side - switch selection
+            state.matchSelected = { side, idx };
+            renderMatchGame();
+        } else {
+            // Different side - check match
+            const termIdx = side === 'term' ? idx : state.matchSelected.idx;
+            const descIdx = side === 'desc' ? idx : state.matchSelected.idx;
+
+            state.matchAttempts++;
+
+            if (termIdx === descIdx) {
+                // Correct match!
+                state.matchMatched.add(termIdx);
+                state.matchCorrect++;
+                state.matchSelected = null;
+                renderMatchGame();
+            } else {
+                // Wrong match - flash red
+                state.matchSelected = null;
+                const termEl = document.querySelector('[data-side="term"][data-idx="' + termIdx + '"]');
+                const descEl = document.querySelector('[data-side="desc"][data-idx="' + descIdx + '"]');
+                if (termEl) termEl.classList.add('wrong');
+                if (descEl) descEl.classList.add('wrong');
+                setTimeout(() => {
+                    if (termEl) termEl.classList.remove('wrong');
+                    if (descEl) descEl.classList.remove('wrong');
+                }, 600);
+            }
         }
     }
 
-    function prevCard() {
-        if (state.currentCard > 0) {
-            state.currentCard--;
-            state.cardFlipped = false;
-            renderFlashcardUI();
-        }
-    }
-
-    function masterCard() {
-        state.flashcardsMastered++;
-        state.progress.flashcards_mastered = (state.progress.flashcards_mastered || 0) + 1;
-        awardXP(10);
-        nextCard();
+    function restartMatch() {
+        state.matchSelected = null;
+        state.matchMatched = new Set();
+        state.matchAttempts = 0;
+        state.matchCorrect = 0;
+        state.matchShuffledTerms = null;
+        state.matchShuffledDescs = null;
+        renderMatchGame();
     }
 
     // ========================================
