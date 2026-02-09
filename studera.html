@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Studieplatformen - ADHD-anpassad studiehjalp</title>
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/opendyslexic">
     <style>
         /* ===== CSS Custom Properties ===== */
         :root {
@@ -30,10 +31,18 @@
             --radius-md: 12px;
             --radius-lg: 16px;
             --radius-xl: 24px;
-            --font-size-base: 17px;
+            --font-size-base: 18px;
             --line-height: 1.8;
             --letter-spacing: 0.01em;
             --transition: 0.2s ease;
+            --bg: var(--bg-primary);
+            --surface: var(--bg-secondary);
+            --correct-bg: #e8f5e9;
+            --correct-border: var(--success);
+            --wrong-bg: #ffebee;
+            --wrong-border: #e53935;
+            --tag-bg: #ede9fe;
+            --tag-color: #5b21b6;
         }
 
         /* Dark mode */
@@ -57,6 +66,12 @@
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
             --shadow-lg: 0 8px 30px rgba(0,0,0,0.4);
+            --correct-bg: #1a2e28;
+            --correct-border: var(--success);
+            --wrong-bg: #2e1a1a;
+            --wrong-border: #f87171;
+            --tag-bg: #2a2750;
+            --tag-color: #a59dff;
         }
 
         /* ===== Reset & Base ===== */
@@ -955,6 +970,16 @@
             padding-bottom: 60px;
         }
 
+        /* Respect reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
         /* Para ihop - matching game */
         .match-container { padding: 1.5rem; }
         .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
@@ -997,14 +1022,14 @@
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
         .match-item.matched {
-            border-color: var(--success);
-            background: #e8f5e9;
+            border-color: var(--correct-border);
+            background: var(--correct-bg);
             opacity: 0.7;
             cursor: default;
         }
         .match-item.wrong {
-            border-color: #e53935;
-            background: #ffebee;
+            border-color: var(--wrong-border);
+            background: var(--wrong-bg);
             animation: shake 0.4s;
         }
         @keyframes shake {
@@ -1104,10 +1129,11 @@
         <div class="setting-group">
             <label class="setting-label">Pomodoro-langd (minuter)</label>
             <select class="setting-select" id="setting-pomodoro">
-                <option value="15">15 min</option>
+                <option value="5">5 min</option>
+                <option value="10">10 min</option>
+                <option value="15" selected>15 min</option>
                 <option value="20">20 min</option>
-                <option value="25" selected>25 min</option>
-                <option value="30">30 min</option>
+                <option value="25">25 min</option>
             </select>
         </div>
 
@@ -1336,8 +1362,8 @@
         progress: { xp_earned: 0, study_streak: 0, total_study_time: 0, flashcards_mastered: 0, quizzes_completed: 0, best_quiz_score: 0 },
         pomoRunning: false,
         pomoInterval: null,
-        pomoTimeLeft: 25 * 60,
-        pomoDuration: 25 * 60,
+        pomoTimeLeft: 15 * 60,
+        pomoDuration: 15 * 60,
         pomoBreakDuration: 5 * 60,
         pomoIsBreak: false,
         pomoSessions: 0,
@@ -1490,8 +1516,13 @@
     // ========================================
     // Bionic reading - converts text client-side
     // ========================================
+    function escapeHtml(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
     function convertToBionic(text, level) {
-        const words = text.split(/(\s+)/);
+        const safe = escapeHtml(text);
+        const words = safe.split(/(\s+)/);
         return words.map(word => {
             if (word.trim().length === 0) return word;
             let ratio;
@@ -1709,7 +1740,10 @@
             state.fullText = text;
             state.documentName = state.selectedFile.name;
             state.chunks = chunkText(text, state.chunkSize);
-            state.currentChunk = 0;
+            // Restore saved reading position if same document
+            const lastDoc = localStorage.getItem('study-lastdoc');
+            const lastChunk = parseInt(localStorage.getItem('study-lastchunk') || '0');
+            state.currentChunk = (lastDoc === state.documentName && lastChunk < state.chunks.length) ? lastChunk : 0;
             state.studyStartTime = Date.now();
 
             $('study-doc-title').textContent = state.documentName;
@@ -1749,6 +1783,11 @@
         $('chunk-progress').style.width = ((current / total) * 100) + '%';
         $('chunk-prev').disabled = state.currentChunk === 0;
         $('chunk-next').disabled = state.currentChunk >= total - 1;
+
+        // Save reading position
+        if (state.documentName) {
+            try { localStorage.setItem('study-lastdoc', state.documentName); localStorage.setItem('study-lastchunk', state.currentChunk); } catch(e) {}
+        }
     }
 
     function initChunkNav() {
@@ -1830,7 +1869,7 @@
             html += '<h4 style="margin-bottom: 0.5rem; color: var(--accent);">Nyckelbegrepp</h4>';
             html += '<div style="display:flex; flex-wrap:wrap; gap:0.5rem;">';
             topTerms.forEach(t => {
-                html += '<span style="background:var(--accent-light); color:var(--accent); padding:0.3rem 0.8rem; border-radius:1rem; font-size:0.9rem;">' + t + '</span>';
+                html += '<span style="background:var(--tag-bg); color:var(--tag-color); padding:0.3rem 0.8rem; border-radius:1rem; font-size:0.9rem;">' + t + '</span>';
             });
             html += '</div>';
         }
@@ -2181,13 +2220,13 @@
             document.querySelectorAll('[data-q="' + i + '"]').forEach((btn, j) => {
                 const optText = btn.textContent;
                 if (optText === q.correct) {
-                    btn.style.borderColor = 'var(--success)';
-                    btn.style.background = '#e8f5e9';
+                    btn.style.borderColor = 'var(--correct-border)';
+                    btn.style.background = 'var(--correct-bg)';
                     btn.style.fontWeight = '700';
                 }
                 if (j === selectedOpt && optText !== q.correct) {
-                    btn.style.borderColor = '#e53935';
-                    btn.style.background = '#ffebee';
+                    btn.style.borderColor = 'var(--wrong-border)';
+                    btn.style.background = 'var(--wrong-bg)';
                 }
                 btn.style.cursor = 'default';
             });
@@ -2251,9 +2290,28 @@
 
     function awardXP(amount) {
         state.progress.xp_earned = (state.progress.xp_earned || 0) + amount;
+        updateStreak();
         renderProgress();
         showXPToast(amount);
-        localStorage.setItem('study-progress', JSON.stringify(state.progress));
+        try { localStorage.setItem('study-progress', JSON.stringify(state.progress)); } catch(e) {}
+    }
+
+    function updateStreak() {
+        const today = new Date().toISOString().split('T')[0];
+        const lastDate = state.progress.last_study_date;
+        if (lastDate === today) return;
+
+        if (lastDate) {
+            const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+            if (lastDate === yesterday) {
+                state.progress.study_streak = (state.progress.study_streak || 0) + 1;
+            } else {
+                state.progress.study_streak = 1;
+            }
+        } else {
+            state.progress.study_streak = 1;
+        }
+        state.progress.last_study_date = today;
     }
 
     function showXPToast(amount) {
@@ -2284,6 +2342,10 @@
             state.pomoRunning = false;
             $('pomo-start').innerHTML = '&#9654;';
         } else {
+            // Request notification permission on first start
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
             state.pomoRunning = true;
             $('pomo-start').innerHTML = '&#10074;&#10074;';
             state.pomoInterval = setInterval(() => {
@@ -2381,9 +2443,7 @@
         // Hide doc list (no backend)
         $('doc-list').style.display = 'none';
 
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission();
-        }
+        // Notification permission deferred to first pomodoro start
     }
 
     init();
