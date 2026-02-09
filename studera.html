@@ -1068,9 +1068,10 @@
                         <span class="format-tag">PDF</span>
                         <span class="format-tag">Word (.docx)</span>
                         <span class="format-tag">PowerPoint (.pptx)</span>
+                        <span class="format-tag">Text (.txt)</span>
                     </div>
                 </div>
-                <input type="file" id="file-input" class="file-input" accept=".pdf,.docx,.pptx">
+                <input type="file" id="file-input" class="file-input" accept=".pdf,.docx,.pptx,.txt">
 
                 <div class="file-card" id="file-card">
                     <div class="file-card-info">
@@ -1222,27 +1223,24 @@
         <button class="pomo-btn" id="pomo-reset" title="Aterstall">&#8634;</button>
     </div>
 
+    <!-- pdf.js for reading PDFs in browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- mammoth.js for reading DOCX in browser -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+
     <script>
     // ========================================
-    // State
+    // State - works 100% offline, no backend
     // ========================================
-    const API = 'http://localhost:3000';
     const state = {
         selectedFile: null,
-        documentId: null,
         documentName: '',
+        fullText: '',
         chunks: [],
         currentChunk: 0,
         bionicEnabled: false,
         bionicLevel: 'medium',
-        flashcards: [],
-        currentFlashcard: 0,
-        flashcardFlipped: false,
-        summary: null,
-        summaryLoaded: false,
-        flashcardsLoaded: false,
         progress: { xp_earned: 0, study_streak: 0, total_study_time: 0, flashcards_mastered: 0, quizzes_completed: 0, best_quiz_score: 0 },
-        // Pomodoro
         pomoRunning: false,
         pomoInterval: null,
         pomoTimeLeft: 25 * 60,
@@ -1250,28 +1248,127 @@
         pomoBreakDuration: 5 * 60,
         pomoIsBreak: false,
         pomoSessions: 0,
-        // Settings
         chunkSize: 150,
-        // Study timer
         studyStartTime: null,
     };
 
-    // ========================================
-    // DOM Elements
-    // ========================================
     const $ = id => document.getElementById(id);
+
+    // ========================================
+    // Text extraction - runs IN the browser
+    // ========================================
+    async function extractText(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (ext === 'pdf') return await extractPDF(file);
+        if (ext === 'docx') return await extractDOCX(file);
+        if (ext === 'pptx') return await extractPPTX(file);
+        if (ext === 'txt') return await file.text();
+        throw new Error('Filtypen stods inte. Anvand PDF, DOCX eller PPTX.');
+    }
+
+    async function extractPDF(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let text = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            text += content.items.map(item => item.str).join(' ') + '\n\n';
+        }
+        return text.trim();
+    }
+
+    async function extractDOCX(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        return result.value;
+    }
+
+    async function extractPPTX(file) {
+        // PPTX is a ZIP with XML slides - parse manually in browser
+        const arrayBuffer = await file.arrayBuffer();
+        const uint8 = new Uint8Array(arrayBuffer);
+
+        // Simple ZIP + XML text extractor for PPTX
+        let text = '';
+        const decoder = new TextDecoder();
+        const raw = decoder.decode(uint8);
+
+        // Find all text between <a:t> tags (PowerPoint text elements)
+        const matches = raw.match(/<a:t[^>]*>([^<]*)<\/a:t>/g);
+        if (matches) {
+            let currentSlide = '';
+            matches.forEach(m => {
+                const content = m.replace(/<[^>]+>/g, '');
+                if (content.trim()) currentSlide += content + ' ';
+            });
+            text = currentSlide;
+        }
+
+        if (!text.trim()) {
+            // Fallback: extract any readable text
+            const readable = raw.replace(/<[^>]+>/g, ' ').replace(/[^\x20-\x7E\xC0-\xFF\u00C0-\u024F]/g, ' ').replace(/\s+/g, ' ');
+            const words = readable.split(' ').filter(w => w.length > 2 && w.length < 30);
+            text = words.join(' ');
+        }
+
+        return text.trim() || 'Kunde inte lasa texten fran PowerPoint-filen. Prova att spara som PDF istallet.';
+    }
+
+    // ========================================
+    // Content chunking - splits text into sections
+    // ========================================
+    function chunkText(text, maxWords) {
+        const sentences = text.match(/[^.!?\n]+[.!?\n]+/g) || [text];
+        const chunks = [];
+        let current = '';
+        let wordCount = 0;
+
+        sentences.forEach(s => {
+            const sWords = s.trim().split(/\s+/).length;
+            if (wordCount + sWords > maxWords && current.length > 0) {
+                chunks.push({ text: current.trim(), wordCount, index: chunks.length });
+                current = '';
+                wordCount = 0;
+            }
+            current += s;
+            wordCount += sWords;
+        });
+
+        if (current.trim().length > 0) {
+            chunks.push({ text: current.trim(), wordCount, index: chunks.length });
+        }
+
+        return chunks.length > 0 ? chunks : [{ text, wordCount: text.split(/\s+/).length, index: 0 }];
+    }
+
+    // ========================================
+    // Bionic reading - converts text client-side
+    // ========================================
+    function convertToBionic(text, level) {
+        const words = text.split(/(\s+)/);
+        return words.map(word => {
+            if (word.trim().length === 0) return word;
+            let ratio;
+            switch (level) {
+                case 'low': ratio = 0.3; break;
+                case 'high': ratio = 0.5; break;
+                default: ratio = 0.4;
+            }
+            const bl = Math.max(1, Math.ceil(word.length * ratio));
+            return `<strong>${word.substring(0, bl)}</strong>${word.substring(bl)}`;
+        }).join('');
+    }
 
     // ========================================
     // Settings
     // ========================================
     function initSettings() {
-        // Theme
         $('setting-theme').addEventListener('change', e => {
             document.documentElement.setAttribute('data-theme', e.target.value);
             localStorage.setItem('study-theme', e.target.value);
         });
 
-        // Font size
         $('setting-fontsize').addEventListener('input', e => {
             const val = e.target.value + 'px';
             document.documentElement.style.setProperty('--font-size-base', val);
@@ -1279,14 +1376,12 @@
             localStorage.setItem('study-fontsize', e.target.value);
         });
 
-        // Line height
         $('setting-lineheight').addEventListener('input', e => {
             document.documentElement.style.setProperty('--line-height', e.target.value);
             $('lineheight-value').textContent = e.target.value;
             localStorage.setItem('study-lineheight', e.target.value);
         });
 
-        // Letter spacing
         $('setting-letterspacing').addEventListener('input', e => {
             const val = e.target.value + 'em';
             document.documentElement.style.setProperty('--letter-spacing', val);
@@ -1294,27 +1389,19 @@
             localStorage.setItem('study-letterspacing', e.target.value);
         });
 
-        // Font family
         $('setting-font').addEventListener('change', e => {
             document.body.style.fontFamily = e.target.value;
             localStorage.setItem('study-font', e.target.value);
         });
 
-        // Bionic level
         $('setting-bionic').addEventListener('change', e => {
             state.bionicLevel = e.target.value;
-            if (e.target.value !== 'none') {
-                state.bionicEnabled = true;
-                $('bionic-toggle-input').checked = true;
-            } else {
-                state.bionicEnabled = false;
-                $('bionic-toggle-input').checked = false;
-            }
+            state.bionicEnabled = e.target.value !== 'none';
+            $('bionic-toggle-input').checked = state.bionicEnabled;
             localStorage.setItem('study-bionic', e.target.value);
             if (state.chunks.length > 0) renderChunk();
         });
 
-        // Pomodoro duration
         $('setting-pomodoro').addEventListener('change', e => {
             state.pomoDuration = parseInt(e.target.value) * 60;
             if (!state.pomoRunning && !state.pomoIsBreak) {
@@ -1324,20 +1411,21 @@
             localStorage.setItem('study-pomodoro', e.target.value);
         });
 
-        // Break duration
         $('setting-break').addEventListener('change', e => {
             state.pomoBreakDuration = parseInt(e.target.value) * 60;
             localStorage.setItem('study-break', e.target.value);
         });
 
-        // Chunk size
         $('setting-chunksize').addEventListener('change', e => {
             state.chunkSize = parseInt(e.target.value);
             localStorage.setItem('study-chunksize', e.target.value);
-            if (state.documentId) reloadDocument();
+            if (state.fullText) {
+                state.chunks = chunkText(state.fullText, state.chunkSize);
+                state.currentChunk = 0;
+                renderChunk();
+            }
         });
 
-        // Settings panel toggle
         $('settings-btn').addEventListener('click', () => {
             $('settings-panel').classList.add('show');
             $('settings-overlay').classList.add('show');
@@ -1345,7 +1433,6 @@
         $('settings-close').addEventListener('click', closeSettings);
         $('settings-overlay').addEventListener('click', closeSettings);
 
-        // Load saved settings
         loadSavedSettings();
     }
 
@@ -1356,64 +1443,35 @@
 
     function loadSavedSettings() {
         const theme = localStorage.getItem('study-theme');
-        if (theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            $('setting-theme').value = theme;
-        }
+        if (theme) { document.documentElement.setAttribute('data-theme', theme); $('setting-theme').value = theme; }
 
         const fontSize = localStorage.getItem('study-fontsize');
-        if (fontSize) {
-            document.documentElement.style.setProperty('--font-size-base', fontSize + 'px');
-            $('setting-fontsize').value = fontSize;
-            $('fontsize-value').textContent = fontSize + 'px';
-        }
+        if (fontSize) { document.documentElement.style.setProperty('--font-size-base', fontSize + 'px'); $('setting-fontsize').value = fontSize; $('fontsize-value').textContent = fontSize + 'px'; }
 
         const lineHeight = localStorage.getItem('study-lineheight');
-        if (lineHeight) {
-            document.documentElement.style.setProperty('--line-height', lineHeight);
-            $('setting-lineheight').value = lineHeight;
-            $('lineheight-value').textContent = lineHeight;
-        }
+        if (lineHeight) { document.documentElement.style.setProperty('--line-height', lineHeight); $('setting-lineheight').value = lineHeight; $('lineheight-value').textContent = lineHeight; }
 
         const letterSpacing = localStorage.getItem('study-letterspacing');
-        if (letterSpacing) {
-            document.documentElement.style.setProperty('--letter-spacing', letterSpacing + 'em');
-            $('setting-letterspacing').value = letterSpacing;
-            $('letterspacing-value').textContent = letterSpacing + 'em';
-        }
+        if (letterSpacing) { document.documentElement.style.setProperty('--letter-spacing', letterSpacing + 'em'); $('setting-letterspacing').value = letterSpacing; $('letterspacing-value').textContent = letterSpacing + 'em'; }
 
         const font = localStorage.getItem('study-font');
-        if (font) {
-            document.body.style.fontFamily = font;
-            $('setting-font').value = font;
-        }
+        if (font) { document.body.style.fontFamily = font; $('setting-font').value = font; }
 
         const bionic = localStorage.getItem('study-bionic');
-        if (bionic) {
-            state.bionicLevel = bionic;
-            $('setting-bionic').value = bionic;
-            state.bionicEnabled = bionic !== 'none';
-            $('bionic-toggle-input').checked = state.bionicEnabled;
-        }
+        if (bionic) { state.bionicLevel = bionic; $('setting-bionic').value = bionic; state.bionicEnabled = bionic !== 'none'; $('bionic-toggle-input').checked = state.bionicEnabled; }
 
         const pomodoro = localStorage.getItem('study-pomodoro');
-        if (pomodoro) {
-            state.pomoDuration = parseInt(pomodoro) * 60;
-            state.pomoTimeLeft = state.pomoDuration;
-            $('setting-pomodoro').value = pomodoro;
-        }
+        if (pomodoro) { state.pomoDuration = parseInt(pomodoro) * 60; state.pomoTimeLeft = state.pomoDuration; $('setting-pomodoro').value = pomodoro; }
 
         const breakTime = localStorage.getItem('study-break');
-        if (breakTime) {
-            state.pomoBreakDuration = parseInt(breakTime) * 60;
-            $('setting-break').value = breakTime;
-        }
+        if (breakTime) { state.pomoBreakDuration = parseInt(breakTime) * 60; $('setting-break').value = breakTime; }
 
         const chunkSize = localStorage.getItem('study-chunksize');
-        if (chunkSize) {
-            state.chunkSize = parseInt(chunkSize);
-            $('setting-chunksize').value = chunkSize;
-        }
+        if (chunkSize) { state.chunkSize = parseInt(chunkSize); $('setting-chunksize').value = chunkSize; }
+
+        // Load saved progress
+        const savedProgress = localStorage.getItem('study-progress');
+        if (savedProgress) { state.progress = JSON.parse(savedProgress); renderProgress(); }
     }
 
     // ========================================
@@ -1443,15 +1501,10 @@
 
     function handleFile(file) {
         hideError();
-        const validTypes = [
-            'application/pdf',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-        ];
-        const validExt = /\.(pdf|docx|pptx)$/i;
+        const validExt = /\.(pdf|docx|pptx|txt)$/i;
 
-        if (!validTypes.includes(file.type) && !file.name.match(validExt)) {
-            showError('Bara PDF, Word och PowerPoint-filer godkanns.');
+        if (!file.name.match(validExt)) {
+            showError('Bara PDF, Word (.docx), PowerPoint (.pptx) och textfiler stods.');
             return;
         }
         if (file.size > 10 * 1024 * 1024) {
@@ -1464,7 +1517,7 @@
         $('file-size').textContent = formatSize(file.size);
 
         const ext = file.name.split('.').pop().toLowerCase();
-        const icons = { pdf: '&#128211;', docx: '&#128196;', pptx: '&#128202;' };
+        const icons = { pdf: '&#128211;', docx: '&#128196;', pptx: '&#128202;', txt: '&#128196;' };
         $('file-icon').innerHTML = icons[ext] || '&#128196;';
 
         $('file-card').classList.add('show');
@@ -1485,107 +1538,44 @@
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
 
-    function showError(msg) {
-        const el = $('upload-error');
-        el.textContent = msg;
-        el.classList.add('show');
-    }
-    function hideError() {
-        $('upload-error').classList.remove('show');
-    }
+    function showError(msg) { const el = $('upload-error'); el.textContent = msg; el.classList.add('show'); }
+    function hideError() { $('upload-error').classList.remove('show'); }
 
     // ========================================
-    // Start Study Session
+    // Start Study - reads file IN the browser
     // ========================================
     async function startStudy() {
         if (!state.selectedFile) return;
         showView('view-loading');
-        $('loading-text').textContent = 'Laddar upp och analyserar ditt material...';
+        $('loading-text').textContent = 'Laser och analyserar din fil...';
 
         try {
-            const formData = new FormData();
-            formData.append('file', state.selectedFile);
+            const text = await extractText(state.selectedFile);
 
-            const uploadRes = await fetch(`${API}/api/study/upload`, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!uploadRes.ok) {
-                const err = await uploadRes.json();
-                throw new Error(err.error || 'Uppladdning misslyckades');
+            if (!text || text.trim().length < 20) {
+                throw new Error('Kunde inte lasa text fran filen. Prova en annan fil.');
             }
 
-            const uploadData = await uploadRes.json();
-            state.documentId = uploadData.documentId;
-            state.documentName = uploadData.filename;
-
-            await loadDocument();
-            await loadProgress();
-
+            state.fullText = text;
+            state.documentName = state.selectedFile.name;
+            state.chunks = chunkText(text, state.chunkSize);
+            state.currentChunk = 0;
             state.studyStartTime = Date.now();
-            state.summaryLoaded = false;
-            state.flashcardsLoaded = false;
+
+            $('study-doc-title').textContent = state.documentName;
+            renderChunk();
+            renderProgress();
+
+            // Hide summary/flashcards/quiz (no backend)
+            $('study-summary').querySelector('div').innerHTML = '<p style="color:var(--text-muted); padding:2rem; text-align:center;">Sammanfattning kraver backend (docker-compose up). Anvand Lasa-laget med Bionic Reading!</p>';
+            $('flashcards-content').innerHTML = '<p style="color:var(--text-muted); padding:2rem; text-align:center;">Flashcards kraver backend (docker-compose up). Anvand Lasa-laget med Bionic Reading!</p>';
 
             showView('view-study');
             showStudyMode('read');
         } catch (error) {
             console.error('Start study error:', error);
             showView('view-upload');
-            showError('Nagot gick fel: ' + error.message);
-        }
-    }
-
-    async function loadDocumentById(docId) {
-        showView('view-loading');
-        $('loading-text').textContent = 'Hamtar ditt material...';
-
-        try {
-            state.documentId = docId;
-            await loadDocument();
-            await loadProgress();
-
-            state.studyStartTime = Date.now();
-            state.summaryLoaded = false;
-            state.flashcardsLoaded = false;
-
-            showView('view-study');
-            showStudyMode('read');
-        } catch (error) {
-            console.error('Load document error:', error);
-            showView('view-upload');
-            showError('Kunde inte ladda dokumentet: ' + error.message);
-        }
-    }
-
-    async function loadDocument() {
-        const bionic = state.bionicEnabled ? state.bionicLevel : 'none';
-        const res = await fetch(`${API}/api/study/document/${state.documentId}?bionic=${bionic}`);
-        if (!res.ok) throw new Error('Kunde inte hamta dokument');
-
-        const data = await res.json();
-        state.chunks = data.chunks;
-        state.documentName = data.filename;
-        state.currentChunk = 0;
-
-        $('study-doc-title').textContent = state.documentName;
-        renderChunk();
-    }
-
-    async function reloadDocument() {
-        if (!state.documentId) return;
-        await loadDocument();
-    }
-
-    async function loadProgress() {
-        try {
-            const res = await fetch(`${API}/api/study/progress/${state.documentId}`);
-            if (res.ok) {
-                state.progress = await res.json();
-                renderProgress();
-            }
-        } catch (e) {
-            console.error('Load progress error:', e);
+            showError(error.message);
         }
     }
 
@@ -1596,9 +1586,7 @@
         if (state.chunks.length === 0) return;
         const chunk = state.chunks[state.currentChunk];
 
-        if (state.bionicEnabled && chunk.bionicHtml) {
-            $('reading-content').innerHTML = chunk.bionicHtml;
-        } else if (state.bionicEnabled) {
+        if (state.bionicEnabled) {
             $('reading-content').innerHTML = convertToBionic(chunk.text, state.bionicLevel);
         } else {
             $('reading-content').textContent = chunk.text;
@@ -1610,21 +1598,6 @@
         $('chunk-progress').style.width = ((current / total) * 100) + '%';
         $('chunk-prev').disabled = state.currentChunk === 0;
         $('chunk-next').disabled = state.currentChunk >= total - 1;
-    }
-
-    function convertToBionic(text, level) {
-        const words = text.split(/(\s+)/);
-        return words.map(word => {
-            if (word.trim().length === 0) return word;
-            let ratio;
-            switch (level) {
-                case 'low': ratio = 0.3; break;
-                case 'high': ratio = 0.5; break;
-                default: ratio = 0.4;
-            }
-            const bl = Math.max(1, Math.ceil(word.length * ratio));
-            return `<strong>${word.substring(0, bl)}</strong>${word.substring(bl)}`;
-        }).join('');
     }
 
     function initChunkNav() {
@@ -1651,7 +1624,7 @@
                 $('setting-bionic').value = 'medium';
             }
             localStorage.setItem('study-bionic', state.bionicEnabled ? state.bionicLevel : 'none');
-            reloadDocument();
+            if (state.chunks.length > 0) renderChunk();
         });
     }
 
@@ -1672,313 +1645,15 @@
     function showStudyMode(mode) {
         document.querySelectorAll('.study-mode-content').forEach(el => el.style.display = 'none');
         $(`study-${mode}`).style.display = 'block';
-
-        if (mode === 'summary' && !state.summaryLoaded) {
-            loadSummary();
-        }
-        if (mode === 'flashcards' && !state.flashcardsLoaded) {
-            loadFlashcards();
-        }
     }
 
     // ========================================
-    // Summary
-    // ========================================
-    async function loadSummary() {
-        $('summary-content').innerHTML = `
-            <div class="loading-spinner">
-                <div class="spinner"></div>
-                <div class="loading-text">AI skapar din sammanfattning...</div>
-            </div>`;
-
-        try {
-            const res = await fetch(`${API}/api/study/summary`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ documentId: state.documentId })
-            });
-
-            if (!res.ok) throw new Error('Kunde inte skapa sammanfattning');
-            const data = await res.json();
-            state.summary = data.summary;
-            state.summaryLoaded = true;
-            renderSummary();
-            awardXP(15);
-        } catch (error) {
-            console.error('Summary error:', error);
-            $('summary-content').innerHTML = `
-                <div class="error-msg show">Kunde inte skapa sammanfattning. Kontrollera att backend kors.</div>`;
-        }
-    }
-
-    function renderSummary() {
-        if (!state.summary) return;
-        const s = state.summary;
-
-        let html = `<h2 style="font-size:1.3rem; margin-bottom:1rem; color:var(--text-primary);">${s.title || 'Sammanfattning'}</h2>`;
-
-        if (s.estimatedStudyTime) {
-            html += `<p style="color:var(--text-muted); margin-bottom:1.5rem; font-size:0.9rem;">Beraknad studietid: ${s.estimatedStudyTime}</p>`;
-        }
-
-        s.sections.forEach((section, i) => {
-            html += `<div class="summary-section">
-                <div class="summary-heading">${section.heading}</div>
-                <ul class="summary-points">
-                    ${section.keyPoints.map(p => `<li>${p}</li>`).join('')}
-                </ul>
-                ${section.memoryTip ? `
-                    <div class="memory-tip">
-                        <span class="memory-tip-icon">&#128161;</span>
-                        <span>${section.memoryTip}</span>
-                    </div>` : ''}
-            </div>`;
-        });
-
-        $('summary-content').innerHTML = html;
-    }
-
-    // ========================================
-    // Flashcards
-    // ========================================
-    async function loadFlashcards() {
-        $('flashcards-content').innerHTML = `
-            <div class="loading-spinner">
-                <div class="spinner"></div>
-                <div class="loading-text">AI skapar flashcards fran ditt material...</div>
-            </div>`;
-
-        try {
-            const res = await fetch(`${API}/api/study/flashcards`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ documentId: state.documentId, count: 15 })
-            });
-
-            if (!res.ok) throw new Error('Kunde inte skapa flashcards');
-            const data = await res.json();
-            state.flashcards = data.flashcards;
-            state.currentFlashcard = 0;
-            state.flashcardFlipped = false;
-            state.flashcardsLoaded = true;
-            renderFlashcard();
-            awardXP(15);
-        } catch (error) {
-            console.error('Flashcard error:', error);
-            $('flashcards-content').innerHTML = `
-                <div class="error-msg show">Kunde inte skapa flashcards. Kontrollera att backend kors.</div>`;
-        }
-    }
-
-    function renderFlashcard() {
-        if (state.flashcards.length === 0) return;
-        const fc = state.flashcards[state.currentFlashcard];
-        const total = state.flashcards.length;
-        const current = state.currentFlashcard + 1;
-
-        const diffColors = { easy: 'var(--success)', medium: 'var(--warning)', hard: 'var(--danger)' };
-        const diffLabels = { easy: 'Latt', medium: 'Medel', hard: 'Svar' };
-
-        $('flashcards-content').innerHTML = `
-            <div class="flashcard-container">
-                <div class="flashcard ${state.flashcardFlipped ? 'flipped' : ''}" id="flashcard">
-                    <div class="flashcard-front">
-                        <div class="flashcard-label">Fraga ${current}/${total}</div>
-                        <div class="flashcard-text">${fc.front}</div>
-                        <div class="flashcard-hint">Klicka for att visa svaret</div>
-                    </div>
-                    <div class="flashcard-back">
-                        <div class="flashcard-label" style="color:${diffColors[fc.difficulty]}">${diffLabels[fc.difficulty]}</div>
-                        <div class="flashcard-text">${fc.back}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="flashcard-controls">
-                ${state.flashcardFlipped ? `
-                    <button class="fc-btn fc-btn-wrong" id="fc-wrong">Fel</button>
-                    <button class="fc-btn fc-btn-skip" id="fc-skip">Hoppa over</button>
-                    <button class="fc-btn fc-btn-right" id="fc-right">Ratt!</button>
-                ` : `
-                    <button class="fc-btn fc-btn-skip" id="fc-flip">Visa svar</button>
-                `}
-            </div>
-            <div class="flashcard-progress">
-                ${current} av ${total} flashcards
-            </div>
-        `;
-
-        // Attach events
-        const card = $('flashcard');
-        if (card) {
-            card.addEventListener('click', flipFlashcard);
-        }
-
-        if ($('fc-flip')) $('fc-flip').addEventListener('click', flipFlashcard);
-        if ($('fc-wrong')) $('fc-wrong').addEventListener('click', () => nextFlashcard(false));
-        if ($('fc-right')) $('fc-right').addEventListener('click', () => nextFlashcard(true));
-        if ($('fc-skip')) $('fc-skip').addEventListener('click', () => nextFlashcard(null));
-    }
-
-    function flipFlashcard() {
-        state.flashcardFlipped = !state.flashcardFlipped;
-        renderFlashcard();
-    }
-
-    function nextFlashcard(correct) {
-        if (correct === true) awardXP(3);
-        state.flashcardFlipped = false;
-
-        if (state.currentFlashcard < state.flashcards.length - 1) {
-            state.currentFlashcard++;
-            renderFlashcard();
-        } else {
-            // Flashcards done
-            $('flashcards-content').innerHTML = `
-                <div style="text-align:center; padding:3rem;">
-                    <div style="font-size:3rem; margin-bottom:1rem;">&#127881;</div>
-                    <h3 style="margin-bottom:0.5rem;">Alla flashcards klara!</h3>
-                    <p style="color:var(--text-muted); margin-bottom:1.5rem;">Bra jobbat! Vill du ga igenom dem igen?</p>
-                    <button class="btn btn-primary" id="fc-restart">Borja om</button>
-                </div>`;
-            $('fc-restart').addEventListener('click', () => {
-                state.currentFlashcard = 0;
-                state.flashcardFlipped = false;
-                renderFlashcard();
-            });
-            awardXP(20);
-        }
-    }
-
-    // ========================================
-    // Quiz
-    // ========================================
-    function initQuiz() {
-        $('start-quiz-btn').addEventListener('click', async () => {
-            $('start-quiz-btn').disabled = true;
-            $('start-quiz-btn').textContent = 'Skapar quiz...';
-
-            try {
-                // Generate quiz using existing quiz API
-                const genRes = await fetch(`${API}/api/quiz/generate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ documentId: state.documentId, questionCount: 10 })
-                });
-
-                if (!genRes.ok) throw new Error('Kunde inte skapa quiz');
-                const quizData = await genRes.json();
-
-                renderInlineQuiz(quizData);
-            } catch (error) {
-                console.error('Quiz error:', error);
-                $('quiz-container').innerHTML = `
-                    <div class="error-msg show">Kunde inte skapa quiz. Kontrollera att backend kors.</div>`;
-                $('start-quiz-btn').disabled = false;
-                $('start-quiz-btn').textContent = 'Starta Quiz';
-            }
-        });
-    }
-
-    function renderInlineQuiz(quizData) {
-        const questions = quizData.questions;
-        let currentQ = 0;
-        let score = 0;
-        let userAnswers = [];
-
-        function renderQuestion() {
-            const q = questions[currentQ];
-            const progress = ((currentQ) / questions.length * 100);
-
-            $('quiz-container').innerHTML = `
-                <div style="text-align:left;">
-                    <div class="chunk-nav">
-                        <span class="chunk-label">Fraga ${currentQ + 1} / ${questions.length}</span>
-                        <div class="chunk-progress-bar">
-                            <div class="chunk-progress-fill" style="width:${progress}%"></div>
-                        </div>
-                    </div>
-                    <h3 style="margin: 1rem 0; font-size:1.1rem; line-height:1.5;">${q.question}</h3>
-                    <div class="answer-options-quiz">
-                        ${q.options.map((opt, i) => `
-                            <button class="quiz-option" data-index="${i}">${opt}</button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-
-            $('start-quiz-btn').style.display = 'none';
-
-            document.querySelectorAll('.quiz-option').forEach(btn => {
-                btn.addEventListener('click', () => selectQuizAnswer(parseInt(btn.dataset.index)));
-            });
-        }
-
-        function selectQuizAnswer(idx) {
-            const q = questions[currentQ];
-            const correct = q.correct;
-            const options = document.querySelectorAll('.quiz-option');
-
-            options.forEach((btn, i) => {
-                btn.style.pointerEvents = 'none';
-                if (i === correct) {
-                    btn.style.background = 'var(--success-bg)';
-                    btn.style.borderColor = 'var(--success)';
-                    btn.style.color = 'var(--success)';
-                }
-                if (i === idx && idx !== correct) {
-                    btn.style.background = 'var(--danger-bg)';
-                    btn.style.borderColor = 'var(--danger)';
-                    btn.style.color = 'var(--danger)';
-                }
-            });
-
-            if (idx === correct) score++;
-            userAnswers.push(idx);
-
-            setTimeout(() => {
-                currentQ++;
-                if (currentQ < questions.length) {
-                    renderQuestion();
-                } else {
-                    showQuizResults();
-                }
-            }, 1200);
-        }
-
-        function showQuizResults() {
-            const pct = Math.round((score / questions.length) * 100);
-            awardXP(Math.round(pct / 5));
-
-            $('quiz-container').innerHTML = `
-                <div style="text-align:center; padding:1.5rem;">
-                    <div style="font-size:2.5rem; margin-bottom:0.5rem;">${pct >= 80 ? '&#127881;' : pct >= 50 ? '&#128170;' : '&#128218;'}</div>
-                    <h3 style="margin-bottom:0.5rem;">Du fick ${score} av ${questions.length} ratt!</h3>
-                    <p style="color:var(--text-muted); margin-bottom:1rem;">${pct}%</p>
-                    <button class="btn btn-primary" id="quiz-retry">Forsok igen</button>
-                </div>
-            `;
-
-            $('quiz-retry').addEventListener('click', () => {
-                currentQ = 0;
-                score = 0;
-                userAnswers = [];
-                renderQuestion();
-            });
-
-            updateProgress({ quizScore: pct });
-        }
-
-        renderQuestion();
-    }
-
-    // ========================================
-    // Progress & XP
+    // Progress & XP (saved in localStorage)
     // ========================================
     function renderProgress() {
         const p = state.progress;
         $('total-xp').textContent = p.xp_earned || 0;
         $('stat-streak').textContent = p.study_streak || 0;
-
         const totalMin = Math.round((p.total_study_time || 0) / 60);
         $('stat-time').textContent = totalMin > 0 ? totalMin + 'm' : '0m';
         $('stat-cards').textContent = p.flashcards_mastered || 0;
@@ -1989,7 +1664,7 @@
         state.progress.xp_earned = (state.progress.xp_earned || 0) + amount;
         renderProgress();
         showXPToast(amount);
-        updateProgress({ xpEarned: amount });
+        localStorage.setItem('study-progress', JSON.stringify(state.progress));
     }
 
     function showXPToast(amount) {
@@ -1997,27 +1672,6 @@
         toast.textContent = `+${amount} XP`;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 1500);
-    }
-
-    async function updateProgress(data) {
-        if (!state.documentId) return;
-        try {
-            const studyTime = state.studyStartTime
-                ? Math.round((Date.now() - state.studyStartTime) / 1000)
-                : 0;
-
-            await fetch(`${API}/api/study/progress`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    documentId: state.documentId,
-                    studyTime: data.studyTime || studyTime,
-                    ...data
-                })
-            });
-        } catch (e) {
-            console.error('Update progress error:', e);
-        }
     }
 
     // ========================================
@@ -2032,7 +1686,6 @@
 
         $('pomo-start').addEventListener('click', togglePomodoro);
         $('pomo-reset').addEventListener('click', resetPomodoro);
-
         renderPomoTime();
     }
 
@@ -2105,45 +1758,6 @@
     }
 
     // ========================================
-    // Document List
-    // ========================================
-    async function loadDocumentList() {
-        try {
-            const res = await fetch(`${API}/api/study/documents`);
-            if (!res.ok) return;
-            const docs = await res.json();
-
-            if (docs.length === 0) {
-                $('doc-list').style.display = 'none';
-                return;
-            }
-
-            const icons = { pdf: '&#128211;', docx: '&#128196;', pptx: '&#128202;' };
-
-            $('doc-list-items').innerHTML = docs.map(doc => `
-                <div class="doc-item" data-id="${doc.id}">
-                    <div class="doc-item-left">
-                        <span class="doc-item-icon">${icons[doc.file_type] || '&#128196;'}</span>
-                        <div>
-                            <div class="doc-item-name">${doc.original_filename}</div>
-                            <div class="doc-item-meta">${doc.word_count} ord</div>
-                        </div>
-                    </div>
-                    ${doc.xp_earned ? `<span class="doc-item-xp">${doc.xp_earned} XP</span>` : ''}
-                </div>
-            `).join('');
-
-            document.querySelectorAll('.doc-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    loadDocumentById(parseInt(item.dataset.id));
-                });
-            });
-        } catch (e) {
-            console.error('Load doc list error:', e);
-        }
-    }
-
-    // ========================================
     // Navigation
     // ========================================
     function showView(viewId) {
@@ -2152,69 +1766,32 @@
     }
 
     function backToUpload() {
-        // Save study time
-        if (state.studyStartTime && state.documentId) {
+        if (state.studyStartTime) {
             const studyTime = Math.round((Date.now() - state.studyStartTime) / 1000);
-            updateProgress({ studyTime });
+            state.progress.total_study_time = (state.progress.total_study_time || 0) + studyTime;
+            localStorage.setItem('study-progress', JSON.stringify(state.progress));
         }
         state.studyStartTime = null;
-        state.documentId = null;
+        state.fullText = '';
         state.chunks = [];
-        state.summaryLoaded = false;
-        state.flashcardsLoaded = false;
         removeFile();
         showView('view-upload');
-        loadDocumentList();
-    }
-
-    // ========================================
-    // Quiz option styles (inline)
-    // ========================================
-    function addQuizStyles() {
-        const style = document.createElement('style');
-        style.textContent = `
-            .quiz-option {
-                display: block;
-                width: 100%;
-                text-align: left;
-                padding: 0.8rem 1rem;
-                margin-bottom: 0.5rem;
-                background: var(--bg-secondary);
-                border: 1.5px solid var(--border);
-                border-radius: var(--radius-sm);
-                font-size: 0.95rem;
-                cursor: pointer;
-                transition: all var(--transition);
-                color: var(--text-primary);
-                font-family: inherit;
-            }
-            .quiz-option:hover {
-                border-color: var(--accent);
-                background: var(--accent-bg);
-            }
-            .answer-options-quiz {
-                display: flex;
-                flex-direction: column;
-            }
-        `;
-        document.head.appendChild(style);
     }
 
     // ========================================
     // Init
     // ========================================
     function init() {
-        addQuizStyles();
         initSettings();
         initUpload();
         initChunkNav();
         initStudyModes();
-        initQuiz();
         initPomodoro();
-        loadDocumentList();
         renderPomoTime();
 
-        // Request notification permission
+        // Hide doc list (no backend)
+        $('doc-list').style.display = 'none';
+
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
         }
