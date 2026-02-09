@@ -1227,6 +1227,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <!-- mammoth.js for reading DOCX in browser -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+    <!-- JSZip for reading PPTX files (ZIP archives) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <script>
     // Configure pdf.js worker (required for PDF parsing)
@@ -1293,34 +1295,46 @@
     }
 
     async function extractPPTX(file) {
-        // PPTX is a ZIP with XML slides - parse manually in browser
-        const arrayBuffer = await file.arrayBuffer();
-        const uint8 = new Uint8Array(arrayBuffer);
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const zip = await JSZip.loadAsync(arrayBuffer);
 
-        // Simple ZIP + XML text extractor for PPTX
-        let text = '';
-        const decoder = new TextDecoder();
-        const raw = decoder.decode(uint8);
-
-        // Find all text between <a:t> tags (PowerPoint text elements)
-        const matches = raw.match(/<a:t[^>]*>([^<]*)<\/a:t>/g);
-        if (matches) {
-            let currentSlide = '';
-            matches.forEach(m => {
-                const content = m.replace(/<[^>]+>/g, '');
-                if (content.trim()) currentSlide += content + ' ';
+            // Find all slide XML files (ppt/slides/slide1.xml, slide2.xml, etc.)
+            const slideFiles = [];
+            zip.forEach((path, entry) => {
+                if (path.match(/^ppt\/slides\/slide\d+\.xml$/)) {
+                    slideFiles.push({ path, entry });
+                }
             });
-            text = currentSlide;
-        }
 
-        if (!text.trim()) {
-            // Fallback: extract any readable text
-            const readable = raw.replace(/<[^>]+>/g, ' ').replace(/[^\x20-\x7E\xC0-\xFF\u00C0-\u024F]/g, ' ').replace(/\s+/g, ' ');
-            const words = readable.split(' ').filter(w => w.length > 2 && w.length < 30);
-            text = words.join(' ');
-        }
+            // Sort slides by number
+            slideFiles.sort((a, b) => {
+                const numA = parseInt(a.path.match(/slide(\d+)/)[1]);
+                const numB = parseInt(b.path.match(/slide(\d+)/)[1]);
+                return numA - numB;
+            });
 
-        return text.trim() || 'Kunde inte lasa texten fran PowerPoint-filen. Prova att spara som PDF istallet.';
+            let allText = '';
+            for (const slide of slideFiles) {
+                const xml = await slide.entry.async('text');
+                // Extract text from <a:t> tags (PowerPoint text elements)
+                const matches = xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g);
+                if (matches) {
+                    const slideText = matches
+                        .map(m => m.replace(/<[^>]+>/g, ''))
+                        .filter(t => t.trim())
+                        .join(' ');
+                    if (slideText.trim()) {
+                        allText += slideText.trim() + '\n\n';
+                    }
+                }
+            }
+
+            return allText.trim() || 'Kunde inte lasa texten fran PowerPoint-filen. Prova att spara som PDF istallet.';
+        } catch (error) {
+            console.error('PPTX-lasfel:', error);
+            throw new Error('Kunde inte lasa PowerPoint-filen: ' + (error.message || 'okant fel'));
+        }
     }
 
     // ========================================
