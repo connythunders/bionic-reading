@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klassrumsskärm – Lärarverktyg</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg-primary: #f0f4f8;
+            --bg-widget: #ffffff;
+            --text-primary: #1a2a3a;
+            --text-secondary: #4a5568;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #d1d9e6;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --toolbar-height: 80px;
+            --transition: 0.25s ease;
+            /* NPF: Calm, muted color palette */
+            --green: #22c55e;
+            --yellow: #eab308;
+            --red: #ef4444;
+            --blue-soft: #dbeafe;
+            --green-soft: #dcfce7;
+            --yellow-soft: #fef9c3;
+            --red-soft: #fee2e2;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: var(--font-main);
+            color: var(--text-primary);
+            overflow: hidden;
+            background: var(--bg-primary);
+        }
+
+        /* ===== NPF: Focus indicators ===== */
+        *:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        /* ===== MAIN SCREEN ===== */
+        #screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-color: var(--bg-primary);
+            transition: background 0.5s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== BACKGROUND OVERLAY for readability ===== */
+        #screen.has-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.15);
+            z-index: 0;
+        }
+
+        /* ===== WIDGET AREA ===== */
+        #widget-area {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 16px;
+            overflow-y: auto;
+            padding-bottom: calc(var(--toolbar-height) + 30px);
+        }
+
+        /* ===== WIDGET BASE ===== */
+        .widget {
+            background: var(--bg-widget);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            position: relative;
+            min-width: 200px;
+            max-width: 100%;
+            animation: widgetIn 0.3s ease;
+            /* NPF: Clear borders */
+            border: 2px solid var(--border);
+            transition: box-shadow var(--transition);
+        }
+
+        .widget:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        @keyframes widgetIn {
+            from { opacity: 0; transform: translateY(16px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--bg-primary);
+        }
+
+        .widget-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .widget-close {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all var(--transition);
+        }
+        .widget-close:hover {
+            background: var(--red-soft);
+            color: var(--red);
+        }
+
+        /* ===== TOOLBAR ===== */
+        #toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: var(--bg-widget);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.1);
+            padding: 10px 20px 14px;
+            display: flex;
+            gap: 6px;
+            align-items: flex-end;
+            max-width: 95vw;
+            overflow-x: auto;
+            border: 2px solid var(--border);
+            border-bottom: none;
+        }
+
+        .toolbar-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--text-secondary);
+            transition: all var(--transition);
+            white-space: nowrap;
+            min-width: 70px;
+        }
+        .toolbar-btn:hover {
+            background: var(--blue-soft);
+            color: var(--accent);
+        }
+        .toolbar-btn svg, .toolbar-btn .tb-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .toolbar-btn .tb-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        /* ===== TOP BAR ===== */
+        #topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        .topbar-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        .topbar-btn:hover {
+            background: #fff;
+            transform: scale(1.05);
+        }
+
+        .topbar-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ===== CLOCK WIDGET ===== */
+        .widget-clock {
+            min-width: 180px;
+            text-align: center;
+        }
+        .clock-time {
+            font-size: 3.5rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+            color: var(--text-primary);
+        }
+        .clock-date {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* ===== TIMER WIDGET ===== */
+        .widget-timer {
+            min-width: 260px;
+            text-align: center;
+        }
+        .timer-display {
+            font-size: 3.5rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+        .timer-display.warning { color: var(--yellow); }
+        .timer-display.danger { color: var(--red); }
+
+        .timer-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .timer-btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all var(--transition);
+        }
+        .timer-btn.primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .timer-btn.primary:hover {
+            background: var(--accent-hover);
+        }
+        .timer-btn.secondary {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+        }
+        .timer-btn.secondary:hover {
+            background: var(--border);
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .timer-preset {
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--blue-soft);
+            color: var(--accent);
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all var(--transition);
+        }
+        .timer-preset:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* NPF: Visual progress bar for timer */
+        .timer-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+        .timer-progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px;
+            transition: width 1s linear, background 0.3s;
+        }
+        .timer-progress-fill.warning { background: var(--yellow); }
+        .timer-progress-fill.danger { background: var(--red); }
+
+        /* ===== TRAFFIC LIGHT ===== */
+        .widget-traffic {
+            min-width: 120px;
+            text-align: center;
+        }
+        .traffic-lights {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 16px;
+            background: #1a1a2e;
+            border-radius: 40px;
+            width: fit-content;
+            margin: 0 auto;
+        }
+        .traffic-light {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 3px solid rgba(255,255,255,0.1);
+        }
+        .traffic-light.red { background: #5c2020; }
+        .traffic-light.red.active { background: #ef4444; box-shadow: 0 0 20px rgba(239,68,68,0.6); }
+        .traffic-light.yellow { background: #5c4d10; }
+        .traffic-light.yellow.active { background: #eab308; box-shadow: 0 0 20px rgba(234,179,8,0.6); }
+        .traffic-light.green { background: #1a4d2e; }
+        .traffic-light.green.active { background: #22c55e; box-shadow: 0 0 20px rgba(34,197,94,0.6); }
+
+        .traffic-label {
+            margin-top: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            min-height: 24px;
+        }
+
+        /* ===== TEXT WIDGET ===== */
+        .widget-text {
+            min-width: 250px;
+            max-width: 500px;
+        }
+        .text-content {
+            width: 100%;
+            min-height: 60px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            font-size: 1.3rem;
+            font-family: inherit;
+            resize: vertical;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: border-color var(--transition);
+        }
+        .text-content:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        .text-size-controls {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .text-size-btn {
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--bg-primary);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .text-size-btn:hover {
+            background: var(--border);
+        }
+
+        /* ===== TIMETABLE ===== */
+        .widget-timetable {
+            min-width: 280px;
+            max-width: 400px;
+        }
+        .timetable-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .timetable-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-primary);
+            transition: all var(--transition);
+            /* NPF: Clear visual separation */
+            border-left: 4px solid var(--accent);
+        }
+        .timetable-item.current {
+            background: var(--blue-soft);
+            border-left-color: var(--accent);
+            font-weight: 600;
+        }
+        .timetable-item.done {
+            opacity: 0.5;
+            text-decoration: line-through;
+            border-left-color: var(--green);
+        }
+        .timetable-time {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--accent);
+            min-width: 50px;
+            font-variant-numeric: tabular-nums;
+        }
+        .timetable-subject {
+            flex: 1;
+            font-size: 0.95rem;
+        }
+        .timetable-item-remove {
+            opacity: 0;
+            background: none;
+            color: var(--red);
+            font-size: 1.1rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: opacity var(--transition);
+        }
+        .timetable-item:hover .timetable-item-remove {
+            opacity: 1;
+        }
+        .timetable-add {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .timetable-add input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+        .timetable-add input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        .timetable-add-btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .timetable-add-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        /* ===== RANDOMIZER ===== */
+        .widget-randomizer {
+            min-width: 260px;
+            text-align: center;
+        }
+        .randomizer-result {
+            font-size: 2.2rem;
+            font-weight: 700;
+            padding: 24px 16px;
+            background: var(--blue-soft);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* NPF: Calm animation */
+            transition: all 0.3s ease;
+        }
+        .randomizer-result.spinning {
+            animation: spin-text 0.1s linear infinite;
+        }
+        @keyframes spin-text {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .randomizer-names {
+            width: 100%;
+            min-height: 60px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 10px;
+        }
+        .randomizer-names:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        .randomizer-btn {
+            padding: 10px 24px;
+            border-radius: 10px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all var(--transition);
+        }
+        .randomizer-btn:hover {
+            background: var(--accent-hover);
+            transform: scale(1.03);
+        }
+
+        /* ===== POLL ===== */
+        .widget-poll {
+            min-width: 300px;
+            max-width: 400px;
+        }
+        .poll-question-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            margin-bottom: 10px;
+        }
+        .poll-question-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        .poll-options {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .poll-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            /* NPF: Clear clickable areas */
+            cursor: pointer;
+            transition: all var(--transition);
+            border: 2px solid transparent;
+        }
+        .poll-option:hover {
+            border-color: var(--accent);
+        }
+        .poll-option-bar {
+            height: 6px;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+            flex-shrink: 0;
+        }
+        .poll-option-label {
+            flex: 1;
+            font-weight: 500;
+        }
+        .poll-option-count {
+            font-weight: 700;
+            color: var(--accent);
+            min-width: 30px;
+            text-align: right;
+        }
+        .poll-option-remove {
+            background: none;
+            color: var(--red);
+            padding: 2px 6px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+            opacity: 0.5;
+        }
+        .poll-option-remove:hover { opacity: 1; }
+        .poll-add-row {
+            display: flex;
+            gap: 6px;
+        }
+        .poll-add-input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+        }
+        .poll-add-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        .poll-add-btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+        }
+        .poll-add-btn:hover { background: var(--accent-hover); }
+        .poll-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .poll-reset-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .poll-reset-btn:hover { background: var(--border); }
+
+        /* ===== WORK SYMBOLS ===== */
+        .widget-worksymbols {
+            min-width: 200px;
+            text-align: center;
+        }
+        .worksymbols-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .worksymbol-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 16px 10px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-primary);
+            border: 3px solid transparent;
+            transition: all var(--transition);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .worksymbol-btn:hover {
+            border-color: var(--accent);
+        }
+        .worksymbol-btn.active {
+            border-color: var(--accent);
+            background: var(--blue-soft);
+            color: var(--accent);
+        }
+        .worksymbol-icon {
+            font-size: 2rem;
+        }
+
+        /* ===== SOUND LEVEL ===== */
+        .widget-soundlevel {
+            min-width: 200px;
+            text-align: center;
+        }
+        .soundlevel-meter {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 100px;
+            margin: 12px 0;
+        }
+        .soundlevel-bar {
+            width: 14px;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.15s ease, background 0.15s ease;
+            min-height: 6px;
+        }
+        .soundlevel-label {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        .soundlevel-start {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        .soundlevel-start:hover { background: var(--accent-hover); }
+
+        /* ===== BACKGROUND PICKER ===== */
+        .widget-bgpicker {
+            min-width: 280px;
+        }
+        .bg-colors {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .bg-color-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 3px solid transparent;
+            transition: all var(--transition);
+        }
+        .bg-color-btn:hover, .bg-color-btn.active {
+            border-color: var(--text-primary);
+            transform: scale(1.1);
+        }
+        .bg-image-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .bg-image-input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+        .bg-image-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        .bg-image-btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .bg-image-btn:hover { background: var(--accent-hover); }
+
+        /* ===== IMAGE WIDGET ===== */
+        .widget-image {
+            min-width: 250px;
+        }
+        .image-preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: var(--radius-sm);
+            background: var(--bg-primary);
+            display: block;
+        }
+        .image-upload-area {
+            border: 3px dashed var(--border);
+            border-radius: var(--radius-sm);
+            padding: 30px;
+            text-align: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .image-upload-area:hover {
+            border-color: var(--accent);
+            background: var(--blue-soft);
+        }
+
+        /* ===== FULLSCREEN ===== */
+        .fullscreen-active #topbar,
+        .fullscreen-active #toolbar {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .fullscreen-active:hover #topbar,
+        .fullscreen-active:hover #toolbar {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ===== NPF MODE ===== */
+        .npf-mode {
+            --bg-primary: #f5f0e8;
+            --bg-widget: #fffdf7;
+            --text-primary: #2d2a24;
+            --border: #d4cfc4;
+            --accent: #5b7fa6;
+            --accent-hover: #4a6b8e;
+            --blue-soft: #e8eff7;
+        }
+        .npf-mode .widget {
+            border-width: 3px;
+        }
+        .npf-mode .clock-time,
+        .npf-mode .timer-display {
+            font-size: 4rem;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-content {
+            background: var(--bg-widget);
+            border-radius: var(--radius);
+            padding: 28px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .modal-close {
+            float: right;
+            background: var(--bg-primary);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover { background: var(--border); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .widget {
+                min-width: 100%;
+            }
+            #toolbar {
+                gap: 2px;
+                padding: 8px 10px 12px;
+            }
+            .toolbar-btn {
+                padding: 6px 8px;
+                min-width: 55px;
+            }
+            .toolbar-btn .tb-icon { font-size: 1.2rem; }
+            .toolbar-btn .tb-label { font-size: 0.6rem; }
+        }
+
+        /* NPF: Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        #widget-area::-webkit-scrollbar { width: 8px; }
+        #widget-area::-webkit-scrollbar-track { background: transparent; }
+        #widget-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        #widget-area::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+        /* ===== TIMER ALARM ===== */
+        .timer-alarm {
+            animation: alarm-flash 0.5s ease infinite alternate;
+        }
+        @keyframes alarm-flash {
+            from { background-color: var(--red-soft); }
+            to { background-color: var(--bg-widget); }
+        }
+
+        /* ===== LINK BACK ===== */
+        .home-link {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+<body>
+    <!-- TOP BAR -->
+    <div id="topbar">
+        <div class="topbar-group">
+            <a href="index.html" class="topbar-btn home-link" title="Tillbaka till startsidan" aria-label="Hem">
+                <span>&#8962;</span>
+            </a>
+        </div>
+        <div class="topbar-group">
+            <button class="topbar-btn" id="btn-npf" title="NPF-läge (lugnare färger, större text)" aria-label="Växla NPF-läge">
+                <span>&#9829;</span>
+            </button>
+            <button class="topbar-btn" id="btn-fullscreen" title="Helskärm" aria-label="Helskärmsläge">
+                <span>&#x26F6;</span>
+            </button>
+            <button class="topbar-btn" id="btn-save" title="Spara layout" aria-label="Spara layout">
+                <span>&#128190;</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN SCREEN -->
+    <div id="screen">
+        <div id="widget-area"></div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <nav id="toolbar" role="toolbar" aria-label="Verktyg">
+        <button class="toolbar-btn" onclick="addWidget('clock')" aria-label="Klocka">
+            <span class="tb-icon">&#128339;</span>
+            <span class="tb-label">Klocka</span>
+        </button>
+        <button class="toolbar-btn" onclick="addWidget('timer')" aria-label="Timer">
+            <span class="tb-icon">&#9201;</span>
+            <span class="tb-label">Timer</span>
+        </button>
+        <button class="toolbar-btn" onclick="addWidget('traffic')" aria-label="Trafikljus">
+            <span class="tb-icon">&#128678;</span>
+            <span class="tb-label">Trafikljus</span>
+        </button>
+        <button class="toolbar-btn" onclick="addWidget('timetable')" aria-label="Schema">
+            <span class="tb-icon">&#128197;</span>
+            <span class="tb-label">Schema</span>
+        </button>
+        <button class="toolbar-btn" onclick="addWidget('text')" aria-label="Text">
+            <span class="tb-icon">&#x1D5D4;</span>
+            <span class="tb-label">Text</span>
+        </button>
+        <button class="toolbar-btn" onclick="addWidget('randomizer')" aria-label="Slumpväljare">
+            <span class="tb-icon">&#127922;</span>
+            <span class="tb-label">Slumpa</span>
+        </button>
+        <button class="toolbar-btn" onclick="addWidget('poll')" aria-label="Omröstning">
+            <span class="tb-icon">&#128202;</span>
+            <span class="tb-label">Omröstning</span>
+        </button>
+        <button class="toolbar-btn" onclick="addWidget('worksymbols')" aria-label="Arbetssymboler">
+            <span class="tb-icon">&#128100;</span>
+            <span class="tb-label">Arbetsro</span>
+        </button>
+        <button class="toolbar-btn" onclick="addWidget('soundlevel')" aria-label="Ljudnivå">
+            <span class="tb-icon">&#128266;</span>
+            <span class="tb-label">Ljudnivå</span>
+        </button>
+        <button class="toolbar-btn" onclick="addWidget('background')" aria-label="Bakgrund">
+            <span class="tb-icon">&#127912;</span>
+            <span class="tb-label">Bakgrund</span>
+        </button>
+        <button class="toolbar-btn" onclick="addWidget('image')" aria-label="Bild">
+            <span class="tb-icon">&#128444;</span>
+            <span class="tb-label">Bild</span>
+        </button>
+    </nav>
+
+    <!-- ALARM SOUND (generated programmatically) -->
+
+    <script>
+    // =============================================
+    // KLASSRUMSSKÄRM – MAIN APPLICATION
+    // =============================================
+
+    const widgetArea = document.getElementById('widget-area');
+    const screen = document.getElementById('screen');
+    let widgetCounter = 0;
+    let timerIntervals = {};
+    let clockIntervals = {};
+    let soundLevelStreams = {};
+
+    // ===== WIDGET FACTORY =====
+    function addWidget(type) {
+        const id = 'widget-' + (++widgetCounter);
+        const div = document.createElement('div');
+        div.className = 'widget widget-' + type;
+        div.id = id;
+        div.setAttribute('role', 'region');
+
+        const titles = {
+            clock: 'Klocka',
+            timer: 'Timer',
+            traffic: 'Trafikljus',
+            timetable: 'Schema',
+            text: 'Text',
+            randomizer: 'Slumpväljare',
+            poll: 'Omröstning',
+            worksymbols: 'Arbetssymboler',
+            soundlevel: 'Ljudnivå',
+            background: 'Bakgrund',
+            image: 'Bild'
+        };
+
+        div.setAttribute('aria-label', titles[type] || type);
+
+        const header = `
+            <div class="widget-header">
+                <span class="widget-title">${titles[type] || type}</span>
+                <button class="widget-close" onclick="removeWidget('${id}')" aria-label="Stäng ${titles[type]}">&#x2715;</button>
+            </div>`;
+
+        switch(type) {
+            case 'clock': div.innerHTML = header + renderClock(id); break;
+            case 'timer': div.innerHTML = header + renderTimer(id); break;
+            case 'traffic': div.innerHTML = header + renderTraffic(id); break;
+            case 'timetable': div.innerHTML = header + renderTimetable(id); break;
+            case 'text': div.innerHTML = header + renderText(id); break;
+            case 'randomizer': div.innerHTML = header + renderRandomizer(id); break;
+            case 'poll': div.innerHTML = header + renderPoll(id); break;
+            case 'worksymbols': div.innerHTML = header + renderWorkSymbols(id); break;
+            case 'soundlevel': div.innerHTML = header + renderSoundLevel(id); break;
+            case 'background': div.innerHTML = header + renderBackground(id); break;
+            case 'image': div.innerHTML = header + renderImageWidget(id); break;
+        }
+
+        widgetArea.appendChild(div);
+
+        // Initialize widget-specific logic
+        if (type === 'clock') initClock(id);
+        if (type === 'timetable') initTimetable(id);
+
+        saveLayout();
+    }
+
+    function removeWidget(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            // Clean up intervals
+            if (timerIntervals[id]) { clearInterval(timerIntervals[id]); delete timerIntervals[id]; }
+            if (clockIntervals[id]) { clearInterval(clockIntervals[id]); delete clockIntervals[id]; }
+            if (soundLevelStreams[id]) {
+                soundLevelStreams[id].getTracks().forEach(t => t.stop());
+                delete soundLevelStreams[id];
+            }
+            el.remove();
+            saveLayout();
+        }
+    }
+
+    // ===== CLOCK =====
+    function renderClock(id) {
+        return `
+            <div class="clock-time" id="${id}-time">--:--:--</div>
+            <div class="clock-date" id="${id}-date"></div>`;
+    }
+    function initClock(id) {
+        function update() {
+            const now = new Date();
+            const timeEl = document.getElementById(id + '-time');
+            const dateEl = document.getElementById(id + '-date');
+            if (!timeEl) { clearInterval(clockIntervals[id]); return; }
+            timeEl.textContent = now.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const days = ['söndag','måndag','tisdag','onsdag','torsdag','fredag','lördag'];
+            const months = ['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+            dateEl.textContent = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`;
+        }
+        update();
+        clockIntervals[id] = setInterval(update, 1000);
+    }
+
+    // ===== TIMER =====
+    function renderTimer(id) {
+        return `
+            <div class="timer-display" id="${id}-display">05:00</div>
+            <div class="timer-progress-bar">
+                <div class="timer-progress-fill" id="${id}-progress" style="width:100%"></div>
+            </div>
+            <div class="timer-controls">
+                <button class="timer-btn primary" id="${id}-start" onclick="timerToggle('${id}')">&#9654; Starta</button>
+                <button class="timer-btn secondary" onclick="timerReset('${id}')">&#8634; Nollställ</button>
+            </div>
+            <div class="timer-presets">
+                <button class="timer-preset" onclick="timerSet('${id}', 1)">1 min</button>
+                <button class="timer-preset" onclick="timerSet('${id}', 3)">3 min</button>
+                <button class="timer-preset" onclick="timerSet('${id}', 5)">5 min</button>
+                <button class="timer-preset" onclick="timerSet('${id}', 10)">10 min</button>
+                <button class="timer-preset" onclick="timerSet('${id}', 15)">15 min</button>
+                <button class="timer-preset" onclick="timerSet('${id}', 20)">20 min</button>
+            </div>`;
+    }
+
+    // Timer state per widget
+    const timerState = {};
+
+    function timerSet(id, minutes) {
+        timerReset(id);
+        const total = minutes * 60;
+        timerState[id] = { total, remaining: total, running: false };
+        updateTimerDisplay(id);
+    }
+
+    function timerToggle(id) {
+        if (!timerState[id]) timerState[id] = { total: 300, remaining: 300, running: false };
+        const state = timerState[id];
+
+        if (state.running) {
+            // Pause
+            clearInterval(timerIntervals[id]);
+            state.running = false;
+            document.getElementById(id + '-start').innerHTML = '&#9654; Fortsätt';
+        } else {
+            // Start
+            if (state.remaining <= 0) {
+                state.remaining = state.total;
+            }
+            state.running = true;
+            document.getElementById(id + '-start').innerHTML = '&#10074;&#10074; Pausa';
+            const widget = document.getElementById(id);
+            if (widget) widget.classList.remove('timer-alarm');
+
+            timerIntervals[id] = setInterval(() => {
+                state.remaining--;
+                updateTimerDisplay(id);
+                if (state.remaining <= 0) {
+                    clearInterval(timerIntervals[id]);
+                    state.running = false;
+                    document.getElementById(id + '-start').innerHTML = '&#9654; Starta';
+                    // Alarm
+                    timerAlarm(id);
+                }
+            }, 1000);
+        }
+    }
+
+    function timerReset(id) {
+        clearInterval(timerIntervals[id]);
+        if (!timerState[id]) timerState[id] = { total: 300, remaining: 300, running: false };
+        timerState[id].remaining = timerState[id].total;
+        timerState[id].running = false;
+        const startBtn = document.getElementById(id + '-start');
+        if (startBtn) startBtn.innerHTML = '&#9654; Starta';
+        const widget = document.getElementById(id);
+        if (widget) widget.classList.remove('timer-alarm');
+        updateTimerDisplay(id);
+    }
+
+    function updateTimerDisplay(id) {
+        const state = timerState[id];
+        if (!state) return;
+        const m = Math.floor(state.remaining / 60);
+        const s = state.remaining % 60;
+        const display = document.getElementById(id + '-display');
+        const progress = document.getElementById(id + '-progress');
+        if (!display) return;
+
+        display.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+        const pct = (state.remaining / state.total) * 100;
+        if (progress) progress.style.width = pct + '%';
+
+        // NPF: Color warnings
+        display.className = 'timer-display';
+        if (progress) progress.className = 'timer-progress-fill';
+        if (pct <= 20 && pct > 0) {
+            display.classList.add('danger');
+            if (progress) progress.classList.add('danger');
+        } else if (pct <= 40) {
+            display.classList.add('warning');
+            if (progress) progress.classList.add('warning');
+        }
+    }
+
+    function timerAlarm(id) {
+        const widget = document.getElementById(id);
+        if (widget) widget.classList.add('timer-alarm');
+        // Play alarm sound using Web Audio API
+        playAlarmSound();
+    }
+
+    function playAlarmSound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [523, 659, 784, 659, 523];
+            notes.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.value = freq;
+                osc.type = 'sine';
+                gain.gain.value = 0.15;
+                osc.start(ctx.currentTime + i * 0.25);
+                osc.stop(ctx.currentTime + i * 0.25 + 0.2);
+            });
+        } catch(e) {}
+    }
+
+    // ===== TRAFFIC LIGHT =====
+    function renderTraffic(id) {
+        return `
+            <div class="traffic-lights">
+                <div class="traffic-light red" onclick="setTrafficLight('${id}','red')" role="button" aria-label="Röd - Stopp" tabindex="0"></div>
+                <div class="traffic-light yellow" onclick="setTrafficLight('${id}','yellow')" role="button" aria-label="Gul - Varning" tabindex="0"></div>
+                <div class="traffic-light green active" onclick="setTrafficLight('${id}','green')" role="button" aria-label="Grön - Klart" tabindex="0"></div>
+            </div>
+            <div class="traffic-label" id="${id}-label">Fritt att prata</div>`;
+    }
+
+    function setTrafficLight(id, color) {
+        const widget = document.getElementById(id);
+        widget.querySelectorAll('.traffic-light').forEach(l => l.classList.remove('active'));
+        widget.querySelector('.traffic-light.' + color).classList.add('active');
+        const labels = { red: 'Tyst arbete', yellow: 'Viska', green: 'Fritt att prata' };
+        document.getElementById(id + '-label').textContent = labels[color];
+    }
+
+    // ===== TEXT =====
+    function renderText(id) {
+        return `
+            <textarea class="text-content" id="${id}-textarea" placeholder="Skriv ett meddelande till klassen..." aria-label="Textmeddelande" rows="3"></textarea>
+            <div class="text-size-controls">
+                <button class="text-size-btn" onclick="textSize('${id}', -2)">A-</button>
+                <button class="text-size-btn" onclick="textSize('${id}', 2)">A+</button>
+            </div>`;
+    }
+
+    function textSize(id, delta) {
+        const ta = document.getElementById(id + '-textarea');
+        const current = parseFloat(getComputedStyle(ta).fontSize);
+        ta.style.fontSize = Math.max(10, Math.min(60, current + delta)) + 'px';
+    }
+
+    // ===== TIMETABLE =====
+    function renderTimetable(id) {
+        return `
+            <ul class="timetable-list" id="${id}-list"></ul>
+            <div class="timetable-add">
+                <input type="time" id="${id}-time-input" class="timetable-add" style="width:90px; padding:8px; border:2px solid var(--border); border-radius:8px; font-family:inherit;" aria-label="Tid">
+                <input type="text" id="${id}-subject-input" placeholder="Ämne / Aktivitet" aria-label="Ämne" style="flex:1; padding:8px 10px; border:2px solid var(--border); border-radius:8px; font-family:inherit;">
+                <button class="timetable-add-btn" onclick="addTimetableItem('${id}')">+</button>
+            </div>`;
+    }
+
+    const timetableData = {};
+
+    function initTimetable(id) {
+        timetableData[id] = timetableData[id] || [];
+        renderTimetableList(id);
+    }
+
+    function addTimetableItem(id) {
+        const timeInput = document.getElementById(id + '-time-input');
+        const subjectInput = document.getElementById(id + '-subject-input');
+        const time = timeInput.value;
+        const subject = subjectInput.value.trim();
+        if (!subject) return;
+
+        if (!timetableData[id]) timetableData[id] = [];
+        timetableData[id].push({ time: time || '', subject, done: false });
+        timetableData[id].sort((a, b) => a.time.localeCompare(b.time));
+
+        timeInput.value = '';
+        subjectInput.value = '';
+        renderTimetableList(id);
+    }
+
+    function removeTimetableItem(id, index) {
+        timetableData[id].splice(index, 1);
+        renderTimetableList(id);
+    }
+
+    function toggleTimetableItem(id, index) {
+        timetableData[id][index].done = !timetableData[id][index].done;
+        renderTimetableList(id);
+    }
+
+    function renderTimetableList(id) {
+        const list = document.getElementById(id + '-list');
+        if (!list || !timetableData[id]) return;
+
+        const now = new Date();
+        const currentTime = now.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+
+        list.innerHTML = timetableData[id].map((item, i) => {
+            let classes = 'timetable-item';
+            if (item.done) classes += ' done';
+            else if (item.time && item.time <= currentTime && (i === timetableData[id].length - 1 || timetableData[id][i+1].time > currentTime)) {
+                classes += ' current';
+            }
+            return `
+                <li class="${classes}" onclick="toggleTimetableItem('${id}', ${i})" role="button" tabindex="0" aria-label="${item.time} ${item.subject}">
+                    <span class="timetable-time">${item.time || '--:--'}</span>
+                    <span class="timetable-subject">${escapeHtml(item.subject)}</span>
+                    <button class="timetable-item-remove" onclick="event.stopPropagation(); removeTimetableItem('${id}', ${i})" aria-label="Ta bort">&#x2715;</button>
+                </li>`;
+        }).join('');
+    }
+
+    // ===== RANDOMIZER =====
+    function renderRandomizer(id) {
+        return `
+            <div class="randomizer-result" id="${id}-result">?</div>
+            <textarea class="randomizer-names" id="${id}-names" placeholder="Skriv namn, ett per rad..." aria-label="Namnlista" rows="4"></textarea>
+            <button class="randomizer-btn" onclick="randomize('${id}')">&#127922; Slumpa!</button>`;
+    }
+
+    function randomize(id) {
+        const textarea = document.getElementById(id + '-names');
+        const resultEl = document.getElementById(id + '-result');
+        const names = textarea.value.split('\n').map(n => n.trim()).filter(n => n);
+        if (names.length === 0) {
+            resultEl.textContent = 'Ange namn först!';
+            return;
+        }
+
+        // NPF: Calm spin animation (not too fast)
+        resultEl.classList.add('spinning');
+        let spins = 0;
+        const maxSpins = 15;
+        const spinInterval = setInterval(() => {
+            resultEl.textContent = names[Math.floor(Math.random() * names.length)];
+            spins++;
+            if (spins >= maxSpins) {
+                clearInterval(spinInterval);
+                resultEl.classList.remove('spinning');
+                const chosen = names[Math.floor(Math.random() * names.length)];
+                resultEl.textContent = chosen;
+                resultEl.style.background = 'var(--green-soft)';
+                setTimeout(() => { resultEl.style.background = ''; }, 2000);
+            }
+        }, 100 + spins * 15);
+    }
+
+    // ===== POLL =====
+    const pollData = {};
+
+    function renderPoll(id) {
+        pollData[id] = { question: '', options: [] };
+        return `
+            <input class="poll-question-input" id="${id}-question" placeholder="Ställ en fråga..." aria-label="Fråga" oninput="pollData['${id}'].question = this.value">
+            <div class="poll-options" id="${id}-options"></div>
+            <div class="poll-add-row">
+                <input class="poll-add-input" id="${id}-new-option" placeholder="Nytt svarsalternativ" aria-label="Nytt alternativ" onkeydown="if(event.key==='Enter')addPollOption('${id}')">
+                <button class="poll-add-btn" onclick="addPollOption('${id}')">+</button>
+            </div>
+            <div class="poll-actions">
+                <button class="poll-reset-btn" onclick="resetPoll('${id}')">Nollställ röster</button>
+            </div>`;
+    }
+
+    function addPollOption(id) {
+        const input = document.getElementById(id + '-new-option');
+        const text = input.value.trim();
+        if (!text) return;
+        pollData[id].options.push({ text, votes: 0 });
+        input.value = '';
+        renderPollOptions(id);
+    }
+
+    function votePoll(id, index) {
+        pollData[id].options[index].votes++;
+        renderPollOptions(id);
+    }
+
+    function removePollOption(id, index) {
+        pollData[id].options.splice(index, 1);
+        renderPollOptions(id);
+    }
+
+    function resetPoll(id) {
+        pollData[id].options.forEach(o => o.votes = 0);
+        renderPollOptions(id);
+    }
+
+    function renderPollOptions(id) {
+        const container = document.getElementById(id + '-options');
+        const maxVotes = Math.max(1, ...pollData[id].options.map(o => o.votes));
+        container.innerHTML = pollData[id].options.map((opt, i) => {
+            const pct = (opt.votes / maxVotes) * 100;
+            return `
+                <div class="poll-option" onclick="votePoll('${id}', ${i})" role="button" tabindex="0" aria-label="${opt.text}, ${opt.votes} röster">
+                    <span class="poll-option-label">${escapeHtml(opt.text)}</span>
+                    <div style="flex:1; padding: 0 8px;">
+                        <div class="poll-option-bar" style="width:${pct}%"></div>
+                    </div>
+                    <span class="poll-option-count">${opt.votes}</span>
+                    <button class="poll-option-remove" onclick="event.stopPropagation(); removePollOption('${id}', ${i})" aria-label="Ta bort alternativ">&#x2715;</button>
+                </div>`;
+        }).join('');
+    }
+
+    // ===== WORK SYMBOLS =====
+    function renderWorkSymbols(id) {
+        return `
+            <div class="worksymbols-grid">
+                <button class="worksymbol-btn" onclick="toggleWorkSymbol(this)" aria-label="Enskilt arbete">
+                    <span class="worksymbol-icon">&#128100;</span>
+                    <span>Enskilt</span>
+                </button>
+                <button class="worksymbol-btn" onclick="toggleWorkSymbol(this)" aria-label="Pararbete">
+                    <span class="worksymbol-icon">&#128101;</span>
+                    <span>Par</span>
+                </button>
+                <button class="worksymbol-btn" onclick="toggleWorkSymbol(this)" aria-label="Grupparbete">
+                    <span class="worksymbol-icon">&#128106;</span>
+                    <span>Grupp</span>
+                </button>
+                <button class="worksymbol-btn" onclick="toggleWorkSymbol(this)" aria-label="Tyst arbete">
+                    <span class="worksymbol-icon">&#128263;</span>
+                    <span>Tyst</span>
+                </button>
+                <button class="worksymbol-btn" onclick="toggleWorkSymbol(this)" aria-label="Diskussion">
+                    <span class="worksymbol-icon">&#128172;</span>
+                    <span>Diskussion</span>
+                </button>
+                <button class="worksymbol-btn" onclick="toggleWorkSymbol(this)" aria-label="Lärargenomgång">
+                    <span class="worksymbol-icon">&#127979;</span>
+                    <span>Genomgång</span>
+                </button>
+            </div>`;
+    }
+
+    function toggleWorkSymbol(btn) {
+        // Only one can be active at a time within the same widget
+        const grid = btn.closest('.worksymbols-grid');
+        grid.querySelectorAll('.worksymbol-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // ===== SOUND LEVEL =====
+    function renderSoundLevel(id) {
+        const bars = Array.from({length: 12}, (_, i) =>
+            `<div class="soundlevel-bar" id="${id}-bar-${i}" style="height:6px; background: var(--green);"></div>`
+        ).join('');
+        return `
+            <div class="soundlevel-meter">${bars}</div>
+            <div class="soundlevel-label" id="${id}-slabel">Klicka för att starta</div>
+            <button class="soundlevel-start" id="${id}-slstart" onclick="toggleSoundLevel('${id}')">&#127908; Starta mikrofon</button>`;
+    }
+
+    function toggleSoundLevel(id) {
+        if (soundLevelStreams[id]) {
+            soundLevelStreams[id].getTracks().forEach(t => t.stop());
+            delete soundLevelStreams[id];
+            document.getElementById(id + '-slstart').textContent = '🎤 Starta mikrofon';
+            document.getElementById(id + '-slabel').textContent = 'Avstängd';
+            // Reset bars
+            for (let i = 0; i < 12; i++) {
+                const bar = document.getElementById(id + '-bar-' + i);
+                if (bar) { bar.style.height = '6px'; bar.style.background = 'var(--green)'; }
+            }
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+            soundLevelStreams[id] = stream;
+            document.getElementById(id + '-slstart').textContent = '&#x23F9; Stoppa';
+            const ctx = new AudioContext();
+            const analyser = ctx.createAnalyser();
+            const source = ctx.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.fftSize = 64;
+            const data = new Uint8Array(analyser.frequencyBinCount);
+
+            function update() {
+                if (!soundLevelStreams[id]) return;
+                analyser.getByteFrequencyData(data);
+                const avg = data.reduce((a, b) => a + b, 0) / data.length;
+                const level = Math.min(100, avg * 1.5);
+
+                for (let i = 0; i < 12; i++) {
+                    const bar = document.getElementById(id + '-bar-' + i);
+                    if (!bar) return;
+                    const threshold = (i / 12) * 100;
+                    const h = level > threshold ? Math.max(6, ((level - threshold) / 100) * 90 + 10) : 6;
+                    bar.style.height = h + 'px';
+
+                    if (i < 5) bar.style.background = 'var(--green)';
+                    else if (i < 9) bar.style.background = 'var(--yellow)';
+                    else bar.style.background = 'var(--red)';
+                }
+
+                let label = 'Tyst';
+                if (level > 70) label = 'För högt!';
+                else if (level > 45) label = 'Lite för högt';
+                else if (level > 20) label = 'Lagom';
+                const slabel = document.getElementById(id + '-slabel');
+                if (slabel) slabel.textContent = label;
+
+                requestAnimationFrame(update);
+            }
+            update();
+        }).catch(() => {
+            document.getElementById(id + '-slabel').textContent = 'Mikrofon nekad';
+        });
+    }
+
+    // ===== BACKGROUND =====
+    function renderBackground(id) {
+        const colors = [
+            { c: '#f0f4f8', name: 'Standard' },
+            { c: '#e8f5e9', name: 'Grön' },
+            { c: '#e3f2fd', name: 'Blå' },
+            { c: '#fff8e1', name: 'Gul' },
+            { c: '#fce4ec', name: 'Rosa' },
+            { c: '#f3e5f5', name: 'Lila' },
+            { c: '#efebe9', name: 'Brun' },
+            { c: '#1a1a2e', name: 'Mörk' },
+            { c: '#f5f0e8', name: 'Lugn' },
+        ];
+        const colorBtns = colors.map(c =>
+            `<button class="bg-color-btn" style="background:${c.c}" onclick="setBgColor('${c.c}')" title="${c.name}" aria-label="Bakgrund ${c.name}"></button>`
+        ).join('');
+
+        return `
+            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:8px;">Färg:</p>
+            <div class="bg-colors">${colorBtns}</div>
+            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:8px; margin-top:8px;">Bild (URL):</p>
+            <div class="bg-image-row">
+                <input class="bg-image-input" id="${id}-bgurl" placeholder="https://..." aria-label="Bild-URL">
+                <button class="bg-image-btn" onclick="setBgImage('${id}')">Visa</button>
+            </div>
+            <button class="bg-image-btn" style="margin-top:8px; background: var(--bg-primary); color: var(--text-secondary); width:100%;" onclick="clearBg()">Återställ bakgrund</button>`;
+    }
+
+    function setBgColor(color) {
+        screen.style.backgroundImage = 'none';
+        screen.style.backgroundColor = color;
+        screen.classList.remove('has-bg');
+
+        // Adjust text color for dark backgrounds
+        if (color === '#1a1a2e') {
+            document.documentElement.style.setProperty('--text-primary', '#e0e0e0');
+            document.documentElement.style.setProperty('--text-secondary', '#b0b0b0');
+        } else {
+            document.documentElement.style.setProperty('--text-primary', '#1a2a3a');
+            document.documentElement.style.setProperty('--text-secondary', '#4a5568');
+        }
+    }
+
+    function setBgImage(id) {
+        const url = document.getElementById(id + '-bgurl').value.trim();
+        if (!url) return;
+        screen.style.backgroundImage = `url('${url}')`;
+        screen.classList.add('has-bg');
+    }
+
+    function clearBg() {
+        screen.style.backgroundImage = 'none';
+        screen.style.backgroundColor = 'var(--bg-primary)';
+        screen.classList.remove('has-bg');
+        document.documentElement.style.setProperty('--text-primary', '#1a2a3a');
+        document.documentElement.style.setProperty('--text-secondary', '#4a5568');
+    }
+
+    // ===== IMAGE WIDGET =====
+    function renderImageWidget(id) {
+        return `
+            <div class="image-upload-area" id="${id}-upload" onclick="document.getElementById('${id}-file').click()">
+                <input type="file" id="${id}-file" accept="image/*" style="display:none" onchange="loadImage('${id}', this)" aria-label="Välj bild">
+                <p style="font-size:1.2rem; margin-bottom:6px;">&#128444;</p>
+                <p>Klicka för att välja bild</p>
+            </div>
+            <img class="image-preview" id="${id}-preview" style="display:none" alt="Uppladdad bild">`;
+    }
+
+    function loadImage(id, input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById(id + '-preview');
+                const upload = document.getElementById(id + '-upload');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                upload.style.display = 'none';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // ===== NPF MODE =====
+    document.getElementById('btn-npf').addEventListener('click', () => {
+        document.body.classList.toggle('npf-mode');
+        const isNPF = document.body.classList.contains('npf-mode');
+        document.getElementById('btn-npf').title = isNPF ? 'NPF-läge aktivt' : 'Aktivera NPF-läge';
+    });
+
+    // ===== FULLSCREEN =====
+    document.getElementById('btn-fullscreen').addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+            document.body.classList.add('fullscreen-active');
+        } else {
+            document.exitFullscreen();
+            document.body.classList.remove('fullscreen-active');
+        }
+    });
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            document.body.classList.remove('fullscreen-active');
+        }
+    });
+
+    // ===== SAVE/LOAD LAYOUT =====
+    function saveLayout() {
+        try {
+            const widgets = [];
+            widgetArea.querySelectorAll('.widget').forEach(w => {
+                const type = [...w.classList].find(c => c.startsWith('widget-') && c !== 'widget')?.replace('widget-','');
+                if (type) widgets.push(type);
+            });
+            localStorage.setItem('klassrum-widgets', JSON.stringify(widgets));
+        } catch(e) {}
+    }
+
+    function loadLayout() {
+        try {
+            const saved = localStorage.getItem('klassrum-widgets');
+            if (saved) {
+                const widgets = JSON.parse(saved);
+                widgets.forEach(type => addWidget(type));
+            }
+        } catch(e) {}
+    }
+
+    document.getElementById('btn-save').addEventListener('click', () => {
+        saveLayout();
+        const btn = document.getElementById('btn-save');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<span>&#10003;</span>';
+        btn.style.background = 'var(--green-soft)';
+        setTimeout(() => {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+        }, 1500);
+    });
+
+    // ===== UTILS =====
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // ===== INIT =====
+    loadLayout();
+
+    // If no saved layout, show default widgets
+    if (widgetArea.children.length === 0) {
+        addWidget('clock');
+        addWidget('traffic');
+        addWidget('timer');
+    }
+
+    </script>
+</body>
+</html>
