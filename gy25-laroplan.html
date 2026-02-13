@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GY25 Läroplansverktyg - Fråga, Jämför & Granska</title>
+    <meta name="description" content="Interaktivt verktyg för GY25 läroplanen. Ställ frågor, jämför med LGY11, granska provfrågor och bedöm provsvar.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-dark: #1e293b;
+            --text-mid: #475569;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-dark);
+            background: var(--bg-light);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255,255,255,0.95);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+        .nav-links a {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-mid);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            max-width: 1200px;
+            margin: -1.5rem auto 0;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 160px;
+            padding: 1rem 1.25rem;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .tab-btn .tab-icon { font-size: 1.5rem; }
+
+        .tab-btn:hover { background: var(--bg-light); }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem 4rem;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Cards */
+        .card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin: 1rem 0 0.5rem;
+            color: var(--primary-dark);
+        }
+
+        .card-description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 1.25rem; }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            background: var(--bg-white);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .form-group textarea { resize: vertical; min-height: 120px; }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99,102,241,0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-mid);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            color: white;
+        }
+
+        /* Result Box */
+        .result-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #eff6ff 100%);
+            border: 2px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .result-box.visible { display: block; animation: fadeIn 0.4s ease; }
+
+        .result-box h3 {
+            color: var(--primary-dark);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .result-box p, .result-box li {
+            color: var(--text-mid);
+            line-height: 1.7;
+        }
+
+        .result-box ul { padding-left: 1.5rem; margin: 0.5rem 0; }
+        .result-box li { margin-bottom: 0.4rem; }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+
+        /* Comparison table */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .compare-table th {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .compare-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            vertical-align: top;
+        }
+
+        .compare-table tr:hover td { background: #f1f5f9; }
+
+        .compare-table .label-col { font-weight: 600; width: 25%; background: #f8fafc; }
+
+        /* Quick questions */
+        .quick-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-q {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            background: var(--bg-white);
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-mid);
+            transition: all 0.2s;
+        }
+
+        .quick-q:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #f0f0ff;
+        }
+
+        /* Checklist */
+        .checklist { list-style: none; padding: 0; }
+
+        .checklist li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+        }
+
+        .checklist li:last-child { border-bottom: none; }
+
+        .check-icon {
+            flex-shrink: 0;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .check-pass { background: #dcfce7; color: #166534; }
+        .check-fail { background: #fee2e2; color: #991b1b; }
+        .check-warn { background: #fef3c7; color: #92400e; }
+
+        /* Score display */
+        .score-display {
+            text-align: center;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 auto 0.5rem;
+            color: white;
+        }
+
+        .score-label { font-size: 0.9rem; color: var(--text-light); }
+
+        /* Accordion */
+        .accordion-item { border-bottom: 1px solid var(--border); }
+
+        .accordion-header {
+            width: 100%;
+            padding: 1rem 0;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+        }
+
+        .accordion-header::after { content: '+'; font-size: 1.3rem; color: var(--text-light); }
+        .accordion-header.open::after { content: '-'; }
+
+        .accordion-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-body.open {
+            max-height: 2000px;
+        }
+
+        .accordion-body-inner { padding: 0 0 1rem; color: var(--text-mid); }
+
+        /* Subject selector grid */
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .subject-card {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .subject-card:hover { border-color: var(--primary); background: #f0f0ff; }
+        .subject-card.selected { border-color: var(--primary); background: #eef2ff; color: var(--primary-dark); }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        .loading.visible { display: block; }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Two-column layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero p { font-size: 1rem; }
+            .tab-btn { min-width: 120px; padding: 0.75rem; font-size: 0.8rem; }
+            .tab-btn .tab-icon { font-size: 1.2rem; }
+            .two-col { grid-template-columns: 1fr; }
+            nav { padding: 0.75rem 1rem; }
+            .main-content { padding: 0 1rem 3rem; }
+            .card { padding: 1.25rem; }
+            .compare-table { font-size: 0.8rem; }
+            .compare-table th, .compare-table td { padding: 0.5rem; }
+        }
+
+        /* Print styles */
+        @media print {
+            header, .hero, .tab-nav { display: none; }
+            .tab-panel { display: block !important; }
+            .card { box-shadow: none; border: 1px solid #ddd; }
+        }
+
+        /* Back to top link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="index.html" class="logo">Bionic Reading</a>
+        <div class="nav-links">
+            <a href="index.html">Hem</a>
+            <a href="start.html">Verktyg</a>
+            <a href="gy25-laroplan.html" class="active">GY25</a>
+        </div>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>GY25 Läroplansverktyg</h1>
+    <p>Ställ frågor om nya läroplanen, jämför med LGY11, granska provfrågor och bedöm elevsvar -- allt samlat på ett ställe för dig och dina kollegor.</p>
+</section>
+
+<div class="tab-nav">
+    <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="fraga">
+            <span class="tab-icon">?</span>
+            Fråga om GY25
+        </button>
+        <button class="tab-btn" data-tab="jamfor">
+            <span class="tab-icon">&harr;</span>
+            GY25 vs LGY11
+        </button>
+        <button class="tab-btn" data-tab="provfraga">
+            <span class="tab-icon">&#10003;</span>
+            Granska provfrågor
+        </button>
+        <button class="tab-btn" data-tab="provsvar">
+            <span class="tab-icon">&#9733;</span>
+            Bedöm provsvar
+        </button>
+    </div>
+</div>
+
+<div class="main-content">
+
+    <!-- ==================== TAB 1: FRÅGA OM GY25 ==================== -->
+    <div class="tab-panel active" id="tab-fraga">
+        <div class="card">
+            <h2>Ställ en fråga om GY25</h2>
+            <p class="card-description">Sök i vår kunskapsbas om gymnasiereformen GY25. Välj en snabbfråga eller skriv din egen.</p>
+
+            <div class="quick-questions">
+                <button class="quick-q" onclick="askQuick(this)">Vad är ämnesbetyg?</button>
+                <button class="quick-q" onclick="askQuick(this)">Hur fungerar sammantagen bedömning?</button>
+                <button class="quick-q" onclick="askQuick(this)">Vilka nya ämnen finns?</button>
+                <button class="quick-q" onclick="askQuick(this)">När träder GY25 i kraft?</button>
+                <button class="quick-q" onclick="askQuick(this)">Vad är betygskriterier?</button>
+                <button class="quick-q" onclick="askQuick(this)">Hur sätts betyg D och B?</button>
+                <button class="quick-q" onclick="askQuick(this)">Vad händer med nationella prov?</button>
+                <button class="quick-q" onclick="askQuick(this)">Hur fungerar övergångsperioden?</button>
+            </div>
+
+            <div class="form-group">
+                <label for="qa-input">Din fråga</label>
+                <input type="text" id="qa-input" placeholder="T.ex. Hur påverkar GY25 betygssättningen?" onkeydown="if(event.key==='Enter')searchKB()">
+            </div>
+            <button class="btn btn-primary" onclick="searchKB()">Sök svar</button>
+
+            <div class="result-box" id="qa-result"></div>
+        </div>
+
+        <!-- FAQ Accordion -->
+        <div class="card">
+            <h2>Vanliga frågor om GY25</h2>
+            <div id="faq-accordion"></div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 2: JÄMFÖRELSE GY25 vs LGY11 ==================== -->
+    <div class="tab-panel" id="tab-jamfor">
+        <div class="card">
+            <h2>Jämför GY25 med LGY11</h2>
+            <p class="card-description">Välj ett område för att se en detaljerad jämförelse mellan den nya och gamla läroplanen.</p>
+
+            <div class="subject-grid">
+                <div class="subject-card selected" onclick="selectCompare(this, 'struktur')">Struktur</div>
+                <div class="subject-card" onclick="selectCompare(this, 'betyg')">Betygssättning</div>
+                <div class="subject-card" onclick="selectCompare(this, 'bedomning')">Bedömning</div>
+                <div class="subject-card" onclick="selectCompare(this, 'amnen')">Ämnen & kurser</div>
+                <div class="subject-card" onclick="selectCompare(this, 'prov')">Nationella prov</div>
+                <div class="subject-card" onclick="selectCompare(this, 'tidslinje')">Tidslinje</div>
+            </div>
+
+            <div id="compare-content"></div>
+        </div>
+
+        <div class="card">
+            <h2>Sammanfattning av de viktigaste förändringarna</h2>
+            <div class="two-col">
+                <div>
+                    <h3>Det som försvinner (LGY11)</h3>
+                    <ul style="padding-left:1.5rem; color: var(--text-mid);">
+                        <li>Kursbaserat system med kursbetyg</li>
+                        <li>Detaljerade kunskapskrav per kurs</li>
+                        <li>"Till övervägande del" för D och B</li>
+                        <li>Permanenta kursbetyg som inte kan ersättas</li>
+                        <li>Ordet "medverka" i E-kriterier</li>
+                        <li>Separata kunskapskrav per kurs</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Det som tillkommer (GY25)</h3>
+                    <ul style="padding-left:1.5rem; color: var(--text-mid);">
+                        <li>Ämnesbaserat system med nivåer</li>
+                        <li>Övergripande betygskriterier per ämne</li>
+                        <li>Sammantagen bedömning för D och B</li>
+                        <li>Högre nivå ersätter lägre nivås betyg</li>
+                        <li>Nya ämnen: AI, Retorik på engelska m.fl.</li>
+                        <li>Centralt innehåll driver progression</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 3: GRANSKA PROVFRÅGOR ==================== -->
+    <div class="tab-panel" id="tab-provfraga">
+        <div class="card">
+            <h2>Granska provfrågor mot GY25</h2>
+            <p class="card-description">Klistra in dina provfrågor så analyserar verktyget om de uppfyller GY25:s betygskriterier och centralt innehåll.</p>
+
+            <div class="form-group">
+                <label for="pf-amne">Ämne</label>
+                <select id="pf-amne">
+                    <option value="">Välj ämne...</option>
+                    <option value="svenska">Svenska</option>
+                    <option value="engelska">Engelska</option>
+                    <option value="matematik">Matematik</option>
+                    <option value="samhallskunskap">Samhällskunskap</option>
+                    <option value="historia">Historia</option>
+                    <option value="religion">Religionskunskap</option>
+                    <option value="naturkunskap">Naturkunskap</option>
+                    <option value="biologi">Biologi</option>
+                    <option value="fysik">Fysik</option>
+                    <option value="kemi">Kemi</option>
+                    <option value="idrott">Idrott och hälsa</option>
+                    <option value="annat">Annat ämne</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="pf-niva">Betygsnivå som provfrågan riktar sig mot</label>
+                <select id="pf-niva">
+                    <option value="E">E - godkänt</option>
+                    <option value="C">C - mellan</option>
+                    <option value="A">A - högsta</option>
+                    <option value="blandad">Blandade nivåer (hela provet)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="pf-fragor">Provfrågor (en fråga per rad)</label>
+                <textarea id="pf-fragor" rows="8" placeholder="Klistra in dina provfrågor här...&#10;&#10;Exempel:&#10;1. Redogör för huvuddragen i demokratins framväxt i Sverige.&#10;2. Analysera hur olika politiska ideologier påverkar samhället.&#10;3. Diskutera och argumentera för och emot EU-medlemskap."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="pf-syfte">Ämnets syfte / vad provet ska mäta (valfritt)</label>
+                <textarea id="pf-syfte" rows="3" placeholder="T.ex. Elevens förmåga att analysera samhällsfrågor med hjälp av samhällsvetenskapliga begrepp..."></textarea>
+            </div>
+
+            <button class="btn btn-primary" onclick="analyzeQuestions()">Analysera provfrågor</button>
+            <button class="btn btn-secondary" onclick="clearExamForm()">Rensa</button>
+
+            <div class="loading" id="pf-loading">
+                <div class="spinner"></div>
+                <p>Analyserar provfrågor...</p>
+            </div>
+
+            <div class="result-box" id="pf-result"></div>
+        </div>
+
+        <div class="card">
+            <h2>Snabbguide: Bra provfrågor enligt GY25</h2>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">Frågor på E-nivå</button>
+                <div class="accordion-body">
+                    <div class="accordion-body-inner">
+                        <p>E-nivå ska testa grundläggande kunskaper. Frågor bör:</p>
+                        <ul style="padding-left:1.5rem; margin-top:0.5rem;">
+                            <li>Be eleven <strong>redogöra</strong> eller <strong>beskriva</strong> grundläggande innehåll</li>
+                            <li>Använda <strong>enkla</strong> resonemang eller förklaringar</li>
+                            <li>Kräva att eleven visar kunskap inom <strong>alla delar</strong> av betygskriterierna</li>
+                            <li>Vara tydliga och konkreta -- inte tvetydiga</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">Frågor på C-nivå</button>
+                <div class="accordion-body">
+                    <div class="accordion-body-inner">
+                        <p>C-nivå kräver djupare förståelse. Frågor bör:</p>
+                        <ul style="padding-left:1.5rem; margin-top:0.5rem;">
+                            <li>Be eleven <strong>analysera</strong>, <strong>jämföra</strong> eller <strong>diskutera</strong></li>
+                            <li>Kräva <strong>utvecklade</strong> resonemang med kopplingar</li>
+                            <li>Inkludera fler perspektiv eller sammanhang</li>
+                            <li>Testa förmåga att använda ämnesbegrepp korrekt</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">Frågor på A-nivå</button>
+                <div class="accordion-body">
+                    <div class="accordion-body-inner">
+                        <p>A-nivå testar avancerad kunskap. Frågor bör:</p>
+                        <ul style="padding-left:1.5rem; margin-top:0.5rem;">
+                            <li>Be eleven <strong>värdera</strong>, <strong>problematisera</strong> eller göra <strong>komplexa analyser</strong></li>
+                            <li>Kräva <strong>välutvecklade</strong> och <strong>nyanserade</strong> resonemang</li>
+                            <li>Testa förmåga att se samband och dra slutsatser</li>
+                            <li>Inkludera möjlighet att visa djup ämneskunskap</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 4: BEDÖM PROVSVAR ==================== -->
+    <div class="tab-panel" id="tab-provsvar">
+        <div class="card">
+            <h2>Bedöm provsvar enligt GY25</h2>
+            <p class="card-description">Klistra in en provfråga och elevens svar. Verktyget ger en indikation på betygsnivå baserat på GY25:s betygskriterier.</p>
+
+            <div class="form-group">
+                <label for="ps-amne">Ämne</label>
+                <select id="ps-amne">
+                    <option value="">Välj ämne...</option>
+                    <option value="svenska">Svenska</option>
+                    <option value="engelska">Engelska</option>
+                    <option value="matematik">Matematik</option>
+                    <option value="samhallskunskap">Samhällskunskap</option>
+                    <option value="historia">Historia</option>
+                    <option value="religion">Religionskunskap</option>
+                    <option value="naturkunskap">Naturkunskap</option>
+                    <option value="biologi">Biologi</option>
+                    <option value="fysik">Fysik</option>
+                    <option value="kemi">Kemi</option>
+                    <option value="idrott">Idrott och hälsa</option>
+                    <option value="annat">Annat ämne</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="ps-fraga">Provfrågan</label>
+                <textarea id="ps-fraga" rows="3" placeholder="Skriv eller klistra in provfrågan här..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="ps-kriterier">Betygskriterier / bedömningsanvisningar (valfritt)</label>
+                <textarea id="ps-kriterier" rows="3" placeholder="Klistra in relevanta betygskriterier eller bedömningsanvisningar..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="ps-svar">Elevens svar</label>
+                <textarea id="ps-svar" rows="8" placeholder="Klistra in elevens svar här..."></textarea>
+            </div>
+
+            <button class="btn btn-primary" onclick="evaluateAnswer()">Bedöm svar</button>
+            <button class="btn btn-secondary" onclick="clearAnswerForm()">Rensa</button>
+
+            <div class="loading" id="ps-loading">
+                <div class="spinner"></div>
+                <p>Analyserar elevsvar...</p>
+            </div>
+
+            <div class="result-box" id="ps-result"></div>
+        </div>
+
+        <div class="card">
+            <h2>Bedömningsprinciper i GY25</h2>
+            <p class="card-description">Viktiga principer att ha i åtanke vid bedömning enligt det nya systemet.</p>
+
+            <div class="two-col">
+                <div>
+                    <h3>Sammantagen bedömning</h3>
+                    <p style="color: var(--text-mid); font-size: 0.95rem;">
+                        I GY25 ska läraren göra en <strong>sammantagen bedömning</strong> av elevens kunskaper.
+                        Det innebär att styrkor inom ett område kan kompensera för relativa svagheter inom ett annat
+                        (förutom för E-gränsen, där alla delar måste vara uppfyllda).
+                    </p>
+                </div>
+                <div>
+                    <h3>Tyngdpunkter</h3>
+                    <p style="color: var(--text-mid); font-size: 0.95rem;">
+                        Vid sammantagen bedömning ska läraren särskilt beakta ämnets <strong>tyngdpunkter</strong> --
+                        de delar av syftet och centralt innehåll som betonas som särskilt viktiga.
+                        Dessa väger tyngre i den samlade bedömningen.
+                    </p>
+                </div>
+            </div>
+
+            <h3>Betygsstegen i GY25</h3>
+            <table class="compare-table" style="margin-top:0.5rem;">
+                <thead>
+                    <tr>
+                        <th>Betyg</th>
+                        <th>Krav</th>
+                        <th>Bedömningsmodell</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-danger">F</span></td>
+                        <td>Uppfyller inte E-kriterierna</td>
+                        <td>Kunskaper saknas i en eller flera delar</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">E</span></td>
+                        <td>Alla delar av E-kriterierna uppfyllda</td>
+                        <td>Tröskelbetyg -- alla delar måste finnas</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">D</span></td>
+                        <td>Mellan E och C</td>
+                        <td>Sammantagen bedömning</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">C</span></td>
+                        <td>Uppfyller C-kriterierna sammantaget</td>
+                        <td>Sammantagen bedömning</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">B</span></td>
+                        <td>Mellan C och A</td>
+                        <td>Sammantagen bedömning</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-success">A</span></td>
+                        <td>Uppfyller A-kriterierna sammantaget</td>
+                        <td>Sammantagen bedömning</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<footer style="text-align:center; padding:2rem; color:var(--text-light); font-size:0.9rem; border-top:1px solid var(--border);">
+    <p>GY25 Läroplansverktyg | Baserat på Skolverkets publicerade material om gymnasiereformen 2025</p>
+    <p style="margin-top:0.3rem;">Observera: Verktyget är ett stöd -- det ersätter inte lärarens professionella bedömning.</p>
+    <p style="margin-top:0.3rem;"><a href="https://www.skolverket.se/styrning-och-ansvar/forandringar-inom-skolomradet/gy25----amnesbetyg-pa-gymnasial-niva" target="_blank" style="color:var(--primary);">Skolverkets officiella GY25-sida</a></p>
+</footer>
+
+<script>
+// ============================================================
+// KNOWLEDGE BASE - GY25 data
+// ============================================================
+const KB = {
+    amnesbetyg: {
+        keywords: ['ämnesbetyg', 'amnesbetyg', 'kursbetyg', 'betygsystem', 'ämnesbaserat'],
+        title: 'Ämnesbetyg i GY25',
+        content: `<p>Den största förändringen i GY25 är övergången från <strong>kursbetyg</strong> till <strong>ämnesbetyg</strong>.</p>
+        <ul>
+            <li><strong>LGY11:</strong> Varje kurs (t.ex. Svenska 1, 2, 3) fick ett separat betyg som var permanent.</li>
+            <li><strong>GY25:</strong> Ämnen delas in i <strong>nivåer</strong> istället för kurser. Betyget sätts på hela ämnet, och ett godkänt betyg på en högre nivå <strong>ersätter</strong> betyget från lägre nivåer.</li>
+        </ul>
+        <p>Detta innebär att en elev som presterar dåligt i början av gymnasiet kan förbättra sitt betyg genom att visa bättre kunskaper på högre nivåer.</p>`
+    },
+    sammantagen: {
+        keywords: ['sammantagen', 'bedömning', 'sammantagen bedömning', 'helhetsbedömning', 'kompensatorisk'],
+        title: 'Sammantagen bedömning',
+        content: `<p><strong>Sammantagen bedömning</strong> är den nya principen för hur betyg D, C, B och A sätts i GY25.</p>
+        <ul>
+            <li>Läraren gör en <strong>helhetsbedömning</strong> av elevens kunskaper mot betygskriterierna.</li>
+            <li>Styrkor inom ett område kan <strong>kompensera</strong> för relativa svagheter i ett annat.</li>
+            <li><strong>Undantag för E:</strong> För betyg E måste eleven visa kunskaper inom <strong>alla delar</strong> av E-kriterierna -- inget område kan helt saknas.</li>
+            <li>Läraren ska beakta ämnets <strong>tyngdpunkter</strong> -- de delar av syftet och centralt innehåll som betonas som särskilt viktiga.</li>
+        </ul>
+        <p>I LGY11 var D och B definierade som "till övervägande del" av nästa nivås kunskapskrav. Nu ska läraren istället göra en professionell bedömning.</p>`
+    },
+    nyaamnen: {
+        keywords: ['nya ämnen', 'nytt ämne', 'artificiell intelligens', 'retorik engelska', 'nya kurser', 'nya program'],
+        title: 'Nya ämnen och program i GY25',
+        content: `<h3>Helt nya ämnen</h3>
+        <ul>
+            <li><strong>Artificiell intelligens</strong> -- nytt ämne som speglar samhällsutvecklingen</li>
+            <li><strong>Retorik på engelska</strong></li>
+            <li><strong>Tillämpad psykologi</strong></li>
+            <li><strong>Solcellsmontering</strong></li>
+            <li><strong>Siminstruktör</strong></li>
+            <li><strong>Hälsa och välbefinnande</strong></li>
+        </ul>
+        <h3>Ämnen som delats upp</h3>
+        <ul>
+            <li><strong>Matematik</strong> delas i "Matematik" och "Matematik -- fortsättning"</li>
+            <li><strong>Samhällskunskap</strong> delas i "Samhällskunskap", "Internationell ekonomi" och "Internationella relationer"</li>
+            <li><strong>Moderna språk</strong> delas i separata ämnen per språk</li>
+        </ul>
+        <h3>Nytt program</h3>
+        <ul><li><strong>Frisör- och stylistprogrammet</strong> (ersätter specialisering på Hantverksprogrammet)</li></ul>`
+    },
+    tidslinje: {
+        keywords: ['tidslinje', 'när', 'ikraft', 'implementering', 'datum', 'övergång', 'träder i kraft', 'start'],
+        title: 'Tidslinje för GY25',
+        content: `<ul>
+            <li><strong>1 juli 2025:</strong> GY25 träder i kraft. Nya ämnesplaner, examensmål och programstrukturer gäller.</li>
+            <li><strong>Hösten 2025:</strong> Första årskullen börjar under GY25. Alla nya årskurs 1-elever får ämnesbetyg.</li>
+            <li><strong>2025--2028:</strong> Skolor kör <strong>båda systemen parallellt</strong> -- LGY11 för åk 2-3, GY25 för åk 1 och uppåt.</li>
+            <li><strong>1 januari 2026:</strong> Föreskriftsändringar om svenska/sva i examensbevis.</li>
+            <li><strong>Våren 2028:</strong> Första GY25-kullen får sina slutliga ämnesbetyg.</li>
+            <li><strong>30 juni 2030:</strong> Övergångsperioden slutar. Kursbetygsystemet avvecklas helt.</li>
+        </ul>
+        <p><strong>Viktigt:</strong> Under övergångsperioden behöver skolor hantera elever i båda systemen samtidigt.</p>`
+    },
+    betygskriterier: {
+        keywords: ['betygskriterier', 'kunskapskrav', 'kriterier', 'betyg', 'värdeord'],
+        title: 'Betygskriterier i GY25 (ersätter kunskapskrav)',
+        content: `<p>I GY25 ersätts <strong>kunskapskrav</strong> med <strong>betygskriterier</strong>.</p>
+        <h3>Viktiga skillnader</h3>
+        <ul>
+            <li><strong>Mindre detaljerade:</strong> Betygskriterierna är mer övergripande och gäller hela ämnet (inte per kurs).</li>
+            <li><strong>Progression via innehåll:</strong> Progressionen drivs av <strong>centralt innehåll</strong> som blir mer avancerat på högre nivåer, inte av olika kriterieformuleringar.</li>
+            <li><strong>Samma kriterier alla nivåer:</strong> Betygskriterierna är samma för hela ämnet -- det är det centrala innehållet som skiljer nivåerna åt.</li>
+            <li><strong>Borttagna ord:</strong> "Medverka" har tagits bort från E-nivå. Ersatts av "mycket enkelt" och "delvis fungerande".</li>
+        </ul>
+        <p>Läraren tolkar betygskriterierna i ljuset av <strong>ämnets syfte</strong> och det <strong>centrala innehållet</strong> för aktuell nivå.</p>`
+    },
+    betygDB: {
+        keywords: ['betyg d', 'betyg b', 'd och b', 'sätta d', 'sätta b', 'mellanbetyg'],
+        title: 'Hur sätts betyg D och B i GY25?',
+        content: `<h3>Tidigare (LGY11)</h3>
+        <p>D = alla E-krav + "till övervägande del" av C-kraven.<br>B = alla C-krav + "till övervägande del" av A-kraven.</p>
+        <h3>Nu (GY25)</h3>
+        <p>D och B sätts genom <strong>sammantagen bedömning</strong>:</p>
+        <ul>
+            <li>Läraren bedömer var elevens samlade kunskaper bäst passar in på betygsskalan.</li>
+            <li>Det handlar om en <strong>professionell helhetsbedömning</strong>, inte om att räkna procent av kriterier.</li>
+            <li>Ämnets <strong>tyngdpunkter</strong> ska väga tyngre i bedömningen.</li>
+            <li>Styrkor kan kompensera för svagheter (kompensatorisk princip).</li>
+        </ul>
+        <p>Detta ger läraren <strong>större professionellt utrymme</strong> men kräver också kollegial samverkan för likvärdighet.</p>`
+    },
+    nationellaprov: {
+        keywords: ['nationella prov', 'nationellt prov', 'np', 'prov nationella'],
+        title: 'Nationella prov i GY25',
+        content: `<p>Nationella prov finns kvar men anpassas till det nya systemet:</p>
+        <h3>Högskoleförberedande program</h3>
+        <ul>
+            <li>Nationella prov i den <strong>högsta avslutande nivån</strong> i engelska, matematik, svenska/sva.</li>
+        </ul>
+        <h3>Yrkesprogram</h3>
+        <ul>
+            <li>Nationella prov i både <strong>inledande nivå</strong> och <strong>högsta avslutande nivå</strong> i svenska/sva, engelska och matematik.</li>
+        </ul>
+        <h3>Övergångsperioden</h3>
+        <ul>
+            <li>Från hösten 2025 formateras <strong>alla matematikprov</strong> enligt GY25.</li>
+            <li>Prov från endera systemet kan användas under övergången.</li>
+            <li>Mappning: Matematik 1abc (LGY11) → Matematik nivå 1abc (GY25), osv.</li>
+        </ul>`
+    },
+    overgang: {
+        keywords: ['övergång', 'övergångsperiod', 'parallellt', 'båda system', 'gamla elever', 'transition'],
+        title: 'Övergångsperioden 2025-2030',
+        content: `<p>Under övergångsperioden gäller följande:</p>
+        <ul>
+            <li><strong>2025-2028:</strong> Skolor driver <strong>båda systemen parallellt</strong>.</li>
+            <li>Elever som börjar HT25 och framåt → GY25 med ämnesbetyg.</li>
+            <li>Elever som redan går → LGY11 med kursbetyg.</li>
+            <li>Lärare kan behöva undervisa i båda systemen samtidigt.</li>
+            <li><strong>30 juni 2030:</strong> Övergångsperioden slutar helt.</li>
+            <li>Nationella prov kan användas från båda systemen under övergången.</li>
+        </ul>
+        <p><strong>Tips:</strong> Planera gemensam fortbildning så att alla lärare förstår båda systemen.</p>`
+    },
+    centralinnehall: {
+        keywords: ['centralt innehåll', 'central innehåll', 'progression', 'innehåll', 'byggstenar'],
+        title: 'Centralt innehåll i GY25',
+        content: `<p>I GY25 bär det centrala innehållet hela <strong>progressionen</strong> mellan nivåer:</p>
+        <ul>
+            <li>Innehållet beskrivs som <strong>"byggstenar"</strong> som kan kombineras i undervisningen.</li>
+            <li>På varje ny nivå <strong>fördjupas och breddas</strong> innehållet.</li>
+            <li>Betygskriterierna är samma för hela ämnet -- det är innehållet som avgör komplexiteten.</li>
+            <li>Lärare behöver ha <strong>god kunskap om alla nivåers innehåll</strong> i sitt ämne.</li>
+        </ul>
+        <p>I LGY11 delades progressionen mellan kunskapskrav och centralt innehåll. Nu ligger allt i det centrala innehållet.</p>`
+    },
+    syfte: {
+        keywords: ['syfte', 'ämnets syfte', 'tyngdpunkt', 'tyngdpunkter'],
+        title: 'Ämnets syfte och tyngdpunkter',
+        content: `<p>I GY25 har ämnets syfte en utökad roll:</p>
+        <ul>
+            <li><strong>Ett syfte</strong> gäller hela ämnet (inte per kurs som ibland tolkades i LGY11).</li>
+            <li>Syftet är en <strong>primär tolkningsram</strong> för betygskriterierna.</li>
+            <li><strong>Tyngdpunkter</strong> framträder ur syftet och centralt innehåll -- de visar vad som är särskilt viktigt i ämnet.</li>
+            <li>Syftet har uppdaterats för att inkludera hållbar utveckling, digitalisering, jämställdhet.</li>
+        </ul>
+        <p>Lärare bör använda syftet aktivt vid planering, undervisning och bedömning.</p>`
+    }
+};
+
+// ============================================================
+// FAQ DATA
+// ============================================================
+const FAQ = [
+    {
+        q: 'Vad innebär det att gå från kurser till nivåer?',
+        a: 'Istället för separata kurser (t.ex. Historia 1a1, 1a2, 2a) blir ämnet en helhet med nivåer. Betyget sätts på ämnet och ett högre nivås godkända betyg ersätter alla lägre nivåers betyg i samma ämne. Detta ger elever möjlighet att visa att de utvecklats över tid.'
+    },
+    {
+        q: 'Hur påverkar GY25 mitt sätt att planera undervisning?',
+        a: 'Du behöver tänka mer långsiktigt och se hela ämnet som en enhet. Planera undervisningen så att den bygger kumulativt -- varje nivå bör bygga på och fördjupa den förra. Du behöver också ha god kunskap om centralt innehåll på alla nivåer i ditt ämne, inte bara den nivå du just nu undervisar på.'
+    },
+    {
+        q: 'Vad händer om en elev fick F på nivå 1 men klarar nivå 2?',
+        a: 'Om eleven får ett godkänt betyg (E eller högre) på nivå 2, ersätter det betyget automatiskt det underkända betyget på nivå 1. Det innebär att eleven kan reparera sitt betyg genom att visa kunskaper på högre nivå.'
+    },
+    {
+        q: 'Kan en elev få A trots svagheter i ett delområde?',
+        a: 'Ja, genom sammantagen bedömning. Om eleven visar A-kvalitet sammantaget, och styrkor i ämnets tyngdpunkter, kan läraren bedöma att A-betyg bäst representerar elevens kunskaper -- även om det finns relativa svagheter i enstaka delområden. Undantaget är E-gränsen, där alla delar måste vara uppfyllda.'
+    },
+    {
+        q: 'Hur säkerställer vi likvärdighet med sammantagen bedömning?',
+        a: 'Kollegial samverkan är avgörande. Lärare bör diskutera och kalibrera sin bedömning med kollegor, använda Skolverkets stödmaterial, delta i sambedömning och diskutera tolkningar av tyngdpunkter. Skolverket betonar att det professionella utrymmet kräver professionellt ansvar.'
+    },
+    {
+        q: 'Påverkas gymnasiearbetet av GY25?',
+        a: 'Ja, Skolverket har förtydligat den avsedda nivån för gymnasiearbeten och öppnat för fler presentationsformat. Examensmålen har uppdaterats inom GY25-ramverket. Den grundläggande strukturen med gymnasiearbete som avslutning kvarstår.'
+    },
+    {
+        q: 'Vad händer med meritpoäng?',
+        a: 'Meritpoängssystemet är i grunden oförändrat. Samma beräkningsprinciper gäller. Betygsskalan A-F kvarstår. Det som ändras är hur betygen sätts (ämnesbetyg istället för kursbetyg), inte hur de värderas.'
+    },
+    {
+        q: 'Hur hanterar jag elever som läser enligt LGY11 och GY25 samtidigt?',
+        a: 'Under övergångsperioden 2025-2030 behöver skolor och lärare hantera båda systemen. Elever som redan gick på gymnasiet före HT25 fortsätter med kursbetyg (LGY11). Nya elever från HT25 får ämnesbetyg (GY25). Nationella prov kan användas från båda systemen under övergångsperioden.'
+    }
+];
+
+// ============================================================
+// COMPARISON DATA
+// ============================================================
+const COMPARE = {
+    struktur: {
+        title: 'Strukturella förändringar',
+        table: [
+            ['Grundprincip', 'Kursbaserat system', 'Ämnesbaserat system med nivåer'],
+            ['Betygstyp', 'Kursbetyg -- separat betyg per kurs', 'Ämnesbetyg -- ett betyg per ämne/nivå'],
+            ['Progression', 'Synlig i både kunskapskrav och centralt innehåll', 'Drivs helt av centralt innehåll'],
+            ['Ersättning', 'Kursbetyg är permanenta', 'Godkänt på högre nivå ersätter lägre nivåers betyg'],
+            ['Antal betygsmoment', 'Många (varje kurs)', 'Färre men mer konsekvensrika'],
+            ['Ämnesplaner', 'Per kurs med separata kunskapskrav', 'Per ämne med gemensamma betygskriterier']
+        ]
+    },
+    betyg: {
+        title: 'Betygssättning',
+        table: [
+            ['Betygsskala', 'A-F', 'A-F (oförändrad)'],
+            ['E-betyg', 'Alla kunskapskrav för E uppfyllda', 'Alla delar av E-kriterierna uppfyllda'],
+            ['D-betyg', '"Till övervägande del" av C-kraven + alla E-krav', 'Sammantagen bedömning mellan E och C'],
+            ['C-betyg', 'Alla kunskapskrav för C uppfyllda', 'Sammantagen bedömning mot C-kriterierna'],
+            ['B-betyg', '"Till övervägande del" av A-kraven + alla C-krav', 'Sammantagen bedömning mellan C och A'],
+            ['A-betyg', 'Alla kunskapskrav för A uppfyllda', 'Sammantagen bedömning mot A-kriterierna'],
+            ['Kompensation', 'Nej -- alla krav måste uppfyllas', 'Ja -- styrkor kan kompensera svagheter (utom E)']
+        ]
+    },
+    bedomning: {
+        title: 'Bedömningsprinciper',
+        table: [
+            ['Princip', 'Alla kunskapskrav ska vara uppfyllda', 'Sammantagen bedömning (holistisk)'],
+            ['Detaljnivå', 'Detaljerade kunskapskrav per kurs', 'Övergripande betygskriterier per ämne'],
+            ['Tolkningsram', 'Kunskapskraven styr', 'Syfte + centralt innehåll + betygskriterier tillsammans'],
+            ['Tyngdpunkter', 'Ej formaliserat', 'Läraren ska beakta ämnets tyngdpunkter'],
+            ['Lärarens utrymme', 'Begränsat av detaljerade krav', 'Utökat -- professionell bedömning central'],
+            ['Värdeord E-nivå', 'Inkluderar "medverka"', '"Medverka" borttaget, ersatt av "mycket enkelt" m.fl.'],
+            ['Kollegial kalibrering', 'Önskvärt', 'Nödvändigt för likvärdighet']
+        ]
+    },
+    amnen: {
+        title: 'Ämnen och kurser',
+        table: [
+            ['Struktur', 'Kurser (t.ex. Matematik 1a, 2b, 3c)', 'Nivåer (t.ex. Matematik nivå 1a, 2b, 3c)'],
+            ['Matematik', 'Ett ämne med kurser 1-5', 'Delat: "Matematik" + "Matematik -- fortsättning"'],
+            ['Samhällskunskap', 'Ett ämne med 7 kurser', 'Delat i 3 ämnen: Samhällskunskap, Int. ekonomi, Int. relationer'],
+            ['Moderna språk', 'Ett gemensamt ämne', 'Separata ämnen per språk'],
+            ['Engelska', 'Engelska 4, 5, 6', 'Engelska 1, 2, 3 (omnumrerat)'],
+            ['Nya ämnen', '---', 'AI, Retorik på engelska, Tillämpad psykologi m.fl.'],
+            ['Nytt program', '---', 'Frisör- och stylistprogrammet']
+        ]
+    },
+    prov: {
+        title: 'Nationella prov',
+        table: [
+            ['Grundsystem', 'Prov kopplade till specifika kurser', 'Prov kopplade till nivåer'],
+            ['Högskoleförberedande', 'Prov i slutkurs', 'Prov i högsta avslutande nivå'],
+            ['Yrkesprogram', 'Prov i viss utsträckning', 'Prov i både inledande och högsta nivå'],
+            ['Matematik', 'Kursspecifika prov', 'Alla mateprov formateras enligt GY25 från HT25'],
+            ['Övergångsperiod', '---', 'Prov från båda systemen kan användas']
+        ]
+    },
+    tidslinje: {
+        title: 'Tidslinje',
+        table: [
+            ['Start', 'Infördes 2011', 'Träder i kraft 1 juli 2025'],
+            ['Första eleverna', 'Hösten 2011', 'Hösten 2025'],
+            ['Parallella system', '---', '2025-2030'],
+            ['Slutdatum LGY11', '---', '30 juni 2030'],
+            ['Första slutbetyg GY25', '---', 'Våren 2028'],
+            ['Förberedelsetid', '---', 'Ämnesplaner publicerades 2024']
+        ]
+    }
+};
+
+// ============================================================
+// EXAM QUALITY CRITERIA
+// ============================================================
+const QUALITY_CRITERIA = {
+    general: [
+        { name: 'Tydlighet', desc: 'Frågan är tydligt formulerad och eleven förstår vad som efterfrågas', check: q => q.length > 15 && !q.includes('??') && (q.includes('?') || q.includes('.')) },
+        { name: 'Öppen/sluten balans', desc: 'Blandning av öppna och slutna frågor för att testa olika förmågor', check: null },
+        { name: 'Koppling till centralt innehåll', desc: 'Frågan kan kopplas till centralt innehåll i ämnet', check: null },
+        { name: 'Rimlig omfattning', desc: 'Frågan har rimlig svarsomfattning (varken för snäv eller för bred)', check: q => q.length > 20 && q.length < 500 }
+    ],
+    E: [
+        { name: 'Grundläggande kunskap', desc: 'Testar att eleven kan redogöra för eller beskriva grundläggande innehåll', check: q => /redogör|beskriv|förklara|nämn|vad (är|menas|innebär)|vilka|ange|ge exempel/i.test(q) },
+        { name: 'Enkla resonemang', desc: 'Frågan möjliggör enkla resonemang utan krav på analys', check: q => !/analysera|diskutera|problematisera|värdera|jämför.*kritiskt/i.test(q) },
+        { name: 'Alla delar av kriterierna', desc: 'Provet som helhet bör täcka alla delar av E-kriterierna', check: null }
+    ],
+    C: [
+        { name: 'Analys och jämförelse', desc: 'Testar förmåga att analysera, jämföra eller diskutera', check: q => /analysera|jämför|diskutera|resonera|utveckla|koppl/i.test(q) },
+        { name: 'Utvecklade resonemang', desc: 'Frågan möjliggör utvecklade resonemang med kopplingar', check: q => /resonera|argumentera|förklara.*samband|visa.*förståelse|koppla/i.test(q) || q.length > 60 },
+        { name: 'Ämnesbegrepp', desc: 'Frågan testar användning av ämnesspecifika begrepp', check: q => /begrepp|terminologi|använd.*termer|fackspr/i.test(q) }
+    ],
+    A: [
+        { name: 'Problematisering', desc: 'Testar förmåga att värdera, problematisera eller göra komplexa analyser', check: q => /problematisera|värdera|kritiskt|komplex|nyansera|mångfacetter/i.test(q) },
+        { name: 'Nyanserade resonemang', desc: 'Frågan möjliggör välutvecklade och nyanserade resonemang', check: q => /nyansera|välutveckl|djupgående|utförlig|perspektiv|syntes/i.test(q) || q.length > 100 },
+        { name: 'Samband och slutsatser', desc: 'Testar förmåga att se samband och dra egna slutsatser', check: q => /samband|slutsats|konsekvens|orsak.*verkan|koppl.*till|reflek/i.test(q) }
+    ]
+};
+
+// ============================================================
+// GRADE INDICATORS for answer evaluation
+// ============================================================
+const GRADE_INDICATORS = {
+    E: {
+        positive: ['beskriver grundläggande', 'nämner relevanta fakta', 'visar viss förståelse', 'enkla resonemang', 'grundläggande begrepp'],
+        keywords: /beskriv|nämn|enkel|grundläggande|viss/i,
+        patterns: {
+            length: s => s.length > 50,
+            hasContent: s => s.split(' ').length > 10,
+            hasSomeStructure: s => s.includes('.') && s.split('.').length > 1
+        }
+    },
+    C: {
+        positive: ['utvecklade resonemang', 'tydliga kopplingar', 'använder ämnesbegrepp', 'analyserar', 'jämför'],
+        keywords: /analysera|jämför|utveckla|koppla|resonemang|samband|perspektiv/i,
+        patterns: {
+            length: s => s.length > 200,
+            hasStructure: s => s.split('.').length > 4,
+            hasConnections: s => /eftersom|därför|på grund av|detta leder till|samband|koppling|jämfört med/i.test(s),
+            hasExamples: s => /till exempel|exempelvis|som|t\.?ex/i.test(s)
+        }
+    },
+    A: {
+        positive: ['välutvecklade resonemang', 'nyanserad analys', 'problematiserar', 'ser komplexa samband', 'drar välgrundade slutsatser'],
+        keywords: /nyansera|problematisera|komplex|välutveckla|syntes|perspektiv|kritisk|reflek/i,
+        patterns: {
+            length: s => s.length > 400,
+            hasDepth: s => s.split('.').length > 8,
+            hasNuance: s => /å andra sidan|dock|emellertid|samtidigt|trots|å ena sidan|visserligen|å den andra/i.test(s),
+            hasMultiplePerspectives: s => /perspektiv|synvinkel|ur.*synpunkt|olika.*sätt|beroende på/i.test(s),
+            hasConclusion: s => /sammanfattningsvis|slutsats|sammantaget|avslutningsvis|detta visar|konsekvens/i.test(s)
+        }
+    }
+};
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+    });
+});
+
+// ============================================================
+// FAQ ACCORDION
+// ============================================================
+function buildFAQ() {
+    const container = document.getElementById('faq-accordion');
+    container.innerHTML = FAQ.map(item => `
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">${item.q}</button>
+            <div class="accordion-body">
+                <div class="accordion-body-inner"><p>${item.a}</p></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleAccordion(btn) {
+    const body = btn.nextElementSibling;
+    const isOpen = body.classList.contains('open');
+    btn.classList.toggle('open', !isOpen);
+    body.classList.toggle('open', !isOpen);
+}
+
+// ============================================================
+// TAB 1: Q&A SEARCH
+// ============================================================
+function askQuick(btn) {
+    document.getElementById('qa-input').value = btn.textContent;
+    searchKB();
+}
+
+function searchKB() {
+    const query = document.getElementById('qa-input').value.trim().toLowerCase();
+    if (!query) return;
+
+    const resultBox = document.getElementById('qa-result');
+    let bestMatch = null;
+    let bestScore = 0;
+
+    for (const [key, entry] of Object.entries(KB)) {
+        let score = 0;
+        for (const kw of entry.keywords) {
+            if (query.includes(kw)) score += 3;
+            else {
+                const words = kw.split(' ');
+                for (const w of words) {
+                    if (query.includes(w) && w.length > 3) score += 1;
+                }
+            }
+        }
+        if (score > bestScore) {
+            bestScore = score;
+            bestMatch = entry;
+        }
+    }
+
+    if (bestMatch && bestScore >= 1) {
+        resultBox.innerHTML = `<h3>${bestMatch.title}</h3>${bestMatch.content}`;
+        resultBox.classList.add('visible');
+    } else {
+        // Fuzzy match -- check partial word overlaps
+        const queryWords = query.split(/\s+/).filter(w => w.length > 2);
+        let fallbackMatch = null;
+        let fallbackScore = 0;
+
+        for (const [key, entry] of Object.entries(KB)) {
+            let score = 0;
+            const allText = entry.keywords.join(' ') + ' ' + entry.title.toLowerCase();
+            for (const qw of queryWords) {
+                if (allText.includes(qw)) score++;
+            }
+            if (score > fallbackScore) {
+                fallbackScore = score;
+                fallbackMatch = entry;
+            }
+        }
+
+        if (fallbackMatch && fallbackScore > 0) {
+            resultBox.innerHTML = `<h3>${fallbackMatch.title}</h3><p style="color:var(--warning); margin-bottom:0.5rem;"><em>Närmaste matchning vi hittade:</em></p>${fallbackMatch.content}`;
+            resultBox.classList.add('visible');
+        } else {
+            resultBox.innerHTML = `<h3>Inget exakt svar hittades</h3>
+                <p>Vi hittade inget direkt svar på din fråga i kunskapsbasen. Prova att:</p>
+                <ul>
+                    <li>Omformulera frågan med andra nyckelord</li>
+                    <li>Använda en av snabbfrågorna ovan</li>
+                    <li>Titta i FAQ-sektionen nedan</li>
+                    <li>Besöka <a href="https://www.skolverket.se/styrning-och-ansvar/forandringar-inom-skolomradet/gy25----amnesbetyg-pa-gymnasial-niva" target="_blank">Skolverkets GY25-sida</a></li>
+                </ul>`;
+            resultBox.classList.add('visible');
+        }
+    }
+}
+
+// ============================================================
+// TAB 2: COMPARISON
+// ============================================================
+function selectCompare(el, topic) {
+    document.querySelectorAll('.subject-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    renderComparison(topic);
+}
+
+function renderComparison(topic) {
+    const data = COMPARE[topic];
+    if (!data) return;
+
+    const container = document.getElementById('compare-content');
+    let html = `<h3>${data.title}</h3><table class="compare-table"><thead><tr><th style="width:25%">Aspekt</th><th style="width:37.5%">LGY11</th><th style="width:37.5%">GY25</th></tr></thead><tbody>`;
+
+    for (const row of data.table) {
+        html += `<tr><td class="label-col">${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>`;
+    }
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+// ============================================================
+// TAB 3: EXAM QUESTION ANALYSIS
+// ============================================================
+function analyzeQuestions() {
+    const amne = document.getElementById('pf-amne').value;
+    const niva = document.getElementById('pf-niva').value;
+    const fragorText = document.getElementById('pf-fragor').value.trim();
+    const syfte = document.getElementById('pf-syfte').value.trim();
+
+    if (!fragorText) {
+        alert('Skriv in minst en provfråga.');
+        return;
+    }
+
+    const loading = document.getElementById('pf-loading');
+    const resultBox = document.getElementById('pf-result');
+    loading.classList.add('visible');
+    resultBox.classList.remove('visible');
+
+    // Parse questions
+    const fragor = fragorText.split('\n')
+        .map(f => f.replace(/^\d+[\.\)]\s*/, '').trim())
+        .filter(f => f.length > 5);
+
+    setTimeout(() => {
+        let totalScore = 0;
+        let maxScore = 0;
+        let html = '<h3>Analys av provfrågor</h3>';
+
+        if (amne) {
+            html += `<p><span class="badge badge-info">${amne}</span> `;
+        }
+        html += `<span class="badge badge-info">Nivå: ${niva}</span></p>`;
+
+        fragor.forEach((fraga, i) => {
+            const analysis = analyzeOneQuestion(fraga, niva);
+            totalScore += analysis.score;
+            maxScore += analysis.maxScore;
+
+            html += `<div style="border-left:4px solid ${analysis.color}; padding:0.75rem 1rem; margin:1rem 0; background:#fafafa; border-radius:0 8px 8px 0;">`;
+            html += `<p style="font-weight:600; margin-bottom:0.5rem;">Fråga ${i + 1}: "${fraga.substring(0, 80)}${fraga.length > 80 ? '...' : ''}"</p>`;
+            html += `<ul class="checklist">`;
+
+            for (const check of analysis.checks) {
+                const iconClass = check.pass ? 'check-pass' : (check.warn ? 'check-warn' : 'check-fail');
+                const icon = check.pass ? '&#10003;' : (check.warn ? '!' : '&#10007;');
+                html += `<li><span class="check-icon ${iconClass}">${icon}</span><span>${check.text}</span></li>`;
+            }
+
+            html += '</ul></div>';
+        });
+
+        // Overall score
+        const pct = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
+        const scoreColor = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+
+        html += `<div class="score-display">
+            <div class="score-circle" style="background:${scoreColor}">${pct}%</div>
+            <div class="score-label">Uppfyllnadsgrad av GY25-kriterier</div>
+        </div>`;
+
+        // Recommendations
+        html += '<h3>Rekommendationer</h3><ul>';
+        if (pct < 50) {
+            html += '<li>Flera frågor behöver omarbetas för att bättre matcha GY25:s betygskriterier.</li>';
+        }
+        if (niva !== 'blandad' && niva !== 'E') {
+            const hasAnalysis = fragor.some(f => /analysera|jämför|diskutera|problematisera/i.test(f));
+            if (!hasAnalysis) {
+                html += `<li>Inkludera frågor som kräver analys eller jämförelse för ${niva}-nivå.</li>`;
+            }
+        }
+        if (fragor.length < 3) {
+            html += '<li>Överväg att lägga till fler frågor för att täcka bredden av centralt innehåll.</li>';
+        }
+        if (!syfte) {
+            html += '<li>Koppla provet till ämnets syfte och centralt innehåll för tydligare bedömningsgrund.</li>';
+        }
+        html += '<li>Kom ihåg: Bedömning i GY25 baseras på sammantagen bedömning -- provet bör ge elever möjlighet att visa kunskaper på olika nivåer.</li>';
+        html += '</ul>';
+
+        loading.classList.remove('visible');
+        resultBox.innerHTML = html;
+        resultBox.classList.add('visible');
+    }, 800);
+}
+
+function analyzeOneQuestion(fraga, niva) {
+    const checks = [];
+    let score = 0;
+    let maxScore = 0;
+
+    // General checks
+    const criteria = QUALITY_CRITERIA.general;
+    for (const c of criteria) {
+        maxScore++;
+        if (c.check) {
+            const pass = c.check(fraga);
+            checks.push({ text: `${c.name}: ${c.desc}`, pass });
+            if (pass) score++;
+        } else {
+            checks.push({ text: `${c.name}: ${c.desc}`, pass: true, warn: false });
+            score++;
+        }
+    }
+
+    // Level-specific checks
+    const levelCriteria = niva === 'blandad' ? [...QUALITY_CRITERIA.E, ...QUALITY_CRITERIA.C] : (QUALITY_CRITERIA[niva] || QUALITY_CRITERIA.E);
+    for (const c of levelCriteria) {
+        maxScore++;
+        if (c.check) {
+            const pass = c.check(fraga);
+            checks.push({ text: `[${niva === 'blandad' ? 'Blandad' : niva}] ${c.name}: ${c.desc}`, pass });
+            if (pass) score++;
+        } else {
+            checks.push({ text: `[${niva === 'blandad' ? 'Blandad' : niva}] ${c.name}: ${c.desc}`, pass: true, warn: true });
+            score += 0.5;
+        }
+    }
+
+    const pct = maxScore > 0 ? (score / maxScore) : 0;
+    const color = pct >= 0.7 ? '#10b981' : pct >= 0.4 ? '#f59e0b' : '#ef4444';
+
+    return { score, maxScore, checks, color };
+}
+
+function clearExamForm() {
+    document.getElementById('pf-amne').value = '';
+    document.getElementById('pf-niva').value = 'E';
+    document.getElementById('pf-fragor').value = '';
+    document.getElementById('pf-syfte').value = '';
+    document.getElementById('pf-result').classList.remove('visible');
+}
+
+// ============================================================
+// TAB 4: ANSWER EVALUATION
+// ============================================================
+function evaluateAnswer() {
+    const amne = document.getElementById('ps-amne').value;
+    const fraga = document.getElementById('ps-fraga').value.trim();
+    const kriterier = document.getElementById('ps-kriterier').value.trim();
+    const svar = document.getElementById('ps-svar').value.trim();
+
+    if (!fraga || !svar) {
+        alert('Fyll i både provfråga och elevsvar.');
+        return;
+    }
+
+    const loading = document.getElementById('ps-loading');
+    const resultBox = document.getElementById('ps-result');
+    loading.classList.add('visible');
+    resultBox.classList.remove('visible');
+
+    setTimeout(() => {
+        const evaluation = performEvaluation(fraga, svar, kriterier, amne);
+        loading.classList.remove('visible');
+        resultBox.innerHTML = evaluation;
+        resultBox.classList.add('visible');
+    }, 1000);
+}
+
+function performEvaluation(fraga, svar, kriterier, amne) {
+    // Analyze the answer against grade indicators
+    const scores = { E: 0, C: 0, A: 0 };
+    const maxScores = { E: 0, C: 0, A: 0 };
+    const details = { E: [], C: [], A: [] };
+
+    for (const [grade, indicators] of Object.entries(GRADE_INDICATORS)) {
+        for (const [patternName, patternFn] of Object.entries(indicators.patterns)) {
+            maxScores[grade]++;
+            const pass = patternFn(svar);
+            scores[grade] += pass ? 1 : 0;
+            details[grade].push({ name: patternName, pass });
+        }
+        // Check keyword presence
+        maxScores[grade]++;
+        const hasKeywords = indicators.keywords.test(svar);
+        scores[grade] += hasKeywords ? 1 : 0;
+    }
+
+    const pctE = maxScores.E > 0 ? scores.E / maxScores.E : 0;
+    const pctC = maxScores.C > 0 ? scores.C / maxScores.C : 0;
+    const pctA = maxScores.A > 0 ? scores.A / maxScores.A : 0;
+
+    // Determine likely grade
+    let likelyGrade, gradeColor, gradeExplanation;
+
+    if (pctA >= 0.7) {
+        likelyGrade = 'A';
+        gradeColor = '#10b981';
+        gradeExplanation = 'Svaret visar tecken på välutvecklade, nyanserade resonemang med komplexa samband och slutsatser.';
+    } else if (pctA >= 0.5 && pctC >= 0.6) {
+        likelyGrade = 'B';
+        gradeColor = '#10b981';
+        gradeExplanation = 'Svaret visar goda resonemang med viss nyansering -- ligger mellan C och A vid sammantagen bedömning.';
+    } else if (pctC >= 0.6) {
+        likelyGrade = 'C';
+        gradeColor = '#3b82f6';
+        gradeExplanation = 'Svaret visar utvecklade resonemang med kopplingar och viss användning av ämnesbegrepp.';
+    } else if (pctC >= 0.4 && pctE >= 0.6) {
+        likelyGrade = 'D';
+        gradeColor = '#3b82f6';
+        gradeExplanation = 'Svaret visar grundläggande kunskaper med ansatser till utvecklade resonemang -- ligger mellan E och C.';
+    } else if (pctE >= 0.5) {
+        likelyGrade = 'E';
+        gradeColor = '#f59e0b';
+        gradeExplanation = 'Svaret visar grundläggande kunskaper med enkla resonemang.';
+    } else {
+        likelyGrade = 'F';
+        gradeColor = '#ef4444';
+        gradeExplanation = 'Svaret saknar tillräckliga kunskaper inom alla delar av E-kriterierna.';
+    }
+
+    // Build HTML
+    let html = `<div class="score-display">
+        <div class="score-circle" style="background:${gradeColor}">${likelyGrade}</div>
+        <div class="score-label">Indikerad betygsnivå</div>
+    </div>`;
+
+    html += `<p style="text-align:center; margin-bottom:1rem;">${gradeExplanation}</p>`;
+
+    html += `<p style="background:#fff3cd; padding:0.75rem 1rem; border-radius:8px; border-left:4px solid #f59e0b; margin:1rem 0; font-size:0.9rem;">
+        <strong>Observera:</strong> Detta är en automatiserad indikation baserad på textanalys.
+        Den ersätter INTE lärarens professionella, sammantagna bedömning enligt GY25.
+        Använd resultatet som ett diskussionsunderlag.
+    </p>`;
+
+    // Detailed analysis
+    html += '<h3>Detaljerad analys</h3>';
+
+    // Strengths
+    html += '<h3 style="color:#10b981;">Styrkor i svaret</h3><ul>';
+    const wordCount = svar.split(/\s+/).length;
+    const sentenceCount = svar.split(/[.!?]+/).filter(s => s.trim()).length;
+
+    if (wordCount > 100) html += `<li>Omfattande svar (${wordCount} ord)</li>`;
+    if (/eftersom|därför|på grund av|detta leder till/i.test(svar)) html += '<li>Visar orsakssamband och kopplingar</li>';
+    if (/till exempel|exempelvis|t\.?ex/i.test(svar)) html += '<li>Ger konkreta exempel</li>';
+    if (/å andra sidan|dock|emellertid|samtidigt/i.test(svar)) html += '<li>Visar nyansering och olika perspektiv</li>';
+    if (/sammanfattningsvis|slutsats|sammantaget/i.test(svar)) html += '<li>Avslutar med slutsats eller sammanfattning</li>';
+    if (sentenceCount > 5) html += `<li>Välstrukturerat med ${sentenceCount} meningar</li>`;
+    if (pctE >= 0.5) html += '<li>Grundläggande kunskaper finns</li>';
+    html += '</ul>';
+
+    // Areas for improvement
+    html += '<h3 style="color:#f59e0b;">Utvecklingsområden</h3><ul>';
+    if (wordCount < 50) html += '<li>Svaret är kort -- uppmuntra eleven att utveckla sina resonemang</li>';
+    if (!/eftersom|därför|på grund av/i.test(svar)) html += '<li>Saknar tydliga kopplingar och orsaksresonemang</li>';
+    if (!/till exempel|exempelvis/i.test(svar)) html += '<li>Inga konkreta exempel -- uppmuntra exemplifiering</li>';
+    if (!/å andra sidan|dock|emellertid/i.test(svar)) html += '<li>Saknar nyansering -- visa olika perspektiv</li>';
+    if (sentenceCount < 3) html += '<li>Kort och outvecklat -- behöver fler resonemang</li>';
+    html += '</ul>';
+
+    // GY25 connection
+    html += `<h3>Koppling till GY25:s bedömningsprinciper</h3>
+    <ul>
+        <li><strong>Sammantagen bedömning:</strong> ${likelyGrade === 'F' ? 'Svaret når inte E-gränsen där alla delar måste vara uppfyllda.' : 'Vid sammantagen bedömning vägs styrkor och svagheter samman för att hitta det mest representativa betyget.'}</li>
+        <li><strong>Tyngdpunkter:</strong> Beakta vilka delar av svaret som rör ämnets tyngdpunkter -- dessa bör väga tyngre.</li>
+        ${amne ? `<li><strong>Ämne:</strong> ${amne} -- se ämnets specifika betygskriterier för detaljerad bedömning.</li>` : ''}
+        ${kriterier ? '<li><strong>Egna kriterier angivna:</strong> Jämför ovanstående analys med dina angivna bedömningsanvisningar.</li>' : ''}
+    </ul>`;
+
+    return html;
+}
+
+function clearAnswerForm() {
+    document.getElementById('ps-amne').value = '';
+    document.getElementById('ps-fraga').value = '';
+    document.getElementById('ps-kriterier').value = '';
+    document.getElementById('ps-svar').value = '';
+    document.getElementById('ps-result').classList.remove('visible');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+buildFAQ();
+renderComparison('struktur');
+</script>
+</body>
+</html>
