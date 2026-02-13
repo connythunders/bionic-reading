@@ -538,7 +538,7 @@
 
 <section class="hero">
     <h1>GY25 Läroplansverktyg</h1>
-    <p>Ställ frågor om nya läroplanen, jämför med LGY11, granska provfrågor och bedöm elevsvar -- allt samlat på ett ställe för dig och dina kollegor.</p>
+    <p>Ställ frågor om nya läroplanen, jämför med LGY11, granska provfrågor och se exempelsvar per betygsnivå -- allt samlat på ett ställe för dig och dina kollegor.</p>
 </section>
 
 <div class="tab-nav">
@@ -555,9 +555,9 @@
             <span class="tab-icon">&#10003;</span>
             Granska provfrågor
         </button>
-        <button class="tab-btn" data-tab="provsvar">
+        <button class="tab-btn" data-tab="exempelsvar">
             <span class="tab-icon">&#9733;</span>
-            Bedöm provsvar
+            Exempelsvar
         </button>
     </div>
 </div>
@@ -747,15 +747,15 @@
         </div>
     </div>
 
-    <!-- ==================== TAB 4: BEDÖM PROVSVAR ==================== -->
-    <div class="tab-panel" id="tab-provsvar">
+    <!-- ==================== TAB 4: EXEMPELSVAR ==================== -->
+    <div class="tab-panel" id="tab-exempelsvar">
         <div class="card">
-            <h2>Bedöm provsvar enligt GY25</h2>
-            <p class="card-description">Klistra in en provfråga och elevens svar. Verktyget ger en indikation på betygsnivå baserat på GY25:s betygskriterier.</p>
+            <h2>Generera exempelsvar per betygsnivå</h2>
+            <p class="card-description">Skriv in din provfråga och välj ämne -- verktyget visar hur ett typiskt E-, C- och A-svar kan se ut, med förklaring av vad som skiljer nivåerna åt. Perfekt som bedömningsstöd och för kollegial diskussion.</p>
 
             <div class="form-group">
-                <label for="ps-amne">Ämne</label>
-                <select id="ps-amne">
+                <label for="ex-amne">Ämne</label>
+                <select id="ex-amne" onchange="updateExampleQuestions()">
                     <option value="">Välj ämne...</option>
                     <option value="svenska">Svenska</option>
                     <option value="engelska">Engelska</option>
@@ -768,60 +768,67 @@
                     <option value="fysik">Fysik</option>
                     <option value="kemi">Kemi</option>
                     <option value="idrott">Idrott och hälsa</option>
-                    <option value="annat">Annat ämne</option>
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="ps-fraga">Provfrågan</label>
-                <textarea id="ps-fraga" rows="3" placeholder="Skriv eller klistra in provfrågan här..."></textarea>
+            <div class="quick-questions" id="ex-quick-questions">
+                <span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Välj ett ämne ovan för att se exempelfrågor, eller skriv din egen:</span>
             </div>
 
             <div class="form-group">
-                <label for="ps-kriterier">Betygskriterier / bedömningsanvisningar (valfritt)</label>
-                <textarea id="ps-kriterier" rows="3" placeholder="Klistra in relevanta betygskriterier eller bedömningsanvisningar..."></textarea>
+                <label for="ex-fraga">Provfråga</label>
+                <textarea id="ex-fraga" rows="3" placeholder="Skriv din provfråga här, t.ex.:&#10;Diskutera hur demokratin i Sverige har utvecklats sedan 1800-talet."></textarea>
             </div>
 
-            <div class="form-group">
-                <label for="ps-svar">Elevens svar</label>
-                <textarea id="ps-svar" rows="8" placeholder="Klistra in elevens svar här..."></textarea>
-            </div>
+            <button class="btn btn-primary" onclick="generateExamples()">Visa exempelsvar E / C / A</button>
+            <button class="btn btn-secondary" onclick="clearExampleForm()">Rensa</button>
 
-            <button class="btn btn-primary" onclick="evaluateAnswer()">Bedöm svar</button>
-            <button class="btn btn-secondary" onclick="clearAnswerForm()">Rensa</button>
-
-            <div class="loading" id="ps-loading">
+            <div class="loading" id="ex-loading">
                 <div class="spinner"></div>
-                <p>Analyserar elevsvar...</p>
+                <p>Genererar exempelsvar...</p>
             </div>
 
-            <div class="result-box" id="ps-result"></div>
+            <div class="result-box" id="ex-result"></div>
         </div>
 
         <div class="card">
-            <h2>Bedömningsprinciper i GY25</h2>
-            <p class="card-description">Viktiga principer att ha i åtanke vid bedömning enligt det nya systemet.</p>
+            <h2>Vad kännetecknar svar på olika nivåer?</h2>
+            <p class="card-description">Generella drag som skiljer E-, C- och A-svar i GY25:s bedömningsmodell.</p>
 
-            <div class="two-col">
-                <div>
-                    <h3>Sammantagen bedömning</h3>
-                    <p style="color: var(--text-mid); font-size: 0.95rem;">
-                        I GY25 ska läraren göra en <strong>sammantagen bedömning</strong> av elevens kunskaper.
-                        Det innebär att styrkor inom ett område kan kompensera för relativa svagheter inom ett annat
-                        (förutom för E-gränsen, där alla delar måste vara uppfyllda).
-                    </p>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-top:1rem;">
+                <div style="background:#fef3c7; border-radius:12px; padding:1.25rem; border-left:4px solid #f59e0b;">
+                    <h3 style="color:#92400e; margin-bottom:0.5rem;">E-nivå</h3>
+                    <ul style="padding-left:1.2rem; color:#78350f; font-size:0.9rem;">
+                        <li><strong>Beskriver</strong> och <strong>redogör</strong> för grundläggande innehåll</li>
+                        <li>Enkla, korta resonemang</li>
+                        <li>Visar viss kunskap inom alla delar</li>
+                        <li>Få eller inga kopplingar mellan företeelser</li>
+                        <li>Begränsad användning av ämnesbegrepp</li>
+                    </ul>
                 </div>
-                <div>
-                    <h3>Tyngdpunkter</h3>
-                    <p style="color: var(--text-mid); font-size: 0.95rem;">
-                        Vid sammantagen bedömning ska läraren särskilt beakta ämnets <strong>tyngdpunkter</strong> --
-                        de delar av syftet och centralt innehåll som betonas som särskilt viktiga.
-                        Dessa väger tyngre i den samlade bedömningen.
-                    </p>
+                <div style="background:#dbeafe; border-radius:12px; padding:1.25rem; border-left:4px solid #3b82f6;">
+                    <h3 style="color:#1e40af; margin-bottom:0.5rem;">C-nivå</h3>
+                    <ul style="padding-left:1.2rem; color:#1e3a5f; font-size:0.9rem;">
+                        <li><strong>Analyserar</strong> och <strong>jämför</strong> med utvecklade resonemang</li>
+                        <li>Tydliga kopplingar och orsakssamband</li>
+                        <li>Använder ämnesbegrepp korrekt</li>
+                        <li>Ger konkreta exempel som stöd</li>
+                        <li>Visar förståelse för sammanhang</li>
+                    </ul>
+                </div>
+                <div style="background:#dcfce7; border-radius:12px; padding:1.25rem; border-left:4px solid #10b981;">
+                    <h3 style="color:#166534; margin-bottom:0.5rem;">A-nivå</h3>
+                    <ul style="padding-left:1.2rem; color:#14532d; font-size:0.9rem;">
+                        <li><strong>Problematiserar</strong> och <strong>värderar</strong> med nyansering</li>
+                        <li>Visar flera perspektiv och vägning</li>
+                        <li>Komplexa samband och orsakskedjor</li>
+                        <li>Drar välgrundade egna slutsatser</li>
+                        <li>Avancerad och precis begreppsanvändning</li>
+                    </ul>
                 </div>
             </div>
 
-            <h3>Betygsstegen i GY25</h3>
+            <h3 style="margin-top:1.5rem;">Betygsstegen i GY25</h3>
             <table class="compare-table" style="margin-top:0.5rem;">
                 <thead>
                     <tr>
@@ -1162,38 +1169,158 @@ const QUALITY_CRITERIA = {
 };
 
 // ============================================================
-// GRADE INDICATORS for answer evaluation
+// EXAMPLE ANSWERS DATABASE
 // ============================================================
-const GRADE_INDICATORS = {
-    E: {
-        positive: ['beskriver grundläggande', 'nämner relevanta fakta', 'visar viss förståelse', 'enkla resonemang', 'grundläggande begrepp'],
-        keywords: /beskriv|nämn|enkel|grundläggande|viss/i,
-        patterns: {
-            length: s => s.length > 50,
-            hasContent: s => s.split(' ').length > 10,
-            hasSomeStructure: s => s.includes('.') && s.split('.').length > 1
+const EXAMPLE_QUESTIONS = {
+    svenska: [
+        'Analysera hur författaren använder språkliga verktyg för att skapa stämning i texten.',
+        'Diskutera hur mediernas framställning kan påverka vår syn på samhällsfrågor.',
+        'Redogör för skillnaden mellan argumenterande och utredande text.'
+    ],
+    engelska: [
+        'Discuss how cultural differences can lead to misunderstandings in international communication.',
+        'Describe the main themes in the text you have read.',
+        'Compare two English-speaking countries and discuss similarities and differences.'
+    ],
+    matematik: [
+        'Förklara vad en funktion är och ge exempel på hur funktioner kan användas i vardagen.',
+        'Redogör för sambandet mellan derivata och en funktions förändring.',
+        'Beskriv hur sannolikhet kan användas för att fatta beslut.'
+    ],
+    samhallskunskap: [
+        'Diskutera hur demokratin i Sverige har utvecklats sedan 1800-talet.',
+        'Analysera hur olika politiska ideologier ser på statens roll i samhället.',
+        'Redogör för hur EU påverkar Sveriges lagstiftning.'
+    ],
+    historia: [
+        'Diskutera orsakerna till första världskrigets utbrott.',
+        'Analysera hur industrialiseringen förändrade samhället under 1800-talet.',
+        'Redogör för kalla krigets huvuddrag och dess konsekvenser.'
+    ],
+    religion: [
+        'Jämför synen på livet efter döden inom kristendom och islam.',
+        'Diskutera hur religiösa normer kan påverka människors vardag.',
+        'Redogör för de fem pelarna inom islam.'
+    ],
+    naturkunskap: [
+        'Diskutera hur människans livsstil påverkar klimatförändringarna.',
+        'Redogör för ekosystemets uppbyggnad och ge exempel på näringskedjor.',
+        'Analysera för- och nackdelar med olika energikällor.'
+    ],
+    biologi: [
+        'Förklara hur naturligt urval driver evolution.',
+        'Diskutera genteknikens möjligheter och etiska dilemman.',
+        'Redogör för cellens uppbyggnad och funktion.'
+    ],
+    fysik: [
+        'Förklara Newtons tre rörelselagar och ge exempel på tillämpningar.',
+        'Diskutera hur energi omvandlas i olika sammanhang.',
+        'Redogör för skillnaden mellan elektromagnetisk strålning och partikelstrålning.'
+    ],
+    kemi: [
+        'Förklara vad en kemisk reaktion är och ge exempel från vardagen.',
+        'Diskutera hur syror och baser påverkar miljön.',
+        'Redogör för det periodiska systemets uppbyggnad.'
+    ],
+    idrott: [
+        'Diskutera hur regelbunden fysisk aktivitet påverkar hälsan.',
+        'Analysera hur genus och normer påverkar deltagande i idrott.',
+        'Redogör för grundläggande principer för träningsplanering.'
+    ]
+};
+
+const EXAMPLE_ANSWERS = {
+    samhallskunskap: {
+        'Diskutera hur demokratin i Sverige har utvecklats sedan 1800-talet.': {
+            E: {
+                svar: 'Demokratin i Sverige har utvecklats mycket sedan 1800-talet. Förr var det bara rika män som fick rösta. Sedan fick fler och fler människor rösträtt. 1921 fick alla vuxna rösta, både män och kvinnor. Idag har vi allmän och lika rösträtt och alla som är 18 år får rösta i riksdagsvalet.',
+                kommentar: 'Svaret redogör för grundläggande fakta om demokratins utveckling. Det nämner några viktiga årtal och förändringar, men håller sig på en beskrivande nivå utan djupare analys eller kopplingar.'
+            },
+            C: {
+                svar: 'Demokratin i Sverige har genomgått en omfattande utveckling sedan 1800-talet. Under tidigt 1800-tal styrdes landet av en kung och riksdag där bara en liten del av befolkningen hade rösträtt, baserat på inkomst och kön. Folkrörelserna, som nykterhetsrörelsen, arbetarrörelsen och frikyrkorörelsen, spelade en avgörande roll i demokratiseringen. De organiserade vanliga människor och krävde politiska rättigheter. Arbetarrörelsen kämpade för allmän rösträtt, vilket ledde till att männen fick rösträtt 1909 och kvinnorna 1921. Parlamentarismen etablerades 1917, vilket innebar att regeringen måste ha riksdagens stöd. Dessa förändringar hängde samman med industrialiseringen som förändrade samhällsstrukturen och skapade nya samhällsklasser som krävde inflytande.',
+                kommentar: 'Svaret analyserar demokratins utveckling med utvecklade resonemang. Det visar kopplingar mellan folkrörelser, industrialisering och demokratisering. Ämnesbegrepp som parlamentarism, folkrörelser och allmän rösträtt används korrekt. Konkreta exempel ges som stöd.'
+            },
+            A: {
+                svar: 'Demokratins framväxt i Sverige sedan 1800-talet kan ses som en komplex process driven av samverkande ekonomiska, sociala och politiska faktorer. Under det tidiga 1800-talets ståndsriksdag var politisk makt kopplad till ekonomisk ställning -- ett system som speglade en agrär samhällsordning. Industrialiseringen under andra halvan av 1800-talet skapade dock helt nya förutsättningar: urbanisering, en växande arbetarklass och nya sociala spänningar som det gamla systemet inte kunde hantera.\n\nFolkrörelserna blev avgörande som katalysatorer för förändring, men det är viktigt att notera att de inte var en enhetlig kraft. Arbetarrörelsen drev framför allt ekonomisk jämlikhet och rösträtt, medan liberala krafter betonade individuella fri- och rättigheter. Dessa olika perspektiv samverkade ibland och stod ibland i konflikt med varandra. Den gradvisa rösträttsutvidgningen -- från förmögenhetskrav till allmän manlig rösträtt 1909 och slutligen kvinnlig rösträtt 1921 -- var resultatet av kompromisser snarare än en linjär utveckling.\n\nSamtidigt bör man problematisera demokratibegreppet: formell rösträtt innebar inte automatiskt reellt inflytande. Samernas rättigheter och minoriteters delaktighet har till exempel varit begränsade långt efter att den formella demokratin var på plats. Demokratins utveckling är alltså inte bara en framgångshistoria, utan en pågående process med kvarvarande utmaningar kring representation och jämlikhet.',
+                kommentar: 'Svaret visar välutvecklade och nyanserade resonemang med flera perspektiv. Eleven problematiserar demokratibegreppet, ser komplexa samband mellan ekonomi, sociala rörelser och politik, och drar egna slutsatser. Resonemangen vänder och vrider på frågan ("å ena sidan / å andra sidan") och visar att demokratisering inte var en enkel, linjär process.'
+            }
         }
+    },
+    historia: {
+        'Diskutera orsakerna till första världskrigets utbrott.': {
+            E: {
+                svar: 'Första världskriget startade 1914. En viktig orsak var att ärkehertig Franz Ferdinand mördades i Sarajevo. Det ledde till att Österrike-Ungern förklarade krig mot Serbien. Sedan drogs fler länder in i kriget på grund av allianser. Det fanns också spänningar mellan länderna i Europa om kolonier och makt.',
+                kommentar: 'Svaret beskriver grundläggande orsaker på en enkel nivå. Det nämner mordet i Sarajevo, allianserna och rivaliteten, men utan att förklara samband eller gå djupare.'
+            },
+            C: {
+                svar: 'Första världskriget hade flera samverkande orsaker. Den direkta utlösande faktorn var mordet på ärkehertig Franz Ferdinand i Sarajevo 1914, men de underliggande orsakerna var betydligt mer komplexa. Imperialismen hade skapat rivalitet mellan europeiska stormakter om kolonier och inflytande, särskilt mellan Storbritannien och Tyskland. Nationalismen växte i styrka, både som enande kraft (t.ex. i Tyskland och Italien) och som splittrande kraft (t.ex. på Balkan där slaviska folk ville frigöra sig från Österrike-Ungern). Alliansystemen -- trippelententen och trippelalliansen -- innebar att en lokal konflikt snabbt kunde dra in flera stormakter. Kapprustningen, främst mellan Tyskland och Storbritannien om flottan, skapade en känsla av att krig var oundvikligt. Dessa faktorer samverkade och förstärkte varandra, vilket gjorde att en regional kris eskalerade till ett världskrig.',
+                kommentar: 'Svaret analyserar flera orsaker och visar kopplingar mellan dem. Ämnesbegrepp som imperialism, nationalism och alliansystem används korrekt. Eleven ger konkreta exempel och visar att orsakerna samverkade.'
+            },
+            A: {
+                svar: 'Orsakerna till första världskrigets utbrott är en historiografiskt omdebatterad fråga som innefattar strukturella, ideologiska och situationsspecifika faktorer. På strukturell nivå hade det europeiska statssystemet utvecklat en instabilitet genom alliansystemens bipolära logik: trippelententen och trippelalliansen skapade en situation där varje lokal konflikt potentiellt involverade samtliga stormakter. Denna mekaniska koppling förstärktes av kapprustningen, som inte bara var militär utan också psykologisk -- den skapade ömsesidig misstro och en föreställning om krigets oundviklighet.\n\nImperialismen och nationalismen utgjorde de ideologiska drivkrafterna, men deras samspel var komplext. Imperialismen skapade konfliktytor utanför Europa (som Marockokrisen 1905 och 1911), men den stärkte samtidigt nationalistiska narrativ om storhet och ära. Nationalismen verkade dessutom i motsatta riktningar: som sammanhållande kraft i etablerade nationalstater och som destabiliserande kraft i multietniska imperier som Österrike-Ungern och Osmanska riket. Balkans roll som "Europas krutdurk" illustrerar hur dessa spänningar koncentrerades regionalt.\n\nDock bör man vara försiktig med deterministiska tolkningar. Historikern Christopher Clark har i "The Sleepwalkers" argumenterat för att kriget inte var oundvikligt utan resultatet av specifika beslut av specifika aktörer under julikrisen 1914. Frågan om ansvar har skiftat från Versaillestraktens ensidiga tyska krigsansvar till en mer nyanserad bild av delat ansvar. Detta visar att historiska förklaringar alltid präglas av sin egen tid och de frågor historikern ställer.',
+                kommentar: 'Svaret visar välutvecklade resonemang med historiografisk medvetenhet. Eleven problematiserar frågan om orsak och ansvar, refererar till forskning, och visar förståelse för att historisk tolkning är kontextbunden. Komplexa samband analyseras med precision och nyansering.'
+            }
+        }
+    },
+    religion: {
+        'Jämför synen på livet efter döden inom kristendom och islam.': {
+            E: {
+                svar: 'Inom kristendomen tror man på himmel och helvete. Om man lever ett gott liv kommer man till himlen. Inom islam finns också himmel och helvete. Muslimer tror på en domeddag då Allah dömer alla människor. Båda religionerna tror alltså på ett liv efter döden.',
+                kommentar: 'Svaret beskriver grundläggande likheter och skillnader på en enkel nivå. Det visar att eleven har viss kunskap om båda religionerna men jämförelsen är ytlig.'
+            },
+            C: {
+                svar: 'Både kristendom och islam har en tydlig föreställning om livet efter döden, men det finns intressanta likheter och skillnader. Inom kristendomen är tron på uppståndelsen central -- Jesus uppståndelse ses som bevis på att döden inte är slutet. De flesta kristna tror på en yttersta dom där Gud bedömer människans handlingar och tro, vilket leder till antingen evigt liv i himlen eller separation från Gud. Inom protestantismen betonas tron (sola fide) som avgörande, medan katolska kyrkan även betonar gärningar och inkluderar skärselden som ett mellantillstånd.\n\nInom islam spelar tron på domedagen (Yawm al-Qiyama) en central roll -- det är en av islams trosartiklar. Varje människa står inför Allahs dom, och ens handlingar vägs på en våg. Paradiset (Jannah) beskrivs ofta i konkreta termer som en trädgård med floder, medan helvetet (Jahannam) beskrivs som eld och plåga. En viktig likhet är att båda religionerna kopplar det moraliska livet till konsekvenser efter döden, vilket fungerar som etisk vägledning för troende.',
+                kommentar: 'Svaret jämför systematiskt med utvecklade resonemang. Eleven visar kopplingar, använder korrekta begrepp från båda religionerna, och lyfter fram både likheter och skillnader med exempel.'
+            },
+            A: {
+                svar: 'Föreställningar om livet efter döden utgör en grundläggande dimension i både kristendom och islam, men en djupare jämförelse avslöjar både strukturella likheter och teologiskt signifikanta skillnader som speglar respektive traditions grundläggande gudsuppfattning.\n\nBåda religionerna delar en linjär tidsuppfattning med en definitiv eskatologi -- en ändpunkt där Gud/Allah dömer mänskligheten. Detta skiljer dem fundamentalt från exempelvis hinduismens cykliska återfödelse. Inom kristendomen är uppståndelsetron central: Kristi uppståndelse tolkas som seger över döden och löfte om evigt liv. Frälsningsvägen varierar dock markant mellan traditioner -- protestantismens sola fide (tron allena) kontrasterar mot katolska kyrkans betoning av sakrament och gärningar, inklusive skärselden som reningsstadium. Denna inomreligiösa variation visar att "kristendomen" inte har en enhetlig syn.\n\nInom islam är Yawm al-Qiyama (domedagen) en av de sex trosartiklarna och genomsyrar den troende muslimens vardag. Koranens beskrivningar av Jannah (paradiset) och Jahannam (helvetet) är mer detaljerade och konkreta än Bibelns -- frågan är om dessa ska tolkas bokstavligt eller symboliskt, något som muslimska teologer debatterat i sekler. En viktig skillnad är betoningen av individuellt ansvar: i islam vägs varje handling på Allahs våg, medan kristendomen i större utsträckning betonar nåd och förlåtelse som väg till frälsning.\n\nDet är dock viktigt att problematisera generaliseringar. Båda religionerna rymmer en stor mångfald av tolkningar, från bokstavliga till allegoriska. Synen på livet efter döden fungerar i båda fallen inte bara som kosmologisk tro utan som moraliskt ramverk som ger mening åt det jordiska livet och motiverar etiskt handlande -- en funktionell likhet som kanske är viktigare än de teologiska skillnaderna.',
+                kommentar: 'Svaret visar nyanserad analys med flera perspektiv. Eleven problematiserar generaliseringar, jämför på djupet med korrekta begrepp, och drar en egen slutsats om funktionella likheter. Inomreligiös variation lyfts fram, och komparationen går bortom ytliga likheter.'
+            }
+        }
+    }
+};
+
+// Generic templates used when no pre-written answer exists
+const GENERIC_TEMPLATES = {
+    E: {
+        structure: 'Beskrivande, kort, grundläggande fakta',
+        connectors: [],
+        template: (topic) => `[Grundläggande fakta om ${topic}]. [Enkel beskrivning av en aspekt]. [Ytterligare en enkel beskrivning]. [Kort avslutning].`,
+        traits: [
+            'Beskriver och redogör -- nämner fakta utan att analysera',
+            'Enkla, korta meningar och resonemang',
+            'Få eller inga kopplingsord (eftersom, därför, detta beror på...)',
+            'Begränsad användning av ämnesbegrepp',
+            'Visar grundläggande kunskap men utan djup',
+            'Svarar på frågan men utan att utveckla'
+        ]
     },
     C: {
-        positive: ['utvecklade resonemang', 'tydliga kopplingar', 'använder ämnesbegrepp', 'analyserar', 'jämför'],
-        keywords: /analysera|jämför|utveckla|koppla|resonemang|samband|perspektiv/i,
-        patterns: {
-            length: s => s.length > 200,
-            hasStructure: s => s.split('.').length > 4,
-            hasConnections: s => /eftersom|därför|på grund av|detta leder till|samband|koppling|jämfört med/i.test(s),
-            hasExamples: s => /till exempel|exempelvis|som|t\.?ex/i.test(s)
-        }
+        structure: 'Analyserande, utvecklade resonemang med kopplingar',
+        connectors: ['eftersom', 'därför', 'detta leder till', 'till exempel', 'jämfört med'],
+        template: (topic) => `[Inledning som visar förståelse för ${topic}]. [Utvecklat resonemang med orsakssamband]. [Konkret exempel som stöd]. [Jämförelse eller koppling till annat]. [Slutsats som binder ihop resonemanget].`,
+        traits: [
+            'Analyserar, jämför och diskuterar -- inte bara beskriver',
+            'Utvecklade resonemang med kopplingsord (eftersom, därför, detta innebär...)',
+            'Tydliga orsakssamband och kopplingar',
+            'Använder ämnesbegrepp korrekt',
+            'Ger konkreta exempel som stöd för resonemang',
+            'Visar förståelse för sammanhang och orsak-verkan'
+        ]
     },
     A: {
-        positive: ['välutvecklade resonemang', 'nyanserad analys', 'problematiserar', 'ser komplexa samband', 'drar välgrundade slutsatser'],
-        keywords: /nyansera|problematisera|komplex|välutveckla|syntes|perspektiv|kritisk|reflek/i,
-        patterns: {
-            length: s => s.length > 400,
-            hasDepth: s => s.split('.').length > 8,
-            hasNuance: s => /å andra sidan|dock|emellertid|samtidigt|trots|å ena sidan|visserligen|å den andra/i.test(s),
-            hasMultiplePerspectives: s => /perspektiv|synvinkel|ur.*synpunkt|olika.*sätt|beroende på/i.test(s),
-            hasConclusion: s => /sammanfattningsvis|slutsats|sammantaget|avslutningsvis|detta visar|konsekvens/i.test(s)
-        }
+        structure: 'Problematiserande, nyanserat med flera perspektiv och slutsats',
+        connectors: ['å ena sidan', 'å andra sidan', 'dock', 'emellertid', 'samtidigt', 'visserligen'],
+        template: (topic) => `[Inledning som ramar in ${topic} i ett bredare sammanhang]. [Analys ur ett perspektiv med belägg]. [Kontrasterat med ett annat perspektiv]. [Problematisering -- det är inte så enkelt som det verkar]. [Nyanserad slutsats som väger samman perspektiven och drar egna slutsatser].`,
+        traits: [
+            'Problematiserar och värderar -- inte bara analyserar',
+            'Nyanserade resonemang med flera perspektiv (å ena sidan / å andra sidan)',
+            'Komplexa samband och orsakskedjor',
+            'Drar egna, välgrundade slutsatser',
+            'Avancerad och precis begreppsanvändning',
+            'Visar medvetenhet om att frågan kan ses ur olika synvinklar',
+            'Syntetiserar information till en helhet'
+        ]
     }
 };
 
@@ -1460,142 +1587,130 @@ function clearExamForm() {
 }
 
 // ============================================================
-// TAB 4: ANSWER EVALUATION
+// TAB 4: EXAMPLE ANSWER GENERATOR
 // ============================================================
-function evaluateAnswer() {
-    const amne = document.getElementById('ps-amne').value;
-    const fraga = document.getElementById('ps-fraga').value.trim();
-    const kriterier = document.getElementById('ps-kriterier').value.trim();
-    const svar = document.getElementById('ps-svar').value.trim();
+function updateExampleQuestions() {
+    const amne = document.getElementById('ex-amne').value;
+    const container = document.getElementById('ex-quick-questions');
 
-    if (!fraga || !svar) {
-        alert('Fyll i både provfråga och elevsvar.');
+    if (!amne || !EXAMPLE_QUESTIONS[amne]) {
+        container.innerHTML = '<span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Välj ett ämne ovan för att se exempelfrågor, eller skriv din egen:</span>';
         return;
     }
 
-    const loading = document.getElementById('ps-loading');
-    const resultBox = document.getElementById('ps-result');
+    const questions = EXAMPLE_QUESTIONS[amne];
+    container.innerHTML = '<span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Klicka på en exempelfråga eller skriv din egen:</span>' +
+        questions.map(q => `<button class="quick-q" onclick="document.getElementById('ex-fraga').value='${q.replace(/'/g, "\\'")}';generateExamples()">${q.length > 65 ? q.substring(0, 62) + '...' : q}</button>`).join('');
+}
+
+function generateExamples() {
+    const amne = document.getElementById('ex-amne').value;
+    const fraga = document.getElementById('ex-fraga').value.trim();
+
+    if (!fraga) {
+        alert('Skriv in en provfråga först.');
+        return;
+    }
+
+    const loading = document.getElementById('ex-loading');
+    const resultBox = document.getElementById('ex-result');
     loading.classList.add('visible');
     resultBox.classList.remove('visible');
 
     setTimeout(() => {
-        const evaluation = performEvaluation(fraga, svar, kriterier, amne);
+        const html = buildExampleAnswers(amne, fraga);
         loading.classList.remove('visible');
-        resultBox.innerHTML = evaluation;
+        resultBox.innerHTML = html;
         resultBox.classList.add('visible');
-    }, 1000);
+    }, 600);
 }
 
-function performEvaluation(fraga, svar, kriterier, amne) {
-    // Analyze the answer against grade indicators
-    const scores = { E: 0, C: 0, A: 0 };
-    const maxScores = { E: 0, C: 0, A: 0 };
-    const details = { E: [], C: [], A: [] };
+function buildExampleAnswers(amne, fraga) {
+    // Check if we have a pre-written example
+    const preWritten = EXAMPLE_ANSWERS[amne] && EXAMPLE_ANSWERS[amne][fraga];
+    let html = '';
 
-    for (const [grade, indicators] of Object.entries(GRADE_INDICATORS)) {
-        for (const [patternName, patternFn] of Object.entries(indicators.patterns)) {
-            maxScores[grade]++;
-            const pass = patternFn(svar);
-            scores[grade] += pass ? 1 : 0;
-            details[grade].push({ name: patternName, pass });
+    html += `<h3>Exempelsvar for: "${fraga.length > 80 ? fraga.substring(0, 77) + '...' : fraga}"</h3>`;
+
+    if (amne) {
+        html += `<p style="margin-bottom:1rem;"><span class="badge badge-info">${amne}</span></p>`;
+    }
+
+    const grades = [
+        { level: 'E', color: '#f59e0b', bgColor: '#fef3c7', borderColor: '#f59e0b', textColor: '#78350f', label: 'E-nivå -- Grundläggande' },
+        { level: 'C', color: '#3b82f6', bgColor: '#dbeafe', borderColor: '#3b82f6', textColor: '#1e3a5f', label: 'C-nivå -- Utvecklat' },
+        { level: 'A', color: '#10b981', bgColor: '#dcfce7', borderColor: '#10b981', textColor: '#14532d', label: 'A-nivå -- Avancerat' }
+    ];
+
+    for (const g of grades) {
+        html += `<div style="background:${g.bgColor}; border-left:4px solid ${g.borderColor}; border-radius:0 12px 12px 0; padding:1.25rem; margin:1rem 0;">`;
+        html += `<h3 style="color:${g.color}; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;">`;
+        html += `<span class="badge" style="background:${g.color}; color:white;">${g.level}</span> ${g.label}</h3>`;
+
+        if (preWritten) {
+            // Use pre-written example
+            const example = preWritten[g.level];
+            html += `<div style="background:white; border-radius:8px; padding:1rem; margin-bottom:0.75rem; color:${g.textColor}; line-height:1.7; white-space:pre-line; font-size:0.95rem;">${example.svar}</div>`;
+            html += `<div style="background:rgba(255,255,255,0.6); border-radius:8px; padding:0.75rem; font-size:0.9rem;">`;
+            html += `<strong>Bedömningskommentar:</strong> ${example.kommentar}`;
+            html += '</div>';
+        } else {
+            // Use generic template
+            const tmpl = GENERIC_TEMPLATES[g.level];
+            const topic = extractTopic(fraga);
+
+            html += `<div style="background:white; border-radius:8px; padding:1rem; margin-bottom:0.75rem; color:${g.textColor};">`;
+            html += `<p style="font-weight:600; margin-bottom:0.5rem;">Svarsstruktur: ${tmpl.structure}</p>`;
+            html += `<p style="font-style:italic; margin-bottom:0.75rem; line-height:1.6;">${tmpl.template(topic)}</p>`;
+
+            if (tmpl.connectors.length > 0) {
+                html += `<p style="font-size:0.85rem; margin-bottom:0.5rem;"><strong>Typiska kopplingsord:</strong> ${tmpl.connectors.join(', ')}</p>`;
+            }
+            html += '</div>';
+
+            html += `<div style="background:rgba(255,255,255,0.6); border-radius:8px; padding:0.75rem; font-size:0.9rem;">`;
+            html += `<strong>Kännetecken for ${g.level}-svar:</strong>`;
+            html += '<ul style="padding-left:1.2rem; margin-top:0.3rem;">';
+            for (const trait of tmpl.traits) {
+                html += `<li>${trait}</li>`;
+            }
+            html += '</ul></div>';
         }
-        // Check keyword presence
-        maxScores[grade]++;
-        const hasKeywords = indicators.keywords.test(svar);
-        scores[grade] += hasKeywords ? 1 : 0;
+
+        html += '</div>';
     }
 
-    const pctE = maxScores.E > 0 ? scores.E / maxScores.E : 0;
-    const pctC = maxScores.C > 0 ? scores.C / maxScores.C : 0;
-    const pctA = maxScores.A > 0 ? scores.A / maxScores.A : 0;
+    // Tips section
+    html += `<div style="background:#f0f9ff; border:2px solid #bfdbfe; border-radius:12px; padding:1.25rem; margin-top:1.5rem;">`;
+    html += '<h3 style="color:#1e40af; margin-bottom:0.5rem;">Tips for kollegial diskussion</h3>';
+    html += '<ul style="padding-left:1.5rem; color:#1e3a5f; font-size:0.9rem;">';
+    html += '<li>Diskutera med kollegor: var går gränsen mellan E och C i just denna fråga?</li>';
+    html += '<li>Vilka <strong>tyngdpunkter</strong> i ert ämne bör väga tyngst vid bedömning av den här typen av fråga?</li>';
+    html += '<li>Hur ser ni på sammantagen bedömning om eleven visar A-kvalitet i analys men E-kvalitet i begreppsanvändning?</li>';
+    html += '<li>Använd exempelsvaren som utgångspunkt for sambedömning och kalibrering.</li>';
+    html += '</ul></div>';
 
-    // Determine likely grade
-    let likelyGrade, gradeColor, gradeExplanation;
-
-    if (pctA >= 0.7) {
-        likelyGrade = 'A';
-        gradeColor = '#10b981';
-        gradeExplanation = 'Svaret visar tecken på välutvecklade, nyanserade resonemang med komplexa samband och slutsatser.';
-    } else if (pctA >= 0.5 && pctC >= 0.6) {
-        likelyGrade = 'B';
-        gradeColor = '#10b981';
-        gradeExplanation = 'Svaret visar goda resonemang med viss nyansering -- ligger mellan C och A vid sammantagen bedömning.';
-    } else if (pctC >= 0.6) {
-        likelyGrade = 'C';
-        gradeColor = '#3b82f6';
-        gradeExplanation = 'Svaret visar utvecklade resonemang med kopplingar och viss användning av ämnesbegrepp.';
-    } else if (pctC >= 0.4 && pctE >= 0.6) {
-        likelyGrade = 'D';
-        gradeColor = '#3b82f6';
-        gradeExplanation = 'Svaret visar grundläggande kunskaper med ansatser till utvecklade resonemang -- ligger mellan E och C.';
-    } else if (pctE >= 0.5) {
-        likelyGrade = 'E';
-        gradeColor = '#f59e0b';
-        gradeExplanation = 'Svaret visar grundläggande kunskaper med enkla resonemang.';
-    } else {
-        likelyGrade = 'F';
-        gradeColor = '#ef4444';
-        gradeExplanation = 'Svaret saknar tillräckliga kunskaper inom alla delar av E-kriterierna.';
+    if (!preWritten) {
+        html += `<p style="background:#fff3cd; padding:0.75rem 1rem; border-radius:8px; border-left:4px solid #f59e0b; margin-top:1rem; font-size:0.85rem;">
+            <strong>Obs:</strong> For denna fråga visas generella svarsmallar. Välj en av de föreslagna exempelfrågorna for att se kompletta, ämnesspecifika exempelsvar.
+        </p>`;
     }
-
-    // Build HTML
-    let html = `<div class="score-display">
-        <div class="score-circle" style="background:${gradeColor}">${likelyGrade}</div>
-        <div class="score-label">Indikerad betygsnivå</div>
-    </div>`;
-
-    html += `<p style="text-align:center; margin-bottom:1rem;">${gradeExplanation}</p>`;
-
-    html += `<p style="background:#fff3cd; padding:0.75rem 1rem; border-radius:8px; border-left:4px solid #f59e0b; margin:1rem 0; font-size:0.9rem;">
-        <strong>Observera:</strong> Detta är en automatiserad indikation baserad på textanalys.
-        Den ersätter INTE lärarens professionella, sammantagna bedömning enligt GY25.
-        Använd resultatet som ett diskussionsunderlag.
-    </p>`;
-
-    // Detailed analysis
-    html += '<h3>Detaljerad analys</h3>';
-
-    // Strengths
-    html += '<h3 style="color:#10b981;">Styrkor i svaret</h3><ul>';
-    const wordCount = svar.split(/\s+/).length;
-    const sentenceCount = svar.split(/[.!?]+/).filter(s => s.trim()).length;
-
-    if (wordCount > 100) html += `<li>Omfattande svar (${wordCount} ord)</li>`;
-    if (/eftersom|därför|på grund av|detta leder till/i.test(svar)) html += '<li>Visar orsakssamband och kopplingar</li>';
-    if (/till exempel|exempelvis|t\.?ex/i.test(svar)) html += '<li>Ger konkreta exempel</li>';
-    if (/å andra sidan|dock|emellertid|samtidigt/i.test(svar)) html += '<li>Visar nyansering och olika perspektiv</li>';
-    if (/sammanfattningsvis|slutsats|sammantaget/i.test(svar)) html += '<li>Avslutar med slutsats eller sammanfattning</li>';
-    if (sentenceCount > 5) html += `<li>Välstrukturerat med ${sentenceCount} meningar</li>`;
-    if (pctE >= 0.5) html += '<li>Grundläggande kunskaper finns</li>';
-    html += '</ul>';
-
-    // Areas for improvement
-    html += '<h3 style="color:#f59e0b;">Utvecklingsområden</h3><ul>';
-    if (wordCount < 50) html += '<li>Svaret är kort -- uppmuntra eleven att utveckla sina resonemang</li>';
-    if (!/eftersom|därför|på grund av/i.test(svar)) html += '<li>Saknar tydliga kopplingar och orsaksresonemang</li>';
-    if (!/till exempel|exempelvis/i.test(svar)) html += '<li>Inga konkreta exempel -- uppmuntra exemplifiering</li>';
-    if (!/å andra sidan|dock|emellertid/i.test(svar)) html += '<li>Saknar nyansering -- visa olika perspektiv</li>';
-    if (sentenceCount < 3) html += '<li>Kort och outvecklat -- behöver fler resonemang</li>';
-    html += '</ul>';
-
-    // GY25 connection
-    html += `<h3>Koppling till GY25:s bedömningsprinciper</h3>
-    <ul>
-        <li><strong>Sammantagen bedömning:</strong> ${likelyGrade === 'F' ? 'Svaret når inte E-gränsen där alla delar måste vara uppfyllda.' : 'Vid sammantagen bedömning vägs styrkor och svagheter samman för att hitta det mest representativa betyget.'}</li>
-        <li><strong>Tyngdpunkter:</strong> Beakta vilka delar av svaret som rör ämnets tyngdpunkter -- dessa bör väga tyngre.</li>
-        ${amne ? `<li><strong>Ämne:</strong> ${amne} -- se ämnets specifika betygskriterier för detaljerad bedömning.</li>` : ''}
-        ${kriterier ? '<li><strong>Egna kriterier angivna:</strong> Jämför ovanstående analys med dina angivna bedömningsanvisningar.</li>' : ''}
-    </ul>`;
 
     return html;
 }
 
-function clearAnswerForm() {
-    document.getElementById('ps-amne').value = '';
-    document.getElementById('ps-fraga').value = '';
-    document.getElementById('ps-kriterier').value = '';
-    document.getElementById('ps-svar').value = '';
-    document.getElementById('ps-result').classList.remove('visible');
+function extractTopic(fraga) {
+    // Try to extract the main topic from the question
+    const cleaned = fraga.replace(/^(diskutera|analysera|redogör för|beskriv|förklara|jämför)\s+/i, '')
+        .replace(/[?.!]+$/, '').trim();
+    return cleaned.length > 60 ? cleaned.substring(0, 57) + '...' : cleaned;
+}
+
+function clearExampleForm() {
+    document.getElementById('ex-amne').value = '';
+    document.getElementById('ex-fraga').value = '';
+    document.getElementById('ex-result').classList.remove('visible');
+    document.getElementById('ex-quick-questions').innerHTML = '<span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Välj ett ämne ovan för att se exempelfrågor, eller skriv din egen:</span>';
 }
 
 // ============================================================
