@@ -1831,7 +1831,7 @@ async function initAPIData() {
         statusText.textContent = 'Hamtar GY25-program...';
         const [programsRes, subjectsRes] = await Promise.all([
             fetch(API_BASE + '/programs?studyPathType=PROGRAM25'),
-            fetch(API_BASE + '/subjects?typeOfSyllabus=GRADE_SUBJECT_SYLLABUS&schoolType=GY')
+            fetch(API_BASE + '/subjects?typeOfSyllabus=SUBJECT_SYLLABUS&schoolType=GY')
         ]);
 
         if (!programsRes.ok || !subjectsRes.ok) {
@@ -1841,8 +1841,12 @@ async function initAPIData() {
         const programsData = await programsRes.json();
         const subjectsData = await subjectsRes.json();
 
-        apiPrograms = (programsData.programs || []).sort((a, b) => a.name.localeCompare(b.name, 'sv'));
-        apiSubjects = (subjectsData.subjects || []).sort((a, b) => a.name.localeCompare(b.name, 'sv'));
+        apiPrograms = (programsData.programs || [])
+            .filter(p => p.studyPathType === 'PROGRAM25' || p.studyPathType === 'FOURTH_TECHNICAL_YEAR25')
+            .sort((a, b) => a.name.localeCompare(b.name, 'sv'));
+        apiSubjects = (subjectsData.subjects || [])
+            .filter(s => s.typeOfSyllabus === 'SUBJECT_SYLLABUS')
+            .sort((a, b) => a.name.localeCompare(b.name, 'sv'));
 
         // Update stats
         document.getElementById('api-stat-programs').textContent = apiPrograms.length;
@@ -2100,13 +2104,13 @@ function renderSubjectsList() {
         filtered = filtered.filter(s => {
             const cats = (s.categories || []).map(c => c.code || c.name || '');
             if (currentSubjectCategory === 'FOUNDATION_SUBJECT') {
-                return cats.some(c => c.includes('FOUNDATION') || c.includes('GYMNASIEGEMENSAM'));
+                return cats.some(c => c.includes('FOUNDATION') || c.includes('GYMNASIEGEMENSAM') || c.includes('COMMON'));
             }
             if (currentSubjectCategory === 'VOCATIONAL') {
                 return cats.some(c => c.includes('VOCATIONAL') || c.includes('KARAKTAR'));
             }
             if (currentSubjectCategory === 'PROGRAM_SPECIALIZATION') {
-                return cats.some(c => c.includes('SPECIALIZATION') || c.includes('FORDJUPNING'));
+                return cats.some(c => c.includes('SPECIALIZATION') || c.includes('FORDJUPNING') || c.includes('OTHER'));
             }
             return true;
         });
@@ -2190,15 +2194,15 @@ async function showSubjectDetail(code) {
             </div>`;
         }
 
-        // Grading criteria
-        if (subject.gradingCriteria || subject.gradeSteps) {
-            const criteria = subject.gradingCriteria || subject.gradeSteps || [];
+        // Knowledge requirements / Grading criteria
+        const criteria = subject.knowledgeRequirements || subject.gradingCriteria || subject.gradeSteps || [];
+        if (criteria && (Array.isArray(criteria) ? criteria.length > 0 : Object.keys(criteria).length > 0)) {
             html += `<div style="background:#fef3c7; border:2px solid #fcd34d; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
                 <h3 style="color:#92400e; margin-bottom:0.75rem;">Betygskriterier</h3>`;
 
             if (Array.isArray(criteria)) {
                 for (const c of criteria) {
-                    const grade = c.grade || c.name || '';
+                    const grade = c.gradeStep || c.grade || c.name || '';
                     const text = c.text || c.criteria || c.description || '';
                     if (text) {
                         const gradeColor = grade.includes('A') ? '#10b981' : grade.includes('C') ? '#3b82f6' : '#f59e0b';
