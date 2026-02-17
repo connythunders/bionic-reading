@@ -559,6 +559,10 @@
             <span class="tab-icon">&#9733;</span>
             Exempelsvar
         </button>
+        <button class="tab-btn" data-tab="apidata">
+            <span class="tab-icon">&#9741;</span>
+            Utforska GY25
+        </button>
     </div>
 </div>
 
@@ -873,10 +877,100 @@
         </div>
     </div>
 
+    <!-- ==================== TAB 5: SKOLVERKETS API-DATA ==================== -->
+    <div class="tab-panel" id="tab-apidata">
+
+        <!-- Laddningsindikator -->
+        <div class="card" id="api-status-card">
+            <div style="display:flex; align-items:center; gap:1rem;">
+                <div class="spinner" id="api-spinner" style="display:block; margin:0;"></div>
+                <div>
+                    <h2 style="margin-bottom:0.25rem;">Ansluter till Skolverkets API...</h2>
+                    <p class="card-description" id="api-status-text">Hamtar program och amnen fran api.skolverket.se</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Programlista -->
+        <div class="card" id="api-programs-card" style="display:none;">
+            <h2>GY25-program</h2>
+            <p class="card-description">Alla gymnasieprogram enligt GY25. Klicka pa ett program for att se inriktningar och detaljer. Data hamtas live fran Skolverkets API.</p>
+            <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap;">
+                <button class="quick-q" onclick="filterPrograms('all')" id="prog-filter-all" style="border-color:var(--primary); color:var(--primary);">Alla</button>
+                <button class="quick-q" onclick="filterPrograms('VOCATIONAL_PROGRAM')" id="prog-filter-voc">Yrkesprogram</button>
+                <button class="quick-q" onclick="filterPrograms('PRELIMINARY_PROGRAM_FOR_HIGHER_EDUCATION')" id="prog-filter-hf">Hogskoleforb.</button>
+            </div>
+            <div id="api-programs-grid" class="subject-grid"></div>
+        </div>
+
+        <!-- Programdetalj -->
+        <div class="card" id="api-program-detail" style="display:none;">
+            <button class="btn btn-secondary" onclick="closeProgramDetail()" style="margin-bottom:1rem;">Tillbaka till programlistan</button>
+            <div id="api-program-detail-content"></div>
+        </div>
+
+        <!-- Amnesutforskare -->
+        <div class="card" id="api-subjects-card" style="display:none;">
+            <h2>Utforska GY25-amnen</h2>
+            <p class="card-description">Sok bland alla <span id="api-subject-count">0</span> amnen i GY25. Klicka pa ett amne for att se syfte, nivaer, centralt innehall och betygskriterier.</p>
+            <div class="form-group">
+                <label for="api-subject-search">Sok amne</label>
+                <input type="text" id="api-subject-search" placeholder="T.ex. Historia, Matematik, Engelska..." oninput="filterSubjects()">
+            </div>
+            <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap;">
+                <button class="quick-q" onclick="filterSubjectCategory('all')" id="subj-filter-all" style="border-color:var(--primary); color:var(--primary);">Alla</button>
+                <button class="quick-q" onclick="filterSubjectCategory('FOUNDATION_SUBJECT')" id="subj-filter-gym">Gymnasiegemensamma</button>
+                <button class="quick-q" onclick="filterSubjectCategory('VOCATIONAL')" id="subj-filter-voc">Karaktar</button>
+                <button class="quick-q" onclick="filterSubjectCategory('PROGRAM_SPECIALIZATION')" id="subj-filter-prog">Programfordjupning</button>
+            </div>
+            <div id="api-subjects-list" style="max-height:500px; overflow-y:auto;"></div>
+        </div>
+
+        <!-- Amnesdetalj -->
+        <div class="card" id="api-subject-detail" style="display:none;">
+            <button class="btn btn-secondary" onclick="closeSubjectDetail()" style="margin-bottom:1rem;">Tillbaka till amneslistan</button>
+            <div class="loading" id="subject-detail-loading">
+                <div class="spinner"></div>
+                <p>Hamtar amnesdetaljer fran Skolverket...</p>
+            </div>
+            <div id="api-subject-detail-content"></div>
+        </div>
+
+        <!-- Nivadetail -->
+        <div class="card" id="api-level-detail" style="display:none;">
+            <button class="btn btn-secondary" onclick="closeLevelDetail()" style="margin-bottom:1rem;">Tillbaka till amnet</button>
+            <div class="loading" id="level-detail-loading">
+                <div class="spinner"></div>
+                <p>Hamtar nivainfo fran Skolverket...</p>
+            </div>
+            <div id="api-level-detail-content"></div>
+        </div>
+
+        <!-- API-info -->
+        <div class="card" id="api-info-card" style="display:none;">
+            <h2>Om datan</h2>
+            <p class="card-description">All data hamtas live fran <a href="https://api.skolverket.se/syllabus/swagger-ui/index.html" target="_blank" style="color:var(--primary);">Skolverkets Syllabus API</a> (v1). Ingen data lagras lokalt. Datan uppdateras nar Skolverket publicerar nya versioner.</p>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1rem;">
+                <div style="background:#dbeafe; border-radius:10px; padding:1rem; text-align:center;">
+                    <div style="font-size:2rem; font-weight:800; color:#1e40af;" id="api-stat-programs">--</div>
+                    <div style="font-size:0.85rem; color:#1e3a5f;">GY25-program</div>
+                </div>
+                <div style="background:#dcfce7; border-radius:10px; padding:1rem; text-align:center;">
+                    <div style="font-size:2rem; font-weight:800; color:#166534;" id="api-stat-subjects">--</div>
+                    <div style="font-size:0.85rem; color:#14532d;">GY25-amnen</div>
+                </div>
+                <div style="background:#fef3c7; border-radius:10px; padding:1rem; text-align:center;">
+                    <div style="font-size:2rem; font-weight:800; color:#92400e;" id="api-stat-version">--</div>
+                    <div style="font-size:0.85rem; color:#78350f;">API-version</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <footer style="text-align:center; padding:2rem; color:var(--text-light); font-size:0.9rem; border-top:1px solid var(--border);">
-    <p>GY25 Läroplansverktyg | Baserat på Skolverkets publicerade material om gymnasiereformen 2025</p>
+    <p>GY25 Laroplansverktyg | Baserat pa Skolverkets publicerade material om gymnasiereformen 2025</p>
     <p style="margin-top:0.3rem;">Observera: Verktyget är ett stöd -- det ersätter inte lärarens professionella bedömning.</p>
     <p style="margin-top:0.3rem;"><a href="https://www.skolverket.se/styrning-och-ansvar/forandringar-inom-skolomradet/gy25----amnesbetyg-pa-gymnasial-niva" target="_blank" style="color:var(--primary);">Skolverkets officiella GY25-sida</a></p>
 </footer>
@@ -1712,6 +1806,431 @@ function clearExampleForm() {
     document.getElementById('ex-result').classList.remove('visible');
     document.getElementById('ex-quick-questions').innerHTML = '<span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Välj ett ämne ovan för att se exempelfrågor, eller skriv din egen:</span>';
 }
+
+// ============================================================
+// TAB 5: SKOLVERKETS API INTEGRATION
+// ============================================================
+const API_BASE = 'https://api.skolverket.se/syllabus/v1';
+let apiPrograms = [];
+let apiSubjects = [];
+let currentProgramFilter = 'all';
+let currentSubjectCategory = 'all';
+let currentSubjectCode = null;
+
+async function initAPIData() {
+    const statusText = document.getElementById('api-status-text');
+    try {
+        statusText.textContent = 'Hamtar GY25-program...';
+        const [programsRes, subjectsRes] = await Promise.all([
+            fetch(API_BASE + '/programs?studyPathType=PROGRAM25'),
+            fetch(API_BASE + '/subjects?typeOfSyllabus=GRADE_SUBJECT_SYLLABUS&schoolType=GY')
+        ]);
+
+        if (!programsRes.ok || !subjectsRes.ok) {
+            throw new Error('API svarade med felkod');
+        }
+
+        const programsData = await programsRes.json();
+        const subjectsData = await subjectsRes.json();
+
+        apiPrograms = (programsData.programs || []).sort((a, b) => a.name.localeCompare(b.name, 'sv'));
+        apiSubjects = (subjectsData.subjects || []).sort((a, b) => a.name.localeCompare(b.name, 'sv'));
+
+        // Update stats
+        document.getElementById('api-stat-programs').textContent = apiPrograms.length;
+        document.getElementById('api-stat-subjects').textContent = apiSubjects.length;
+        document.getElementById('api-stat-version').textContent = subjectsData.apiVersion || '1.16';
+        document.getElementById('api-subject-count').textContent = apiSubjects.length;
+
+        // Render
+        renderPrograms();
+        renderSubjectsList();
+
+        // Show cards, hide loading
+        document.getElementById('api-status-card').style.display = 'none';
+        document.getElementById('api-programs-card').style.display = 'block';
+        document.getElementById('api-subjects-card').style.display = 'block';
+        document.getElementById('api-info-card').style.display = 'block';
+
+    } catch (err) {
+        statusText.textContent = 'Kunde inte ansluta till Skolverkets API: ' + err.message;
+        document.getElementById('api-spinner').style.display = 'none';
+        const card = document.getElementById('api-status-card');
+        card.innerHTML += '<p style="margin-top:1rem;"><a href="https://api.skolverket.se/syllabus/swagger-ui/index.html" target="_blank" class="btn btn-primary">Testa API:t direkt</a></p>';
+    }
+}
+
+// --- Programs ---
+function renderPrograms() {
+    const grid = document.getElementById('api-programs-grid');
+    const filtered = currentProgramFilter === 'all'
+        ? apiPrograms
+        : apiPrograms.filter(p => p.category === currentProgramFilter);
+
+    grid.innerHTML = filtered.map(p => {
+        const isVoc = p.category === 'VOCATIONAL_PROGRAM';
+        const badge = isVoc ? 'Yrkesprogram' : 'Hogskoleforb.';
+        const color = isVoc ? '#f59e0b' : '#3b82f6';
+        return `<div class="subject-card" onclick="showProgramDetail('${p.code}')" style="text-align:left; padding:1rem;">
+            <div style="font-weight:700; margin-bottom:0.3rem;">${p.name}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.8rem; color:var(--text-light);">${p.code}</span>
+                <span style="font-size:0.75rem; padding:0.15rem 0.5rem; border-radius:10px; background:${color}20; color:${color};">${badge}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function filterPrograms(category) {
+    currentProgramFilter = category;
+    document.querySelectorAll('#api-programs-card .quick-q').forEach(b => {
+        b.style.borderColor = '';
+        b.style.color = '';
+    });
+    const btnId = category === 'all' ? 'prog-filter-all' :
+        category === 'VOCATIONAL_PROGRAM' ? 'prog-filter-voc' : 'prog-filter-hf';
+    document.getElementById(btnId).style.borderColor = 'var(--primary)';
+    document.getElementById(btnId).style.color = 'var(--primary)';
+    renderPrograms();
+}
+
+async function showProgramDetail(code) {
+    const program = apiPrograms.find(p => p.code === code);
+    if (!program) return;
+
+    document.getElementById('api-programs-card').style.display = 'none';
+    document.getElementById('api-subjects-card').style.display = 'none';
+    document.getElementById('api-info-card').style.display = 'none';
+    document.getElementById('api-program-detail').style.display = 'block';
+
+    const isVoc = program.category === 'VOCATIONAL_PROGRAM';
+    const badge = isVoc ? 'Yrkesprogram' : 'Hogskoleforb.';
+    const color = isVoc ? '#f59e0b' : '#3b82f6';
+
+    let html = `<h2>${program.name}</h2>`;
+    if (program.englishName) html += `<p style="color:var(--text-light); margin-bottom:0.5rem;">${program.englishName}</p>`;
+    html += `<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+        <span class="badge badge-info">${program.code}</span>
+        <span style="font-size:0.85rem; padding:0.3rem 0.75rem; border-radius:20px; background:${color}20; color:${color}; font-weight:600;">${badge}</span>
+        <span class="badge badge-success">Giltig fran ${program.startDate || '2025-07-01'}</span>
+    </div>`;
+
+    // Orientations
+    if (program.orientations && program.orientations.length > 0) {
+        html += '<h3>Inriktningar</h3><div class="subject-grid" style="margin-top:0.5rem;">';
+        for (const o of program.orientations) {
+            html += `<div style="padding:0.75rem 1rem; border:2px solid var(--border); border-radius:10px;">
+                <div style="font-weight:600;">${o.name}</div>
+                <div style="font-size:0.8rem; color:var(--text-light);">${o.code}${o.points ? ' | ' + o.points + ' p' : ''}</div>
+            </div>`;
+        }
+        html += '</div>';
+    }
+
+    // Profiles
+    if (program.profiles && program.profiles.length > 0) {
+        html += '<h3>Profiler</h3><div class="subject-grid" style="margin-top:0.5rem;">';
+        for (const pr of program.profiles) {
+            html += `<div style="padding:0.75rem 1rem; border:2px solid var(--border); border-radius:10px;">
+                <div style="font-weight:600;">${pr.name}</div>
+                <div style="font-size:0.8rem; color:var(--text-light);">${pr.code}</div>
+            </div>`;
+        }
+        html += '</div>';
+    }
+
+    // Try to fetch detailed program info
+    try {
+        const res = await fetch(API_BASE + '/programs/' + code);
+        if (res.ok) {
+            const detail = await res.json();
+            const prog = detail.program || detail;
+
+            if (prog.description) {
+                html += `<h3>Beskrivning</h3><div style="color:var(--text-mid); line-height:1.7;">${prog.description}</div>`;
+            }
+
+            // Exam goals
+            if (prog.examinationGoals || prog.degreeObjective) {
+                html += `<h3>Examensmal</h3><div style="color:var(--text-mid); line-height:1.7;">${prog.examinationGoals || prog.degreeObjective}</div>`;
+            }
+
+            // Subjects in program
+            if (prog.subjects && prog.subjects.length > 0) {
+                html += '<h3>Amnen i programmet</h3><div class="subject-grid" style="margin-top:0.5rem;">';
+                for (const s of prog.subjects) {
+                    html += `<div class="subject-card" onclick="closeProgramDetail(); showSubjectDetail('${s.code || ''}')" style="cursor:pointer;">
+                        <div style="font-weight:600; font-size:0.9rem;">${s.name || s.code}</div>
+                        <div style="font-size:0.8rem; color:var(--text-light);">${s.code || ''}</div>
+                    </div>`;
+                }
+                html += '</div>';
+            }
+        }
+    } catch (e) {
+        // Detail fetch failed silently - basic info is enough
+    }
+
+    document.getElementById('api-program-detail-content').innerHTML = html;
+}
+
+function closeProgramDetail() {
+    document.getElementById('api-program-detail').style.display = 'none';
+    document.getElementById('api-programs-card').style.display = 'block';
+    document.getElementById('api-subjects-card').style.display = 'block';
+    document.getElementById('api-info-card').style.display = 'block';
+}
+
+// --- Subjects ---
+function renderSubjectsList() {
+    const list = document.getElementById('api-subjects-list');
+    const search = (document.getElementById('api-subject-search').value || '').toLowerCase().trim();
+
+    let filtered = apiSubjects;
+    if (search) {
+        filtered = filtered.filter(s =>
+            s.name.toLowerCase().includes(search) ||
+            s.code.toLowerCase().includes(search)
+        );
+    }
+    if (currentSubjectCategory !== 'all') {
+        filtered = filtered.filter(s => {
+            const cats = (s.categories || []).map(c => c.code || c.name || '');
+            if (currentSubjectCategory === 'FOUNDATION_SUBJECT') {
+                return cats.some(c => c.includes('FOUNDATION') || c.includes('GYMNASIEGEMENSAM'));
+            }
+            if (currentSubjectCategory === 'VOCATIONAL') {
+                return cats.some(c => c.includes('VOCATIONAL') || c.includes('KARAKTAR'));
+            }
+            if (currentSubjectCategory === 'PROGRAM_SPECIALIZATION') {
+                return cats.some(c => c.includes('SPECIALIZATION') || c.includes('FORDJUPNING'));
+            }
+            return true;
+        });
+    }
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-light); padding:1rem;">Inga amnen matchade sokningen.</p>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(s => {
+        const catNames = (s.categories || []).map(c => c.name || c.code || '').join(', ');
+        return `<div onclick="showSubjectDetail('${s.code}')" style="padding:0.75rem 1rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background=''">
+            <div>
+                <span style="font-weight:600;">${s.name}</span>
+                <span style="font-size:0.8rem; color:var(--text-light); margin-left:0.5rem;">${s.code}</span>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-light);">${catNames || ''}</div>
+        </div>`;
+    }).join('');
+}
+
+function filterSubjects() {
+    renderSubjectsList();
+}
+
+function filterSubjectCategory(category) {
+    currentSubjectCategory = category;
+    document.querySelectorAll('#api-subjects-card .quick-q').forEach(b => {
+        b.style.borderColor = '';
+        b.style.color = '';
+    });
+    const btnId = category === 'all' ? 'subj-filter-all' :
+        category === 'FOUNDATION_SUBJECT' ? 'subj-filter-gym' :
+        category === 'VOCATIONAL' ? 'subj-filter-voc' : 'subj-filter-prog';
+    document.getElementById(btnId).style.borderColor = 'var(--primary)';
+    document.getElementById(btnId).style.color = 'var(--primary)';
+    renderSubjectsList();
+}
+
+async function showSubjectDetail(code) {
+    if (!code) return;
+    currentSubjectCode = code;
+
+    document.getElementById('api-programs-card').style.display = 'none';
+    document.getElementById('api-subjects-card').style.display = 'none';
+    document.getElementById('api-info-card').style.display = 'none';
+    document.getElementById('api-program-detail').style.display = 'none';
+    document.getElementById('api-level-detail').style.display = 'none';
+
+    const detailCard = document.getElementById('api-subject-detail');
+    const loading = document.getElementById('subject-detail-loading');
+    const content = document.getElementById('api-subject-detail-content');
+
+    detailCard.style.display = 'block';
+    loading.classList.add('visible');
+    content.innerHTML = '';
+
+    try {
+        const res = await fetch(API_BASE + '/subjects/' + code);
+        if (!res.ok) throw new Error('Kunde inte hamta amnet');
+        const data = await res.json();
+        const subject = data.subject || data;
+
+        let html = `<h2>${subject.name || code}</h2>`;
+        if (subject.englishName) html += `<p style="color:var(--text-light); margin-bottom:0.5rem;">${subject.englishName}</p>`;
+
+        html += `<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+            <span class="badge badge-info">${subject.code || code}</span>
+            <span class="badge badge-success">GY25</span>
+            <span class="badge badge-info">Version ${subject.version || 1}</span>
+        </div>`;
+
+        // Purpose
+        if (subject.purpose) {
+            const purposeText = typeof subject.purpose === 'string' ? subject.purpose : (subject.purpose.text || JSON.stringify(subject.purpose));
+            html += `<div style="background:#f0f9ff; border:2px solid #bfdbfe; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+                <h3 style="color:#1e40af; margin-bottom:0.5rem;">Amnets syfte</h3>
+                <div style="color:#1e3a5f; line-height:1.7; font-size:0.95rem;">${purposeText}</div>
+            </div>`;
+        }
+
+        // Grading criteria
+        if (subject.gradingCriteria || subject.gradeSteps) {
+            const criteria = subject.gradingCriteria || subject.gradeSteps || [];
+            html += `<div style="background:#fef3c7; border:2px solid #fcd34d; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+                <h3 style="color:#92400e; margin-bottom:0.75rem;">Betygskriterier</h3>`;
+
+            if (Array.isArray(criteria)) {
+                for (const c of criteria) {
+                    const grade = c.grade || c.name || '';
+                    const text = c.text || c.criteria || c.description || '';
+                    if (text) {
+                        const gradeColor = grade.includes('A') ? '#10b981' : grade.includes('C') ? '#3b82f6' : '#f59e0b';
+                        html += `<div style="margin-bottom:0.75rem;">
+                            <span class="badge" style="background:${gradeColor}; color:white; margin-bottom:0.3rem;">${grade}</span>
+                            <div style="color:#78350f; font-size:0.9rem; line-height:1.6; margin-top:0.3rem;">${text}</div>
+                        </div>`;
+                    }
+                }
+            } else if (typeof criteria === 'object') {
+                for (const [grade, text] of Object.entries(criteria)) {
+                    const gradeColor = grade.includes('A') ? '#10b981' : grade.includes('C') ? '#3b82f6' : '#f59e0b';
+                    html += `<div style="margin-bottom:0.75rem;">
+                        <span class="badge" style="background:${gradeColor}; color:white; margin-bottom:0.3rem;">${grade}</span>
+                        <div style="color:#78350f; font-size:0.9rem; line-height:1.6; margin-top:0.3rem;">${text}</div>
+                    </div>`;
+                }
+            }
+            html += '</div>';
+        }
+
+        // Courses/Levels
+        if (subject.courses && subject.courses.length > 0) {
+            html += '<h3>Nivaer</h3><p style="color:var(--text-light); font-size:0.9rem; margin-bottom:0.75rem;">Klicka pa en niva for att se centralt innehall.</p>';
+            html += '<div class="subject-grid" style="margin-top:0.5rem;">';
+            const sortedCourses = [...subject.courses].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'sv'));
+            for (const c of sortedCourses) {
+                html += `<div class="subject-card" onclick="showLevelDetail('${c.code}')" style="text-align:left; padding:1rem; cursor:pointer;">
+                    <div style="font-weight:700;">${c.name || c.code}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.3rem;">
+                        <span style="font-size:0.8rem; color:var(--text-light);">${c.code}</span>
+                        ${c.points ? '<span style="font-size:0.8rem; padding:0.1rem 0.5rem; border-radius:8px; background:#dbeafe; color:#1e40af;">' + c.points + ' p</span>' : ''}
+                    </div>
+                </div>`;
+            }
+            html += '</div>';
+        }
+
+        loading.classList.remove('visible');
+        content.innerHTML = html;
+
+    } catch (err) {
+        loading.classList.remove('visible');
+        content.innerHTML = `<p style="color:var(--danger);">Kunde inte hamta amnesdetaljer: ${err.message}</p>
+            <p style="margin-top:0.5rem;"><a href="https://api.skolverket.se/syllabus/v1/subjects/${code}" target="_blank" class="btn btn-secondary">Oppna i API:t direkt</a></p>`;
+    }
+}
+
+function closeSubjectDetail() {
+    document.getElementById('api-subject-detail').style.display = 'none';
+    document.getElementById('api-level-detail').style.display = 'none';
+    document.getElementById('api-programs-card').style.display = 'block';
+    document.getElementById('api-subjects-card').style.display = 'block';
+    document.getElementById('api-info-card').style.display = 'block';
+}
+
+async function showLevelDetail(code) {
+    document.getElementById('api-subject-detail').style.display = 'none';
+
+    const levelCard = document.getElementById('api-level-detail');
+    const loading = document.getElementById('level-detail-loading');
+    const content = document.getElementById('api-level-detail-content');
+
+    levelCard.style.display = 'block';
+    loading.classList.add('visible');
+    content.innerHTML = '';
+
+    try {
+        const res = await fetch(API_BASE + '/courses/' + code);
+        if (!res.ok) throw new Error('Kunde inte hamta nivan');
+        const data = await res.json();
+        const course = data.course || data;
+
+        let html = `<h2>${course.name || code}</h2>`;
+        html += `<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+            <span class="badge badge-info">${course.code || code}</span>
+            ${course.points ? '<span class="badge badge-success">' + course.points + ' poang</span>' : ''}
+            <span class="badge badge-info">GY25-niva</span>
+        </div>`;
+
+        // Central content
+        if (course.centralContent) {
+            const ccText = typeof course.centralContent === 'string' ? course.centralContent : (course.centralContent.text || JSON.stringify(course.centralContent));
+            html += `<div style="background:#dcfce7; border:2px solid #86efac; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+                <h3 style="color:#166534; margin-bottom:0.5rem;">Centralt innehall</h3>
+                <div style="color:#14532d; line-height:1.7; font-size:0.95rem;">${ccText}</div>
+            </div>`;
+        }
+
+        // Prerequisites
+        if (course.prerequisite || course.prerequisites) {
+            const prereq = course.prerequisite || course.prerequisites;
+            const prereqText = typeof prereq === 'string' ? prereq : (prereq.text || JSON.stringify(prereq));
+            html += `<div style="background:#fef3c7; border:2px solid #fcd34d; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+                <h3 style="color:#92400e; margin-bottom:0.5rem;">Forkunskaper</h3>
+                <div style="color:#78350f; line-height:1.7; font-size:0.95rem;">${prereqText}</div>
+            </div>`;
+        }
+
+        // Back to subject link
+        if (currentSubjectCode) {
+            html += `<button class="btn btn-primary" onclick="closeLevelDetail(); showSubjectDetail('${currentSubjectCode}')">Se alla nivaer i amnet</button>`;
+        }
+
+        loading.classList.remove('visible');
+        content.innerHTML = html;
+
+    } catch (err) {
+        loading.classList.remove('visible');
+        content.innerHTML = `<p style="color:var(--danger);">Kunde inte hamta nivadetaljer: ${err.message}</p>
+            <p style="margin-top:0.5rem;"><a href="https://api.skolverket.se/syllabus/v1/courses/${code}" target="_blank" class="btn btn-secondary">Oppna i API:t direkt</a></p>`;
+    }
+}
+
+function closeLevelDetail() {
+    document.getElementById('api-level-detail').style.display = 'none';
+    if (currentSubjectCode) {
+        document.getElementById('api-subject-detail').style.display = 'block';
+    } else {
+        closeSubjectDetail();
+    }
+}
+
+// Lazy-load API data when the tab is first opened
+let apiDataLoaded = false;
+const origTabHandler = function() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (this.dataset.tab === 'apidata' && !apiDataLoaded) {
+                apiDataLoaded = true;
+                initAPIData();
+            }
+        });
+    });
+};
+origTabHandler();
 
 // ============================================================
 // INIT
