@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lgr22 Läroplansverktyg - Fråga, Granska & Bedöm</title>
+    <meta name="description" content="Interaktivt verktyg för Lgr22 läroplanen. Ställ frågor, granska provfrågor och se exempelsvar per betygsnivå för grundskolan.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #0891b2;
+            --primary-dark: #0e7490;
+            --secondary: #ec4899;
+            --accent: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-dark: #1e293b;
+            --text-mid: #475569;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-dark);
+            background: var(--bg-light);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255,255,255,0.95);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+        .nav-links a {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-mid);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #0e7490 0%, #0891b2 30%, #6366f1 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-badge {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(4px);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            max-width: 1200px;
+            margin: -1.5rem auto 0;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 160px;
+            padding: 1rem 1.25rem;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .tab-btn .tab-icon { font-size: 1.5rem; }
+
+        .tab-btn:hover { background: var(--bg-light); }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: 0 4px 12px rgba(8,145,178,0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem 4rem;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Cards */
+        .card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin: 1rem 0 0.5rem;
+            color: var(--primary-dark);
+        }
+
+        .card-description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 1.25rem; }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            background: var(--bg-white);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(8,145,178,0.1);
+        }
+
+        .form-group textarea { resize: vertical; min-height: 120px; }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: 0 4px 12px rgba(8,145,178,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(8,145,178,0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-mid);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* Result Box */
+        .result-box {
+            background: linear-gradient(135deg, #ecfeff 0%, #f0f9ff 100%);
+            border: 2px solid #a5f3fc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .result-box.visible { display: block; animation: fadeIn 0.4s ease; }
+
+        .result-box h3 {
+            color: var(--primary-dark);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .result-box p, .result-box li {
+            color: var(--text-mid);
+            line-height: 1.7;
+        }
+
+        .result-box ul { padding-left: 1.5rem; margin: 0.5rem 0; }
+        .result-box li { margin-bottom: 0.4rem; }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #cffafe; color: #155e75; }
+
+        /* Comparison table */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .compare-table th {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .compare-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            vertical-align: top;
+        }
+
+        .compare-table tr:hover td { background: #f1f5f9; }
+
+        .compare-table .label-col { font-weight: 600; width: 25%; background: #f8fafc; }
+
+        /* Quick questions */
+        .quick-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-q {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            background: var(--bg-white);
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-mid);
+            transition: all 0.2s;
+        }
+
+        .quick-q:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #ecfeff;
+        }
+
+        /* Checklist */
+        .checklist { list-style: none; padding: 0; }
+
+        .checklist li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+        }
+
+        .checklist li:last-child { border-bottom: none; }
+
+        .check-icon {
+            flex-shrink: 0;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .check-pass { background: #dcfce7; color: #166534; }
+        .check-fail { background: #fee2e2; color: #991b1b; }
+        .check-warn { background: #fef3c7; color: #92400e; }
+
+        /* Score display */
+        .score-display {
+            text-align: center;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 auto 0.5rem;
+            color: white;
+        }
+
+        .score-label { font-size: 0.9rem; color: var(--text-light); }
+
+        /* Accordion */
+        .accordion-item { border-bottom: 1px solid var(--border); }
+
+        .accordion-header {
+            width: 100%;
+            padding: 1rem 0;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+        }
+
+        .accordion-header::after { content: '+'; font-size: 1.3rem; color: var(--text-light); }
+        .accordion-header.open::after { content: '-'; }
+
+        .accordion-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-body.open {
+            max-height: 2000px;
+        }
+
+        .accordion-body-inner { padding: 0 0 1rem; color: var(--text-mid); }
+
+        /* Subject selector grid */
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .subject-card {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .subject-card:hover { border-color: var(--primary); background: #ecfeff; }
+        .subject-card.selected { border-color: var(--primary); background: #ecfeff; color: var(--primary-dark); }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        .loading.visible { display: block; }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Two-column layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Info highlight box */
+        .info-box {
+            background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+            border: 2px solid #67e8f9;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin: 1rem 0;
+        }
+
+        .info-box h3 { color: #0e7490; margin-bottom: 0.5rem; }
+        .info-box p, .info-box li { color: #164e63; font-size: 0.95rem; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero p { font-size: 1rem; }
+            .tab-btn { min-width: 120px; padding: 0.75rem; font-size: 0.8rem; }
+            .tab-btn .tab-icon { font-size: 1.2rem; }
+            .two-col { grid-template-columns: 1fr; }
+            nav { padding: 0.75rem 1rem; }
+            .main-content { padding: 0 1rem 3rem; }
+            .card { padding: 1.25rem; }
+            .compare-table { font-size: 0.8rem; }
+            .compare-table th, .compare-table td { padding: 0.5rem; }
+        }
+
+        /* Print styles */
+        @media print {
+            header, .hero, .tab-nav { display: none; }
+            .tab-panel { display: block !important; }
+            .card { box-shadow: none; border: 1px solid #ddd; }
+        }
+
+        /* Back to top link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="index.html" class="logo">Bionic Reading</a>
+        <div class="nav-links">
+            <a href="index.html">Hem</a>
+            <a href="start.html">Verktyg</a>
+            <a href="gy25-laroplan.html">GY25</a>
+            <a href="lgr22-laroplan.html" class="active">Lgr22</a>
+        </div>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>Lgr22 Läroplansverktyg</h1>
+    <p>Ställ frågor om läroplanen, granska provfrågor och se exempelsvar per betygsnivå -- allt samlat på ett ställe för dig som undervisar i grundskolan.</p>
+    <div class="hero-badges">
+        <span class="hero-badge">Grundskolan</span>
+        <span class="hero-badge">Betygskriterier</span>
+        <span class="hero-badge">Sammantagen bedömning</span>
+    </div>
+</section>
+
+<div class="tab-nav">
+    <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="fraga">
+            <span class="tab-icon">?</span>
+            Fråga om Lgr22
+        </button>
+        <button class="tab-btn" data-tab="provfraga">
+            <span class="tab-icon">&#10003;</span>
+            Granska provfrågor
+        </button>
+        <button class="tab-btn" data-tab="exempelsvar">
+            <span class="tab-icon">&#9733;</span>
+            Exempelsvar
+        </button>
+    </div>
+</div>
+
+<div class="main-content">
+
+    <!-- ==================== TAB 1: FRÅGA OM LGR22 ==================== -->
+    <div class="tab-panel active" id="tab-fraga">
+        <div class="card">
+            <h2>Ställ en fråga om Lgr22</h2>
+            <p class="card-description">Sök i vår kunskapsbas om de reviderade kursplanerna i Lgr22. Välj en snabbfråga eller skriv din egen.</p>
+
+            <div class="quick-questions">
+                <button class="quick-q" onclick="askQuick(this)">Vad är betygskriterier?</button>
+                <button class="quick-q" onclick="askQuick(this)">Hur fungerar sammantagen bedömning?</button>
+                <button class="quick-q" onclick="askQuick(this)">Hur sätts betyg D och B?</button>
+                <button class="quick-q" onclick="askQuick(this)">När trädde Lgr22 i kraft?</button>
+                <button class="quick-q" onclick="askQuick(this)">Vad är centralt innehåll?</button>
+                <button class="quick-q" onclick="askQuick(this)">Hur fungerar meritvärde?</button>
+                <button class="quick-q" onclick="askQuick(this)">Vad är undantagsbestämmelsen?</button>
+                <button class="quick-q" onclick="askQuick(this)">Vilka ämnen finns i åk 7-9?</button>
+            </div>
+
+            <div class="form-group">
+                <label for="qa-input">Din fråga</label>
+                <input type="text" id="qa-input" placeholder="T.ex. Hur påverkar Lgr22 betygssättningen i åk 6-9?" onkeydown="if(event.key==='Enter')searchKB()">
+            </div>
+            <button class="btn btn-primary" onclick="searchKB()">Sök svar</button>
+
+            <div class="result-box" id="qa-result"></div>
+        </div>
+
+        <!-- FAQ Accordion -->
+        <div class="card">
+            <h2>Vanliga frågor om Lgr22</h2>
+            <div id="faq-accordion"></div>
+        </div>
+
+        <!-- Overview card -->
+        <div class="card">
+            <h2>Snabböversikt: Lgr22 vs Lgr11</h2>
+            <div class="two-col">
+                <div>
+                    <h3>Det som ändras (från Lgr11)</h3>
+                    <ul style="padding-left:1.5rem; color: var(--text-mid);">
+                        <li>Kunskapskrav ersätts av <strong>betygskriterier</strong></li>
+                        <li>Betygskriterierna är mer <strong>övergripande</strong></li>
+                        <li>Centralt innehåll har <strong>minskats</strong> i flera ämnen</li>
+                        <li>Värdeorden har <strong>förändrats och förenklats</strong></li>
+                        <li>Syftestexter har blivit <strong>kortare och tydligare</strong></li>
+                        <li>Fakta och förståelse betonas <strong>tydligare</strong></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Det som kvarstår</h3>
+                    <ul style="padding-left:1.5rem; color: var(--text-mid);">
+                        <li>Betygsskalan A-F</li>
+                        <li>Betyg från <strong>årskurs 6</strong></li>
+                        <li>Tre stadier: låg-, mellan-, högstadiet</li>
+                        <li>Ämnenas grundstruktur: syfte, centralt innehåll, betygskriterier</li>
+                        <li>Nationella prov</li>
+                        <li>Undantagsbestämmelsen</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 2: GRANSKA PROVFRÅGOR ==================== -->
+    <div class="tab-panel" id="tab-provfraga">
+        <div class="card">
+            <h2>Granska provfrågor mot Lgr22</h2>
+            <p class="card-description">Klistra in dina provfrågor så analyserar verktyget om de uppfyller Lgr22:s betygskriterier. Anpassat för grundskolans åk 6-9.</p>
+
+            <div class="form-group">
+                <label for="pf-amne">Ämne</label>
+                <select id="pf-amne">
+                    <option value="">Välj ämne...</option>
+                    <optgroup label="Språk">
+                        <option value="svenska">Svenska</option>
+                        <option value="engelska">Engelska</option>
+                    </optgroup>
+                    <optgroup label="Matematik">
+                        <option value="matematik">Matematik</option>
+                    </optgroup>
+                    <optgroup label="SO-ämnen">
+                        <option value="geografi">Geografi</option>
+                        <option value="historia">Historia</option>
+                        <option value="religion">Religionskunskap</option>
+                        <option value="samhallskunskap">Samhällskunskap</option>
+                    </optgroup>
+                    <optgroup label="NO-ämnen">
+                        <option value="biologi">Biologi</option>
+                        <option value="fysik">Fysik</option>
+                        <option value="kemi">Kemi</option>
+                    </optgroup>
+                    <optgroup label="Praktisk-estetiska ämnen">
+                        <option value="idrott">Idrott och hälsa</option>
+                        <option value="hemkunskap">Hem- och konsumentkunskap</option>
+                        <option value="teknik">Teknik</option>
+                    </optgroup>
+                    <option value="annat">Annat ämne</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="pf-niva">Betygsnivå som provfrågan riktar sig mot</label>
+                <select id="pf-niva">
+                    <option value="E">E - godkänt</option>
+                    <option value="C">C - goda kunskaper</option>
+                    <option value="A">A - mycket goda kunskaper</option>
+                    <option value="blandad">Blandade nivåer (hela provet)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="pf-fragor">Provfrågor (en fråga per rad)</label>
+                <textarea id="pf-fragor" rows="8" placeholder="Klistra in dina provfrågor här...&#10;&#10;Exempel:&#10;1. Beskriv huvuddragen i kristendomen.&#10;2. Jämför synen på livet efter döden inom islam och kristendom.&#10;3. Diskutera hur religion kan påverka människors vardag."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="pf-syfte">Ämnets syfte / vad provet ska mäta (valfritt)</label>
+                <textarea id="pf-syfte" rows="3" placeholder="T.ex. Elevens förmåga att analysera hur religioner kan påverka och påverkas av samhälleliga förhållanden..."></textarea>
+            </div>
+
+            <button class="btn btn-primary" onclick="analyzeQuestions()">Analysera provfrågor</button>
+            <button class="btn btn-secondary" onclick="clearExamForm()">Rensa</button>
+
+            <div class="loading" id="pf-loading">
+                <div class="spinner"></div>
+                <p>Analyserar provfrågor...</p>
+            </div>
+
+            <div class="result-box" id="pf-result"></div>
+        </div>
+
+        <div class="card">
+            <h2>Snabbguide: Bra provfrågor enligt Lgr22</h2>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">Frågor på E-nivå</button>
+                <div class="accordion-body">
+                    <div class="accordion-body-inner">
+                        <p>E-nivå testar grundläggande kunskaper. Frågor bör:</p>
+                        <ul style="padding-left:1.5rem; margin-top:0.5rem;">
+                            <li>Be eleven <strong>beskriva</strong> eller <strong>redogöra</strong> för grundläggande innehåll</li>
+                            <li>Möjliggöra <strong>enkla</strong> resonemang och förklaringar</li>
+                            <li>Vara tydliga och konkreta -- inte tvetydiga</li>
+                            <li>Ge möjlighet att visa kunskap med <strong>i huvudsak fungerande</strong> svar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">Frågor på C-nivå</button>
+                <div class="accordion-body">
+                    <div class="accordion-body-inner">
+                        <p>C-nivå kräver goda kunskaper. Frågor bör:</p>
+                        <ul style="padding-left:1.5rem; margin-top:0.5rem;">
+                            <li>Be eleven <strong>jämföra</strong>, <strong>analysera</strong> eller <strong>förklara samband</strong></li>
+                            <li>Kräva <strong>utvecklade</strong> resonemang med kopplingar</li>
+                            <li>Inkludera fler perspektiv eller sammanhang</li>
+                            <li>Testa förmåga att använda ämnesbegrepp på ett <strong>ändamålsenligt</strong> sätt</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">Frågor på A-nivå</button>
+                <div class="accordion-body">
+                    <div class="accordion-body-inner">
+                        <p>A-nivå testar mycket goda kunskaper. Frågor bör:</p>
+                        <ul style="padding-left:1.5rem; margin-top:0.5rem;">
+                            <li>Be eleven <strong>analysera</strong>, <strong>reflektera</strong> eller göra <strong>komplexa jämförelser</strong></li>
+                            <li>Kräva <strong>välutvecklade och nyanserade</strong> resonemang</li>
+                            <li>Testa förmåga att se samband och dra egna slutsatser</li>
+                            <li>Ge utrymme att använda begrepp <strong>ändamålsenligt och effektivt</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 3: EXEMPELSVAR ==================== -->
+    <div class="tab-panel" id="tab-exempelsvar">
+        <div class="card">
+            <h2>Generera exempelsvar per betygsnivå</h2>
+            <p class="card-description">Skriv in din provfråga och välj ämne -- verktyget visar hur ett typiskt E-, C- och A-svar kan se ut, med förklaring av vad som skiljer nivåerna åt. Perfekt som bedömningsstöd och för kollegial diskussion.</p>
+
+            <div class="form-group">
+                <label for="ex-amne">Ämne</label>
+                <select id="ex-amne" onchange="updateExampleQuestions()">
+                    <option value="">Välj ämne...</option>
+                    <optgroup label="Språk">
+                        <option value="svenska">Svenska</option>
+                        <option value="engelska">Engelska</option>
+                    </optgroup>
+                    <optgroup label="Matematik">
+                        <option value="matematik">Matematik</option>
+                    </optgroup>
+                    <optgroup label="SO-ämnen">
+                        <option value="geografi">Geografi</option>
+                        <option value="historia">Historia</option>
+                        <option value="religion">Religionskunskap</option>
+                        <option value="samhallskunskap">Samhällskunskap</option>
+                    </optgroup>
+                    <optgroup label="NO-ämnen">
+                        <option value="biologi">Biologi</option>
+                        <option value="fysik">Fysik</option>
+                        <option value="kemi">Kemi</option>
+                    </optgroup>
+                    <optgroup label="Praktisk-estetiska">
+                        <option value="idrott">Idrott och hälsa</option>
+                        <option value="teknik">Teknik</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="quick-questions" id="ex-quick-questions">
+                <span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Välj ett ämne ovan för att se exempelfrågor, eller skriv din egen:</span>
+            </div>
+
+            <div class="form-group">
+                <label for="ex-fraga">Provfråga</label>
+                <textarea id="ex-fraga" rows="3" placeholder="Skriv din provfråga här, t.ex.:&#10;Jämför kristendomens och islams syn på livet efter döden."></textarea>
+            </div>
+
+            <button class="btn btn-primary" onclick="generateExamples()">Visa exempelsvar E / C / A</button>
+            <button class="btn btn-secondary" onclick="clearExampleForm()">Rensa</button>
+
+            <div class="loading" id="ex-loading">
+                <div class="spinner"></div>
+                <p>Genererar exempelsvar...</p>
+            </div>
+
+            <div class="result-box" id="ex-result"></div>
+        </div>
+
+        <div class="card">
+            <h2>Vad kännetecknar svar på olika nivåer?</h2>
+            <p class="card-description">Generella drag som skiljer E-, C- och A-svar i Lgr22:s bedömningsmodell.</p>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-top:1rem;">
+                <div style="background:#fef3c7; border-radius:12px; padding:1.25rem; border-left:4px solid #f59e0b;">
+                    <h3 style="color:#92400e; margin-bottom:0.5rem;">E-nivå -- Grundläggande</h3>
+                    <ul style="padding-left:1.2rem; color:#78350f; font-size:0.9rem;">
+                        <li><strong>Beskriver</strong> och <strong>redogör</strong> för grundläggande innehåll</li>
+                        <li>Enkla, korta resonemang</li>
+                        <li>I huvudsak fungerande svar</li>
+                        <li>Få eller inga kopplingar mellan företeelser</li>
+                        <li>Begränsad användning av ämnesbegrepp</li>
+                    </ul>
+                </div>
+                <div style="background:#cffafe; border-radius:12px; padding:1.25rem; border-left:4px solid #06b6d4;">
+                    <h3 style="color:#155e75; margin-bottom:0.5rem;">C-nivå -- Goda kunskaper</h3>
+                    <ul style="padding-left:1.2rem; color:#164e63; font-size:0.9rem;">
+                        <li><strong>Jämför</strong> och <strong>analyserar</strong> med utvecklade resonemang</li>
+                        <li>Tydliga kopplingar och orsakssamband</li>
+                        <li>Ändamålsenlig användning av ämnesbegrepp</li>
+                        <li>Ger konkreta exempel som stöd</li>
+                        <li>Visar förståelse för sammanhang</li>
+                    </ul>
+                </div>
+                <div style="background:#dcfce7; border-radius:12px; padding:1.25rem; border-left:4px solid #10b981;">
+                    <h3 style="color:#166534; margin-bottom:0.5rem;">A-nivå -- Mycket goda kunskaper</h3>
+                    <ul style="padding-left:1.2rem; color:#14532d; font-size:0.9rem;">
+                        <li><strong>Analyserar</strong> och <strong>reflekterar</strong> med nyansering</li>
+                        <li>Visar flera perspektiv och gör avvägningar</li>
+                        <li>Komplexa samband och orsakskedjor</li>
+                        <li>Drar välgrundade egna slutsatser</li>
+                        <li>Ändamålsenlig och effektiv begreppsanvändning</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 style="margin-top:1.5rem;">Betygsskalan i grundskolan (åk 6-9)</h3>
+            <table class="compare-table" style="margin-top:0.5rem;">
+                <thead>
+                    <tr>
+                        <th>Betyg</th>
+                        <th>Krav</th>
+                        <th>Bedömningsmodell</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-danger">F</span></td>
+                        <td>Uppfyller inte E-kriterierna</td>
+                        <td>Kunskaper saknas i en eller flera väsentliga delar</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">E</span></td>
+                        <td>Grundläggande kunskaper</td>
+                        <td>Uppfyller betygskriterierna för E sammantaget</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">D</span></td>
+                        <td>Mellan E och C</td>
+                        <td>E uppfyllt + till övervägande del C (sammantagen bedömning)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">C</span></td>
+                        <td>Goda kunskaper</td>
+                        <td>Sammantagen bedömning mot C-kriterierna</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">B</span></td>
+                        <td>Mellan C och A</td>
+                        <td>C uppfyllt + till övervägande del A (sammantagen bedömning)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-success">A</span></td>
+                        <td>Mycket goda kunskaper</td>
+                        <td>Sammantagen bedömning mot A-kriterierna</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box" style="margin-top:1.5rem;">
+                <h3>Meritvärde</h3>
+                <p>A = 20p, B = 17,5p, C = 15p, D = 12,5p, E = 10p, F = 0p. Max grundmeritvärde: <strong>340 poäng</strong> (17 ämnen). Med meritpoäng för moderna språk: max <strong>370 poäng</strong>.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer style="text-align:center; padding:2rem; color:var(--text-light); font-size:0.9rem; border-top:1px solid var(--border);">
+    <p>Lgr22 Läroplansverktyg | Baserat på Skolverkets publicerade material om de reviderade kursplanerna 2022</p>
+    <p style="margin-top:0.3rem;">Observera: Verktyget är ett stöd -- det ersätter inte lärarens professionella bedömning.</p>
+    <p style="margin-top:0.3rem;"><a href="https://www.skolverket.se/undervisning/grundskolan" target="_blank" style="color:var(--primary);">Skolverkets sida om grundskolan</a></p>
+</footer>
+
+<script>
+// ============================================================
+// KNOWLEDGE BASE - Lgr22 data
+// ============================================================
+const KB = {
+    betygskriterier: {
+        keywords: ['betygskriterier', 'kunskapskrav', 'kriterier', 'betyg', 'värdeord', 'bedömning'],
+        title: 'Betygskriterier i Lgr22 (ersätter kunskapskrav)',
+        content: `<p>Den viktigaste förändringen i Lgr22 är att <strong>kunskapskrav</strong> har ersatts av <strong>betygskriterier</strong>.</p>
+        <ul>
+            <li><strong>Lgr11:</strong> Detaljerade kunskapskrav som fungerade som en checklista -- varje krav skulle uppfyllas.</li>
+            <li><strong>Lgr22:</strong> Mer övergripande betygskriterier som ger läraren större <strong>professionellt utrymme</strong>.</li>
+        </ul>
+        <h3>Tre betygsnivåer med kriterier</h3>
+        <ul>
+            <li><strong>E:</strong> Grundläggande kunskaper</li>
+            <li><strong>C:</strong> Goda kunskaper</li>
+            <li><strong>A:</strong> Mycket goda kunskaper</li>
+        </ul>
+        <p>Betygskriterierna ska läsas som en <strong>helhet</strong> -- inte som isolerade punkter att bocka av. Läraren gör en sammantagen bedömning.</p>`
+    },
+    sammantagen: {
+        keywords: ['sammantagen', 'bedömning', 'sammantagen bedömning', 'helhetsbedömning', 'kompensatorisk'],
+        title: 'Sammantagen bedömning i Lgr22',
+        content: `<p><strong>Sammantagen bedömning</strong> är den nya principen för betygsättning i Lgr22.</p>
+        <h3>Vad innebär det?</h3>
+        <ul>
+            <li>Läraren gör en <strong>helhetsbedömning</strong> av elevens kunskaper mot betygskriterierna.</li>
+            <li>Styrkor inom ett område kan till viss del <strong>kompensera</strong> för svagheter i ett annat.</li>
+            <li>Det handlar om en <strong>professionell bedömning</strong>, inte om att räkna procent av uppfyllda kriterier.</li>
+        </ul>
+        <h3>Skillnad mot Lgr11</h3>
+        <ul>
+            <li><strong>Lgr11:</strong> Samtliga kunskapskrav för en nivå skulle vara uppfyllda. En svaghet i en del kunde sänka hela betyget.</li>
+            <li><strong>Lgr22:</strong> Läraren väger samman alla kunskaper och bedömer vilken nivå som bäst beskriver elevens kunnande.</li>
+        </ul>
+        <p><strong>Viktigt:</strong> Sammantagen bedömning innebär <em>inte</em> att man räknar medelvärde. Det innebär att läraren med sitt professionella omdöme avgör helheten.</p>`
+    },
+    betygDB: {
+        keywords: ['betyg d', 'betyg b', 'd och b', 'sätta d', 'sätta b', 'mellanbetyg', 'övervägande'],
+        title: 'Hur sätts betyg D och B i Lgr22?',
+        content: `<p>Betygen D och B har inga egna skrivna betygskriterier. De bestäms utifrån relationen mellan angränsande nivåer.</p>
+        <h3>Betyg D</h3>
+        <ul>
+            <li>Elevens kunskaper uppfyller betygskriterierna för <strong>E</strong></li>
+            <li>Och till <strong>övervägande del</strong> även kriterierna för C</li>
+            <li>Läraren gör en sammantagen bedömning av om eleven ligger närmare C än E</li>
+        </ul>
+        <h3>Betyg B</h3>
+        <ul>
+            <li>Elevens kunskaper uppfyller betygskriterierna för <strong>C</strong></li>
+            <li>Och till <strong>övervägande del</strong> även kriterierna för A</li>
+            <li>Läraren bedömer om eleven ligger närmare A än C</li>
+        </ul>
+        <p>Med sammantagen bedömning tolkas "övervägande del" mer <strong>holistiskt</strong> -- läraren bedömer helheten, inte exakt andel uppfyllda delpunkter.</p>`
+    },
+    tidslinje: {
+        keywords: ['tidslinje', 'när', 'ikraft', 'implementering', 'datum', 'start', 'träder i kraft'],
+        title: 'Tidslinje för Lgr22',
+        content: `<ul>
+            <li><strong>2019-2020:</strong> Skolverket får i uppdrag att se över kursplanerna.</li>
+            <li><strong>2020:</strong> Remissversioner av de reviderade kursplanerna publiceras.</li>
+            <li><strong>Våren 2021:</strong> Skolverket beslutar om de reviderade kursplanerna.</li>
+            <li><strong>Hösten 2021:</strong> Informations- och implementeringsinsatser startar.</li>
+            <li><strong>1 juli 2022:</strong> Lgr22 träder formellt i kraft.</li>
+            <li><strong>Höstterminen 2022:</strong> Alla skolor ska undervisa och bedöma enligt Lgr22.</li>
+            <li><strong>2023 och framåt:</strong> Nationella prov anpassade till Lgr22.</li>
+        </ul>
+        <p><strong>Notering:</strong> Formellt är Lgr22 en revidering av Lgr11, men benämningen "Lgr22" har etablerats i vardagligt bruk.</p>`
+    },
+    centralinnehall: {
+        keywords: ['centralt innehåll', 'central innehåll', 'stadier', 'innehåll', 'stadium', 'lågstadiet', 'mellanstadiet', 'högstadiet'],
+        title: 'Centralt innehåll i Lgr22',
+        content: `<p>Det centrala innehållet anger <strong>vad</strong> undervisningen ska behandla och är organiserat i tre stadier:</p>
+        <ul>
+            <li><strong>Lågstadiet:</strong> Årskurs 1-3</li>
+            <li><strong>Mellanstadiet:</strong> Årskurs 4-6</li>
+            <li><strong>Högstadiet:</strong> Årskurs 7-9</li>
+        </ul>
+        <h3>Förändringar i Lgr22</h3>
+        <ul>
+            <li>Det centrala innehållet har <strong>minskats</strong> i flera ämnen -- lärare får mer tid att fördjupa sig</li>
+            <li>Innehållet är mer <strong>flexibelt</strong> -- läraren bestämmer ordning, tid och metoder</li>
+            <li>Allt centralt innehåll ska behandlas <strong>inom stadiet</strong>, men behöver inte tas upp varje årskurs</li>
+        </ul>
+        <p>Kursplanens tre delar hänger ihop: <strong>Syfte</strong> (varför?) → <strong>Centralt innehåll</strong> (vad?) → <strong>Betygskriterier</strong> (hur väl?).</p>`
+    },
+    amnen: {
+        keywords: ['ämnen', 'ämne', 'åk 7', 'åk 8', 'åk 9', 'årskurs', 'grundskolan', 'so', 'no'],
+        title: 'Ämnen i grundskolan åk 7-9',
+        content: `<h3>Obligatoriska ämnen</h3>
+        <p><strong>Språk:</strong> Svenska (eller Sva), Engelska, Modernt språk</p>
+        <p><strong>Matematik:</strong> Matematik</p>
+        <p><strong>SO-ämnen:</strong> Geografi, Historia, Religionskunskap, Samhällskunskap</p>
+        <p><strong>NO-ämnen:</strong> Biologi, Fysik, Kemi</p>
+        <p><strong>Praktisk-estetiska:</strong> Bild, Hem- och konsumentkunskap, Idrott och hälsa, Musik, Slöjd, Teknik</p>
+        <h3>Val</h3>
+        <ul>
+            <li><strong>Språkval:</strong> Modernt språk (franska, spanska, tyska m.fl.)</li>
+            <li><strong>Elevens val:</strong> Fördjupning i olika ämnen</li>
+        </ul>
+        <p>Totalt läser en elev i åk 7-9 typiskt <strong>16-17 ämnen</strong>.</p>`
+    },
+    meritvarde: {
+        keywords: ['meritvärde', 'merit', 'poäng', 'gymnasieantagning', 'slutbetyg', 'antagning'],
+        title: 'Meritvärde och slutbetyg',
+        content: `<h3>Betygsskala och poäng</h3>
+        <ul>
+            <li><strong>A = 20 poäng</strong></li>
+            <li><strong>B = 17,5 poäng</strong></li>
+            <li><strong>C = 15 poäng</strong></li>
+            <li><strong>D = 12,5 poäng</strong></li>
+            <li><strong>E = 10 poäng</strong></li>
+            <li><strong>F = 0 poäng</strong></li>
+        </ul>
+        <h3>Beräkning</h3>
+        <ul>
+            <li>Grundmeritvärde: de <strong>16 bästa betygen</strong> plus betyget i <strong>modernt språk</strong> = max 17 ämnen</li>
+            <li>Max grundmeritvärde: <strong>340 poäng</strong> (17 x 20)</li>
+            <li>Därutöver kan <strong>meritpoäng</strong> tillkomma för moderna språk (max 370 poäng totalt)</li>
+            <li>Slutbetyget i åk 9 ligger till grund för <strong>gymnasieantagningen</strong></li>
+            <li>Betyg sätts varje termin från och med <strong>årskurs 6</strong></li>
+        </ul>`
+    },
+    undantag: {
+        keywords: ['undantagsbestämmelse', 'pysparagraf', 'funktionsnedsättning', 'undantag', 'särskilt stöd'],
+        title: 'Undantagsbestämmelsen ("pysparagrafen")',
+        content: `<p>Om en elev har en funktionsnedsättning som utgör ett <strong>direkt hinder</strong> för att uppfylla betygskriterierna, och hindret inte går att avhjälpa genom särskilt stöd, får läraren bortse från <strong>enstaka delar</strong> av betygskriterierna.</p>
+        <h3>Viktiga begränsningar</h3>
+        <ul>
+            <li>Gäller för <strong>alla betygsnivåer</strong>, inklusive gränsen F/E</li>
+            <li>Handlar om <strong>enstaka delar</strong>, inte hela betygskriteriet</li>
+            <li>Funktionsnedsättningen ska vara ett <strong>direkt hinder</strong></li>
+            <li>Skolan ska först ha provat <strong>anpassningar och särskilt stöd</strong></li>
+            <li>Får inte tillämpas så generöst att eleven i praktiken saknar de kunskaper som ämnet avser</li>
+        </ul>
+        <p>Bestämmelsen finns i skollagen (10 kap. 21 §).</p>`
+    },
+    vardeord: {
+        keywords: ['värdeord', 'progressionsord', 'formulering', 'enkla', 'utvecklade', 'välutvecklade', 'ändamålsenligt'],
+        title: 'Värdeord och formuleringar i Lgr22',
+        content: `<p>Lgr22 har förändrat de så kallade <strong>värdeorden</strong> (progressionsorden) som skiljer betygsnivåerna åt.</p>
+        <h3>Typiska formuleringar i Lgr22</h3>
+        <table style="width:100%; border-collapse:collapse; margin:0.5rem 0;">
+            <tr style="background:var(--bg-light);"><th style="padding:0.5rem; text-align:left; border-bottom:2px solid var(--border);">E-nivå</th><th style="padding:0.5rem; text-align:left; border-bottom:2px solid var(--border);">C-nivå</th><th style="padding:0.5rem; text-align:left; border-bottom:2px solid var(--border);">A-nivå</th></tr>
+            <tr><td style="padding:0.4rem;">i huvudsak fungerande</td><td style="padding:0.4rem;">ändamålsenligt</td><td style="padding:0.4rem;">ändamålsenligt och effektivt</td></tr>
+            <tr style="background:var(--bg-light);"><td style="padding:0.4rem;">enkla</td><td style="padding:0.4rem;">utvecklade</td><td style="padding:0.4rem;">välutvecklade och nyanserade</td></tr>
+            <tr><td style="padding:0.4rem;">grundläggande kunskaper</td><td style="padding:0.4rem;">goda kunskaper</td><td style="padding:0.4rem;">mycket goda kunskaper</td></tr>
+            <tr style="background:var(--bg-light);"><td style="padding:0.4rem;">bidrar till</td><td style="padding:0.4rem;">för framåt</td><td style="padding:0.4rem;">för framåt och fördjupar</td></tr>
+        </table>
+        <p style="margin-top:0.75rem;">Jämfört med Lgr11 har värdeorden blivit <strong>färre och tydligare</strong>. Syftet är att minska detaljstyrningen och ge läraren mer tolkningsutrymme.</p>`
+    },
+    betygsattning: {
+        keywords: ['betygsättning', 'terminsbetyg', 'slutbetyg', 'åk 6', 'sätter betyg', 'årskurs 6', 'streck'],
+        title: 'Betygsättning i grundskolan',
+        content: `<p>I grundskolan sätts betyg enligt följande:</p>
+        <ul>
+            <li><strong>Årskurs 6:</strong> Betyg sätts i slutet av varje termin från och med åk 6.</li>
+            <li><strong>Årskurs 7-9:</strong> Betyg sätts varje termin.</li>
+            <li><strong>Slutbetyg:</strong> I slutet av årskurs 9 sätts slutbetyg som styr gymnasieantagningen.</li>
+        </ul>
+        <h3>Betygsskalan</h3>
+        <ul>
+            <li><strong>A-F:</strong> Sexgradig skala där A är högst och F är underkänt.</li>
+            <li><strong>Streck (-):</strong> Kan sättas om läraren saknar tillräckligt underlag, t.ex. vid omfattande frånvaro.</li>
+        </ul>
+        <p><strong>Terminsbetyg</strong> avser kunskaperna vid betygsättningstillfället. <strong>Slutbetyget</strong> i åk 9 baseras på en sammantagen bedömning av vad eleven kan vid kursens slut.</p>`
+    }
+};
+
+// ============================================================
+// FAQ DATA
+// ============================================================
+const FAQ = [
+    {
+        q: 'Vad innebär det att kunskapskrav blivit betygskriterier?',
+        a: 'Kunskapskraven i Lgr11 var detaljerade och upplevdes ofta som en checklista där varje krav måste uppfyllas. Betygskriterierna i Lgr22 är mer övergripande och ger läraren större professionellt utrymme. Läraren gör en sammantagen bedömning istället för att matcha varje formulering punkt för punkt.'
+    },
+    {
+        q: 'Måste jag ändra all min undervisning?',
+        a: 'Nej. Mycket av det centrala innehållet liknar Lgr11. De största förändringarna gäller hur du bedömer och sätter betyg -- sammantagen bedömning istället för att bocka av varje kunskapskrav. Din pedagogik och dina metoder kan i huvudsak vara desamma.'
+    },
+    {
+        q: 'Hur gör jag rent praktiskt en sammantagen bedömning?',
+        a: 'Du samlar ditt bedömningsunderlag som vanligt (prov, uppgifter, muntliga insatser m.m.). Vid betygsättning läser du betygskriterierna för E, C och A som en helhet och avgör vilken nivå som bäst beskriver elevens samlade kunnande. Du behöver inte matcha varje enskild formulering punkt för punkt.'
+    },
+    {
+        q: 'Kan en elev få A trots svagheter i en del?',
+        a: 'Ja, genom sammantagen bedömning. Om lärarens professionella bedömning landar på att elevens kunskaper sammantaget bäst motsvarar A-nivå, kan betyget A sättas. I praktiken är det dock svårt att tänka sig ett A-betyg om det finns betydande brister på C-nivå. Poängen är att läraren väger helheten.'
+    },
+    {
+        q: 'Har det centrala innehållet förändrats?',
+        a: 'Ja, i varierande grad beroende på ämne. Generellt har det blivit något mindre omfattande i flera ämnen, vilket ger mer tid att fördjupa sig i det som finns kvar. Kontrollera kursplanen för ditt specifika ämne på Skolverkets webbplats.'
+    },
+    {
+        q: 'Vad händer med "the Big 5" (de fem förmågorna)?',
+        a: 'De fem förmågorna (analysförmåga, kommunikativ förmåga, metakognitiv förmåga, förmåga att hantera information, begreppsförmåga) var aldrig officiell terminologi utan en pedagogisk tolkning. I Lgr22 har syftestexter omformulerats, men förmågor som att resonera, analysera, jämföra och kommunicera finns fortfarande med.'
+    },
+    {
+        q: 'Finns det nationella prov anpassade till Lgr22?',
+        a: 'Ja. De nationella proven anpassas till gällande kursplaner. Från och med att Lgr22 trädde i kraft har proven reviderats. Proven ges i åk 3 (svenska/sva, matematik), åk 6 (svenska/sva, matematik, engelska) och åk 9 (svenska/sva, matematik, engelska samt i ett SO-ämne och ett NO-ämne).'
+    },
+    {
+        q: 'Hur fungerar undantagsbestämmelsen i Lgr22?',
+        a: 'Om en elev har en funktionsnedsättning som utgör ett direkt hinder för att uppfylla betygskriterierna, och hindret inte kan avhjälpas genom särskilt stöd, får läraren bortse från enstaka delar av betygskriterierna. Bestämmelsen gäller för alla betygsnivåer, inklusive gränsen F/E, men får inte tillämpas så generöst att eleven i praktiken saknar de kunskaper ämnet avser.'
+    },
+    {
+        q: 'Hur säkerställer vi likvärdighet med sammantagen bedömning?',
+        a: 'Kollegial samverkan är avgörande. Lärare bör diskutera och kalibrera sin bedömning med kollegor, använda Skolverkets bedömningsstöd och kommentarmaterial, delta i sambedömning och gemensamt tolka betygskriterierna. Sammantagen bedömning ställer krav på professionellt ansvar.'
+    },
+    {
+        q: 'Gäller Lgr22 retroaktivt för betyg som redan satts?',
+        a: 'Nej. Lgr22 gäller från höstterminen 2022. Betyg som sattes före dess följde Lgr11. Från och med ht 2022 gäller Lgr22 för alla elever i grundskolan.'
+    }
+];
+
+// ============================================================
+// EXAM QUALITY CRITERIA
+// ============================================================
+const QUALITY_CRITERIA = {
+    general: [
+        { name: 'Tydlighet', desc: 'Frågan är tydligt formulerad och eleven förstår vad som efterfrågas', check: q => q.length > 15 && !q.includes('??') && (q.includes('?') || q.includes('.')) },
+        { name: 'Öppen/sluten balans', desc: 'Blandning av öppna och slutna frågor för att testa olika förmågor', check: null },
+        { name: 'Koppling till centralt innehåll', desc: 'Frågan kan kopplas till centralt innehåll i ämnet', check: null },
+        { name: 'Rimlig omfattning', desc: 'Frågan har rimlig svarsomfattning (varken för snäv eller för bred)', check: q => q.length > 20 && q.length < 500 }
+    ],
+    E: [
+        { name: 'Grundläggande kunskap', desc: 'Testar att eleven kan redogöra för eller beskriva grundläggande innehåll', check: q => /redogör|beskriv|förklara|nämn|vad (är|menas|innebär)|vilka|ange|ge exempel/i.test(q) },
+        { name: 'Enkla resonemang', desc: 'Frågan möjliggör enkla resonemang utan krav på analys', check: q => !/analysera|diskutera|problematisera|värdera|jämför.*kritiskt/i.test(q) },
+        { name: 'Alla delar av kriterierna', desc: 'Provet som helhet bör täcka alla delar av betygskriterierna', check: null }
+    ],
+    C: [
+        { name: 'Analys och jämförelse', desc: 'Testar förmåga att analysera, jämföra eller förklara samband', check: q => /analysera|jämför|diskutera|resonera|utveckla|koppl|samband/i.test(q) },
+        { name: 'Utvecklade resonemang', desc: 'Frågan möjliggör utvecklade resonemang med kopplingar', check: q => /resonera|argumentera|förklara.*samband|visa.*förståelse|koppla/i.test(q) || q.length > 60 },
+        { name: 'Ämnesbegrepp', desc: 'Frågan testar ändamålsenlig användning av ämnesspecifika begrepp', check: q => /begrepp|terminologi|använd.*termer|fackspr/i.test(q) }
+    ],
+    A: [
+        { name: 'Komplex analys', desc: 'Testar förmåga att analysera, reflektera eller göra komplexa jämförelser', check: q => /problematisera|värdera|kritiskt|komplex|nyansera|reflektera|mångfacetter/i.test(q) },
+        { name: 'Nyanserade resonemang', desc: 'Frågan möjliggör välutvecklade och nyanserade resonemang', check: q => /nyansera|välutveckl|djupgående|utförlig|perspektiv|syntes/i.test(q) || q.length > 100 },
+        { name: 'Samband och slutsatser', desc: 'Testar förmåga att se samband och dra egna slutsatser', check: q => /samband|slutsats|konsekvens|orsak.*verkan|koppl.*till|reflek/i.test(q) }
+    ]
+};
+
+// ============================================================
+// EXAMPLE ANSWERS DATABASE
+// ============================================================
+const EXAMPLE_QUESTIONS = {
+    svenska: [
+        'Beskriv hur författaren skapar stämning i texten med hjälp av språkliga verktyg.',
+        'Jämför två texter med olika syften och diskutera hur budskapet förmedlas.',
+        'Resonera om hur källkritik kan hjälpa dig att bedöma information på nätet.'
+    ],
+    engelska: [
+        'Describe the main themes in the text you have read.',
+        'Compare two English-speaking countries and discuss similarities and differences.',
+        'Discuss how cultural differences can affect communication.'
+    ],
+    matematik: [
+        'Förklara vad en funktion är och ge ett exempel.',
+        'Beskriv hur du löser en ekvation och förklara varje steg.',
+        'Resonera om hur sannolikhet kan användas i vardagen.'
+    ],
+    geografi: [
+        'Beskriv hur klimatförändringarna påverkar olika delar av världen.',
+        'Jämför levnadsvillkor i ett fattigt och ett rikt land.',
+        'Analysera sambandet mellan befolkningstillväxt och miljöpåverkan.'
+    ],
+    historia: [
+        'Redogör för de viktigaste händelserna under industrialiseringen.',
+        'Jämför orsakerna till första och andra världskriget.',
+        'Diskutera hur vi kan använda historiska källor för att förstå det förflutna.'
+    ],
+    religion: [
+        'Beskriv de fem pelarna inom islam.',
+        'Jämför synen på livet efter döden inom kristendom och islam.',
+        'Diskutera hur religiösa normer kan påverka människors vardag.'
+    ],
+    samhallskunskap: [
+        'Beskriv hur demokratin fungerar i Sverige.',
+        'Jämför olika politiska ideologier och deras syn på statens roll.',
+        'Diskutera hur mänskliga rättigheter kan komma i konflikt med varandra.'
+    ],
+    biologi: [
+        'Förklara hur en cell är uppbyggd och fungerar.',
+        'Beskriv hur naturligt urval driver evolution.',
+        'Diskutera genteknikens möjligheter och etiska dilemman.'
+    ],
+    fysik: [
+        'Förklara vad energi är och ge exempel på energiomvandlingar.',
+        'Beskriv skillnaden mellan serie- och parallellkoppling.',
+        'Diskutera för- och nackdelar med olika energikällor.'
+    ],
+    kemi: [
+        'Förklara vad en kemisk reaktion är och ge vardagsexempel.',
+        'Beskriv det periodiska systemets uppbyggnad.',
+        'Diskutera hur syror och baser påverkar miljön.'
+    ],
+    idrott: [
+        'Beskriv hur regelbunden fysisk aktivitet påverkar hälsan.',
+        'Resonera om hur normer påverkar deltagande i idrott.',
+        'Diskutera vad som menas med en hälsosam livsstil.'
+    ],
+    teknik: [
+        'Beskriv hur en teknisk lösning kan förbättra vardagen.',
+        'Jämför olika materials egenskaper och användningsområden.',
+        'Diskutera teknikens påverkan på miljön och samhället.'
+    ]
+};
+
+const EXAMPLE_ANSWERS = {
+    religion: {
+        'Jämför synen på livet efter döden inom kristendom och islam.': {
+            E: {
+                svar: 'Inom kristendomen tror man på himmel och helvete. Om man lever ett bra liv kommer man till himlen. Inom islam finns också himmel och helvete. Muslimer tror på en domeddag då Allah dömer alla människor. Båda religionerna tror alltså på ett liv efter döden.',
+                kommentar: 'Svaret beskriver grundläggande likheter och skillnader på en enkel nivå. Eleven visar viss kunskap om båda religionerna men jämförelsen är ytlig. Svaret är i huvudsak fungerande -- det besvarar frågan men utan djup.'
+            },
+            C: {
+                svar: 'Både kristendom och islam har en tydlig föreställning om livet efter döden, men det finns intressanta likheter och skillnader. Inom kristendomen är tron på uppståndelsen central -- Jesus uppståndelse ses som bevis på att döden inte är slutet. De flesta kristna tror på en yttersta dom där Gud bedömer människan, vilket leder till antingen evigt liv i himlen eller separation från Gud. Inom protestantismen betonas tron som avgörande, medan katolska kyrkan även betonar gärningar och inkluderar skärselden som ett mellantillstånd.\n\nInom islam spelar tron på domedagen (Yawm al-Qiyama) en central roll -- det är en av islams trosartiklar. Varje människa står inför Allahs dom, och ens handlingar vägs. Paradiset (Jannah) beskrivs som en trädgård med floder, medan helvetet (Jahannam) beskrivs som eld. En viktig likhet är att båda religionerna kopplar det moraliska livet till konsekvenser efter döden.',
+                kommentar: 'Svaret jämför systematiskt med utvecklade resonemang. Eleven visar kopplingar, använder korrekta begrepp från båda religionerna, och lyfter fram både likheter och skillnader. Begreppsanvändningen är ändamålsenlig.'
+            },
+            A: {
+                svar: 'Föreställningar om livet efter döden utgör en grundläggande dimension i både kristendom och islam, men en djupare jämförelse avslöjar både strukturella likheter och teologiskt signifikanta skillnader.\n\nBåda religionerna delar en linjär tidsuppfattning med en definitiv eskatologi -- en ändpunkt där Gud/Allah dömer mänskligheten. Detta skiljer dem fundamentalt från exempelvis hinduismens cykliska återfödelse. Inom kristendomen är uppståndelsetron central: Kristi uppståndelse tolkas som seger över döden. Frälsningsvägen varierar dock markant mellan traditioner -- protestantismens "tron allena" kontrasterar mot katolska kyrkans betoning av sakrament och gärningar, inklusive skärselden. Denna inomreligiösa variation visar att "kristendomen" inte har en enhetlig syn.\n\nInom islam är domedagen en av de sex trosartiklarna. Koranens beskrivningar av paradiset och helvetet är mer detaljerade och konkreta än Bibelns. En viktig skillnad är betoningen av individuellt ansvar: i islam vägs varje handling, medan kristendomen i större utsträckning betonar nåd och förlåtelse.\n\nDet är dock viktigt att problematisera generaliseringar. Båda religionerna rymmer en stor mångfald av tolkningar. Synen på livet efter döden fungerar i båda fallen inte bara som kosmologisk tro utan som moraliskt ramverk som ger mening åt det jordiska livet -- en funktionell likhet som kanske är viktigare än de teologiska skillnaderna.',
+                kommentar: 'Svaret visar välutvecklade och nyanserade resonemang med flera perspektiv. Eleven problematiserar generaliseringar, jämför på djupet med korrekta begrepp, och drar egna slutsatser om funktionella likheter. Inomreligiös variation lyfts fram. Begreppsanvändningen är ändamålsenlig och effektiv.'
+            }
+        }
+    },
+    historia: {
+        'Jämför orsakerna till första och andra världskriget.': {
+            E: {
+                svar: 'Första världskriget startade 1914 och orsakades bland annat av att ärkehertig Franz Ferdinand mördades. Länder hade allianser som drog in fler i kriget. Andra världskriget startade 1939. Hitler och nazisterna ville erövra mer land och det ledde till krig. Båda krigen handlade om makt mellan länder i Europa.',
+                kommentar: 'Svaret beskriver grundläggande orsaker på en enkel nivå. Eleven nämner viktiga händelser men utan att utveckla samband eller fördjupa resonemanget. Svaret är i huvudsak fungerande.'
+            },
+            C: {
+                svar: 'Första och andra världskriget hade delvis liknande och delvis olika orsaker. Första världskriget orsakades av en kombination av imperialism, nationalism, alliansystem och kapprustning. Mordet i Sarajevo 1914 var den utlösande faktorn, men de underliggande orsakerna hade byggts upp under lång tid. Allianserna innebar att en lokal konflikt snabbt kunde dra in stormakterna.\n\nAndra världskriget hade mer direkt koppling till en specifik ideologi -- nazismen. Versaillesfreden 1919 skapade bitterhet i Tyskland, och den ekonomiska krisen på 1930-talet gav utrymme för Hitlers maktövertagande. Hitlers expansionspolitik och västmakternas eftergiftspolitik ledde till att konflikten eskalerade.\n\nEn viktig likhet är att nationalism och maktambitioner spelade stor roll i båda fallen. En skillnad är att andra världskriget i högre grad drevs av en enskild diktator och en extremistisk ideologi, medan första världskrigets orsaker var mer komplexa och delades av flera aktörer.',
+                kommentar: 'Svaret jämför systematiskt med utvecklade resonemang. Eleven visar orsakssamband, använder relevanta begrepp och ger konkreta exempel. Jämförelsen har tydlig struktur med likheter och skillnader.'
+            },
+            A: {
+                svar: 'En jämförelse av världskrigens orsaker avslöjar både kontinuitet och förändring i europeisk och global historia. Första världskrigets orsaker kan analyseras på flera nivåer: strukturellt skapade alliansystemens bipolära logik en situation där varje lokal konflikt potentiellt involverade samtliga stormakter. Ideologiskt drev imperialismen och nationalismen fram rivalitet om kolonier och prestige. Den utlösande faktorn -- mordet i Sarajevo -- hade inte fått samma konsekvenser utan dessa underliggande strukturer.\n\nAndra världskriget kan delvis ses som en fortsättning av det första. Versaillesfreden skapade inte stabilitet utan nya konfliktytor, vilket historikern E.H. Carr beskrev som "tjugoårig vapenvila". Men det vore förenklat att se andra världskriget som oundviklig följd av det första. Specifika val -- som västmakternas eftergiftspolitik i München 1938 och Hitlers beslut att invadera Polen -- spelade avgörande roll.\n\nEn intressant skillnad gäller ideologins roll: medan första världskriget mer handlade om stormaktsrivalitet inom ett gemensamt europeiskt system, innebar andra världskriget en fundamental ideologisk kamp mellan demokrati, fascism och kommunism. Samtidigt bör man problematisera denna distinktion -- även första världskrigets aktörer mobiliserade nationalistisk ideologi.\n\nSammantaget visar jämförelsen att historiska orsaker sällan är enkla. Strukturella faktorer skapar förutsättningar, men mänskliga beslut i specifika situationer avgör utfallet. Frågan om orsak och ansvar är alltid delvis en fråga om vilka perspektiv och förklaringsmodeller vi väljer att använda.',
+                kommentar: 'Svaret visar välutvecklade resonemang med historiografisk medvetenhet. Eleven analyserar på flera nivåer, problematiserar förenklade förklaringar och drar egna slutsatser om historiska förklaringsmodeller. Begreppsanvändningen är ändamålsenlig och effektiv.'
+            }
+        }
+    },
+    samhallskunskap: {
+        'Beskriv hur demokratin fungerar i Sverige.': {
+            E: {
+                svar: 'I Sverige har vi demokrati. Det betyder att folket bestämmer genom att rösta i val. Vi röstar vart fjärde år till riksdagen, regionen och kommunen. Riksdagen bestämmer lagar och väljer statsminister. Alla som är 18 år får rösta. Vi har också yttrandefrihet och tryckfrihet.',
+                kommentar: 'Svaret beskriver grundläggande fakta om demokratin. Eleven nämner viktiga delar som val, riksdag och grundläggande rättigheter. Resonemangen är enkla men i huvudsak korrekta.'
+            },
+            C: {
+                svar: 'Sverige är en representativ demokrati, vilket innebär att medborgarna väljer representanter som fattar beslut i deras ställe. Valet sker vart fjärde år på tre nivåer: riksdag, region och kommun. Riksdagen är den lagstiftande makten och består av 349 ledamöter. Regeringen, som leds av statsministern, är den verkställande makten.\n\nDemokratin bygger på flera grundprinciper: allmän och lika rösträtt, majoritetsbeslut med respekt för minoriteters rättigheter, samt grundlagsskyddade fri- och rättigheter som yttrandefrihet, tryckfrihet och mötesfrihet. Maktdelning är viktig -- den lagstiftande, verkställande och dömande makten ska vara åtskilda.\n\nMedborgarna kan påverka mellan valen genom att engagera sig i partier, organisationer, demonstrationer eller opinionsbildning. Medierna spelar en viktig roll som granskare av makten.',
+                kommentar: 'Svaret visar goda kunskaper om demokratins uppbyggnad. Eleven använder relevanta begrepp (representativ demokrati, maktdelning) och förklarar samband mellan olika delar av systemet. Resonemangen är utvecklade med konkreta exempel.'
+            },
+            A: {
+                svar: 'Sverige är en konstitutionell monarki med parlamentarisk demokrati, där den politiska makten i praktiken utgår från folket genom representativa val. Systemet vilar på fyra grundlagar som skyddar medborgerliga fri- och rättigheter och reglerar maktfördelningen.\n\nDen svenska demokratin utmärks av flera särdrag: ett proportionellt valsystem som ger små partier möjlighet till representation, en stark tradition av korporativism där intresseorganisationer deltar i politiska processer, samt en relativt decentraliserad styrning genom kommunalt självstyre. Dessa faktorer skapar ett system som balanserar effektivitet med brett deltagande.\n\nSamtidigt finns utmaningar som förtjänar att problematiseras. Valdeltagandet, även om det är högt i internationell jämförelse, varierar kraftigt mellan olika socioekonomiska grupper och stadsdelar. Frågan är om formell demokrati -- att alla har rösträtt -- automatiskt innebär reell demokrati, det vill säga att alla har lika möjligheter att påverka. Politisk ojämlikhet kan uppstå genom skillnader i resurser, nätverk och kunskap.\n\nDessutom utmanas den nationella demokratin av globalisering och överstatligt samarbete, exempelvis genom EU där beslut ibland fattas långt från medborgarna. Debatten om hur demokratin kan anpassas till nya utmaningar -- som digitalisering, desinformation och polarisering -- visar att demokrati inte är ett statiskt tillstånd utan en ständigt pågående process.',
+                kommentar: 'Svaret visar mycket goda kunskaper med välutvecklade och nyanserade resonemang. Eleven problematiserar demokratibegreppet, ser komplexa samband och drar egna slutsatser om demokratins utmaningar. Begreppsanvändningen är ändamålsenlig och effektiv.'
+            }
+        }
+    },
+    svenska: {
+        'Jämför två texter med olika syften och diskutera hur budskapet förmedlas.': {
+            E: {
+                svar: 'Jag har läst en krönika och en nyhetsartikel. Krönikan handlar om att skribenten tycker att sociala medier tar för mycket tid. Hon skriver vad hon själv tycker och det märks att hon har en åsikt. Nyhetsartikeln handlar också om sociala medier men den berättar mest om en undersökning som visar hur mycket tid ungdomar lägger på sina mobiler. Den försöker vara mer neutral.\n\nEn skillnad är att krönikan är mer personlig medan nyhetsartikeln mest har fakta. Budskapet i krönikan är att vi borde använda mobilen mindre. Budskapet i nyhetsartikeln är att informera om hur det ser ut.',
+                kommentar: 'Svaret beskriver de två texterna och nämner grundläggande skillnader i syfte och budskap. Eleven identifierar att en text är personlig och den andra saklig, men utvecklar inte hur språket eller stilgreppen bidrar till att förmedla budskapet. Jämförelsen är enkel och resonemangen är i huvudsak fungerande.'
+            },
+            C: {
+                svar: 'De två texterna jag jämför är en krönika av en journalist och en nyhetsartikel, båda om ungdomars skärmtid. Trots att de behandlar samma ämne har de helt olika syften, vilket syns tydligt i hur de är skrivna.\n\nKrönikan har ett argumenterande syfte -- skribenten vill övertyga läsaren om att vi behöver minska vår skärmtid. Detta märks genom att hon använder retoriska frågor som "Är det verkligen värt det?" och värdeladdade ord som "slöseri" och "meningslöst scrollande". Hon tilltalar läsaren direkt med "du" vilket skapar närhet och gör det svårare att avfärda budskapet. Tonen är personlig och engagerad.\n\nNyhetsartikeln har istället ett informerande syfte. Språket är sakligt och opersonligt, med formuleringar som "enligt undersökningen" och "forskare menar att". Inga åsikter framförs direkt utan fakta presenteras så att läsaren själv ska kunna dra slutsatser. Budskapet förmedlas genom att statistik och expertuttalanden talar för sig själva.\n\nEn viktig skillnad är alltså att krönikan förmedlar sitt budskap genom känslor och personliga argument, medan nyhetsartikeln gör det genom att framstå som objektiv och trovärdig med hjälp av fakta och källor.',
+                kommentar: 'Svaret jämför texterna systematiskt med utvecklade resonemang om hur syfte påverkar språk och stil. Eleven ger konkreta exempel på stilgrepp (retoriska frågor, värdeladdade ord, tilltal) och förklarar hur de bidrar till att förmedla budskapet. Relevanta begrepp som argumenterande, informerande och retoriska frågor används ändamålsenligt.'
+            },
+            A: {
+                svar: 'De två texterna -- en krönika och en nyhetsartikel om ungdomars skärmtid -- illustrerar hur samma ämne kan framställas på fundamentalt olika sätt beroende på textens syfte och genre. En jämförelse av dem avslöjar inte bara skillnader i stil, utan också hur språkliga val styr läsarens tolkning av budskapet.\n\nKrönikan är öppet argumenterande. Skribenten använder sig av ett flertal retoriska strategier: retoriska frågor ("Är det verkligen värt det?") som styr läsarens tanke i en bestämd riktning, värdeladdade ord ("meningslöst scrollande", "slöseri") som väcker känslor, samt direkt tilltal ("du") som skapar en intimitet som gör läsaren till medaktör i texten. Upplägget följer en klassisk argumenterande struktur med tes, argument och slutsats. Ethos bygger hon genom att dela med sig av egna erfarenheter, och pathos genom att måla upp en bild av tid som rinner bort.\n\nNyhetsartikeln framstår som objektiv, men det är värt att problematisera detta. Även om språket är sakligt och opersonligt -- med passiva konstruktioner, källhänvisningar och statistik -- görs val som påverkar budskapet. Vilka forskare som citeras, vilken statistik som lyfts fram och hur rubriken formuleras styr läsarens bild. Den till synes neutrala texten är alltså inte fri från perspektiv, även om den använder helt andra verktyg än krönikan.\n\nSammantaget visar jämförelsen att budskap inte bara handlar om vad som sägs, utan om hur det sägs. Krönikan är transparent med sin påverkan -- läsaren vet att det är en åsikt. Nyhetsartikeln döljer sin påverkan bakom en saklig fasad, vilket paradoxalt nog kan göra den mer styrande eftersom läsaren inte är lika uppmärksam på att hen påverkas. Detta väcker en viktig fråga om kritiskt läsande: vi behöver granska inte bara öppet argumenterande texter, utan också de som utger sig för att vara neutrala.',
+                kommentar: 'Svaret visar välutvecklade och nyanserade resonemang om texternas syfte, stil och budskap. Eleven problematiserar nyhetsartikelns objektivitet, analyserar retoriska strategier med korrekta begrepp (ethos, pathos, retoriska frågor) och drar en egen slutsats om kritiskt läsande. Jämförelsen sker på djupet med flera perspektiv och begreppsanvändningen är ändamålsenlig och effektiv.'
+            }
+        }
+    }
+};
+
+// Generic templates for questions without pre-written answers
+const GENERIC_TEMPLATES = {
+    E: {
+        structure: 'Beskrivande, kort, grundläggande fakta',
+        connectors: [],
+        template: (topic) => `[Grundläggande fakta om ${topic}]. [Enkel beskrivning av en aspekt]. [Ytterligare en enkel beskrivning]. [Kort avslutning].`,
+        traits: [
+            'Beskriver och redogör -- nämner fakta utan att analysera',
+            'Enkla, korta meningar och resonemang',
+            'Få eller inga kopplingsord (eftersom, därför, detta beror på...)',
+            'Begränsad användning av ämnesbegrepp',
+            'I huvudsak fungerande svar som besvarar frågan',
+            'Visar grundläggande kunskap men utan djup'
+        ]
+    },
+    C: {
+        structure: 'Analyserande, utvecklade resonemang med kopplingar',
+        connectors: ['eftersom', 'därför', 'detta leder till', 'till exempel', 'jämfört med'],
+        template: (topic) => `[Inledning som visar förståelse för ${topic}]. [Utvecklat resonemang med orsakssamband]. [Konkret exempel som stöd]. [Jämförelse eller koppling till annat]. [Slutsats som binder ihop resonemanget].`,
+        traits: [
+            'Jämför, analyserar och förklarar samband -- inte bara beskriver',
+            'Utvecklade resonemang med kopplingsord (eftersom, därför, detta innebär...)',
+            'Tydliga orsakssamband och kopplingar',
+            'Ändamålsenlig användning av ämnesbegrepp',
+            'Ger konkreta exempel som stöd för resonemang',
+            'Visar förståelse för sammanhang och orsak-verkan'
+        ]
+    },
+    A: {
+        structure: 'Problematiserande, nyanserat med flera perspektiv och slutsats',
+        connectors: ['å ena sidan', 'å andra sidan', 'dock', 'emellertid', 'samtidigt', 'visserligen'],
+        template: (topic) => `[Inledning som ramar in ${topic} i ett bredare sammanhang]. [Analys ur ett perspektiv med belägg]. [Kontrasterat med ett annat perspektiv]. [Problematisering -- det är inte så enkelt som det verkar]. [Nyanserad slutsats som väger samman perspektiven].`,
+        traits: [
+            'Analyserar, reflekterar och problematiserar',
+            'Välutvecklade och nyanserade resonemang med flera perspektiv',
+            'Komplexa samband och orsakskedjor',
+            'Drar egna, välgrundade slutsatser',
+            'Ändamålsenlig och effektiv begreppsanvändning',
+            'Visar medvetenhet om att frågan kan ses ur olika synvinklar',
+            'Syntetiserar information till en helhet'
+        ]
+    }
+};
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+    });
+});
+
+// ============================================================
+// FAQ ACCORDION
+// ============================================================
+function buildFAQ() {
+    const container = document.getElementById('faq-accordion');
+    container.innerHTML = FAQ.map(item => `
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">${item.q}</button>
+            <div class="accordion-body">
+                <div class="accordion-body-inner"><p>${item.a}</p></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleAccordion(btn) {
+    const body = btn.nextElementSibling;
+    const isOpen = body.classList.contains('open');
+    btn.classList.toggle('open', !isOpen);
+    body.classList.toggle('open', !isOpen);
+}
+
+// ============================================================
+// TAB 1: Q&A SEARCH
+// ============================================================
+function askQuick(btn) {
+    document.getElementById('qa-input').value = btn.textContent;
+    searchKB();
+}
+
+function searchKB() {
+    const query = document.getElementById('qa-input').value.trim().toLowerCase();
+    if (!query) return;
+
+    const resultBox = document.getElementById('qa-result');
+    let bestMatch = null;
+    let bestScore = 0;
+
+    for (const [key, entry] of Object.entries(KB)) {
+        let score = 0;
+        for (const kw of entry.keywords) {
+            if (query.includes(kw)) score += 3;
+            else {
+                const words = kw.split(' ');
+                for (const w of words) {
+                    if (query.includes(w) && w.length > 3) score += 1;
+                }
+            }
+        }
+        if (score > bestScore) {
+            bestScore = score;
+            bestMatch = entry;
+        }
+    }
+
+    if (bestMatch && bestScore >= 1) {
+        resultBox.innerHTML = `<h3>${bestMatch.title}</h3>${bestMatch.content}`;
+        resultBox.classList.add('visible');
+    } else {
+        // Fuzzy match
+        const queryWords = query.split(/\s+/).filter(w => w.length > 2);
+        let fallbackMatch = null;
+        let fallbackScore = 0;
+
+        for (const [key, entry] of Object.entries(KB)) {
+            let score = 0;
+            const allText = entry.keywords.join(' ') + ' ' + entry.title.toLowerCase();
+            for (const qw of queryWords) {
+                if (allText.includes(qw)) score++;
+            }
+            if (score > fallbackScore) {
+                fallbackScore = score;
+                fallbackMatch = entry;
+            }
+        }
+
+        if (fallbackMatch && fallbackScore > 0) {
+            resultBox.innerHTML = `<h3>${fallbackMatch.title}</h3><p style="color:var(--warning); margin-bottom:0.5rem;"><em>Närmaste matchning vi hittade:</em></p>${fallbackMatch.content}`;
+            resultBox.classList.add('visible');
+        } else {
+            resultBox.innerHTML = `<h3>Inget exakt svar hittades</h3>
+                <p>Vi hittade inget direkt svar på din fråga i kunskapsbasen. Prova att:</p>
+                <ul>
+                    <li>Omformulera frågan med andra nyckelord</li>
+                    <li>Använda en av snabbfrågorna ovan</li>
+                    <li>Titta i FAQ-sektionen nedan</li>
+                    <li>Besöka <a href="https://www.skolverket.se/undervisning/grundskolan" target="_blank">Skolverkets sida om grundskolan</a></li>
+                </ul>`;
+            resultBox.classList.add('visible');
+        }
+    }
+}
+
+// ============================================================
+// TAB 2: EXAM QUESTION ANALYSIS
+// ============================================================
+function analyzeQuestions() {
+    const amne = document.getElementById('pf-amne').value;
+    const niva = document.getElementById('pf-niva').value;
+    const fragorText = document.getElementById('pf-fragor').value.trim();
+    const syfte = document.getElementById('pf-syfte').value.trim();
+
+    if (!fragorText) {
+        alert('Skriv in minst en provfråga.');
+        return;
+    }
+
+    const loading = document.getElementById('pf-loading');
+    const resultBox = document.getElementById('pf-result');
+    loading.classList.add('visible');
+    resultBox.classList.remove('visible');
+
+    // Parse questions
+    const fragor = fragorText.split('\n')
+        .map(f => f.replace(/^\d+[\.\)]\s*/, '').trim())
+        .filter(f => f.length > 5);
+
+    setTimeout(() => {
+        let totalScore = 0;
+        let maxScore = 0;
+        let html = '<h3>Analys av provfrågor</h3>';
+
+        if (amne) {
+            html += `<p><span class="badge badge-info">${amne}</span> `;
+        }
+        html += `<span class="badge badge-info">Nivå: ${niva}</span></p>`;
+
+        fragor.forEach((fraga, i) => {
+            const analysis = analyzeOneQuestion(fraga, niva);
+            totalScore += analysis.score;
+            maxScore += analysis.maxScore;
+
+            html += `<div style="border-left:4px solid ${analysis.color}; padding:0.75rem 1rem; margin:1rem 0; background:#fafafa; border-radius:0 8px 8px 0;">`;
+            html += `<p style="font-weight:600; margin-bottom:0.5rem;">Fråga ${i + 1}: "${fraga.substring(0, 80)}${fraga.length > 80 ? '...' : ''}"</p>`;
+            html += `<ul class="checklist">`;
+
+            for (const check of analysis.checks) {
+                const iconClass = check.pass ? 'check-pass' : (check.warn ? 'check-warn' : 'check-fail');
+                const icon = check.pass ? '&#10003;' : (check.warn ? '!' : '&#10007;');
+                html += `<li><span class="check-icon ${iconClass}">${icon}</span><span>${check.text}</span></li>`;
+            }
+
+            html += '</ul></div>';
+        });
+
+        // Overall score
+        const pct = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
+        const scoreColor = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+
+        html += `<div class="score-display">
+            <div class="score-circle" style="background:${scoreColor}">${pct}%</div>
+            <div class="score-label">Uppfyllnadsgrad av Lgr22-kriterier</div>
+        </div>`;
+
+        // Recommendations
+        html += '<h3>Rekommendationer</h3><ul>';
+        if (pct < 50) {
+            html += '<li>Flera frågor behöver omarbetas för att bättre matcha Lgr22:s betygskriterier.</li>';
+        }
+        if (niva !== 'blandad' && niva !== 'E') {
+            const hasAnalysis = fragor.some(f => /analysera|jämför|diskutera|problematisera/i.test(f));
+            if (!hasAnalysis) {
+                html += `<li>Inkludera frågor som kräver analys eller jämförelse för ${niva}-nivå.</li>`;
+            }
+        }
+        if (fragor.length < 3) {
+            html += '<li>Överväg att lägga till fler frågor för att täcka bredden av centralt innehåll.</li>';
+        }
+        if (!syfte) {
+            html += '<li>Koppla provet till ämnets syfte och centralt innehåll för tydligare bedömningsgrund.</li>';
+        }
+        html += '<li>Kom ihåg: Bedömning i Lgr22 baseras på sammantagen bedömning -- provet bör ge elever möjlighet att visa kunskaper på olika nivåer.</li>';
+        html += '</ul>';
+
+        loading.classList.remove('visible');
+        resultBox.innerHTML = html;
+        resultBox.classList.add('visible');
+    }, 800);
+}
+
+function analyzeOneQuestion(fraga, niva) {
+    const checks = [];
+    let score = 0;
+    let maxScore = 0;
+
+    // General checks
+    const criteria = QUALITY_CRITERIA.general;
+    for (const c of criteria) {
+        maxScore++;
+        if (c.check) {
+            const pass = c.check(fraga);
+            checks.push({ text: `${c.name}: ${c.desc}`, pass });
+            if (pass) score++;
+        } else {
+            checks.push({ text: `${c.name}: ${c.desc}`, pass: true, warn: false });
+            score++;
+        }
+    }
+
+    // Level-specific checks
+    const levelCriteria = niva === 'blandad' ? [...QUALITY_CRITERIA.E, ...QUALITY_CRITERIA.C] : (QUALITY_CRITERIA[niva] || QUALITY_CRITERIA.E);
+    for (const c of levelCriteria) {
+        maxScore++;
+        if (c.check) {
+            const pass = c.check(fraga);
+            checks.push({ text: `[${niva === 'blandad' ? 'Blandad' : niva}] ${c.name}: ${c.desc}`, pass });
+            if (pass) score++;
+        } else {
+            checks.push({ text: `[${niva === 'blandad' ? 'Blandad' : niva}] ${c.name}: ${c.desc}`, pass: true, warn: true });
+            score += 0.5;
+        }
+    }
+
+    const pct = maxScore > 0 ? (score / maxScore) : 0;
+    const color = pct >= 0.7 ? '#10b981' : pct >= 0.4 ? '#f59e0b' : '#ef4444';
+
+    return { score, maxScore, checks, color };
+}
+
+function clearExamForm() {
+    document.getElementById('pf-amne').value = '';
+    document.getElementById('pf-niva').value = 'E';
+    document.getElementById('pf-fragor').value = '';
+    document.getElementById('pf-syfte').value = '';
+    document.getElementById('pf-result').classList.remove('visible');
+}
+
+// ============================================================
+// TAB 3: EXAMPLE ANSWER GENERATOR
+// ============================================================
+function updateExampleQuestions() {
+    const amne = document.getElementById('ex-amne').value;
+    const container = document.getElementById('ex-quick-questions');
+
+    if (!amne || !EXAMPLE_QUESTIONS[amne]) {
+        container.innerHTML = '<span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Välj ett ämne ovan för att se exempelfrågor, eller skriv din egen:</span>';
+        return;
+    }
+
+    const questions = EXAMPLE_QUESTIONS[amne];
+    container.innerHTML = '<span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Klicka på en exempelfråga eller skriv din egen:</span>' +
+        questions.map(q => `<button class="quick-q" onclick="document.getElementById('ex-fraga').value='${q.replace(/'/g, "\\'")}';generateExamples()">${q.length > 65 ? q.substring(0, 62) + '...' : q}</button>`).join('');
+}
+
+function generateExamples() {
+    const amne = document.getElementById('ex-amne').value;
+    const fraga = document.getElementById('ex-fraga').value.trim();
+
+    if (!fraga) {
+        alert('Skriv in en provfråga först.');
+        return;
+    }
+
+    const loading = document.getElementById('ex-loading');
+    const resultBox = document.getElementById('ex-result');
+    loading.classList.add('visible');
+    resultBox.classList.remove('visible');
+
+    setTimeout(() => {
+        const html = buildExampleAnswers(amne, fraga);
+        loading.classList.remove('visible');
+        resultBox.innerHTML = html;
+        resultBox.classList.add('visible');
+    }, 600);
+}
+
+function buildExampleAnswers(amne, fraga) {
+    // Check if we have a pre-written example
+    const preWritten = EXAMPLE_ANSWERS[amne] && EXAMPLE_ANSWERS[amne][fraga];
+    let html = '';
+
+    html += `<h3>Exempelsvar för: "${fraga.length > 80 ? fraga.substring(0, 77) + '...' : fraga}"</h3>`;
+
+    if (amne) {
+        html += `<p style="margin-bottom:1rem;"><span class="badge badge-info">${amne}</span></p>`;
+    }
+
+    const grades = [
+        { level: 'E', color: '#f59e0b', bgColor: '#fef3c7', borderColor: '#f59e0b', textColor: '#78350f', label: 'E-nivå -- Grundläggande kunskaper' },
+        { level: 'C', color: '#06b6d4', bgColor: '#cffafe', borderColor: '#06b6d4', textColor: '#164e63', label: 'C-nivå -- Goda kunskaper' },
+        { level: 'A', color: '#10b981', bgColor: '#dcfce7', borderColor: '#10b981', textColor: '#14532d', label: 'A-nivå -- Mycket goda kunskaper' }
+    ];
+
+    for (const g of grades) {
+        html += `<div style="background:${g.bgColor}; border-left:4px solid ${g.borderColor}; border-radius:0 12px 12px 0; padding:1.25rem; margin:1rem 0;">`;
+        html += `<h3 style="color:${g.color}; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;">`;
+        html += `<span class="badge" style="background:${g.color}; color:white;">${g.level}</span> ${g.label}</h3>`;
+
+        if (preWritten) {
+            const example = preWritten[g.level];
+            html += `<div style="background:white; border-radius:8px; padding:1rem; margin-bottom:0.75rem; color:${g.textColor}; line-height:1.7; white-space:pre-line; font-size:0.95rem;">${example.svar}</div>`;
+            html += `<div style="background:rgba(255,255,255,0.6); border-radius:8px; padding:0.75rem; font-size:0.9rem;">`;
+            html += `<strong>Bedömningskommentar:</strong> ${example.kommentar}`;
+            html += '</div>';
+        } else {
+            const tmpl = GENERIC_TEMPLATES[g.level];
+            const topic = extractTopic(fraga);
+
+            html += `<div style="background:white; border-radius:8px; padding:1rem; margin-bottom:0.75rem; color:${g.textColor};">`;
+            html += `<p style="font-weight:600; margin-bottom:0.5rem;">Svarsstruktur: ${tmpl.structure}</p>`;
+            html += `<p style="font-style:italic; margin-bottom:0.75rem; line-height:1.6;">${tmpl.template(topic)}</p>`;
+
+            if (tmpl.connectors.length > 0) {
+                html += `<p style="font-size:0.85rem; margin-bottom:0.5rem;"><strong>Typiska kopplingsord:</strong> ${tmpl.connectors.join(', ')}</p>`;
+            }
+            html += '</div>';
+
+            html += `<div style="background:rgba(255,255,255,0.6); border-radius:8px; padding:0.75rem; font-size:0.9rem;">`;
+            html += `<strong>Kännetecken för ${g.level}-svar:</strong>`;
+            html += '<ul style="padding-left:1.2rem; margin-top:0.3rem;">';
+            for (const trait of tmpl.traits) {
+                html += `<li>${trait}</li>`;
+            }
+            html += '</ul></div>';
+        }
+
+        html += '</div>';
+    }
+
+    // Tips section
+    html += `<div style="background:#ecfeff; border:2px solid #a5f3fc; border-radius:12px; padding:1.25rem; margin-top:1.5rem;">`;
+    html += '<h3 style="color:#0e7490; margin-bottom:0.5rem;">Tips för kollegial diskussion</h3>';
+    html += '<ul style="padding-left:1.5rem; color:#164e63; font-size:0.9rem;">';
+    html += '<li>Diskutera med kollegor: var går gränsen mellan E och C i just denna fråga?</li>';
+    html += '<li>Vilka delar av det centrala innehållet testas av denna fråga?</li>';
+    html += '<li>Hur ser ni på sammantagen bedömning om eleven visar A-kvalitet i analys men E-kvalitet i begreppsanvändning?</li>';
+    html += '<li>Använd exempelsvaren som utgångspunkt för sambedömning och kalibrering.</li>';
+    html += '</ul></div>';
+
+    if (!preWritten) {
+        html += `<p style="background:#fff3cd; padding:0.75rem 1rem; border-radius:8px; border-left:4px solid #f59e0b; margin-top:1rem; font-size:0.85rem;">
+            <strong>Obs:</strong> För denna fråga visas generella svarsmallar. Välj en av de föreslagna exempelfrågorna för att se kompletta, ämnesspecifika exempelsvar.
+        </p>`;
+    }
+
+    return html;
+}
+
+function extractTopic(fraga) {
+    const cleaned = fraga.replace(/^(diskutera|analysera|redogör för|beskriv|förklara|jämför|resonera om)\s+/i, '')
+        .replace(/[?.!]+$/, '').trim();
+    return cleaned.length > 60 ? cleaned.substring(0, 57) + '...' : cleaned;
+}
+
+function clearExampleForm() {
+    document.getElementById('ex-amne').value = '';
+    document.getElementById('ex-fraga').value = '';
+    document.getElementById('ex-result').classList.remove('visible');
+    document.getElementById('ex-quick-questions').innerHTML = '<span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Välj ett ämne ovan för att se exempelfrågor, eller skriv din egen:</span>';
+}
+
+// ============================================================
+// INIT
+// ============================================================
+buildFAQ();
+</script>
+</body>
+</html>
