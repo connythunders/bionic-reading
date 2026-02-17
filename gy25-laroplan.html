@@ -909,6 +909,12 @@
             <div id="api-program-detail-content"></div>
         </div>
 
+        <!-- Inriktningsdetalj -->
+        <div class="card" id="api-orientation-detail" style="display:none;">
+            <button class="btn btn-secondary" onclick="closeOrientationDetail()" style="margin-bottom:1rem;">Tillbaka till programmet</button>
+            <div id="api-orientation-detail-content"></div>
+        </div>
+
         <!-- Amnesutforskare -->
         <div class="card" id="api-subjects-card" style="display:none;">
             <h2>Utforska GY25-amnen</h2>
@@ -1816,6 +1822,8 @@ let apiSubjects = [];
 let currentProgramFilter = 'all';
 let currentSubjectCategory = 'all';
 let currentSubjectCode = null;
+let currentProgramCode = null;
+let currentProgramDetailData = null;
 
 async function initAPIData() {
     const statusText = document.getElementById('api-status-text');
@@ -1898,9 +1906,12 @@ async function showProgramDetail(code) {
     const program = apiPrograms.find(p => p.code === code);
     if (!program) return;
 
+    currentProgramCode = code;
+
     document.getElementById('api-programs-card').style.display = 'none';
     document.getElementById('api-subjects-card').style.display = 'none';
     document.getElementById('api-info-card').style.display = 'none';
+    document.getElementById('api-orientation-detail').style.display = 'none';
     document.getElementById('api-program-detail').style.display = 'block';
 
     const isVoc = program.category === 'VOCATIONAL_PROGRAM';
@@ -1915,25 +1926,27 @@ async function showProgramDetail(code) {
         <span class="badge badge-success">Giltig fran ${program.startDate || '2025-07-01'}</span>
     </div>`;
 
-    // Orientations
+    // Orientations - clickable
     if (program.orientations && program.orientations.length > 0) {
-        html += '<h3>Inriktningar</h3><div class="subject-grid" style="margin-top:0.5rem;">';
+        html += '<h3>Inriktningar</h3><p style="color:var(--text-light); font-size:0.9rem; margin-bottom:0.5rem;">Klicka pa en inriktning for att se amnen och kurser.</p><div class="subject-grid" style="margin-top:0.5rem;">';
         for (const o of program.orientations) {
-            html += `<div style="padding:0.75rem 1rem; border:2px solid var(--border); border-radius:10px;">
+            html += `<div class="subject-card" onclick="showOrientationDetail('${o.code}')" style="padding:0.75rem 1rem; border:2px solid var(--border); border-radius:10px; cursor:pointer;">
                 <div style="font-weight:600;">${o.name}</div>
                 <div style="font-size:0.8rem; color:var(--text-light);">${o.code}${o.points ? ' | ' + o.points + ' p' : ''}</div>
+                <div style="font-size:0.75rem; color:var(--primary); margin-top:0.3rem; font-weight:500;">Visa amnen &rarr;</div>
             </div>`;
         }
         html += '</div>';
     }
 
-    // Profiles
+    // Profiles - clickable
     if (program.profiles && program.profiles.length > 0) {
-        html += '<h3>Profiler</h3><div class="subject-grid" style="margin-top:0.5rem;">';
+        html += '<h3>Profiler</h3><p style="color:var(--text-light); font-size:0.9rem; margin-bottom:0.5rem;">Klicka pa en profil for att se amnen och kurser.</p><div class="subject-grid" style="margin-top:0.5rem;">';
         for (const pr of program.profiles) {
-            html += `<div style="padding:0.75rem 1rem; border:2px solid var(--border); border-radius:10px;">
+            html += `<div class="subject-card" onclick="showOrientationDetail('${pr.code}')" style="padding:0.75rem 1rem; border:2px solid var(--border); border-radius:10px; cursor:pointer;">
                 <div style="font-weight:600;">${pr.name}</div>
                 <div style="font-size:0.8rem; color:var(--text-light);">${pr.code}</div>
+                <div style="font-size:0.75rem; color:var(--primary); margin-top:0.3rem; font-weight:500;">Visa amnen &rarr;</div>
             </div>`;
         }
         html += '</div>';
@@ -1945,6 +1958,7 @@ async function showProgramDetail(code) {
         if (res.ok) {
             const detail = await res.json();
             const prog = detail.program || detail;
+            currentProgramDetailData = prog;
 
             if (prog.description) {
                 html += `<h3>Beskrivning</h3><div style="color:var(--text-mid); line-height:1.7;">${prog.description}</div>`;
@@ -1976,9 +1990,98 @@ async function showProgramDetail(code) {
 
 function closeProgramDetail() {
     document.getElementById('api-program-detail').style.display = 'none';
+    document.getElementById('api-orientation-detail').style.display = 'none';
     document.getElementById('api-programs-card').style.display = 'block';
     document.getElementById('api-subjects-card').style.display = 'block';
     document.getElementById('api-info-card').style.display = 'block';
+}
+
+// --- Orientation detail ---
+async function showOrientationDetail(orientationCode) {
+    document.getElementById('api-program-detail').style.display = 'none';
+    const detailCard = document.getElementById('api-orientation-detail');
+    const content = document.getElementById('api-orientation-detail-content');
+    detailCard.style.display = 'block';
+    content.innerHTML = '<div class="loading visible"><div class="spinner"></div><p>Hamtar inriktningsdetaljer...</p></div>';
+
+    // Find orientation data from cached program detail or fetch it
+    let orientationData = null;
+    const findOrientation = (prog) => {
+        const allOrientations = [...(prog.orientations || []), ...(prog.profiles || [])];
+        return allOrientations.find(o => o.code === orientationCode);
+    };
+
+    if (currentProgramDetailData) {
+        orientationData = findOrientation(currentProgramDetailData);
+    }
+
+    if (!orientationData && currentProgramCode) {
+        try {
+            const res = await fetch(API_BASE + '/programs/' + currentProgramCode);
+            if (res.ok) {
+                const detail = await res.json();
+                currentProgramDetailData = detail.program || detail;
+                orientationData = findOrientation(currentProgramDetailData);
+            }
+        } catch (e) { /* fall through */ }
+    }
+
+    if (!orientationData) {
+        content.innerHTML = '<p style="color:var(--danger);">Kunde inte hitta inriktningsdata.</p>';
+        return;
+    }
+
+    let html = `<h2>${orientationData.name}</h2>`;
+    html += `<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+        <span class="badge badge-info">${orientationData.code}</span>
+        ${orientationData.points ? '<span class="badge badge-success">' + orientationData.points + ' poang</span>' : ''}
+        <span class="badge badge-info">${orientationData.type || 'Inriktning'}</span>
+    </div>`;
+
+    // Subjects and their courses
+    if (orientationData.subjects && orientationData.subjects.length > 0) {
+        html += `<h3>Amnen i inriktningen</h3>
+            <p style="color:var(--text-light); font-size:0.9rem; margin-bottom:0.75rem;">${orientationData.subjects.length} amnen med totalt ${orientationData.subjects.reduce((sum, s) => sum + (s.courses ? s.courses.length : 0), 0)} kurser.</p>`;
+
+        for (const s of orientationData.subjects) {
+            html += `<div style="background:var(--bg-white); border:2px solid var(--border); border-radius:12px; padding:1.25rem; margin-bottom:1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+                    <div>
+                        <div style="font-weight:700; font-size:1.05rem;">${s.name}</div>
+                        <span style="font-size:0.8rem; color:var(--text-light);">${s.code}${s.points ? ' | ' + s.points + ' p' : ''}</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="closeOrientationDetail(); closeProgramDetail(); showSubjectDetail('${s.code}')" style="font-size:0.8rem; padding:0.3rem 0.75rem;">Oppna amnet</button>
+                </div>`;
+
+            if (s.courses && s.courses.length > 0) {
+                html += '<div class="subject-grid" style="margin-top:0.5rem;">';
+                for (const c of s.courses) {
+                    html += `<div class="subject-card" onclick="closeOrientationDetail(); closeProgramDetail(); showSubjectDetail('${s.code}'); setTimeout(() => showLevelDetail('${c.code}'), 500)" style="cursor:pointer; text-align:left; padding:0.75rem 1rem;">
+                        <div style="font-weight:600; font-size:0.9rem;">${c.name}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.25rem;">
+                            <span style="font-size:0.8rem; color:var(--text-light);">${c.code}</span>
+                            ${c.points ? '<span style="font-size:0.75rem; padding:0.1rem 0.5rem; border-radius:8px; background:#dbeafe; color:#1e40af;">' + c.points + ' p</span>' : ''}
+                        </div>
+                    </div>`;
+                }
+                html += '</div>';
+            }
+            html += '</div>';
+        }
+    } else {
+        html += '<p style="color:var(--text-light);">Inga amnesdetaljer tillgangliga for denna inriktning. Testa att oppna programmet pa nytt for att ladda detaljerad data.</p>';
+    }
+
+    content.innerHTML = html;
+}
+
+function closeOrientationDetail() {
+    document.getElementById('api-orientation-detail').style.display = 'none';
+    if (currentProgramCode) {
+        document.getElementById('api-program-detail').style.display = 'block';
+    } else {
+        closeProgramDetail();
+    }
 }
 
 // --- Subjects ---
@@ -2052,6 +2155,7 @@ async function showSubjectDetail(code) {
     document.getElementById('api-subjects-card').style.display = 'none';
     document.getElementById('api-info-card').style.display = 'none';
     document.getElementById('api-program-detail').style.display = 'none';
+    document.getElementById('api-orientation-detail').style.display = 'none';
     document.getElementById('api-level-detail').style.display = 'none';
 
     const detailCard = document.getElementById('api-subject-detail');
