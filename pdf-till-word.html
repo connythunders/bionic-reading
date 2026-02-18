@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF till Word - Scannad PDF till redigerbar Word-fil</title>
+    <meta name="description" content="Ladda upp scannade PDF-sidor och få ut texten som en Word-fil. Använder OCR för att känna igen all text.">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.2.3/build/index.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #43e97b 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .app-container {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            margin: 20px 0;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .app-header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #4facfe, #00c9a7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .app-header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .upload-area {
+            border: 3px dashed #ccd5e0;
+            border-radius: 16px;
+            padding: 50px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+            background: #f8fafc;
+        }
+
+        .upload-area:hover,
+        .upload-area.drag-over {
+            border-color: #4facfe;
+            background: #eef6ff;
+            transform: translateY(-2px);
+        }
+
+        .upload-area .icon {
+            font-size: 3.5em;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .upload-area h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.3em;
+        }
+
+        .upload-area p {
+            color: #888;
+            font-size: 0.95em;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-info {
+            display: none;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-info.visible {
+            display: flex;
+        }
+
+        .file-info .file-icon {
+            font-size: 2em;
+        }
+
+        .file-info .file-details {
+            flex: 1;
+        }
+
+        .file-info .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .file-info .file-size {
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        .file-info .remove-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #aaa;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .file-info .remove-btn:hover {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        .settings {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .settings h3 {
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 1em;
+        }
+
+        .settings-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .setting-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .setting-group label {
+            display: block;
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .setting-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95em;
+            background: white;
+            cursor: pointer;
+        }
+
+        .convert-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.15em;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #4facfe, #00c9a7);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+            margin-bottom: 24px;
+        }
+
+        .convert-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.5);
+        }
+
+        .convert-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-section {
+            display: none;
+            margin-bottom: 24px;
+        }
+
+        .progress-section.visible {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .progress-percent {
+            font-weight: 600;
+            color: #4facfe;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe, #00c9a7);
+            border-radius: 6px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-status {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .result-section {
+            display: none;
+            text-align: center;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 30px;
+        }
+
+        .result-section.visible {
+            display: block;
+        }
+
+        .result-section .success-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .result-section h3 {
+            color: #166534;
+            margin-bottom: 6px;
+        }
+
+        .result-section p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 14px 36px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+        }
+
+        .new-conversion-btn {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 10px 24px;
+            background: none;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.95em;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .new-conversion-btn:hover {
+            border-color: #4facfe;
+            color: #4facfe;
+        }
+
+        .error-section {
+            display: none;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            color: #991b1b;
+        }
+
+        .error-section.visible {
+            display: block;
+        }
+
+        .preview-section {
+            display: none;
+            margin-bottom: 24px;
+        }
+
+        .preview-section.visible {
+            display: block;
+        }
+
+        .preview-section h3 {
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .preview-text {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 0.9em;
+            line-height: 1.7;
+            color: #444;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: #aaa;
+            font-size: 0.85em;
+        }
+
+        .footer a {
+            color: #4facfe;
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .app-container {
+                padding: 24px 18px;
+            }
+
+            .app-header h1 {
+                font-size: 1.6em;
+            }
+
+            .upload-area {
+                padding: 30px 16px;
+            }
+
+            .settings-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <h1>PDF till Word</h1>
+            <p>Ladda upp en scannad PDF och f&aring; texten som en Word-fil</p>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <span class="icon">&#128196;</span>
+            <h3>Dra och sl&auml;pp din PDF h&auml;r</h3>
+            <p>eller klicka f&ouml;r att v&auml;lja fil</p>
+        </div>
+        <input type="file" class="file-input" id="fileInput" accept=".pdf">
+
+        <div class="file-info" id="fileInfo">
+            <span class="file-icon">&#128196;</span>
+            <div class="file-details">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-size" id="fileSize"></div>
+            </div>
+            <button class="remove-btn" id="removeBtn" title="Ta bort fil">&times;</button>
+        </div>
+
+        <div class="settings">
+            <h3>Inst&auml;llningar</h3>
+            <div class="settings-row">
+                <div class="setting-group">
+                    <label for="langSelect">Spr&aring;k f&ouml;r textigenkänning (OCR)</label>
+                    <select id="langSelect">
+                        <option value="swe">Svenska</option>
+                        <option value="eng">Engelska</option>
+                        <option value="swe+eng">Svenska + Engelska</option>
+                        <option value="deu">Tyska</option>
+                        <option value="fra">Franska</option>
+                        <option value="spa">Spanska</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="qualitySelect">Bildkvalitet (h&ouml;gre = b&auml;ttre OCR)</label>
+                    <select id="qualitySelect">
+                        <option value="2">Normal (snabbare)</option>
+                        <option value="3" selected>H&ouml;g (rekommenderad)</option>
+                        <option value="4">Mycket h&ouml;g (l&aring;ngsammare)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button class="convert-btn" id="convertBtn" disabled>Konvertera till Word</button>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-header">
+                <span class="progress-label" id="progressLabel">F&ouml;rbereder...</span>
+                <span class="progress-percent" id="progressPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-status" id="progressStatus">Startar konvertering...</div>
+        </div>
+
+        <div class="error-section" id="errorSection"></div>
+
+        <div class="preview-section" id="previewSection">
+            <h3>F&ouml;rhandsgranskning av extraherad text</h3>
+            <div class="preview-text" id="previewText"></div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <span class="success-icon">&#10004;&#65039;</span>
+            <h3>Konvertering klar!</h3>
+            <p id="resultInfo"></p>
+            <button class="download-btn" id="downloadBtn">Ladda ner Word-fil</button>
+            <br>
+            <button class="new-conversion-btn" id="newConversionBtn">Konvertera en ny fil</button>
+        </div>
+
+        <div class="footer">
+            <a href="index.html">&larr; Tillbaka till startsidan</a>
+        </div>
+    </div>
+
+    <script>
+        // Set up PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // State
+        let selectedFile = null;
+        let generatedBlob = null;
+
+        // DOM elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const removeBtn = document.getElementById('removeBtn');
+        const convertBtn = document.getElementById('convertBtn');
+        const progressSection = document.getElementById('progressSection');
+        const progressLabel = document.getElementById('progressLabel');
+        const progressPercent = document.getElementById('progressPercent');
+        const progressFill = document.getElementById('progressFill');
+        const progressStatus = document.getElementById('progressStatus');
+        const errorSection = document.getElementById('errorSection');
+        const previewSection = document.getElementById('previewSection');
+        const previewText = document.getElementById('previewText');
+        const resultSection = document.getElementById('resultSection');
+        const resultInfo = document.getElementById('resultInfo');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const newConversionBtn = document.getElementById('newConversionBtn');
+        const langSelect = document.getElementById('langSelect');
+        const qualitySelect = document.getElementById('qualitySelect');
+
+        // File upload handlers
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        removeBtn.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            fileInfo.classList.remove('visible');
+            uploadArea.style.display = '';
+            convertBtn.disabled = true;
+            hideError();
+        });
+
+        function handleFile(file) {
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.add('visible');
+            uploadArea.style.display = 'none';
+            convertBtn.disabled = false;
+            hideError();
+            resultSection.classList.remove('visible');
+            previewSection.classList.remove('visible');
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        // Progress helpers
+        function showProgress(label, percent, status) {
+            progressSection.classList.add('visible');
+            progressLabel.textContent = label;
+            progressPercent.textContent = Math.round(percent) + '%';
+            progressFill.style.width = percent + '%';
+            progressStatus.textContent = status;
+        }
+
+        function hideProgress() {
+            progressSection.classList.remove('visible');
+        }
+
+        function showError(msg) {
+            errorSection.textContent = msg;
+            errorSection.classList.add('visible');
+        }
+
+        function hideError() {
+            errorSection.classList.remove('visible');
+        }
+
+        // Convert button
+        convertBtn.addEventListener('click', startConversion);
+
+        async function startConversion() {
+            if (!selectedFile) return;
+
+            convertBtn.disabled = true;
+            hideError();
+            resultSection.classList.remove('visible');
+            previewSection.classList.remove('visible');
+
+            try {
+                const lang = langSelect.value;
+                const scale = parseInt(qualitySelect.value);
+
+                // Step 1: Load PDF
+                showProgress('Laddar PDF...', 5, 'L\u00e4ser in filen...');
+                const arrayBuffer = await selectedFile.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const totalPages = pdf.numPages;
+
+                showProgress('Laddar PDF...', 10, `PDF har ${totalPages} sida${totalPages > 1 ? 'r' : ''}`);
+
+                // Step 2: Render pages and OCR
+                const allPageTexts = [];
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageProgress = 10 + (80 * (i - 1) / totalPages);
+
+                    // Render page to canvas
+                    showProgress(
+                        `Sida ${i} av ${totalPages}`,
+                        pageProgress,
+                        'Renderar sida...'
+                    );
+
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({ scale: scale });
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    const ctx = canvas.getContext('2d');
+
+                    await page.render({
+                        canvasContext: ctx,
+                        viewport: viewport
+                    }).promise;
+
+                    // OCR the rendered image
+                    showProgress(
+                        `Sida ${i} av ${totalPages}`,
+                        pageProgress + (40 / totalPages),
+                        'K\u00e4nner igen text (OCR)...'
+                    );
+
+                    const result = await Tesseract.recognize(canvas, lang, {
+                        logger: (m) => {
+                            if (m.status === 'recognizing text') {
+                                const ocrProgress = pageProgress + (80 / totalPages) * (m.progress || 0);
+                                showProgress(
+                                    `Sida ${i} av ${totalPages}`,
+                                    Math.min(ocrProgress, 90),
+                                    `K\u00e4nner igen text... ${Math.round((m.progress || 0) * 100)}%`
+                                );
+                            }
+                        }
+                    });
+
+                    const pageText = result.data.text.trim();
+                    allPageTexts.push({ page: i, text: pageText });
+
+                    // Clean up canvas
+                    canvas.width = 0;
+                    canvas.height = 0;
+                }
+
+                // Step 3: Create Word document
+                showProgress('Skapar Word-fil...', 92, 'Bygger dokument...');
+
+                const fullText = allPageTexts.map(p => p.text).join('\n');
+                previewText.textContent = fullText;
+                previewSection.classList.add('visible');
+
+                const doc = createWordDocument(allPageTexts, selectedFile.name);
+
+                showProgress('Skapar Word-fil...', 97, 'Genererar fil...');
+
+                generatedBlob = await docx.Packer.toBlob(doc);
+
+                // Done
+                showProgress('Klar!', 100, 'Konvertering slutf\u00f6rd!');
+
+                setTimeout(() => {
+                    hideProgress();
+                    const wordFileName = selectedFile.name.replace(/\.pdf$/i, '') + '.docx';
+                    resultInfo.textContent = `${totalPages} sida${totalPages > 1 ? 'r' : ''} har konverterats. Filnamn: ${wordFileName}`;
+                    resultSection.classList.add('visible');
+                }, 500);
+
+            } catch (err) {
+                hideProgress();
+                console.error(err);
+                showError('Ett fel uppstod: ' + err.message);
+            } finally {
+                convertBtn.disabled = false;
+            }
+        }
+
+        function createWordDocument(pageTexts, originalFileName) {
+            const children = [];
+
+            // Title
+            children.push(
+                new docx.Paragraph({
+                    children: [
+                        new docx.TextRun({
+                            text: 'Extraherad text fr\u00e5n: ' + originalFileName,
+                            bold: true,
+                            size: 28,
+                            color: '333333',
+                        }),
+                    ],
+                    spacing: { after: 300 },
+                })
+            );
+
+            // Add text for each page
+            pageTexts.forEach((pageData, index) => {
+                // Page header
+                if (pageTexts.length > 1) {
+                    children.push(
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: `--- Sida ${pageData.page} ---`,
+                                    bold: true,
+                                    size: 22,
+                                    color: '666666',
+                                }),
+                            ],
+                            spacing: { before: 400, after: 200 },
+                        })
+                    );
+                }
+
+                // Page text as paragraphs
+                const lines = pageData.text.split('\n');
+                lines.forEach(line => {
+                    children.push(
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: line,
+                                    size: 24,
+                                }),
+                            ],
+                            spacing: { after: 100 },
+                        })
+                    );
+                });
+
+                // Page break between pages (not after last)
+                if (index < pageTexts.length - 1) {
+                    children.push(
+                        new docx.Paragraph({
+                            children: [],
+                            pageBreakBefore: true,
+                        })
+                    );
+                }
+            });
+
+            return new docx.Document({
+                sections: [{
+                    properties: {
+                        page: {
+                            margin: {
+                                top: 1440,
+                                right: 1440,
+                                bottom: 1440,
+                                left: 1440,
+                            },
+                        },
+                    },
+                    children: children,
+                }],
+            });
+        }
+
+        // Download handler
+        downloadBtn.addEventListener('click', () => {
+            if (!generatedBlob) return;
+            const wordFileName = selectedFile.name.replace(/\.pdf$/i, '') + '.docx';
+            saveAs(generatedBlob, wordFileName);
+        });
+
+        // New conversion
+        newConversionBtn.addEventListener('click', () => {
+            selectedFile = null;
+            generatedBlob = null;
+            fileInput.value = '';
+            fileInfo.classList.remove('visible');
+            uploadArea.style.display = '';
+            convertBtn.disabled = true;
+            resultSection.classList.remove('visible');
+            previewSection.classList.remove('visible');
+            hideError();
+            hideProgress();
+        });
+    </script>
+</body>
+</html>
