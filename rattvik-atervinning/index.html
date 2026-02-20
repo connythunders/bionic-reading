@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Återvinning i Rättvik</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+  <!-- Leaflet MarkerCluster -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+
+  <style>
+    /* === GRUNDLÄGGANDE STILAR === */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* === HEADER === */
+    header {
+      background: linear-gradient(135deg, #2e7d32, #388e3c);
+      color: white;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    header h1 .icon {
+      font-size: 1.8rem;
+    }
+
+    header p {
+      font-size: 0.85rem;
+      margin-top: 0.3rem;
+      opacity: 0.9;
+      line-height: 1.4;
+    }
+
+    /* === HUVUDLAYOUT === */
+    .main-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* === SIDOPANEL === */
+    .sidebar {
+      width: 380px;
+      min-width: 380px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #e0e0e0;
+      z-index: 900;
+    }
+
+    /* Sökfält */
+    .search-container {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e0e0e0;
+      background: #fafafa;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.6rem 0.8rem 0.6rem 2.4rem;
+      border: 2px solid #c8e6c9;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+      background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") no-repeat 0.7rem center;
+    }
+
+    .search-input:focus {
+      border-color: #2e7d32;
+    }
+
+    .search-input::placeholder {
+      color: #999;
+    }
+
+    /* Filterknappar */
+    .filter-container {
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid #e0e0e0;
+      background: #fafafa;
+    }
+
+    .filter-btn {
+      flex: 1;
+      padding: 0.45rem 0.5rem;
+      border: 2px solid #c8e6c9;
+      border-radius: 8px;
+      background: white;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      color: #555;
+    }
+
+    .filter-btn:hover {
+      background: #e8f5e9;
+    }
+
+    .filter-btn.active {
+      background: #2e7d32;
+      color: white;
+      border-color: #2e7d32;
+    }
+
+    /* Informationsruta */
+    .info-box {
+      padding: 0.6rem 0.75rem;
+      background: #e8f5e9;
+      border-bottom: 1px solid #c8e6c9;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: #2e7d32;
+    }
+
+    .info-box strong {
+      font-weight: 700;
+    }
+
+    /* Stationslista */
+    .station-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+    }
+
+    .station-item {
+      padding: 0.8rem 0.75rem;
+      border-bottom: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-start;
+    }
+
+    .station-item:hover {
+      background: #e8f5e9;
+    }
+
+    .station-item.highlighted {
+      background: #c8e6c9;
+    }
+
+    .station-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      height: 24px;
+      border-radius: 12px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .station-badge.avs {
+      background: #43a047;
+    }
+
+    .station-badge.avc {
+      background: #1565c0;
+    }
+
+    .station-info {
+      flex: 1;
+    }
+
+    .station-info h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.15rem;
+    }
+
+    .station-info p {
+      font-size: 0.78rem;
+      color: #777;
+      margin-bottom: 0.1rem;
+    }
+
+    .station-distance {
+      font-size: 0.72rem;
+      color: #2e7d32;
+      font-weight: 600;
+    }
+
+    .no-results {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: #999;
+      font-size: 0.85rem;
+    }
+
+    /* === KARTA === */
+    .map-container {
+      flex: 1;
+      position: relative;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Hitta mig-knapp */
+    .locate-btn {
+      position: absolute;
+      bottom: 2rem;
+      right: 1rem;
+      z-index: 800;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid #2e7d32;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+    }
+
+    .locate-btn:hover {
+      background: #2e7d32;
+    }
+
+    .locate-btn:hover svg {
+      stroke: white;
+    }
+
+    .locate-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: #2e7d32;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .locate-btn.loading {
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* Dela-länk-knapp */
+    .share-btn {
+      position: absolute;
+      bottom: 5rem;
+      right: 1rem;
+      z-index: 800;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid #2e7d32;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+    }
+
+    .share-btn:hover {
+      background: #2e7d32;
+    }
+
+    .share-btn:hover svg {
+      stroke: white;
+    }
+
+    .share-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: #2e7d32;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Toast-meddelande */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #333;
+      color: white;
+      padding: 0.7rem 1.4rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      z-index: 2000;
+      transition: transform 0.3s ease;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Skriv ut-knapp */
+    .print-btn {
+      position: absolute;
+      bottom: 8rem;
+      right: 1rem;
+      z-index: 800;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid #2e7d32;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+    }
+
+    .print-btn:hover {
+      background: #2e7d32;
+    }
+
+    .print-btn:hover svg {
+      stroke: white;
+    }
+
+    .print-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: #2e7d32;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* Anpassning av Leaflet-popups */
+    .leaflet-popup-content-wrapper {
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .leaflet-popup-content {
+      margin: 0;
+      padding: 0;
+      min-width: 260px;
+    }
+
+    .popup-content {
+      padding: 1rem;
+    }
+
+    .popup-content h3 {
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+      color: #2e7d32;
+    }
+
+    .popup-type {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.6rem;
+    }
+
+    .popup-type.avs {
+      background: #43a047;
+    }
+
+    .popup-type.avc {
+      background: #1565c0;
+    }
+
+    .popup-detail {
+      font-size: 0.8rem;
+      color: #555;
+      margin-bottom: 0.3rem;
+      display: flex;
+      gap: 0.4rem;
+      align-items: flex-start;
+    }
+
+    .popup-detail .label {
+      font-weight: 600;
+      min-width: 70px;
+      color: #333;
+    }
+
+    .popup-accepts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-top: 0.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .popup-accepts span {
+      background: #e8f5e9;
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      color: #2e7d32;
+      font-weight: 500;
+    }
+
+    .popup-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin-top: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      background: #2e7d32;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .popup-link:hover {
+      background: #1b5e20;
+    }
+
+    .popup-link + .popup-link {
+      margin-left: 0.3rem;
+      background: #1565c0;
+    }
+
+    .popup-link + .popup-link:hover {
+      background: #0d47a1;
+    }
+
+    /* Mobilhamburger */
+    .mobile-toggle {
+      display: none;
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      z-index: 1100;
+      width: 40px;
+      height: 40px;
+      background: white;
+      border: 2px solid #2e7d32;
+      border-radius: 8px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .mobile-toggle svg {
+      width: 22px;
+      height: 22px;
+      stroke: #2e7d32;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    /* === RESPONSIV DESIGN === */
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column-reverse;
+      }
+
+      .sidebar {
+        width: 100%;
+        min-width: 100%;
+        max-height: 45vh;
+        border-right: none;
+        border-top: 2px solid #2e7d32;
+      }
+
+      .sidebar.collapsed {
+        max-height: 0;
+        overflow: hidden;
+        border-top: none;
+      }
+
+      .map-container {
+        flex: 1;
+        min-height: 55vh;
+      }
+
+      .mobile-toggle {
+        display: flex;
+      }
+
+      header h1 {
+        font-size: 1.2rem;
+      }
+
+      header p {
+        font-size: 0.75rem;
+      }
+
+      .locate-btn,
+      .share-btn,
+      .print-btn {
+        right: 0.5rem;
+      }
+
+      .locate-btn {
+        bottom: 1rem;
+      }
+
+      .share-btn {
+        bottom: 4rem;
+      }
+
+      .print-btn {
+        bottom: 7rem;
+      }
+    }
+
+    /* Utskriftsstil */
+    @media print {
+      header, .map-container, .search-container, .filter-container, .info-box, .mobile-toggle {
+        display: none;
+      }
+
+      .main-container {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+        max-height: none;
+        border: none;
+      }
+
+      .station-list {
+        overflow: visible;
+      }
+
+      .station-item {
+        break-inside: avoid;
+      }
+
+      body::before {
+        content: "Återvinningsstationer i Rättvik";
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-align: center;
+        padding: 1rem;
+        border-bottom: 2px solid #333;
+        margin-bottom: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Rubrik -->
+  <header>
+    <h1><span class="icon">&#9851;</span> Återvinning i Rättvik</h1>
+    <p>Hitta närmaste återvinningsstation (ÅVS) eller återvinningscentral (ÅVC) i Rättviks kommun.</p>
+  </header>
+
+  <!-- Huvudinnehåll -->
+  <div class="main-container">
+    <!-- Sidopanel -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Sökfält -->
+      <div class="search-container">
+        <input
+          type="text"
+          class="search-input"
+          id="searchInput"
+          placeholder="Sök station eller adress..."
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Filterknappar -->
+      <div class="filter-container">
+        <button class="filter-btn active" data-filter="all">Alla</button>
+        <button class="filter-btn" data-filter="AVS">ÅVS</button>
+        <button class="filter-btn" data-filter="AVC">ÅVC</button>
+      </div>
+
+      <!-- Kort information -->
+      <div class="info-box">
+        <strong>ÅVS</strong> = Återvinningsstation (obemannad, öppen dygnet runt) &mdash;
+        <strong>ÅVC</strong> = Återvinningscentral (bemannad, begränsade öppettider)
+      </div>
+
+      <!-- Lista med stationer -->
+      <div class="station-list" id="stationList"></div>
+    </aside>
+
+    <!-- Kartområde -->
+    <div class="map-container">
+      <!-- Mobilknapp för att visa/dölja sidopanelen -->
+      <button class="mobile-toggle" id="mobileToggle" title="Visa/dölj lista">
+        <svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+
+      <!-- Kartan -->
+      <div id="map"></div>
+
+      <!-- Skriv ut-knapp -->
+      <button class="print-btn" id="printBtn" title="Skriv ut stationslista">
+        <svg viewBox="0 0 24 24">
+          <polyline points="6 9 6 2 18 2 18 9"/>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+          <rect x="6" y="14" width="12" height="8"/>
+        </svg>
+      </button>
+
+      <!-- Dela-knapp -->
+      <button class="share-btn" id="shareBtn" title="Dela kartvy">
+        <svg viewBox="0 0 24 24">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+      </button>
+
+      <!-- Hitta mig-knapp -->
+      <button class="locate-btn" id="locateBtn" title="Hitta min position">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast-meddelande -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ======================================================
+    // STATIONSDATA
+    // ======================================================
+    const stations = [
+      // ÅTERVINNINGSCENTRALER (ÅVC) – bemannade, begränsade öppettider
+      {
+        id: 1,
+        name: "Drafsån ÅVC",
+        type: "AVC",
+        address: "Österängsvägen 55, Rättvik",
+        lat: 60.8820,
+        lng: 15.1050,
+        hours: "Se dalavattenavfall.se för aktuella tider",
+        accepts: ["Grovsopor", "Elektronik", "Farligt avfall", "Trädgårdsavfall", "Återbruk"],
+        phone: "020-20 02 00",
+        url: "https://www.dalavattenavfall.se/avfall-och-atervinning/atervinningscentraler/drafsan-avc-rattvik.html"
+      },
+      {
+        id: 2,
+        name: "Furudal ÅVC",
+        type: "AVC",
+        address: "Skjutbanevägen 10, Furudal",
+        lat: 60.9950,
+        lng: 15.1700,
+        hours: "Se dalavattenavfall.se för aktuella tider",
+        accepts: ["Grovsopor", "Elektronik", "Farligt avfall", "Trädgårdsavfall"],
+        phone: "020-20 02 00",
+        url: "https://www.dalavattenavfall.se/avfall-och-atervinning/atervinningscentraler/furudal-avc-rattvik.html"
+      },
+
+      // ÅTERVINNINGSSTATIONER (ÅVS) – öppna dygnet runt
+      {
+        id: 3,
+        name: "Coop Konsum Rättvik",
+        type: "AVS",
+        address: "Storgatan 11, Rättvik",
+        lat: 60.8893,
+        lng: 15.1178,
+        hours: "Dygnet runt",
+        accepts: ["Glasförpackningar", "Plastförpackningar", "Metallförpackningar", "Pappersförpackningar", "Tidningar", "Batterier"],
+        note: "Batteriholkar finns här"
+      },
+      {
+        id: 4,
+        name: "Marknadsrondellen",
+        type: "AVS",
+        address: "Järnvägsgatan 22, Rättvik",
+        lat: 60.8875,
+        lng: 15.1220,
+        hours: "Dygnet runt",
+        accepts: ["Glasförpackningar", "Plastförpackningar", "Metallförpackningar", "Pappersförpackningar", "Tidningar", "Batterier"],
+        note: "Batteriholkar finns här"
+      },
+      {
+        id: 5,
+        name: "Hedslund",
+        type: "AVS",
+        address: "Golfvägen 1, Rättvik",
+        lat: 60.8810,
+        lng: 15.1090,
+        hours: "Dygnet runt",
+        accepts: ["Glasförpackningar", "Plastförpackningar", "Metallförpackningar", "Pappersförpackningar", "Tidningar", "Batterier"],
+        note: "Batteriholkar finns här"
+      },
+      {
+        id: 6,
+        name: "Reparatörvägen",
+        type: "AVS",
+        address: "Reparatörvägen, Rättvik",
+        lat: 60.8860,
+        lng: 15.1300,
+        hours: "Dygnet runt",
+        accepts: ["Glasförpackningar", "Plastförpackningar", "Metallförpackningar", "Pappersförpackningar", "Tidningar"]
+      }
+    ];
+
+    // ======================================================
+    // GLOBALA VARIABLER
+    // ======================================================
+    let map;
+    let markerClusterGroup;
+    let markers = {};          // stationId -> L.marker
+    let activeFilter = "all";
+    let userPosition = null;
+    let userMarker = null;
+    let highlightedItem = null;
+
+    // ======================================================
+    // INITIERA KARTAN
+    // ======================================================
+    function initMap() {
+      // Läs URL-parametrar för delad vy
+      const params = new URLSearchParams(window.location.search);
+      const paramLat = parseFloat(params.get("lat"));
+      const paramLng = parseFloat(params.get("lng"));
+      const paramZoom = parseInt(params.get("zoom"));
+
+      const centerLat = isNaN(paramLat) ? 60.8880 : paramLat;
+      const centerLng = isNaN(paramLng) ? 15.1185 : paramLng;
+      const zoomLevel = isNaN(paramZoom) ? 13 : paramZoom;
+
+      map = L.map("map", {
+        center: [centerLat, centerLng],
+        zoom: zoomLevel,
+        zoomControl: true
+      });
+
+      // OpenStreetMap bakgrundskarta
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
+      }).addTo(map);
+
+      // Skapa klustergrupp
+      markerClusterGroup = L.markerClusterGroup({
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        iconCreateFunction: function(cluster) {
+          const count = cluster.getChildCount();
+          return L.divIcon({
+            html: '<div style="background:#2e7d32;color:white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);">' + count + '</div>',
+            className: '',
+            iconSize: [36, 36]
+          });
+        }
+      });
+
+      // Lägg till markörer
+      addMarkers();
+      map.addLayer(markerClusterGroup);
+    }
+
+    // ======================================================
+    // SKAPA ANPASSADE IKONER
+    // ======================================================
+    function createIcon(type) {
+      const color = type === "AVC" ? "#1565c0" : "#43a047";
+      const label = type === "AVC" ? "ÅVC" : "ÅVS";
+
+      return L.divIcon({
+        html: `
+          <div style="position:relative;width:32px;height:42px;">
+            <svg width="32" height="42" viewBox="0 0 32 42">
+              <path d="M16 0 C7.2 0 0 7.2 0 16 C0 28 16 42 16 42 S32 28 32 16 C32 7.2 24.8 0 16 0Z" fill="${color}" stroke="white" stroke-width="2"/>
+              <text x="16" y="18" text-anchor="middle" fill="white" font-size="8" font-weight="700" font-family="sans-serif">${label}</text>
+            </svg>
+          </div>
+        `,
+        className: '',
+        iconSize: [32, 42],
+        iconAnchor: [16, 42],
+        popupAnchor: [0, -42]
+      });
+    }
+
+    // ======================================================
+    // LÄGG TILL MARKÖRER PÅ KARTAN
+    // ======================================================
+    function addMarkers() {
+      markerClusterGroup.clearLayers();
+
+      const filtered = getFilteredStations();
+
+      filtered.forEach(function(station) {
+        const marker = L.marker([station.lat, station.lng], {
+          icon: createIcon(station.type)
+        });
+
+        marker.bindPopup(createPopupContent(station), {
+          maxWidth: 320,
+          minWidth: 260
+        });
+
+        marker.stationId = station.id;
+        markers[station.id] = marker;
+        markerClusterGroup.addLayer(marker);
+      });
+    }
+
+    // ======================================================
+    // SKAPA POPUP-INNEHÅLL
+    // ======================================================
+    function createPopupContent(station) {
+      const typeClass = station.type === "AVC" ? "avc" : "avs";
+      const typeLabel = station.type === "AVC" ? "Återvinningscentral" : "Återvinningsstation";
+
+      // Google Maps-länk
+      const gmapsUrl = "https://www.google.com/maps/dir/?api=1&destination=" +
+        encodeURIComponent(station.lat + "," + station.lng);
+
+      let html = '<div class="popup-content">';
+      html += '<h3>' + escapeHtml(station.name) + '</h3>';
+      html += '<span class="popup-type ' + typeClass + '">' + typeLabel + '</span>';
+
+      html += '<div class="popup-detail"><span class="label">Adress:</span><span>' + escapeHtml(station.address) + '</span></div>';
+      html += '<div class="popup-detail"><span class="label">Öppettider:</span><span>' + escapeHtml(station.hours) + '</span></div>';
+
+      if (station.phone) {
+        html += '<div class="popup-detail"><span class="label">Telefon:</span><span>' + escapeHtml(station.phone) + '</span></div>';
+      }
+
+      if (station.note) {
+        html += '<div class="popup-detail"><span class="label">Info:</span><span>' + escapeHtml(station.note) + '</span></div>';
+      }
+
+      // Vad som kan lämnas
+      html += '<div class="popup-detail"><span class="label">Tar emot:</span></div>';
+      html += '<div class="popup-accepts">';
+      station.accepts.forEach(function(item) {
+        html += '<span>' + escapeHtml(item) + '</span>';
+      });
+      html += '</div>';
+
+      // Knappar
+      html += '<a class="popup-link" href="' + gmapsUrl + '" target="_blank" rel="noopener">Vägbeskrivning</a>';
+
+      if (station.url) {
+        html += '<a class="popup-link" href="' + station.url + '" target="_blank" rel="noopener">Mer info</a>';
+      }
+
+      html += '</div>';
+      return html;
+    }
+
+    // ======================================================
+    // FILTRERA STATIONER
+    // ======================================================
+    function getFilteredStations() {
+      const searchTerm = document.getElementById("searchInput").value.toLowerCase().trim();
+
+      return stations.filter(function(station) {
+        // Typfilter
+        if (activeFilter !== "all" && station.type !== activeFilter) return false;
+
+        // Sökfilter
+        if (searchTerm) {
+          const matchName = station.name.toLowerCase().includes(searchTerm);
+          const matchAddress = station.address.toLowerCase().includes(searchTerm);
+          const matchType = station.type.toLowerCase().includes(searchTerm);
+          return matchName || matchAddress || matchType;
+        }
+
+        return true;
+      });
+    }
+
+    // ======================================================
+    // RENDERA STATIONSLISTAN
+    // ======================================================
+    function renderStationList() {
+      const list = document.getElementById("stationList");
+      const filtered = getFilteredStations();
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="no-results">Inga stationer hittades.</div>';
+        return;
+      }
+
+      // Sortera: om vi har användarposition, sortera efter avstånd
+      if (userPosition) {
+        filtered.sort(function(a, b) {
+          const distA = getDistance(userPosition.lat, userPosition.lng, a.lat, a.lng);
+          const distB = getDistance(userPosition.lat, userPosition.lng, b.lat, b.lng);
+          return distA - distB;
+        });
+      }
+
+      let html = '';
+      filtered.forEach(function(station) {
+        const badgeClass = station.type === "AVC" ? "avc" : "avs";
+        const badgeLabel = station.type === "AVC" ? "ÅVC" : "ÅVS";
+
+        let distanceHtml = '';
+        if (userPosition) {
+          const dist = getDistance(userPosition.lat, userPosition.lng, station.lat, station.lng);
+          distanceHtml = '<p class="station-distance">' + formatDistance(dist) + ' bort</p>';
+        }
+
+        html += '<div class="station-item" data-id="' + station.id + '">';
+        html += '  <span class="station-badge ' + badgeClass + '">' + badgeLabel + '</span>';
+        html += '  <div class="station-info">';
+        html += '    <h3>' + escapeHtml(station.name) + '</h3>';
+        html += '    <p>' + escapeHtml(station.address) + '</p>';
+        html += '    <p>' + escapeHtml(station.hours) + '</p>';
+        html += distanceHtml;
+        html += '  </div>';
+        html += '</div>';
+      });
+
+      list.innerHTML = html;
+
+      // Klickhändelser för listposter
+      list.querySelectorAll('.station-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+          const id = parseInt(this.getAttribute('data-id'));
+          focusStation(id);
+        });
+      });
+    }
+
+    // ======================================================
+    // FOKUSERA PÅ EN STATION
+    // ======================================================
+    function focusStation(stationId) {
+      const station = stations.find(function(s) { return s.id === stationId; });
+      if (!station) return;
+
+      // Markera i listan
+      if (highlightedItem) {
+        highlightedItem.classList.remove('highlighted');
+      }
+      const item = document.querySelector('.station-item[data-id="' + stationId + '"]');
+      if (item) {
+        item.classList.add('highlighted');
+        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        highlightedItem = item;
+      }
+
+      // Zooma kartan och öppna popup
+      map.setView([station.lat, station.lng], 17, { animate: true });
+
+      // Avklusterisera markören om nödvändigt och öppna popup
+      const marker = markers[stationId];
+      if (marker) {
+        // Vänta tills kartan har zoomat klart
+        setTimeout(function() {
+          markerClusterGroup.zoomToShowLayer(marker, function() {
+            marker.openPopup();
+          });
+        }, 300);
+      }
+
+      // Dölj sidopanelen på mobil
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.add('collapsed');
+      }
+    }
+
+    // ======================================================
+    // BERÄKNA AVSTÅND (Haversine-formel)
+    // ======================================================
+    function getDistance(lat1, lng1, lat2, lng2) {
+      const R = 6371000; // Jordens radie i meter
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function toRad(deg) {
+      return deg * Math.PI / 180;
+    }
+
+    function formatDistance(meters) {
+      if (meters < 1000) {
+        return Math.round(meters) + ' m';
+      }
+      return (meters / 1000).toFixed(1) + ' km';
+    }
+
+    // ======================================================
+    // HITTA MIN POSITION
+    // ======================================================
+    function locateUser() {
+      const btn = document.getElementById('locateBtn');
+      btn.classList.add('loading');
+
+      if (!navigator.geolocation) {
+        showToast('Geolokalisering stöds inte i din webbläsare.');
+        btn.classList.remove('loading');
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          userPosition = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+
+          // Ta bort gammal markör
+          if (userMarker) {
+            map.removeLayer(userMarker);
+          }
+
+          // Skapa markör för användarens position
+          userMarker = L.circleMarker([userPosition.lat, userPosition.lng], {
+            radius: 10,
+            fillColor: '#4285f4',
+            color: 'white',
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.9
+          }).addTo(map);
+
+          userMarker.bindPopup('<strong>Din position</strong>');
+
+          // Zooma till användarens position
+          map.setView([userPosition.lat, userPosition.lng], 14, { animate: true });
+
+          // Uppdatera listan med avstånd
+          renderStationList();
+
+          btn.classList.remove('loading');
+          showToast('Din position har hittats!');
+        },
+        function(error) {
+          btn.classList.remove('loading');
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              showToast('Du nekade åtkomst till din position.');
+              break;
+            case error.POSITION_UNAVAILABLE:
+              showToast('Positionen kunde inte fastställas.');
+              break;
+            case error.TIMEOUT:
+              showToast('Det tog för lång tid att hitta din position.');
+              break;
+            default:
+              showToast('Ett okänt fel inträffade.');
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
+        }
+      );
+    }
+
+    // ======================================================
+    // DELA KARTVY
+    // ======================================================
+    function shareView() {
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      const url = window.location.origin + window.location.pathname +
+        '?lat=' + center.lat.toFixed(4) +
+        '&lng=' + center.lng.toFixed(4) +
+        '&zoom=' + zoom;
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function() {
+          showToast('Länk kopierad till urklipp!');
+        }).catch(function() {
+          showToast('Kunde inte kopiera länken.');
+        });
+      } else {
+        // Fallback för äldre webbläsare
+        const input = document.createElement('input');
+        input.value = url;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        showToast('Länk kopierad till urklipp!');
+      }
+    }
+
+    // ======================================================
+    // TOAST-MEDDELANDE
+    // ======================================================
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(function() {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // ======================================================
+    // HJÄLPFUNKTIONER
+    // ======================================================
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ======================================================
+    // UPPDATERA KARTAN OCH LISTAN
+    // ======================================================
+    function updateView() {
+      addMarkers();
+      renderStationList();
+    }
+
+    // ======================================================
+    // HÄNDELSEHANTERARE
+    // ======================================================
+    function setupEventListeners() {
+      // Filterknappar
+      document.querySelectorAll('.filter-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.filter-btn').forEach(function(b) {
+            b.classList.remove('active');
+          });
+          this.classList.add('active');
+          activeFilter = this.getAttribute('data-filter');
+          updateView();
+        });
+      });
+
+      // Sökfält
+      document.getElementById('searchInput').addEventListener('input', function() {
+        updateView();
+      });
+
+      // Hitta mig-knapp
+      document.getElementById('locateBtn').addEventListener('click', locateUser);
+
+      // Dela-knapp
+      document.getElementById('shareBtn').addEventListener('click', shareView);
+
+      // Skriv ut-knapp
+      document.getElementById('printBtn').addEventListener('click', function() {
+        window.print();
+      });
+
+      // Mobilknapp för sidopanel
+      document.getElementById('mobileToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('collapsed');
+      });
+
+      // Öppna popup i listan när en markör klickas
+      map.on('popupopen', function(e) {
+        const marker = e.popup._source;
+        if (marker && marker.stationId) {
+          const item = document.querySelector('.station-item[data-id="' + marker.stationId + '"]');
+          if (item) {
+            if (highlightedItem) {
+              highlightedItem.classList.remove('highlighted');
+            }
+            item.classList.add('highlighted');
+            item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            highlightedItem = item;
+          }
+        }
+      });
+    }
+
+    // ======================================================
+    // STARTA APPLIKATIONEN
+    // ======================================================
+    document.addEventListener('DOMContentLoaded', function() {
+      initMap();
+      renderStationList();
+      setupEventListeners();
+    });
+  </script>
+</body>
+</html>
