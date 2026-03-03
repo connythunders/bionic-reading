@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Det litterära Stockholm – Röster, platser, epoker</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{height:100%;width:100%}
@@ -459,8 +458,12 @@ const places = [
 ];
 
 // ==========================================
-// MAP INITIALIZATION
+// STATE
 // ==========================================
+let map, currentTile;
+let markers = [];
+let activeCategories = new Set(categories.map(c=>c.id));
+
 const tileLayers = {
   voyager: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
   positron: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
@@ -468,87 +471,141 @@ const tileLayers = {
   osm: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 };
 
-const map = L.map('map',{zoomControl:true}).setView([59.3293,18.0686],12);
-let currentTile = L.tileLayer(tileLayers.voyager,{
-  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-  maxZoom:19
-}).addTo(map);
+// ==========================================
+// UI INIT (runs without Leaflet)
+// ==========================================
+function buildCategoryList(){
+  const list = document.getElementById('categoryList');
+  list.innerHTML = '';
+  categories.forEach(cat=>{
+    const count = places.filter(p=>p.category===cat.id).length;
+    const div = document.createElement('div');
+    div.className = 'category-item';
+    div.dataset.category = cat.id;
+    div.innerHTML = '<span class="category-dot" style="background:'+cat.color+'"></span>'+
+      '<span>'+cat.name+'</span>'+
+      '<span class="category-count" data-cat-count="'+cat.id+'">'+count+'</span>';
+    div.addEventListener('click',function(){
+      if(activeCategories.has(cat.id)){
+        activeCategories.delete(cat.id);
+        div.classList.add('inactive');
+      } else {
+        activeCategories.add(cat.id);
+        div.classList.remove('inactive');
+      }
+      if(map) filterMarkers();
+    });
+    list.appendChild(div);
+  });
+}
+
+function buildAuthorDropdown(){
+  const sel = document.getElementById('authorFilter');
+  const authors = [];
+  const seen = {};
+  places.forEach(function(p){
+    if(!seen[p.author]){ seen[p.author]=true; authors.push(p.author); }
+  });
+  authors.sort();
+  authors.forEach(function(a){
+    var opt = document.createElement('option');
+    opt.value = a;
+    opt.textContent = a;
+    sel.appendChild(opt);
+  });
+  document.getElementById('statAuthors').textContent = authors.length;
+  document.getElementById('statSigns').textContent = places.length;
+}
+
+// Run UI init immediately
+buildCategoryList();
+buildAuthorDropdown();
 
 // ==========================================
-// MARKERS
+// HELPERS
 // ==========================================
-let markers = [];
-let activeCategories = new Set(categories.map(c=>c.id));
-
 function getCategoryColor(catId){
-  const c = categories.find(x=>x.id===catId);
+  var c = categories.find(function(x){return x.id===catId;});
   return c ? c.color : '#888';
 }
 
-function createCircleIcon(color){
-  return L.divIcon({
-    className:'',
-    html:`<div style="width:16px;height:16px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);"></div>`,
-    iconSize:[16,16],
-    iconAnchor:[8,8],
-    popupAnchor:[0,-12]
-  });
-}
-
 function createPopupContent(place){
-  const cat = categories.find(c=>c.id===place.category);
-  const color = cat ? cat.color : '#888';
-  const catName = cat ? cat.name : '';
-  return `<div class="lit-popup">
-    <div class="popup-header" style="background:linear-gradient(135deg,${color},${color}cc)">
-      <div class="popup-title">${place.title}</div>
-      <div class="popup-author">${place.author}</div>
-    </div>
-    <div class="popup-body">
-      <div class="popup-section-label">Ur ${place.work}</div>
-      <div class="popup-quote">"${place.quote}"</div>
-      <div class="popup-location">&#128205; ${place.location}</div>
-      <div class="popup-meta">
-        <span class="popup-tag category-tag" style="background:${color}">${catName}</span>
-        ${place.years ? `<span class="popup-tag">${place.years}</span>` : ''}
-      </div>
-      <div class="popup-source">Källa: ${place.source}</div>
-    </div>
-  </div>`;
+  var cat = categories.find(function(c){return c.id===place.category;});
+  var color = cat ? cat.color : '#888';
+  var catName = cat ? cat.name : '';
+  return '<div class="lit-popup">'+
+    '<div class="popup-header" style="background:linear-gradient(135deg,'+color+','+color+'cc)">'+
+      '<div class="popup-title">'+place.title+'</div>'+
+      '<div class="popup-author">'+place.author+'</div>'+
+    '</div>'+
+    '<div class="popup-body">'+
+      '<div class="popup-section-label">Ur '+place.work+'</div>'+
+      '<div class="popup-quote">&ldquo;'+place.quote+'&rdquo;</div>'+
+      '<div class="popup-location">&#128205; '+place.location+'</div>'+
+      '<div class="popup-meta">'+
+        '<span class="popup-tag category-tag" style="background:'+color+'">'+catName+'</span>'+
+        (place.years ? '<span class="popup-tag">'+place.years+'</span>' : '')+
+      '</div>'+
+      '<div class="popup-source">K&auml;lla: '+place.source+'</div>'+
+    '</div>'+
+  '</div>';
 }
 
-function addMarkers(){
-  markers.forEach(m=>map.removeLayer(m.marker));
-  markers = [];
-  places.forEach(place=>{
-    const color = getCategoryColor(place.category);
-    const marker = L.marker([place.lat,place.lng],{icon:createCircleIcon(color)});
+// ==========================================
+// MAP FUNCTIONS (need Leaflet)
+// ==========================================
+function initMap(){
+  if(typeof L === 'undefined'){
+    document.getElementById('map').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#999;font-size:1.1rem;padding:2rem;text-align:center;">Kartan kunde inte laddas.<br>Kontrollera din internetanslutning och ladda om sidan.</div>';
+    return;
+  }
+  map = L.map('map',{zoomControl:true}).setView([59.3293,18.0686],12);
+  currentTile = L.tileLayer(tileLayers.voyager,{
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    maxZoom:19
+  }).addTo(map);
+
+  // Add markers
+  places.forEach(function(place){
+    var color = getCategoryColor(place.category);
+    var icon = L.divIcon({
+      className:'',
+      html:'<div style="width:16px;height:16px;border-radius:50%;background:'+color+';border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);"></div>',
+      iconSize:[16,16],
+      iconAnchor:[8,8],
+      popupAnchor:[0,-12]
+    });
+    var marker = L.marker([place.lat,place.lng],{icon:icon});
     marker.bindPopup(createPopupContent(place),{maxWidth:360,minWidth:280});
-    marker.on('click',()=>{
-      document.getElementById('audioTitle').textContent = place.work + ' – ' + place.author;
+    marker.on('click',function(){
+      document.getElementById('audioTitle').textContent = place.work + ' \u2013 ' + place.author;
       document.getElementById('audioAuthor').textContent = place.location;
     });
-    markers.push({marker,place});
+    markers.push({marker:marker,place:place});
   });
   filterMarkers();
+
+  setTimeout(function(){ map.invalidateSize(); }, 200);
+  setTimeout(function(){ map.invalidateSize(); }, 1000);
+  window.addEventListener('resize', function(){ map.invalidateSize(); });
 }
 
-// ==========================================
-// FILTERING
-// ==========================================
 function filterMarkers(){
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const authorFilter = document.getElementById('authorFilter').value;
-  let visibleCount = 0;
-  markers.forEach(({marker,place})=>{
-    const matchCategory = activeCategories.has(place.category);
-    const matchSearch = !search ||
-      place.author.toLowerCase().includes(search) ||
-      place.title.toLowerCase().includes(search) ||
-      place.work.toLowerCase().includes(search) ||
-      place.location.toLowerCase().includes(search) ||
-      place.quote.toLowerCase().includes(search);
-    const matchAuthor = !authorFilter || place.author === authorFilter;
+  if(!map) return;
+  var search = document.getElementById('searchInput').value.toLowerCase();
+  var authorFilter = document.getElementById('authorFilter').value;
+  var visibleCount = 0;
+  markers.forEach(function(m){
+    var place = m.place;
+    var marker = m.marker;
+    var matchCategory = activeCategories.has(place.category);
+    var matchSearch = !search ||
+      place.author.toLowerCase().indexOf(search)!==-1 ||
+      place.title.toLowerCase().indexOf(search)!==-1 ||
+      place.work.toLowerCase().indexOf(search)!==-1 ||
+      place.location.toLowerCase().indexOf(search)!==-1 ||
+      place.quote.toLowerCase().indexOf(search)!==-1;
+    var matchAuthor = !authorFilter || place.author === authorFilter;
     if(matchCategory && matchSearch && matchAuthor){
       marker.addTo(map);
       visibleCount++;
@@ -561,105 +618,59 @@ function filterMarkers(){
 }
 
 function updateCategoryCounts(){
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const authorFilter = document.getElementById('authorFilter').value;
-  categories.forEach(cat=>{
-    const count = places.filter(p=>{
-      const matchSearch = !search ||
-        p.author.toLowerCase().includes(search) ||
-        p.title.toLowerCase().includes(search) ||
-        p.work.toLowerCase().includes(search);
-      const matchAuthor = !authorFilter || p.author === authorFilter;
+  var search = document.getElementById('searchInput').value.toLowerCase();
+  var authorFilter = document.getElementById('authorFilter').value;
+  categories.forEach(function(cat){
+    var count = places.filter(function(p){
+      var matchSearch = !search ||
+        p.author.toLowerCase().indexOf(search)!==-1 ||
+        p.title.toLowerCase().indexOf(search)!==-1 ||
+        p.work.toLowerCase().indexOf(search)!==-1;
+      var matchAuthor = !authorFilter || p.author === authorFilter;
       return p.category === cat.id && matchSearch && matchAuthor;
     }).length;
-    const el = document.querySelector(`[data-cat-count="${cat.id}"]`);
+    var el = document.querySelector('[data-cat-count="'+cat.id+'"]');
     if(el) el.textContent = count;
   });
 }
 
-// ==========================================
-// CATEGORY TOGGLES
-// ==========================================
-function buildCategoryList(){
-  const list = document.getElementById('categoryList');
-  list.innerHTML = '';
-  categories.forEach(cat=>{
-    const count = places.filter(p=>p.category===cat.id).length;
-    const div = document.createElement('div');
-    div.className = 'category-item';
-    div.dataset.category = cat.id;
-    div.innerHTML = `<span class="category-dot" style="background:${cat.color}"></span>
-      <span>${cat.name}</span>
-      <span class="category-count" data-cat-count="${cat.id}">${count}</span>`;
-    div.addEventListener('click',()=>{
-      if(activeCategories.has(cat.id)){
-        activeCategories.delete(cat.id);
-        div.classList.add('inactive');
-      } else {
-        activeCategories.add(cat.id);
-        div.classList.remove('inactive');
-      }
-      filterMarkers();
-    });
-    list.appendChild(div);
-  });
-}
-
-// ==========================================
-// AUTHOR DROPDOWN
-// ==========================================
-function buildAuthorDropdown(){
-  const sel = document.getElementById('authorFilter');
-  const authors = [...new Set(places.map(p=>p.author))].sort();
-  authors.forEach(a=>{
-    const opt = document.createElement('option');
-    opt.value = a;
-    opt.textContent = a;
-    sel.appendChild(opt);
-  });
-  document.getElementById('statAuthors').textContent = authors.length;
-  document.getElementById('statSigns').textContent = places.length;
-}
-
-// ==========================================
-// MAP STYLE
-// ==========================================
 function changeMapStyle(){
-  const style = document.getElementById('mapStyle').value;
+  if(!map) return;
+  var style = document.getElementById('mapStyle').value;
   map.removeLayer(currentTile);
   currentTile = L.tileLayer(tileLayers[style],{
     attribution:'&copy; OSM &copy; CARTO',maxZoom:19
   }).addTo(map);
 }
 
-// ==========================================
-// ACTIONS
-// ==========================================
 function zoomToFiltered(){
-  const visible = markers.filter(({marker})=>map.hasLayer(marker));
+  if(!map) return;
+  var visible = markers.filter(function(m){return map.hasLayer(m.marker);});
   if(visible.length === 0) return;
-  const group = L.featureGroup(visible.map(v=>v.marker));
+  var group = L.featureGroup(visible.map(function(v){return v.marker;}));
   map.fitBounds(group.getBounds().pad(0.1));
 }
 
 function resetAll(){
   document.getElementById('searchInput').value = '';
   document.getElementById('authorFilter').value = '';
-  activeCategories = new Set(categories.map(c=>c.id));
-  document.querySelectorAll('.category-item').forEach(el=>el.classList.remove('inactive'));
-  filterMarkers();
-  map.setView([59.3293,18.0686],12);
+  activeCategories = new Set(categories.map(function(c){return c.id;}));
+  document.querySelectorAll('.category-item').forEach(function(el){el.classList.remove('inactive');});
+  if(map){
+    filterMarkers();
+    map.setView([59.3293,18.0686],12);
+  }
 }
 
 // ==========================================
 // AUDIO PLAYER (simulated)
 // ==========================================
-let audioPlaying = false;
-let audioInterval = null;
-let audioProgress = 0;
+var audioPlaying = false;
+var audioInterval = null;
+var audioProgress = 0;
 
 function toggleAudio(){
-  const btn = document.getElementById('audioPlayBtn');
+  var btn = document.getElementById('audioPlayBtn');
   if(audioPlaying){
     audioPlaying = false;
     btn.innerHTML = '&#9654;';
@@ -667,7 +678,7 @@ function toggleAudio(){
   } else {
     audioPlaying = true;
     btn.innerHTML = '&#10074;&#10074;';
-    audioInterval = setInterval(()=>{
+    audioInterval = setInterval(function(){
       audioProgress = Math.min(audioProgress + 0.5, 100);
       document.getElementById('audioProgressBar').style.width = audioProgress + '%';
       if(audioProgress >= 100){
@@ -681,8 +692,8 @@ function toggleAudio(){
 }
 
 function seekAudio(e){
-  const bar = e.currentTarget;
-  const rect = bar.getBoundingClientRect();
+  var bar = e.currentTarget;
+  var rect = bar.getBoundingClientRect();
   audioProgress = ((e.clientX - rect.left) / rect.width) * 100;
   document.getElementById('audioProgressBar').style.width = audioProgress + '%';
 }
@@ -699,18 +710,18 @@ function closeShareModal(){
   document.getElementById('shareModal').classList.remove('active');
 }
 function copyShareUrl(){
-  const input = document.getElementById('shareUrl');
+  var input = document.getElementById('shareUrl');
   input.select();
-  navigator.clipboard.writeText(input.value).then(()=>{
+  navigator.clipboard.writeText(input.value).then(function(){
     document.getElementById('copyConfirm').style.display = 'block';
-    setTimeout(()=>document.getElementById('copyConfirm').style.display='none',3000);
+    setTimeout(function(){document.getElementById('copyConfirm').style.display='none';},3000);
   });
 }
 function shareEmail(){
-  const url = encodeURIComponent(window.location.href);
-  const subject = encodeURIComponent('Det litterära Stockholm – interaktiv karta');
-  const body = encodeURIComponent('Hej!\n\nJag vill dela denna interaktiva litterära karta över Stockholm med dig. Den visar 67 litterära platser med citat, författare och kategorier.\n\n' + window.location.href + '\n\nVarma hälsningar');
-  window.open(`mailto:?subject=${subject}&body=${body}`);
+  var url = encodeURIComponent(window.location.href);
+  var subject = encodeURIComponent('Det litter\u00e4ra Stockholm \u2013 interaktiv karta');
+  var body = encodeURIComponent('Hej!\n\nJag vill dela denna interaktiva litter\u00e4ra karta \u00f6ver Stockholm med dig. Den visar 67 litter\u00e4ra platser med citat, f\u00f6rfattare och kategorier.\n\n' + window.location.href + '\n\nVarma h\u00e4lsningar');
+  window.open('mailto:?subject=' + subject + '&body=' + body);
 }
 
 // ==========================================
@@ -723,14 +734,14 @@ function closeSuggestModal(){
   document.getElementById('suggestModal').classList.remove('active');
 }
 function submitSuggestion(){
-  const author = document.getElementById('suggestAuthor').value;
-  const work = document.getElementById('suggestWork').value;
-  const place = document.getElementById('suggestPlace').value;
+  var author = document.getElementById('suggestAuthor').value;
+  var work = document.getElementById('suggestWork').value;
+  var place = document.getElementById('suggestPlace').value;
   if(!author || !place){
-    alert('Fyll i minst författare och plats.');
+    alert('Fyll i minst f\u00f6rfattare och plats.');
     return;
   }
-  alert('Tack för ditt förslag! Det kommer att granskas.');
+  alert('Tack f\u00f6r ditt f\u00f6rslag! Det kommer att granskas.');
   closeSuggestModal();
   document.getElementById('suggestAuthor').value = '';
   document.getElementById('suggestWork').value = '';
@@ -738,18 +749,21 @@ function submitSuggestion(){
   document.getElementById('suggestQuote').value = '';
   document.getElementById('suggestCategory').value = '';
 }
+</script>
 
-// ==========================================
-// INIT
-// ==========================================
-buildCategoryList();
-buildAuthorDropdown();
-addMarkers();
-
-// Fix map rendering issues
-setTimeout(function(){ map.invalidateSize(); }, 100);
-setTimeout(function(){ map.invalidateSize(); }, 500);
-window.addEventListener('resize', function(){ map.invalidateSize(); });
+<!-- Load Leaflet at end of body, then init map -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
+<script>
+  if(typeof L !== 'undefined'){
+    initMap();
+  } else {
+    // Fallback: try unpkg
+    var s = document.createElement('script');
+    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    s.onload = function(){ initMap(); };
+    s.onerror = function(){ initMap(); }; // will show error message
+    document.body.appendChild(s);
+  }
 </script>
 </body>
 </html>
