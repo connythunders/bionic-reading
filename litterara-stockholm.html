@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Det litterära Stockholm – Röster, platser, epoker</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;overflow:hidden;height:100vh;width:100vw;display:flex}
+html{height:100%;width:100%}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;overflow:hidden;height:100%;width:100%;display:flex}
 :root{
 --sidebar-bg:#1a1a2e;
 --sidebar-text:#e0e0e0;
@@ -131,7 +132,7 @@ margin-top:0.3rem;overflow:hidden;cursor:pointer;
 .audio-progress-bar{height:100%;background:#5a5aba;width:0%;border-radius:2px;transition:width 0.3s}
 
 /* MAP */
-#map{flex:1;height:100vh;z-index:1}
+#map{flex:1;height:100%;min-height:100vh;z-index:1;background:#e8e8e8}
 
 /* MAP POPUP CARD */
 .lit-popup{
@@ -461,9 +462,9 @@ const places = [
 // MAP INITIALIZATION
 // ==========================================
 const tileLayers = {
-  voyager: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-  positron: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  voyager: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+  positron: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
   osm: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 };
 
@@ -744,6 +745,11 @@ function submitSuggestion(){
 buildCategoryList();
 buildAuthorDropdown();
 addMarkers();
+
+// Fix map rendering issues
+setTimeout(function(){ map.invalidateSize(); }, 100);
+setTimeout(function(){ map.invalidateSize(); }, 500);
+window.addEventListener('resize', function(){ map.invalidateSize(); });
 </script>
 </body>
 </html>
