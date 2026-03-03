@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Det litterära Stockholm – Röster, platser, epoker</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;overflow:hidden;height:100vh;width:100vw;display:flex}
+:root{
+--sidebar-bg:#1a1a2e;
+--sidebar-text:#e0e0e0;
+--sidebar-accent:#16213e;
+--barn-fantasi:#e84393;
+--existens-poesi:#3b82f6;
+--historia-minne:#f59e0b;
+--karlek-relationer:#ef4444;
+--morker-brott:#7c3aed;
+--natur-skargard:#10b981;
+--politik-samhalle:#eab308;
+--stad-modernitet:#06b6d4;
+}
+
+/* SIDEBAR */
+#sidebar{
+width:340px;min-width:340px;height:100vh;background:var(--sidebar-bg);
+color:var(--sidebar-text);display:flex;flex-direction:column;
+overflow-y:auto;z-index:1000;position:relative;
+scrollbar-width:thin;scrollbar-color:#333 var(--sidebar-bg);
+}
+#sidebar::-webkit-scrollbar{width:6px}
+#sidebar::-webkit-scrollbar-track{background:var(--sidebar-bg)}
+#sidebar::-webkit-scrollbar-thumb{background:#444;border-radius:3px}
+
+.sidebar-header{
+padding:1.5rem 1.2rem 1rem;
+background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
+border-bottom:1px solid #2a2a4a;
+}
+.sidebar-header h1{
+font-size:1.35rem;font-weight:700;color:#fff;margin-bottom:0.2rem;
+letter-spacing:0.5px;
+}
+.sidebar-header .subtitle{
+font-size:0.8rem;color:#8888aa;font-style:italic;
+}
+
+.sidebar-section{padding:0.8rem 1.2rem}
+.sidebar-section+.sidebar-section{border-top:1px solid #2a2a4a}
+
+/* SEARCH */
+.search-wrap{position:relative}
+.search-wrap input{
+width:100%;padding:0.55rem 0.75rem 0.55rem 2.2rem;
+background:#0f0f23;border:1px solid #333;border-radius:8px;
+color:#fff;font-size:0.85rem;outline:none;transition:border 0.2s;
+}
+.search-wrap input:focus{border-color:#5555aa}
+.search-wrap input::placeholder{color:#666}
+.search-wrap .search-icon{
+position:absolute;left:0.7rem;top:50%;transform:translateY(-50%);
+color:#666;font-size:0.85rem;pointer-events:none;
+}
+
+/* DROPDOWNS */
+.filter-row{display:flex;gap:0.5rem;margin-top:0.6rem}
+.filter-select{
+flex:1;padding:0.45rem 0.6rem;background:#0f0f23;border:1px solid #333;
+border-radius:8px;color:#ccc;font-size:0.8rem;cursor:pointer;outline:none;
+appearance:none;-webkit-appearance:none;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+background-repeat:no-repeat;background-position:right 0.6rem center;
+padding-right:1.8rem;
+}
+
+/* CATEGORY FILTERS */
+.category-title{font-size:0.75rem;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.6rem;font-weight:600}
+.category-list{display:flex;flex-direction:column;gap:0.35rem}
+.category-item{
+display:flex;align-items:center;gap:0.6rem;cursor:pointer;
+padding:0.3rem 0.4rem;border-radius:6px;transition:background 0.15s;
+font-size:0.82rem;user-select:none;
+}
+.category-item:hover{background:rgba(255,255,255,0.05)}
+.category-item.inactive{opacity:0.35}
+.category-dot{
+width:12px;height:12px;border-radius:50%;flex-shrink:0;
+box-shadow:0 0 4px rgba(0,0,0,0.3);
+}
+.category-count{margin-left:auto;font-size:0.7rem;color:#666;min-width:1.5rem;text-align:right}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:0.4rem;flex-wrap:wrap}
+.btn{
+padding:0.4rem 0.7rem;border:1px solid #333;border-radius:8px;
+background:#0f0f23;color:#bbb;font-size:0.75rem;cursor:pointer;
+transition:all 0.15s;white-space:nowrap;
+}
+.btn:hover{background:#222;border-color:#555;color:#fff}
+.btn-primary{background:#2a2a6a;border-color:#4444aa;color:#ddd}
+.btn-primary:hover{background:#3a3a8a;color:#fff}
+
+/* STATS */
+.stats-row{display:flex;gap:1.5rem;justify-content:center}
+.stat-item{text-align:center}
+.stat-value{font-size:1.4rem;font-weight:700;color:#fff}
+.stat-label{font-size:0.7rem;color:#777;text-transform:uppercase;letter-spacing:0.5px}
+
+/* AUDIO PLAYER */
+.audio-section{
+margin-top:auto;padding:0.8rem 1.2rem;
+border-top:1px solid #2a2a4a;background:#12122a;
+}
+.audio-player{display:flex;align-items:center;gap:0.6rem}
+.audio-btn{
+width:32px;height:32px;border-radius:50%;border:none;
+background:#3a3a7a;color:#fff;cursor:pointer;display:flex;
+align-items:center;justify-content:center;font-size:0.9rem;
+transition:background 0.15s;
+}
+.audio-btn:hover{background:#4a4aba}
+.audio-info{flex:1;min-width:0}
+.audio-title{font-size:0.75rem;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.audio-author{font-size:0.65rem;color:#777}
+.audio-progress{
+width:100%;height:3px;background:#333;border-radius:2px;
+margin-top:0.3rem;overflow:hidden;cursor:pointer;
+}
+.audio-progress-bar{height:100%;background:#5a5aba;width:0%;border-radius:2px;transition:width 0.3s}
+
+/* MAP */
+#map{flex:1;height:100vh;z-index:1}
+
+/* MAP POPUP CARD */
+.lit-popup{
+width:340px;font-family:'Segoe UI',system-ui,sans-serif;
+}
+.lit-popup .popup-header{
+padding:0.8rem 1rem;border-radius:10px 10px 0 0;
+color:#fff;position:relative;
+}
+.lit-popup .popup-title{font-size:0.95rem;font-weight:700;line-height:1.3}
+.lit-popup .popup-author{font-size:0.8rem;opacity:0.85;margin-top:0.15rem}
+.lit-popup .popup-body{padding:0.8rem 1rem}
+.lit-popup .popup-section-label{
+font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;
+color:#999;margin-bottom:0.4rem;font-weight:600;
+}
+.lit-popup .popup-quote{
+font-size:0.82rem;line-height:1.55;color:#333;
+font-style:italic;margin-bottom:0.8rem;
+border-left:3px solid #ddd;padding-left:0.8rem;
+}
+.lit-popup .popup-meta{
+display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.6rem;
+}
+.lit-popup .popup-tag{
+font-size:0.65rem;padding:0.2rem 0.5rem;border-radius:10px;
+background:#f0f0f0;color:#555;
+}
+.lit-popup .popup-tag.category-tag{color:#fff;font-weight:500}
+.lit-popup .popup-location{font-size:0.72rem;color:#888;margin-bottom:0.4rem}
+.lit-popup .popup-source{font-size:0.65rem;color:#aaa;text-align:right}
+
+/* SHARE MODAL */
+.modal-overlay{
+position:fixed;top:0;left:0;right:0;bottom:0;
+background:rgba(0,0,0,0.6);z-index:2000;
+display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.active{display:flex}
+.modal{
+background:#fff;border-radius:16px;padding:2rem;
+max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+.modal h2{font-size:1.2rem;margin-bottom:0.5rem;color:#1a1a2e}
+.modal p{font-size:0.85rem;color:#666;margin-bottom:1rem}
+.modal .share-url{
+width:100%;padding:0.6rem;border:2px solid #e0e0e0;border-radius:8px;
+font-size:0.8rem;color:#333;background:#f9f9f9;
+}
+.modal .share-url:focus{border-color:#4444aa;outline:none}
+.modal-btns{display:flex;gap:0.5rem;margin-top:1rem;flex-wrap:wrap}
+.modal-btn{
+padding:0.5rem 1rem;border-radius:8px;border:none;cursor:pointer;
+font-size:0.8rem;font-weight:500;transition:all 0.15s;
+}
+.modal-btn.primary{background:#2a2a6a;color:#fff}
+.modal-btn.primary:hover{background:#3a3a8a}
+.modal-btn.secondary{background:#f0f0f0;color:#555}
+.modal-btn.secondary:hover{background:#e0e0e0}
+
+/* SUGGEST MODAL */
+.suggest-form label{display:block;font-size:0.8rem;color:#555;margin-bottom:0.3rem;margin-top:0.8rem;font-weight:500}
+.suggest-form input,.suggest-form textarea,.suggest-form select{
+width:100%;padding:0.5rem;border:1px solid #ddd;border-radius:8px;
+font-size:0.8rem;font-family:inherit;
+}
+.suggest-form textarea{resize:vertical;min-height:80px}
+
+/* MOBILE TOGGLE */
+.mobile-toggle{
+display:none;position:fixed;top:10px;left:10px;z-index:1001;
+width:40px;height:40px;border-radius:10px;border:none;
+background:var(--sidebar-bg);color:#fff;font-size:1.2rem;
+cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* SHARE FLOAT BTN */
+.share-float{
+position:fixed;bottom:20px;right:20px;z-index:1001;
+width:50px;height:50px;border-radius:50%;border:none;
+background:var(--sidebar-bg);color:#fff;font-size:1.3rem;
+cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.3);
+transition:transform 0.2s,background 0.2s;
+}
+.share-float:hover{transform:scale(1.1);background:#2a2a5e}
+
+/* LEAFLET OVERRIDES */
+.leaflet-popup-content-wrapper{padding:0;border-radius:12px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.15)}
+.leaflet-popup-content{margin:0;min-width:300px}
+.leaflet-popup-close-button{color:#fff !important;font-size:18px !important;top:6px !important;right:8px !important;z-index:10}
+
+@media(max-width:768px){
+  #sidebar{position:fixed;left:-340px;transition:left 0.3s;z-index:1001;height:100vh}
+  #sidebar.open{left:0}
+  .mobile-toggle{display:flex;align-items:center;justify-content:center}
+  .lit-popup{width:260px}
+  .share-float{bottom:70px}
+}
+</style>
+</head>
+<body>
+
+<button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Meny">&#9776;</button>
+
+<aside id="sidebar">
+  <div class="sidebar-header">
+    <h1>Det litterära Stockholm</h1>
+    <div class="subtitle">Röster, platser, epoker</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="search-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="searchInput" placeholder="Sök författare, verk, plats..." oninput="filterMarkers()">
+    </div>
+    <div class="filter-row">
+      <select id="authorFilter" class="filter-select" onchange="filterMarkers()">
+        <option value="">Författare: Alla</option>
+      </select>
+      <select id="mapStyle" class="filter-select" onchange="changeMapStyle()">
+        <option value="voyager">Kartstil: Voyager</option>
+        <option value="positron">Kartstil: Positron</option>
+        <option value="dark">Kartstil: Mörk</option>
+        <option value="osm">Kartstil: OpenStreetMap</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="category-title">Stämning</div>
+    <div class="category-list" id="categoryList"></div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="zoomToFiltered()">&#127758; Zooma till urval</button>
+      <button class="btn" onclick="openSuggestModal()">&#9997; Föreslå en plats</button>
+      <button class="btn" onclick="resetAll()">&#8635; Återställ</button>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-value" id="statSigns">0</div>
+        <div class="stat-label">Skyltar</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="statAuthors">0</div>
+        <div class="stat-label">Författare</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="statVisible">0</div>
+        <div class="stat-label">Visade</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="audio-section">
+    <div class="audio-player">
+      <button class="audio-btn" id="audioPlayBtn" onclick="toggleAudio()">&#9654;</button>
+      <div class="audio-info">
+        <div class="audio-title" id="audioTitle">Välj en plats för att lyssna</div>
+        <div class="audio-author" id="audioAuthor"></div>
+        <div class="audio-progress" onclick="seekAudio(event)">
+          <div class="audio-progress-bar" id="audioProgressBar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<div id="map"></div>
+
+<button class="share-float" onclick="openShareModal()" title="Dela kartan med kollegor">&#128279;</button>
+
+<!-- SHARE MODAL -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal">
+    <h2>&#128279; Dela med kollegor</h2>
+    <p>Kopiera länken nedan för att dela denna litterära karta med dina lärarkollegor.</p>
+    <input type="text" class="share-url" id="shareUrl" readonly>
+    <div class="modal-btns">
+      <button class="modal-btn primary" onclick="copyShareUrl()">&#128203; Kopiera länk</button>
+      <button class="modal-btn secondary" onclick="shareEmail()">&#9993; Skicka via e-post</button>
+      <button class="modal-btn secondary" onclick="closeShareModal()">Stäng</button>
+    </div>
+    <p id="copyConfirm" style="color:#10b981;font-size:0.8rem;margin-top:0.5rem;display:none">&#10003; Länken har kopierats!</p>
+  </div>
+</div>
+
+<!-- SUGGEST MODAL -->
+<div class="modal-overlay" id="suggestModal">
+  <div class="modal">
+    <h2>&#9997; Föreslå en litterär plats</h2>
+    <p>Känner du till en litterär plats i Stockholm som saknas? Skicka in ditt förslag!</p>
+    <div class="suggest-form">
+      <label>Författare</label>
+      <input type="text" id="suggestAuthor" placeholder="T.ex. August Strindberg">
+      <label>Verk</label>
+      <input type="text" id="suggestWork" placeholder="T.ex. Röda rummet">
+      <label>Plats</label>
+      <input type="text" id="suggestPlace" placeholder="T.ex. Berns salonger, Berzelii park">
+      <label>Stämning</label>
+      <select id="suggestCategory">
+        <option value="">Välj kategori...</option>
+        <option value="barn-fantasi">Barn & fantasi</option>
+        <option value="existens-poesi">Existens & poesi</option>
+        <option value="historia-minne">Historia & minne</option>
+        <option value="karlek-relationer">Kärlek & relationer</option>
+        <option value="morker-brott">Mörker & brott</option>
+        <option value="natur-skargard">Natur & skärgård</option>
+        <option value="politik-samhalle">Politik & samhälle</option>
+        <option value="stad-modernitet">Stad & modernitet</option>
+      </select>
+      <label>Citat eller beskrivning</label>
+      <textarea id="suggestQuote" placeholder="Valfritt citat ur verket eller kort beskrivning..."></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn primary" onclick="submitSuggestion()">Skicka förslag</button>
+      <button class="modal-btn secondary" onclick="closeSuggestModal()">Avbryt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// DATA: 67 literary signs, 62 authors
+// ==========================================
+const categories = [
+  {id:'barn-fantasi',name:'Barn & fantasi',color:'#e84393'},
+  {id:'existens-poesi',name:'Existens & poesi',color:'#3b82f6'},
+  {id:'historia-minne',name:'Historia & minne',color:'#f59e0b'},
+  {id:'karlek-relationer',name:'Kärlek & relationer',color:'#ef4444'},
+  {id:'morker-brott',name:'Mörker & brott',color:'#7c3aed'},
+  {id:'natur-skargard',name:'Natur & skärgård',color:'#10b981'},
+  {id:'politik-samhalle',name:'Politik & samhälle',color:'#eab308'},
+  {id:'stad-modernitet',name:'Stad & modernitet',color:'#06b6d4'},
+];
+
+const places = [
+  // BARN & FANTASI
+  {id:1,author:"Astrid Lindgren",years:"1907–2002",title:"Dalagatan 46 – Astrid Lindgrens hem",work:"Karlsson på taket",category:"barn-fantasi",lat:59.3389,lng:18.0409,quote:"Hejsan hoppsan, Lillebror! Det är ju bara en liten världens bästa Karlsson som kommer flygande lite grand.",location:"Vasastan, Dalagatan 46",source:"Karlsson på taket (1955)"},
+  {id:2,author:"Elsa Beskow",years:"1874–1953",title:"Djurgården – Beskowska barndomens landskap",work:"Puttes äventyr i blåbärsskogen",category:"barn-fantasi",lat:59.3270,lng:18.1100,quote:"Putte blev så liten, liten, inte större än en tumme – och alla blåbär var stora som äpplen.",location:"Djurgården",source:"Puttes äventyr i blåbärsskogen (1901)"},
+  {id:3,author:"Lennart Hellsing",years:"1919–2015",title:"Humlegården – Barnpoesins lekplats",work:"Sjörövarbok",category:"barn-fantasi",lat:59.3370,lng:18.0740,quote:"Krakel Spektakel satt på ett plank och spelade fiol och det lät som en anka som trampat på en ål.",location:"Humlegården, Östermalm",source:"Krakel Spektakel (1949)"},
+  {id:4,author:"Barbro Lindgren",years:"1937–",title:"Södermalm – Loranga-världen",work:"Loranga, Masansen och Dartansen",category:"barn-fantasi",lat:59.3150,lng:18.0700,quote:"Loranga hade ett kafé. Dit fick alla komma. Även grisar.",location:"Södermalm",source:"Loranga, Masansen och Dartansen (1969)"},
+  {id:5,author:"Sven Nordqvist",years:"1946–",title:"Skansen – Pettson och Findus-land",work:"Pannkakstårtan",category:"barn-fantasi",lat:59.3267,lng:18.1036,quote:"Findus ville ha pannkakstårta. Det ville han ha varenda dag, för pannkakstårta var det bästa han visste.",location:"Skansen, Djurgården",source:"Pannkakstårtan (1984)"},
+  {id:6,author:"Maria Gripe",years:"1923–2007",title:"Stadsbiblioteket – Gripes magiska världar",work:"Hugo och Josefin",category:"barn-fantasi",lat:59.3435,lng:18.0545,quote:"Hugo visste en sak som ingen annan visste. Han visste att allting kunde förvandlas.",location:"Stadsbiblioteket, Sveavägen",source:"Hugo och Josefin (1961)"},
+  {id:7,author:"Tove Jansson",years:"1914–2001",title:"Gamla Stan – Muminvärldens skapare i Stockholm",work:"Trollkarlens hatt",category:"barn-fantasi",lat:59.3256,lng:18.0700,quote:"Det var en vacker kväll i Mumindalen. Solen höll på att gå ned och månen väntade redan ovanför berget.",location:"Gamla Stan",source:"Trollkarlens hatt (1948)"},
+  {id:8,author:"Selma Lagerlöf",years:"1858–1940",title:"Norra Djurgården – Nils Holgersson flyger över Stockholm",work:"Nils Holgerssons underbara resa",category:"barn-fantasi",lat:59.3600,lng:18.0900,quote:"Gåskarlen lyfte och flög rakt upp i luften, och pojken fick se Stockholm breda ut sig under honom.",location:"Norra Djurgården",source:"Nils Holgerssons underbara resa (1906)"},
+
+  // EXISTENS & POESI
+  {id:9,author:"Gunnar Ekelöf",years:"1907–1968",title:"Södermalm – Ekelöfs existentiella landskap",work:"Promenader – småprosa",category:"existens-poesi",lat:59.3152,lng:18.0630,quote:"Jag blandar mina drycker, jag blandar dom av allt som finns, och det som inte finns blandar jag också i.",location:"Södermalm",source:"sent på jorden (1932)"},
+  {id:10,author:"Edith Södergran",years:"1892–1923",title:"Kungsträdgården – Modernismens gryning",work:"Dikter",category:"existens-poesi",lat:59.3310,lng:18.0720,quote:"Jag är ingen kvinna. Jag är ett neutrum. Jag är ett barn, en page och ett djärvt beslut.",location:"Kungsträdgården",source:"Dikter (1916)"},
+  {id:11,author:"Tomas Tranströmer",years:"1931–2015",title:"Söder Mälarstrand – Nobelpristagaren",work:"Östersjöar",category:"existens-poesi",lat:59.3190,lng:18.0540,quote:"Mitt i livet händer att döden kommer och tar mått på människan. Det besöket glöms och livet fortsätter.",location:"Söder Mälarstrand",source:"Mörkerseende (1970)"},
+  {id:12,author:"Karin Boye",years:"1900–1941",title:"Klara – I rörelse med Karin Boye",work:"Härdarna",category:"existens-poesi",lat:59.3320,lng:18.0600,quote:"Ja visst gör det ont när knoppar brister. Varför skulle annars våren tveka?",location:"Klarabergsgatan",source:"Härdarna (1927)"},
+  {id:13,author:"Nils Ferlin",years:"1898–1961",title:"Norrmalm – Ferlin-krogarnas poet",work:"En döddansares visor",category:"existens-poesi",lat:59.3340,lng:18.0650,quote:"Du har tappat ditt ord och din papperslapp, du har tappat din tro och din mössa.",location:"Norrmalm",source:"En döddansares visor (1930)"},
+  {id:14,author:"Werner Aspenström",years:"1918–1997",title:"Vasaparken – Aspenströms meditation",work:"Litania",category:"existens-poesi",lat:59.3395,lng:18.0390,quote:"Snön hade kommit under natten. Hela världen var ny. Det märkvärdiga var att den var alldeles tyst.",location:"Vasaparken",source:"Litania (1952)"},
+  {id:15,author:"Bruno K. Öijer",years:"1951–",title:"Medborgarplatsen – Spoken word-poeten",work:"Medan giftet verkar",category:"existens-poesi",lat:59.3140,lng:18.0730,quote:"Hela mitt liv har jag gått genom de brinnande städerna. Jag har burit min dikt som en fackla.",location:"Medborgarplatsen, Södermalm",source:"Medan giftet verkar (1990)"},
+  {id:16,author:"Lars Norén",years:"1944–2021",title:"Dramaten – Noréns scener",work:"Personkrets 3:1",category:"existens-poesi",lat:59.3330,lng:18.0720,quote:"Vi sitter här. Vi väntar. Vi har väntat hela våra liv. Och nu sitter vi här.",location:"Dramaten, Nybroplan",source:"Personkrets 3:1 (1998)"},
+
+  // HISTORIA & MINNE
+  {id:17,author:"Carl Michael Bellman",years:"1740–1795",title:"Djurgården – Fredmans epistlar",work:"Fredmans epistlar",category:"historia-minne",lat:59.3280,lng:18.0950,quote:"Fjäriln vingad syns på Haga, mellan dimmors nattliga tåg. Sig till ro bland lindars skuggor fäller, kring Brunnsvikens blåa våg.",location:"Djurgården, Bellmansro",source:"Fredmans epistlar No. 72 (1790)"},
+  {id:18,author:"Erik Axel Karlfeldt",years:"1864–1931",title:"Skeppsholmen – Karlfeldt i Stockholm",work:"Flora och Pomona",category:"historia-minne",lat:59.3260,lng:18.0840,quote:"Sjung om studentens lyckliga dar! Aldrig jag sådan en vår har fått, som den jag har fått i dag.",location:"Skeppsholmen",source:"Flora och Pomona (1906)"},
+  {id:19,author:"Verner von Heidenstam",years:"1859–1940",title:"Strandvägen – Det sekelskiftets Stockholm",work:"Karolinerna",category:"historia-minne",lat:59.3310,lng:18.0820,quote:"Sverige, Sverige, fosterland, vår längtan och vårt bo! Vi drömma om dig i fjärran land, vi tro på dig, vi tro.",location:"Strandvägen, Östermalm",source:"Ett folk (1899)"},
+  {id:20,author:"August Strindberg",years:"1849–1912",title:"Blå Tornet – Strindbergs sista hem",work:"Ensam",category:"historia-minne",lat:59.3385,lng:18.0540,quote:"Här ovan molnen är alltid blå himmel. Det gäller bara att komma dit upp.",location:"Drottninggatan 85, Blå Tornet",source:"Ensam (1903)"},
+  {id:21,author:"Frans G. Bengtsson",years:"1894–1954",title:"Stadsbiblioteket – Vikingasagans rum",work:"Röde Orm",category:"historia-minne",lat:59.3432,lng:18.0538,quote:"Det var under kung Haralds tid som Orm fick sitt smeknamn, ty hans hår var rött som eld.",location:"Stadsbiblioteket",source:"Röde Orm (1941)"},
+  {id:22,author:"Vilhelm Moberg",years:"1898–1973",title:"Katarinaberget – Utvandrarnas minnesplats",work:"Utvandrarna",category:"historia-minne",lat:59.3175,lng:18.0750,quote:"De stod på däcket och såg landet sjunka i havet. Det var det sista de såg av Sverige.",location:"Katarinaberget, Södermalm",source:"Utvandrarna (1949)"},
+  {id:23,author:"Per Anders Fogelström",years:"1917–1998",title:"Slussen – Stad i världen",work:"Mina drömmars stad",category:"historia-minne",lat:59.3200,lng:18.0720,quote:"Henning stod vid Slussen och såg ut över Mälaren. Någonstans därute låg framtiden.",location:"Slussen",source:"Mina drömmars stad (1960)"},
+  {id:24,author:"Hjalmar Bergman",years:"1883–1931",title:"Stureplan – Bergmans Stockholmstid",work:"Markurells i Wadköping",category:"historia-minne",lat:59.3350,lng:18.0740,quote:"Dagen var grå och luften rå. Men Markurell gick med lätta steg, ty affärerna gick bra.",location:"Stureplan",source:"Markurells i Wadköping (1919)"},
+
+  // KÄRLEK & RELATIONER
+  {id:25,author:"Hjalmar Söderberg",years:"1869–1941",title:"Djurgårdsbron – Doktor Glas promenader",work:"Doktor Glas",category:"karlek-relationer",lat:59.3285,lng:18.0870,quote:"Man vill bli älskad, i brist därpå beundrad, i brist därpå fruktad, i brist därpå avskydd och föraktad. Man vill ingiva människorna någon slags känsla.",location:"Djurgårdsbron",source:"Doktor Glas (1905)"},
+  {id:26,author:"Hjalmar Söderberg",years:"1869–1941",title:"Strandvägen – Martin Bircks ungdom",work:"Martin Bircks ungdom",category:"karlek-relationer",lat:59.3310,lng:18.0830,quote:"Man skall icke sova bort hela livet. Man skall icke heller ligga vaken hela natten och tänka.",location:"Strandvägen",source:"Martin Bircks ungdom (1901)"},
+  {id:27,author:"Agnes von Krusenstjerna",years:"1894–1940",title:"Östermalm – Von Pahlensviten",work:"Fröknarna von Pahlen",category:"karlek-relationer",lat:59.3370,lng:18.0810,quote:"Hon kände hur hela hennes kropp var full av längtan, som en trädgård full av blommor som ville slå ut.",location:"Östermalm",source:"Fröknarna von Pahlen (1930–35)"},
+  {id:28,author:"Moa Martinson",years:"1890–1964",title:"Kungsholmen – Arbetarkvinnan skriver",work:"Kvinnor och äppelträd",category:"karlek-relationer",lat:59.3340,lng:18.0380,quote:"Kärleken kom som en storm över henne. Den blåste omkull allt det trygga, allt det invanda.",location:"Kungsholmen",source:"Kvinnor och äppelträd (1933)"},
+  {id:29,author:"Stig Dagerman",years:"1923–1954",title:"Riddarholmen – Dagermans Stockholm",work:"De dömdas ö",category:"karlek-relationer",lat:59.3240,lng:18.0620,quote:"Man kan gråta utan tårar, av ren längtan. Men den som gråter med tårar har ännu hopp.",location:"Riddarholmen",source:"De dömdas ö (1946)"},
+  {id:30,author:"Victoria Benedictsson",years:"1850–1888",title:"Grand Hôtel – Penges tragedi",work:"Pengar",category:"karlek-relationer",lat:59.3290,lng:18.0770,quote:"Hon ville leva. Hon ville vara fri. Men pengarna höll henne fången som en fågel i en gyllene bur.",location:"Grand Hôtel, Blasieholmen",source:"Pengar (1885)"},
+  {id:31,author:"Carl Jonas Love Almqvist",years:"1793–1866",title:"Riddarfjärden – Det går an",work:"Det går an",category:"karlek-relationer",lat:59.3200,lng:18.0500,quote:"Sara gick ombord med säkra steg. 'Det går an', sade hon, och log mot Albert.",location:"Riddarfjärden, Södermalm",source:"Det går an (1839)"},
+  {id:32,author:"Fredrika Bremer",years:"1801–1865",title:"Norrmalmstorg – Föregångerskan",work:"Hertha",category:"karlek-relationer",lat:59.3325,lng:18.0710,quote:"Hertha ville verka i samhället, icke blott i hemmet. Hon ville det fria, det sanna, det rätta.",location:"Norrmalmstorg",source:"Hertha (1856)"},
+
+  // MÖRKER & BROTT
+  {id:33,author:"Stieg Larsson",years:"1954–2004",title:"Bellmansgatan 1 – Mikael Blomkvists lägenhet",work:"Män som hatar kvinnor",category:"morker-brott",lat:59.3178,lng:18.0670,quote:"Blomkvist öppnade dörren till sin lägenhet på Bellmansgatan och stirrade ut i vintermörkret över Riddarfjärden.",location:"Bellmansgatan 1, Södermalm",source:"Män som hatar kvinnor (2005)"},
+  {id:34,author:"Stieg Larsson",years:"1954–2004",title:"Lundagatan – Lisbeth Salanders bostad",work:"Flickan som lekte med elden",category:"morker-brott",lat:59.3155,lng:18.0550,quote:"Lisbeth Salander var annorlunda. Det hade hon alltid varit. Och det tänkte hon inte be om ursäkt för.",location:"Lundagatan, Södermalm",source:"Flickan som lekte med elden (2006)"},
+  {id:35,author:"Maj Sjöwall & Per Wahlöö",years:"1935–2020/1926–1975",title:"Kungsholmen – Martin Becks polishus",work:"Roseanna",category:"morker-brott",lat:59.3330,lng:18.0440,quote:"Det var den tjugofjärde juni och det hade regnat oavbrutet sedan den sjuttonde. Martin Beck tänkte på mordet.",location:"Polishuset, Kungsholmen",source:"Roseanna (1965)"},
+  {id:36,author:"Henning Mankell",years:"1948–2015",title:"Centralstationen – Wallanders Stockholm",work:"Brandvägg",category:"morker-brott",lat:59.3300,lng:18.0580,quote:"Wallander klev av tåget vid Centralstationen. Stockholm var inte hans stad, men just nu fanns svaren här.",location:"Centralstationen",source:"Brandvägg (1998)"},
+  {id:37,author:"Håkan Nesser",years:"1950–",title:"Vasastan – Van Veeteren på vandring",work:"Münsters fall",category:"morker-brott",lat:59.3410,lng:18.0500,quote:"Det finns mönster i allt, tänkte Van Veeteren. Man behöver bara hitta rätt perspektiv.",location:"Vasastan",source:"Münsters fall (2000)"},
+  {id:38,author:"Arne Dahl",years:"1963–",title:"Fridhemsplan – A-gruppens kvarter",work:"Ont blod",category:"morker-brott",lat:59.3340,lng:18.0330,quote:"De samlade sig i rummet på Fridhemsplan. Mordet hade europeiska dimensioner. A-gruppen var redo.",location:"Fridhemsplan, Kungsholmen",source:"Ont blod (1998)"},
+  {id:39,author:"Camilla Läckberg",years:"1974–",title:"Östermalm – Stockholms glitter och mörker",work:"Lejontämjaren",category:"morker-brott",lat:59.3380,lng:18.0780,quote:"Bakom de vackra fasaderna på Östermalm dolde sig hemligheter som ingen ville se.",location:"Östermalm",source:"Lejontämjaren (2014)"},
+  {id:40,author:"Lars Kepler",years:"","title:"Karolinska – Joona Linnas jakt",work:"Hypnotisören",category:"morker-brott",lat:59.3520,lng:18.0310,quote:"Joona Linna visste att tiden höll på att rinna ut. Hypnotisören hade redan slagit till igen.",location:"Karolinska, Solna",source:"Hypnotisören (2009)"},
+
+  // NATUR & SKÄRGÅRD
+  {id:41,author:"August Strindberg",years:"1849–1912",title:"Furusund – Hemsöborna",work:"Hemsöborna",category:"natur-skargard",lat:59.3370,lng:18.0480,quote:"Havet låg blankt som en spegel utanför ön. Carlsson steg i land med stadiga steg – en ny tid för Hemsö.",location:"Gamla Stan (utsikt mot skärgården)",source:"Hemsöborna (1887)"},
+  {id:42,author:"Evert Taube",years:"1890–1976",title:"Djurgården – Fritiof och Carmencita",work:"Fritiof och Carmencita",category:"natur-skargard",lat:59.3250,lng:18.0980,quote:"Sjösala vals vid midsommartid, Roslagen sjunger sin vaggvisa. I vassen vakar den vita svan.",location:"Djurgården, Taubes byst",source:"Sjösala vals (1931)"},
+  {id:43,author:"Harry Martinson",years:"1904–1978",title:"Stadshuset – Nobelpristagarens naturpoesi",work:"Aniara",category:"natur-skargard",lat:59.3275,lng:18.0540,quote:"Vi skymtar havet och det skymtar oss, vi byter blickar, havet och jag, som gamla vänner.",location:"Stadshuset",source:"Passad (1945)"},
+  {id:44,author:"Elin Wägner",years:"1882–1949",title:"Stockholms ström – Naturens röst",work:"Väckarklocka",category:"natur-skargard",lat:59.3260,lng:18.0670,quote:"Vattnet rinner förbi som tiden själv. Vi måste lära oss att lyssna på naturen igen.",location:"Stockholms ström, Gamla Stan",source:"Väckarklocka (1941)"},
+  {id:45,author:"Lars Gustafsson",years:"1936–2016",title:"Tantolunden – Naturfilosofi i staden",work:"En biodlares död",category:"natur-skargard",lat:59.3110,lng:18.0530,quote:"Bina visste det som människorna glömt: att naturen talar till den som lyssnar.",location:"Tantolunden, Södermalm",source:"En biodlares död (1978)"},
+  {id:46,author:"Tomas Tranströmer",years:"1931–2015",title:"Liljeholmen – Östersjöns röst",work:"Östersjöar",category:"natur-skargard",lat:59.3100,lng:18.0280,quote:"De blågrå vattenmassorna är utan ansikte men förändras i varje ögonblick, som en sovande som vänder sig.",location:"Liljeholmen",source:"Östersjöar (1974)"},
+  {id:47,author:"Kerstin Ekman",years:"1933–",title:"Hagaparken – Skogens hemligheter",work:"Händelser vid vatten",category:"natur-skargard",lat:59.3580,lng:18.0410,quote:"Skogen har sin egen tid. Den bryr sig inte om människans klockor och kalendrar.",location:"Hagaparken",source:"Händelser vid vatten (1993)"},
+  {id:48,author:"Sara Lidman",years:"1923–2004",title:"Stadshusparken – Norrlandsrösten i Stockholm",work:"Tjärdalen",category:"natur-skargard",lat:59.3280,lng:18.0510,quote:"Marken under fötterna var starkare än alla ord. Den höll oss kvar, den bar oss.",location:"Stadshusparken",source:"Tjärdalen (1953)"},
+
+  // POLITIK & SAMHÄLLE
+  {id:49,author:"August Strindberg",years:"1849–1912",title:"Berns – Röda rummet",work:"Röda rummet",category:"politik-samhalle",lat:59.3330,lng:18.0740,quote:"Arvid Falk hade en morgon i maj månad gått ut från sin skola att söka lyckan. Han var tjugotvå år.",location:"Berns Salonger, Berzelii Park",source:"Röda rummet (1879)"},
+  {id:50,author:"Ivar Lo-Johansson",years:"1901–1990",title:"Södermalm – Statarnas Stockholm",work:"Bara en mor",category:"politik-samhalle",lat:59.3130,lng:18.0640,quote:"Hon var bara en mor. Men hon bar hela världen på sina axlar, och ingen tackade henne.",location:"Södermalm",source:"Bara en mor (1939)"},
+  {id:51,author:"Jan Myrdal",years:"1927–2020",title:"Kungsholmen – Samhällskritikens röst",work:"Rapport från kinesisk by",category:"politik-samhalle",lat:59.3350,lng:18.0360,quote:"Att resa är att se. Att se är att förstå. Att förstå är att vilja förändra.",location:"Kungsholmen",source:"Rapport från kinesisk by (1963)"},
+  {id:52,author:"Alva Myrdal",years:"1902–1986",title:"Riksdagshuset – Fredspristagaren",work:"Kris i befolkningsfrågan",category:"politik-samhalle",lat:59.3270,lng:18.0640,quote:"Samhället formas av dem som vågar ifrågasätta det. Fred börjar med rättvisa.",location:"Riksdagshuset, Helgeandsholmen",source:"Kris i befolkningsfrågan (1934)"},
+  {id:53,author:"Per Olov Enquist",years:"1934–2020",title:"Kungliga biblioteket – Enquists sanningssökande",work:"Kapten Nemos bibliotek",category:"politik-samhalle",lat:59.3260,lng:18.0720,quote:"Sanningen är som ett djur – den lever och förändras. Den som försöker fånga den måste vara beredd att springa.",location:"Kungliga Biblioteket",source:"Kapten Nemos bibliotek (1991)"},
+  {id:54,author:"Henning Mankell",years:"1948–2015",title:"Kulturhuset – Den orolige",work:"Den orolige",category:"politik-samhalle",lat:59.3320,lng:18.0630,quote:"Att vara orolig är att vara vid liv. Den som slutar oroas har slutat bry sig.",location:"Kulturhuset, Sergels Torg",source:"Italienska skor (2006)"},
+  {id:55,author:"Jonas Hassen Khemiri",years:"1978–",title:"Rinkeby – Stadens nya röster",work:"Ett öga rött",category:"politik-samhalle",lat:59.3870,lng:17.9290,quote:"Alla dom som säger att jag inte tillhör, dom har fel. Jag är Stockholm. Stockholm är jag.",location:"Rinkeby",source:"Ett öga rött (2003)"},
+  {id:56,author:"Lina Wolff",years:"1973–",title:"Odenplan – Det absurdas politik",work:"De polyglotta älskarna",category:"politik-samhalle",lat:59.3430,lng:18.0500,quote:"Språket var nyckeln. Den som talade flest språk hade flest dörrar att öppna.",location:"Odenplan",source:"De polyglotta älskarna (2016)"},
+
+  // STAD & MODERNITET
+  {id:57,author:"Per Anders Fogelström",years:"1917–1998",title:"Södra Station – Barnens Stockholm",work:"Barn av sin stad",category:"stad-modernitet",lat:59.3100,lng:18.0630,quote:"Nere vid Södra Station lekte barnen mellan spåren. Staden var deras lekplats, deras hela värld.",location:"Södra Station, Södermalm",source:"Barn av sin stad (1962)"},
+  {id:58,author:"Lars Norén",years:"1944–2021",title:"Sergels Torg – Stadens puls",work:"Kyla",category:"stad-modernitet",lat:59.3320,lng:18.0650,quote:"De gick runt och runt på Sergels Torg. Utan mål. Utan hopp. Men de gick.",location:"Sergels Torg",source:"Kyla (2000)"},
+  {id:59,author:"Sara Stridsberg",years:"1972–",title:"Reimersholme – Drömfakulteten",work:"Drömfakulteten",category:"stad-modernitet",lat:59.3150,lng:18.0350,quote:"Staden lyste som ett akvarium i natten. Allt var vatten och ljus och drömmar.",location:"Reimersholme",source:"Drömfakulteten (2006)"},
+  {id:60,author:"Hjalmar Söderberg",years:"1869–1941",title:"Kungsträdgården – Förvillelser",work:"Förvillelser",category:"stad-modernitet",lat:59.3310,lng:18.0710,quote:"Hösten hade kommit till Stockholm. De gula löven drev genom Kungsträdgården som tankar utan mål.",location:"Kungsträdgården",source:"Förvillelser (1895)"},
+  {id:61,author:"Stig Claesson",years:"1928–2008",title:"Söder torn – Sansen om Söder",work:"Vem älskar Yngve Frej?",category:"stad-modernitet",lat:59.3125,lng:18.0640,quote:"Söder var hans värld. Från taken kunde man se hela Stockholm, och Stockholm var vackrast från Söder.",location:"Södermalm, Mosebacke",source:"Vem älskar Yngve Frej? (1968)"},
+  {id:62,author:"Athena Farrokhzad",years:"1983–",title:"Globen – Nya röster i staden",work:"Vitsvit",category:"stad-modernitet",lat:59.2930,lng:18.0830,quote:"Staden har många röster. Min röst är en av dem. Den vägrar tystna.",location:"Globen, Johanneshov",source:"Vitsvit (2013)"},
+  {id:63,author:"Johannes Anyuru",years:"1979–",title:"T-Centralen – Tunnelbanans berättelser",work:"En storm kom från paradiset",category:"stad-modernitet",lat:59.3310,lng:18.0590,quote:"Under staden fanns en annan stad. I tunnlarna rörde sig alla berättelser, alla liv.",location:"T-Centralen",source:"En storm kom från paradiset (2012)"},
+  {id:64,author:"Steve Sem-Sandberg",years:"1958–",title:"Odenplan – De utblottade",work:"De utvalda",category:"stad-modernitet",lat:59.3430,lng:18.0480,quote:"Staden växte och förändrades. Men under ytan levde minnena kvar, outplånliga.",location:"Odenplan",source:"De utvalda (2014)"},
+  {id:65,author:"August Strindberg",years:"1849–1912",title:"Norrtullsgatan – Tjänstekvinnans son",work:"Tjänstekvinnans son",category:"stad-modernitet",lat:59.3450,lng:18.0520,quote:"Han gick genom gatorna och kände hur staden formade honom, som en krukmakare formar leran.",location:"Norrtullsgatan",source:"Tjänstekvinnans son (1886)"},
+  {id:66,author:"Klas Östergren",years:"1955–",title:"Gamla Stan – Gentlemen",work:"Gentlemen",category:"stad-modernitet",lat:59.3230,lng:18.0680,quote:"Det var i Gamla Stan allt hade börjat. Mellan de smala gränderna och de höga fasaderna.",location:"Gamla Stan",source:"Gentlemen (1980)"},
+  {id:67,author:"Carl-Johan Vallgren",years:"1964–",title:"Hornstull – Den vidunderlige",work:"Den vidunderlige kärlekens historia",category:"stad-modernitet",lat:59.3160,lng:18.0340,quote:"Kärleken var det enda som höll ihop de spruckna delarna av staden, av livet.",location:"Hornstull, Södermalm",source:"Den vidunderlige kärlekens historia (2002)"},
+];
+
+// ==========================================
+// MAP INITIALIZATION
+// ==========================================
+const tileLayers = {
+  voyager: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  positron: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  osm: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+};
+
+const map = L.map('map',{zoomControl:true}).setView([59.3293,18.0686],12);
+let currentTile = L.tileLayer(tileLayers.voyager,{
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+  maxZoom:19
+}).addTo(map);
+
+// ==========================================
+// MARKERS
+// ==========================================
+let markers = [];
+let activeCategories = new Set(categories.map(c=>c.id));
+
+function getCategoryColor(catId){
+  const c = categories.find(x=>x.id===catId);
+  return c ? c.color : '#888';
+}
+
+function createCircleIcon(color){
+  return L.divIcon({
+    className:'',
+    html:`<div style="width:16px;height:16px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);"></div>`,
+    iconSize:[16,16],
+    iconAnchor:[8,8],
+    popupAnchor:[0,-12]
+  });
+}
+
+function createPopupContent(place){
+  const cat = categories.find(c=>c.id===place.category);
+  const color = cat ? cat.color : '#888';
+  const catName = cat ? cat.name : '';
+  return `<div class="lit-popup">
+    <div class="popup-header" style="background:linear-gradient(135deg,${color},${color}cc)">
+      <div class="popup-title">${place.title}</div>
+      <div class="popup-author">${place.author}</div>
+    </div>
+    <div class="popup-body">
+      <div class="popup-section-label">Ur ${place.work}</div>
+      <div class="popup-quote">"${place.quote}"</div>
+      <div class="popup-location">&#128205; ${place.location}</div>
+      <div class="popup-meta">
+        <span class="popup-tag category-tag" style="background:${color}">${catName}</span>
+        ${place.years ? `<span class="popup-tag">${place.years}</span>` : ''}
+      </div>
+      <div class="popup-source">Källa: ${place.source}</div>
+    </div>
+  </div>`;
+}
+
+function addMarkers(){
+  markers.forEach(m=>map.removeLayer(m.marker));
+  markers = [];
+  places.forEach(place=>{
+    const color = getCategoryColor(place.category);
+    const marker = L.marker([place.lat,place.lng],{icon:createCircleIcon(color)});
+    marker.bindPopup(createPopupContent(place),{maxWidth:360,minWidth:280});
+    marker.on('click',()=>{
+      document.getElementById('audioTitle').textContent = place.work + ' – ' + place.author;
+      document.getElementById('audioAuthor').textContent = place.location;
+    });
+    markers.push({marker,place});
+  });
+  filterMarkers();
+}
+
+// ==========================================
+// FILTERING
+// ==========================================
+function filterMarkers(){
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const authorFilter = document.getElementById('authorFilter').value;
+  let visibleCount = 0;
+  markers.forEach(({marker,place})=>{
+    const matchCategory = activeCategories.has(place.category);
+    const matchSearch = !search ||
+      place.author.toLowerCase().includes(search) ||
+      place.title.toLowerCase().includes(search) ||
+      place.work.toLowerCase().includes(search) ||
+      place.location.toLowerCase().includes(search) ||
+      place.quote.toLowerCase().includes(search);
+    const matchAuthor = !authorFilter || place.author === authorFilter;
+    if(matchCategory && matchSearch && matchAuthor){
+      marker.addTo(map);
+      visibleCount++;
+    } else {
+      map.removeLayer(marker);
+    }
+  });
+  document.getElementById('statVisible').textContent = visibleCount;
+  updateCategoryCounts();
+}
+
+function updateCategoryCounts(){
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const authorFilter = document.getElementById('authorFilter').value;
+  categories.forEach(cat=>{
+    const count = places.filter(p=>{
+      const matchSearch = !search ||
+        p.author.toLowerCase().includes(search) ||
+        p.title.toLowerCase().includes(search) ||
+        p.work.toLowerCase().includes(search);
+      const matchAuthor = !authorFilter || p.author === authorFilter;
+      return p.category === cat.id && matchSearch && matchAuthor;
+    }).length;
+    const el = document.querySelector(`[data-cat-count="${cat.id}"]`);
+    if(el) el.textContent = count;
+  });
+}
+
+// ==========================================
+// CATEGORY TOGGLES
+// ==========================================
+function buildCategoryList(){
+  const list = document.getElementById('categoryList');
+  list.innerHTML = '';
+  categories.forEach(cat=>{
+    const count = places.filter(p=>p.category===cat.id).length;
+    const div = document.createElement('div');
+    div.className = 'category-item';
+    div.dataset.category = cat.id;
+    div.innerHTML = `<span class="category-dot" style="background:${cat.color}"></span>
+      <span>${cat.name}</span>
+      <span class="category-count" data-cat-count="${cat.id}">${count}</span>`;
+    div.addEventListener('click',()=>{
+      if(activeCategories.has(cat.id)){
+        activeCategories.delete(cat.id);
+        div.classList.add('inactive');
+      } else {
+        activeCategories.add(cat.id);
+        div.classList.remove('inactive');
+      }
+      filterMarkers();
+    });
+    list.appendChild(div);
+  });
+}
+
+// ==========================================
+// AUTHOR DROPDOWN
+// ==========================================
+function buildAuthorDropdown(){
+  const sel = document.getElementById('authorFilter');
+  const authors = [...new Set(places.map(p=>p.author))].sort();
+  authors.forEach(a=>{
+    const opt = document.createElement('option');
+    opt.value = a;
+    opt.textContent = a;
+    sel.appendChild(opt);
+  });
+  document.getElementById('statAuthors').textContent = authors.length;
+  document.getElementById('statSigns').textContent = places.length;
+}
+
+// ==========================================
+// MAP STYLE
+// ==========================================
+function changeMapStyle(){
+  const style = document.getElementById('mapStyle').value;
+  map.removeLayer(currentTile);
+  currentTile = L.tileLayer(tileLayers[style],{
+    attribution:'&copy; OSM &copy; CARTO',maxZoom:19
+  }).addTo(map);
+}
+
+// ==========================================
+// ACTIONS
+// ==========================================
+function zoomToFiltered(){
+  const visible = markers.filter(({marker})=>map.hasLayer(marker));
+  if(visible.length === 0) return;
+  const group = L.featureGroup(visible.map(v=>v.marker));
+  map.fitBounds(group.getBounds().pad(0.1));
+}
+
+function resetAll(){
+  document.getElementById('searchInput').value = '';
+  document.getElementById('authorFilter').value = '';
+  activeCategories = new Set(categories.map(c=>c.id));
+  document.querySelectorAll('.category-item').forEach(el=>el.classList.remove('inactive'));
+  filterMarkers();
+  map.setView([59.3293,18.0686],12);
+}
+
+// ==========================================
+// AUDIO PLAYER (simulated)
+// ==========================================
+let audioPlaying = false;
+let audioInterval = null;
+let audioProgress = 0;
+
+function toggleAudio(){
+  const btn = document.getElementById('audioPlayBtn');
+  if(audioPlaying){
+    audioPlaying = false;
+    btn.innerHTML = '&#9654;';
+    clearInterval(audioInterval);
+  } else {
+    audioPlaying = true;
+    btn.innerHTML = '&#10074;&#10074;';
+    audioInterval = setInterval(()=>{
+      audioProgress = Math.min(audioProgress + 0.5, 100);
+      document.getElementById('audioProgressBar').style.width = audioProgress + '%';
+      if(audioProgress >= 100){
+        clearInterval(audioInterval);
+        audioPlaying = false;
+        btn.innerHTML = '&#9654;';
+        audioProgress = 0;
+      }
+    }, 300);
+  }
+}
+
+function seekAudio(e){
+  const bar = e.currentTarget;
+  const rect = bar.getBoundingClientRect();
+  audioProgress = ((e.clientX - rect.left) / rect.width) * 100;
+  document.getElementById('audioProgressBar').style.width = audioProgress + '%';
+}
+
+// ==========================================
+// SHARE MODAL
+// ==========================================
+function openShareModal(){
+  document.getElementById('shareUrl').value = window.location.href;
+  document.getElementById('shareModal').classList.add('active');
+  document.getElementById('copyConfirm').style.display = 'none';
+}
+function closeShareModal(){
+  document.getElementById('shareModal').classList.remove('active');
+}
+function copyShareUrl(){
+  const input = document.getElementById('shareUrl');
+  input.select();
+  navigator.clipboard.writeText(input.value).then(()=>{
+    document.getElementById('copyConfirm').style.display = 'block';
+    setTimeout(()=>document.getElementById('copyConfirm').style.display='none',3000);
+  });
+}
+function shareEmail(){
+  const url = encodeURIComponent(window.location.href);
+  const subject = encodeURIComponent('Det litterära Stockholm – interaktiv karta');
+  const body = encodeURIComponent('Hej!\n\nJag vill dela denna interaktiva litterära karta över Stockholm med dig. Den visar 67 litterära platser med citat, författare och kategorier.\n\n' + window.location.href + '\n\nVarma hälsningar');
+  window.open(`mailto:?subject=${subject}&body=${body}`);
+}
+
+// ==========================================
+// SUGGEST MODAL
+// ==========================================
+function openSuggestModal(){
+  document.getElementById('suggestModal').classList.add('active');
+}
+function closeSuggestModal(){
+  document.getElementById('suggestModal').classList.remove('active');
+}
+function submitSuggestion(){
+  const author = document.getElementById('suggestAuthor').value;
+  const work = document.getElementById('suggestWork').value;
+  const place = document.getElementById('suggestPlace').value;
+  if(!author || !place){
+    alert('Fyll i minst författare och plats.');
+    return;
+  }
+  alert('Tack för ditt förslag! Det kommer att granskas.');
+  closeSuggestModal();
+  document.getElementById('suggestAuthor').value = '';
+  document.getElementById('suggestWork').value = '';
+  document.getElementById('suggestPlace').value = '';
+  document.getElementById('suggestQuote').value = '';
+  document.getElementById('suggestCategory').value = '';
+}
+
+// ==========================================
+// INIT
+// ==========================================
+buildCategoryList();
+buildAuthorDropdown();
+addMarkers();
+</script>
+</body>
+</html>
