@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ärendetracker – Rättviks kommun</title>
+    <style>
+        :root {
+            --primary: #1a5276;
+            --primary-light: #2980b9;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --border: #dce1e6;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --col-prioriterat: #fff0f0;
+            --col-gora: #fff8e8;
+            --col-viktigt: #f0f8ff;
+            --col-vilande: #f5f0ff;
+            --col-forvaltning: #f0fff0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin-top: 0.2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-light {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-light:hover { background: rgba(255,255,255,0.35); }
+
+        .btn-primary {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .btn-primary:hover { background: var(--primary); }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover { background: #219a52; }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover { background: #c0392b; }
+
+        .btn-sm {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.78rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1rem 2rem;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .overall-progress {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .progress-bar-container {
+            background: #e8ecf0;
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            margin-top: 0.3rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--success), #2ecc71);
+            transition: width 0.5s ease;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem 2rem 0.5rem;
+        }
+
+        .view-toggle button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .view-toggle button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .main-content {
+            padding: 1rem 2rem 2rem;
+        }
+
+        /* Board view */
+        .board-view {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            overflow-x: auto;
+        }
+
+        .column {
+            border-radius: 10px;
+            min-width: 220px;
+        }
+
+        .column-header {
+            padding: 0.75rem 1rem;
+            border-radius: 10px 10px 0 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .column-count {
+            background: rgba(0,0,0,0.1);
+            padding: 0.1rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+
+        .col-prioriterat .column-header { background: #e74c3c; color: white; }
+        .col-gora .column-header { background: #f39c12; color: white; }
+        .col-viktigt .column-header { background: #3498db; color: white; }
+        .col-vilande .column-header { background: #9b59b6; color: white; }
+        .col-forvaltning .column-header { background: #27ae60; color: white; }
+
+        .column-body {
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-height: 200px;
+        }
+
+        .col-prioriterat .column-body { background: var(--col-prioriterat); }
+        .col-gora .column-body { background: var(--col-gora); }
+        .col-viktigt .column-body { background: var(--col-viktigt); }
+        .col-vilande .column-body { background: var(--col-vilande); }
+        .col-forvaltning .column-body { background: var(--col-forvaltning); }
+
+        .task-card {
+            background: white;
+            border-radius: 8px;
+            padding: 0.85rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+            transform: translateY(-1px);
+        }
+
+        .task-card.status-ej-paborjad { border-left-color: #bdc3c7; }
+        .task-card.status-pagaende { border-left-color: var(--warning); }
+        .task-card.status-halvvags { border-left-color: var(--info); }
+        .task-card.status-nastan-klart { border-left-color: #2ecc71; }
+        .task-card.status-klart { border-left-color: var(--success); }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 0.88rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .task-owner {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .task-owner .owner-tag {
+            display: inline-block;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+
+        .owner-hr { background: #fce4ec; color: #c62828; }
+        .owner-it { background: #e3f2fd; color: #1565c0; }
+        .owner-kom { background: #e8f5e9; color: #2e7d32; }
+        .owner-unknown { background: #f5f5f5; color: #616161; }
+
+        .task-progress-mini {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mini-progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #ecf0f1;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .mini-progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .mini-progress-fill.p0 { width: 0%; background: #bdc3c7; }
+        .mini-progress-fill.p25 { width: 25%; background: var(--warning); }
+        .mini-progress-fill.p50 { width: 50%; background: var(--info); }
+        .mini-progress-fill.p75 { width: 75%; background: #2ecc71; }
+        .mini-progress-fill.p100 { width: 100%; background: var(--success); }
+
+        .mini-progress-text {
+            font-size: 0.72rem;
+            color: var(--text-light);
+            min-width: 28px;
+            text-align: right;
+        }
+
+        /* List view */
+        .list-view {
+            display: none;
+        }
+
+        .list-view.active {
+            display: block;
+        }
+
+        .board-view.active {
+            display: grid;
+        }
+
+        .list-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .list-table thead th {
+            background: var(--primary);
+            color: white;
+            padding: 0.85rem 1rem;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .list-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        .list-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .list-table tbody td {
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .list-table .status-select {
+            padding: 0.35rem 0.5rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.1rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
+            color: var(--text);
+        }
+
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .status-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .status-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .status-option:hover { background: #f8fafc; }
+
+        .status-option.selected {
+            border-color: var(--primary-light);
+            background: #ebf5fb;
+        }
+
+        .status-option input[type="radio"] { display: none; }
+
+        .status-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-dot.s0 { background: #bdc3c7; }
+        .status-dot.s25 { background: var(--warning); }
+        .status-dot.s50 { background: var(--info); }
+        .status-dot.s75 { background: #2ecc71; }
+        .status-dot.s100 { background: var(--success); }
+
+        .status-option-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .last-updated {
+            font-size: 0.72rem;
+            color: var(--text-light);
+            margin-top: 0.3rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .board-view {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 0.75rem; text-align: center; }
+            .board-view { grid-template-columns: 1fr; }
+            .stats-bar { flex-direction: column; gap: 0.75rem; }
+            .main-content { padding: 1rem; }
+            .list-table { font-size: 0.8rem; }
+            .list-table thead th, .list-table tbody td { padding: 0.5rem; }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.85rem 1.25rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 2000;
+            font-size: 0.9rem;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .subtask-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 0.3rem;
+        }
+
+        .subtask-list li {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            padding: 0.15rem 0;
+        }
+
+        .subtask-list li::before {
+            content: "– ";
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>Digitaliseringsplan – Ärendetracker</h1>
+            <div class="subtitle">Rättviks kommun – Uppföljning av digitala initiativ</div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-light" onclick="exportData()">Exportera</button>
+            <button class="btn btn-light" onclick="resetData()">Återställ</button>
+        </div>
+    </header>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div>
+                <div class="stat-number" id="stat-total">0</div>
+                <div class="stat-label">Totalt ärenden</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div>
+                <div class="stat-number" id="stat-done" style="color: var(--success)">0</div>
+                <div class="stat-label">Klara</div>
+            </div>
+        </div>
+        <div class="stat-item">
+            <div>
+                <div class="stat-number" id="stat-active" style="color: var(--warning)">0</div>
+                <div class="stat-label">Pågående</div>
+            </div>
+        </div>
+        <div class="overall-progress">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span class="stat-label">Övergripande framsteg</span>
+                <span class="stat-label" id="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="overall-bar" style="width:0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="view-toggle">
+        <button class="active" onclick="setView('board', this)">Tavla</button>
+        <button onclick="setView('list', this)">Lista</button>
+    </div>
+
+    <div class="main-content">
+        <div class="board-view active" id="board-view"></div>
+        <div class="list-view" id="list-view"></div>
+    </div>
+
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-title">Uppdatera ärende</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Status / Framsteg</label>
+                    <div class="status-options" id="status-options"></div>
+                </div>
+                <div class="form-group">
+                    <label for="task-note">Kommentar / Notering</label>
+                    <textarea id="task-note" placeholder="Skriv en kort uppdatering..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="task-responsible">Ansvarig person</label>
+                    <input type="text" id="task-responsible" placeholder="Namn på ansvarig...">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" style="background:#ecf0f1" onclick="closeModal()">Avbryt</button>
+                <button class="btn btn-success" onclick="saveTask()">Spara</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+    const STATUS_LEVELS = [
+        { key: 'ej-paborjad', label: 'Ej påbörjad', pct: 0, cssClass: 's0' },
+        { key: 'pagaende', label: 'Påbörjad', pct: 25, cssClass: 's25' },
+        { key: 'halvvags', label: 'Halvvägs', pct: 50, cssClass: 's50' },
+        { key: 'nastan-klart', label: 'Nästan klart', pct: 75, cssClass: 's75' },
+        { key: 'klart', label: 'Klart', pct: 100, cssClass: 's100' }
+    ];
+
+    const COLUMNS = [
+        { key: 'prioriterat', label: 'Prioriterat', cssClass: 'col-prioriterat' },
+        { key: 'gora', label: '"Göra ändå"', cssClass: 'col-gora' },
+        { key: 'viktigt', label: 'Viktigt, men inte nu', cssClass: 'col-viktigt' },
+        { key: 'vilande', label: 'Vilande', cssClass: 'col-vilande' },
+        { key: 'forvaltning', label: 'Förvaltningarnas egna initiativ', cssClass: 'col-forvaltning' }
+    ];
+
+    const DEFAULT_TASKS = [
+        // Prioriterat
+        {
+            id: 1, column: 'prioriterat', title: 'Digital On-/Offboarding',
+            subtasks: ['Digitalt anställningsavtal', 'Digital introduktion'],
+            owner: 'HR', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+        {
+            id: 2, column: 'prioriterat', title: 'Behörighetshantering',
+            subtasks: [], owner: 'IT', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+        {
+            id: 3, column: 'prioriterat', title: 'AI – grundarbete, kartläggning, utbildning och test',
+            subtasks: [], owner: '?', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+        {
+            id: 4, column: 'prioriterat', title: 'Digital kommunikation – Kompetens att nå ut',
+            subtasks: [], owner: 'Kom', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+        {
+            id: 5, column: 'prioriterat', title: 'Webben – rattvik.se',
+            subtasks: [], owner: 'Kom', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+        {
+            id: 6, column: 'prioriterat', title: 'Digital mognadstrappa – höja kompetensnivån',
+            subtasks: [], owner: 'IT', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+        {
+            id: 7, column: 'prioriterat', title: 'Utbildningsplattform',
+            subtasks: [], owner: 'HR', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+
+        // Göra ändå
+        {
+            id: 8, column: 'gora', title: 'Handslagsinitiativ',
+            subtasks: ['Välfärdsteknik', 'Digital post', 'SDN', 'Identitet och behörighet', 'Gymn. Antagning', 'GIF', 'Verksamhetssyst. SOC', 'Invånarmöte', '1177'],
+            owner: '', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+        {
+            id: 9, column: 'gora', title: 'E-tjänster',
+            subtasks: [], owner: '', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+        {
+            id: 10, column: 'gora', title: 'Infosök / Klassa',
+            subtasks: [], owner: 'IT/Kansli/Verksamhet', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+
+        // Viktigt, men inte nu
+        {
+            id: 11, column: 'viktigt', title: 'Hela processen infosök',
+            subtasks: [], owner: '', status: 'ej-paborjad', note: 'Invänta Kansli', responsible: '', updatedAt: null
+        },
+        {
+            id: 12, column: 'viktigt', title: 'Besluts- och ledningssystem',
+            subtasks: [], owner: '', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+
+        // Vilande
+        {
+            id: 13, column: 'vilande', title: 'Portal att samla alla system',
+            subtasks: [], owner: '', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+        {
+            id: 14, column: 'vilande', title: 'Medborgartjänster',
+            subtasks: [], owner: '', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+
+        // Förvaltningarnas egna initiativ
+        {
+            id: 15, column: 'forvaltning', title: 'Inloggning – Freja, SSO med mera',
+            subtasks: [], owner: 'IT', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+        {
+            id: 16, column: 'forvaltning', title: 'Underlag inför IT-upphandling',
+            subtasks: [], owner: '', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        },
+        {
+            id: 17, column: 'forvaltning', title: 'Teams/Outlook',
+            subtasks: [], owner: 'IT', status: 'ej-paborjad', note: '', responsible: '', updatedAt: null
+        }
+    ];
+
+    const STORAGE_KEY = 'rattvik-arende-tracker';
+    let tasks = [];
+    let currentTaskId = null;
+
+    function loadTasks() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            try {
+                tasks = JSON.parse(saved);
+            } catch {
+                tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+            }
+        } else {
+            tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+        }
+    }
+
+    function saveTasks() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    function getStatusInfo(key) {
+        return STATUS_LEVELS.find(s => s.key === key) || STATUS_LEVELS[0];
+    }
+
+    function getOwnerClass(owner) {
+        const o = (owner || '').toLowerCase();
+        if (o === 'hr') return 'owner-hr';
+        if (o === 'it') return 'owner-it';
+        if (o === 'kom') return 'owner-kom';
+        return 'owner-unknown';
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('sv-SE') + ' ' + d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderBoard() {
+        const board = document.getElementById('board-view');
+        board.innerHTML = COLUMNS.map(col => {
+            const colTasks = tasks.filter(t => t.column === col.key);
+            return `
+                <div class="column ${col.cssClass}">
+                    <div class="column-header">
+                        <span>${col.label}</span>
+                        <span class="column-count">${colTasks.length}</span>
+                    </div>
+                    <div class="column-body">
+                        ${colTasks.map(t => renderCard(t)).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderCard(task) {
+        const status = getStatusInfo(task.status);
+        const subtasksHtml = task.subtasks.length > 0
+            ? `<ul class="subtask-list">${task.subtasks.map(s => `<li>${s}</li>`).join('')}</ul>`
+            : '';
+
+        return `
+            <div class="task-card status-${task.status}" onclick="openModal(${task.id})">
+                <div class="task-title">${task.title}</div>
+                ${task.owner ? `<div class="task-owner"><span class="owner-tag ${getOwnerClass(task.owner)}">${task.owner}</span>${task.responsible ? ` – ${task.responsible}` : ''}</div>` : (task.responsible ? `<div class="task-owner">${task.responsible}</div>` : '')}
+                ${subtasksHtml}
+                <div class="task-progress-mini">
+                    <div class="mini-progress-bar">
+                        <div class="mini-progress-fill p${status.pct}"></div>
+                    </div>
+                    <span class="mini-progress-text">${status.pct}%</span>
+                </div>
+                ${task.updatedAt ? `<div class="last-updated">Uppdaterad: ${formatDate(task.updatedAt)}</div>` : ''}
+            </div>
+        `;
+    }
+
+    function renderList() {
+        const list = document.getElementById('list-view');
+        list.innerHTML = `
+            <table class="list-table">
+                <thead>
+                    <tr>
+                        <th>Ärende</th>
+                        <th>Kategori</th>
+                        <th>Ansvarig enhet</th>
+                        <th>Ansvarig person</th>
+                        <th>Status</th>
+                        <th>Framsteg</th>
+                        <th>Senast uppdaterad</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tasks.map(t => {
+                        const status = getStatusInfo(t.status);
+                        const col = COLUMNS.find(c => c.key === t.column);
+                        return `
+                            <tr>
+                                <td><strong>${t.title}</strong></td>
+                                <td>${col ? col.label : ''}</td>
+                                <td>${t.owner ? `<span class="owner-tag ${getOwnerClass(t.owner)}">${t.owner}</span>` : '–'}</td>
+                                <td>${t.responsible || '–'}</td>
+                                <td>
+                                    <select class="status-select" onchange="quickStatus(${t.id}, this.value)">
+                                        ${STATUS_LEVELS.map(s => `<option value="${s.key}" ${s.key === t.status ? 'selected' : ''}>${s.label}</option>`).join('')}
+                                    </select>
+                                </td>
+                                <td>
+                                    <div class="task-progress-mini">
+                                        <div class="mini-progress-bar">
+                                            <div class="mini-progress-fill p${status.pct}"></div>
+                                        </div>
+                                        <span class="mini-progress-text">${status.pct}%</span>
+                                    </div>
+                                </td>
+                                <td class="last-updated">${t.updatedAt ? formatDate(t.updatedAt) : '–'}</td>
+                                <td><button class="btn btn-sm btn-primary" onclick="openModal(${t.id})">Redigera</button></td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    function updateStats() {
+        const total = tasks.length;
+        const done = tasks.filter(t => t.status === 'klart').length;
+        const active = tasks.filter(t => t.status !== 'ej-paborjad' && t.status !== 'klart').length;
+        const totalPct = total > 0 ? Math.round(tasks.reduce((sum, t) => sum + getStatusInfo(t.status).pct, 0) / total) : 0;
+
+        document.getElementById('stat-total').textContent = total;
+        document.getElementById('stat-done').textContent = done;
+        document.getElementById('stat-active').textContent = active;
+        document.getElementById('progress-pct').textContent = totalPct + '%';
+        document.getElementById('overall-bar').style.width = totalPct + '%';
+    }
+
+    function render() {
+        renderBoard();
+        renderList();
+        updateStats();
+    }
+
+    function setView(view, btn) {
+        document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const board = document.getElementById('board-view');
+        const list = document.getElementById('list-view');
+
+        if (view === 'board') {
+            board.style.display = 'grid';
+            list.style.display = 'none';
+        } else {
+            board.style.display = 'none';
+            list.style.display = 'block';
+        }
+    }
+
+    function openModal(taskId) {
+        currentTaskId = taskId;
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        document.getElementById('modal-title').textContent = task.title;
+        document.getElementById('task-note').value = task.note || '';
+        document.getElementById('task-responsible').value = task.responsible || '';
+
+        const optionsContainer = document.getElementById('status-options');
+        optionsContainer.innerHTML = STATUS_LEVELS.map(s => `
+            <label class="status-option ${s.key === task.status ? 'selected' : ''}" onclick="selectStatus('${s.key}', this)">
+                <input type="radio" name="task-status" value="${s.key}" ${s.key === task.status ? 'checked' : ''}>
+                <span class="status-dot ${s.cssClass}"></span>
+                <span class="status-option-label">${s.label} (${s.pct}%)</span>
+            </label>
+        `).join('');
+
+        document.getElementById('modal-overlay').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay').classList.remove('active');
+        currentTaskId = null;
+    }
+
+    function selectStatus(key, el) {
+        document.querySelectorAll('.status-option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        el.querySelector('input').checked = true;
+    }
+
+    function saveTask() {
+        if (!currentTaskId) return;
+        const task = tasks.find(t => t.id === currentTaskId);
+        if (!task) return;
+
+        const selectedRadio = document.querySelector('input[name="task-status"]:checked');
+        if (selectedRadio) task.status = selectedRadio.value;
+        task.note = document.getElementById('task-note').value;
+        task.responsible = document.getElementById('task-responsible').value;
+        task.updatedAt = new Date().toISOString();
+
+        saveTasks();
+        render();
+        closeModal();
+        showToast('Ärende uppdaterat!');
+    }
+
+    function quickStatus(taskId, statusKey) {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+        task.status = statusKey;
+        task.updatedAt = new Date().toISOString();
+        saveTasks();
+        render();
+        showToast('Status uppdaterad!');
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function exportData() {
+        const dataStr = JSON.stringify(tasks, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'arende-tracker-export.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Data exporterad!');
+    }
+
+    function resetData() {
+        if (confirm('Är du säker? Alla ändringar kommer att återställas till ursprungsläget.')) {
+            tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+            saveTasks();
+            render();
+            showToast('Data återställd!');
+        }
+    }
+
+    // Close modal on overlay click
+    document.getElementById('modal-overlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // Close modal on Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    // Init
+    loadTasks();
+    render();
+    </script>
+</body>
+</html>
