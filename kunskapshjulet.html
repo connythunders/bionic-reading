@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kunskapshjulet - Snurra och Lär!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f5af19, #f12711, #f5af19);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 200% center; }
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 30px;
+        }
+
+        .score-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .score-item {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 12px 24px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .score-item .label {
+            font-size: 0.8em;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .score-item .value {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .score-item .value.points { color: #f5af19; }
+        .score-item .value.streak { color: #00d2ff; }
+        .score-item .value.round { color: #a8ff78; }
+
+        .wheel-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 340px;
+            height: 340px;
+            margin-bottom: 20px;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 30px solid #f5af19;
+            z-index: 10;
+            filter: drop-shadow(0 4px 8px rgba(245, 175, 25, 0.5));
+        }
+
+        canvas#wheel {
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(245, 175, 25, 0.3), 0 0 80px rgba(241, 39, 17, 0.15);
+            cursor: pointer;
+            transition: filter 0.3s;
+        }
+
+        canvas#wheel:hover {
+            filter: brightness(1.1);
+        }
+
+        canvas#wheel.spinning {
+            cursor: not-allowed;
+        }
+
+        .spin-btn {
+            background: linear-gradient(135deg, #f5af19, #f12711);
+            color: white;
+            border: none;
+            padding: 14px 48px;
+            font-size: 1.2em;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(241, 39, 17, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .spin-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(241, 39, 17, 0.5);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .question-panel {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            padding: 30px;
+            display: none;
+            animation: slideUp 0.5s ease;
+        }
+
+        .question-panel.visible {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .answer-btn {
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 14px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .answer-btn:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+        }
+
+        .answer-btn.correct {
+            background: rgba(34, 197, 94, 0.3);
+            border-color: #22c55e;
+            animation: pulse-green 0.5s ease;
+        }
+
+        .answer-btn.wrong {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+            animation: shake 0.5s ease;
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            50% { box-shadow: 0 0 20px 10px rgba(34, 197, 94, 0.2); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 16px 20px;
+            border-radius: 14px;
+            font-size: 1em;
+            display: none;
+            line-height: 1.5;
+        }
+
+        .feedback.visible {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .feedback.wrong {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: -20px;
+            animation: confetti-fall var(--fall-duration) ease-in forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .back-link {
+            display: inline-block;
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 2em; }
+            .wheel-container { width: 280px; height: 280px; }
+            canvas#wheel { width: 280px; height: 280px; }
+            .answers { grid-template-columns: 1fr; }
+            .score-bar { gap: 12px; }
+            .score-item { min-width: 90px; padding: 10px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <div class="container">
+        <a href="start.html" class="back-link">&larr; Tillbaka till portalen</a>
+
+        <h1>Kunskapshjulet</h1>
+        <p class="subtitle">Snurra hjulet, svara på frågan och samla poäng!</p>
+
+        <div class="score-bar">
+            <div class="score-item">
+                <div class="label">Poäng</div>
+                <div class="value points" id="score">0</div>
+            </div>
+            <div class="score-item">
+                <div class="label">Svit</div>
+                <div class="value streak" id="streak">0</div>
+            </div>
+            <div class="score-item">
+                <div class="label">Runda</div>
+                <div class="value round" id="round">0 / 0</div>
+            </div>
+        </div>
+
+        <div class="wheel-section">
+            <div class="wheel-container">
+                <div class="wheel-pointer"></div>
+                <canvas id="wheel" width="680" height="680"></canvas>
+            </div>
+            <button class="spin-btn" id="spinBtn" onclick="spinWheel()">Snurra!</button>
+        </div>
+
+        <div class="question-panel" id="questionPanel">
+            <span class="category-badge" id="categoryBadge"></span>
+            <div class="question-text" id="questionText"></div>
+            <div class="answers" id="answers"></div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+    </div>
+
+    <div class="confetti-container" id="confetti"></div>
+
+    <script>
+    const categories = [
+        { name: 'Religion', color: '#8b5cf6', light: '#c4b5fd' },
+        { name: 'Svenska', color: '#3b82f6', light: '#93c5fd' },
+        { name: 'Engelska', color: '#06b6d4', light: '#67e8f9' },
+        { name: 'Historia', color: '#f59e0b', light: '#fcd34d' },
+        { name: 'Samhälle', color: '#10b981', light: '#6ee7b7' },
+        { name: 'Geografi', color: '#ef4444', light: '#fca5a5' },
+        { name: 'Natur', color: '#ec4899', light: '#f9a8d4' },
+        { name: 'Blandat', color: '#f97316', light: '#fdba74' }
+    ];
+
+    const questions = {
+        'Religion': [
+            { q: 'Vilken religion har flest anhängare i världen?', a: ['Kristendom', 'Islam', 'Hinduism', 'Buddhism'], correct: 0, info: 'Kristendomen har cirka 2,4 miljarder anhängare världen över.' },
+            { q: 'Vad heter islams heliga bok?', a: ['Bibeln', 'Koranen', 'Torah', 'Tripitaka'], correct: 1, info: 'Koranen anses vara Guds ord uppenbarat för profeten Muhammed.' },
+            { q: 'Vilken högtid firar judar till minne av uttåget ur Egypten?', a: ['Hanukka', 'Jom Kippur', 'Pesach', 'Sukkot'], correct: 2, info: 'Pesach (påsk) firas i åtta dagar och inkluderar sedermåltiden.' },
+            { q: 'Vad kallas de fyra ädla sanningarna inom?', a: ['Hinduism', 'Kristendom', 'Buddhism', 'Sikhism'], correct: 2, info: 'Buddhas fyra ädla sanningar handlar om lidande och vägen till befrielse.' },
+            { q: 'Hur många pelare har islam?', a: ['Tre', 'Fyra', 'Fem', 'Sex'], correct: 2, info: 'De fem pelarna är: trosbekännelsen, bönen, fastan, allmosan och vallfärden.' },
+            { q: 'Vad heter den judiska vilodagen?', a: ['Söndag', 'Sabbat', 'Fredag', 'Måndag'], correct: 1, info: 'Sabbaten (Shabbat) varar från fredag kväll till lördag kväll.' },
+        ],
+        'Svenska': [
+            { q: 'Vem skrev romanen "Nils Holgerssons underbara resa"?', a: ['August Strindberg', 'Selma Lagerlöf', 'Astrid Lindgren', 'Vilhelm Moberg'], correct: 1, info: 'Selma Lagerlöf skrev boken 1906-1907 som en läsebok i geografi.' },
+            { q: 'Vad är ett verb?', a: ['Ett namn-ord', 'Ett gör-ord', 'Ett hur-ord', 'Ett bindeord'], correct: 1, info: 'Verb beskriver handlingar, tillstånd eller skeenden, t.ex. "springa", "vara".' },
+            { q: 'Vilken ordklass tillhör ordet "snabbt"?', a: ['Substantiv', 'Verb', 'Adjektiv', 'Adverb'], correct: 3, info: 'Adverb beskriver hur, var, när eller i vilken grad något sker.' },
+            { q: 'Vad kallas det när man upprepar samma begynnelseljud?', a: ['Rim', 'Allitteration', 'Metafor', 'Liknelse'], correct: 1, info: 'Allitteration är ett stilmedel: "Solen sjönk sakta i sjön".' },
+            { q: 'Vem skrev "Röda rummet"?', a: ['Selma Lagerlöf', 'August Strindberg', 'Hjalmar Söderberg', 'Karin Boye'], correct: 1, info: 'Röda rummet (1879) anses vara den moderna svenska romanens genombrott.' },
+        ],
+        'Engelska': [
+            { q: 'What is the past tense of "go"?', a: ['Goed', 'Went', 'Gone', 'Going'], correct: 1, info: '"Go" is an irregular verb: go → went → gone.' },
+            { q: 'Which word is a synonym for "happy"?', a: ['Sad', 'Angry', 'Joyful', 'Tired'], correct: 2, info: 'Joyful means feeling or causing great happiness.' },
+            { q: 'What does "approximately" mean?', a: ['Exakt', 'Ungefär', 'Aldrig', 'Alltid'], correct: 1, info: '"Approximately" means close to an exact amount but not completely accurate.' },
+            { q: 'Which sentence is correct?', a: ['He don\'t like it', 'He doesn\'t like it', 'He not like it', 'He no like it'], correct: 1, info: 'Third person singular uses "doesn\'t" (does not) in negative sentences.' },
+            { q: 'What is the plural of "child"?', a: ['Childs', 'Childes', 'Children', 'Childrens'], correct: 2, info: '"Children" is an irregular plural form in English.' },
+        ],
+        'Historia': [
+            { q: 'Vilket år slutade andra världskriget i Europa?', a: ['1943', '1944', '1945', '1946'], correct: 2, info: 'Tyskland kapitulerade den 8 maj 1945, känt som V-E Day.' },
+            { q: 'Vad kallades Sveriges stormaktstid?', a: ['1500-talet', '1611-1718', '1800-talet', '1900-talet'], correct: 1, info: 'Under stormaktstiden var Sverige en av Europas stormakter.' },
+            { q: 'Vem uppfann boktryckarkonsten i Europa?', a: ['Leonardo da Vinci', 'Johannes Gutenberg', 'Galileo Galilei', 'Martin Luther'], correct: 1, info: 'Gutenberg utvecklade tryckpressen med lösa typer runt 1440.' },
+            { q: 'Vilket år föll Berlinmuren?', a: ['1987', '1988', '1989', '1990'], correct: 2, info: 'Berlinmuren föll den 9 november 1989 efter 28 år.' },
+            { q: 'Vad hette den svenska kungen som stupade vid Fredrikshald?', a: ['Gustav II Adolf', 'Karl XI', 'Karl XII', 'Gustav III'], correct: 2, info: 'Karl XII dödades 1718 vid belägringen av Fredriksten fästning i Norge.' },
+        ],
+        'Samhälle': [
+            { q: 'Hur ofta hålls riksdagsval i Sverige?', a: ['Vart tredje år', 'Vart fjärde år', 'Vart femte år', 'Varje år'], correct: 1, info: 'Riksdagsval hålls vart fjärde år, nästa gång 2026.' },
+            { q: 'Hur många ledamöter har Sveriges riksdag?', a: ['249', '299', '349', '399'], correct: 2, info: 'Sveriges riksdag har 349 ledamöter i en kammare.' },
+            { q: 'Vad kallas grundlagen som skyddar yttrandefrihet?', a: ['Regeringsformen', 'Tryckfrihetsförordningen', 'Successionsordningen', 'Riksdagsordningen'], correct: 1, info: 'Tryckfrihetsförordningen från 1766 är en av världens äldsta presslagar.' },
+            { q: 'Vilken myndighet ansvarar för att genomföra val i Sverige?', a: ['Riksdagen', 'Valmyndigheten', 'Regeringen', 'Polisen'], correct: 1, info: 'Valmyndigheten planerar och genomför val och folkomröstningar.' },
+            { q: 'Vid vilken ålder får man rösta i riksdagsval?', a: ['16 år', '18 år', '20 år', '21 år'], correct: 1, info: 'Rösträttsåldern i Sverige är 18 år sedan 1975.' },
+        ],
+        'Geografi': [
+            { q: 'Vilken är Sveriges längsta flod?', a: ['Dalälven', 'Klarälven', 'Torneälven', 'Göta älv'], correct: 2, info: 'Torneälven/Torne älv är ca 522 km lång och bildar gräns mot Finland.' },
+            { q: 'Vilket land har flest invånare i världen?', a: ['Kina', 'Indien', 'USA', 'Indonesien'], correct: 1, info: 'Indien passerade Kina som världens folkrikaste land 2023.' },
+            { q: 'Vilken är världens största kontinent?', a: ['Afrika', 'Nordamerika', 'Europa', 'Asien'], correct: 3, info: 'Asien är 44,6 miljoner km² och hem för över 4,7 miljarder människor.' },
+            { q: 'Vad heter Sveriges högsta berg?', a: ['Sarek', 'Kebnekaise', 'Abisko', 'Galdhøpiggen'], correct: 1, info: 'Kebnekaise sydtopp når ca 2 097 m.ö.h. (varierar med glaciären).' },
+            { q: 'Vilken svensk stad kallas "Nordens Venedig"?', a: ['Göteborg', 'Malmö', 'Stockholm', 'Uppsala'], correct: 2, info: 'Stockholm kallas så för att staden är byggd på 14 öar.' },
+        ],
+        'Natur': [
+            { q: 'Vad heter processen där växter omvandlar solljus till energi?', a: ['Cellandning', 'Fotosyntes', 'Jäsning', 'Osmose'], correct: 1, info: 'Fotosyntesen sker i kloroplasterna och producerar syre som biprodukt.' },
+            { q: 'Vilken planet är närmast solen?', a: ['Venus', 'Merkurius', 'Mars', 'Jorden'], correct: 1, info: 'Merkurius ligger i snitt 58 miljoner km från solen.' },
+            { q: 'Vad kallas det yttersta lagret av jordens atmosfär?', a: ['Stratosfären', 'Mesosfären', 'Termosfären', 'Exosfären'], correct: 3, info: 'Exosfären sträcker sig från ca 500 km upp till rymden.' },
+            { q: 'Vilken kemisk beteckning har vatten?', a: ['CO2', 'H2O', 'NaCl', 'O2'], correct: 1, info: 'H2O består av två väteatomer och en syreatom.' },
+            { q: 'Hur många kromosomer har en människa?', a: ['23', '44', '46', '48'], correct: 2, info: 'Människan har 46 kromosomer, fördelade på 23 par.' },
+        ],
+        'Blandat': [
+            { q: 'Vilken dag firas Sveriges nationaldag?', a: ['1 maj', '6 juni', '24 juni', '13 december'], correct: 1, info: 'Den 6 juni blev officiell nationaldag och helgdag 2005.' },
+            { q: 'Vem målade "Mona Lisa"?', a: ['Michelangelo', 'Leonardo da Vinci', 'Rembrandt', 'Picasso'], correct: 1, info: 'Mona Lisa målades omkring 1503-1519 och hänger i Louvren i Paris.' },
+            { q: 'Hur många ben har en spindel?', a: ['6', '8', '10', '12'], correct: 1, info: 'Spindlar är spindeldjur (inte insekter) och har alltid 8 ben.' },
+            { q: 'Vilket grundämne har den kemiska beteckningen Fe?', a: ['Fluor', 'Fosfor', 'Järn', 'Francium'], correct: 2, info: 'Fe kommer från latinets "ferrum" som betyder järn.' },
+            { q: 'I vilken stad ligger Colosseum?', a: ['Aten', 'Rom', 'Istanbul', 'Kairo'], correct: 1, info: 'Colosseum byggdes 70-80 e.Kr. och rymde upp till 50 000 åskådare.' },
+        ],
+    };
+
+    // Game state
+    let score = 0;
+    let streak = 0;
+    let bestStreak = 0;
+    let roundNum = 0;
+    let totalQuestions = 0;
+    let usedQuestions = {};
+    let isSpinning = false;
+    let currentRotation = 0;
+
+    // Count total available questions
+    for (const cat in questions) {
+        totalQuestions += questions[cat].length;
+        usedQuestions[cat] = [];
+    }
+
+    // Canvas setup
+    const canvas = document.getElementById('wheel');
+    const ctx = canvas.getContext('2d');
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = canvas.width / 2 - 10;
+
+    function drawWheel(rotation) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const sliceAngle = (2 * Math.PI) / categories.length;
+
+        categories.forEach((cat, i) => {
+            const startAngle = rotation + i * sliceAngle;
+            const endAngle = startAngle + sliceAngle;
+
+            // Draw slice
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.closePath();
+
+            const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+            grad.addColorStop(0, cat.light);
+            grad.addColorStop(1, cat.color);
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // Slice border
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Text
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(startAngle + sliceAngle / 2);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 28px Segoe UI, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 4;
+            ctx.fillText(cat.name, radius * 0.6, 0);
+            ctx.restore();
+        });
+
+        // Center circle
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 45, 0, 2 * Math.PI);
+        ctx.fillStyle = '#1e1b4b';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.fillStyle = '#f5af19';
+        ctx.font = 'bold 20px Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = 2;
+        ctx.fillText('?', centerX, centerY);
+    }
+
+    drawWheel(0);
+
+    function spinWheel() {
+        if (isSpinning) return;
+
+        // Check if all questions used
+        let allUsed = true;
+        for (const cat in questions) {
+            if (usedQuestions[cat].length < questions[cat].length) {
+                allUsed = false;
+                break;
+            }
+        }
+        if (allUsed) {
+            alert('Grattis! Du har svarat på alla frågor!\nDin slutpoäng: ' + score + '\nBästa svit: ' + bestStreak);
+            resetGame();
+            return;
+        }
+
+        isSpinning = true;
+        document.getElementById('spinBtn').disabled = true;
+        canvas.classList.add('spinning');
+
+        // Hide previous question
+        document.getElementById('questionPanel').classList.remove('visible');
+
+        const spinAmount = Math.random() * 4 * Math.PI + 6 * Math.PI; // 3-5 full rotations
+        const targetRotation = currentRotation + spinAmount;
+        const duration = 4000;
+        const startTime = performance.now();
+        const startRotation = currentRotation;
+
+        function animate(time) {
+            const elapsed = time - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const rot = startRotation + spinAmount * eased;
+            drawWheel(rot);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                currentRotation = targetRotation % (2 * Math.PI);
+                isSpinning = false;
+                canvas.classList.remove('spinning');
+
+                // Determine which category the pointer landed on
+                const sliceAngle = (2 * Math.PI) / categories.length;
+                // Pointer is at top (270 degrees or -PI/2)
+                const pointerAngle = (2 * Math.PI - currentRotation + Math.PI * 1.5) % (2 * Math.PI);
+                const categoryIndex = Math.floor(pointerAngle / sliceAngle) % categories.length;
+                showQuestion(categories[categoryIndex]);
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    function showQuestion(category) {
+        const catQuestions = questions[category.name];
+        const available = catQuestions.filter((_, i) => !usedQuestions[category.name].includes(i));
+
+        // If no more questions in this category, pick from another
+        if (available.length === 0) {
+            for (const cat of categories) {
+                const avail = questions[cat.name].filter((_, i) => !usedQuestions[cat.name].includes(i));
+                if (avail.length > 0) {
+                    showQuestion(cat);
+                    return;
+                }
+            }
+            return;
+        }
+
+        roundNum++;
+        updateScoreboard();
+
+        const qIndex = catQuestions.indexOf(available[Math.floor(Math.random() * available.length)]);
+        usedQuestions[category.name].push(qIndex);
+        const q = catQuestions[qIndex];
+
+        const badge = document.getElementById('categoryBadge');
+        badge.textContent = category.name;
+        badge.style.background = category.color;
+
+        document.getElementById('questionText').textContent = q.q;
+        document.getElementById('feedback').classList.remove('visible');
+        document.getElementById('feedback').className = 'feedback';
+
+        const answersDiv = document.getElementById('answers');
+        answersDiv.innerHTML = '';
+        q.a.forEach((ans, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'answer-btn';
+            btn.textContent = ans;
+            btn.onclick = () => checkAnswer(i, q.correct, q.info, category);
+            answersDiv.appendChild(btn);
+        });
+
+        document.getElementById('questionPanel').classList.add('visible');
+    }
+
+    function checkAnswer(selected, correct, info, category) {
+        const buttons = document.querySelectorAll('.answer-btn');
+        buttons.forEach((btn, i) => {
+            btn.disabled = true;
+            if (i === correct) btn.classList.add('correct');
+            if (i === selected && i !== correct) btn.classList.add('wrong');
+        });
+
+        const feedback = document.getElementById('feedback');
+        if (selected === correct) {
+            streak++;
+            if (streak > bestStreak) bestStreak = streak;
+            const points = 10 + (streak - 1) * 5; // Bonus for streaks
+            score += points;
+            feedback.className = 'feedback correct visible';
+            feedback.innerHTML = '<strong>Rätt!</strong> +' + points + ' poäng' + (streak > 1 ? ' (svitbonus!)' : '') + '<br>' + info;
+            spawnConfetti();
+        } else {
+            streak = 0;
+            feedback.className = 'feedback wrong visible';
+            feedback.innerHTML = '<strong>Fel!</strong> Rätt svar var: ' + questions[category.name].find((_, i) => usedQuestions[category.name].includes(i)).a[correct] + '<br>' + info;
+        }
+
+        updateScoreboard();
+        document.getElementById('spinBtn').disabled = false;
+    }
+
+    function updateScoreboard() {
+        document.getElementById('score').textContent = score;
+        document.getElementById('streak').textContent = streak;
+        document.getElementById('round').textContent = roundNum + ' / ' + totalQuestions;
+    }
+
+    function resetGame() {
+        score = 0;
+        streak = 0;
+        bestStreak = 0;
+        roundNum = 0;
+        for (const cat in usedQuestions) usedQuestions[cat] = [];
+        updateScoreboard();
+        document.getElementById('questionPanel').classList.remove('visible');
+        document.getElementById('spinBtn').disabled = false;
+    }
+
+    function spawnConfetti() {
+        const container = document.getElementById('confetti');
+        const colors = ['#f5af19', '#f12711', '#8b5cf6', '#3b82f6', '#10b981', '#ec4899', '#06b6d4'];
+        for (let i = 0; i < 40; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.left = Math.random() * 100 + '%';
+            piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.setProperty('--fall-duration', (Math.random() * 2 + 1.5) + 's');
+            piece.style.animationDelay = Math.random() * 0.5 + 's';
+            piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            piece.style.width = (Math.random() * 8 + 6) + 'px';
+            piece.style.height = (Math.random() * 8 + 6) + 'px';
+            container.appendChild(piece);
+            setTimeout(() => piece.remove(), 4000);
+        }
+    }
+
+    // Create background stars
+    (function createStars() {
+        const starsEl = document.getElementById('stars');
+        for (let i = 0; i < 80; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
+            star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+            star.style.animationDelay = Math.random() * 5 + 's';
+            starsEl.appendChild(star);
+        }
+    })();
+
+    // Allow clicking the wheel to spin
+    canvas.addEventListener('click', spinWheel);
+    </script>
+</body>
+</html>
