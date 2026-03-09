@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SO Nationella Prov - Övningsquiz åk 7-9</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0 20px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            background: linear-gradient(90deg, #e94560, #f5a623, #e94560);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        header p {
+            margin-top: 8px;
+            color: #8899aa;
+            font-size: 1rem;
+        }
+
+        /* Navigation tabs */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 10px 18px;
+            border: 2px solid #e94560;
+            background: transparent;
+            color: #e94560;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background: #e94560;
+            color: white;
+        }
+
+        /* Section header */
+        .section-header {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #e94560;
+        }
+
+        .section-header h2 { color: #f5a623; font-size: 1.4rem; }
+        .section-header p { margin-top: 6px; color: #aaa; }
+
+        /* Progress bar */
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            height: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #f5a623);
+            border-radius: 20px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #8899aa;
+            margin-bottom: 12px;
+        }
+
+        /* Question card */
+        .question-card {
+            background: rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-card .reading-text {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 18px;
+            line-height: 1.7;
+            font-size: 0.95rem;
+            border-left: 3px solid #f5a623;
+        }
+
+        .question-card .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+            color: #fff;
+            line-height: 1.5;
+        }
+
+        .question-card .begrepp-label {
+            display: inline-block;
+            background: #e94560;
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        /* Options */
+        .options { display: flex; flex-direction: column; gap: 10px; }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            line-height: 1.5;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background: rgba(233, 69, 96, 0.15);
+            border-color: #e94560;
+        }
+
+        .option-btn.correct {
+            background: rgba(46, 213, 115, 0.2);
+            border-color: #2ed573;
+            color: #2ed573;
+        }
+
+        .option-btn.wrong {
+            background: rgba(255, 71, 87, 0.2);
+            border-color: #ff4757;
+            color: #ff4757;
+        }
+
+        .option-btn.disabled { cursor: default; opacity: 0.6; }
+        .option-btn.correct.disabled, .option-btn.wrong.disabled { opacity: 1; }
+
+        /* Explanation box */
+        .explanation {
+            margin-top: 16px;
+            padding: 14px 18px;
+            background: rgba(245, 166, 35, 0.1);
+            border: 1px solid rgba(245, 166, 35, 0.3);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #ddd;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .explanation strong { color: #f5a623; }
+
+        /* Kronologi (drag/sort) */
+        .kronologi-list {
+            list-style: none;
+            counter-reset: item;
+        }
+
+        .kronologi-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            cursor: grab;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .kronologi-item:active { cursor: grabbing; }
+
+        .kronologi-item:hover {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .kronologi-item .grip {
+            color: #666;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .kronologi-item .event-text {
+            flex: 1;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .kronologi-item.correct-pos {
+            border-color: #2ed573;
+            background: rgba(46, 213, 115, 0.12);
+        }
+
+        .kronologi-item.wrong-pos {
+            border-color: #ff4757;
+            background: rgba(255, 71, 87, 0.12);
+        }
+
+        .kronologi-item .year-hint {
+            font-size: 0.8rem;
+            color: #f5a623;
+            font-weight: 600;
+            display: none;
+        }
+
+        .kronologi-item .year-hint.visible { display: inline; }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #e94560, #c0392b);
+            color: white;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(233,69,96,0.4); }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #e0e0e0;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+
+        /* Results */
+        .results-card {
+            text-align: center;
+            background: rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 40px 28px;
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .results-card h2 { font-size: 1.8rem; color: #f5a623; margin-bottom: 10px; }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            font-size: 2.5rem;
+            font-weight: 800;
+            border: 6px solid;
+        }
+
+        .score-circle.great { border-color: #2ed573; color: #2ed573; }
+        .score-circle.ok { border-color: #f5a623; color: #f5a623; }
+        .score-circle.low { border-color: #ff4757; color: #ff4757; }
+
+        .score-circle small { font-size: 0.8rem; font-weight: 400; color: #aaa; }
+
+        .score-message { margin: 16px 0; font-size: 1.1rem; color: #ccc; }
+
+        /* Start screen */
+        .start-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .start-screen .section-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin: 24px 0;
+        }
+
+        .section-card {
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 20px 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .section-card:hover {
+            border-color: #e94560;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(233,69,96,0.2);
+        }
+
+        .section-card .icon { font-size: 2rem; margin-bottom: 8px; }
+        .section-card h3 { font-size: 1rem; color: #f5a623; margin-bottom: 4px; }
+        .section-card p { font-size: 0.8rem; color: #888; }
+
+        /* Hidden */
+        .hidden { display: none !important; }
+
+        /* Mobile */
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.5rem; }
+            .tab-btn { padding: 8px 12px; font-size: 0.8rem; }
+            .question-card { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SO Nationella Prov - Övningsquiz</h1>
+            <p>Årskurs 7-9 | Träna inför nationella proven</p>
+        </header>
+
+        <!-- Start screen -->
+        <div id="startScreen" class="start-screen">
+            <p style="color:#aaa; margin-bottom: 8px;">Välj en sektion att öva på:</p>
+            <div class="section-cards">
+                <div class="section-card" onclick="startSection('lasforstaelse')">
+                    <div class="icon">📖</div>
+                    <h3>Läsförståelse</h3>
+                    <p>6 frågor</p>
+                </div>
+                <div class="section-card" onclick="startSection('begreppsforstaelse')">
+                    <div class="icon">🔤</div>
+                    <h3>Begreppsförståelse</h3>
+                    <p>12 frågor</p>
+                </div>
+                <div class="section-card" onclick="startSection('kallkritik')">
+                    <div class="icon">🔍</div>
+                    <h3>Källkritik</h3>
+                    <p>6 frågor</p>
+                </div>
+                <div class="section-card" onclick="startSection('kronologi')">
+                    <div class="icon">⏳</div>
+                    <h3>Kronologi</h3>
+                    <p>6 frågor</p>
+                </div>
+            </div>
+            <div style="margin-top:16px;">
+                <button class="btn btn-primary" onclick="startAll()">Kör alla 30 frågor</button>
+            </div>
+        </div>
+
+        <!-- Quiz view -->
+        <div id="quizView" class="hidden">
+            <div class="tabs" id="tabs"></div>
+
+            <div class="section-header" id="sectionHeader">
+                <h2 id="sectionTitle"></h2>
+                <p id="sectionDesc"></p>
+            </div>
+
+            <div class="progress-text" id="progressText"></div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div id="questionArea"></div>
+
+            <div class="btn-row" id="navButtons">
+                <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()">Föregående</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Nästa</button>
+            </div>
+        </div>
+
+        <!-- Results view -->
+        <div id="resultsView" class="hidden"></div>
+    </div>
+
+<script>
+const quizData = {
+  "sections": {
+    "lasforstaelse": {
+      "title": "Läsförståelse",
+      "description": "Läs texten noggrant och svara på frågan.",
+      "questions": [
+        {"id":"lf-1","theme":"demokrati","text":"I en demokrati har medborgarna rätt att välja sina politiska företrädare genom fria och hemliga val. Det innebär att ingen ska kunna tvingas att rösta på ett visst parti, och att alla röster väger lika tungt. Demokratin bygger också på att det finns en opposition som får kritisera den sittande regeringen utan att straffas för det.","question":"Vilket av följande är ett grundläggande krav för att ett land ska kallas demokratiskt?","options":["Att landet har en kung eller drottning som statschef","Att det finns fria och hemliga val där alla röster väger lika","Att det bara finns ett parti som bestämmer för att undvika konflikter","Att militären har det slutgiltiga avgörandet i politiska frågor"],"correct":1},
+        {"id":"lf-2","theme":"mänskliga rättigheter","text":"FN:s allmänna förklaring om de mänskliga rättigheterna antogs 1948, strax efter andra världskrigets slut. Förklaringen slår fast att alla människor är födda fria och lika i värde. Den omfattar både medborgerliga rättigheter, som yttrandefrihet och religionsfrihet, och sociala rättigheter, som rätt till utbildning och sjukvård.","question":"Varför antogs FN:s förklaring om de mänskliga rättigheterna just 1948?","options":["För att kalla kriget hade börjat och man ville skydda sig mot Sovjetunionen","För att kolonierna i Afrika krävde självständighet","För att världen ville förhindra att övergreppen från andra världskriget upprepades","För att USA ville sprida sin egen grundlag till andra länder"],"correct":2},
+        {"id":"lf-3","theme":"klimat","text":"Växthuseffekten är en naturlig process som gör att jordens temperatur är tillräckligt varm för att liv ska kunna existera. Problemet uppstår när människans utsläpp av växthusgaser, framför allt koldioxid och metan, förstärker denna effekt. Det leder till att jordens medeltemperatur stiger, vilket påverkar klimatet med mer extremt väder, smältande isar och stigande havsnivå.","question":"Vad är det som är problemet enligt texten – växthuseffekten i sig eller något annat?","options":["Växthuseffekten i sig är problemet eftersom den värmer upp jorden","Problemet är att människans utsläpp förstärker den naturliga växthuseffekten för mycket","Problemet är att växthuseffekten har försvunnit på grund av föroreningar","Problemet är att solen skickar ut mer värme än tidigare"],"correct":1},
+        {"id":"lf-4","theme":"migration","text":"Migration innebär att människor flyttar från en plats till en annan, antingen inom ett land eller över landsgränser. Orsakerna kan vara många: krig och förföljelse, fattigdom, naturkatastrofer eller helt enkelt önskan om ett bättre liv. Sverige har historiskt sett varit både ett utvandrarland, när över en miljon svenskar flyttade till Nordamerika på 1800-talet, och ett invandrarland som tagit emot människor från hela världen.","question":"Vad visar texten om Sveriges historia när det gäller migration?","options":["Sverige har alltid varit ett land som bara tagit emot invandrare","Sverige har aldrig haft någon betydande utvandring","Sverige har varit både ett utvandrarland och ett invandrarland under olika perioder","Svenskar flyttade till Nordamerika på 1900-talet på grund av krig"],"correct":2},
+        {"id":"lf-5","theme":"religion","text":"De abrahamitiska religionerna – judendomen, kristendomen och islam – delar flera gemensamma drag. Alla tre har sitt ursprung i Mellanöstern och hävdar att de kan spåras tillbaka till patriarken Abraham. De är monoteistiska, alltså tror på en enda Gud, och betonar alla vikten av barmhärtighet, rättvisa och nästankärlek. Samtidigt finns det betydande skillnader i tro, skrifter och ritualer mellan dem.","question":"Vad menas med att de abrahamitiska religionerna är monoteistiska?","options":["Att de alla har samma heliga skrift","Att de tror på en enda Gud","Att de har sitt ursprung i samma land","Att de grundades av samma person"],"correct":1},
+        {"id":"lf-6","theme":"globalisering","text":"Globaliseringen har gjort världens länder alltmer beroende av varandra ekonomiskt, kulturellt och politiskt. Tack vare internet och snabba transporter kan varor, tjänster och information röra sig över gränserna snabbare än någonsin. Kritiker menar dock att globaliseringen ökar klyftorna mellan rika och fattiga, medan förespråkare hävdar att den lyfter miljoner människor ur fattigdom genom ökad handel.","question":"Vilken kritik riktas mot globaliseringen enligt texten?","options":["Att den gör länder helt oberoende av varandra","Att internet sprider sig för långsamt","Att den ökar de ekonomiska klyftorna mellan rika och fattiga","Att handeln mellan länder har minskat"],"correct":2}
+      ]
+    },
+    "begreppsforstaelse": {
+      "title": "Begreppsförståelse",
+      "description": "Välj den definition som bäst stämmer överens med begreppet.",
+      "questions": [
+        {"id":"bf-1","begrepp":"Demokrati","options":["Ett styrelseskick där makten utgår från folket, oftast genom fria val","Ett system där de rikaste i samhället fattar alla beslut","En styrelseform där en envåldshärskare styr med järnhand","Ett system där bara de med högst utbildning får rösta"],"correct":0},
+        {"id":"bf-2","begrepp":"Diktatur","options":["Ett system där folket röstar direkt om alla frågor","En statsform där kungen har ceremoniell makt men inte politisk","Ett styrelseskick där en person eller liten grupp har all makt utan folkets samtycke","En form av demokrati där bara två partier får delta i val"],"correct":2},
+        {"id":"bf-3","begrepp":"Rättsstat","options":["Ett samhälle där polisen har obegränsad makt att upprätthålla ordningen","Ett land där bara jurister får bestämma lagarna","Ett samhälle där lagar gäller lika för alla och där statens makt begränsas av lagen","Ett system där domstolarna styrs av regeringen"],"correct":2},
+        {"id":"bf-4","begrepp":"Mänskliga rättigheter","options":["Rättigheter som bara gäller för medborgare i demokratiska länder","Regler som FN tvingar alla länder att följa med militärt våld","Grundläggande rättigheter som tillhör alla människor oavsett nationalitet, kön, etnicitet eller religion","Förmåner som man får genom att betala skatt i sitt hemland"],"correct":2},
+        {"id":"bf-5","begrepp":"Segregation","options":["När människor från olika bakgrunder lever och arbetar tillsammans","Uppdelning av människor i ett samhälle baserat på exempelvis etnicitet, ekonomi eller boendeområde","En politisk strategi för att öka invandringen till ett land","När staten tvingar alla att bo i samma typ av område"],"correct":1},
+        {"id":"bf-6","begrepp":"Integration","options":["Att alla människor i ett land måste ge upp sin egen kultur","Att invandring stoppas helt för att skydda den inhemska kulturen","Att samhället delas upp i separata grupper som lever var för sig","Processen där människor med olika bakgrund blir en del av samhället och deltar på lika villkor"],"correct":3},
+        {"id":"bf-7","begrepp":"Hållbar utveckling","options":["Ekonomisk tillväxt som prioriterar företagens vinster framför allt annat","Utveckling som tillgodoser dagens behov utan att äventyra kommande generationers möjligheter att tillgodose sina behov","Att ett land slutar helt med all industriell produktion","Teknisk utveckling som bara gynnar de rikaste länderna"],"correct":1},
+        {"id":"bf-8","begrepp":"Globalisering","options":["Att alla länder i världen slås ihop till en enda stat","Att ett land isolerar sig helt från omvärlden för att skydda sin ekonomi","Processen där länder och människor blir alltmer sammankopplade ekonomiskt, kulturellt och politiskt","Att enbart rika länder handlar med varandra"],"correct":2},
+        {"id":"bf-9","begrepp":"Sekularisering","options":["Att staten inför en enda officiell religion som alla måste följa","Processen där religionens inflytande över samhället och människors vardag minskar","Att fler människor börjar tro på flera gudar samtidigt","Att kyrkan får mer makt över politiska beslut"],"correct":1},
+        {"id":"bf-10","begrepp":"Parlamentarism","options":["Ett system där presidenten har all makt och parlamentet bara är rådgivande","Att medborgarna röstar direkt om varje lag som ska stiftas","Ett politiskt system där regeringen måste ha stöd av eller tolereras av parlamentets majoritet för att kunna styra","Att bara parlamentsledamöterna får rösta i allmänna val"],"correct":2},
+        {"id":"bf-11","begrepp":"Folkomröstning","options":["Samma sak som ett riksdagsval där man väljer parti","När politiker röstar om vem som ska bli statsminister","Ett tillfälle då medborgarna får rösta direkt om en specifik fråga, istället för att låta valda politiker bestämma","En omröstning som bara gäller för kommunpolitiker"],"correct":2},
+        {"id":"bf-12","begrepp":"Grundlag","options":["Vanliga lagar som riksdagen kan ändra när som helst med enkel majoritet","Regler som bara gäller för politiker och statligt anställda","Internationella avtal mellan länder om handel och säkerhet","De överordnade lagar som bestämmer hur ett land ska styras och som skyddar medborgarnas grundläggande rättigheter"],"correct":3}
+      ]
+    },
+    "kallkritik": {
+      "title": "Källkritik",
+      "description": "Bedöm källans trovärdighet och tillförlitlighet.",
+      "questions": [
+        {"id":"kk-1","scenario":"Du ska skriva en uppsats om klimatförändringar. Du hittar en artikel på nätet som påstår att klimatförändringar inte existerar. Artikeln är skriven av en bloggare utan naturvetenskaplig utbildning. Bloggen finansieras av ett stort oljebolag. Artikeln har inga källhänvisningar.","question":"Hur bör du bedöma denna källas trovärdighet?","options":["Källan är trovärdig för den finns publicerad på internet","Källan är mycket otillförlitlig eftersom författaren saknar relevant kompetens, det finns en tydlig ekonomisk koppling till oljeindustrin och inga källhänvisningar ges","Källan är trovärdig för alla har rätt till sin åsikt","Källan är bra för den ger ett annat perspektiv än det vanliga"],"correct":1,"explanation":"För att bedöma en källas trovärdighet tittar man på avsändaren (vem?), syftet (varför?), om det finns belägg (källhänvisningar) och eventuell partiskhet (tendens). Här brister källan på alla dessa punkter."},
+        {"id":"kk-2","scenario":"Du läser en Wikipedia-artikel om andra världskriget för ett skolarbete. Artikeln har många källhänvisningar längst ner, men din lärare säger att du inte får använda Wikipedia som enda källa.","question":"Varför är det problematiskt att enbart använda Wikipedia som källa?","options":["För att Wikipedia alltid innehåller fel och är helt värdelöst","För att Wikipedia är skrivet på ett för svårt språk för högstadieelever","För att vem som helst kan redigera innehållet, vilket gör att det kan finnas felaktigheter, även om det ofta är en bra startpunkt för att hitta andra källor","För att Wikipedia är olagligt att använda i skolan"],"correct":2,"explanation":"Wikipedia kan vara en bra utgångspunkt för att få en överblick och hitta vidare källor, men eftersom vem som helst kan redigera artiklarna finns risk för felaktigheter."},
+        {"id":"kk-3","scenario":"Du hittar två artiklar om invandring till Sverige. Artikel A är från Statistiska centralbyrån (SCB) och innehåller tabeller och siffror. Artikel B är en insändare i en lokaltidning skriven av en privatperson som beskriver sina personliga upplevelser.","question":"Vilken källa är mest lämplig om du vill ta reda på hur många som invandrade till Sverige förra året?","options":["Artikel B, för personliga upplevelser är alltid mer trovärdiga än statistik","Båda är lika bra eftersom de handlar om samma ämne","Artikel A från SCB, för det är en myndighet med uppdrag att ta fram tillförlitlig statistik","Ingen av dem, för man kan aldrig lita på något som står på nätet"],"correct":2,"explanation":"När du behöver fakta och siffror är en statlig myndighet som SCB en mycket tillförlitlig källa. En insändare kan ge värdefullt personligt perspektiv men är inte lämplig som källa för statistiska fakta."},
+        {"id":"kk-4","scenario":"På sociala medier sprids en nyhet om att en ny lag snart ska införas i Sverige. Nyheten delas av många, men när du letar kan du inte hitta informationen på någon tidnings webbplats eller på regeringens hemsida. Kontot som först delade nyheten skapades för bara två veckor sedan.","question":"Hur bör du förhålla dig till denna nyhet?","options":["Den måste vara sann eftersom så många har delat den","Du bör dela den vidare så att fler får veta","Du bör vara mycket skeptisk eftersom nyheten inte kan bekräftas av etablerade nyhetsmedier eller officiella källor, och avsändaren är okänd","Du bör lita på den för att sociala medier är snabbare än vanliga medier"],"correct":2,"explanation":"Att en nyhet sprids av många gör den inte sann – det är så falska nyheter fungerar. Viktiga kontrollpunkter: Kan du bekräfta informationen från oberoende, trovärdiga källor? Vem är avsändaren?"},
+        {"id":"kk-5","scenario":"Du läser en bok om vikingatiden som skrevs år 1920 av en svensk historiker. Boken beskriver vikingarna som hjältemodiga erövrare som spred civilisation över Europa. En nyare bok från 2023 ger en mer nyanserad bild där vikingarna beskrivs som både handlare, hantverkare och erövrare.","question":"Varför kan den äldre boken vara problematisk som enda källa?","options":["För att gamla böcker alltid innehåller fel","För att boken är färgad av sin tids nationalistiska syn på historia och saknar nyare forskningsrön","För att böcker aldrig är bra källor – bara internet är tillförlitligt","För att historiker på 1920-talet inte kunde skriva ordentligt"],"correct":1,"explanation":"Äldre källor kan vara färgade av sin tids värderingar och samhällsklimat. På 1920-talet var nationalismen stark i Europa och historien skrevs ofta för att framhäva det egna landets storhet."},
+        {"id":"kk-6","scenario":"Du ska göra ett arbete om religionens roll i samhället. Du hittar en text på en missionsorganisations webbplats som hävdar att kristendomen är den enda rätta religionen och att alla andra religioner är falska. Texten är välskriven och har referenser.","question":"Vilken källkritisk aspekt är viktigast att tänka på här?","options":["Att texten är välskriven, vilket bevisar att den är trovärdig","Att texten har referenser, därför måste allt i den vara sant","Att avsändaren har ett tydligt syfte och en stark tendens (partiskhet) som påverkar hur informationen presenteras","Att texten handlar om religion, och därför är den automatiskt otrovärdig"],"correct":2,"explanation":"Tendens (partiskhet) är en av de viktigaste källkritiska aspekterna. Avsändaren, en missionsorganisation, har ett tydligt syfte att framhäva sin egen religion."}
+      ]
+    },
+    "kronologi": {
+      "title": "Kronologi och tidslinje",
+      "description": "Dra och sortera händelserna i rätt tidsordning, från äldst till nyast.",
+      "questions": [
+        {"id":"kr-1","question":"Sortera dessa händelser i demokratins utveckling i rätt tidsordning:","events":["Franska revolutionen och förklaringen om mänskliga rättigheter","Demokratin i antikens Aten där fria män fick rösta","Allmän rösträtt för både män och kvinnor införs i Sverige","Magna Carta undertecknas i England och begränsar kungens makt"],"correctOrder":[1,3,0,2],"yearHints":["Ca 500 f.Kr.","1215","1789","1921"]},
+        {"id":"kr-2","question":"Sortera dessa händelser från 1900-talet i rätt tidsordning:","events":["FN:s allmänna förklaring om de mänskliga rättigheterna antas","Första världskriget börjar","Berlinmurens fall","Andra världskriget slutar"],"correctOrder":[1,3,0,2],"yearHints":["1914","1945","1948","1989"]},
+        {"id":"kr-3","question":"Sortera dessa händelser i Sveriges historia i rätt tidsordning:","events":["Sverige går med i EU","Den stora utvandringen till Nordamerika börjar","Sverige får sin första grundlag (Regeringsformen)","Folkomröstningen om kärnkraft hålls"],"correctOrder":[2,1,3,0],"yearHints":["1809","Ca 1850","1980","1995"]},
+        {"id":"kr-4","question":"Sortera dessa händelser inom religion och samhälle i rätt tidsordning:","events":["Martin Luther spikar upp sina 95 teser och reformationen börjar","Profeten Muhammed grundar islam","Kristendomen blir officiell religion i Romarriket","Sverige skiljer kyrkan från staten"],"correctOrder":[2,1,0,3],"yearHints":["380","Ca 610","1517","2000"]},
+        {"id":"kr-5","question":"Sortera dessa globala händelser i rätt tidsordning:","events":["Apartheid avskaffas i Sydafrika och Nelson Mandela blir president","Den industriella revolutionen börjar i Storbritannien","FN:s klimatavtal i Paris (Parisavtalet) undertecknas","Indiens självständighet från Storbritannien under Gandhis ledning"],"correctOrder":[1,3,0,2],"yearHints":["Ca 1760","1947","1994","2015"]},
+        {"id":"kr-6","question":"Sortera dessa händelser om mänskliga rättigheter i rätt tidsordning:","events":["Barnkonventionen antas av FN","Slaveriet avskaffas i USA efter inbördeskriget","Martin Luther King håller sitt 'I Have a Dream'-tal","Kvinnor får rätt att rösta i Finland som första land i Europa"],"correctOrder":[1,3,2,0],"yearHints":["1865","1906","1963","1989"]}
+      ]
+    }
+  }
+};
+
+let currentSection = null;
+let currentQuestionIndex = 0;
+let questions = [];
+let answers = {};
+let mode = 'single'; // 'single' or 'all'
+let allSections = [];
+let allSectionIndex = 0;
+
+function startSection(sectionKey) {
+    mode = 'single';
+    currentSection = sectionKey;
+    questions = quizData.sections[sectionKey].questions;
+    currentQuestionIndex = 0;
+    answers = {};
+    showQuizView();
+    renderTabs();
+    renderQuestion();
+}
+
+function startAll() {
+    mode = 'all';
+    allSections = ['lasforstaelse', 'begreppsforstaelse', 'kallkritik', 'kronologi'];
+    allSectionIndex = 0;
+    currentSection = allSections[0];
+    questions = [];
+    allSections.forEach(s => {
+        quizData.sections[s].questions.forEach(q => {
+            questions.push({ ...q, _section: s });
+        });
+    });
+    currentQuestionIndex = 0;
+    answers = {};
+    showQuizView();
+    renderTabs();
+    renderQuestion();
+}
+
+function showQuizView() {
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('quizView').classList.remove('hidden');
+    document.getElementById('resultsView').classList.add('hidden');
+}
+
+function renderTabs() {
+    const tabs = document.getElementById('tabs');
+    if (mode === 'single') {
+        tabs.innerHTML = '';
+        Object.keys(quizData.sections).forEach(key => {
+            const btn = document.createElement('button');
+            btn.className = 'tab-btn' + (key === currentSection ? ' active' : '');
+            btn.textContent = quizData.sections[key].title;
+            btn.onclick = () => startSection(key);
+            tabs.appendChild(btn);
+        });
+    } else {
+        tabs.innerHTML = '<button class="tab-btn active">Alla sektioner</button>';
+    }
+}
+
+function getCurrentSectionKey() {
+    if (mode === 'all') {
+        return questions[currentQuestionIndex]._section;
+    }
+    return currentSection;
+}
+
+function renderQuestion() {
+    if (currentQuestionIndex >= questions.length) {
+        showResults();
+        return;
+    }
+
+    const q = questions[currentQuestionIndex];
+    const secKey = getCurrentSectionKey();
+    const sec = quizData.sections[secKey];
+
+    document.getElementById('sectionTitle').textContent = sec.title;
+    document.getElementById('sectionDesc').textContent = sec.description;
+
+    const total = questions.length;
+    const answered = Object.keys(answers).length;
+    document.getElementById('progressText').textContent = `Fråga ${currentQuestionIndex + 1} av ${total} (${answered} besvarade)`;
+    document.getElementById('progressBar').style.width = ((currentQuestionIndex + 1) / total * 100) + '%';
+
+    const area = document.getElementById('questionArea');
+
+    if (secKey === 'kronologi') {
+        renderKronologi(q, area);
+    } else {
+        renderMultipleChoice(q, area, secKey);
+    }
+
+    document.getElementById('prevBtn').classList.toggle('hidden', currentQuestionIndex === 0);
+    document.getElementById('nextBtn').textContent = currentQuestionIndex === total - 1 ? 'Visa resultat' : 'Nästa';
+}
+
+function renderMultipleChoice(q, area, secKey) {
+    const answered = answers[q.id] !== undefined;
+    let html = '<div class="question-card">';
+
+    if (secKey === 'lasforstaelse' && q.text) {
+        html += `<div class="reading-text">${q.text}</div>`;
+    }
+    if (secKey === 'kallkritik' && q.scenario) {
+        html += `<div class="reading-text">${q.scenario}</div>`;
+    }
+    if (q.begrepp) {
+        html += `<span class="begrepp-label">${q.begrepp}</span>`;
+    }
+
+    html += `<div class="question-text">${q.question || 'Vilken definition stämmer bäst?'}</div>`;
+    html += '<div class="options">';
+
+    q.options.forEach((opt, i) => {
+        let cls = 'option-btn';
+        if (answered) {
+            cls += ' disabled';
+            if (i === q.correct) cls += ' correct';
+            else if (i === answers[q.id] && i !== q.correct) cls += ' wrong';
+        }
+        html += `<button class="${cls}" onclick="selectAnswer('${q.id}', ${i}, ${q.correct})" ${answered ? 'disabled' : ''}>${opt}</button>`;
+    });
+
+    html += '</div>';
+
+    if (answered && q.explanation) {
+        html += `<div class="explanation"><strong>Förklaring:</strong> ${q.explanation}</div>`;
+    }
+
+    html += '</div>';
+    area.innerHTML = html;
+}
+
+function selectAnswer(qId, selected, correct) {
+    if (answers[qId] !== undefined) return;
+    answers[qId] = selected;
+    renderQuestion();
+}
+
+function renderKronologi(q, area) {
+    const answered = answers[q.id] !== undefined;
+
+    let html = '<div class="question-card">';
+    html += `<div class="question-text">${q.question}</div>`;
+    html += `<ul class="kronologi-list" id="kronoList" data-qid="${q.id}">`;
+
+    let order;
+    if (answered) {
+        order = answers[q.id].userOrder;
+    } else {
+        // Shuffle
+        order = q.events.map((_, i) => i);
+        if (!q._shuffled) {
+            for (let i = order.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [order[i], order[j]] = [order[j], order[i]];
+            }
+            q._shuffledOrder = [...order];
+            q._shuffled = true;
+        } else {
+            order = [...q._shuffledOrder];
+        }
+    }
+
+    order.forEach((evIdx, pos) => {
+        const correctPos = q.correctOrder.indexOf(evIdx);
+        let itemCls = 'kronologi-item';
+        if (answered) {
+            itemCls += correctPos === pos ? ' correct-pos' : ' wrong-pos';
+        }
+        const yearIdx = q.correctOrder.indexOf(evIdx);
+
+        html += `<li class="${itemCls}" draggable="${!answered}" data-idx="${evIdx}">`;
+        html += `<span class="grip">${answered ? (correctPos === pos ? '✓' : '✗') : '⠿'}</span>`;
+        html += `<span class="event-text">${q.events[evIdx]}</span>`;
+        html += `<span class="year-hint ${answered ? 'visible' : ''}">${q.yearHints[yearIdx]}</span>`;
+        html += '</li>';
+    });
+
+    html += '</ul>';
+
+    if (!answered) {
+        html += '<div class="btn-row"><button class="btn btn-primary" onclick="checkKronologi(\'' + q.id + '\')">Kontrollera svar</button></div>';
+    }
+
+    html += '</div>';
+    area.innerHTML = html;
+
+    if (!answered) {
+        initDragAndDrop();
+    }
+}
+
+function initDragAndDrop() {
+    const list = document.getElementById('kronoList');
+    if (!list) return;
+
+    let dragItem = null;
+
+    list.querySelectorAll('.kronologi-item').forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+            dragItem = item;
+            item.style.opacity = '0.4';
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        item.addEventListener('dragend', () => {
+            item.style.opacity = '1';
+            dragItem = null;
+            list.querySelectorAll('.kronologi-item').forEach(i => i.style.borderTop = '');
+        });
+
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            item.style.borderTop = '3px solid #e94560';
+        });
+
+        item.addEventListener('dragleave', () => {
+            item.style.borderTop = '';
+        });
+
+        item.addEventListener('drop', (e) => {
+            e.preventDefault();
+            item.style.borderTop = '';
+            if (dragItem && dragItem !== item) {
+                const items = [...list.children];
+                const fromIdx = items.indexOf(dragItem);
+                const toIdx = items.indexOf(item);
+                if (fromIdx < toIdx) {
+                    list.insertBefore(dragItem, item.nextSibling);
+                } else {
+                    list.insertBefore(dragItem, item);
+                }
+            }
+        });
+
+        // Touch support
+        let touchStartY = 0;
+        let touchClone = null;
+
+        item.addEventListener('touchstart', (e) => {
+            dragItem = item;
+            touchStartY = e.touches[0].clientY;
+            item.style.opacity = '0.6';
+        }, { passive: true });
+
+        item.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (target && target.closest('.kronologi-item') && target.closest('.kronologi-item') !== dragItem) {
+                const overItem = target.closest('.kronologi-item');
+                const items = [...list.children];
+                const fromIdx = items.indexOf(dragItem);
+                const toIdx = items.indexOf(overItem);
+                if (fromIdx < toIdx) {
+                    list.insertBefore(dragItem, overItem.nextSibling);
+                } else {
+                    list.insertBefore(dragItem, overItem);
+                }
+            }
+        }, { passive: false });
+
+        item.addEventListener('touchend', () => {
+            if (dragItem) dragItem.style.opacity = '1';
+            dragItem = null;
+        });
+    });
+}
+
+function checkKronologi(qId) {
+    const list = document.getElementById('kronoList');
+    const items = [...list.children];
+    const userOrder = items.map(li => parseInt(li.dataset.idx));
+    const q = questions[currentQuestionIndex];
+
+    let correctCount = 0;
+    userOrder.forEach((evIdx, pos) => {
+        if (q.correctOrder[pos] === evIdx) correctCount++;
+    });
+
+    answers[qId] = { userOrder, correctCount, total: q.correctOrder.length };
+    renderQuestion();
+}
+
+function nextQuestion() {
+    if (currentQuestionIndex >= questions.length - 1) {
+        showResults();
+    } else {
+        currentQuestionIndex++;
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function prevQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function showResults() {
+    document.getElementById('quizView').classList.add('hidden');
+    const rv = document.getElementById('resultsView');
+    rv.classList.remove('hidden');
+
+    let totalCorrect = 0;
+    let totalQuestions = questions.length;
+
+    questions.forEach(q => {
+        const secKey = q._section || currentSection;
+        if (secKey === 'kronologi') {
+            if (answers[q.id] && answers[q.id].correctCount === answers[q.id].total) totalCorrect++;
+        } else {
+            if (answers[q.id] === q.correct) totalCorrect++;
+        }
+    });
+
+    const pct = Math.round((totalCorrect / totalQuestions) * 100);
+    let grade = 'low', msg = 'Fortsätt öva – du blir bättre för varje gång!';
+    if (pct >= 80) { grade = 'great'; msg = 'Fantastiskt! Du har mycket bra koll!'; }
+    else if (pct >= 50) { grade = 'ok'; msg = 'Bra jobbat! Lite mer övning så sitter det!'; }
+
+    let sectionBreakdown = '';
+    if (mode === 'all') {
+        const secScores = {};
+        questions.forEach(q => {
+            const sk = q._section;
+            if (!secScores[sk]) secScores[sk] = { correct: 0, total: 0 };
+            secScores[sk].total++;
+            if (sk === 'kronologi') {
+                if (answers[q.id] && answers[q.id].correctCount === answers[q.id].total) secScores[sk].correct++;
+            } else {
+                if (answers[q.id] === q.correct) secScores[sk].correct++;
+            }
+        });
+
+        sectionBreakdown = '<div style="text-align:left; margin: 20px 0;">';
+        Object.keys(secScores).forEach(sk => {
+            const s = secScores[sk];
+            const spct = Math.round((s.correct / s.total) * 100);
+            sectionBreakdown += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.1);">
+                <span>${quizData.sections[sk].title}</span>
+                <span style="color:${spct >= 80 ? '#2ed573' : spct >= 50 ? '#f5a623' : '#ff4757'}">${s.correct}/${s.total} (${spct}%)</span>
+            </div>`;
+        });
+        sectionBreakdown += '</div>';
+    }
+
+    rv.innerHTML = `
+        <div class="results-card">
+            <h2>Resultat</h2>
+            <div class="score-circle ${grade}">
+                ${pct}%
+                <small>${totalCorrect}/${totalQuestions}</small>
+            </div>
+            <div class="score-message">${msg}</div>
+            ${sectionBreakdown}
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="goHome()">Tillbaka till start</button>
+                <button class="btn btn-primary" onclick="${mode === 'all' ? 'startAll()' : `startSection('${currentSection}')`}">Försök igen</button>
+            </div>
+        </div>
+    `;
+}
+
+function goHome() {
+    document.getElementById('startScreen').classList.remove('hidden');
+    document.getElementById('quizView').classList.add('hidden');
+    document.getElementById('resultsView').classList.add('hidden');
+}
+</script>
+</body>
+</html>
