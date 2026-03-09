@@ -362,6 +362,94 @@
         .section-card h3 { font-size: 1rem; color: #f5a623; margin-bottom: 4px; }
         .section-card p { font-size: 0.8rem; color: #888; }
 
+        /* Mode picker overlay */
+        .mode-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .mode-picker {
+            background: #1a1a2e;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 32px 28px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .mode-picker h3 {
+            color: #f5a623;
+            font-size: 1.2rem;
+            margin-bottom: 6px;
+        }
+
+        .mode-picker p {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .mode-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mode-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: left;
+            color: #e0e0e0;
+            font-size: 1rem;
+        }
+
+        .mode-btn:hover {
+            border-color: #e94560;
+            background: rgba(233,69,96,0.12);
+            transform: translateY(-2px);
+        }
+
+        .mode-btn .mode-icon { font-size: 1.6rem; flex-shrink: 0; }
+        .mode-btn .mode-label { font-weight: 600; }
+        .mode-btn .mode-desc { font-size: 0.8rem; color: #888; margin-top: 2px; }
+
+        .mode-cancel {
+            margin-top: 14px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .mode-cancel:hover { color: #aaa; }
+
+        /* Shuffle badge */
+        .shuffle-badge {
+            display: inline-block;
+            background: rgba(245,166,35,0.2);
+            color: #f5a623;
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
         /* Hidden */
         .hidden { display: none !important; }
 
@@ -434,6 +522,31 @@
 
         <!-- Results view -->
         <div id="resultsView" class="hidden"></div>
+
+        <!-- Mode picker overlay -->
+        <div id="modePicker" class="mode-overlay hidden">
+            <div class="mode-picker">
+                <h3 id="modePickerTitle">Hur vill du öva?</h3>
+                <p id="modePickerSubtitle">Välj ordning på frågorna</p>
+                <div class="mode-options">
+                    <button class="mode-btn" onclick="confirmMode('fixed')">
+                        <span class="mode-icon">📋</span>
+                        <div>
+                            <div class="mode-label">Samma frågor</div>
+                            <div class="mode-desc">Fast ordning – bra för att öva systematiskt</div>
+                        </div>
+                    </button>
+                    <button class="mode-btn" onclick="confirmMode('shuffle')">
+                        <span class="mode-icon">🔀</span>
+                        <div>
+                            <div class="mode-label">Slumpa frågor</div>
+                            <div class="mode-desc">Slumpad ordning och blandade svarsalternativ</div>
+                        </div>
+                    </button>
+                </div>
+                <button class="mode-cancel" onclick="cancelMode()">Avbryt</button>
+            </div>
+        </div>
     </div>
 
 <script>
@@ -501,13 +614,72 @@ let currentQuestionIndex = 0;
 let questions = [];
 let answers = {};
 let mode = 'single'; // 'single' or 'all'
+let shuffleMode = false;
 let allSections = [];
 let allSectionIndex = 0;
+let pendingAction = null; // stores what to do after mode is picked
 
 function startSection(sectionKey) {
+    pendingAction = { type: 'section', key: sectionKey };
+    showModePicker(quizData.sections[sectionKey].title);
+}
+
+function startAll() {
+    pendingAction = { type: 'all' };
+    showModePicker('Alla 30 frågor');
+}
+
+function showModePicker(label) {
+    document.getElementById('modePickerTitle').textContent = 'Hur vill du öva?';
+    document.getElementById('modePickerSubtitle').textContent = label;
+    document.getElementById('modePicker').classList.remove('hidden');
+}
+
+function cancelMode() {
+    document.getElementById('modePicker').classList.add('hidden');
+    pendingAction = null;
+}
+
+function confirmMode(chosen) {
+    document.getElementById('modePicker').classList.add('hidden');
+    shuffleMode = (chosen === 'shuffle');
+
+    if (pendingAction.type === 'section') {
+        launchSection(pendingAction.key);
+    } else {
+        launchAll();
+    }
+    pendingAction = null;
+}
+
+function shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function shuffleOptions(q) {
+    // Don't shuffle kronologi questions (they use drag-and-drop)
+    if (q.events) return { ...q };
+
+    const indices = q.options.map((_, i) => i);
+    const shuffled = shuffleArray(indices);
+    const newOptions = shuffled.map(i => q.options[i]);
+    const newCorrect = shuffled.indexOf(q.correct);
+    return { ...q, options: newOptions, correct: newCorrect };
+}
+
+function launchSection(sectionKey) {
     mode = 'single';
     currentSection = sectionKey;
-    questions = quizData.sections[sectionKey].questions;
+    let qs = quizData.sections[sectionKey].questions.map(q => ({ ...q }));
+    if (shuffleMode) {
+        qs = shuffleArray(qs).map(q => shuffleOptions(q));
+    }
+    questions = qs;
     currentQuestionIndex = 0;
     answers = {};
     showQuizView();
@@ -515,7 +687,7 @@ function startSection(sectionKey) {
     renderQuestion();
 }
 
-function startAll() {
+function launchAll() {
     mode = 'all';
     allSections = ['lasforstaelse', 'begreppsforstaelse', 'kallkritik', 'kronologi'];
     allSectionIndex = 0;
@@ -526,6 +698,9 @@ function startAll() {
             questions.push({ ...q, _section: s });
         });
     });
+    if (shuffleMode) {
+        questions = shuffleArray(questions).map(q => shuffleOptions(q));
+    }
     currentQuestionIndex = 0;
     answers = {};
     showQuizView();
@@ -547,11 +722,17 @@ function renderTabs() {
             const btn = document.createElement('button');
             btn.className = 'tab-btn' + (key === currentSection ? ' active' : '');
             btn.textContent = quizData.sections[key].title;
-            btn.onclick = () => startSection(key);
+            btn.onclick = () => launchSection(key);
             tabs.appendChild(btn);
         });
     } else {
         tabs.innerHTML = '<button class="tab-btn active">Alla sektioner</button>';
+    }
+    if (shuffleMode) {
+        const badge = document.createElement('span');
+        badge.className = 'shuffle-badge';
+        badge.textContent = '🔀 Slumpad';
+        tabs.appendChild(badge);
     }
 }
 
@@ -859,7 +1040,7 @@ function showResults() {
             ${sectionBreakdown}
             <div class="btn-row">
                 <button class="btn btn-secondary" onclick="goHome()">Tillbaka till start</button>
-                <button class="btn btn-primary" onclick="${mode === 'all' ? 'startAll()' : `startSection('${currentSection}')`}">Försök igen</button>
+                <button class="btn btn-primary" onclick="${mode === 'all' ? 'launchAll()' : `launchSection('${currentSection}')`}">Försök igen</button>
             </div>
         </div>
     `;
