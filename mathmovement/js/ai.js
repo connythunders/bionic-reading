@@ -7,7 +7,7 @@ import { OPENROUTER_API_KEY } from './config.js';
 
 const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const API_KEY = OPENROUTER_API_KEY;
-const MODEL = 'anthropic/claude-sonnet-4-6';
+const MODEL = 'google/gemini-2.0-flash-001';
 
 const SYSTEM_PROMPT = `You are a math problem extractor. You analyze photos of math textbook pages and extract addition and subtraction column arithmetic problems.
 
