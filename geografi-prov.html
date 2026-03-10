@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geografi - Provquiz ak 7-9 | Lgr22</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* HEADER */
+        header {
+            text-align: center;
+            padding: 40px 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.4rem;
+            background: linear-gradient(90deg, #2ecc71, #a8e6cf, #2ecc71);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        header p {
+            margin-top: 10px;
+            color: #8899aa;
+            font-size: 1.1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2ecc71;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: #a8e6cf; }
+
+        /* VIEWS */
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* START SCREEN */
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .section-card {
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 28px 22px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            border-radius: 16px 16px 0 0;
+            opacity: 0.6;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(46, 204, 113, 0.4);
+            box-shadow: 0 8px 30px rgba(46, 204, 113, 0.15);
+        }
+
+        .section-card .card-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .section-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .section-card .card-desc {
+            font-size: 0.85rem;
+            color: #8899aa;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .section-card .card-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+        }
+
+        .all-btn-wrapper {
+            text-align: center;
+            margin: 10px 0 30px;
+        }
+
+        .btn-all {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn-all:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(46, 204, 113, 0.45);
+        }
+
+        /* MODE PICKER OVERLAY */
+        .mode-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .mode-overlay.active { display: flex; }
+
+        .mode-box {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 2px solid rgba(46, 204, 113, 0.3);
+            border-radius: 20px;
+            padding: 40px 36px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .mode-box h2 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .mode-box p {
+            color: #8899aa;
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+
+        .mode-options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .mode-btn {
+            padding: 18px 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.04);
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .mode-btn:hover {
+            border-color: rgba(46, 204, 113, 0.5);
+            background: rgba(46, 204, 113, 0.08);
+        }
+
+        .mode-btn .mode-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 4px;
+        }
+
+        .mode-btn .mode-desc {
+            font-size: 0.8rem;
+            color: #8899aa;
+        }
+
+        .mode-cancel {
+            margin-top: 16px;
+            background: none;
+            border: none;
+            color: #8899aa;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+        }
+
+        .mode-cancel:hover { color: #e0e0e0; }
+
+        /* QUIZ VIEW */
+        .quiz-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .quiz-title-small {
+            font-size: 1rem;
+            color: #8899aa;
+        }
+
+        .quiz-title-small span {
+            color: #2ecc71;
+            font-weight: 700;
+        }
+
+        .quiz-quit {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #8899aa;
+            padding: 8px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .quiz-quit:hover {
+            background: rgba(255,255,255,0.12);
+            color: #e0e0e0;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab {
+            padding: 10px 18px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #8899aa;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab:hover { background: rgba(255,255,255,0.1); }
+
+        .tab.active {
+            background: rgba(46, 204, 113, 0.15);
+            border-color: rgba(46, 204, 113, 0.4);
+            color: #2ecc71;
+        }
+
+        .tab .tab-count {
+            display: inline-block;
+            margin-left: 6px;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 7px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+        }
+
+        .tab.active .tab-count {
+            background: rgba(46, 204, 113, 0.25);
+        }
+
+        /* PROGRESS BAR */
+        .progress-container {
+            margin-bottom: 24px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #8899aa;
+        }
+
+        .progress-info .score-display { color: #2ecc71; font-weight: 700; }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        /* QUESTION CARD */
+        .question-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+            padding: 32px 28px;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .question-number {
+            font-size: 0.8rem;
+            color: #2ecc71;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            color: #fff;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        /* MULTIPLE CHOICE OPTIONS */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            line-height: 1.4;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(46, 204, 113, 0.4);
+            transform: translateX(4px);
+        }
+
+        .option-btn.correct {
+            background: rgba(46, 204, 113, 0.15);
+            border-color: #2ecc71;
+            color: #2ecc71;
+        }
+
+        .option-btn.wrong {
+            background: rgba(231, 76, 60, 0.15);
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .option-btn.disabled { pointer-events: none; }
+
+        .option-btn .option-letter {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.08);
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .option-btn.correct .option-letter {
+            background: rgba(46, 204, 113, 0.3);
+        }
+
+        .option-btn.wrong .option-letter {
+            background: rgba(231, 76, 60, 0.3);
+        }
+
+        /* FEEDBACK */
+        .feedback-box {
+            margin-top: 18px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: none;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .feedback-box.show { display: block; animation: fadeIn 0.3s ease; }
+
+        .feedback-box.correct {
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+        }
+
+        .feedback-box.wrong {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+
+        .feedback-box .fb-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .next-btn {
+            display: none;
+            margin-top: 18px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .next-btn.show { display: inline-block; }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.35);
+        }
+
+        /* DRAG AND DROP */
+        .dnd-instruction {
+            font-size: 0.9rem;
+            color: #8899aa;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .dnd-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .dnd-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: grab;
+            transition: all 0.2s;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        .dnd-item:active { cursor: grabbing; }
+
+        .dnd-item:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(46, 204, 113, 0.3);
+        }
+
+        .dnd-item.dragging {
+            opacity: 0.5;
+            border-color: #2ecc71;
+        }
+
+        .dnd-item.drag-over {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+            transform: scale(1.02);
+        }
+
+        .dnd-item .dnd-rank {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .dnd-item .dnd-label {
+            flex: 1;
+            font-size: 1rem;
+            color: #e0e0e0;
+        }
+
+        .dnd-item .dnd-handle {
+            color: #556677;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .dnd-item.correct-pos {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .dnd-item.wrong-pos {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .check-order-btn {
+            margin-top: 14px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .check-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.35);
+        }
+
+        .check-order-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* RESULTS VIEW */
+        .results-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .results-container h2 {
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 30px;
+        }
+
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            border: 6px solid rgba(46, 204, 113, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .score-circle .score-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #2ecc71;
+            line-height: 1;
+        }
+
+        .score-circle .score-total {
+            font-size: 1rem;
+            color: #8899aa;
+            margin-top: 4px;
+        }
+
+        .score-circle .score-percent {
+            font-size: 1rem;
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        .score-message {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+            margin-bottom: 30px;
+            padding: 16px 24px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .section-breakdown {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .breakdown-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .breakdown-card h4 {
+            font-size: 0.95rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .breakdown-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0 6px;
+        }
+
+        .breakdown-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            border-radius: 6px;
+            transition: width 0.6s ease;
+        }
+
+        .breakdown-score {
+            font-size: 0.85rem;
+            color: #2ecc71;
+            font-weight: 700;
+        }
+
+        .results-buttons {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn-restart {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.35);
+        }
+
+        .btn-home {
+            padding: 14px 32px;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.12);
+            color: #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-home:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-2px);
+        }
+
+        /* FOOTER */
+        .footer-info {
+            text-align: center;
+            padding: 20px 0;
+            color: #556677;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 20px;
+        }
+
+        .footer-info span { color: #8899aa; }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.8rem; }
+            .section-grid { grid-template-columns: 1fr; gap: 14px; }
+            .section-card { padding: 22px 18px; }
+            .section-breakdown { grid-template-columns: 1fr; }
+            .tabs { gap: 4px; }
+            .tab { padding: 8px 12px; font-size: 0.78rem; }
+            .question-card { padding: 24px 20px; }
+            .question-text { font-size: 1.05rem; }
+            .option-btn { padding: 14px 16px; font-size: 0.92rem; }
+            .mode-box { padding: 30px 24px; }
+            .score-circle { width: 150px; height: 150px; }
+            .score-circle .score-number { font-size: 2.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="so-nationella-prov.html" class="back-link">&#8592; Tillbaka till amnesval</a>
+
+        <header>
+            <h1>Geografi</h1>
+            <p>Provquiz for ak 7-9 -- Lgr22</p>
+        </header>
+
+        <!-- MODE PICKER OVERLAY -->
+        <div class="mode-overlay" id="modeOverlay">
+            <div class="mode-box">
+                <h2>Valj ordning</h2>
+                <p>Hur vill du fa fragorna?</p>
+                <div class="mode-options">
+                    <button class="mode-btn" onclick="startQuiz('fixed')">
+                        <div class="mode-title">Fast ordning</div>
+                        <div class="mode-desc">Fragorna kommer i samma ordning varje gang -- bra for att ova systematiskt.</div>
+                    </button>
+                    <button class="mode-btn" onclick="startQuiz('shuffle')">
+                        <div class="mode-title">Slumpad ordning</div>
+                        <div class="mode-desc">Fragorna blandas -- perfekt for att testa dig sjalv pa riktigt.</div>
+                    </button>
+                </div>
+                <button class="mode-cancel" onclick="closeModeOverlay()">Avbryt</button>
+            </div>
+        </div>
+
+        <!-- START VIEW -->
+        <div class="view active" id="startView">
+            <div class="section-grid">
+                <div class="section-card" onclick="openModePicker('naturgeografi')">
+                    <div class="card-icon">&#127755;</div>
+                    <h3>Naturgeografi</h3>
+                    <p class="card-desc">Plattektonik, vulkanism, vattnets kretslopp, klimatzoner, vittring och erosion</p>
+                    <span class="card-badge">8 fragor</span>
+                </div>
+                <div class="section-card" onclick="openModePicker('befolkning')">
+                    <div class="card-icon">&#128101;</div>
+                    <h3>Befolkning och migration</h3>
+                    <p class="card-desc">Befolkningsfordelning, urbanisering, push/pull-faktorer, demografisk transition</p>
+                    <span class="card-badge">7 fragor</span>
+                </div>
+                <div class="section-card" onclick="openModePicker('hallbar')">
+                    <div class="card-icon">&#127793;</div>
+                    <h3>Hallbar utveckling</h3>
+                    <p class="card-desc">Klimatforandringar, energi, naturresurser, ekologiska fotavtryck, FN:s globala mal</p>
+                    <span class="card-badge">8 fragor</span>
+                </div>
+                <div class="section-card" onclick="openModePicker('kartkunskap')">
+                    <div class="card-icon">&#128506;</div>
+                    <h3>Kartkunskap och namn</h3>
+                    <p class="card-desc">Dra-och-slapp: ordna kontinenter, floder, bergskedjor och lander i ratt ordning</p>
+                    <span class="card-badge">7 fragor (drag &amp; drop)</span>
+                </div>
+            </div>
+            <div class="all-btn-wrapper">
+                <button class="btn-all" onclick="openModePicker('all')">Kor alla 30 fragor</button>
+            </div>
+            <div class="footer-info">
+                <span>Lgr22</span> &middot; Centralt innehall ak 7--9 &middot; Geografi
+            </div>
+        </div>
+
+        <!-- QUIZ VIEW -->
+        <div class="view" id="quizView">
+            <div class="quiz-header-bar">
+                <div class="quiz-title-small">Geografi &middot; <span id="quizSectionLabel">Alla sektioner</span></div>
+                <button class="quiz-quit" onclick="quitQuiz()">Avsluta</button>
+            </div>
+
+            <div class="tabs" id="tabsContainer"></div>
+
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span>Fraga <strong id="qCurrent">1</strong> av <strong id="qTotal">30</strong></span>
+                    <span class="score-display" id="scoreDisplay">0 ratt</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div id="questionArea"></div>
+        </div>
+
+        <!-- RESULTS VIEW -->
+        <div class="view" id="resultsView">
+            <div class="results-container">
+                <h2>Resultat</h2>
+                <div class="score-circle">
+                    <div class="score-number" id="finalScore">0</div>
+                    <div class="score-total" id="finalTotal">av 30</div>
+                    <div class="score-percent" id="finalPercent">0%</div>
+                </div>
+                <div class="score-message" id="scoreMessage"></div>
+                <div class="section-breakdown" id="sectionBreakdown"></div>
+                <div class="results-buttons">
+                    <button class="btn-restart" onclick="restartQuiz()">Gor om</button>
+                    <a href="so-nationella-prov.html" class="btn-home">Tillbaka till amnesval</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ===== DATA =====
+    const sections = {
+        naturgeografi: {
+            label: 'Naturgeografi',
+            icon: '\u{1F30B}',
+            questions: [
+                {
+                    type: 'mc',
+                    q: 'Vad kallas de enorma plattor som jordskorpan ar uppdelad i och som ror sig langsamt?',
+                    options: ['Bergplattor', 'Tektoniska plattor', 'Kontinentalsplattor', 'Geoplattor'],
+                    correct: 1,
+                    explanation: 'Jordskorpan ar uppdelad i tektoniska plattor som flyter pa den halvflytande asthenosfaren. Nar plattorna ror sig kan det orsaka jordbavningar och vulkanutbrott.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad hander vid en divergent plattgrans (dar tva plattor ror sig ifran varandra)?',
+                    options: ['Ett veckberg bildas', 'Ny havsbotten bildas', 'En djuphavsgrav uppstar', 'Plattorna stannar av'],
+                    correct: 1,
+                    explanation: 'Vid divergenta plattgranser sprids plattorna isar och magma stiger upp och stelnar till ny havsbotten. Mittatlantiska ryggen ar ett bra exempel.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken typ av vulkan ar mest explosiv och farlig?',
+                    options: ['Skoldvulkan', 'Stratovulkan (skiktvulkan)', 'Sprickvulkan', 'Undervattenvulkan'],
+                    correct: 1,
+                    explanation: 'Stratovulkaner (skiktvulkaner) har tjockflytande lava som skapar tryck. De far darfor kraftiga explosiva utbrott. Vesuvius och Mount St. Helens ar exempel.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad kallas det nar vatten avdunstar fran hav och sjoar, bildar moln och faller ner som nederbord?',
+                    options: ['Vattnets kretslopp', 'Havscirkulation', 'Regncykeln', 'Hydrosfaren'],
+                    correct: 0,
+                    explanation: 'Vattnets kretslopp (hydrologiska kretsloppet) beskriver hur vatten standig ror sig mellan hav, atmosfar och land genom avdunstning, kondensation och nederbord.'
+                },
+                {
+                    type: 'mc',
+                    q: 'I vilken klimatzon finns det tropiska regnskogar med hog arsnederbord och jamn temperatur?',
+                    options: ['Tempererad zon', 'Tropisk zon', 'Subtropisk zon', 'Polar zon'],
+                    correct: 1,
+                    explanation: 'Den tropiska zonen ligger kring ekvatorn och har hog temperatur och mycket nederbord aret runt. Har finns varldens storsta regnskogar, till exempel Amazonas.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad ar skillnaden mellan vader och klimat?',
+                    options: [
+                        'Vader mats i grader, klimat i millimeter',
+                        'Vader ar det som hander just nu, klimat ar genomsnittet over lang tid',
+                        'Vader paverkas av manniskor, klimat ar naturligt',
+                        'Det finns ingen skillnad'
+                    ],
+                    correct: 1,
+                    explanation: 'Vader ar de atmosfariska forhallanden som rader just nu (sol, regn, vind). Klimat ar genomsnittet av vadret over minst 30 ar pa en plats.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken process bryter ner berg genom att vatten trangar in i sprickor och fryser till is?',
+                    options: ['Kemisk vittring', 'Erosion', 'Frostsprangning', 'Sedimentation'],
+                    correct: 2,
+                    explanation: 'Frostsprangning ar en typ av mekanisk vittring. Vatten som fryser expanderar med cirka 9% och spranger darmed sakta sonder berget.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad ar en vegetationszon?',
+                    options: [
+                        'Ett omrade dar inga vaxter vaxer',
+                        'Ett geografiskt omrade med liknande vaxtlighet beroende pa klimat',
+                        'En stadsdel med manga parker',
+                        'Ett omrade dar enbart trad finns'
+                    ],
+                    correct: 1,
+                    explanation: 'Vegetationszoner ar stora omraden med likartad vaxtlighet som beror pa klimatet. Exempel ar tundra, taiga, stapp, regnskog och oken.'
+                }
+            ]
+        },
+        befolkning: {
+            label: 'Befolkning och migration',
+            icon: '\u{1F465}',
+            questions: [
+                {
+                    type: 'mc',
+                    q: 'Var bor storsta delen av varldens befolkning?',
+                    options: ['Europa och Nordamerika', 'Afrika och Sydamerika', 'Asien', 'Jamnt fordelat over alla kontinenter'],
+                    correct: 2,
+                    explanation: 'Cirka 60% av varldens befolkning bor i Asien. Kina och Indien ar varldens mest folkrika lander med over en miljard invanare var.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad menas med urbanisering?',
+                    options: [
+                        'Att befolkningen minskar',
+                        'Att allt fler manniskor flyttar till stader',
+                        'Att jordbruket okar',
+                        'Att lander far fler skolor'
+                    ],
+                    correct: 1,
+                    explanation: 'Urbanisering betyder att en allt storre andel av befolkningen bor i stader. Idag bor over halften av varldens manniskor i stader, och andelen okar.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken ar en vanlig "push-faktor" som far manniskor att lamna sitt hemland?',
+                    options: ['Bra sjukvard', 'Hog levnadsstandard', 'Krig och konflikter', 'Manga jobb'],
+                    correct: 2,
+                    explanation: 'Push-faktorer ar saker som "knuffar" manniskor bort fran en plats: krig, fattigdom, forfolning och naturkatastrofer ar vanliga orsaker till migration.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad visar en befolkningspyramid?',
+                    options: [
+                        'Hur manga manniskor som bor i ett land',
+                        'Fordelningen av befolkningen i aldersgrupper och kon',
+                        'Var i landet manniskor bor',
+                        'Hur manga barn som fods varje ar'
+                    ],
+                    correct: 1,
+                    explanation: 'En befolkningspyramid ar ett stapeldiagram som visar hur befolkningen ar fordelad i olika aldrar, uppdelat pa man och kvinnor. Formen visar om landet ar ungt eller aldrat.'
+                },
+                {
+                    type: 'mc',
+                    q: 'I den demografiska transitionen -- vad hander i fas 2?',
+                    options: [
+                        'Bade fodelsetal och dodstal ar laga',
+                        'Dodstalen sjunker men fodelsetalen ar fortfarande hoga',
+                        'Fodelsetalen sjunker snabbt',
+                        'Befolkningen minskar'
+                    ],
+                    correct: 1,
+                    explanation: 'I fas 2 sjunker dodstalen tack vare battre sjukvard och hygien, men fodelsetalen ar fortfarande hoga. Det ger snabb befolkningsokning.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad ar en "pull-faktor" vid migration?',
+                    options: [
+                        'Nagot negativt som driver manniskor bort',
+                        'Nagot positivt som lockar manniskor till en ny plats',
+                        'En lag som forbjuder invandring',
+                        'En naturkatastrof'
+                    ],
+                    correct: 1,
+                    explanation: 'Pull-faktorer ar saker som "drar" manniskor till en plats: jobbmojligheter, frihet, trygghet, utbildning och battre levnadsstandard ar vanliga pull-faktorer.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken region i varlden har den snabbaste befolkningstillvaxten idag?',
+                    options: ['Europa', 'Nordamerika', 'Afrika soder om Sahara', 'Ostasien'],
+                    correct: 2,
+                    explanation: 'Afrika soder om Sahara har den snabbaste befolkningstillvaxten i varlden. Manga lander har hoga fodelsetal och en ung befolkning.'
+                }
+            ]
+        },
+        hallbar: {
+            label: 'Hallbar utveckling',
+            icon: '\u{1F331}',
+            questions: [
+                {
+                    type: 'mc',
+                    q: 'Vilken gas ar den storsta orsaken till den forstarkta vaxthuseffekten?',
+                    options: ['Syre (O2)', 'Koldioxid (CO2)', 'Kvave (N2)', 'Helium (He)'],
+                    correct: 1,
+                    explanation: 'Koldioxid (CO2) ar den viktigaste vaxthusgasen fran manniskans aktiviteter. Den slaps ut vid forbranning av fossila branslen som kol, olja och gas.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken energikalla ar fornybar?',
+                    options: ['Kol', 'Naturgas', 'Vindkraft', 'Olja'],
+                    correct: 2,
+                    explanation: 'Vindkraft ar fornybar eftersom vinden aldrig tar slut. Kol, naturgas och olja ar fossila branslen som bildades for miljontals ar sedan och ar andliga.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad menas med "ekologiskt fotavtryck"?',
+                    options: [
+                        'Hur manga skor en manniska ager',
+                        'Hur mycket natur som kravs for att producera det vi konsumerar och ta hand om vart avfall',
+                        'Hur langt man gar varje dag',
+                        'Storleken pa ens tradgard'
+                    ],
+                    correct: 1,
+                    explanation: 'Det ekologiska fotavtrycket mater hur mycket mark och vatten som behovs for att framstalla det vi forbrukar. Svenskar anvander resurser motsvarande cirka 4 jordklot.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Hur manga globala mal for hallbar utveckling har FN antagit (Agenda 2030)?',
+                    options: ['8', '12', '17', '25'],
+                    correct: 2,
+                    explanation: 'FN antog 17 globala mal for hallbar utveckling 2015. De handlar om att utrota fattigdom, skydda miljon och skapa fred -- malen ska nas till 2030.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilka ar hallbar utvecklings tre dimensioner?',
+                    options: [
+                        'Luft, vatten och jord',
+                        'Ekonomisk, social och ekologisk (miljo)',
+                        'Lokal, nationell och global',
+                        'Forr, nu och framtid'
+                    ],
+                    correct: 1,
+                    explanation: 'Hallbar utveckling vilar pa tre ben: ekonomisk hallbarhet (rattvisa resurser), social hallbarhet (manniskors valmaende) och ekologisk hallbarhet (naturens granser).'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken konsekvens av klimatforandringar hotar framst manga onationers existens?',
+                    options: ['Skogsbrand', 'Hojda havsnivaer', 'Torka', 'Kraftigare vindar'],
+                    correct: 1,
+                    explanation: 'Nar isen pa Gronland och Antarktis smalter stiger havsnivaerna. Manga onationer i Stilla havet, som Tuvalu, riskerar att hamna under vatten.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad ar en icke-fornybar naturresurs?',
+                    options: ['Solenergi', 'Fisk', 'Jarnmalm', 'Trad'],
+                    correct: 2,
+                    explanation: 'Jarnmalm ar en icke-fornybar resurs -- den bildades for miljontals ar sedan och det finns en begransad mangd. Solenergi, fisk och trad kan fornya sig.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad kallas effekten av att vaxthusgaser i atmosfaren fanger varme fran solen?',
+                    options: ['Ozoneffekten', 'Vaxthuseffekten', 'Soleffekten', 'Varmeeffekten'],
+                    correct: 1,
+                    explanation: 'Vaxthuseffekten ar naturlig och nodvandig -- utan den skulle jorden vara cirka 30 grader kallare. Problemet ar att manniskan forstarker den genom utslappp av vaxthusgaser.'
+                }
+            ]
+        },
+        kartkunskap: {
+            label: 'Kartkunskap och namn',
+            icon: '\u{1F5FA}',
+            questions: [
+                {
+                    type: 'dnd',
+                    q: 'Ordna kontinenterna fran mest folkrik till minst folkrik:',
+                    instruction: 'Dra och slapp for att ordna fran storst befolkning (overst) till minst (nederst).',
+                    items: ['Asien', 'Afrika', 'Europa', 'Nordamerika', 'Sydamerika', 'Oceanien'],
+                    correctOrder: ['Asien', 'Afrika', 'Europa', 'Nordamerika', 'Sydamerika', 'Oceanien'],
+                    explanation: 'Asien har cirka 4,7 miljarder invanare, Afrika 1,4 miljarder, Europa 750 miljoner, Nordamerika 580 miljoner, Sydamerika 430 miljoner och Oceanien 45 miljoner.'
+                },
+                {
+                    type: 'dnd',
+                    q: 'Para ihop: Ordna dessa lander efter vilken varldsdel de tillhor (fran vast till ost pa kartan):',
+                    instruction: 'Dra landerna sa att det vastligaste landet hamnar overst.',
+                    items: ['Brasilien', 'Nigeria', 'Indien', 'Japan'],
+                    correctOrder: ['Brasilien', 'Nigeria', 'Indien', 'Japan'],
+                    explanation: 'Fran vast till ost: Brasilien (Sydamerika), Nigeria (Afrika), Indien (Sydasien), Japan (Ostasien).'
+                },
+                {
+                    type: 'dnd',
+                    q: 'Ordna Nordens lander fran storst yta till minst yta:',
+                    instruction: 'Storst yta overst, minst yta nederst.',
+                    items: ['Sverige', 'Finland', 'Norge', 'Island', 'Danmark'],
+                    correctOrder: ['Sverige', 'Norge', 'Finland', 'Island', 'Danmark'],
+                    explanation: 'Sverige: 450 000 km2, Norge: 385 000 km2, Finland: 338 000 km2, Island: 103 000 km2, Danmark: 43 000 km2.'
+                },
+                {
+                    type: 'dnd',
+                    q: 'Ordna dessa floder fran langst till kortast:',
+                    instruction: 'Langst flod overst.',
+                    items: ['Nilen', 'Amazonas', 'Yangtze', 'Donau'],
+                    correctOrder: ['Nilen', 'Amazonas', 'Yangtze', 'Donau'],
+                    explanation: 'Nilen: ca 6 650 km, Amazonas: ca 6 400 km, Yangtze: ca 6 300 km, Donau: ca 2 850 km.'
+                },
+                {
+                    type: 'dnd',
+                    q: 'Ordna dessa bergskedjor fran hogst till lagst (hogsta topp):',
+                    instruction: 'Hogst bergskedja overst.',
+                    items: ['Himalaya', 'Anderna', 'Alperna', 'Skanderna (Kolen)'],
+                    correctOrder: ['Himalaya', 'Anderna', 'Alperna', 'Skanderna (Kolen)'],
+                    explanation: 'Himalaya: Mount Everest 8 849 m, Anderna: Aconcagua 6 961 m, Alperna: Mont Blanc 4 808 m, Skanderna: Kebnekaise 2 097 m.'
+                },
+                {
+                    type: 'dnd',
+                    q: 'Ordna dessa europeiska lander fran storst befolkning till minst:',
+                    instruction: 'Mest folkrika overst.',
+                    items: ['Tyskland', 'Frankrike', 'Italien', 'Sverige', 'Norge'],
+                    correctOrder: ['Tyskland', 'Frankrike', 'Italien', 'Sverige', 'Norge'],
+                    explanation: 'Tyskland: ca 84 miljoner, Frankrike: ca 68 miljoner, Italien: ca 59 miljoner, Sverige: ca 10,5 miljoner, Norge: ca 5,5 miljoner.'
+                },
+                {
+                    type: 'dnd',
+                    q: 'Ordna dessa hav/oceaner fran storst till minst:',
+                    instruction: 'Storst ocean overst.',
+                    items: ['Stilla havet', 'Atlantiska oceanen', 'Indiska oceanen', 'Nordishavet'],
+                    correctOrder: ['Stilla havet', 'Atlantiska oceanen', 'Indiska oceanen', 'Nordishavet'],
+                    explanation: 'Stilla havet: 165 milj. km2, Atlantiska oceanen: 106 milj. km2, Indiska oceanen: 70 milj. km2, Nordishavet: 14 milj. km2.'
+                }
+            ]
+        }
+    };
+
+    // ===== STATE =====
+    let currentMode = 'fixed';
+    let selectedSection = 'all';
+    let activeQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let answered = 0;
+    let sectionScores = {};
+    let dragSrcEl = null;
+    let touchStartY = 0;
+    let touchCurrentItem = null;
+
+    // ===== FUNCTIONS =====
+    function showView(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function openModePicker(section) {
+        selectedSection = section;
+        document.getElementById('modeOverlay').classList.add('active');
+    }
+
+    function closeModeOverlay() {
+        document.getElementById('modeOverlay').classList.remove('active');
+    }
+
+    function startQuiz(mode) {
+        currentMode = mode;
+        closeModeOverlay();
+
+        // Build questions
+        activeQuestions = [];
+        if (selectedSection === 'all') {
+            Object.keys(sections).forEach(key => {
+                sections[key].questions.forEach((q, i) => {
+                    activeQuestions.push({ ...q, section: key, origIndex: i });
+                });
+            });
+        } else {
+            sections[selectedSection].questions.forEach((q, i) => {
+                activeQuestions.push({ ...q, section: selectedSection, origIndex: i });
+            });
+        }
+
+        if (mode === 'shuffle') {
+            for (let i = activeQuestions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeQuestions[i], activeQuestions[j]] = [activeQuestions[j], activeQuestions[i]];
+            }
+        }
+
+        currentIndex = 0;
+        score = 0;
+        answered = 0;
+        sectionScores = {};
+        Object.keys(sections).forEach(k => {
+            sectionScores[k] = { correct: 0, total: 0 };
+        });
+        activeQuestions.forEach(q => sectionScores[q.section].total++);
+
+        // Set label
+        const label = selectedSection === 'all' ? 'Alla sektioner' : sections[selectedSection].label;
+        document.getElementById('quizSectionLabel').textContent = label;
+
+        buildTabs();
+        showView('quizView');
+        renderQuestion();
+    }
+
+    function buildTabs() {
+        const container = document.getElementById('tabsContainer');
+        container.innerHTML = '';
+
+        if (selectedSection !== 'all') {
+            container.style.display = 'none';
+            return;
+        }
+        container.style.display = 'flex';
+
+        const sectionKeys = Object.keys(sections);
+        sectionKeys.forEach(key => {
+            const tab = document.createElement('div');
+            tab.className = 'tab';
+            tab.dataset.section = key;
+            tab.innerHTML = sections[key].label + ' <span class="tab-count">' + sectionScores[key].correct + '/' + sectionScores[key].total + '</span>';
+            container.appendChild(tab);
+        });
+
+        updateActiveTabs();
+    }
+
+    function updateActiveTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            const key = tab.dataset.section;
+            tab.querySelector('.tab-count').textContent = sectionScores[key].correct + '/' + sectionScores[key].total;
+            tab.classList.remove('active');
+            if (activeQuestions[currentIndex] && activeQuestions[currentIndex].section === key) {
+                tab.classList.add('active');
+            }
+        });
+    }
+
+    function updateProgress() {
+        document.getElementById('qCurrent').textContent = currentIndex + 1;
+        document.getElementById('qTotal').textContent = activeQuestions.length;
+        document.getElementById('scoreDisplay').textContent = score + ' ratt';
+        const pct = ((currentIndex) / activeQuestions.length) * 100;
+        document.getElementById('progressFill').style.width = pct + '%';
+        updateActiveTabs();
+    }
+
+    function renderQuestion() {
+        updateProgress();
+        const area = document.getElementById('questionArea');
+        const q = activeQuestions[currentIndex];
+
+        if (q.type === 'mc') {
+            renderMC(area, q);
+        } else if (q.type === 'dnd') {
+            renderDnD(area, q);
+        }
+    }
+
+    function renderMC(area, q) {
+        const letters = ['A', 'B', 'C', 'D'];
+        let html = '<div class="question-card">';
+        html += '<div class="question-number">' + sections[q.section].label + ' -- Fraga ' + (currentIndex + 1) + '</div>';
+        html += '<div class="question-text">' + q.q + '</div>';
+        html += '<div class="options-list">';
+        q.options.forEach((opt, i) => {
+            html += '<button class="option-btn" onclick="checkMC(this, ' + i + ', ' + q.correct + ')">';
+            html += '<span class="option-letter">' + letters[i] + '</span> ' + opt;
+            html += '</button>';
+        });
+        html += '</div>';
+        html += '<div class="feedback-box" id="feedback"></div>';
+        html += '<button class="next-btn" id="nextBtn" onclick="nextQuestion()">Nasta fraga</button>';
+        html += '</div>';
+        area.innerHTML = html;
+    }
+
+    function checkMC(btn, selected, correct) {
+        const options = document.querySelectorAll('.option-btn');
+        options.forEach(o => o.classList.add('disabled'));
+
+        if (selected === correct) {
+            btn.classList.add('correct');
+            score++;
+            sectionScores[activeQuestions[currentIndex].section].correct++;
+            showFeedback(true, activeQuestions[currentIndex].explanation);
+        } else {
+            btn.classList.add('wrong');
+            options[correct].classList.add('correct');
+            showFeedback(false, activeQuestions[currentIndex].explanation);
+        }
+
+        answered++;
+        document.getElementById('scoreDisplay').textContent = score + ' ratt';
+        document.getElementById('nextBtn').classList.add('show');
+        updateActiveTabs();
+    }
+
+    function showFeedback(isCorrect, explanation) {
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback-box show ' + (isCorrect ? 'correct' : 'wrong');
+        fb.innerHTML = '<div class="fb-title">' + (isCorrect ? 'Ratt!' : 'Fel!') + '</div>' + explanation;
+    }
+
+    function renderDnD(area, q) {
+        const shuffled = [...q.items];
+        // Shuffle for display
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        let html = '<div class="question-card">';
+        html += '<div class="question-number">' + sections[q.section].label + ' -- Fraga ' + (currentIndex + 1) + '</div>';
+        html += '<div class="question-text">' + q.q + '</div>';
+        html += '<div class="dnd-instruction">' + q.instruction + '</div>';
+        html += '<div class="dnd-container" id="dndContainer">';
+        shuffled.forEach((item, i) => {
+            html += '<div class="dnd-item" draggable="true" data-value="' + item + '">';
+            html += '<span class="dnd-rank">' + (i + 1) + '</span>';
+            html += '<span class="dnd-label">' + item + '</span>';
+            html += '<span class="dnd-handle">&#9776;</span>';
+            html += '</div>';
+        });
+        html += '</div>';
+        html += '<button class="check-order-btn" id="checkOrderBtn" onclick="checkDnD()">Kontrollera ordning</button>';
+        html += '<div class="feedback-box" id="feedback"></div>';
+        html += '<button class="next-btn" id="nextBtn" onclick="nextQuestion()">Nasta fraga</button>';
+        html += '</div>';
+        area.innerHTML = html;
+
+        initDragAndDrop();
+    }
+
+    function initDragAndDrop() {
+        const container = document.getElementById('dndContainer');
+        const items = container.querySelectorAll('.dnd-item');
+
+        items.forEach(item => {
+            // Mouse drag
+            item.addEventListener('dragstart', handleDragStart);
+            item.addEventListener('dragover', handleDragOver);
+            item.addEventListener('dragenter', handleDragEnter);
+            item.addEventListener('dragleave', handleDragLeave);
+            item.addEventListener('drop', handleDrop);
+            item.addEventListener('dragend', handleDragEnd);
+
+            // Touch support
+            item.addEventListener('touchstart', handleTouchStart, { passive: false });
+            item.addEventListener('touchmove', handleTouchMove, { passive: false });
+            item.addEventListener('touchend', handleTouchEnd, { passive: false });
+        });
+    }
+
+    function handleDragStart(e) {
+        dragSrcEl = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleDragEnter(e) {
+        this.classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+        if (dragSrcEl !== this) {
+            swapItems(dragSrcEl, this);
+        }
+        this.classList.remove('drag-over');
+        return false;
+    }
+
+    function handleDragEnd(e) {
+        document.querySelectorAll('.dnd-item').forEach(item => {
+            item.classList.remove('dragging', 'drag-over');
+        });
+        updateRanks();
+    }
+
+    // Touch handling
+    function handleTouchStart(e) {
+        e.preventDefault();
+        touchCurrentItem = this;
+        touchStartY = e.touches[0].clientY;
+        this.classList.add('dragging');
+    }
+
+    function handleTouchMove(e) {
+        e.preventDefault();
+        if (!touchCurrentItem) return;
+
+        const touch = e.touches[0];
+        const container = document.getElementById('dndContainer');
+        const items = [...container.querySelectorAll('.dnd-item')];
+
+        items.forEach(item => item.classList.remove('drag-over'));
+
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (target) {
+            const targetItem = target.closest('.dnd-item');
+            if (targetItem && targetItem !== touchCurrentItem) {
+                targetItem.classList.add('drag-over');
+            }
+        }
+    }
+
+    function handleTouchEnd(e) {
+        e.preventDefault();
+        if (!touchCurrentItem) return;
+
+        const touch = e.changedTouches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        if (target) {
+            const targetItem = target.closest('.dnd-item');
+            if (targetItem && targetItem !== touchCurrentItem) {
+                swapItems(touchCurrentItem, targetItem);
+            }
+        }
+
+        document.querySelectorAll('.dnd-item').forEach(item => {
+            item.classList.remove('dragging', 'drag-over');
+        });
+
+        touchCurrentItem = null;
+        updateRanks();
+    }
+
+    function swapItems(a, b) {
+        const container = a.parentNode;
+        const aNext = a.nextElementSibling === b ? a : a.nextElementSibling;
+        container.insertBefore(a, b);
+        container.insertBefore(b, aNext);
+        updateRanks();
+    }
+
+    function updateRanks() {
+        const items = document.querySelectorAll('.dnd-item');
+        items.forEach((item, i) => {
+            item.querySelector('.dnd-rank').textContent = i + 1;
+        });
+    }
+
+    function checkDnD() {
+        const q = activeQuestions[currentIndex];
+        const items = document.querySelectorAll('.dnd-item');
+        const btn = document.getElementById('checkOrderBtn');
+        btn.disabled = true;
+
+        let allCorrect = true;
+        let correctCount = 0;
+
+        items.forEach((item, i) => {
+            const val = item.dataset.value;
+            item.setAttribute('draggable', 'false');
+            item.style.cursor = 'default';
+            if (val === q.correctOrder[i]) {
+                item.classList.add('correct-pos');
+                correctCount++;
+            } else {
+                item.classList.add('wrong-pos');
+                allCorrect = false;
+            }
+        });
+
+        // Give full point if all correct, half point rounded if >50% correct
+        if (allCorrect) {
+            score++;
+            sectionScores[q.section].correct++;
+            showFeedback(true, q.explanation);
+        } else if (correctCount >= Math.ceil(q.correctOrder.length / 2)) {
+            // Partial -- count as half (round up for encouragement on close answers)
+            showFeedback(false, 'Nastan! Ratt ordning: ' + q.correctOrder.join(' > ') + '. ' + q.explanation);
+        } else {
+            showFeedback(false, 'Ratt ordning: ' + q.correctOrder.join(' > ') + '. ' + q.explanation);
+        }
+
+        answered++;
+        document.getElementById('scoreDisplay').textContent = score + ' ratt';
+        document.getElementById('nextBtn').classList.add('show');
+        updateActiveTabs();
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        if (currentIndex >= activeQuestions.length) {
+            showResults();
+        } else {
+            renderQuestion();
+        }
+    }
+
+    function showResults() {
+        showView('resultsView');
+        const total = activeQuestions.length;
+        const pct = Math.round((score / total) * 100);
+
+        document.getElementById('finalScore').textContent = score;
+        document.getElementById('finalTotal').textContent = 'av ' + total;
+        document.getElementById('finalPercent').textContent = pct + '%';
+
+        // Set score circle border color based on performance
+        const circle = document.querySelector('.score-circle');
+        if (pct >= 80) {
+            circle.style.borderColor = '#2ecc71';
+        } else if (pct >= 50) {
+            circle.style.borderColor = '#f39c12';
+        } else {
+            circle.style.borderColor = '#e74c3c';
+        }
+
+        // Message
+        let msg = '';
+        if (pct >= 90) msg = 'Fantastiskt! Du beharsar geografi riktigt bra!';
+        else if (pct >= 75) msg = 'Bra jobbat! Du har bra koll pa det mesta.';
+        else if (pct >= 50) msg = 'Hyfsat! Repetera de delar du hade svart for.';
+        else msg = 'Ovning ger fardighet! Forsok igen och las pa lite mer.';
+        document.getElementById('scoreMessage').textContent = msg;
+
+        // Breakdown
+        const breakdownEl = document.getElementById('sectionBreakdown');
+        let breakdownHTML = '';
+        Object.keys(sections).forEach(key => {
+            const s = sectionScores[key];
+            if (s.total === 0) return;
+            const sPct = s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0;
+            breakdownHTML += '<div class="breakdown-card">';
+            breakdownHTML += '<h4>' + sections[key].icon + ' ' + sections[key].label + '</h4>';
+            breakdownHTML += '<div class="breakdown-bar"><div class="breakdown-fill" style="width:' + sPct + '%"></div></div>';
+            breakdownHTML += '<div class="breakdown-score">' + s.correct + ' / ' + s.total + ' (' + sPct + '%)</div>';
+            breakdownHTML += '</div>';
+        });
+        breakdownEl.innerHTML = breakdownHTML;
+    }
+
+    function quitQuiz() {
+        if (answered > 0 && currentIndex < activeQuestions.length) {
+            if (!confirm('Vill du verkligen avsluta? Dina framsteg forsvinner.')) return;
+        }
+        showView('startView');
+    }
+
+    function restartQuiz() {
+        showView('startView');
+    }
+    </script>
+</body>
+</html>

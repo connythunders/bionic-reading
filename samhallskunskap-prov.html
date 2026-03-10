@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samhallskunskap - Provtraning ak 7-9</title>
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --primary: #f5a623;
+  --primary-dark: #e67e22;
+  --bg-start: #1a1a2e;
+  --bg-mid: #16213e;
+  --bg-end: #0f3460;
+  --card-bg: rgba(255,255,255,0.06);
+  --card-border: rgba(245,166,35,0.18);
+  --text: #e8e8e8;
+  --text-dim: #a0a0b8;
+  --correct: #2ecc71;
+  --wrong: #e74c3c;
+  --radius: 14px;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, var(--bg-start), var(--bg-mid), var(--bg-end));
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── Scrollbar ─────────────────────── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--primary-dark); border-radius: 4px; }
+
+/* ── Utility ───────────────────────── */
+.hidden { display: none !important; }
+
+/* ── Header ────────────────────────── */
+.app-header {
+  text-align: center;
+  padding: 2.2rem 1rem 1.2rem;
+  position: relative;
+}
+.app-header h1 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, var(--primary), #ffe08a, var(--primary-dark), var(--primary));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
+}
+.app-header .subtitle {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  margin-top: 0.3rem;
+}
+@keyframes shimmer {
+  0%,100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ── Back link ─────────────────────── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 0.92rem;
+  margin: 0 auto 0.5rem;
+  padding: 6px 14px;
+  border-radius: 8px;
+  transition: background .2s;
+}
+.back-link:hover { background: rgba(245,166,35,0.1); }
+
+/* ── Container ─────────────────────── */
+.container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+
+/* ── Start Screen ──────────────────── */
+.section-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+.section-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 1.4rem;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+  position: relative;
+  overflow: hidden;
+}
+.section-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+  opacity: 0;
+  transition: opacity .2s;
+}
+.section-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(245,166,35,0.12);
+  border-color: var(--primary);
+}
+.section-card:hover::before { opacity: 1; }
+.section-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.section-card h3 { font-size: 1.05rem; color: var(--primary); margin-bottom: 0.3rem; }
+.section-card p { font-size: 0.82rem; color: var(--text-dim); }
+.section-card .badge {
+  display: inline-block;
+  background: rgba(245,166,35,0.15);
+  color: var(--primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-top: 0.6rem;
+}
+
+.btn-all {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  letter-spacing: 0.02em;
+}
+.btn-all:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(245,166,35,0.3);
+}
+
+/* ── Mode Picker Overlay ───────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,10,20,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+.mode-box {
+  background: linear-gradient(145deg, #1e2243, #162040);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+.mode-box h2 { color: var(--primary); margin-bottom: 0.5rem; font-size: 1.3rem; }
+.mode-box p { color: var(--text-dim); font-size: 0.88rem; margin-bottom: 1.5rem; }
+.mode-btn {
+  display: block;
+  width: 100%;
+  padding: 0.85rem;
+  margin-bottom: 0.7rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid var(--primary);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+  background: transparent;
+  color: var(--primary);
+}
+.mode-btn:hover, .mode-btn:focus {
+  background: var(--primary);
+  color: #1a1a2e;
+}
+.mode-cancel {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  padding: 0.6rem;
+  width: 100%;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 0.3rem;
+  transition: border-color .2s;
+}
+.mode-cancel:hover { border-color: var(--text-dim); }
+
+/* ── Quiz View ─────────────────────── */
+.quiz-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.quiz-topbar .section-label {
+  font-size: 0.88rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+.quiz-topbar .counter {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.tab-btn {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.tab-btn.active {
+  background: var(--primary);
+  color: #1a1a2e;
+  border-color: var(--primary);
+}
+.tab-btn.completed {
+  border-color: var(--correct);
+  color: var(--correct);
+}
+
+/* Progress bar */
+.progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  margin-bottom: 1.4rem;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+  border-radius: 3px;
+  transition: width .4s ease;
+  width: 0%;
+}
+
+/* Question card */
+.q-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 1.6rem;
+  margin-bottom: 1rem;
+  animation: fadeUp .35s ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.q-card .q-number {
+  font-size: 0.75rem;
+  color: var(--primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+.q-card .q-text {
+  font-size: 1.08rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
+}
+
+/* MC options */
+.options { display: flex; flex-direction: column; gap: 0.5rem; }
+.opt-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  line-height: 1.45;
+}
+.opt-btn:hover:not(.locked) {
+  border-color: var(--primary);
+  background: rgba(245,166,35,0.06);
+}
+.opt-btn.selected-correct {
+  border-color: var(--correct);
+  background: rgba(46,204,113,0.12);
+  color: var(--correct);
+}
+.opt-btn.selected-wrong {
+  border-color: var(--wrong);
+  background: rgba(231,76,60,0.12);
+  color: var(--wrong);
+}
+.opt-btn.show-correct {
+  border-color: var(--correct);
+  background: rgba(46,204,113,0.08);
+}
+.opt-btn.locked { cursor: default; }
+
+/* Feedback */
+.feedback {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  animation: fadeUp .3s ease;
+}
+.feedback.correct {
+  background: rgba(46,204,113,0.1);
+  border: 1px solid rgba(46,204,113,0.3);
+  color: #a8f0c6;
+}
+.feedback.wrong {
+  background: rgba(231,76,60,0.1);
+  border: 1px solid rgba(231,76,60,0.3);
+  color: #f5b7b1;
+}
+
+/* Drag and drop */
+.dnd-instruction {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+.dnd-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 50px;
+  padding: 0.8rem;
+  background: rgba(255,255,255,0.03);
+  border: 1.5px dashed rgba(255,255,255,0.12);
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+.dnd-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.dnd-slot {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.8rem;
+  background: rgba(255,255,255,0.03);
+  border: 1.5px dashed rgba(245,166,35,0.2);
+  border-radius: 10px;
+  min-height: 48px;
+  transition: border-color .2s, background .2s;
+}
+.dnd-slot.drag-over {
+  border-color: var(--primary);
+  background: rgba(245,166,35,0.08);
+}
+.dnd-slot .slot-num {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 22px;
+}
+.dnd-slot .slot-label {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.dnd-slot .slot-content {
+  flex: 1;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+.dnd-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.9rem;
+  background: rgba(245,166,35,0.12);
+  border: 1.5px solid rgba(245,166,35,0.3);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: var(--text);
+  cursor: grab;
+  user-select: none;
+  transition: transform .15s, box-shadow .15s;
+  touch-action: none;
+}
+.dnd-item:active { cursor: grabbing; }
+.dnd-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.96);
+}
+.dnd-item.correct-item {
+  border-color: var(--correct);
+  background: rgba(46,204,113,0.15);
+  color: var(--correct);
+  cursor: default;
+}
+.dnd-item.wrong-item {
+  border-color: var(--wrong);
+  background: rgba(231,76,60,0.12);
+  color: var(--wrong);
+  cursor: default;
+}
+
+.check-dnd-btn, .next-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.7rem 1.6rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+.check-dnd-btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #1a1a2e;
+}
+.next-btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #1a1a2e;
+  margin-top: 0.8rem;
+}
+.check-dnd-btn:hover, .next-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(245,166,35,0.25);
+}
+
+/* Match columns */
+.match-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+.match-left, .match-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.match-left .dnd-slot {
+  border-color: rgba(245,166,35,0.25);
+}
+
+/* ── Results View ──────────────────── */
+.results-header { text-align: center; margin-bottom: 2rem; }
+.score-circle {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 1.2rem;
+  position: relative;
+}
+.score-circle svg { transform: rotate(-90deg); }
+.score-circle .bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 10; }
+.score-circle .fill { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1.2s ease; }
+.score-circle .label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.score-circle .pct { font-size: 2.2rem; font-weight: 800; }
+.score-circle .of { font-size: 0.82rem; color: var(--text-dim); }
+
+.results-msg {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+.results-sub {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+}
+
+.section-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1.6rem;
+}
+.sec-result-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+}
+.sec-result-card .sec-icon { font-size: 1.6rem; flex-shrink: 0; }
+.sec-result-card .sec-info { flex: 1; }
+.sec-result-card .sec-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; }
+.sec-result-card .sec-bar-track {
+  width: 100%;
+  height: 5px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  margin-top: 6px;
+}
+.sec-result-card .sec-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+}
+.sec-result-card .sec-score {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.results-actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.results-actions button {
+  flex: 1;
+  min-width: 180px;
+  padding: 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform .15s;
+  border: none;
+}
+.results-actions button:hover { transform: translateY(-1px); }
+.btn-restart {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #1a1a2e;
+}
+.btn-home {
+  background: transparent;
+  border: 2px solid var(--primary) !important;
+  color: var(--primary);
+}
+
+/* ── Responsive ────────────────────── */
+@media (max-width: 600px) {
+  .section-grid { grid-template-columns: 1fr; }
+  .app-header h1 { font-size: 1.55rem; }
+  .q-card { padding: 1.1rem; }
+  .q-card .q-text { font-size: 0.98rem; }
+  .match-container { grid-template-columns: 1fr; }
+  .tabs { gap: 3px; }
+  .tab-btn { padding: 5px 10px; font-size: 0.72rem; }
+  .score-circle { width: 130px; height: 130px; }
+  .score-circle .pct { font-size: 1.8rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <a href="so-nationella-prov.html" class="back-link" aria-label="Tillbaka">&#8592; Tillbaka till amnesval</a>
+  <h1>Samhallskunskap</h1>
+  <p class="subtitle">Provtraning enligt Lgr22 &mdash; ak 7&ndash;9</p>
+</div>
+
+<div class="container">
+  <!-- ── START SCREEN ──────────────── -->
+  <div id="startScreen">
+    <div class="section-grid">
+      <div class="section-card" data-section="0">
+        <div class="icon">&#127963;</div>
+        <h3>Demokrati och politik</h3>
+        <p>Riksdag, regering, val, ideologier, EU och FN</p>
+        <span class="badge">8 fragor</span>
+      </div>
+      <div class="section-card" data-section="1">
+        <div class="icon">&#9878;</div>
+        <h3>Rattigheter och rattsvasende</h3>
+        <p>Manskliga rattigheter, barnkonventionen, rattssakerhet</p>
+        <span class="badge">7 fragor</span>
+      </div>
+      <div class="section-card" data-section="2">
+        <div class="icon">&#128176;</div>
+        <h3>Ekonomi och samhalle</h3>
+        <p>Privatekonomi, skatter, valfard, kallkritik, normer</p>
+        <span class="badge">8 fragor</span>
+      </div>
+      <div class="section-card" data-section="3">
+        <div class="icon">&#128269;</div>
+        <h3>Begrepp och ordning</h3>
+        <p>Dra och slapp: lagstiftning, rattsprocess, ideologier, milstolpar</p>
+        <span class="badge">7 fragor &bull; Dra &amp; slapp</span>
+      </div>
+    </div>
+    <button class="btn-all" id="btnAll">Kor alla 30 fragor</button>
+  </div>
+
+  <!-- ── MODE PICKER ───────────────── -->
+  <div id="modePicker" class="overlay hidden">
+    <div class="mode-box">
+      <h2>Valj ordning</h2>
+      <p>Vill du ha fragorna i fast ordning eller slumpade?</p>
+      <button class="mode-btn" data-mode="fixed">Fast ordning</button>
+      <button class="mode-btn" data-mode="shuffle">Slumpad ordning</button>
+      <button class="mode-cancel" id="modeCancel">Avbryt</button>
+    </div>
+  </div>
+
+  <!-- ── QUIZ VIEW ─────────────────── -->
+  <div id="quizView" class="hidden">
+    <div class="quiz-topbar">
+      <span class="section-label" id="quizSectionLabel"></span>
+      <span class="counter" id="quizCounter"></span>
+    </div>
+    <div class="tabs" id="quizTabs"></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div id="questionArea"></div>
+    <button class="next-btn hidden" id="nextBtn">Nasta fraga &#8594;</button>
+  </div>
+
+  <!-- ── RESULTS VIEW ──────────────── -->
+  <div id="resultsView" class="hidden">
+    <div class="results-header">
+      <div class="score-circle">
+        <svg viewBox="0 0 160 160" width="100%" height="100%">
+          <circle class="bg" cx="80" cy="80" r="70"/>
+          <circle class="fill" id="scoreArc" cx="80" cy="80" r="70" stroke="var(--primary)"
+            stroke-dasharray="439.82" stroke-dashoffset="439.82"/>
+        </svg>
+        <div class="label">
+          <span class="pct" id="scorePct">0%</span>
+          <span class="of" id="scoreOf">0 / 0</span>
+        </div>
+      </div>
+      <p class="results-msg" id="resultsMsg"></p>
+      <p class="results-sub" id="resultsSub"></p>
+    </div>
+    <div class="section-results" id="sectionResults"></div>
+    <div class="results-actions">
+      <button class="btn-restart" id="btnRestart">Gor om provet</button>
+      <button class="btn-home" id="btnHome">Tillbaka till start</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====================================================================
+   DATA — 30 questions, 4 sections
+   ==================================================================== */
+const SECTIONS = [
+  { id: 0, name: "Demokrati och politik", icon: "\u{1F3F3}" },
+  { id: 1, name: "Rattigheter och rattsvasende", icon: "\u2696" },
+  { id: 2, name: "Ekonomi och samhalle", icon: "\u{1F4B0}" },
+  { id: 3, name: "Begrepp och ordning", icon: "\u{1F50D}" }
+];
+
+// type: "mc" = multiple-choice, "dnd-order" = drag order, "dnd-match" = drag match
+const ALL_QUESTIONS = [
+  // ── SECTION 0: Demokrati och politik (8) ────────────
+  {
+    section: 0, type: "mc",
+    text: "Hur manga ledamoter sitter i Sveriges riksdag?",
+    options: ["289","349","399","449"],
+    correct: 1,
+    feedback: "Sveriges riksdag har 349 ledamoter som valjs vart fjarde ar i allmanna val."
+  },
+  {
+    section: 0, type: "mc",
+    text: "Vem utser Sveriges statsminister?",
+    options: ["Kungen","Riksdagens talman","Folket genom direktval","Hogsta domstolen"],
+    correct: 1,
+    feedback: "Det ar riksdagens talman som foreslir en statsministerkandidat, som sedan ska godkannas av riksdagen genom en omrostning."
+  },
+  {
+    section: 0, type: "mc",
+    text: "Vilken politisk ideologi betonar individuell frihet, fria marknader och begransat statligt inflytande?",
+    options: ["Socialism","Konservatism","Liberalism","Feminism"],
+    correct: 2,
+    feedback: "Liberalismen vaxte fram under upplysningen och betonar individens frihet, ratt till egendom och en fri marknad."
+  },
+  {
+    section: 0, type: "mc",
+    text: "Vad ar skillnaden mellan en demokrati och en diktatur?",
+    options: [
+      "I en demokrati bestammer kungen, i en diktatur bestammer folket",
+      "I en demokrati har folket inflytande genom val, i en diktatur styrs landet av en ledare utan fria val",
+      "Det finns ingen skillnad, bara olika namn",
+      "I en diktatur finns fler partier an i en demokrati"
+    ],
+    correct: 1,
+    feedback: "I en demokrati har medborgarna makt genom fria val och yttrandefrihet. I en diktatur saknas dessa fri- och rattigheter."
+  },
+  {
+    section: 0, type: "mc",
+    text: "Vilket ar EU:s lagstiftande organ dar medlemslandernas medborgare rostar direkt?",
+    options: ["Europeiska radet","EU-kommissionen","Europaparlamentet","EU-domstolen"],
+    correct: 2,
+    feedback: "Europaparlamentets ledamoter valjs direkt av medborgarna i EU:s medlemslander vart femte ar."
+  },
+  {
+    section: 0, type: "mc",
+    text: "I Sverige har vi tre politiska niver. Vilka ar de?",
+    options: [
+      "Riksdag, landsting, byrad",
+      "Kommun, region, riksdag",
+      "Regering, landsting, stadsfullmaktige",
+      "Riksdag, hovdtt, kommun"
+    ],
+    correct: 1,
+    feedback: "Sveriges tre politiska niver ar kommunen (lokalt), regionen (t.ex. sjukvard) och riksdagen (nationellt)."
+  },
+  {
+    section: 0, type: "mc",
+    text: "Vad ar FN:s viktigaste syfte?",
+    options: [
+      "Att styra varldsekonomin",
+      "Att uppratthalla internationell fred och sakerhet",
+      "Att bestamma vilka lander som far finnas",
+      "Att skriva lagar som galler i alla lander"
+    ],
+    correct: 1,
+    feedback: "FN grundades 1945 med huvudsyftet att uppratthalla internationell fred och sakerhet, och att framja samarbete mellan lander."
+  },
+  {
+    section: 0, type: "mc",
+    text: "Vad menas med politisk opinion?",
+    options: [
+      "Regeringens officiella asikt",
+      "Den allmanna uppfattningen i politiska fragor bland befolkningen",
+      "Det partier skriver i sina partiprogram",
+      "Resultatet av en folkomrostning"
+    ],
+    correct: 1,
+    feedback: "Politisk opinion ar den allmanna uppfattningen bland medborgarna i politiska fragor. Den mats ofta genom opinionsundersokningar."
+  },
+
+  // ── SECTION 1: Rattigheter och rattsvasende (7) ─────
+  {
+    section: 1, type: "mc",
+    text: "Vilket ar FN:s deklaration om de manskliga rattigheterna antogs?",
+    options: ["1918","1945","1948","1969"],
+    correct: 2,
+    feedback: "FN:s allmanna forklaring om de manskliga rattigheterna antogs den 10 december 1948. Darfor firas manskliga rattigheternas dag den 10 december."
+  },
+  {
+    section: 1, type: "mc",
+    text: "Barnkonventionen blev svensk lag 2020. Vilken ar en av dess grundprinciper?",
+    options: [
+      "Barn ska alltid lyda sina foraldrar utan att ifragasatta",
+      "Barnets basta ska alltid komma i forsta rummet",
+      "Barn far inte uttrycka sina asikter fore 15 ars alder",
+      "Bara svenska barn omfattas av konventionen"
+    ],
+    correct: 1,
+    feedback: "En av barnkonventionens fyra grundprinciper ar att barnets basta alltid ska beaktas vid beslut som ror barn."
+  },
+  {
+    section: 1, type: "mc",
+    text: "I vilken ordning arbetar rattsvasendet nar ett brott har begitts?",
+    options: [
+      "Domstol, polis, aklagare, kriminalvard",
+      "Polis, aklagare, domstol, kriminalvard",
+      "Aklagare, polis, domstol, kriminalvard",
+      "Polis, domstol, aklagare, kriminalvard"
+    ],
+    correct: 1,
+    feedback: "Polisen utreder brottet, aklagaren beslutar om atal, domstolen domer, och kriminalvirden ansvarar for eventuellt straff."
+  },
+  {
+    section: 1, type: "mc",
+    text: "Vad innebar yttrandefrihet?",
+    options: [
+      "Ratten att saga vad man vill utan nagra begrinsningar",
+      "Ratten att fritt uttrycka sina asikter, med vissa begrinsningar som forltal och hets mot folkgrupp",
+      "Ratten att bara tala i riksdagen",
+      "Ratten att sprida information anonymt pi natet"
+    ],
+    correct: 1,
+    feedback: "Yttrandefrihet ar en grundlaggande rattighet men den har begrinsningar, till exempel forbud mot fortal och hets mot folkgrupp."
+  },
+  {
+    section: 1, type: "mc",
+    text: "Vad menas med rattssikerhet?",
+    options: [
+      "Att polisen alltid har ratt",
+      "Att alla behandlas lika infor lagen och har ratt till en rittvis rattegong",
+      "Att domstolen alltid domer till fingelse",
+      "Att brottslingar aldrig slipps fria"
+    ],
+    correct: 1,
+    feedback: "Rattssikerhet innebar att ingen ska kunna straffas utan stod i lagen, att alla ar lika infor lagen och har ratt till en rittvis process."
+  },
+  {
+    section: 1, type: "mc",
+    text: "Vilken av foljande ar en av diskrimineringsgrunderna i svensk lag?",
+    options: [
+      "Politisk tillhorighet",
+      "Etnisk tillhorighet",
+      "Ekonomisk status",
+      "Bostadsort"
+    ],
+    correct: 1,
+    feedback: "Sverige har sju diskrimineringsgrunder: kon, konsoverskridande identitet, etnisk tillhorighet, religion, funktionsnedsattning, sexuell laggning och ilder."
+  },
+  {
+    section: 1, type: "mc",
+    text: "Vad ar syftet med kriminalvirden i Sverige?",
+    options: [
+      "Att straffa sa hart som mojligt",
+      "Att hamnas brottsoffer",
+      "Att minska risken for iterfall genom rehabilitering",
+      "Att bara forvara brottslingar"
+    ],
+    correct: 2,
+    feedback: "Kriminalvirdens viktigaste uppgift ar att minska iterfall i brott. Det sker genom rehabilitering, utbildning och behandling."
+  },
+
+  // ── SECTION 2: Ekonomi och samhalle (8) ─────────────
+  {
+    section: 2, type: "mc",
+    text: "Vad ar skillnaden mellan bruttolun och nettolun?",
+    options: [
+      "Det ar samma sak",
+      "Bruttolun ar fore skatt, nettolun ar efter skatt",
+      "Nettolun ar fore skatt, bruttolun ar efter skatt",
+      "Bruttolun ar bara for furetagare"
+    ],
+    correct: 1,
+    feedback: "Bruttolun ar din lon fore skatt. Nettolun ar det du fir ut pi kontot efter att skatten har dragits."
+  },
+  {
+    section: 2, type: "mc",
+    text: "Vad ar det ekonomiska kretsloppet?",
+    options: [
+      "Nar pengar skickas utomlands",
+      "Flodet av pengar, varor och tjinster mellan hushall, foretag och offentlig sektor",
+      "Riksbankens arbete med sedlar",
+      "Borsen och aktiehandel"
+    ],
+    correct: 1,
+    feedback: "Det ekonomiska kretsloppet beskriver hur pengar, varor och tjinster ror sig mellan hushall, foretag och den offentliga sektorn."
+  },
+  {
+    section: 2, type: "mc",
+    text: "Varfor betalar vi skatt i Sverige?",
+    options: [
+      "For att staten ska bli rik",
+      "For att finansiera valfard som skola, sjukvird och infrastruktur",
+      "For att det ska bli svart att tjina pengar",
+      "For att skicka pengar till EU"
+    ],
+    correct: 1,
+    feedback: "Skatten finansierar gemensam valfard: sjukvird, skola, aldrevard, polis, forsvar, vagar och mycket mer."
+  },
+  {
+    section: 2, type: "mc",
+    text: "Vad ar kallkritik?",
+    options: [
+      "Att kritisera alla nyheter",
+      "Att granska och bedomma trowardigheten hos information och dess kallor",
+      "Att bara lasa tryckta bocker",
+      "Att undvika internet helt"
+    ],
+    correct: 1,
+    feedback: "Kallkritik innebar att man granskar vem som star bakom informationen, vad syftet ar, om det ar aktuellt och om uppgifterna kan bekraftas av andra kallor."
+  },
+  {
+    section: 2, type: "mc",
+    text: "Vad menas med arbetsmarknad?",
+    options: [
+      "Platsen dar man koper mat",
+      "Samspelet mellan de som soker arbete och de som erbjuder arbete",
+      "Bara de som har fast anstallning",
+      "Arbetsformedlingens hemsida"
+    ],
+    correct: 1,
+    feedback: "Arbetsmarknaden ar dar utbud (de som soker jobb) och efterfrigan (arbetsgivare) moter varandra."
+  },
+  {
+    section: 2, type: "mc",
+    text: "Vilken roll spelar medier i en demokrati?",
+    options: [
+      "Medierna har ingen viktig roll",
+      "Att granska makthavare och ge medborgarna information si de kan fatta informerade beslut",
+      "Att stodja regeringens politik",
+      "Att enbart underhllla"
+    ],
+    correct: 1,
+    feedback: "Medierna kallas ibland den tredje statsmakten. De granskar makthavare, informerar medborgarna och mojliggor en oppen samhallsdebatt."
+  },
+  {
+    section: 2, type: "mc",
+    text: "Vad menas med normer i samhallet?",
+    options: [
+      "Lagar som riksdagen beslutar om",
+      "Oskrivna regler och forviintningar om hur man ska bete sig",
+      "Matematiska berakningar",
+      "Regler som bara galler i skolan"
+    ],
+    correct: 1,
+    feedback: "Normer ar oskrivna regler och forviintningar som styr hur vi beter oss i samhallet. De kan vara bide positiva och begrinsande."
+  },
+  {
+    section: 2, type: "mc",
+    text: "Vad ar en vanlig orsak till fattigdom i virlden?",
+    options: [
+      "Att folk ar lata",
+      "Konflikter, brist pi utbildning, orattvis handel och korruption",
+      "Att det finns for manga manniskor",
+      "Att fattiga lander inte vill ha hjalp"
+    ],
+    correct: 1,
+    feedback: "Fattigdom har komplexa orsaker: viipnade konflikter, brist pi utbildning, orattvis global handel, korruption och klimatforandringar ar nagra exempel."
+  },
+
+  // ── SECTION 3: Begrepp och ordning (7 DnD) ─────────
+  {
+    section: 3, type: "dnd-order",
+    text: "Ordna stegen i den svenska lagstiftningsprocessen fran forst till sist.",
+    items: [
+      "Forslag (proposition) laggs fram",
+      "Utskottet utreder forslaget",
+      "Riksdagen debatterar",
+      "Riksdagen rostar",
+      "Lagen borjar galla"
+    ],
+    correct: [0,1,2,3,4]
+  },
+  {
+    section: 3, type: "dnd-order",
+    text: "Ordna rattsprocessen fran det att ett brott begits till dess att straffet verkstalls.",
+    items: [
+      "Brottet begis och polisanmilan gors",
+      "Polisen utreder brottet",
+      "Aklagaren beslutar om atal",
+      "Rattegong i tingsratt",
+      "Dom meddelas",
+      "Eventuellt straff verkstalls av kriminalvirden"
+    ],
+    correct: [0,1,2,3,4,5]
+  },
+  {
+    section: 3, type: "dnd-match",
+    text: "Matcha varje politisk ideologi med dess karnprincip.",
+    pairs: [
+      { left: "Liberalism", right: "Individuell frihet och fri marknad" },
+      { left: "Socialism", right: "Ekonomisk jamlikhet och gemensamt agande" },
+      { left: "Konservatism", right: "Bevara traditioner och stabilitet" },
+      { left: "Feminism", right: "Jamstalldhet mellan konen" }
+    ]
+  },
+  {
+    section: 3, type: "dnd-order",
+    text: "Ordna dessa demokratiska milstolpar i Sverige kronologiskt (aldst forst).",
+    items: [
+      "Riksdagen infors med fyra stand (1435)",
+      "Allmun rostritt for man (1909)",
+      "Kvinnor fir rostritt (1921)",
+      "FN:s deklaration om manskliga rattigheter antas (1948)",
+      "Barnkonventionen blir svensk lag (2020)"
+    ],
+    correct: [0,1,2,3,4]
+  },
+  {
+    section: 3, type: "dnd-match",
+    text: "Matcha varje samhallsbegrepp med ratt forklaring.",
+    pairs: [
+      { left: "Demokrati", right: "Folket styr genom fria val" },
+      { left: "Diktatur", right: "En ledare eller grupp styr utan fria val" },
+      { left: "Monarki", right: "Statschef som irver sin position" },
+      { left: "Republik", right: "Statschef som valjs av folket" }
+    ]
+  },
+  {
+    section: 3, type: "dnd-order",
+    text: "Ordna det ekonomiska kretsloppet: hur pengar ror sig i samhallet.",
+    items: [
+      "Hushillen arbetar i foretag",
+      "Foretagen betalar lon",
+      "Hushillen koper varor och tjinster",
+      "Foretagen betalar skatt",
+      "Staten fordelar pengarna till valfard"
+    ],
+    correct: [0,1,2,3,4]
+  },
+  {
+    section: 3, type: "dnd-match",
+    text: "Matcha varje rattighet med ratt forklaring.",
+    pairs: [
+      { left: "Yttrandefrihet", right: "Ratt att fritt uttrycka sin isikt" },
+      { left: "Religionsfrihet", right: "Ratt att tro pi vad man vill" },
+      { left: "Forsamlingsfrihet", right: "Ratt att delta i moeten och demonstrationer" },
+      { left: "Tryckfrihet", right: "Ratt att publicera texter utan censur" }
+    ]
+  }
+];
+
+/* ====================================================================
+   STATE
+   ==================================================================== */
+let state = {
+  mode: null,          // "fixed" | "shuffle"
+  selectedSections: [],// array of section indices
+  questions: [],       // questions for this run
+  current: 0,
+  answers: [],         // { correct: bool } per question
+  pendingSection: null
+};
+
+/* ====================================================================
+   DOM HELPERS
+   ==================================================================== */
+const $ = s => document.querySelector(s);
+const show = el => el.classList.remove("hidden");
+const hide = el => el.classList.add("hidden");
+
+/* ====================================================================
+   START SCREEN
+   ==================================================================== */
+document.querySelectorAll(".section-card").forEach(card => {
+  card.addEventListener("click", () => {
+    state.pendingSection = [parseInt(card.dataset.section)];
+    show($("#modePicker"));
+  });
+});
+
+$("#btnAll").addEventListener("click", () => {
+  state.pendingSection = [0,1,2,3];
+  show($("#modePicker"));
+});
+
+document.querySelectorAll(".mode-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    state.mode = btn.dataset.mode;
+    hide($("#modePicker"));
+    startQuiz(state.pendingSection);
+  });
+});
+
+$("#modeCancel").addEventListener("click", () => {
+  hide($("#modePicker"));
+  state.pendingSection = null;
+});
+
+/* ====================================================================
+   QUIZ ENGINE
+   ==================================================================== */
+function startQuiz(sections) {
+  state.selectedSections = sections;
+  state.questions = ALL_QUESTIONS.filter(q => sections.includes(q.section));
+  if (state.mode === "shuffle") {
+    // shuffle within each section separately for DnD sanity, then interleave
+    if (sections.length === 1) {
+      shuffleArray(state.questions);
+    } else {
+      // shuffle mc questions, keep dnd-order intact within section
+      const mc = state.questions.filter(q => q.type === "mc");
+      const dnd = state.questions.filter(q => q.type !== "mc");
+      shuffleArray(mc);
+      shuffleArray(dnd);
+      state.questions = [...mc, ...dnd];
+    }
+  }
+  state.current = 0;
+  state.answers = new Array(state.questions.length).fill(null);
+
+  hide($("#startScreen"));
+  show($("#quizView"));
+  hide($("#resultsView"));
+
+  buildTabs();
+  renderQuestion();
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+/* Tabs */
+function buildTabs() {
+  const wrap = $("#quizTabs");
+  wrap.innerHTML = "";
+  state.questions.forEach((q, i) => {
+    const btn = document.createElement("button");
+    btn.className = "tab-btn";
+    btn.textContent = i + 1;
+    btn.addEventListener("click", () => {
+      if (state.answers[i] !== null || i === state.current) {
+        state.current = i;
+        renderQuestion();
+      }
+    });
+    wrap.appendChild(btn);
+  });
+  updateTabs();
+}
+
+function updateTabs() {
+  const btns = $("#quizTabs").children;
+  for (let i = 0; i < btns.length; i++) {
+    btns[i].classList.toggle("active", i === state.current);
+    if (state.answers[i] !== null) btns[i].classList.add("completed");
+  }
+  const answered = state.answers.filter(a => a !== null).length;
+  $("#progressFill").style.width = (answered / state.questions.length * 100) + "%";
+  const q = state.questions[state.current];
+  const sec = SECTIONS[q.section];
+  $("#quizSectionLabel").textContent = sec.name;
+  $("#quizCounter").textContent = `Fraga ${state.current + 1} av ${state.questions.length}`;
+}
+
+/* ── Render question ─────────────── */
+function renderQuestion() {
+  updateTabs();
+  const q = state.questions[state.current];
+  const area = $("#questionArea");
+  const nextBtn = $("#nextBtn");
+
+  if (q.type === "mc") renderMC(q, area);
+  else if (q.type === "dnd-order") renderDnDOrder(q, area);
+  else if (q.type === "dnd-match") renderDnDMatch(q, area);
+
+  // next button
+  if (state.answers[state.current] !== null) {
+    show(nextBtn);
+    nextBtn.textContent = state.current < state.questions.length - 1 ? "Nasta fraga \u2192" : "Visa resultat \u2192";
+  } else {
+    hide(nextBtn);
+  }
+}
+
+/* ── MC renderer ─────────────────── */
+function renderMC(q, area) {
+  const answered = state.answers[state.current];
+  let html = `<div class="q-card">
+    <div class="q-number">Fraga ${state.current + 1}</div>
+    <div class="q-text">${q.text}</div>
+    <div class="options">`;
+  q.options.forEach((opt, i) => {
+    let cls = "opt-btn";
+    if (answered !== null) {
+      cls += " locked";
+      if (i === q.correct) cls += " show-correct";
+      if (answered.chosen === i && !answered.correct) cls += " selected-wrong";
+      if (answered.chosen === i && answered.correct) cls += " selected-correct";
+    }
+    html += `<button class="${cls}" data-idx="${i}">${opt}</button>`;
+  });
+  html += `</div>`;
+  if (answered !== null) {
+    html += `<div class="feedback ${answered.correct ? 'correct' : 'wrong'}">
+      ${answered.correct ? '<strong>Ratt!</strong> ' : '<strong>Fel.</strong> '}${q.feedback}</div>`;
+  }
+  html += `</div>`;
+  area.innerHTML = html;
+
+  if (answered === null) {
+    area.querySelectorAll(".opt-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.dataset.idx);
+        const isCorrect = idx === q.correct;
+        state.answers[state.current] = { correct: isCorrect, chosen: idx };
+        renderQuestion();
+      });
+    });
+  }
+}
+
+/* ── DnD Order renderer ──────────── */
+function renderDnDOrder(q, area) {
+  const answered = state.answers[state.current];
+
+  // create shuffled item indices if not answered
+  if (!q._shuffled) {
+    q._shuffled = q.items.map((_, i) => i);
+    shuffleArray(q._shuffled);
+  }
+
+  let html = `<div class="q-card">
+    <div class="q-number">Fraga ${state.current + 1}</div>
+    <div class="q-text">${q.text}</div>
+    <p class="dnd-instruction">Dra objekten till ratt position i ordningen.</p>`;
+
+  if (answered === null) {
+    html += `<div class="dnd-bank" id="dndBank">`;
+    q._shuffled.forEach(origIdx => {
+      html += `<div class="dnd-item" draggable="true" data-orig="${origIdx}">${q.items[origIdx]}</div>`;
+    });
+    html += `</div><div class="dnd-slots" id="dndSlots">`;
+    q.items.forEach((_, i) => {
+      html += `<div class="dnd-slot" data-pos="${i}">
+        <span class="slot-num">${i + 1}.</span>
+        <div class="slot-content"></div>
+      </div>`;
+    });
+    html += `</div><button class="check-dnd-btn" id="checkDnd">Kontrollera svar</button>`;
+  } else {
+    // show result
+    html += `<div class="dnd-slots">`;
+    q.correct.forEach((origIdx, i) => {
+      const userOrig = answered.order[i];
+      const isRight = userOrig === origIdx;
+      html += `<div class="dnd-slot">
+        <span class="slot-num">${i + 1}.</span>
+        <div class="slot-content">
+          <div class="dnd-item ${isRight ? 'correct-item' : 'wrong-item'}">${q.items[userOrig]}${isRight ? '' : ' (ratt: ' + q.items[origIdx] + ')'}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+    const score = answered.correct;
+    html += `<div class="feedback ${score ? 'correct' : 'wrong'}">${score ? '<strong>Ratt!</strong> Alla steg ar i ratt ordning.' : '<strong>Inte helt ratt.</strong> Se den korrekta ordningen ovan.'}</div>`;
+  }
+
+  html += `</div>`;
+  area.innerHTML = html;
+
+  if (answered === null) setupDnDOrder(q);
+}
+
+/* DnD Order logic with touch support */
+function setupDnDOrder(q) {
+  const bank = $("#dndBank");
+  const slots = document.querySelectorAll("#dndSlots .dnd-slot");
+  let dragItem = null;
+
+  function getItems() { return bank.querySelectorAll(".dnd-item"); }
+
+  // Drag events for items
+  function addDragEvents(item) {
+    item.addEventListener("dragstart", e => {
+      dragItem = item;
+      item.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+    item.addEventListener("dragend", () => {
+      if (dragItem) dragItem.classList.remove("dragging");
+      dragItem = null;
+      slots.forEach(s => s.classList.remove("drag-over"));
+    });
+
+    // Touch
+    let touchClone = null;
+    let touchOffsetX = 0, touchOffsetY = 0;
+    item.addEventListener("touchstart", e => {
+      dragItem = item;
+      const t = e.touches[0];
+      const rect = item.getBoundingClientRect();
+      touchOffsetX = t.clientX - rect.left;
+      touchOffsetY = t.clientY - rect.top;
+      touchClone = item.cloneNode(true);
+      touchClone.style.position = "fixed";
+      touchClone.style.zIndex = "9999";
+      touchClone.style.pointerEvents = "none";
+      touchClone.style.opacity = "0.85";
+      touchClone.style.width = rect.width + "px";
+      document.body.appendChild(touchClone);
+      moveTouchClone(t);
+      item.classList.add("dragging");
+    }, { passive: true });
+    item.addEventListener("touchmove", e => {
+      e.preventDefault();
+      if (touchClone) moveTouchClone(e.touches[0]);
+      slots.forEach(s => {
+        const r = s.getBoundingClientRect();
+        const cx = e.touches[0].clientX, cy = e.touches[0].clientY;
+        s.classList.toggle("drag-over", cx > r.left && cx < r.right && cy > r.top && cy < r.bottom);
+      });
+    }, { passive: false });
+    item.addEventListener("touchend", e => {
+      if (touchClone) { touchClone.remove(); touchClone = null; }
+      if (!dragItem) return;
+      const t = e.changedTouches[0];
+      let dropped = false;
+      slots.forEach(slot => {
+        const r = slot.getBoundingClientRect();
+        if (t.clientX > r.left && t.clientX < r.right && t.clientY > r.top && t.clientY < r.bottom) {
+          dropIntoSlot(slot);
+          dropped = true;
+        }
+      });
+      // check if dropped back on bank
+      if (!dropped) {
+        const r = bank.getBoundingClientRect();
+        if (t.clientX > r.left && t.clientX < r.right && t.clientY > r.top && t.clientY < r.bottom) {
+          // return to bank — already handled by just leaving it
+        }
+      }
+      dragItem.classList.remove("dragging");
+      dragItem = null;
+      slots.forEach(s => s.classList.remove("drag-over"));
+    });
+
+    function moveTouchClone(t) {
+      touchClone.style.left = (t.clientX - touchOffsetX) + "px";
+      touchClone.style.top = (t.clientY - touchOffsetY) + "px";
+    }
+  }
+
+  getItems().forEach(addDragEvents);
+
+  // Slot drop targets
+  slots.forEach(slot => {
+    slot.addEventListener("dragover", e => { e.preventDefault(); slot.classList.add("drag-over"); });
+    slot.addEventListener("dragleave", () => slot.classList.remove("drag-over"));
+    slot.addEventListener("drop", e => { e.preventDefault(); dropIntoSlot(slot); });
+  });
+
+  // Bank as drop target (to return items)
+  bank.addEventListener("dragover", e => e.preventDefault());
+  bank.addEventListener("drop", e => {
+    e.preventDefault();
+    if (dragItem && dragItem.parentElement !== bank) {
+      bank.appendChild(dragItem);
+    }
+  });
+
+  function dropIntoSlot(slot) {
+    const content = slot.querySelector(".slot-content");
+    // If slot already has item, move it back to bank
+    const existing = content.querySelector(".dnd-item");
+    if (existing) bank.appendChild(existing);
+    // If dragged from another slot, just move
+    content.appendChild(dragItem);
+    slot.classList.remove("drag-over");
+  }
+
+  // Check answer
+  $("#checkDnd").addEventListener("click", () => {
+    const order = [];
+    let allFilled = true;
+    slots.forEach(slot => {
+      const item = slot.querySelector(".slot-content .dnd-item");
+      if (item) order.push(parseInt(item.dataset.orig));
+      else { allFilled = false; order.push(-1); }
+    });
+    if (!allFilled) {
+      alert("Placera alla objekt i slots forst!");
+      return;
+    }
+    const isCorrect = q.correct.every((v, i) => v === order[i]);
+    state.answers[state.current] = { correct: isCorrect, order };
+    renderQuestion();
+  });
+}
+
+/* ── DnD Match renderer ──────────── */
+function renderDnDMatch(q, area) {
+  const answered = state.answers[state.current];
+
+  // shuffle right side
+  if (!q._shuffledRight) {
+    q._shuffledRight = q.pairs.map((_, i) => i);
+    shuffleArray(q._shuffledRight);
+  }
+
+  let html = `<div class="q-card">
+    <div class="q-number">Fraga ${state.current + 1}</div>
+    <div class="q-text">${q.text}</div>
+    <p class="dnd-instruction">Dra forklaringarna till ratt begrepp.</p>`;
+
+  if (answered === null) {
+    html += `<div class="dnd-bank" id="dndBank">`;
+    q._shuffledRight.forEach(ri => {
+      html += `<div class="dnd-item" draggable="true" data-pair="${ri}">${q.pairs[ri].right}</div>`;
+    });
+    html += `</div><div class="dnd-slots" id="dndSlots">`;
+    q.pairs.forEach((p, i) => {
+      html += `<div class="dnd-slot" data-pos="${i}">
+        <span class="slot-label"><strong>${p.left}:</strong></span>
+        <div class="slot-content"></div>
+      </div>`;
+    });
+    html += `</div><button class="check-dnd-btn" id="checkDnd">Kontrollera svar</button>`;
+  } else {
+    html += `<div class="dnd-slots">`;
+    q.pairs.forEach((p, i) => {
+      const userPair = answered.mapping[i];
+      const isRight = userPair === i;
+      html += `<div class="dnd-slot">
+        <span class="slot-label"><strong>${p.left}:</strong></span>
+        <div class="slot-content">
+          <div class="dnd-item ${isRight ? 'correct-item' : 'wrong-item'}">${q.pairs[userPair].right}${isRight ? '' : ' (ratt: ' + p.right + ')'}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+    html += `<div class="feedback ${answered.correct ? 'correct' : 'wrong'}">${answered.correct ? '<strong>Ratt!</strong> Alla matchningar stammer.' : '<strong>Inte helt ratt.</strong> Se rattelserna ovan.'}</div>`;
+  }
+
+  html += `</div>`;
+  area.innerHTML = html;
+
+  if (answered === null) setupDnDMatch(q);
+}
+
+function setupDnDMatch(q) {
+  const bank = $("#dndBank");
+  const slots = document.querySelectorAll("#dndSlots .dnd-slot");
+  let dragItem = null;
+
+  function addDragEvents(item) {
+    item.addEventListener("dragstart", e => {
+      dragItem = item;
+      item.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+    });
+    item.addEventListener("dragend", () => {
+      if (dragItem) dragItem.classList.remove("dragging");
+      dragItem = null;
+      slots.forEach(s => s.classList.remove("drag-over"));
+    });
+
+    // Touch support
+    let touchClone = null;
+    let touchOffsetX = 0, touchOffsetY = 0;
+    item.addEventListener("touchstart", e => {
+      dragItem = item;
+      const t = e.touches[0];
+      const rect = item.getBoundingClientRect();
+      touchOffsetX = t.clientX - rect.left;
+      touchOffsetY = t.clientY - rect.top;
+      touchClone = item.cloneNode(true);
+      touchClone.style.position = "fixed";
+      touchClone.style.zIndex = "9999";
+      touchClone.style.pointerEvents = "none";
+      touchClone.style.opacity = "0.85";
+      touchClone.style.width = rect.width + "px";
+      document.body.appendChild(touchClone);
+      moveTouchClone(t);
+      item.classList.add("dragging");
+    }, { passive: true });
+    item.addEventListener("touchmove", e => {
+      e.preventDefault();
+      if (touchClone) moveTouchClone(e.touches[0]);
+      slots.forEach(s => {
+        const r = s.getBoundingClientRect();
+        const cx = e.touches[0].clientX, cy = e.touches[0].clientY;
+        s.classList.toggle("drag-over", cx > r.left && cx < r.right && cy > r.top && cy < r.bottom);
+      });
+    }, { passive: false });
+    item.addEventListener("touchend", e => {
+      if (touchClone) { touchClone.remove(); touchClone = null; }
+      if (!dragItem) return;
+      const t = e.changedTouches[0];
+      slots.forEach(slot => {
+        const r = slot.getBoundingClientRect();
+        if (t.clientX > r.left && t.clientX < r.right && t.clientY > r.top && t.clientY < r.bottom) {
+          dropIntoSlot(slot);
+        }
+      });
+      dragItem.classList.remove("dragging");
+      dragItem = null;
+      slots.forEach(s => s.classList.remove("drag-over"));
+    });
+
+    function moveTouchClone(t) {
+      touchClone.style.left = (t.clientX - touchOffsetX) + "px";
+      touchClone.style.top = (t.clientY - touchOffsetY) + "px";
+    }
+  }
+
+  bank.querySelectorAll(".dnd-item").forEach(addDragEvents);
+
+  slots.forEach(slot => {
+    slot.addEventListener("dragover", e => { e.preventDefault(); slot.classList.add("drag-over"); });
+    slot.addEventListener("dragleave", () => slot.classList.remove("drag-over"));
+    slot.addEventListener("drop", e => { e.preventDefault(); dropIntoSlot(slot); });
+  });
+
+  bank.addEventListener("dragover", e => e.preventDefault());
+  bank.addEventListener("drop", e => {
+    e.preventDefault();
+    if (dragItem && dragItem.parentElement !== bank) bank.appendChild(dragItem);
+  });
+
+  function dropIntoSlot(slot) {
+    const content = slot.querySelector(".slot-content");
+    const existing = content.querySelector(".dnd-item");
+    if (existing) bank.appendChild(existing);
+    content.appendChild(dragItem);
+    slot.classList.remove("drag-over");
+  }
+
+  $("#checkDnd").addEventListener("click", () => {
+    const mapping = [];
+    let allFilled = true;
+    slots.forEach(slot => {
+      const item = slot.querySelector(".slot-content .dnd-item");
+      if (item) mapping.push(parseInt(item.dataset.pair));
+      else { allFilled = false; mapping.push(-1); }
+    });
+    if (!allFilled) {
+      alert("Placera alla forklaringar forst!");
+      return;
+    }
+    const isCorrect = mapping.every((v, i) => v === i);
+    state.answers[state.current] = { correct: isCorrect, mapping };
+    renderQuestion();
+  });
+}
+
+/* ── Next button ─────────────────── */
+$("#nextBtn").addEventListener("click", () => {
+  if (state.current < state.questions.length - 1) {
+    state.current++;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    showResults();
+  }
+});
+
+/* ====================================================================
+   RESULTS
+   ==================================================================== */
+function showResults() {
+  hide($("#quizView"));
+  show($("#resultsView"));
+
+  const total = state.questions.length;
+  const correct = state.answers.filter(a => a && a.correct).length;
+  const pct = Math.round(correct / total * 100);
+
+  // Score circle
+  const circumference = 2 * Math.PI * 70; // ~439.82
+  const offset = circumference - (pct / 100) * circumference;
+  const arc = $("#scoreArc");
+  arc.style.strokeDasharray = circumference;
+  arc.style.strokeDashoffset = circumference;
+  setTimeout(() => { arc.style.strokeDashoffset = offset; }, 80);
+
+  let color = pct >= 80 ? "var(--correct)" : pct >= 50 ? "var(--primary)" : "var(--wrong)";
+  arc.style.stroke = color;
+
+  $("#scorePct").textContent = pct + "%";
+  $("#scorePct").style.color = color;
+  $("#scoreOf").textContent = `${correct} av ${total} ratt`;
+
+  if (pct >= 80) {
+    $("#resultsMsg").textContent = "Utmarkt resultat!";
+    $("#resultsSub").textContent = "Du har starka kunskaper i samhallskunskap.";
+  } else if (pct >= 50) {
+    $("#resultsMsg").textContent = "Bra jobbat!";
+    $("#resultsSub").textContent = "Du ar pa god vag, fortsatt ova sa nar du anda langre.";
+  } else {
+    $("#resultsMsg").textContent = "Forsok igen!";
+    $("#resultsSub").textContent = "Las igenom feedbacken och testa sedan igen for att forbattra ditt resultat.";
+  }
+
+  // Section breakdown
+  const secDiv = $("#sectionResults");
+  secDiv.innerHTML = "";
+  const icons = ["\u{1F3DB}", "\u2696\uFE0F", "\u{1F4B0}", "\u{1F50D}"];
+  state.selectedSections.forEach(si => {
+    const qs = state.questions.map((q, i) => ({ q, i })).filter(x => x.q.section === si);
+    const secCorrect = qs.filter(x => state.answers[x.i] && state.answers[x.i].correct).length;
+    const secTotal = qs.length;
+    const secPct = Math.round(secCorrect / secTotal * 100);
+    const barColor = secPct >= 80 ? "var(--correct)" : secPct >= 50 ? "var(--primary)" : "var(--wrong)";
+
+    secDiv.innerHTML += `<div class="sec-result-card">
+      <div class="sec-icon">${icons[si]}</div>
+      <div class="sec-info">
+        <div class="sec-name">${SECTIONS[si].name}</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill" style="width:0%;background:${barColor}" data-w="${secPct}%"></div></div>
+      </div>
+      <div class="sec-score">${secCorrect}/${secTotal}</div>
+    </div>`;
+  });
+
+  // Animate bars
+  setTimeout(() => {
+    secDiv.querySelectorAll(".sec-bar-fill").forEach(bar => {
+      bar.style.width = bar.dataset.w;
+    });
+  }, 100);
+}
+
+/* ── Result actions ──────────────── */
+$("#btnRestart").addEventListener("click", () => {
+  // Reset shuffled state
+  ALL_QUESTIONS.forEach(q => { delete q._shuffled; delete q._shuffledRight; });
+  hide($("#resultsView"));
+  state.pendingSection = state.selectedSections;
+  show($("#modePicker"));
+});
+
+$("#btnHome").addEventListener("click", () => {
+  ALL_QUESTIONS.forEach(q => { delete q._shuffled; delete q._shuffledRight; });
+  hide($("#resultsView"));
+  hide($("#quizView"));
+  show($("#startScreen"));
+});
+</script>
+</body>
+</html>
