@@ -604,15 +604,6 @@
 
 <main>
 
-    <!-- API Key -->
-    <div class="api-section">
-        <label>Claude API-nyckel:</label>
-        <input type="password" id="apiKeyInput" placeholder="Ange din Claude API-nyckel..."
-               onchange="saveApiKey(this.value)" oninput="saveApiKey(this.value)">
-        <a href="https://console.anthropic.com/settings/keys" target="_blank">Hämta API-nyckel &rarr;</a>
-        <span id="apiKeyStatus" style="font-size:0.8rem; color:var(--text-light);"></span>
-    </div>
-
     <!-- VIEW: Lägg till -->
     <div id="view-add" class="view active">
         <div class="card">
@@ -687,7 +678,7 @@ Exempel:
             <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
                 <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeAssignment()">
                     <span class="spinner" id="analyzeSpinner"></span>
-                    <span class="btn-text">Analysera med AI</span>
+                    <span class="btn-text">Analysera uppgift</span>
                 </button>
                 <span style="font-size:0.8rem; color:var(--text-light);">Identifierar centralt innehåll och betygskriterier</span>
             </div>
@@ -977,21 +968,9 @@ let currentAnalysis = null;
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    const savedKey = localStorage.getItem('claude_api_key') || '';
-    if (savedKey) {
-        document.getElementById('apiKeyInput').value = savedKey;
-        document.getElementById('apiKeyStatus').textContent = 'API-nyckel sparad';
-    }
     populateKlassList();
     populateFilterDropdowns();
 });
-
-function saveApiKey(val) {
-    if (val.trim()) {
-        localStorage.setItem('claude_api_key', val.trim());
-        document.getElementById('apiKeyStatus').textContent = 'Sparad';
-    }
-}
 
 // ============================================================
 // VIEW NAVIGATION
@@ -1009,96 +988,150 @@ function showView(name) {
 }
 
 // ============================================================
+// LOCAL KEYWORD ANALYSIS
+// ============================================================
+
+const CI_KEYWORDS = {
+    // Religion
+    RE1: ['kristendom','islam','judendom','hinduism','buddhism','livsåskådning','världsreligion','religion','tro','religiös','utbredning','heliga','skrift','bibel','quran','torah','veda','tripitaka'],
+    RE2: ['tolkning','variation','utövande','praktik','sunni','shia','ortodox','katolsk','protestant','reform','liberal'],
+    RE3: ['tankegång','urkundstext','urk','bibel','quran','torah','veda','tripitaka','grundtext','helig skrift','trossats','lära','dogm'],
+    RE4: ['rit','ceremoni','levnadsregel','ritual','bön','fasta','pilgrim','dop','konfirmation','barmitzva','bröllop','begravning','ramadan','hajj','yom kippur','påsk','jul','id'],
+    RE5: ['likhet','skillnad','ursprung','skapelse','natur','kön','jämställdhet','sexualitet','synen på','jämföra','likheter','skillnader'],
+    RE6: ['humanism','ateism','sekulär','mänskliga rättigheter','icke-religiös','fri tänkare','agnostik'],
+    RE7: ['rörelse','gruppering','sekt','new age','scientologi','jehovas','mormoner','pingst','karismatisk','fundamentalism'],
+    RE8: ['identitet','självbild','livsprojekt','påverka','forma','personlig tro','religiös identitet'],
+    RE9: ['livets faser','livscykel','bröllop','begravning','dop','konfirmation','barmitzvah','batmitzvah','initiation'],
+    RE10: ['etisk','etik','kloning','abort','eutanasi','dödsstraff','moralisk','dilemma','frågeställning'],
+    RE11: ['religiöst perspektiv','sekulärt perspektiv','etisk analys','belys','besvara','utifrån religion','utifrån livsåskådning'],
+    RE12: ['religionens roll','religion i samhälle','religion i historia','religion i sverige','nutid','historisk'],
+    RE13: ['religionsfrihet','religionsutövande','demokratisk','icke-demokratisk','styrning','stat och religion'],
+    RE14: ['konflikt','samförstånd','religionskrig','terrorism','fred','dialog','religionsdialog','europa','världen'],
+    RE15: ['sekularisering','pluralism','ny religiös rörelse','modernitet','sekularism','postmodern','mångfald'],
+
+    // Historia
+    HI1: ['industrialism','industrialisering','världshandel','sociala förhållanden','levnadsvillkor','fabrik','urbanisering 1800','arbetarklass'],
+    HI2: ['liberalism','socialism','konservatism','ideologi','demokratisering','politisk ideologi','politiska rörelser'],
+    HI3: ['nationalism','nationalstat','imperialism','kolonialism','koloni','europa','nation'],
+    HI4: ['migration','emigration','immigration','flykt','flyktingskap','orsaker','konsekvenser','rörelse av folk'],
+    HI5: ['världskrig','första världskriget','andra världskriget','förintelsen','holocaust','folkmord','nazism','hitler'],
+    HI6: ['mellankrigstiden','demokratins kris','totalitär','fascism','nazism','kommunism','diktatur','weimar'],
+    HI7: ['kalla kriget','koreakriget','vietnamkriget','usa','sovjet','kommunism vs kapitalism','järnridån','berlinmuren','kuba'],
+    HI8: ['avkolonisering','kolonialism','afrika','asien','självständighet','postkolonial','ny stat','kolonialismens konsekvenser'],
+    HI9: ['demokratisering','1900-talets','latinamerika','asien','östeuropa','demokrati','övergång'],
+    HI10: ['apartheid','medborgarrättsrörelsen','nelson mandela','martin luther king','mänskliga rättigheter','rasism','segregation'],
+    HI11: ['historiebruk','historieskrivning','forskning','skuld','ansvar','historisk debatt','tolkning av historia'],
+    HI12: ['aktuell konflikt','internationellt samarbete','fred','säkerhet','fn','nato','konflikt i nutid'],
+    HI13: ['historiska begrepp','förändring','kontinuitet','likhet','skillnad','historisk analys','perspektiv'],
+    HI14: ['historisk källa','primärkälla','sekundärkälla','källtyp','källkritik historia','arkiv','dokument','artefakt'],
+    HI15: ['perspektiv','klass','kön','etnicitet','historieskrivning','berättelse','vem skriver','tolkning'],
+    HI16: ['minne','myt','nationalism','historieskrivning','bild av förfluten','kollektivt minne','historiemedvetande'],
+
+    // Geografi
+    GE1: ['klimatzon','vegetationszon','klimat','vegetation','tropisk','tempererad','arktisk','ekosystem','biom'],
+    GE2: ['klimatförändring','global uppvärmning','växthusgaser','co2','konsekvenser för miljö','havsnivå','extremväder'],
+    GE3: ['naturresurs','naturkatastrof','jordbävning','vulkan','översvämning','torka','naturgeografi','risk'],
+    GE4: ['vatten','hav','is','glaciär','sötvatten','vattnets kretslopp','grundvatten','flod','sjö'],
+    GE5: ['befolkning','livsvillkor','befolkningsfördelning','fattiga','rika','levnadsstandard','befolkningstäthet'],
+    GE6: ['urbanisering','stad','tätort','storstadsväxt','rural','urban','inflyttning','stadsutveckling'],
+    GE7: ['geopolitisk','ekonomisk','rik','fattig','bip','bnp','handel','ekonomisk ojämlikhet','nord','syd'],
+    GE8: ['migration','flyktingskap','orsaker till migration','konsekvenser','flyktingar','immigrant','emigrant'],
+    GE9: ['handel','produktion','global handel','världshandel','import','export','handelsflöden','globalisering'],
+    GE10: ['hållbar utveckling','hållbarhet','agenda 2030','miljömål','lokal','regional','global','hållbarhetsarbete'],
+    GE11: ['resursanvändning','levnadssätt','miljöpåverkan','ekologiskt fotavtryck','konsumtion','koldioxid'],
+    GE12: ['fattigdom','hälsa','utbildning','politisk konflikt','hållbar','ojämlikhet','bistånd'],
+    GE13: ['karta','geografiskt verktyg','orientering','koordinater','longitud','latitud','gis','digital karta'],
+    GE14: ['kartläsning','närmiljö','friluftsliv','orientering','topografi','terräng'],
+    GE15: ['rumslig data','gis','geografiska informationssystem','datainsamling','bearbeta data','kartdata'],
+
+    // Samhällskunskap
+    SH1: ['social roll','norm','normer','sociala normer','beteende','rollförväntning','socialisering'],
+    SH2: ['identitet','jämställdhet','sexualitet','könsroll','genus','könsnorm','lgbtq','hbtq'],
+    SH3: ['social skillnad','ekonomisk skillnad','klass','kön','etnicitet','ojämlikhet','segregation'],
+    SH4: ['diskriminering','diskrimineringslagen','skydd','lagen','rättighet','rasism','mobbning'],
+    SH5: ['riksdag','regering','grundlagen','statsskick','statsminister','lagstiftning','maktdelning','demokrati'],
+    SH6: ['val','valsystem','rösträtt','valkrets','proportionell','demokratiska val','valdeltagande'],
+    SH7: ['politisk ideologi','liberalism','socialism','konservatism','grön ideologi','höger','vänster'],
+    SH8: ['eu','europeiska unionen','europaparlament','rådet','kommissionen','eurozonen'],
+    SH9: ['fn','nato','internationella organisationer','säkerhetsråd','fredsbevarande','konfliktlösning'],
+    SH10: ['mänskliga rättigheter','fri- och rättigheter','kränkning','demokrati','icke-demokrati','fri','rättighet'],
+    SH11: ['privatekonomi','lån','sparande','försäkring','budget','ekonomi privat','skuld','ränta'],
+    SH12: ['arbetsmarknad','fackförening','lön','lönebildning','arbetsgivare','kollektivavtal','strejk'],
+    SH13: ['utbud','efterfrågan','inflation','bnp','nationalekonomisk','konjunktur','ekonomisk teori'],
+    SH14: ['välfärdsstat','skattesystem','socialt skyddsnät','pension','sjukförsäkring','a-kassa','skatt'],
+    SH15: ['rättssystem','polis','åklagare','domstol','kriminalvård','rättsväsende','rättsprocess'],
+    SH16: ['lag','regler','lagstiftning','stiftas','riksdagen','ändra lag','rättsregel','lagstiftningsprocess'],
+    SH17: ['brottslighet','brott','brottsorsak','straffet','påföljd','kriminalitet','ungdomsbrott'],
+    SH18: ['källkritik','kritisk granskning','nyhetskritik','information','källa','trovärdighet','falsk nyhet'],
+    SH19: ['desinformation','propaganda','fake news','åsiktspåverkan','opinion','sociala medier','påverkan']
+};
+
+const GRADE_VERBS = {
+    E: ['beskriv','redogör för','berätta','vad är','nämn','lista','förklara kort'],
+    C: ['förklara','analysera','jämför','diskutera','resonera','undersök','motivera'],
+    A: ['värdera','nyansera','dra slutsatser','kritisk analys','bedöm','komplex','nyanserat','välgrundad']
+};
+
+function analyzeLocally(content, subject) {
+    const text = content.toLowerCase();
+    const subjectData = subject ? LGR22[subject] : null;
+    const ciList = subjectData ? subjectData.centraltInnehall : Object.values(LGR22).flatMap(s => s.centraltInnehall);
+
+    // Match CI points
+    const matchedCI = [];
+    ciList.forEach(ci => {
+        const keywords = CI_KEYWORDS[ci.id] || [];
+        const hits = keywords.filter(kw => text.includes(kw));
+        if (hits.length > 0) {
+            matchedCI.push({
+                id: ci.id,
+                text: ci.text,
+                tackningsgrad: hits.length >= 2 ? 'full' : 'delvis',
+                motivering: `Nyckelord funna: ${hits.slice(0, 3).join(', ')}`
+            });
+        }
+    });
+
+    // Detect grade level from task verbs
+    const gradeHits = { E: 0, C: 0, A: 0 };
+    Object.entries(GRADE_VERBS).forEach(([grade, verbs]) => {
+        verbs.forEach(v => { if (text.includes(v)) gradeHits[grade]++; });
+    });
+
+    const hasE = gradeHits.E > 0 || matchedCI.length > 0;
+    const hasC = gradeHits.C > 0;
+    const hasA = gradeHits.A > 0;
+
+    return {
+        centraltInnehall: matchedCI,
+        betygskriterier: { E: hasE, C: hasC, A: hasA },
+        betygsmotiveringar: {
+            E: hasE ? `${gradeHits.E} reproduktionsverb och ${matchedCI.length} CI-träff(ar) hittades.` : 'Inga tydliga E-nivå-indikatorer funna.',
+            C: hasC ? `${gradeHits.C} analysverb funna (förklara, analysera, jämför m.fl.).` : 'Inga tydliga C-nivå-verb funna.',
+            A: hasA ? `${gradeHits.A} värderingsverb funna (värdera, nyansera, dra slutsatser m.fl.).` : 'Inga tydliga A-nivå-verb funna.'
+        },
+        ovrigaObservationer: `Automatisk nyckelordsanalys (ingen AI). ${matchedCI.length} centralt-innehåll-punkt(er) identifierade för ${subjectData ? subjectData.name : 'valt ämne'}. Kontrollera manuellt att träffarna är relevanta.`
+    };
+}
+
+// ============================================================
 // ANALYSIS
 // ============================================================
-async function analyzeAssignment() {
+function analyzeAssignment() {
     const subject = document.getElementById('f-subject').value;
     const content = document.getElementById('f-content').value.trim();
-    const apiKey = localStorage.getItem('claude_api_key') || document.getElementById('apiKeyInput').value.trim();
 
     if (!content) { showToast('Klistra in provfrågor eller uppgiftsbeskrivning', 'error'); return; }
-    if (!apiKey) { showToast('Ange din Claude API-nyckel', 'error'); return; }
 
     const btn = document.getElementById('analyzeBtn');
     btn.classList.add('analyzing');
     btn.disabled = true;
 
-    const subjectData = subject ? LGR22[subject] : null;
-    const ciList = subjectData ? subjectData.centraltInnehall.map(c => `${c.id}: ${c.text}`).join('\n') : 'Ämne ej valt – identifiera relevant SO-centralt innehåll generellt';
-    const gradeKeys = subjectData ? Object.entries(subjectData.betygskriterier).map(([g, vals]) => `Betyg ${g}:\n${vals.map((v,i)=>`  ${i+1}. ${v}`).join('\n')}`).join('\n\n') : '';
-
-    const prompt = `Du är ett pedagogiskt verktyg som hjälper SO-lärare kartlägga sin undervisning mot Lgr22.
-
-En lärare har lämnat in följande betygsgrundande uppgift${subject ? ` i ${LGR22[subject]?.name || subject}` : ''}:
-
----
-${content}
----
-
-Analysera uppgiften och returnera ett JSON-objekt (ENBART JSON, ingen förklaring utanför JSON) med denna exakta struktur:
-{
-  "centraltInnehall": [
-    {
-      "id": "RE-1",
-      "text": "Kort beskrivning av CI-punkten",
-      "tackningsgrad": "full" | "delvis",
-      "motivering": "Varför täcker uppgiften detta CI?"
-    }
-  ],
-  "betygskriterier": {
-    "E": true | false,
-    "C": true | false,
-    "A": true | false
-  },
-  "betygsmotiveringar": {
-    "E": "Kort motivering om varför E-nivån täcks/ej täcks",
-    "C": "Motivering C",
-    "A": "Motivering A"
-  },
-  "ovrigaObservationer": "Fritext om uppgiftens styrkor och ev. saknade delar ur Lgr22-perspektiv"
-}
-
-Centralt innehåll för ${subject ? LGR22[subject]?.name : 'SO'}:
-${ciList}
-
-Betygskriterier:
-${gradeKeys}
-
-Var generös men ärlig i din bedömning. Inkludera BARA de CI-punkter som faktiskt täcks.`;
-
     try {
-        const response = await fetch(
-            'https://api.anthropic.com/v1/messages',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey,
-                    'anthropic-version': '2023-06-01',
-                    'anthropic-dangerous-direct-browser-access': 'true'
-                },
-                body: JSON.stringify({
-                    model: 'claude-haiku-4-5-20251001',
-                    max_tokens: 2048,
-                    messages: [{ role: 'user', content: prompt }]
-                })
-            }
-        );
-
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || 'API-fel');
-        }
-
-        const data = await response.json();
-        const raw = data.content?.[0]?.text || '';
-        const jsonMatch = raw.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error('Kunde inte tolka AI-svaret');
-        currentAnalysis = JSON.parse(jsonMatch[0]);
+        currentAnalysis = analyzeLocally(content, subject);
         renderAnalysisResult(currentAnalysis, subject);
         document.getElementById('analysisResult').style.display = 'block';
         document.getElementById('analysisResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
     } catch (e) {
         showToast('Fel: ' + e.message, 'error');
     }
