@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🕍 Religionsspel – Judendom, Kristendom & Islam</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --purple:#7c3aed;--purple2:#9d4edd;--blue:#2563eb;--gold:#f59e0b;
+  --green:#10b981;--red:#ef4444;--bg:#0f0c29;--card:#1a1540;
+  --text:#f1f5f9;--muted:#94a3b8
+}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+canvas#particles{position:fixed;top:0;left:0;pointer-events:none;z-index:0;opacity:.4}
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:16px}
+
+/* HUD */
+.hud{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#1e1b4b;border-radius:16px;margin-bottom:20px;flex-wrap:wrap}
+.hud-xp{flex:1;min-width:180px}
+.hud-level{font-size:1.4rem;font-weight:900;color:var(--gold)}
+.xp-bar-bg{background:#312e81;border-radius:99px;height:10px;margin-top:4px;overflow:hidden}
+.xp-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--purple),var(--gold));transition:width .5s ease}
+.xp-label{font-size:.75rem;color:var(--muted);margin-top:2px}
+.hud-score{text-align:center}
+.hud-score span{font-size:1.6rem;font-weight:900;color:var(--gold)}
+.hud-score p{font-size:.7rem;color:var(--muted)}
+
+/* Badges */
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.badge{padding:6px 12px;border-radius:99px;font-size:.8rem;font-weight:700;opacity:.3;transition:all .3s;border:2px solid transparent;cursor:default}
+.badge.earned{opacity:1;border-color:var(--gold);background:#1e1b4b;animation:badgePop .4s ease}
+@keyframes badgePop{0%{transform:scale(.7)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+
+/* Hero */
+.hero{text-align:center;padding:40px 20px;background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:24px;margin-bottom:24px}
+.hero h1{font-size:2.4rem;font-weight:900;line-height:1.1;margin-bottom:12px}
+.hero p{color:var(--muted);margin-bottom:28px;font-size:1.05rem}
+.hero-icons{font-size:2.5rem;margin-bottom:16px;letter-spacing:8px}
+
+/* Game Grid */
+.game-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.game-card{background:var(--card);border:2px solid #312e81;border-radius:20px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.game-card:hover{transform:translateY(-4px);border-color:var(--purple);box-shadow:0 8px 32px rgba(124,58,237,.4)}
+.game-card.completed{border-color:var(--green)}
+.game-card .stars{font-size:1.2rem;margin-top:8px;min-height:24px}
+.game-card .icon{font-size:2.8rem;margin-bottom:8px}
+.game-card h3{font-size:1rem;font-weight:800}
+.game-card p{font-size:.75rem;color:var(--muted);margin-top:4px}
+.game-card .locked-overlay{display:none}
+
+/* Screens */
+.screen{display:none}
+.screen.active{display:block}
+
+/* Game Header */
+.game-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.back-btn{background:#312e81;border:none;color:white;padding:8px 16px;border-radius:99px;cursor:pointer;font-weight:700;font-size:.9rem;font-family:inherit}
+.back-btn:hover{background:var(--purple)}
+.game-title{font-size:1.3rem;font-weight:900;flex:1}
+.lives{font-size:1.4rem}
+.progress-wrap{background:#312e81;border-radius:99px;height:8px;margin-bottom:16px;overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--purple));transition:width .3s}
+
+/* Timer bar */
+.timer-bar-bg{background:#312e81;border-radius:99px;height:8px;margin-bottom:16px;overflow:hidden}
+.timer-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--gold),var(--red));transition:width .1s linear;width:100%}
+
+/* Question card */
+.q-card{background:var(--card);border-radius:20px;padding:28px;margin-bottom:16px;border:2px solid #312e81}
+.q-theme{font-size:.75rem;color:var(--purple2);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.q-text{font-size:1.15rem;font-weight:700;line-height:1.4}
+.q-counter{font-size:.8rem;color:var(--muted);margin-top:8px}
+
+/* Options */
+.options{display:grid;gap:10px;margin-bottom:16px}
+.opt-btn{background:#1e1b4b;border:2px solid #312e81;color:var(--text);padding:14px 20px;border-radius:14px;cursor:pointer;font-family:inherit;font-size:.95rem;font-weight:600;text-align:left;transition:all .15s;display:flex;align-items:center;gap:10px}
+.opt-btn:hover:not(:disabled){background:#312e81;border-color:var(--purple);transform:translateX(4px)}
+.opt-btn.correct{background:#064e3b;border-color:var(--green);color:#6ee7b7}
+.opt-btn.wrong{background:#450a0a;border-color:var(--red);color:#fca5a5}
+.opt-btn:disabled{cursor:default}
+.opt-letter{background:#312e81;border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.85rem;flex-shrink:0}
+
+/* Explanation */
+.explanation{background:#1e3a5f;border:2px solid var(--blue);border-radius:14px;padding:16px;margin-bottom:16px;font-size:.9rem;line-height:1.5;display:none}
+.explanation.show{display:block;animation:slideIn .3s ease}
+
+/* Next btn */
+.next-btn{background:linear-gradient(135deg,var(--purple),var(--blue));border:none;color:white;padding:14px 32px;border-radius:14px;font-family:inherit;font-size:1rem;font-weight:800;cursor:pointer;width:100%;display:none;transition:transform .1s}
+.next-btn.show{display:block;animation:slideIn .3s ease}
+.next-btn:hover{transform:scale(1.02)}
+
+/* Streak */
+.streak-badge{display:inline-block;background:linear-gradient(135deg,var(--gold),#f97316);color:#1a1a1a;padding:4px 12px;border-radius:99px;font-weight:800;font-size:.85rem;margin-left:8px;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.shake{animation:shake .4s ease}
+
+/* True/False */
+.tf-statement{background:var(--card);border-radius:20px;padding:32px;text-align:center;margin-bottom:20px;font-size:1.2rem;font-weight:700;line-height:1.4;border:2px solid #312e81;min-height:120px;display:flex;align-items:center;justify-content:center}
+.tf-btns{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.tf-btn{padding:20px;border:none;border-radius:16px;font-family:inherit;font-size:1.2rem;font-weight:900;cursor:pointer;transition:all .15s}
+.tf-sant{background:#064e3b;color:#6ee7b7;border:2px solid var(--green)}
+.tf-sant:hover:not(:disabled){background:var(--green);color:#fff;transform:scale(1.03)}
+.tf-falskt{background:#450a0a;color:#fca5a5;border:2px solid var(--red)}
+.tf-falskt:hover:not(:disabled){background:var(--red);color:#fff;transform:scale(1.03)}
+.tf-btn:disabled{cursor:default;opacity:.6}
+
+/* Memory */
+.memory-grid{display:grid;gap:10px;margin-bottom:16px}
+.mem-card{background:#1e1b4b;border:2px solid #312e81;border-radius:14px;padding:12px 8px;cursor:pointer;text-align:center;font-weight:700;font-size:.85rem;line-height:1.3;min-height:72px;display:flex;align-items:center;justify-content:center;transition:all .2s;position:relative;overflow:hidden}
+.mem-card:hover:not(.flipped):not(.matched){border-color:var(--purple);transform:scale(1.03)}
+.mem-card .card-back{position:absolute;font-size:1.8rem}
+.mem-card .card-front{opacity:0;transition:opacity .2s}
+.mem-card.flipped .card-back{opacity:0}
+.mem-card.flipped .card-front{opacity:1}
+.mem-card.flipped{background:#312e81;border-color:var(--purple2)}
+.mem-card.matched{background:#064e3b;border-color:var(--green);color:#6ee7b7;cursor:default}
+.mem-stats{display:flex;gap:16px;margin-bottom:16px;font-weight:700}
+.mem-stats span{background:var(--card);padding:8px 16px;border-radius:99px;font-size:.9rem}
+
+/* Clue game */
+.clue-card{background:var(--card);border-radius:20px;padding:28px;margin-bottom:16px;border:2px solid #312e81}
+.clue-num{font-size:.8rem;color:var(--purple2);font-weight:700;text-transform:uppercase;margin-bottom:12px}
+.clue-text{font-size:1.1rem;font-weight:700;line-height:1.4;font-style:italic;color:#e0e7ff}
+.clue-dots{display:flex;gap:8px;margin-top:16px}
+.clue-dot{width:10px;height:10px;border-radius:50%;background:#312e81;transition:background .3s}
+.clue-dot.active{background:var(--gold)}
+.clue-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.clue-opt{background:#1e1b4b;border:2px solid #312e81;color:var(--text);padding:12px;border-radius:12px;cursor:pointer;font-family:inherit;font-size:.9rem;font-weight:700;text-align:center;transition:all .15s}
+.clue-opt:hover:not(:disabled){background:#312e81;border-color:var(--purple)}
+.clue-opt.correct{background:#064e3b;border-color:var(--green);color:#6ee7b7}
+.clue-opt.wrong{background:#450a0a;border-color:var(--red);color:#fca5a5}
+.clue-opt:disabled{cursor:default}
+.next-clue-btn{background:#312e81;border:none;color:var(--text);padding:12px 24px;border-radius:12px;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;margin-bottom:16px;display:none}
+.next-clue-btn.show{display:inline-block}
+.next-clue-btn:hover{background:var(--purple)}
+.points-award{font-size:.9rem;font-weight:700;color:var(--gold);margin-bottom:12px;display:none}
+.points-award.show{display:block;animation:slideIn .3s}
+
+/* Results */
+.results{background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:24px;padding:32px;text-align:center;margin-bottom:20px}
+.results h2{font-size:2rem;font-weight:900;margin-bottom:8px}
+.result-stars{font-size:2.5rem;margin:16px 0;letter-spacing:4px}
+.result-score{font-size:3rem;font-weight:900;color:var(--gold)}
+.result-info{color:var(--muted);margin-top:8px}
+.result-btns{display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+.result-btn{padding:12px 24px;border-radius:12px;font-family:inherit;font-weight:800;font-size:.95rem;cursor:pointer;border:none}
+.btn-primary{background:linear-gradient(135deg,var(--purple),var(--blue));color:white}
+.btn-secondary{background:#312e81;color:white}
+
+/* XP popup */
+.xp-popup{position:fixed;top:80px;right:24px;background:linear-gradient(135deg,var(--purple),var(--gold));color:white;padding:10px 20px;border-radius:99px;font-weight:900;font-size:1.1rem;z-index:1000;pointer-events:none;animation:xpFloat 1.5s ease forwards}
+@keyframes xpFloat{0%{opacity:0;transform:translateY(20px) scale(.8)}20%{opacity:1;transform:translateY(0) scale(1)}80%{opacity:1;transform:translateY(-10px)}100%{opacity:0;transform:translateY(-30px)}}
+
+/* Confetti */
+.confetti-piece{position:fixed;width:10px;height:10px;z-index:999;pointer-events:none;border-radius:2px;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* Answer result flash */
+.answer-flash{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:500;opacity:0;transition:opacity .2s}
+.flash-correct{background:rgba(16,185,129,.12)}
+.flash-wrong{background:rgba(239,68,68,.12)}
+
+/* Section title */
+.section-title{font-size:1.5rem;font-weight:900;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+
+@media(max-width:500px){
+  .hero h1{font-size:1.8rem}
+  .clue-options{grid-template-columns:1fr}
+  .tf-btns{gap:10px}
+}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div id="answerFlash" class="answer-flash"></div>
+
+<div class="wrap">
+  <!-- HUD -->
+  <div class="hud" id="hud">
+    <div class="hud-xp">
+      <div class="hud-level" id="levelLabel">Nivå 1 – Nybörjare</div>
+      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpBar" style="width:0%"></div></div>
+      <div class="xp-label" id="xpLabel">0 / 100 XP</div>
+    </div>
+    <div class="hud-score"><span id="totalScore">0</span><p>Totalpoäng</p></div>
+  </div>
+
+  <!-- Badges -->
+  <div class="badge-row" id="badgeRow">
+    <div class="badge" id="badge-quiz" data-badge="quiz">⚡ Quizmaster</div>
+    <div class="badge" id="badge-speed" data-badge="speed">🚀 Snabbsvarare</div>
+    <div class="badge" id="badge-memory" data-badge="memory">🃏 Minnesmästare</div>
+    <div class="badge" id="badge-clue" data-badge="clue">🔍 Detektiv</div>
+    <div class="badge" id="badge-streak" data-badge="streak">🔥 Streakare (5+)</div>
+    <div class="badge" id="badge-all" data-badge="all">🏆 Allroundare</div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <div class="screen active" id="screen-home">
+    <div class="hero">
+      <div class="hero-icons">✡️ ✝️ ☪️</div>
+      <h1>Religionsspelet</h1>
+      <p>Testa dina kunskaper om Judendom, Kristendom och Islam!<br>Spela alla 4 spel och samla XP &amp; badges!</p>
+    </div>
+    <div class="section-title">🎮 Välj spel</div>
+    <div class="game-grid" id="gameGrid">
+      <div class="game-card" onclick="startGame('quiz')">
+        <div class="icon">⚡</div>
+        <h3>Quiz Battle</h3>
+        <p>20 frågor, timer & liv</p>
+        <div class="stars" id="stars-quiz"></div>
+      </div>
+      <div class="game-card" onclick="startGame('tf')">
+        <div class="icon">🎯</div>
+        <h3>Sant eller Falskt</h3>
+        <p>15 påståenden, snabbt!</p>
+        <div class="stars" id="stars-tf"></div>
+      </div>
+      <div class="game-card" onclick="startGame('memory')">
+        <div class="icon">🃏</div>
+        <h3>Minnesspelet</h3>
+        <p>Para ihop begrepp</p>
+        <div class="stars" id="stars-memory"></div>
+      </div>
+      <div class="game-card" onclick="startGame('clue')">
+        <div class="icon">🔍</div>
+        <h3>Vem är jag?</h3>
+        <p>Gissa med ledtrådar</p>
+        <div class="stars" id="stars-clue"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="screen-quiz">
+    <div class="game-header">
+      <button class="back-btn" onclick="goHome()">← Hem</button>
+      <div class="game-title">⚡ Quiz Battle</div>
+      <div class="lives" id="quizLives">❤️❤️❤️</div>
+      <div id="streakDisplay"></div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" id="quizProgress" style="width:0%"></div></div>
+    <div class="timer-bar-bg"><div class="timer-bar-fill" id="timerBar"></div></div>
+    <div class="q-card">
+      <div class="q-theme" id="qTheme"></div>
+      <div class="q-text" id="qText"></div>
+      <div class="q-counter" id="qCounter"></div>
+    </div>
+    <div class="options" id="optionsContainer"></div>
+    <div class="explanation" id="quizExplanation"></div>
+    <button class="next-btn" id="quizNextBtn" onclick="nextQuestion()">Nästa fråga →</button>
+  </div>
+
+  <!-- TF SCREEN -->
+  <div class="screen" id="screen-tf">
+    <div class="game-header">
+      <button class="back-btn" onclick="goHome()">← Hem</button>
+      <div class="game-title">🎯 Sant eller Falskt</div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" id="tfProgress" style="width:0%"></div></div>
+    <div class="timer-bar-bg"><div class="timer-bar-fill" id="tfTimerBar"></div></div>
+    <div class="tf-statement" id="tfStatement">Laddar...</div>
+    <div class="tf-btns">
+      <button class="tf-btn tf-sant" id="tfSant" onclick="answerTF(true)">✅ SANT</button>
+      <button class="tf-btn tf-falskt" id="tfFalskt" onclick="answerTF(false)">❌ FALSKT</button>
+    </div>
+    <div class="explanation" id="tfExplanation"></div>
+    <button class="next-btn" id="tfNextBtn" onclick="nextTF()">Nästa →</button>
+  </div>
+
+  <!-- MEMORY SCREEN -->
+  <div class="screen" id="screen-memory">
+    <div class="game-header">
+      <button class="back-btn" onclick="goHome()">← Hem</button>
+      <div class="game-title">🃏 Minnesspelet</div>
+    </div>
+    <div class="mem-stats">
+      <span>Par: <b id="memPairs">0/12</b></span>
+      <span>Drag: <b id="memMoves">0</b></span>
+      <span>⭐ Bäst: <b id="memBest">–</b></span>
+    </div>
+    <div class="memory-grid" id="memoryGrid" style="grid-template-columns:repeat(4,1fr)"></div>
+  </div>
+
+  <!-- CLUE SCREEN -->
+  <div class="screen" id="screen-clue">
+    <div class="game-header">
+      <button class="back-btn" onclick="goHome()">← Hem</button>
+      <div class="game-title">🔍 Vem är jag?</div>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" id="clueProgress" style="width:0%"></div></div>
+    <div class="clue-card">
+      <div class="clue-num" id="clueNum">Ledtråd 1 av 3</div>
+      <div class="clue-text" id="clueText"></div>
+      <div class="clue-dots" id="clueDots">
+        <div class="clue-dot active"></div>
+        <div class="clue-dot"></div>
+        <div class="clue-dot"></div>
+      </div>
+    </div>
+    <div class="points-award" id="pointsAward"></div>
+    <button class="next-clue-btn" id="nextClueBtn" onclick="showNextClue()">Visa nästa ledtråd 🔍</button>
+    <div class="clue-options" id="clueOptions"></div>
+    <div class="explanation" id="clueExplanation"></div>
+    <button class="next-btn" id="clueNextBtn" onclick="nextClue()">Nästa →</button>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="screen" id="screen-results">
+    <div class="results">
+      <div id="resultEmoji" style="font-size:3rem;margin-bottom:12px"></div>
+      <h2 id="resultTitle"></h2>
+      <div class="result-stars" id="resultStars"></div>
+      <div class="result-score" id="resultScore"></div>
+      <div class="result-info" id="resultInfo"></div>
+      <div class="result-btns">
+        <button class="result-btn btn-primary" id="resultPlayAgain">🔄 Spela igen</button>
+        <button class="result-btn btn-secondary" onclick="goHome()">🏠 Hem</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+const quizData = [
+  {theme:"Grundläggande",q:"Vad har judendom, kristendom och islam gemensamt när det gäller synen på Gud?",opts:["De tror på flera gudar","De tror på en enda Gud (monoteism)","De tror inte på någon gud alls","De tror på två gudar"],ans:1,exp:"Alla tre religionerna är monoteistiska – de tror på en enda Gud. De kallas också de abrahamitiska religionerna."},
+  {theme:"Kristendom",q:"Vad kallas läran om treenigheten inom kristendomen?",opts:["Att Gud finns i naturen","Att det finns tre separata gudar","Att Gud är en men uppträder som Fadern, Sonen och den Helige Ande","Att Jesus är den enda guden"],ans:2,exp:"Treenigheten innebär att Gud är en enda Gud men visar sig i tre gestalter: Fadern, Sonen och den Helige Ande."},
+  {theme:"Islam",q:"Vad betyder det arabiska ordet 'Allah'?",opts:["Den store profeten","Gud","Den heliga boken","Himmelriket"],ans:1,exp:"Allah är det arabiska ordet för Gud. Arabisktalande kristna och judar använder också ordet Allah."},
+  {theme:"Judendomen",q:"Vad kallas de tio viktigaste reglerna inom judendomen och kristendomen?",opts:["De fem pelarna","De tio budorden","Sharialagar","De åtta reglerna"],ans:1,exp:"De tio budorden gavs till Mose på berget Sinai. De är centrala i både judendom och kristendom."},
+  {theme:"Islam",q:"Vad kallas islams fem viktigaste plikter?",opts:["De fem budorden","De fem pelarna","De fem lagarna","De fem böckerna"],ans:1,exp:"Islams fem pelare: trosbekännelsen, bönen, fastan, allmosan och vallfärden till Mekka."},
+  {theme:"Judendomen",q:"Vad innebär kosherreglerna inom judendomen?",opts:["Regler för hur man ber","Regler för vilken mat som är tillåten att äta","Regler för klädsel","Regler för vilka man får gifta sig med"],ans:1,exp:"Kosherregler styr vilken mat som är tillåten. T.ex. får man inte äta griskött eller blanda kött och mjölkprodukter."},
+  {theme:"Islam",q:"Under vilken månad fastar muslimer från soluppgång till solnedgång?",opts:["Muharram","Shaban","Ramadan","Dhul Hijja"],ans:2,exp:"Ramadan är den nionde månaden i den islamiska kalendern. Fastan är en av islams fem pelare."},
+  {theme:"Judendomen",q:"Vem var judarnas stamfader?",opts:["Mose","Abraham","David","Salomo"],ans:1,exp:"Abraham är judarnas stamfader. Han levde för över 4000 år sedan i Mesopotamien och slöt ett förbund med Gud."},
+  {theme:"Judendomen",q:"Var fick Mose de tio budorden?",opts:["I Jerusalem","I Egypten","På berget Sinai","I Babylon"],ans:2,exp:"Under ökenvandringen mötte Mose Gud på berget Sinai och fick ta emot de tio budorden."},
+  {theme:"Judendomen",q:"Vad kallas den judiska vilodagen?",opts:["Sabbaten","Pesach","Jom Kippur","Sukkot"],ans:0,exp:"Sabbaten firas varje vecka, från fredag kväll till lördag kväll. Det är den viktigaste veckovisa högtiden inom judendomen."},
+  {theme:"Judendomen",q:"Vad heter den judiska bibeln?",opts:["Talmud","Toran","Tanak","Moseböckerna"],ans:2,exp:"Den judiska bibeln kallas Tanak. Den har i stort sett samma innehåll som Gamla testamentet i den kristna bibeln."},
+  {theme:"Islam",q:"Vad heter islams heliga skrift?",opts:["Bibeln","Toran","Talmud","Koranen"],ans:3,exp:"Koranen är islams heliga skrift. Den nedtecknades av Muhammed och är på arabiska."},
+  {theme:"Judendomen",q:"Vad kallas en judisk samlingslokal?",opts:["Moské","Kyrka","Synagoga","Tempel"],ans:2,exp:"Synagogan är judarnas samlingslokal för gudstjänst, studier och gemenskap."},
+  {theme:"Judendomen",q:"Vad menas med 'kosher'?",opts:["Förbjuden mat","Tillåten mat","Helig mat","Offrad mat"],ans:1,exp:"Kosher betyder 'tillåtet' eller 'godkänt'. Om maten är kosher får den ätas av rättrogna judar."},
+  {theme:"Islam",q:"Vad kallas Muhammeds flykt från Mekka till Medina år 622?",opts:["Jihad","Ramadan","Hegiran","Hajj"],ans:2,exp:"Hegiran är Muhammeds flykt till Medina år 622 och utgör grunden för islams tideräkning."},
+  {theme:"Islam",q:"Vilken stad är islams heligaste?",opts:["Medina","Jerusalem","Mekka","Istanbul"],ans:2,exp:"Mekka är islams heligaste stad. Här föddes profeten Muhammed och muslimer ska vallfärda dit minst en gång i livet."},
+  {theme:"Judendomen",q:"Vad kallas en judisk andlig ledare?",opts:["Imam","Präst","Rabbin","Biskop"],ans:2,exp:"Rabbinen är församlingens ledare och lärare. Han leder gudstjänsten och läsningen ur torarullarna."},
+  {theme:"Judendomen",q:"Vad kallas judarnas påsk?",opts:["Jom Kippur","Pesach","Sukkot","Purim"],ans:1,exp:"Pesach är den judiska påsken som firas till minne av befrielsen från slaveriet i Egypten."},
+  {theme:"Judendomen",q:"Vilken är judendomens mest kända symbol (vid sidan av menoran)?",opts:["Halvmånen","Korset","Davidsstjärnan","Trestjärnan"],ans:2,exp:"Davidsstjärnan är – vid sidan av den sjuarmade ljusstaken (Menorah) – judendomens främsta symbol."},
+  {theme:"Grundläggande",q:"Vilket land har flest judar i världen utanför Israel?",opts:["Ryssland","Frankrike","USA","England"],ans:2,exp:"Enbart i USA finns det nästan lika många judar som i Israel – ca 6 miljoner. I New York bor ca 2–3 miljoner judar."}
+];
+
+const tfData = [
+  {s:"Judendom, kristendom och islam är alla monoteistiska religioner.",t:true,exp:"Alla tre religionerna tror på en enda Gud. De kallas också de abrahamitiska religionerna."},
+  {s:"Treenigheten innebär att kristna tror på tre olika gudar.",t:false,exp:"Treenigheten innebär att Gud är EN men visar sig i tre gestalter: Fadern, Sonen och den Helige Ande."},
+  {s:"Ordet 'Allah' används bara av muslimer.",t:false,exp:"Allah är det arabiska ordet för Gud. Arabisktalande kristna och judar använder det också."},
+  {s:"Både Bibeln och Koranen berättar om Adam och Eva som de första människorna.",t:true,exp:"Adam och Eva finns i både Bibelns och Koranens skapelseberättelse, även om detaljerna kan skilja sig."},
+  {s:"Judar tror att Messias redan har kommit i form av Jesus.",t:false,exp:"Judar väntar fortfarande på Messias. Det är den avgörande skillnaden mellan judendom och kristendom."},
+  {s:"Islams fem pelare inkluderar att ge allmosor till fattiga (zakat).",t:true,exp:"Zakat är den tredje pelaren och innebär att muslimer ska ge ca 2,5% av sin förmögenhet till behövande."},
+  {s:"Inom judendomen finns det bara 10 regler att följa.",t:false,exp:"De tio budorden är de mest kända, men Toran innehåller totalt 613 bud och förbud."},
+  {s:"Både judendom och islam förbjuder att äta griskött.",t:true,exp:"Griskött är förbjudet i både judiska kosherregler och islamiska halalregler."},
+  {s:"Under ramadan får muslimer inte äta eller dricka något på hela månaden.",t:false,exp:"Man fastar från gryning till solnedgång. Efter solnedgången bryter man fastan med en måltid som kallas iftar."},
+  {s:"Abraham anses vara en viktig gestalt i alla tre religionerna.",t:true,exp:"Därför kallas judendom, kristendom och islam för de abrahamitiska religionerna."},
+  {s:"Koranen är skriven på arabiska och muslimer läser den helst på originalspråket.",t:true,exp:"Koranen uppenbarades på arabiska och anses i sin arabiska form vara Guds exakta ord."},
+  {s:"Kristendomen är den yngsta av de abrahamitiska religionerna.",t:false,exp:"Islam är yngst – grundad på 600-talet e.Kr. Kristendomen är ca 2000 år gammal och judendomen ca 4000 år."},
+  {s:"Sabbaten börjar på fredag kväll.",t:true,exp:"Sabbaten inleds på fredag kväll och varar i 24 timmar tills skymningen faller på lördagskvällen."},
+  {s:"Ordet 'islam' betyder 'fred'.",t:false,exp:"Islam betyder 'underkastelse' (åt Guds vilja). Det är besläktat med 'salam' som betyder fred."},
+  {s:"Synagogan är muslimernas bönehus.",t:false,exp:"Synagogan är judarnas samlingslokal. Muslimer ber i moskéer och kristna i kyrkor."}
+];
+
+const memoryData = [
+  {a:"Toran",b:"De fem Moseböckerna – judendomens heligaste skrift"},
+  {a:"Koranen",b:"Islams heliga bok, uppenbarad för Muhammed"},
+  {a:"Synagoga",b:"Judarnas gudstjänstlokal"},
+  {a:"Moské",b:"Muslimernas bönelokal"},
+  {a:"Sabbat",b:"Judisk vilodag, fredag kväll till lördag kväll"},
+  {a:"Kosher",b:"Tillåten mat enligt judiska regler"},
+  {a:"Abraham",b:"Stamfader för judar, kristna och muslimer"},
+  {a:"Messias",b:"Den utvalde som ska skapa fred på jorden"},
+  {a:"Rabbin",b:"Judisk predikant och lärare"},
+  {a:"Monoteism",b:"Tron på en enda Gud"},
+  {a:"Pesach",b:"Judisk påsk – befrielsen från Egypten"},
+  {a:"Ramadan",b:"Muslimernas fastemånad"}
+];
+
+const clueData = [
+  {clues:["Jag levde för mer än 4000 år sedan i Mesopotamien.","Gud bad mig lämna mitt hem och resa till ett nytt land.","Tre stora religioner kallas 'abrahamitiska' efter mig."],answer:"Abraham",opts:["Abraham","Mose","Muhammed","Jesus"]},
+  {clues:["Som baby räddades jag i en korg på en flod.","Jag ledde ett folk ut ur slaveriet i Egypten.","På berget Sinai fick jag tio budord från Gud."],answer:"Mose",opts:["Abraham","Mose","David","Salomo"]},
+  {clues:["Jag föddes i Mekka på arabiska halvön år 570.","Ärkeängeln Gabriel uppenbarade sig för mig i en grotta.","Jag är den sista och störste profeten enligt min religion."],answer:"Muhammed",opts:["Jesus","Ibrahim","Muhammed","Isa"]},
+  {clues:["Jag föddes i Betlehem för ungefär 2000 år sedan.","Jag predikade om kärlek och Guds rike i Israel.","Mina lärjungar trodde att jag uppstod från de döda."],answer:"Jesus",opts:["Paulus","Jesus","Johannes","Petrus"]},
+  {clues:["Jag är en helig skrift.","Jag innehåller 613 bud och förbud.","Jag är de fem Moseböckerna och judendomens viktigaste skrift."],answer:"Toran",opts:["Talmud","Tanak","Toran","Bibeln"]},
+  {clues:["Jag är en byggnad.","Männen tar på sig kippa när de besöker mig.","Inuti mig finns en ark med torarullar."],answer:"Synagogan",opts:["Moskén","Synagogan","Kyrkan","Templet"]},
+  {clues:["Jag är en högtid.","Under mig äter man osyrat bröd och bittra örter.","Jag firas till minne av befrielsen från slaveriet i Egypten."],answer:"Pesach",opts:["Sukkot","Jom Kippur","Pesach","Chanukka"]},
+  {clues:["Jag firas varje vecka.","Jag börjar på fredag kväll med tända ljus och välsignelse.","Under mig är allt arbete förbjudet och man vilar med familjen."],answer:"Sabbaten",opts:["Pesach","Ramadan","Sabbaten","Jom Kippur"]}
+];
+
+// ===================== STATE =====================
+let totalScore = 0, totalXP = 0;
+const badges = {quiz:false,speed:false,memory:false,clue:false,streak:false,all:false};
+const gameStars = {quiz:0,tf:0,memory:0,clue:0};
+let currentGame = '';
+
+// Quiz state
+let qIdx=0, qLives=3, qStreak=0, qScore=0, qTimer=null, qAnswered=false, qShuffle=[];
+
+// TF state
+let tfIdx=0, tfScore=0, tfTimer=null, tfCorrect=0, tfShuffle=[];
+
+// Memory state
+let memCards=[], memFlipped=[], memMatched=0, memMoves=0, memLocked=false;
+
+// Clue state
+let cIdx=0, cClueIdx=0, cScore=0, cAnswered=false, cShuffle=[];
+
+// ===================== UTILS =====================
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5)}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goHome(){
+  clearTimers();
+  showScreen('home');
+  updateStarDisplay();
+}
+function clearTimers(){clearInterval(qTimer);clearInterval(tfTimer)}
+
+function addXP(amount){
+  totalXP+=amount;
+  totalScore+=amount;
+  document.getElementById('totalScore').textContent=totalScore;
+  updateXPBar();
+  showXPPopup('+'+amount+' XP');
+}
+
+const levelNames=['Nybörjare','Elev','Lärjunge','Kunskapssökare','Skriftlärd','Vise','Profet','Äldste','Mästare','Legend'];
+function updateXPBar(){
+  const thresholds=[0,100,250,450,700,1000,1350,1750,2200,2700];
+  let lvl=0;
+  for(let i=thresholds.length-1;i>=0;i--){if(totalXP>=thresholds[i]){lvl=i;break;}}
+  const nextXP=lvl<9?thresholds[lvl+1]:9999;
+  const pct=Math.min(100,((totalXP-thresholds[lvl])/(nextXP-thresholds[lvl]))*100);
+  document.getElementById('xpBar').style.width=pct+'%';
+  document.getElementById('levelLabel').textContent='Nivå '+(lvl+1)+' – '+levelNames[lvl];
+  document.getElementById('xpLabel').textContent=totalXP+' / '+nextXP+' XP';
+}
+
+function showXPPopup(text){
+  const el=document.createElement('div');
+  el.className='xp-popup';el.textContent=text;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1600);
+}
+
+function earnBadge(id){
+  if(badges[id])return;
+  badges[id]=true;
+  const el=document.getElementById('badge-'+id);
+  if(el){el.classList.add('earned');showXPPopup('🏅 Badge: '+el.textContent);}
+  if(badges.quiz&&badges.speed&&badges.memory&&badges.clue){earnBadge('all');}
+}
+
+function flashAnswer(correct){
+  const el=document.getElementById('answerFlash');
+  el.className='answer-flash '+(correct?'flash-correct':'flash-wrong');
+  el.style.opacity='.6';
+  setTimeout(()=>{el.style.opacity='0';},300);
+}
+
+function confetti(){
+  const colors=['#7c3aed','#f59e0b','#10b981','#ef4444','#3b82f6','#ec4899'];
+  for(let i=0;i<60;i++){
+    setTimeout(()=>{
+      const p=document.createElement('div');
+      p.className='confetti-piece';
+      p.style.cssText=`left:${Math.random()*100}vw;top:-20px;background:${colors[Math.floor(Math.random()*colors.length)]};transform:rotate(${Math.random()*360}deg);animation-duration:${1+Math.random()*2}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px`;
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(),3000);
+    },i*30);
+  }
+}
+
+function starsHTML(n){return('⭐'.repeat(n)+'☆'.repeat(3-n))||''}
+function updateStarDisplay(){
+  ['quiz','tf','memory','clue'].forEach(g=>{
+    const el=document.getElementById('stars-'+g);
+    if(el)el.textContent=gameStars[g]?starsHTML(gameStars[g]):'';
+  });
+}
+
+// ===================== QUIZ =====================
+function startGame(game){
+  currentGame=game;
+  if(game==='quiz') startQuiz();
+  else if(game==='tf') startTF();
+  else if(game==='memory') startMemory();
+  else if(game==='clue') startClue();
+}
+
+function startQuiz(){
+  qIdx=0;qLives=3;qStreak=0;qScore=0;qAnswered=false;
+  qShuffle=shuffle(quizData);
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  if(qIdx>=qShuffle.length){endQuiz();return;}
+  const q=qShuffle[qIdx];
+  qAnswered=false;
+  document.getElementById('qTheme').textContent=q.theme;
+  document.getElementById('qText').textContent=q.q;
+  document.getElementById('qCounter').textContent='Fråga '+(qIdx+1)+' av '+qShuffle.length;
+  document.getElementById('quizProgress').style.width=(qIdx/qShuffle.length*100)+'%';
+  document.getElementById('quizExplanation').className='explanation';
+  document.getElementById('quizNextBtn').className='next-btn';
+  renderLives();
+  renderStreak();
+
+  const opts=document.getElementById('optionsContainer');
+  opts.innerHTML='';
+  const letters=['A','B','C','D'];
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt-btn';
+    b.innerHTML=`<span class="opt-letter">${letters[i]}</span>${o}`;
+    b.onclick=()=>selectAnswer(i);
+    opts.appendChild(b);
+  });
+  startQTimer();
+}
+
+function startQTimer(){
+  clearInterval(qTimer);
+  let t=15;
+  const bar=document.getElementById('timerBar');
+  bar.style.transition='none';bar.style.width='100%';
+  requestAnimationFrame(()=>{
+    bar.style.transition='width '+t+'s linear';
+    bar.style.width='0%';
+  });
+  qTimer=setInterval(()=>{
+    t--;
+    if(t<=0){clearInterval(qTimer);if(!qAnswered)timeoutAnswer();}
+  },1000);
+}
+
+function timeoutAnswer(){
+  qAnswered=true;qStreak=0;qLives--;
+  renderLives();
+  const q=qShuffle[qIdx];
+  const btns=document.querySelectorAll('.opt-btn');
+  btns.forEach((b,i)=>{b.disabled=true;if(i===q.ans)b.classList.add('correct');});
+  showExplanation(q.exp,'⏱️ Tiden tog slut! ');
+  flashAnswer(false);
+  if(qLives<=0){setTimeout(()=>endQuiz(),1500);return;}
+}
+
+function selectAnswer(idx){
+  if(qAnswered)return;
+  clearInterval(qTimer);
+  qAnswered=true;
+  const q=qShuffle[qIdx];
+  const btns=document.querySelectorAll('.opt-btn');
+  btns.forEach(b=>b.disabled=true);
+
+  if(idx===q.ans){
+    btns[idx].classList.add('correct');
+    const pts=qStreak>=4?30:qStreak>=2?20:10;
+    qScore+=pts;addXP(pts);
+    qStreak++;
+    if(qStreak>=5)earnBadge('streak');
+    flashAnswer(true);
+    showExplanation(q.exp,'✅ Rätt! ');
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[q.ans].classList.add('correct');
+    btns[idx].classList.add('shake');
+    qLives--;qStreak=0;
+    flashAnswer(false);
+    showExplanation(q.exp,'❌ Fel! ');
+    renderLives();
+    if(qLives<=0){setTimeout(()=>endQuiz(),1500);return;}
+  }
+  renderStreak();
+  document.getElementById('quizNextBtn').className='next-btn show';
+}
+
+function showExplanation(text,prefix){
+  const el=document.getElementById('quizExplanation');
+  el.textContent=prefix+text;
+  el.className='explanation show';
+}
+
+function renderLives(){
+  document.getElementById('quizLives').textContent='❤️'.repeat(qLives)+'🖤'.repeat(3-qLives);
+}
+function renderStreak(){
+  const el=document.getElementById('streakDisplay');
+  el.innerHTML=qStreak>=2?`<span class="streak-badge">🔥 x${qStreak}</span>`:'';
+}
+
+function nextQuestion(){qIdx++;renderQuestion();}
+
+function endQuiz(){
+  clearInterval(qTimer);
+  const pct=qScore/(quizData.length*10);
+  const stars=pct>=.8?3:pct>=.5?2:1;
+  gameStars.quiz=Math.max(gameStars.quiz,stars);
+  if(stars>=2)earnBadge('quiz');
+  confetti();
+  showResults('quiz','⚡ Quiz Battle',stars,qScore,quizData.length*10,'quiz');
+}
+
+// ===================== TRUE/FALSE =====================
+function startTF(){
+  tfIdx=0;tfScore=0;tfCorrect=0;
+  tfShuffle=shuffle(tfData);
+  showScreen('tf');
+  renderTF();
+}
+
+function renderTF(){
+  if(tfIdx>=tfShuffle.length){endTF();return;}
+  const q=tfShuffle[tfIdx];
+  document.getElementById('tfStatement').textContent=q.s;
+  document.getElementById('tfProgress').style.width=(tfIdx/tfShuffle.length*100)+'%';
+  document.getElementById('tfExplanation').className='explanation';
+  document.getElementById('tfNextBtn').className='next-btn';
+  document.getElementById('tfSant').disabled=false;
+  document.getElementById('tfFalskt').disabled=false;
+  startTFTimer();
+}
+
+function startTFTimer(){
+  clearInterval(tfTimer);
+  let t=10;
+  const bar=document.getElementById('tfTimerBar');
+  bar.style.transition='none';bar.style.width='100%';
+  requestAnimationFrame(()=>{
+    bar.style.transition='width '+t+'s linear';
+    bar.style.width='0%';
+  });
+  tfTimer=setInterval(()=>{
+    t--;
+    if(t<=0){clearInterval(tfTimer);answerTF(null);}
+  },1000);
+}
+
+function answerTF(val){
+  clearInterval(tfTimer);
+  const q=tfShuffle[tfIdx];
+  document.getElementById('tfSant').disabled=true;
+  document.getElementById('tfFalskt').disabled=true;
+  const correct=(val===q.t);
+  const exp=document.getElementById('tfExplanation');
+
+  if(val===null){
+    exp.textContent='⏱️ Tiden tog slut! '+q.exp;
+    flashAnswer(false);
+  } else if(correct){
+    tfScore+=10;tfCorrect++;addXP(10);
+    exp.textContent='✅ Rätt! '+q.exp;
+    flashAnswer(true);
+    if(tfCorrect>=10)earnBadge('speed');
+  } else {
+    exp.textContent='❌ Fel! '+q.exp;
+    flashAnswer(false);
+  }
+  exp.className='explanation show';
+  document.getElementById('tfNextBtn').className='next-btn show';
+}
+
+function nextTF(){tfIdx++;renderTF();}
+
+function endTF(){
+  clearInterval(tfTimer);
+  const pct=tfCorrect/tfShuffle.length;
+  const stars=pct>=.8?3:pct>=.5?2:1;
+  gameStars.tf=Math.max(gameStars.tf,stars);
+  if(stars===3)earnBadge('speed');
+  confetti();
+  showResults('tf','🎯 Sant eller Falskt',stars,tfScore,tfShuffle.length*10,'tf');
+}
+
+// ===================== MEMORY =====================
+function startMemory(){
+  memMatched=0;memMoves=0;memFlipped=[];memLocked=false;
+  showScreen('memory');
+  buildMemoryGrid();
+}
+
+function buildMemoryGrid(){
+  const grid=document.getElementById('memoryGrid');
+  grid.innerHTML='';
+  const pairs=shuffle(memoryData).slice(0,12);
+  memCards=[];
+  const allCards=[];
+  pairs.forEach((p,i)=>{
+    allCards.push({id:i,side:'a',text:p.a,pair:i});
+    allCards.push({id:i,side:'b',text:p.b,pair:i});
+  });
+  const shuffled=shuffle(allCards);
+  shuffled.forEach((c,idx)=>{
+    const el=document.createElement('div');
+    el.className='mem-card';
+    el.dataset.index=idx;
+    el.dataset.pair=c.pair;
+    el.innerHTML=`<span class="card-back">✡️</span><span class="card-front">${c.text}</span>`;
+    el.onclick=()=>flipCard(idx);
+    grid.appendChild(el);
+    memCards.push({el,pair:c.pair,flipped:false,matched:false});
+  });
+  document.getElementById('memPairs').textContent='0/12';
+  document.getElementById('memMoves').textContent='0';
+}
+
+function flipCard(idx){
+  if(memLocked)return;
+  const c=memCards[idx];
+  if(c.flipped||c.matched)return;
+  c.flipped=true;c.el.classList.add('flipped');
+  memFlipped.push(idx);
+  if(memFlipped.length===2){
+    memMoves++;
+    document.getElementById('memMoves').textContent=memMoves;
+    memLocked=true;
+    const [a,b]=memFlipped;
+    if(memCards[a].pair===memCards[b].pair){
+      setTimeout(()=>{
+        memCards[a].el.classList.add('matched');
+        memCards[b].el.classList.add('matched');
+        memCards[a].matched=true;memCards[b].matched=true;
+        memFlipped=[];memLocked=false;memMatched++;
+        addXP(15);
+        document.getElementById('memPairs').textContent=memMatched+'/12';
+        if(memMatched===12)endMemory();
+      },300);
+    } else {
+      setTimeout(()=>{
+        memCards[a].el.classList.remove('flipped');
+        memCards[b].el.classList.remove('flipped');
+        memCards[a].flipped=false;memCards[b].flipped=false;
+        memFlipped=[];memLocked=false;
+      },800);
+    }
+  }
+}
+
+function endMemory(){
+  const stars=memMoves<=18?3:memMoves<=26?2:1;
+  gameStars.memory=Math.max(gameStars.memory,stars);
+  earnBadge('memory');
+  document.getElementById('memBest').textContent=memMoves+' drag';
+  confetti();
+  setTimeout(()=>showResults('memory','🃏 Minnesspelet',stars,memMatched*15,180,'memory'),800);
+}
+
+// ===================== CLUE GAME =====================
+function startClue(){
+  cIdx=0;cClueIdx=0;cScore=0;cAnswered=false;
+  cShuffle=shuffle(clueData);
+  showScreen('clue');
+  renderClue();
+}
+
+function renderClue(){
+  if(cIdx>=cShuffle.length){endClue();return;}
+  const c=cShuffle[cIdx];
+  cClueIdx=0;cAnswered=false;
+  updateClueDisplay();
+  document.getElementById('clueProgress').style.width=(cIdx/cShuffle.length*100)+'%';
+  document.getElementById('clueExplanation').className='explanation';
+  document.getElementById('clueNextBtn').className='next-btn';
+  document.getElementById('pointsAward').className='points-award';
+  document.getElementById('nextClueBtn').className='next-clue-btn show';
+
+  const opts=document.getElementById('clueOptions');
+  opts.innerHTML='';
+  shuffle(c.opts).forEach(o=>{
+    const b=document.createElement('button');
+    b.className='clue-opt';b.textContent=o;
+    b.onclick=()=>selectClue(o,b);
+    opts.appendChild(b);
+  });
+}
+
+function updateClueDisplay(){
+  const c=cShuffle[cIdx];
+  document.getElementById('clueNum').textContent='Ledtråd '+(cClueIdx+1)+' av 3';
+  document.getElementById('clueText').textContent=c.clues[cClueIdx];
+  const dots=document.querySelectorAll('.clue-dot');
+  dots.forEach((d,i)=>d.classList.toggle('active',i<=cClueIdx));
+  if(cClueIdx>=2){
+    document.getElementById('nextClueBtn').className='next-clue-btn';
+  }
+}
+
+function showNextClue(){
+  if(cClueIdx<2){cClueIdx++;updateClueDisplay();}
+}
+
+function selectClue(val,btn){
+  if(cAnswered)return;
+  cAnswered=true;
+  document.getElementById('nextClueBtn').className='next-clue-btn';
+  document.querySelectorAll('.clue-opt').forEach(b=>b.disabled=true);
+  const c=cShuffle[cIdx];
+  const pts=cClueIdx===0?30:cClueIdx===1?20:10;
+  const pa=document.getElementById('pointsAward');
+
+  if(val===c.answer){
+    btn.classList.add('correct');
+    cScore+=pts;addXP(pts);
+    pa.textContent='🎉 Rätt! +'+pts+' XP (efter ledtråd '+(cClueIdx+1)+')';
+    pa.className='points-award show';
+    flashAnswer(true);
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.clue-opt').forEach(b=>{
+      if(b.textContent===c.answer)b.classList.add('correct');
+    });
+    pa.textContent='❌ Fel! Svaret var: '+c.answer;
+    pa.className='points-award show';
+    flashAnswer(false);
+  }
+  const exp=document.getElementById('clueExplanation');
+  exp.textContent='Svaret: '+c.answer;
+  exp.className='explanation show';
+  document.getElementById('clueNextBtn').className='next-btn show';
+}
+
+function nextClue(){cIdx++;renderClue();}
+
+function endClue(){
+  const maxScore=cShuffle.length*30;
+  const pct=cScore/maxScore;
+  const stars=pct>=.7?3:pct>=.4?2:1;
+  gameStars.clue=Math.max(gameStars.clue,stars);
+  earnBadge('clue');
+  confetti();
+  showResults('clue','🔍 Vem är jag?',stars,cScore,maxScore,'clue');
+}
+
+// ===================== RESULTS =====================
+function showResults(game,title,stars,score,max,badgeKey){
+  showScreen('results');
+  const emojis={quiz:'⚡',tf:'🎯',memory:'🃏',clue:'🔍'};
+  const msgs=['Bra kämpat! Öva mer så blir du bättre!','Bra jobbat! Du kan ännu mer!','🏆 Fantastiskt! Du är ett proffs!'];
+  document.getElementById('resultEmoji').textContent=emojis[game]||'🎮';
+  document.getElementById('resultTitle').textContent=title+' – Klart!';
+  document.getElementById('resultStars').textContent=starsHTML(stars);
+  document.getElementById('resultScore').textContent=score+' p';
+  document.getElementById('resultInfo').textContent=msgs[stars-1]+' ('+score+' av '+max+' möjliga)';
+  document.getElementById('resultPlayAgain').onclick=()=>startGame(game);
+  updateStarDisplay();
+  checkAllBadges();
+}
+
+function checkAllBadges(){
+  if(gameStars.quiz>0&&gameStars.tf>0&&gameStars.memory>0&&gameStars.clue>0)earnBadge('all');
+}
+
+// ===================== PARTICLES =====================
+(function(){
+  const c=document.getElementById('particles');
+  const ctx=c.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  for(let i=0;i<60;i++)pts.push({x:Math.random()*1920,y:Math.random()*1080,r:1+Math.random()*2,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,a:Math.random()});
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.a+=.01;
+      if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(124,58,237,${.3+.3*Math.sin(p.a)})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// Init
+updateXPBar();
+updateStarDisplay();
+</script>
+</body>
+</html>
