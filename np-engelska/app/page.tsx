@@ -52,7 +52,7 @@ const sections = [
 
 const features = [
   { icon: Star, text: "Anpassad till Lgr22 och Skolverkets kursplan" },
-  { icon: CheckCircle2, text: "Direkt AI-feedback från Claude" },
+  { icon: CheckCircle2, text: "AI-feedback med NP-betygen E, C och A" },
   { icon: Headphones, text: "Brittiska röster via ElevenLabs" },
   { icon: BookMarked, text: "Autentiska provformat för Åk 9" },
 ];

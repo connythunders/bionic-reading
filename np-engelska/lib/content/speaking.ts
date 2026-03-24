@@ -1,151 +1,174 @@
 export interface SpeakingTask {
   id: string;
   title: string;
-  type: "roleplay" | "discussion" | "presentation" | "picture-description";
+  type: "warmup" | "presentation" | "discussion" | "roleplay";
+  part: "Del 1 – Uppvärmning" | "Del 2 – Presentation" | "Del 3 – Diskussion";
   level: string;
   timeLimit: number; // in seconds
   situation: string;
   taskCard: string;
   usefulPhrases: string[];
   assessmentFocus: string[];
+  pairNote?: string;
 }
+
+// NOTE: In the real Nationella Provet, Delprov A is conducted in PAIRS.
+// This practice app simulates solo recording with AI feedback.
+// The real test has 3 parts: warm-up, presentation/description, and discussion.
 
 export const speakingTasks: SpeakingTask[] = [
   {
     id: "speaking-1",
-    title: "Role Play: At the Airport",
-    type: "roleplay",
+    title: "Warm-up: About You",
+    type: "warmup",
+    part: "Del 1 – Uppvärmning",
     level: "B1",
-    timeLimit: 120,
+    timeLimit: 90,
     situation:
-      "You are at an international airport. Your flight has been delayed by five hours. You need to speak with the airport information desk to find out what is happening and what options you have.",
-    taskCard: `Your flight to London (LN247) was supposed to depart at 14:30 but has been delayed until 19:30.
+      "I det riktiga provet börjar Delprov A med en uppvärmning där du pratar om dig själv och vardagliga ämnen på engelska. Öva nu på att svara flytande på personliga frågor.",
+    taskCard: `Speak for about 1–2 minutes about yourself and your everyday life.
 
-During the conversation, you should:
-• Ask why the flight has been delayed
-• Find out if the airline will provide food vouchers or accommodation
-• Ask whether you can be transferred to an earlier flight with another airline
-• Express your frustration politely – you have an important appointment in London
+Cover some of these topics:
+• Your school life – favourite subject, least favourite, why
+• Something you enjoy doing outside school
+• Something important that happened to you recently
+• Your plans or hopes for the future
+• Something that you think is really important in life
 
-The airport staff member will start the conversation.`,
+Try to give full answers – not just one sentence. Develop your ideas!`,
     usefulPhrases: [
-      "Excuse me, I was wondering if you could help me...",
-      "I'm concerned about my flight to London...",
-      "Could you tell me the reason for the delay?",
-      "I'd like to know whether it's possible to...",
-      "I understand these things happen, but...",
-      "Would it be possible for you to...?",
-      "I'm afraid I have a very important appointment and...",
+      "I'm really into... because...",
+      "One thing I find interesting is...",
+      "When I'm not in school, I usually...",
+      "Something that really matters to me is...",
+      "I'd like to... in the future because...",
+      "Looking back, I think...",
     ],
     assessmentFocus: [
-      "Communicating a purpose clearly",
-      "Polite but assertive language",
-      "Asking for information and clarification",
-      "Expressing feelings appropriately",
-      "Natural conversational interaction",
+      "Ability to speak about familiar topics",
+      "Use of present, past and future tenses",
+      "Personal vocabulary and fluency",
+      "Ability to develop and elaborate ideas",
     ],
+    pairNote: "I det riktiga provet sker detta som en konversation med en klasskamrat.",
   },
   {
     id: "speaking-2",
-    title: "Discussion: Social Media and Young People",
-    type: "discussion",
+    title: "Presentation: The World Around Us",
+    type: "presentation",
+    part: "Del 2 – Presentation",
     level: "B1-B2",
     timeLimit: 180,
     situation:
-      "You will discuss the topic of social media and its effects on young people. Be prepared to share your opinion, agree or disagree with different views, and support your ideas with reasons and examples.",
-    taskCard: `Discuss the following questions about social media and young people:
+      "I det riktiga provet (Del 2) tar du emot ett kort med ett ämne eller en fråga kopplad till provets tema. Du presenterar innehållet och diskuterar det sedan med din partner. Här övar du på presentationsdelen solo.",
+    taskCard: `Your topic card:
 
-1. What do you think are the biggest benefits of social media for teenagers?
-2. Are there any negative effects you have noticed – either on yourself or people you know?
-3. Some people say social media should be restricted for under-16s. What do you think?
-4. How do you think social media will change in the next ten years?
+**"Connections – How technology has changed the way we relate to each other"**
 
-Try to give detailed answers and ask follow-up questions if your partner says something interesting.`,
+In your presentation, address these points:
+1. How has technology changed the way young people communicate compared to previous generations?
+2. What do you think is the most important thing technology gives us – and what might we be losing?
+3. Do you think it is possible to have a real friendship that exists only online? Why or why not?
+4. What changes would you make to the way you personally use technology?
+
+Try to develop each point with reasons and personal examples. Aim for around 2–3 minutes.`,
     usefulPhrases: [
-      "In my opinion, / I think that...",
-      "On the one hand... on the other hand...",
-      "I agree with that to some extent, but...",
-      "That's an interesting point. Have you considered...?",
+      "I'd like to start by talking about...",
+      "One thing that has changed significantly is...",
+      "On the one hand... but on the other hand...",
       "From my own experience...",
-      "Research suggests that...",
-      "I'd argue that the main issue is...",
-      "What do you think about...?",
+      "I think the most important issue here is...",
+      "What strikes me most about this is...",
+      "To conclude, I'd argue that...",
     ],
     assessmentFocus: [
-      "Expressing and justifying opinions",
-      "Using discourse markers (however, therefore, on the other hand)",
-      "Engaging with different perspectives",
-      "Vocabulary range on a relevant topic",
-      "Pronunciation and fluency",
+      "Ability to present and develop ideas clearly",
+      "Argumentation and supporting opinions with reasons",
+      "Range of vocabulary on a relevant topic",
+      "Fluency, pronunciation and prosody",
+      "Ability to reflect and think critically",
     ],
+    pairNote: "I det riktiga provet presenterar du för din partner, som sedan ställer följdfrågor.",
   },
   {
     id: "speaking-3",
-    title: "Presentation: Something I Am Passionate About",
-    type: "presentation",
+    title: "Discussion: Values and Society",
+    type: "discussion",
+    part: "Del 3 – Diskussion",
     level: "B1-B2",
     timeLimit: 180,
     situation:
-      "You will give a short presentation about something you feel strongly about. It could be a hobby, a cause, a sport, a subject at school, music, art, technology – anything that matters to you.",
-    taskCard: `Prepare a 2-3 minute presentation on a topic you are passionate about.
+      "I del 3 av det riktiga provet väljer du och din partner diskussionskort med frågor om samhälle, värderingar och aktuella frågor. Här övar du på att resonera och argumentera på engelska – tänk att du pratar med en partner.",
+    taskCard: `Choose ONE of these discussion cards and speak about it for 2–3 minutes.
+Argue, reflect, and develop your thinking.
 
-Your presentation should include:
-• An introduction: what is the topic and why did you choose it?
-• Background: tell us something interesting about this topic that the audience might not know
-• Why it matters: explain why this topic is important – to you personally, and to the world
-• A conclusion: end with something memorable – a question, a call to action, or a striking fact
+**Card 1: FAIRNESS**
+"Life is not fair – and that's fine."
+→ Do you agree or disagree? Give reasons. Think about: opportunities, education, wealth, effort vs luck.
 
-You can bring notes but try not to read from them.`,
+**Card 2: ENVIRONMENT**
+"Individuals can't solve the climate crisis – only governments and companies can."
+→ Do you agree? What can young people actually do? Is individual action meaningful or just symbolic?
+
+**Card 3: IDENTITY**
+"Social media forces people to perform a version of themselves rather than be themselves."
+→ Is this true? Is it always negative? Can you be authentic online?
+
+Try to: give your opinion clearly, consider different perspectives, and use examples from real life.`,
     usefulPhrases: [
-      "Today I'd like to talk to you about...",
-      "You might be surprised to learn that...",
-      "This matters because...",
-      "From a personal perspective...",
-      "Let me give you an example...",
-      "I find this fascinating because...",
-      "To conclude, I'd like to say that...",
-      "What I'd like you to take away from this is...",
+      "I strongly believe that...",
+      "While I understand the argument that..., I think...",
+      "There's an important distinction between...",
+      "Take for example the fact that...",
+      "One counter-argument might be... but I'd respond by saying...",
+      "Ultimately, the key issue is...",
+      "What concerns me most about this is...",
     ],
     assessmentFocus: [
-      "Organisation and structure of speech",
-      "Engagement and enthusiasm",
-      "Vocabulary range and accuracy",
-      "Pronunciation, stress and intonation",
-      "Ability to elaborate and develop ideas",
+      "Expressing and justifying opinions clearly",
+      "Considering multiple perspectives",
+      "Using discourse markers and connectors",
+      "Sophisticated vocabulary for argumentation",
+      "Fluency and communicative confidence",
     ],
+    pairNote: "I det riktiga provet diskuterar du dessa frågor med en klasskamrat i ett samtal.",
   },
   {
     id: "speaking-4",
-    title: "Picture Description: Changes in a Town",
-    type: "picture-description",
+    title: "Role Play: Solving a Problem",
+    type: "roleplay",
+    part: "Del 2 – Presentation",
     level: "B1",
-    timeLimit: 120,
+    timeLimit: 150,
     situation:
-      "You will be given a set of images showing how a town has changed over 50 years. Describe what you see and discuss what you think about these changes.",
-    taskCard: `Look at these images of 'Millfield Town' – one from 1975 and one from 2025.
+      "En vanlig uppgiftstyp i Delprov A innebär att du och din partner löser ett problem eller tar ett beslut tillsammans. Här övar du på att förhandla, föreslå och komma överens på engelska.",
+    taskCard: `**Situation:** You and your partner are organising a fundraising event for your school.
 
-In 1975: Small shops, a market square, a cinema, trees lining the street, few cars.
-In 2025: Large shopping centre, car park, fewer trees, busy traffic, chain restaurants.
+You need to agree on:
+1. What type of event to hold (a concert, a sports day, a talent show, a market, or your own idea)
+2. Who the event will raise money for (a local charity, an international cause, or your school)
+3. How to promote the event to get as many people as possible to come
 
-Describe what has changed and:
-• Say whether you think these changes are positive or negative (and why)
-• Talk about what towns might look like in another 50 years
-• Discuss what we might lose if all towns look the same`,
+**Your role:** You think the event should be fun and involve as many students as possible.
+You are slightly worried about cost and organisation.
+
+Discuss all three points and try to reach an agreement. Express your opinions, ask questions, and respond to what the other person suggests.`,
     usefulPhrases: [
-      "In this image, I can see...",
-      "Comparing the two pictures, it's clear that...",
-      "One significant change is...",
-      "What strikes me most is...",
-      "I think this change is both positive and negative because...",
-      "On the one hand, it seems that...",
-      "Looking towards the future, I imagine...",
+      "What do you think about...?",
+      "I was thinking we could...",
+      "That's a good idea, but what about...?",
+      "I'm not sure about that because...",
+      "Could we maybe compromise by...?",
+      "I agree with you on that point.",
+      "Let's go with... then, shall we?",
     ],
     assessmentFocus: [
-      "Descriptive language and vocabulary",
-      "Comparing and contrasting",
-      "Speculating about the future",
-      "Expressing opinions with justification",
-      "Fluency and coherence",
+      "Interactive communication and turn-taking",
+      "Making and responding to suggestions",
+      "Negotiation and reaching agreement",
+      "Asking for and giving opinions",
+      "Natural, flowing conversation",
     ],
+    pairNote: "I det riktiga provet genomförs rollspelet med en klasskamrat – inte med läraren.",
   },
 ];

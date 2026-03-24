@@ -24,8 +24,8 @@ export const writingTasks: WritingTask[] = [
     situation:
       "Your British pen pal, Alex, has asked you about a memorable experience you had recently. Write an email to Alex describing what happened and how you felt about it.",
     prompt:
-      "Write an informal email to your pen pal Alex. Describe a memorable experience you had recently (for example: a trip, a concert, a sports event, or something that surprised you). Tell Alex what happened, what you saw or did, and how you felt. Ask Alex a question at the end. Write 80–100 words.",
-    wordCount: { min: 80, max: 100 },
+      "Write an informal email to your pen pal Alex. Describe a memorable experience you had recently (for example: a trip, a concert, a sports event, or something that surprised you). Tell Alex what happened, what you saw or did, and how you felt. Ask Alex a question at the end. Aim for around 80–120 words.",
+    wordCount: { min: 60, max: 150 },
     tips: [
       "Use an informal tone – as if writing to a friend",
       "Include a greeting (Hi Alex, / Dear Alex,) and a sign-off (Best, / See you soon,)",
@@ -48,8 +48,8 @@ export const writingTasks: WritingTask[] = [
     situation:
       "Your school's English-language magazine is inviting students to write about topics they care about.",
     prompt:
-      "Write an article for your school's English magazine. Choose a topic that you find interesting or important (for example: the environment, technology, sport, music, film, mental health, or anything else that matters to you). Explain why this topic is important and share your opinion. Write 150–200 words.",
-    wordCount: { min: 150, max: 200 },
+      "Write an article for your school's English magazine. Choose a topic that you find interesting or important (for example: the environment, technology, sport, music, film, mental health, or anything else that matters to you). Explain why this topic is important and share your opinion. Aim for around 150–250 words.",
+    wordCount: { min: 100, max: 300 },
     tips: [
       "Start with an engaging opening that grabs the reader's attention",
       "Organise your ideas into clear paragraphs",
@@ -72,8 +72,8 @@ export const writingTasks: WritingTask[] = [
     genre: "Short story / narrative",
     situation: "You are given the beginning of a story and must continue it.",
     prompt:
-      'Continue the story that begins with: "The letter arrived on a Tuesday morning, and I knew the moment I saw the handwriting that everything was about to change." Write a story of 150–200 words. Use your imagination – you can take the story in any direction.',
-    wordCount: { min: 150, max: 200 },
+      'Continue the story that begins with: "The letter arrived on a Tuesday morning, and I knew the moment I saw the handwriting that everything was about to change." Use your imagination – you can take the story in any direction. Aim for around 150–250 words.',
+    wordCount: { min: 100, max: 300 },
     tips: [
       "Use the past tense to tell your story (arrived, walked, said, felt)",
       "Create a sense of atmosphere – describe what the character sees, hears, or feels",
@@ -98,8 +98,8 @@ export const writingTasks: WritingTask[] = [
     situation:
       "You visited a museum last weekend that was very disappointing. Several things were wrong: the café was closed, two main exhibitions were shut, and the staff were unhelpful.",
     prompt:
-      "Write a formal letter of complaint to the Director of the museum. Explain what went wrong during your visit, how it made you feel, and what you think the museum should do. Write 150–200 words.",
-    wordCount: { min: 150, max: 200 },
+      "Write a formal letter of complaint to the Director of the museum. Explain what went wrong during your visit, how it made you feel, and what you think the museum should do. Aim for around 150–200 words.",
+    wordCount: { min: 100, max: 300 },
     tips: [
       "Use a formal tone – no contractions (do not instead of don't)",
       "Open with 'Dear Sir/Madam' and close with 'Yours faithfully'",

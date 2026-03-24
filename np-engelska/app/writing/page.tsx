@@ -47,12 +47,11 @@ interface WritingFeedback {
   cefrLevel: string;
 }
 
+// NP grading: A = Mycket väl godkänd, C = Väl godkänd, E = Godkänd
 const scoreColors: Record<string, string> = {
   A: "bg-green-100 text-green-800 border-green-300",
-  B: "bg-blue-100 text-blue-800 border-blue-300",
-  C: "bg-yellow-100 text-yellow-800 border-yellow-300",
-  D: "bg-orange-100 text-orange-800 border-orange-300",
-  E: "bg-red-100 text-red-700 border-red-300",
+  C: "bg-blue-100 text-blue-800 border-blue-300",
+  E: "bg-yellow-100 text-yellow-800 border-yellow-300",
 };
 
 function ScorePill({ score }: { score: string }) {
@@ -177,7 +176,7 @@ export default function WritingPage() {
               <h1 className="text-xl font-bold text-gray-900 mt-2">{task.title}</h1>
             </div>
             <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full flex-shrink-0">
-              {task.genre} · {task.wordCount.min}–{task.wordCount.max} ord
+              {task.genre}
             </span>
           </div>
           <p className="text-gray-600 text-sm leading-relaxed italic border-l-4 border-orange-200 pl-3">

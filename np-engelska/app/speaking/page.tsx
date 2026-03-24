@@ -28,13 +28,11 @@ interface Feedback {
   cefrLevel: string;
 }
 
+// NP grading: A = Mycket väl godkänd, C = Väl godkänd, E = Godkänd
 const scoreColors: Record<string, string> = {
   A: "bg-green-100 text-green-800 border-green-200",
-  B: "bg-blue-100 text-blue-800 border-blue-200",
-  C: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  D: "bg-orange-100 text-orange-800 border-orange-200",
-  E: "bg-red-100 text-red-800 border-red-200",
-  F: "bg-gray-100 text-gray-700 border-gray-200",
+  C: "bg-blue-100 text-blue-800 border-blue-200",
+  E: "bg-yellow-100 text-yellow-800 border-yellow-200",
 };
 
 export default function SpeakingPage() {
@@ -251,15 +249,11 @@ export default function SpeakingPage() {
         <div className="bg-white rounded-2xl border border-purple-100 shadow-sm p-6 mb-6">
           <div className="flex items-start justify-between gap-4 mb-3">
             <div>
-              <span className="text-xs font-semibold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">
-                {task.type === "roleplay"
-                  ? "Rollspel"
-                  : task.type === "discussion"
-                  ? "Diskussion"
-                  : task.type === "presentation"
-                  ? "Presentation"
-                  : "Bildbeskrivning"}
-              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-semibold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">
+                  {task.part}
+                </span>
+              </div>
               <h1 className="text-xl font-bold text-gray-900 mt-2">{task.title}</h1>
             </div>
             <div className="flex items-center gap-1.5 text-sm text-gray-500 flex-shrink-0">
@@ -268,6 +262,11 @@ export default function SpeakingPage() {
             </div>
           </div>
           <p className="text-gray-600 text-sm leading-relaxed">{task.situation}</p>
+          {task.pairNote && (
+            <p className="mt-2 text-xs text-purple-600 bg-purple-50 rounded-lg px-3 py-2 italic">
+              ℹ️ {task.pairNote}
+            </p>
+          )}
         </div>
 
         {/* Phase: Intro */}
