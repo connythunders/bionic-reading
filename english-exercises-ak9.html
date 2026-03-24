@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Exercises - Åk 9</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #22c55e;
+            --success-light: #dcfce7;
+            --error: #ef4444;
+            --error-light: #fee2e2;
+            --warning: #f59e0b;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .grade-info {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        /* Level Selector */
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .level-btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: 3px solid white;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: white;
+        }
+
+        .level-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+        }
+
+        .level-btn.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .level-btn.b1-btn.active {
+            background: #fbbf24;
+            border-color: #fbbf24;
+            color: #1e293b;
+        }
+
+        .level-description {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .exercise-container {
+            background: var(--bg-white);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .exercise-container.active {
+            display: block;
+        }
+
+        .exercise-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .exercise-header h2 {
+            color: var(--text-dark);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .exercise-header p {
+            color: var(--text-light);
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .level-badge.b1 {
+            background: #f59e0b;
+        }
+
+        /* Reading Exercise Styles */
+        .reading-text {
+            background: var(--bg-light);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            border-left: 4px solid var(--primary);
+        }
+
+        .question-box {
+            margin-top: 20px;
+        }
+
+        .question-box h3 {
+            margin-bottom: 15px;
+            color: var(--text-dark);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            padding: 15px 20px;
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background: #e8f0fe;
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .option-btn.correct {
+            background: var(--success-light);
+            border-color: var(--success);
+        }
+
+        .option-btn.incorrect {
+            background: var(--error-light);
+            border-color: var(--error);
+        }
+
+        .option-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Gap Fill Styles */
+        .gap-sentence {
+            background: var(--bg-light);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .gap-sentence .hint {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .gap-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .gap-input {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .gap-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .gap-input.correct {
+            border-color: var(--success);
+            background: var(--success-light);
+        }
+
+        .gap-input.incorrect {
+            border-color: var(--error);
+            background: var(--error-light);
+        }
+
+        .check-btn {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .check-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .feedback-text {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .feedback-text.show {
+            display: block;
+        }
+
+        .feedback-text.correct {
+            background: var(--success-light);
+            color: #166534;
+        }
+
+        .feedback-text.incorrect {
+            background: var(--error-light);
+            color: #991b1b;
+        }
+
+        /* Translation Exercise Styles */
+        .category-select {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .category-btn {
+            padding: 12px 20px;
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .category-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .translation-card {
+            background: var(--bg-light);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .swedish-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            padding-left: 15px;
+            border-left: 4px solid var(--warning);
+        }
+
+        .translation-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .translation-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .translation-input.correct {
+            border-color: var(--success);
+            background: var(--success-light);
+        }
+
+        .translation-input.incorrect {
+            border-color: var(--error);
+            background: var(--error-light);
+        }
+
+        .translation-input.locked {
+            background: var(--success-light);
+            cursor: not-allowed;
+        }
+
+        .correction-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fef3c7;
+            border: 2px solid var(--warning);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .correction-box.show {
+            display: block;
+        }
+
+        .correction-box h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .correction-box p {
+            color: #78350f;
+            margin-bottom: 10px;
+        }
+
+        .correction-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--warning);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .correction-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Progress & Controls */
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: var(--text-light);
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: var(--border);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #06b6d4, #3b82f6);
+            transition: width 0.3s ease;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.prev {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: 2px solid var(--border);
+        }
+
+        .nav-btn.prev:hover {
+            border-color: var(--primary);
+        }
+
+        .nav-btn.next {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-btn.next:hover {
+            background: var(--primary-dark);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Score Display */
+        .score-display {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            border-radius: 15px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .score-display h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .score-display .score-value {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .reset-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: white;
+            color: var(--primary);
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .level-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+
+            .nav-tab {
+                padding: 12px 18px;
+                font-size: 0.9rem;
+            }
+
+            .exercise-container {
+                padding: 20px;
+            }
+
+            .reading-text {
+                font-size: 1rem;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>English Exercises</h1>
+        <p>Träna din engelska med interaktiva övningar</p>
+        <div class="grade-info">Anpassad för årskurs 9 - Lgr22</div>
+
+        <div class="level-selector">
+            <button class="level-btn active" onclick="setLevel('A2')">A2</button>
+            <button class="level-btn b1-btn" onclick="setLevel('B1')">B1</button>
+        </div>
+        <div class="level-description" id="level-description">
+            Grundnivå - passar de flesta elever i åk 9
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showExercise('reading')">Reading Comprehension</button>
+            <button class="nav-tab" onclick="showExercise('gapfill')">Gap Fill</button>
+            <button class="nav-tab" onclick="showExercise('translation')">Translation</button>
+        </div>
+
+        <!-- Reading Comprehension Exercise -->
+        <div id="reading-exercise" class="exercise-container active">
+            <div class="exercise-header">
+                <h2>Reading Comprehension</h2>
+                <p>Läs texten och välj den rubrik som passar bäst</p>
+                <span class="level-badge" id="reading-level-badge">CEFR A2</span>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Text <span id="reading-current">1</span> av <span id="reading-total">5</span></span>
+                    <span id="reading-score">Poäng: 0</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="reading-progress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="reading-content">
+                <div class="reading-text" id="reading-text"></div>
+                <div class="question-box">
+                    <h3 id="reading-question"></h3>
+                    <div class="options" id="reading-options"></div>
+                </div>
+            </div>
+
+            <div id="reading-complete" class="score-display" style="display: none;">
+                <h3>Reading Complete!</h3>
+                <div class="score-value"><span id="reading-final-score">0</span>/5</div>
+                <button class="reset-btn" onclick="resetReading()">Börja om</button>
+            </div>
+
+            <div class="nav-buttons" id="reading-nav">
+                <button class="nav-btn prev" id="reading-prev" onclick="prevReading()" disabled>Föregående</button>
+                <button class="nav-btn next" id="reading-next" onclick="nextReading()" disabled>Nästa</button>
+            </div>
+        </div>
+
+        <!-- Gap Fill Exercise -->
+        <div id="gapfill-exercise" class="exercise-container">
+            <div class="exercise-header">
+                <h2>Gap Fill / Lucktexter</h2>
+                <p>Fyll i det saknade ordet (endast ETT ord per lucka)</p>
+                <span class="level-badge" id="gap-level-badge">CEFR A2</span>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Mening <span id="gap-current">1</span> av <span id="gap-total">10</span></span>
+                    <span id="gap-score">Poäng: 0</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="gap-progress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="gap-content">
+                <div class="gap-sentence" id="gap-sentence">
+                    <div id="gap-text"></div>
+                    <div class="hint" id="gap-hint"></div>
+                    <div class="gap-input-container">
+                        <input type="text" class="gap-input" id="gap-input" placeholder="Skriv ditt svar här...">
+                        <button class="check-btn" id="gap-check" onclick="checkGap()">Kontrollera</button>
+                    </div>
+                    <div class="feedback-text" id="gap-feedback"></div>
+                </div>
+            </div>
+
+            <div id="gap-complete" class="score-display" style="display: none;">
+                <h3>Gap Fill Complete!</h3>
+                <div class="score-value"><span id="gap-final-score">0</span>/10</div>
+                <button class="reset-btn" onclick="resetGap()">Börja om</button>
+            </div>
+
+            <div class="nav-buttons" id="gap-nav">
+                <button class="nav-btn prev" id="gap-prev" onclick="prevGap()" disabled>Föregående</button>
+                <button class="nav-btn next" id="gap-next" onclick="nextGap()" disabled>Nästa</button>
+            </div>
+        </div>
+
+        <!-- Translation Exercise -->
+        <div id="translation-exercise" class="exercise-container">
+            <div class="exercise-header">
+                <h2>Translation / Översättning</h2>
+                <p>Översätt meningarna från svenska till engelska</p>
+                <span class="level-badge" id="trans-level-badge">CEFR A2</span>
+            </div>
+
+            <div class="category-select" id="category-select">
+                <button class="category-btn active" onclick="selectCategory('vardagsliv')">Vardagsliv</button>
+                <button class="category-btn" onclick="selectCategory('skola')">Skola & Fritid</button>
+                <button class="category-btn" onclick="selectCategory('miljo')">Natur & Miljö</button>
+                <button class="category-btn" onclick="selectCategory('samhalle')">Samhälle & Kultur</button>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Mening <span id="trans-current">1</span> av <span id="trans-total">5</span></span>
+                    <span id="trans-score">Poäng: 0</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="trans-progress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="trans-content">
+                <div class="translation-card">
+                    <div class="swedish-text" id="swedish-text"></div>
+                    <input type="text" class="translation-input" id="trans-input" placeholder="Skriv din översättning här...">
+                    <button class="check-btn" style="margin-top: 15px; width: 100%;" id="trans-check" onclick="checkTranslation()">Kontrollera</button>
+
+                    <div class="correction-box" id="correction-box">
+                        <h4>Rätt svar:</h4>
+                        <p id="correct-answer"></p>
+                        <p>Skriv in det rätta svaret för att fortsätta:</p>
+                        <input type="text" class="correction-input" id="correction-input" placeholder="Skriv rätt svar här...">
+                    </div>
+
+                    <div class="feedback-text" id="trans-feedback"></div>
+                </div>
+            </div>
+
+            <div id="trans-complete" class="score-display" style="display: none;">
+                <h3>Translation Complete!</h3>
+                <div class="score-value"><span id="trans-final-score">0</span>/5</div>
+                <button class="reset-btn" onclick="resetTranslation()">Börja om</button>
+            </div>
+
+            <div class="nav-buttons" id="trans-nav">
+                <button class="nav-btn prev" id="trans-prev" onclick="prevTranslation()" disabled>Föregående</button>
+                <button class="nav-btn next" id="trans-next" onclick="nextTranslation()" disabled>Nästa</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ CURRENT LEVEL ============
+        let currentLevel = 'A2';
+
+        // ============ A2 DATA (Grundnivå åk 9) ============
+        const readingDataA2 = [
+            {
+                "id": 1,
+                "text": "Social media has become a big part of teenagers' lives. Most young people use apps like Instagram and TikTok every day. While social media can be fun and help people stay in touch with friends, spending too much time online can make it harder to focus on schoolwork. Some students say they feel stressed when they compare themselves to others online.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "How Social Media Affects Young People",
+                    "The History of the Internet",
+                    "Why Everyone Should Use TikTok",
+                    "How to Become Famous Online"
+                ],
+                "correct": 0
+            },
+            {
+                "id": 2,
+                "text": "In many countries, young people are worried about climate change. They want governments to do more to protect the environment. Some teenagers join protests and climate marches to show that they care about the future of the planet. They believe that everyone needs to make small changes in their daily lives, like recycling and using less plastic.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "How to Recycle at Home",
+                    "Young People Fighting for the Climate",
+                    "The Best Protests in History",
+                    "Why Plastic Is Useful"
+                ],
+                "correct": 1
+            },
+            {
+                "id": 3,
+                "text": "Learning a second language can open many doors. People who speak more than one language often find it easier to get jobs and travel to new places. Studies also show that learning languages is good for the brain and can help you think more creatively. In Sweden, most students learn English from a young age, which gives them an advantage in today's global world.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "Swedish Schools Are the Best",
+                    "How to Travel Without Speaking English",
+                    "The Benefits of Learning Languages",
+                    "Why English Is Difficult to Learn"
+                ],
+                "correct": 2
+            },
+            {
+                "id": 4,
+                "text": "Bullying is a serious problem in schools around the world. It can happen face to face or online, which is called cyberbullying. Victims of bullying often feel sad, lonely, and afraid to go to school. Experts say that it is important for everyone — students, teachers, and parents — to work together to stop bullying and create a safe environment for all.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "Why Some Students Skip School",
+                    "The Best Anti-Bullying Programs",
+                    "How to Use the Internet Safely",
+                    "Bullying: A Problem That Needs Everyone's Help"
+                ],
+                "correct": 3
+            },
+            {
+                "id": 5,
+                "text": "Sleep is very important for teenagers. Doctors recommend that young people between 13 and 18 years old get eight to ten hours of sleep every night. However, many teenagers stay up late using their phones or watching videos. Not getting enough sleep can affect memory, mood, and school performance. Turning off screens an hour before bedtime can help you sleep better.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "Why Teenagers Need More Sleep",
+                    "The Best Apps for Better Sleep",
+                    "How Phones Are Made",
+                    "A Day in the Life of a Doctor"
+                ],
+                "correct": 0
+            }
+        ];
+
+        const readingDataB1 = [
+            {
+                "id": 1,
+                "text": "Artificial intelligence is being used in more and more areas of everyday life. Voice assistants like Siri and Alexa use AI to understand what we say. Some schools are even experimenting with AI tools that can help students learn at their own pace. While many people see the benefits, others worry about privacy and whether AI could replace human jobs in the future.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "AI in Everyday Life: Opportunities and Concerns",
+                    "How to Build a Robot at Home",
+                    "The Complete History of Computers",
+                    "Why Technology Should Be Stopped"
+                ],
+                "correct": 0
+            },
+            {
+                "id": 2,
+                "text": "Fast fashion has changed the way people buy clothes. Companies produce trendy items quickly and cheaply, but this comes at a cost. The fashion industry is one of the biggest polluters in the world, and many workers in clothing factories are paid very low wages. More and more young people are choosing to buy second-hand clothes or swap with friends to reduce their environmental impact.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "How to Start Your Own Fashion Brand",
+                    "The Dark Side of Fast Fashion",
+                    "The Most Popular Clothing Brands",
+                    "Why Expensive Clothes Are Better"
+                ],
+                "correct": 1
+            },
+            {
+                "id": 3,
+                "text": "Mental health has become an important topic for young people. Anxiety and depression are more common among teenagers than many adults realize. Experts believe that pressure from school, social media, and worries about the future all play a role. Many schools are now introducing programs to teach students about mental health and where to find help if they need it.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "How Schools Are Improving Their Grades",
+                    "Why Adults Don't Understand Teenagers",
+                    "Addressing the Growing Mental Health Crisis Among Youth",
+                    "The Best Ways to Study for Exams"
+                ],
+                "correct": 2
+            },
+            {
+                "id": 4,
+                "text": "Migration is a topic that often comes up in the news and in political debates. People move to other countries for many different reasons — some are looking for better work, while others are fleeing war or natural disasters. Integration into a new society can be challenging, as immigrants need to learn a new language and adapt to different customs while also keeping their own cultural identity.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "Why People Should Stay in Their Home Countries",
+                    "The History of European Borders",
+                    "A Guide to Learning New Languages",
+                    "Migration: Reasons, Challenges, and Identity"
+                ],
+                "correct": 3
+            },
+            {
+                "id": 5,
+                "text": "The way we consume news has changed dramatically in recent years. Instead of reading newspapers or watching the evening news, many people now get their information from social media. The problem is that not everything shared online is true. Fake news and misinformation spread quickly, making it harder to know what to believe. Being able to think critically about sources is an important skill in today's digital world.",
+                "question": "Which title would best fit this text?",
+                "options": [
+                    "Critical Thinking in the Age of Misinformation",
+                    "The Best News Apps to Download",
+                    "Why Newspapers Are Still Important",
+                    "How Social Media Companies Make Money"
+                ],
+                "correct": 0
+            }
+        ];
+
+        const gapFillDataA2 = [
+            {
+                "id": 1,
+                "sentence": "She _____ to school by bus every morning.",
+                "answer": "goes",
+                "alternativeAnswers": ["travels"],
+                "hint": "Ledtråd: verb i presens"
+            },
+            {
+                "id": 2,
+                "sentence": "I have never _____ to London, but I would like to go.",
+                "answer": "been",
+                "hint": "Ledtråd: perfekt particip av 'be'"
+            },
+            {
+                "id": 3,
+                "sentence": "We were watching TV _____ the phone rang.",
+                "answer": "when",
+                "hint": "Ledtråd: tidsord (konjunktion)"
+            },
+            {
+                "id": 4,
+                "sentence": "My brother is _____ than me, but I am taller.",
+                "answer": "older",
+                "hint": "Ledtråd: komparativ form av 'old'"
+            },
+            {
+                "id": 5,
+                "sentence": "If it rains tomorrow, we _____ stay at home.",
+                "answer": "will",
+                "hint": "Ledtråd: hjälpverb för futurum"
+            },
+            {
+                "id": 6,
+                "sentence": "She asked me _____ I wanted to come to the party.",
+                "answer": "if",
+                "alternativeAnswers": ["whether"],
+                "hint": "Ledtråd: konjunktion i indirekt fråga"
+            },
+            {
+                "id": 7,
+                "sentence": "They have lived in this house _____ 2015.",
+                "answer": "since",
+                "hint": "Ledtråd: preposition som anger startpunkt i tid"
+            },
+            {
+                "id": 8,
+                "sentence": "He is good _____ playing football and basketball.",
+                "answer": "at",
+                "hint": "Ledtråd: preposition efter 'good'"
+            },
+            {
+                "id": 9,
+                "sentence": "I _____ rather stay at home than go out tonight.",
+                "answer": "would",
+                "hint": "Ledtråd: hjälpverb som uttrycker preferens"
+            },
+            {
+                "id": 10,
+                "sentence": "The book _____ I read last week was really exciting.",
+                "answer": "that",
+                "alternativeAnswers": ["which"],
+                "hint": "Ledtråd: relativt pronomen"
+            }
+        ];
+
+        const gapFillDataB1 = [
+            {
+                "id": 1,
+                "sentence": "She managed to finish the assignment _____ the short deadline.",
+                "answer": "despite",
+                "alternativeAnswers": ["despite"],
+                "hint": "Ledtråd: preposition som betyder 'trots'"
+            },
+            {
+                "id": 2,
+                "sentence": "The teacher _____ class I enjoy the most is Mrs. Anderson.",
+                "answer": "whose",
+                "hint": "Ledtråd: relativt pronomen (ägande)"
+            },
+            {
+                "id": 3,
+                "sentence": "I look forward to _____ you at the concert next Friday.",
+                "answer": "seeing",
+                "alternativeAnswers": ["meeting"],
+                "hint": "Ledtråd: gerundium (-ing form) efter 'look forward to'"
+            },
+            {
+                "id": 4,
+                "sentence": "_____ he had studied hard, he still failed the test.",
+                "answer": "although",
+                "alternativeAnswers": ["though", "even"],
+                "hint": "Ledtråd: konjunktion som betyder 'trots att'"
+            },
+            {
+                "id": 5,
+                "sentence": "They have been waiting for the bus _____ over an hour.",
+                "answer": "for",
+                "hint": "Ledtråd: preposition som anger tidsperiod"
+            },
+            {
+                "id": 6,
+                "sentence": "You _____ have told me earlier — now it's too late to change the plans.",
+                "answer": "should",
+                "hint": "Ledtråd: modalt hjälpverb (borde)"
+            },
+            {
+                "id": 7,
+                "sentence": "The film was so boring that I almost fell _____.",
+                "answer": "asleep",
+                "hint": "Ledtråd: adjektiv som betyder 'i sömn'"
+            },
+            {
+                "id": 8,
+                "sentence": "He is not used to _____ up so early in the morning.",
+                "answer": "getting",
+                "alternativeAnswers": ["waking"],
+                "hint": "Ledtråd: gerundium (-ing form) efter 'used to'"
+            },
+            {
+                "id": 9,
+                "sentence": "The new shopping centre, _____ opened last month, is already very popular.",
+                "answer": "which",
+                "hint": "Ledtråd: relativt pronomen (icke-definierande bisats)"
+            },
+            {
+                "id": 10,
+                "sentence": "I wish I _____ more time to practise before the competition.",
+                "answer": "had",
+                "hint": "Ledtråd: verb efter 'wish' (konjunktiv/irrealis)"
+            }
+        ];
+
+        const translationDataA2 = [
+            {
+                "category": "vardagsliv",
+                "categoryName": "Vardagsliv",
+                "sentences": [
+                    { "id": 1, "swedish": "Jag brukar äta frukost klockan sju varje morgon.", "english": "I usually eat breakfast at seven o'clock every morning.", "alternativeAnswers": ["I usually have breakfast at seven every morning.", "I usually eat breakfast at seven every morning."] },
+                    { "id": 2, "swedish": "Min bästa kompis bor i huset bredvid mitt.", "english": "My best friend lives in the house next to mine.", "alternativeAnswers": ["My best friend lives next door to me."] },
+                    { "id": 3, "swedish": "Vi ska åka till stranden om vädret är bra.", "english": "We are going to the beach if the weather is good.", "alternativeAnswers": ["We will go to the beach if the weather is nice.", "We are going to go to the beach if the weather is good."] },
+                    { "id": 4, "swedish": "Hon har redan gjort sina läxor.", "english": "She has already done her homework.", "alternativeAnswers": ["She has already finished her homework."] },
+                    { "id": 5, "swedish": "Det tog oss två timmar att komma dit.", "english": "It took us two hours to get there.", "alternativeAnswers": [] }
+                ]
+            },
+            {
+                "category": "skola",
+                "categoryName": "Skola & Fritid",
+                "sentences": [
+                    { "id": 6, "swedish": "Jag tycker att matematik är det svåraste ämnet.", "english": "I think that maths is the most difficult subject.", "alternativeAnswers": ["I think maths is the hardest subject.", "I think that math is the most difficult subject.", "I think math is the hardest subject."] },
+                    { "id": 7, "swedish": "Vi hade idrott utomhus trots att det regnade.", "english": "We had PE outdoors even though it was raining.", "alternativeAnswers": ["We had sports outdoors although it was raining.", "We had PE outside even though it was raining."] },
+                    { "id": 8, "swedish": "Min hobby är att spela gitarr och lyssna på musik.", "english": "My hobby is playing the guitar and listening to music.", "alternativeAnswers": ["My hobby is to play the guitar and listen to music."] },
+                    { "id": 9, "swedish": "De spelade fotboll i parken efter skolan.", "english": "They played football in the park after school.", "alternativeAnswers": ["They played soccer in the park after school."] },
+                    { "id": 10, "swedish": "Jag vill bli lärare när jag blir stor.", "english": "I want to become a teacher when I grow up.", "alternativeAnswers": ["I want to be a teacher when I grow up."] }
+                ]
+            },
+            {
+                "category": "miljo",
+                "categoryName": "Natur & Miljö",
+                "sentences": [
+                    { "id": 11, "swedish": "Vi borde sortera vårt avfall för att hjälpa miljön.", "english": "We should sort our waste to help the environment.", "alternativeAnswers": ["We should recycle our waste to help the environment.", "We ought to sort our waste to help the environment."] },
+                    { "id": 12, "swedish": "Det finns många vackra sjöar i Sverige.", "english": "There are many beautiful lakes in Sweden.", "alternativeAnswers": [] },
+                    { "id": 13, "swedish": "Isbjörnarna är hotade på grund av klimatförändringarna.", "english": "The polar bears are threatened because of climate change.", "alternativeAnswers": ["Polar bears are threatened due to climate change.", "The polar bears are endangered because of climate change."] },
+                    { "id": 14, "swedish": "Vi cyklar till skolan istället för att åka bil.", "english": "We cycle to school instead of going by car.", "alternativeAnswers": ["We ride our bikes to school instead of driving.", "We bike to school instead of going by car."] },
+                    { "id": 15, "swedish": "Det är viktigt att spara vatten och energi.", "english": "It is important to save water and energy.", "alternativeAnswers": ["It's important to save water and energy."] }
+                ]
+            },
+            {
+                "category": "samhalle",
+                "categoryName": "Samhälle & Kultur",
+                "sentences": [
+                    { "id": 16, "swedish": "Alla barn har rätt att gå i skolan.", "english": "All children have the right to go to school.", "alternativeAnswers": ["Every child has the right to attend school."] },
+                    { "id": 17, "swedish": "Vi firar jul i december och midsommar i juni.", "english": "We celebrate Christmas in December and Midsummer in June.", "alternativeAnswers": [] },
+                    { "id": 18, "swedish": "Många människor i världen har inte tillgång till rent vatten.", "english": "Many people in the world do not have access to clean water.", "alternativeAnswers": ["Many people in the world don't have access to clean water."] },
+                    { "id": 19, "swedish": "I Sverige får man rösta när man fyller arton år.", "english": "In Sweden you can vote when you turn eighteen.", "alternativeAnswers": ["In Sweden you are allowed to vote when you turn eighteen.", "In Sweden you may vote when you turn eighteen years old."] },
+                    { "id": 20, "swedish": "Film och musik är viktiga delar av vår kultur.", "english": "Film and music are important parts of our culture.", "alternativeAnswers": ["Movies and music are important parts of our culture."] }
+                ]
+            }
+        ];
+
+        const translationDataB1 = [
+            {
+                "category": "vardagsliv",
+                "categoryName": "Vardagsliv",
+                "sentences": [
+                    { "id": 1, "swedish": "Jag borde ha berättat för dig tidigare, men jag glömde.", "english": "I should have told you earlier, but I forgot.", "alternativeAnswers": [] },
+                    { "id": 2, "swedish": "Han är van vid att laga mat åt hela familjen.", "english": "He is used to cooking for the whole family.", "alternativeAnswers": ["He is used to cooking for the entire family."] },
+                    { "id": 3, "swedish": "Om jag hade mer pengar skulle jag resa utomlands.", "english": "If I had more money I would travel abroad.", "alternativeAnswers": ["If I had more money, I would travel abroad."] },
+                    { "id": 4, "swedish": "Det är ingen idé att oroa sig för saker man inte kan förändra.", "english": "There is no point in worrying about things you cannot change.", "alternativeAnswers": ["There's no point worrying about things you can't change.", "It is no use worrying about things you cannot change."] },
+                    { "id": 5, "swedish": "Trots att det var kallt ute bestämde vi oss för att gå en promenad.", "english": "Although it was cold outside, we decided to go for a walk.", "alternativeAnswers": ["Even though it was cold outside, we decided to go for a walk.", "Despite it being cold outside, we decided to go for a walk."] }
+                ]
+            },
+            {
+                "category": "skola",
+                "categoryName": "Skola & Fritid",
+                "sentences": [
+                    { "id": 6, "swedish": "Läraren bad oss att arbeta i grupper under lektionen.", "english": "The teacher asked us to work in groups during the lesson.", "alternativeAnswers": ["The teacher told us to work in groups during the lesson.", "The teacher asked us to work in groups during class."] },
+                    { "id": 7, "swedish": "Jag har alltid varit intresserad av att lära mig nya språk.", "english": "I have always been interested in learning new languages.", "alternativeAnswers": [] },
+                    { "id": 8, "swedish": "Vi hade inte tränat tillräckligt, så vi förlorade matchen.", "english": "We had not practised enough, so we lost the match.", "alternativeAnswers": ["We hadn't practised enough, so we lost the match.", "We had not practiced enough, so we lost the game."] },
+                    { "id": 9, "swedish": "Hon frågade mig vad jag tyckte om den nya skolan.", "english": "She asked me what I thought about the new school.", "alternativeAnswers": ["She asked me what I thought of the new school."] },
+                    { "id": 10, "swedish": "Jag ser fram emot att börja gymnasiet till hösten.", "english": "I am looking forward to starting upper secondary school in the autumn.", "alternativeAnswers": ["I look forward to starting upper secondary school in the fall.", "I'm looking forward to starting high school in the autumn."] }
+                ]
+            },
+            {
+                "category": "miljo",
+                "categoryName": "Natur & Miljö",
+                "sentences": [
+                    { "id": 11, "swedish": "Forskarna varnar för att havsnivåerna stiger snabbare än förväntat.", "english": "Scientists warn that sea levels are rising faster than expected.", "alternativeAnswers": ["Researchers warn that sea levels are rising faster than expected."] },
+                    { "id": 12, "swedish": "Om vi inte agerar nu kommer det att vara för sent.", "english": "If we do not act now, it will be too late.", "alternativeAnswers": ["If we don't act now, it will be too late."] },
+                    { "id": 13, "swedish": "Fler och fler unga människor väljer att äta vegetariskt för miljöns skull.", "english": "More and more young people choose to eat vegetarian for the sake of the environment.", "alternativeAnswers": ["More and more young people are choosing to eat vegetarian for the environment's sake."] },
+                    { "id": 14, "swedish": "Avskogningen i regnskogen hotar tusentals djurarter.", "english": "Deforestation in the rainforest threatens thousands of animal species.", "alternativeAnswers": ["The deforestation of the rainforest threatens thousands of species."] },
+                    { "id": 15, "swedish": "Både elever och lärare borde ta ansvar för att minska skolans energiförbrukning.", "english": "Both students and teachers should take responsibility for reducing the school's energy consumption.", "alternativeAnswers": ["Both students and teachers ought to take responsibility for reducing the school's energy use."] }
+                ]
+            },
+            {
+                "category": "samhalle",
+                "categoryName": "Samhälle & Kultur",
+                "sentences": [
+                    { "id": 16, "swedish": "Yttrandefrihet är en grundläggande rättighet i demokratiska samhällen.", "english": "Freedom of speech is a fundamental right in democratic societies.", "alternativeAnswers": ["Freedom of expression is a basic right in democratic societies."] },
+                    { "id": 17, "swedish": "Sociala medier har förändrat sättet vi kommunicerar med varandra.", "english": "Social media has changed the way we communicate with each other.", "alternativeAnswers": ["Social media have changed the way we communicate with one another."] },
+                    { "id": 18, "swedish": "Det är svårt att veta vad som är sant och falskt på nätet.", "english": "It is difficult to know what is true and false online.", "alternativeAnswers": ["It's hard to know what is true and false on the internet."] },
+                    { "id": 19, "swedish": "Många ungdomar engagerar sig i frågor som rör jämställdhet och rättvisa.", "english": "Many young people are engaged in issues concerning equality and justice.", "alternativeAnswers": ["Many young people get involved in issues related to equality and justice.", "Many young people are involved in matters of equality and justice."] },
+                    { "id": 20, "swedish": "Alla människor borde behandlas lika oavsett bakgrund.", "english": "All people should be treated equally regardless of background.", "alternativeAnswers": ["Everyone should be treated equally regardless of their background.", "All people ought to be treated equally regardless of background."] }
+                ]
+            }
+        ];
+
+        // ============ GET CURRENT DATA ============
+        function getReadingData() {
+            return currentLevel === 'A2' ? readingDataA2 : readingDataB1;
+        }
+
+        function getGapFillData() {
+            return currentLevel === 'A2' ? gapFillDataA2 : gapFillDataB1;
+        }
+
+        function getTranslationData() {
+            return currentLevel === 'A2' ? translationDataA2 : translationDataB1;
+        }
+
+        // ============ LEVEL SELECTION ============
+        function setLevel(level) {
+            currentLevel = level;
+
+            // Update buttons
+            document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('active'));
+            if (level === 'A2') {
+                document.querySelectorAll('.level-btn')[0].classList.add('active');
+                document.getElementById('level-description').textContent = 'Grundnivå - passar de flesta elever i åk 9';
+            } else {
+                document.querySelectorAll('.level-btn')[1].classList.add('active');
+                document.getElementById('level-description').textContent = 'Avancerad nivå - för dig som vill utmana dig mer';
+            }
+
+            // Update badges
+            const badgeClass = level === 'B1' ? 'level-badge b1' : 'level-badge';
+            document.getElementById('reading-level-badge').className = badgeClass;
+            document.getElementById('reading-level-badge').textContent = 'CEFR ' + level;
+            document.getElementById('gap-level-badge').className = badgeClass;
+            document.getElementById('gap-level-badge').textContent = 'CEFR ' + level;
+            document.getElementById('trans-level-badge').className = badgeClass;
+            document.getElementById('trans-level-badge').textContent = 'CEFR ' + level;
+
+            // Reset all exercises
+            resetReading();
+            resetGap();
+            resetTranslation();
+        }
+
+        // ============ READING EXERCISE ============
+        let readingIndex = 0;
+        let readingScore = 0;
+        let readingAnswered = [];
+
+        function initReading() {
+            const data = getReadingData();
+            readingIndex = 0;
+            readingScore = 0;
+            readingAnswered = new Array(data.length).fill(null);
+            document.getElementById('reading-total').textContent = data.length;
+            document.getElementById('reading-score').textContent = 'Poäng: 0';
+            document.getElementById('reading-content').style.display = 'block';
+            document.getElementById('reading-nav').style.display = 'flex';
+            document.getElementById('reading-complete').style.display = 'none';
+            loadReading();
+        }
+
+        function loadReading() {
+            const data = getReadingData();
+            const item = data[readingIndex];
+            document.getElementById('reading-text').textContent = item.text;
+            document.getElementById('reading-question').textContent = item.question;
+            document.getElementById('reading-current').textContent = readingIndex + 1;
+
+            const optionsContainer = document.getElementById('reading-options');
+            optionsContainer.innerHTML = '';
+
+            item.options.forEach((option, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => selectReadingOption(i);
+
+                if (readingAnswered[readingIndex] !== null) {
+                    btn.classList.add('disabled');
+                    if (i === item.correct) btn.classList.add('correct');
+                    if (i === readingAnswered[readingIndex] && i !== item.correct) btn.classList.add('incorrect');
+                }
+
+                optionsContainer.appendChild(btn);
+            });
+
+            updateReadingProgress();
+            updateReadingNav();
+        }
+
+        function selectReadingOption(index) {
+            if (readingAnswered[readingIndex] !== null) return;
+
+            readingAnswered[readingIndex] = index;
+            const data = getReadingData();
+            const item = data[readingIndex];
+
+            if (index === item.correct) {
+                readingScore++;
+            }
+
+            document.getElementById('reading-score').textContent = `Poäng: ${readingScore}`;
+            loadReading();
+        }
+
+        function updateReadingProgress() {
+            const data = getReadingData();
+            const answered = readingAnswered.filter(a => a !== null).length;
+            const progress = (answered / data.length) * 100;
+            document.getElementById('reading-progress').style.width = progress + '%';
+        }
+
+        function updateReadingNav() {
+            document.getElementById('reading-prev').disabled = readingIndex === 0;
+            document.getElementById('reading-next').disabled = readingAnswered[readingIndex] === null;
+        }
+
+        function prevReading() {
+            if (readingIndex > 0) {
+                readingIndex--;
+                loadReading();
+            }
+        }
+
+        function nextReading() {
+            const data = getReadingData();
+            if (readingIndex < data.length - 1) {
+                readingIndex++;
+                loadReading();
+            } else {
+                showReadingComplete();
+            }
+        }
+
+        function showReadingComplete() {
+            document.getElementById('reading-content').style.display = 'none';
+            document.getElementById('reading-nav').style.display = 'none';
+            document.getElementById('reading-complete').style.display = 'block';
+            document.getElementById('reading-final-score').textContent = readingScore;
+        }
+
+        function resetReading() {
+            initReading();
+        }
+
+        // ============ GAP FILL EXERCISE ============
+        let gapIndex = 0;
+        let gapScore = 0;
+        let gapAnswered = [];
+
+        function initGap() {
+            const data = getGapFillData();
+            gapIndex = 0;
+            gapScore = 0;
+            gapAnswered = new Array(data.length).fill(null);
+            document.getElementById('gap-total').textContent = data.length;
+            document.getElementById('gap-score').textContent = 'Poäng: 0';
+            document.getElementById('gap-content').style.display = 'block';
+            document.getElementById('gap-nav').style.display = 'flex';
+            document.getElementById('gap-complete').style.display = 'none';
+            loadGap();
+        }
+
+        function loadGap() {
+            const data = getGapFillData();
+            const item = data[gapIndex];
+            document.getElementById('gap-text').innerHTML = item.sentence.replace('_____', '<strong style="color: var(--primary);">_____</strong>');
+            document.getElementById('gap-hint').textContent = item.hint;
+            document.getElementById('gap-current').textContent = gapIndex + 1;
+
+            const input = document.getElementById('gap-input');
+            const feedback = document.getElementById('gap-feedback');
+            const checkBtn = document.getElementById('gap-check');
+
+            input.value = gapAnswered[gapIndex]?.userAnswer || '';
+            input.className = 'gap-input';
+            feedback.className = 'feedback-text';
+            feedback.textContent = '';
+            checkBtn.disabled = false;
+
+            if (gapAnswered[gapIndex]?.checked) {
+                input.disabled = true;
+                checkBtn.disabled = true;
+                if (gapAnswered[gapIndex].correct) {
+                    input.classList.add('correct');
+                    feedback.classList.add('show', 'correct');
+                    feedback.textContent = 'Rätt!';
+                } else {
+                    input.classList.add('incorrect');
+                    feedback.classList.add('show', 'incorrect');
+                    feedback.textContent = `Fel. Rätt svar: ${item.answer}`;
+                }
+            } else {
+                input.disabled = false;
+            }
+
+            updateGapProgress();
+            updateGapNav();
+        }
+
+        function checkGap() {
+            const data = getGapFillData();
+            const item = data[gapIndex];
+            const input = document.getElementById('gap-input');
+            const feedback = document.getElementById('gap-feedback');
+            const userAnswer = input.value.trim().toLowerCase();
+
+            const correctAnswers = [item.answer.toLowerCase()];
+            if (item.alternativeAnswers) {
+                correctAnswers.push(...item.alternativeAnswers.map(a => a.toLowerCase()));
+            }
+
+            const isCorrect = correctAnswers.includes(userAnswer);
+
+            gapAnswered[gapIndex] = {
+                userAnswer: input.value,
+                correct: isCorrect,
+                checked: true
+            };
+
+            if (isCorrect) {
+                gapScore++;
+                input.classList.add('correct');
+                feedback.classList.add('show', 'correct');
+                feedback.textContent = 'Rätt!';
+            } else {
+                input.classList.add('incorrect');
+                feedback.classList.add('show', 'incorrect');
+                feedback.textContent = `Fel. Rätt svar: ${item.answer}`;
+            }
+
+            input.disabled = true;
+            document.getElementById('gap-check').disabled = true;
+            document.getElementById('gap-score').textContent = `Poäng: ${gapScore}`;
+            updateGapProgress();
+            updateGapNav();
+        }
+
+        function updateGapProgress() {
+            const data = getGapFillData();
+            const answered = gapAnswered.filter(a => a?.checked).length;
+            const progress = (answered / data.length) * 100;
+            document.getElementById('gap-progress').style.width = progress + '%';
+        }
+
+        function updateGapNav() {
+            document.getElementById('gap-prev').disabled = gapIndex === 0;
+            document.getElementById('gap-next').disabled = !gapAnswered[gapIndex]?.checked;
+        }
+
+        function prevGap() {
+            if (gapIndex > 0) {
+                gapIndex--;
+                loadGap();
+            }
+        }
+
+        function nextGap() {
+            const data = getGapFillData();
+            if (gapIndex < data.length - 1) {
+                gapIndex++;
+                loadGap();
+            } else {
+                showGapComplete();
+            }
+        }
+
+        function showGapComplete() {
+            document.getElementById('gap-content').style.display = 'none';
+            document.getElementById('gap-nav').style.display = 'none';
+            document.getElementById('gap-complete').style.display = 'block';
+            document.getElementById('gap-final-score').textContent = gapScore;
+        }
+
+        function resetGap() {
+            initGap();
+        }
+
+        // ============ TRANSLATION EXERCISE ============
+        let currentCategory = 'vardagsliv';
+        let transIndex = 0;
+        let transScore = 0;
+        let transAnswered = {};
+        let waitingForCorrection = false;
+
+        function initTranslation() {
+            const data = getTranslationData();
+            transIndex = 0;
+            transScore = 0;
+            transAnswered = {};
+            waitingForCorrection = false;
+            data.forEach(cat => {
+                transAnswered[cat.category] = new Array(cat.sentences.length).fill(null);
+            });
+            document.getElementById('trans-score').textContent = 'Poäng: 0';
+            document.getElementById('trans-content').style.display = 'block';
+            document.getElementById('trans-nav').style.display = 'flex';
+            document.getElementById('category-select').style.display = 'flex';
+            document.getElementById('trans-complete').style.display = 'none';
+
+            // Reset category buttons
+            const buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            buttons[0].classList.add('active');
+            currentCategory = 'vardagsliv';
+
+            loadTranslation();
+        }
+
+        function selectCategory(category) {
+            if (waitingForCorrection) return;
+
+            currentCategory = category;
+            transIndex = 0;
+
+            const buttons = document.querySelectorAll('.category-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            if (category === 'vardagsliv') buttons[0].classList.add('active');
+            if (category === 'skola') buttons[1].classList.add('active');
+            if (category === 'miljo') buttons[2].classList.add('active');
+            if (category === 'samhalle') buttons[3].classList.add('active');
+
+            loadTranslation();
+        }
+
+        function getCurrentCategoryData() {
+            const data = getTranslationData();
+            return data.find(cat => cat.category === currentCategory);
+        }
+
+        function loadTranslation() {
+            const categoryData = getCurrentCategoryData();
+            const item = categoryData.sentences[transIndex];
+
+            document.getElementById('swedish-text').textContent = item.swedish;
+            document.getElementById('trans-current').textContent = transIndex + 1;
+            document.getElementById('trans-total').textContent = categoryData.sentences.length;
+
+            const input = document.getElementById('trans-input');
+            const feedback = document.getElementById('trans-feedback');
+            const checkBtn = document.getElementById('trans-check');
+            const correctionBox = document.getElementById('correction-box');
+            const correctionInput = document.getElementById('correction-input');
+
+            input.value = transAnswered[currentCategory][transIndex]?.userAnswer || '';
+            input.className = 'translation-input';
+            feedback.className = 'feedback-text';
+            feedback.textContent = '';
+            correctionBox.classList.remove('show');
+            correctionInput.value = '';
+            checkBtn.disabled = false;
+            waitingForCorrection = false;
+
+            if (transAnswered[currentCategory][transIndex]?.completed) {
+                input.disabled = true;
+                input.classList.add('locked');
+                checkBtn.disabled = true;
+                feedback.classList.add('show', 'correct');
+                feedback.textContent = 'Rätt!';
+            } else {
+                input.disabled = false;
+            }
+
+            updateTransProgress();
+            updateTransNav();
+        }
+
+        function normalizeAnswer(str) {
+            return str.toLowerCase()
+                .replace(/[.,!?;:'"]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function checkTranslation() {
+            const categoryData = getCurrentCategoryData();
+            const item = categoryData.sentences[transIndex];
+            const input = document.getElementById('trans-input');
+            const feedback = document.getElementById('trans-feedback');
+            const correctionBox = document.getElementById('correction-box');
+            const correctionInput = document.getElementById('correction-input');
+
+            const userAnswer = normalizeAnswer(input.value);
+            const correctAnswers = [normalizeAnswer(item.english)];
+            if (item.alternativeAnswers) {
+                correctAnswers.push(...item.alternativeAnswers.map(a => normalizeAnswer(a)));
+            }
+
+            const isCorrect = correctAnswers.includes(userAnswer);
+
+            if (isCorrect) {
+                transScore++;
+                transAnswered[currentCategory][transIndex] = {
+                    userAnswer: input.value,
+                    correct: true,
+                    completed: true
+                };
+                input.classList.add('correct');
+                input.disabled = true;
+                feedback.classList.add('show', 'correct');
+                feedback.textContent = 'Rätt!';
+                document.getElementById('trans-check').disabled = true;
+            } else {
+                transAnswered[currentCategory][transIndex] = {
+                    userAnswer: input.value,
+                    correct: false,
+                    completed: false
+                };
+                input.classList.add('incorrect');
+                feedback.classList.add('show', 'incorrect');
+                feedback.textContent = 'Fel. Skriv in det rätta svaret för att fortsätta.';
+
+                correctionBox.classList.add('show');
+                document.getElementById('correct-answer').textContent = item.english;
+                correctionInput.focus();
+                waitingForCorrection = true;
+
+                correctionInput.oninput = () => {
+                    const correctionValue = normalizeAnswer(correctionInput.value);
+                    if (correctAnswers.includes(correctionValue)) {
+                        transAnswered[currentCategory][transIndex].completed = true;
+                        correctionBox.classList.remove('show');
+                        input.value = item.english;
+                        input.className = 'translation-input correct';
+                        input.disabled = true;
+                        feedback.className = 'feedback-text show correct';
+                        feedback.textContent = 'Bra! Nu kan du fortsätta.';
+                        document.getElementById('trans-check').disabled = true;
+                        waitingForCorrection = false;
+                        updateTransNav();
+                    }
+                };
+            }
+
+            document.getElementById('trans-score').textContent = `Poäng: ${transScore}`;
+            updateTransProgress();
+            updateTransNav();
+        }
+
+        function updateTransProgress() {
+            const categoryData = getCurrentCategoryData();
+            const answered = transAnswered[currentCategory].filter(a => a?.completed).length;
+            const progress = (answered / categoryData.sentences.length) * 100;
+            document.getElementById('trans-progress').style.width = progress + '%';
+        }
+
+        function updateTransNav() {
+            document.getElementById('trans-prev').disabled = transIndex === 0 || waitingForCorrection;
+            document.getElementById('trans-next').disabled = !transAnswered[currentCategory][transIndex]?.completed;
+        }
+
+        function prevTranslation() {
+            if (transIndex > 0 && !waitingForCorrection) {
+                transIndex--;
+                loadTranslation();
+            }
+        }
+
+        function nextTranslation() {
+            const categoryData = getCurrentCategoryData();
+            if (transIndex < categoryData.sentences.length - 1) {
+                transIndex++;
+                loadTranslation();
+            } else {
+                showTransComplete();
+            }
+        }
+
+        function showTransComplete() {
+            document.getElementById('trans-content').style.display = 'none';
+            document.getElementById('trans-nav').style.display = 'none';
+            document.getElementById('category-select').style.display = 'none';
+            document.getElementById('trans-complete').style.display = 'block';
+            document.getElementById('trans-final-score').textContent = transScore;
+        }
+
+        function resetTranslation() {
+            initTranslation();
+        }
+
+        // ============ TAB NAVIGATION ============
+        function showExercise(type) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.exercise-container').forEach(ex => ex.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(type + '-exercise').classList.add('active');
+        }
+
+        // ============ KEYBOARD SUPPORT ============
+        document.getElementById('gap-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkGap();
+        });
+
+        document.getElementById('trans-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkTranslation();
+        });
+
+        // ============ INITIALIZE ============
+        document.addEventListener('DOMContentLoaded', () => {
+            initReading();
+            initGap();
+            initTranslation();
+        });
+    </script>
+</body>
+</html>

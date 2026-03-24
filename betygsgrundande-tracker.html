@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Betygsgrundande Uppgifter – Lgr22 Tracker</title>
+    <meta name="description" content="Klistra in dina betygsgrundande uppgifter och provfrågor – se vilka centralt innehåll och betygskriterier de uppfyller enligt Lgr22.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #0891b2;
+            --primary-dark: #0e7490;
+            --secondary: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --grade-a: #10b981;
+            --grade-c: #3b82f6;
+            --grade-e: #f59e0b;
+            --text-dark: #1e293b;
+            --text-mid: #475569;
+            --text-light: #64748b;
+            --bg-light: #f1f5f9;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-dark);
+            background: var(--bg-light);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+
+        header .inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin-top: 0.2rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-tab {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover { background: rgba(255,255,255,0.25); }
+        .nav-tab.active { background: white; color: var(--primary-dark); }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem 4rem;
+        }
+
+        /* API Key section */
+        .api-section {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .api-section label { font-size: 0.875rem; font-weight: 600; color: var(--text-mid); white-space: nowrap; }
+
+        .api-section input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .api-section a { font-size: 0.8rem; color: var(--primary); text-decoration: none; white-space: nowrap; }
+        .api-section a:hover { text-decoration: underline; }
+
+        /* View sections */
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* Form card */
+        .card {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group select,
+        .form-group input {
+            padding: 0.625rem 0.875rem;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            background: var(--bg-white);
+            transition: border-color 0.2s;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.2s;
+            line-height: 1.6;
+        }
+
+        textarea:focus { outline: none; border-color: var(--primary); }
+
+        .btn {
+            padding: 0.75rem 1.75rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 12px rgba(8,145,178,0.3);
+        }
+
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(8,145,178,0.4); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text-mid);
+        }
+
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: #f0f9ff; }
+
+        .btn-danger { background: #fee2e2; color: var(--danger); border: 1.5px solid #fecaca; }
+        .btn-danger:hover { background: #fecaca; }
+
+        /* Spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .analyzing .spinner { display: inline-block; }
+        .analyzing .btn-text { display: none; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Result panel */
+        .result-panel {
+            background: #f0f9ff;
+            border: 1.5px solid #bae6fd;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1.25rem;
+        }
+
+        .result-panel h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+        }
+
+        .ci-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .ci-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.625rem 0.875rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0f2fe;
+            font-size: 0.875rem;
+        }
+
+        .ci-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 99px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .badge-full { background: #dcfce7; color: #166534; }
+        .badge-partial { background: #fef9c3; color: #854d0e; }
+
+        .grade-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }
+
+        .grade-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+        }
+
+        .grade-a { background: #d1fae5; color: #065f46; }
+        .grade-c { background: #dbeafe; color: #1e40af; }
+        .grade-e { background: #fef3c7; color: #92400e; }
+
+        .save-btn-row { margin-top: 1rem; display: flex; gap: 0.75rem; align-items: center; }
+
+        /* History / List view */
+        .filter-bar {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .filter-bar select {
+            padding: 0.5rem 0.875rem;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: white;
+        }
+
+        .assignment-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .assignment-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.875rem;
+        }
+
+        .assignment-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .meta-chip {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.625rem;
+            border-radius: 99px;
+            background: #f1f5f9;
+            color: var(--text-mid);
+        }
+
+        .meta-chip.subject { background: #e0f2fe; color: #0369a1; }
+        .meta-chip.klass { background: #f3e8ff; color: #7e22ce; }
+        .meta-chip.termin { background: #fef3c7; color: #92400e; }
+        .meta-chip.type { background: #f0fdf4; color: #166534; }
+
+        .assignment-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .assignment-preview {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .ci-coverage {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ci-chip {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            background: #e0f2fe;
+            color: #0369a1;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .ci-chip.partial { background: #fef9c3; color: #854d0e; }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.25rem;
+            border-radius: 6px;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+
+        .delete-btn:hover { color: var(--danger); }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-light);
+        }
+
+        .empty-state span { font-size: 3rem; display: block; margin-bottom: 1rem; }
+
+        /* Summary view */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card .stat-num {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+
+        .coverage-bar-wrap {
+            margin-top: 0.75rem;
+        }
+
+        .coverage-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-mid);
+            margin-bottom: 0.3rem;
+        }
+
+        .coverage-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .coverage-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 99px;
+            transition: width 0.6s ease;
+        }
+
+        .ci-summary-list { list-style: none; }
+
+        .ci-summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+        }
+
+        .ci-summary-item:last-child { border-bottom: none; }
+
+        .ci-count-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.15rem 0.6rem;
+            border-radius: 99px;
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .ci-count-badge.zero { background: #fee2e2; color: #991b1b; }
+        .ci-count-badge.low { background: #fef3c7; color: #92400e; }
+        .ci-count-badge.ok { background: #dcfce7; color: #166534; }
+
+        .accordion { margin-bottom: 0.5rem; }
+
+        .accordion-toggle {
+            width: 100%;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.875rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .accordion-toggle:hover { background: #f1f5f9; }
+        .accordion-toggle.open { background: #e0f2fe; border-color: #bae6fd; color: var(--primary-dark); border-radius: 10px 10px 0 0; }
+        .accordion-toggle .arrow { transition: transform 0.2s; }
+        .accordion-toggle.open .arrow { transform: rotate(180deg); }
+
+        .accordion-body {
+            display: none;
+            border: 1px solid #bae6fd;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            padding: 1rem;
+            background: white;
+        }
+
+        .accordion-body.open { display: block; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: var(--text-dark);
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            max-width: 320px;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+
+        /* Expand modal overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 8px;
+            padding: 0.4rem 0.75rem;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-mid);
+        }
+
+        .modal-close:hover { background: #e2e8f0; }
+
+        @media (max-width: 640px) {
+            header .inner { flex-direction: column; align-items: flex-start; }
+            .nav-tabs { width: 100%; }
+            .nav-tab { flex: 1; text-align: center; font-size: 0.8rem; padding: 0.5rem 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="inner">
+        <div>
+            <h1>Betygsgrundande Uppgifter – Lgr22</h1>
+            <p>Klistra in provfrågor och uppgifter – se vilka centralt innehåll och betygskriterier de täcker</p>
+        </div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showView('add')">Lägg till</button>
+            <button class="nav-tab" onclick="showView('list')">Uppgifter</button>
+            <button class="nav-tab" onclick="showView('summary')">Sammanställning</button>
+        </div>
+    </div>
+</header>
+
+<main>
+
+    <!-- VIEW: Lägg till -->
+    <div id="view-add" class="view active">
+        <div class="card">
+            <h2>Ny betygsgrundande uppgift</h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Ämne</label>
+                    <select id="f-subject" onchange="updateCiSelector()">
+                        <option value="">Välj ämne...</option>
+                        <optgroup label="SO-ämnen">
+                            <option value="religion">Religionskunskap</option>
+                            <option value="historia">Historia</option>
+                            <option value="geografi">Geografi</option>
+                            <option value="samhallskunskap">Samhällskunskap</option>
+                        </optgroup>
+                        <optgroup label="Annat">
+                            <option value="svenska">Svenska</option>
+                            <option value="engelska">Engelska</option>
+                            <option value="matematik">Matematik</option>
+                            <option value="annat">Annat</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Klass</label>
+                    <input type="text" id="f-klass" placeholder="t.ex. 8A" list="klass-list">
+                    <datalist id="klass-list"></datalist>
+                </div>
+                <div class="form-group">
+                    <label>Termin</label>
+                    <select id="f-termin">
+                        <option value="HT2025">HT 2025</option>
+                        <option value="VT2026">VT 2026</option>
+                        <option value="HT2026">HT 2026</option>
+                        <option value="VT2025">VT 2025</option>
+                        <option value="HT2024">HT 2024</option>
+                        <option value="VT2024">VT 2024</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Uppgiftstyp</label>
+                    <select id="f-type">
+                        <option value="prov">Prov</option>
+                        <option value="inlamning">Inlämningsuppgift</option>
+                        <option value="muntlig">Muntlig redovisning</option>
+                        <option value="grupparbete">Grupparbete</option>
+                        <option value="portfolio">Portfolio</option>
+                        <option value="loggbok">Loggbok / Reflektion</option>
+                        <option value="annat">Annat</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1rem;">
+                <label>Titel / namn på uppgiften</label>
+                <input type="text" id="f-title" placeholder="t.ex. Religionsprov åk 8 – Abrahamitiska religioner">
+            </div>
+
+            <div class="form-group" style="margin-bottom:1.25rem;">
+                <label>Provfrågor / uppgiftsbeskrivning</label>
+                <textarea id="f-content" rows="8"
+                    placeholder="Klistra in dina provfrågor eller uppgiftsbeskrivning här...
+
+Exempel:
+1. Beskriv huvuddragen i kristendom, islam och judendom.
+2. Jämför synen på profeter inom de tre abrahamitiska religionerna.
+3. Analysera hur religion kan påverka en persons vardag och värderingar.
+4. Diskutera hur religiösa högtider speglar en religions centrala berättelser."></textarea>
+            </div>
+
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+                <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeAssignment()">
+                    <span class="spinner" id="analyzeSpinner"></span>
+                    <span class="btn-text">Analysera uppgift</span>
+                </button>
+                <span style="font-size:0.8rem; color:var(--text-light);">Identifierar centralt innehåll och betygskriterier</span>
+            </div>
+
+            <!-- Result -->
+            <div id="analysisResult" class="result-panel" style="display:none;">
+                <h3>Analys – Lgr22-mappning</h3>
+                <div id="resultContent"></div>
+                <div class="save-btn-row">
+                    <button class="btn btn-primary" onclick="saveAssignment()">Spara uppgift</button>
+                    <button class="btn btn-outline" onclick="clearForm()">Rensa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW: Uppgifter (lista) -->
+    <div id="view-list" class="view">
+        <div class="filter-bar">
+            <select id="filter-subject" onchange="renderList()">
+                <option value="">Alla ämnen</option>
+                <option value="religion">Religionskunskap</option>
+                <option value="historia">Historia</option>
+                <option value="geografi">Geografi</option>
+                <option value="samhallskunskap">Samhällskunskap</option>
+                <option value="svenska">Svenska</option>
+                <option value="engelska">Engelska</option>
+                <option value="matematik">Matematik</option>
+                <option value="annat">Annat</option>
+            </select>
+            <select id="filter-klass" onchange="renderList()">
+                <option value="">Alla klasser</option>
+            </select>
+            <select id="filter-termin" onchange="renderList()">
+                <option value="">Alla terminer</option>
+            </select>
+            <button class="btn btn-outline" onclick="exportCSV()" style="margin-left:auto;">Exportera CSV</button>
+        </div>
+        <div id="list-container"></div>
+    </div>
+
+    <!-- VIEW: Sammanställning -->
+    <div id="view-summary" class="view">
+        <div class="card" style="margin-bottom:1.5rem;">
+            <h2>Terminssammanställning</h2>
+            <div class="form-row" style="max-width:600px;">
+                <div class="form-group">
+                    <label>Klass</label>
+                    <select id="sum-klass" onchange="renderSummary()">
+                        <option value="">Välj klass...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Termin</label>
+                    <select id="sum-termin" onchange="renderSummary()">
+                        <option value="">Alla terminer</option>
+                        <option value="HT2025">HT 2025</option>
+                        <option value="VT2026">VT 2026</option>
+                        <option value="HT2026">HT 2026</option>
+                        <option value="VT2025">VT 2025</option>
+                        <option value="HT2024">HT 2024</option>
+                        <option value="VT2024">VT 2024</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ämne</label>
+                    <select id="sum-subject" onchange="renderSummary()">
+                        <option value="">Alla ämnen</option>
+                        <option value="religion">Religionskunskap</option>
+                        <option value="historia">Historia</option>
+                        <option value="geografi">Geografi</option>
+                        <option value="samhallskunskap">Samhällskunskap</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="summary-container"></div>
+    </div>
+
+</main>
+
+<!-- Modal for full view -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">Stäng ✕</button>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// LGR22 DATA – Centralt innehåll och betygskriterier, åk 7-9
+// ============================================================
+const LGR22 = {
+    religion: {
+        name: "Religionskunskap",
+        centraltInnehall: [
+            { id: "RE1", omrade: "Religioner och andra livsåskådningar", text: "Kristendomen, de övriga världsreligionerna islam, judendom, hinduism och buddhism samt andra livsåskådningar: deras utbredning, utmärkande drag, och hur de tar sig uttryck i skilda sammanhang." },
+            { id: "RE2", omrade: "Religioner och andra livsåskådningar", text: "Varierande tolkningar och variationer inom religions- och livsåskådningsutövandet i Sverige och i andra delar av världen." },
+            { id: "RE3", omrade: "Religioner och andra livsåskådningar", text: "Centrala tankegångar och urkunder i kristendomen och de övriga världsreligionerna." },
+            { id: "RE4", omrade: "Religioner och andra livsåskådningar", text: "Riter, ceremonier och levnadsregler som hör till de studerade religionerna och livsåskådningarna." },
+            { id: "RE5", omrade: "Religioner och andra livsåskådningar", text: "Likheter och skillnader i synen på exempelvis mänsklighetens ursprung, skapelse, naturen, kön, jämställdhet och sexualitet inom och mellan religioner och andra livsåskådningar." },
+            { id: "RE6", omrade: "Religioner och andra livsåskådningar", text: "Sekulära livsåskådningar som humanism och ateism, deras utmärkande drag och tankar om exempelvis mänskliga rättigheter." },
+            { id: "RE7", omrade: "Religioner och andra livsåskådningar", text: "Religiöst grundade rörelser och grupperingar samt utmärkande drag för dessa." },
+            { id: "RE8", omrade: "Identitet och livsfrågor", text: "Hur religioner och livsåskådningar kan forma och påverka en individs identitet, självbild och livsprojekt." },
+            { id: "RE9", omrade: "Identitet och livsfrågor", text: "Riter kopplade till livets olika faser och som kan ha en social funktion, exempelvis bröllop och begravning, inom och utanför religiösa sammanhang." },
+            { id: "RE10", omrade: "Identitet och livsfrågor", text: "Etiska frågeställningar kopplade till religion och livsåskådning, exempelvis om kloning, abort, eutanasi och dödsstraff." },
+            { id: "RE11", omrade: "Identitet och livsfrågor", text: "Hur etiska frågeställningar kan belysas och besvaras utifrån ett religiöst och ett sekulärt perspektiv." },
+            { id: "RE12", omrade: "Religion och samhälle", text: "Religionens roll och betydelse i Sverige och på andra håll i världen, nutid och i historien." },
+            { id: "RE13", omrade: "Religion och samhälle", text: "Religionsfrihet, religions- och livsåskådningsutövande samt religionens roll i några länder med demokratisk och icke-demokratisk styrning." },
+            { id: "RE14", omrade: "Religion och samhälle", text: "Samband och förklaringar till konflikter och samförstånd kopplade till religion och livsåskådning i Europa och i andra delar av världen." },
+            { id: "RE15", omrade: "Religion och samhälle", text: "Sekularisering, pluralism och nya religiösa rörelser som delar av det moderna samhällets framväxt." }
+        ],
+        betygskriterier: {
+            E: [
+                "Eleven har grundläggande kunskaper om kristendomen och de övriga världsreligionerna och visar det genom att beskriva centrala tankegångar, urkunder och konkreta religiösa uttryck och handlingar inom dem.",
+                "Eleven för enkla och till viss del underbyggda resonemang om likheter och skillnader inom och mellan religion och annan livsåskådning.",
+                "Eleven kan söka information om religion och annan livsåskådning och använder då olika typer av källor på ett i huvudsak fungerande sätt samt för enkla och till viss del underbyggda resonemang om informationens och källornas trovärdighet och relevans.",
+                "Eleven kan resonera om och analysera religion och livsåskådning i relation till individ och samhälle med enkla och till viss del underbyggda resonemang.",
+                "Eleven för enkla och till viss del underbyggda resonemang om etiska frågeställningar med utgångspunkt i religion och annan livsåskådning."
+            ],
+            C: [
+                "Eleven har utvecklade kunskaper om kristendomen och de övriga världsreligionerna och visar det genom att förklara och analysera centrala tankegångar, urkunder och konkreta religiösa uttryck och handlingar inom dem.",
+                "Eleven för utvecklade och relativt väl underbyggda resonemang om likheter och skillnader inom och mellan religion och annan livsåskådning.",
+                "Eleven kan söka information om religion och annan livsåskådning och använder då olika typer av källor på ett relativt väl fungerande sätt samt för utvecklade och relativt väl underbyggda resonemang om informationens och källornas trovärdighet och relevans.",
+                "Eleven kan resonera om och analysera religion och livsåskådning i relation till individ och samhälle med utvecklade och relativt väl underbyggda resonemang.",
+                "Eleven för utvecklade och relativt väl underbyggda resonemang om etiska frågeställningar med utgångspunkt i religion och annan livsåskådning."
+            ],
+            A: [
+                "Eleven har välutvecklade kunskaper om kristendomen och de övriga världsreligionerna och visar det genom att förklara och analysera centrala tankegångar, urkunder och konkreta religiösa uttryck och handlingar inom dem samt värderar dessa med nyanserade omdömen.",
+                "Eleven för välutvecklade och väl underbyggda resonemang om likheter och skillnader inom och mellan religion och annan livsåskådning.",
+                "Eleven kan söka information om religion och annan livsåskådning och använder då olika typer av källor på ett väl fungerande sätt samt för välutvecklade och väl underbyggda resonemang om informationens och källornas trovärdighet och relevans.",
+                "Eleven kan resonera om och analysera religion och livsåskådning i relation till individ och samhälle med välutvecklade och väl underbyggda resonemang samt drar välgrundade och nyanserade slutsatser om hur religion och annan livsåskådning påverkar och påverkas av individ och samhälle.",
+                "Eleven för välutvecklade och väl underbyggda resonemang om etiska frågeställningar med utgångspunkt i religion och annan livsåskådning."
+            ]
+        }
+    },
+    historia: {
+        name: "Historia",
+        centraltInnehall: [
+            { id: "HI1", omrade: "Industrialisering och demokratisering, ca 1800–1950", text: "Den ökade världshandeln och industrialismens framväxt och konsekvenser för sociala förhållanden och levnadsvillkor." },
+            { id: "HI2", omrade: "Industrialisering och demokratisering, ca 1800–1950", text: "Framväxten av politiska ideologier: liberalism, socialism och konservatism, och deras koppling till Europas demokratisering." },
+            { id: "HI3", omrade: "Industrialisering och demokratisering, ca 1800–1950", text: "Det moderna Europas framväxt: nationalism och nationalstater, imperialism och kolonialism." },
+            { id: "HI4", omrade: "Industrialisering och demokratisering, ca 1800–1950", text: "Migrationer och deras orsaker och konsekvenser för individer, grupper och samhällen under perioden." },
+            { id: "HI5", omrade: "Industrialisering och demokratisering, ca 1800–1950", text: "Första och andra världskrigets orsaker och konsekvenser. Förintelsen och andra folkmord." },
+            { id: "HI6", omrade: "Industrialisering och demokratisering, ca 1800–1950", text: "Mellankrigstiden: demokratins kris, totalitära rörelser och system i Europa." },
+            { id: "HI7", omrade: "Demokratisering, kalla kriget och globalisering, ca 1950–nutid", text: "Kalla krigets konflikter, som Koreakriget och Vietnamkriget, och det kalla krigets avslutning." },
+            { id: "HI8", omrade: "Demokratisering, kalla kriget och globalisering, ca 1950–nutid", text: "Avkoloniseringen och upprättandet av nya stater i Asien och Afrika samt kolonialismens konsekvenser i vår tid." },
+            { id: "HI9", omrade: "Demokratisering, kalla kriget och globalisering, ca 1950–nutid", text: "Demokratisering av länder i Europa, Asien och Latinamerika under 1900-talets andra hälft." },
+            { id: "HI10", omrade: "Demokratisering, kalla kriget och globalisering, ca 1950–nutid", text: "Apartheid, medborgarrättsrörelsen och andra rörelser för mänskliga rättigheter." },
+            { id: "HI11", omrade: "Demokratisering, kalla kriget och globalisering, ca 1950–nutid", text: "Hur historisk information värderas och används i samhällsdebatten och i forskning, till exempel i frågor om skuld och ansvar." },
+            { id: "HI12", omrade: "Demokratisering, kalla kriget och globalisering, ca 1950–nutid", text: "Aktuella och historiska konflikter samt internationellt samarbete för fred och säkerhet." },
+            { id: "HI13", omrade: "Historiska perspektiv och metoder", text: "Historiska begrepp som förändring, kontinuitet, likhet och skillnad och hur de kan användas för att analysera historiska skeenden." },
+            { id: "HI14", omrade: "Historiska perspektiv och metoder", text: "Vad historiska källor är, hur de används och vilka olika typer det finns." },
+            { id: "HI15", omrade: "Historiska perspektiv och metoder", text: "Hur historia kan tolkas och berättas utifrån olika perspektiv, till exempel klass, kön och etnicitet, och hur tolkningarna kan variera beroende på vem som skriver historia och utifrån vilket syfte." },
+            { id: "HI16", omrade: "Historiska perspektiv och metoder", text: "Vad som kan påverka bilden av det förflutna, till exempel hur minnen, myter och nationalism kan forma historieberättandet." }
+        ],
+        betygskriterier: {
+            E: [
+                "Eleven har grundläggande kunskaper om historiska förhållanden, skeenden och gestalter under olika tidsperioder och visar det genom att beskriva dessa med viss användning av historiska begrepp.",
+                "Eleven kan undersöka förändringsprocesser, händelser och personer under olika tidsperioder och beskriver orsakerna till och konsekvenserna av dessa med enkla och till viss del underbyggda resonemang.",
+                "Eleven kan söka historisk information i olika typer av källor och för enkla och till viss del underbyggda resonemang om deras relevans och trovärdighet.",
+                "Eleven kan föra enkla och till viss del underbyggda resonemang om hur historia kan brukas i olika sammanhang och för vilket syfte.",
+                "Eleven kan använda historiska begrepp på ett i huvudsak fungerande sätt."
+            ],
+            C: [
+                "Eleven har utvecklade kunskaper om historiska förhållanden, skeenden och gestalter under olika tidsperioder och visar det genom att förklara och analysera dessa med relativt god användning av historiska begrepp.",
+                "Eleven kan undersöka förändringsprocesser, händelser och personer under olika tidsperioder och förklarar orsakerna till och konsekvenserna av dessa med utvecklade och relativt väl underbyggda resonemang.",
+                "Eleven kan söka historisk information i olika typer av källor och för utvecklade och relativt väl underbyggda resonemang om deras relevans och trovärdighet.",
+                "Eleven kan föra utvecklade och relativt väl underbyggda resonemang om hur historia kan brukas i olika sammanhang och för vilket syfte.",
+                "Eleven kan använda historiska begrepp på ett relativt väl fungerande sätt."
+            ],
+            A: [
+                "Eleven har välutvecklade kunskaper om historiska förhållanden, skeenden och gestalter under olika tidsperioder och visar det genom att förklara och analysera dessa med god användning av historiska begrepp samt värderar dem med nyanserade omdömen.",
+                "Eleven kan undersöka förändringsprocesser, händelser och personer under olika tidsperioder och förklarar orsakerna till och konsekvenserna av dessa med välutvecklade och väl underbyggda resonemang samt drar välgrundade och nyanserade slutsatser om orsakssamband.",
+                "Eleven kan söka historisk information i olika typer av källor och för välutvecklade och väl underbyggda resonemang om deras relevans och trovärdighet.",
+                "Eleven kan föra välutvecklade och väl underbyggda resonemang om hur historia kan brukas i olika sammanhang och för vilket syfte samt drar välgrundade och nyanserade slutsatser om vilka konsekvenser detta historiebruk kan få.",
+                "Eleven kan använda historiska begrepp på ett väl fungerande sätt."
+            ]
+        }
+    },
+    geografi: {
+        name: "Geografi",
+        centraltInnehall: [
+            { id: "GE1", omrade: "Jordens naturgeografi och miljöer", text: "Jordens klimat- och vegetationszoner samt faktorer som styr dem." },
+            { id: "GE2", omrade: "Jordens naturgeografi och miljöer", text: "Klimatförändringar och dess konsekvenser för miljö och natur och hur detta påverkar förutsättningarna för mänsklig verksamhet i olika delar av världen." },
+            { id: "GE3", omrade: "Jordens naturgeografi och miljöer", text: "Samband mellan naturgeografiska förhållanden som naturresurser och risker för naturkatastrofer och hur dessa påverkar mänskliga verksamheter." },
+            { id: "GE4", omrade: "Jordens naturgeografi och miljöer", text: "Vatten i havet, istäcken och glaciärer, sötvatten och vattnets kretslopp." },
+            { id: "GE5", omrade: "Jordens kulturgeografi", text: "Livsvillkor i olika delar av världen: fördelningen av jordens befolkning och förklaringar till befolkningsfördelningen." },
+            { id: "GE6", omrade: "Jordens kulturgeografi", text: "Urbanisering samt orsaker till och konsekvenser av denna." },
+            { id: "GE7", omrade: "Jordens kulturgeografi", text: "Geopolitiska och ekonomiska förhållanden och strukturer i världen, till exempel fattiga och rika länder och möjliga förklaringar till dessa skillnader." },
+            { id: "GE8", omrade: "Jordens kulturgeografi", text: "Migrationer och faktorer bakom migrationer, deras konsekvenser för individ, grupp och samhälle." },
+            { id: "GE9", omrade: "Jordens kulturgeografi", text: "Globala handels- och produktionsmönster, till exempel världshandelns utveckling." },
+            { id: "GE10", omrade: "Hållbar utveckling", text: "Vad hållbar utveckling innebär och hur arbete och initiativ för en mer hållbar värld kan genomföras på lokal, regional och global nivå." },
+            { id: "GE11", omrade: "Hållbar utveckling", text: "Samband mellan resursanvändning och levnadssätt och hur de påverkar miljön och människors livsvillkor." },
+            { id: "GE12", omrade: "Hållbar utveckling", text: "Hur fattigdom, hälsa, utbildning och politiska konflikter påverkar möjligheterna till hållbar utveckling." },
+            { id: "GE13", omrade: "Geografiska verktyg och metoder", text: "Rumslig orientering med hjälp av kartor och andra geografiska verktyg, digitala och analoga, vad de visar och hur de kan användas." },
+            { id: "GE14", omrade: "Geografiska verktyg och metoder", text: "Orientering och kartläsning i närmiljön, till exempel i samband med friluftsliv." },
+            { id: "GE15", omrade: "Geografiska verktyg och metoder", text: "Hur rumslig data kan samlas in, bearbetas och presenteras, till exempel med geografiska informationssystem (GIS)." }
+        ],
+        betygskriterier: {
+            E: [
+                "Eleven har grundläggande kunskaper om naturgeografiska och kulturgeografiska förhållanden och visar det genom att beskriva dessa med viss användning av geografiska begrepp.",
+                "Eleven kan undersöka var i världen olika natur- och kulturgeografiska företeelser finns, deras orsaker och konsekvenser, och för enkla och till viss del underbyggda resonemang om samband och mönster.",
+                "Eleven kan söka geografisk information i olika typer av källor och för enkla och till viss del underbyggda resonemang om informationens och källornas trovärdighet och relevans.",
+                "Eleven kan använda geografiska verktyg, till exempel kartor, på ett i huvudsak fungerande sätt.",
+                "Eleven för enkla och till viss del underbyggda resonemang om hållbar utveckling och hur arbete med hållbarhetsfrågor kan genomföras."
+            ],
+            C: [
+                "Eleven har utvecklade kunskaper om naturgeografiska och kulturgeografiska förhållanden och visar det genom att förklara och analysera dessa med relativt god användning av geografiska begrepp.",
+                "Eleven kan undersöka var i världen olika natur- och kulturgeografiska företeelser finns, deras orsaker och konsekvenser, och för utvecklade och relativt väl underbyggda resonemang om samband och mönster.",
+                "Eleven kan söka geografisk information i olika typer av källor och för utvecklade och relativt väl underbyggda resonemang om informationens och källornas trovärdighet och relevans.",
+                "Eleven kan använda geografiska verktyg, till exempel kartor, på ett relativt väl fungerande sätt.",
+                "Eleven för utvecklade och relativt väl underbyggda resonemang om hållbar utveckling och hur arbete med hållbarhetsfrågor kan genomföras."
+            ],
+            A: [
+                "Eleven har välutvecklade kunskaper om naturgeografiska och kulturgeografiska förhållanden och visar det genom att förklara och analysera dessa med god användning av geografiska begrepp samt värderar dem med nyanserade omdömen.",
+                "Eleven kan undersöka var i världen olika natur- och kulturgeografiska företeelser finns, deras orsaker och konsekvenser, och för välutvecklade och väl underbyggda resonemang om samband och mönster samt drar välgrundade och nyanserade slutsatser om dessa.",
+                "Eleven kan söka geografisk information i olika typer av källor och för välutvecklade och väl underbyggda resonemang om informationens och källornas trovärdighet och relevans.",
+                "Eleven kan använda geografiska verktyg, till exempel kartor, på ett väl fungerande sätt.",
+                "Eleven för välutvecklade och väl underbyggda resonemang om hållbar utveckling och hur arbete med hållbarhetsfrågor kan genomföras samt drar välgrundade och nyanserade slutsatser om hur olika aktörers handlingar och ställningstaganden påverkar hållbar utveckling."
+            ]
+        }
+    },
+    samhallskunskap: {
+        name: "Samhällskunskap",
+        centraltInnehall: [
+            { id: "SH1", omrade: "Individer och gemenskaper", text: "Sociala roller och normer samt hur de kan påverka individers handlande och livsvillkor." },
+            { id: "SH2", omrade: "Individer och gemenskaper", text: "Identitet, jämställdhet och sexualitet samt hur könsroller och identitet kan påverkas av samhälleliga normer och strukturer." },
+            { id: "SH3", omrade: "Individer och gemenskaper", text: "Sociala och ekonomiska skillnader i samhällen och förklaringar till dessa, till exempel kopplat till klass, kön och etnicitet." },
+            { id: "SH4", omrade: "Individer och gemenskaper", text: "Diskriminering och hur lagar och regler skyddar mot diskriminering." },
+            { id: "SH5", omrade: "Samhällsstrukturer och politiska system", text: "Sveriges statsskick: riksdag, regering, Grundlagen och hur dessa förhåller sig till varandra." },
+            { id: "SH6", omrade: "Samhällsstrukturer och politiska system", text: "Demokratiska val, hur de genomförs och vilka principerna bakom dem är." },
+            { id: "SH7", omrade: "Samhällsstrukturer och politiska system", text: "Politiska ideologier och hur de grundläggande skiljer sig åt i frågor om individ och samhälle." },
+            { id: "SH8", omrade: "Samhällsstrukturer och politiska system", text: "EU:s uppkomst, funktion och roll i världen." },
+            { id: "SH9", omrade: "Samhällsstrukturer och politiska system", text: "Internationella konfliktlösande organisationer och deras möjligheter och begränsningar, till exempel FN och NATO." },
+            { id: "SH10", omrade: "Samhällsstrukturer och politiska system", text: "Hur mänskliga rättigheter och grundläggande fri- och rättigheter formuleras, förankras och ibland kränks i demokratiska och icke-demokratiska system." },
+            { id: "SH11", omrade: "Ekonomi och arbetsmarknad", text: "Privatekonomi och hur ekonomiska beslut påverkar individers ekonomiska situation, till exempel i frågor om lån, sparande och försäkringar." },
+            { id: "SH12", omrade: "Ekonomi och arbetsmarknad", text: "Arbetsmarknadens funktion och hur arbetsmarknadsrelationer regleras och fungerar, till exempel lönebildning och fackföreningar." },
+            { id: "SH13", omrade: "Ekonomi och arbetsmarknad", text: "Nationalekonomiska grundbegrepp: utbud och efterfrågan, inflation, BNP." },
+            { id: "SH14", omrade: "Ekonomi och arbetsmarknad", text: "Välfärdsstatens framväxt och funktion, med fokus på hur skattesystemet och sociala trygghetssystem finansieras och fungerar." },
+            { id: "SH15", omrade: "Rättssystem och brottslighet", text: "Det svenska rättssystemets uppbyggnad och funktion: polis, åklagare, domstolar och kriminalvård." },
+            { id: "SH16", omrade: "Rättssystem och brottslighet", text: "Lagar och regler i samhället och hur de stiftas, ändras och upphävs." },
+            { id: "SH17", omrade: "Rättssystem och brottslighet", text: "Orsaker till och konsekvenser av brottsliga handlingar, samt hur samhällets respons på brott och brottslighet ser ut." },
+            { id: "SH18", omrade: "Källkritik och informationssökning", text: "Källkritik och metoder för att kritiskt granska information och argumentation, till exempel i nyhetsmedier och på internet." },
+            { id: "SH19", omrade: "Källkritik och informationssökning", text: "Hur desinformation och propaganda sprids och kan påverka samhällsdebatt och opinion." }
+        ],
+        betygskriterier: {
+            E: [
+                "Eleven har grundläggande kunskaper om demokrati och de mänskliga rättigheterna samt om hur individ och samhälle påverkar varandra och visar det genom att beskriva dessa med viss användning av samhällsvetenskapliga begrepp.",
+                "Eleven kan undersöka samhällsfrågor ur olika perspektiv och för enkla och till viss del underbyggda resonemang om orsaker och konsekvenser.",
+                "Eleven kan söka samhällsinformation i olika typer av källor och för enkla och till viss del underbyggda resonemang om informationens och källornas trovärdighet och relevans.",
+                "Eleven kan föra enkla och till viss del underbyggda resonemang om hur lagar och regler stiftas och tillämpas och om rättssystemets funktion.",
+                "Eleven för enkla och till viss del underbyggda resonemang om samhällsfrågor och uttrycker sin åsikt.",
+                "Eleven kan använda samhällsvetenskapliga begrepp på ett i huvudsak fungerande sätt."
+            ],
+            C: [
+                "Eleven har utvecklade kunskaper om demokrati och de mänskliga rättigheterna samt om hur individ och samhälle påverkar varandra och visar det genom att förklara och analysera dessa med relativt god användning av samhällsvetenskapliga begrepp.",
+                "Eleven kan undersöka samhällsfrågor ur olika perspektiv och för utvecklade och relativt väl underbyggda resonemang om orsaker och konsekvenser.",
+                "Eleven kan söka samhällsinformation i olika typer av källor och för utvecklade och relativt väl underbyggda resonemang om informationens och källornas trovärdighet och relevans.",
+                "Eleven kan föra utvecklade och relativt väl underbyggda resonemang om hur lagar och regler stiftas och tillämpas och om rättssystemets funktion.",
+                "Eleven för utvecklade och relativt väl underbyggda resonemang om samhällsfrågor och uttrycker sin åsikt.",
+                "Eleven kan använda samhällsvetenskapliga begrepp på ett relativt väl fungerande sätt."
+            ],
+            A: [
+                "Eleven har välutvecklade kunskaper om demokrati och de mänskliga rättigheterna samt om hur individ och samhälle påverkar varandra och visar det genom att förklara och analysera dessa med god användning av samhällsvetenskapliga begrepp samt värderar dem med nyanserade omdömen.",
+                "Eleven kan undersöka samhällsfrågor ur olika perspektiv och för välutvecklade och väl underbyggda resonemang om orsaker och konsekvenser samt drar välgrundade och nyanserade slutsatser om samband.",
+                "Eleven kan söka samhällsinformation i olika typer av källor och för välutvecklade och väl underbyggda resonemang om informationens och källornas trovärdighet och relevans.",
+                "Eleven kan föra välutvecklade och väl underbyggda resonemang om hur lagar och regler stiftas och tillämpas och om rättssystemets funktion samt drar välgrundade och nyanserade slutsatser.",
+                "Eleven för välutvecklade och väl underbyggda resonemang om samhällsfrågor, uttrycker sin åsikt och värderar andras åsikter med nyanserade omdömen.",
+                "Eleven kan använda samhällsvetenskapliga begrepp på ett väl fungerande sätt."
+            ]
+        }
+    }
+};
+
+// ============================================================
+// APP STATE
+// ============================================================
+let assignments = JSON.parse(localStorage.getItem('lgr22_assignments') || '[]');
+let currentAnalysis = null;
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    populateKlassList();
+    populateFilterDropdowns();
+});
+
+// ============================================================
+// VIEW NAVIGATION
+// ============================================================
+function showView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    const tabs = document.querySelectorAll('.nav-tab');
+    const idx = { add: 0, list: 1, summary: 2 }[name];
+    if (tabs[idx]) tabs[idx].classList.add('active');
+
+    if (name === 'list') { populateFilterDropdowns(); renderList(); }
+    if (name === 'summary') { populateSummaryDropdowns(); renderSummary(); }
+}
+
+// ============================================================
+// LOCAL KEYWORD ANALYSIS
+// ============================================================
+
+const CI_KEYWORDS = {
+    // Religion
+    RE1: ['kristendom','islam','judendom','hinduism','buddhism','livsåskådning','världsreligion','religion','tro','religiös','utbredning','heliga','skrift','bibel','quran','torah','veda','tripitaka'],
+    RE2: ['tolkning','variation','utövande','praktik','sunni','shia','ortodox','katolsk','protestant','reform','liberal'],
+    RE3: ['tankegång','urkundstext','urk','bibel','quran','torah','veda','tripitaka','grundtext','helig skrift','trossats','lära','dogm'],
+    RE4: ['rit','ceremoni','levnadsregel','ritual','bön','fasta','pilgrim','dop','konfirmation','barmitzva','bröllop','begravning','ramadan','hajj','yom kippur','påsk','jul','id'],
+    RE5: ['likhet','skillnad','ursprung','skapelse','natur','kön','jämställdhet','sexualitet','synen på','jämföra','likheter','skillnader'],
+    RE6: ['humanism','ateism','sekulär','mänskliga rättigheter','icke-religiös','fri tänkare','agnostik'],
+    RE7: ['rörelse','gruppering','sekt','new age','scientologi','jehovas','mormoner','pingst','karismatisk','fundamentalism'],
+    RE8: ['identitet','självbild','livsprojekt','påverka','forma','personlig tro','religiös identitet'],
+    RE9: ['livets faser','livscykel','bröllop','begravning','dop','konfirmation','barmitzvah','batmitzvah','initiation'],
+    RE10: ['etisk','etik','kloning','abort','eutanasi','dödsstraff','moralisk','dilemma','frågeställning'],
+    RE11: ['religiöst perspektiv','sekulärt perspektiv','etisk analys','belys','besvara','utifrån religion','utifrån livsåskådning'],
+    RE12: ['religionens roll','religion i samhälle','religion i historia','religion i sverige','nutid','historisk'],
+    RE13: ['religionsfrihet','religionsutövande','demokratisk','icke-demokratisk','styrning','stat och religion'],
+    RE14: ['konflikt','samförstånd','religionskrig','terrorism','fred','dialog','religionsdialog','europa','världen'],
+    RE15: ['sekularisering','pluralism','ny religiös rörelse','modernitet','sekularism','postmodern','mångfald'],
+
+    // Historia
+    HI1: ['industrialism','industrialisering','världshandel','sociala förhållanden','levnadsvillkor','fabrik','urbanisering 1800','arbetarklass'],
+    HI2: ['liberalism','socialism','konservatism','ideologi','demokratisering','politisk ideologi','politiska rörelser'],
+    HI3: ['nationalism','nationalstat','imperialism','kolonialism','koloni','europa','nation'],
+    HI4: ['migration','emigration','immigration','flykt','flyktingskap','orsaker','konsekvenser','rörelse av folk'],
+    HI5: ['världskrig','första världskriget','andra världskriget','förintelsen','holocaust','folkmord','nazism','hitler'],
+    HI6: ['mellankrigstiden','demokratins kris','totalitär','fascism','nazism','kommunism','diktatur','weimar'],
+    HI7: ['kalla kriget','koreakriget','vietnamkriget','usa','sovjet','kommunism vs kapitalism','järnridån','berlinmuren','kuba'],
+    HI8: ['avkolonisering','kolonialism','afrika','asien','självständighet','postkolonial','ny stat','kolonialismens konsekvenser'],
+    HI9: ['demokratisering','1900-talets','latinamerika','asien','östeuropa','demokrati','övergång'],
+    HI10: ['apartheid','medborgarrättsrörelsen','nelson mandela','martin luther king','mänskliga rättigheter','rasism','segregation'],
+    HI11: ['historiebruk','historieskrivning','forskning','skuld','ansvar','historisk debatt','tolkning av historia'],
+    HI12: ['aktuell konflikt','internationellt samarbete','fred','säkerhet','fn','nato','konflikt i nutid'],
+    HI13: ['historiska begrepp','förändring','kontinuitet','likhet','skillnad','historisk analys','perspektiv'],
+    HI14: ['historisk källa','primärkälla','sekundärkälla','källtyp','källkritik historia','arkiv','dokument','artefakt'],
+    HI15: ['perspektiv','klass','kön','etnicitet','historieskrivning','berättelse','vem skriver','tolkning'],
+    HI16: ['minne','myt','nationalism','historieskrivning','bild av förfluten','kollektivt minne','historiemedvetande'],
+
+    // Geografi
+    GE1: ['klimatzon','vegetationszon','klimat','vegetation','tropisk','tempererad','arktisk','ekosystem','biom'],
+    GE2: ['klimatförändring','global uppvärmning','växthusgaser','co2','konsekvenser för miljö','havsnivå','extremväder'],
+    GE3: ['naturresurs','naturkatastrof','jordbävning','vulkan','översvämning','torka','naturgeografi','risk'],
+    GE4: ['vatten','hav','is','glaciär','sötvatten','vattnets kretslopp','grundvatten','flod','sjö'],
+    GE5: ['befolkning','livsvillkor','befolkningsfördelning','fattiga','rika','levnadsstandard','befolkningstäthet'],
+    GE6: ['urbanisering','stad','tätort','storstadsväxt','rural','urban','inflyttning','stadsutveckling'],
+    GE7: ['geopolitisk','ekonomisk','rik','fattig','bip','bnp','handel','ekonomisk ojämlikhet','nord','syd'],
+    GE8: ['migration','flyktingskap','orsaker till migration','konsekvenser','flyktingar','immigrant','emigrant'],
+    GE9: ['handel','produktion','global handel','världshandel','import','export','handelsflöden','globalisering'],
+    GE10: ['hållbar utveckling','hållbarhet','agenda 2030','miljömål','lokal','regional','global','hållbarhetsarbete'],
+    GE11: ['resursanvändning','levnadssätt','miljöpåverkan','ekologiskt fotavtryck','konsumtion','koldioxid'],
+    GE12: ['fattigdom','hälsa','utbildning','politisk konflikt','hållbar','ojämlikhet','bistånd'],
+    GE13: ['karta','geografiskt verktyg','orientering','koordinater','longitud','latitud','gis','digital karta'],
+    GE14: ['kartläsning','närmiljö','friluftsliv','orientering','topografi','terräng'],
+    GE15: ['rumslig data','gis','geografiska informationssystem','datainsamling','bearbeta data','kartdata'],
+
+    // Samhällskunskap
+    SH1: ['social roll','norm','normer','sociala normer','beteende','rollförväntning','socialisering'],
+    SH2: ['identitet','jämställdhet','sexualitet','könsroll','genus','könsnorm','lgbtq','hbtq'],
+    SH3: ['social skillnad','ekonomisk skillnad','klass','kön','etnicitet','ojämlikhet','segregation'],
+    SH4: ['diskriminering','diskrimineringslagen','skydd','lagen','rättighet','rasism','mobbning'],
+    SH5: ['riksdag','regering','grundlagen','statsskick','statsminister','lagstiftning','maktdelning','demokrati'],
+    SH6: ['val','valsystem','rösträtt','valkrets','proportionell','demokratiska val','valdeltagande'],
+    SH7: ['politisk ideologi','liberalism','socialism','konservatism','grön ideologi','höger','vänster'],
+    SH8: ['eu','europeiska unionen','europaparlament','rådet','kommissionen','eurozonen'],
+    SH9: ['fn','nato','internationella organisationer','säkerhetsråd','fredsbevarande','konfliktlösning'],
+    SH10: ['mänskliga rättigheter','fri- och rättigheter','kränkning','demokrati','icke-demokrati','fri','rättighet'],
+    SH11: ['privatekonomi','lån','sparande','försäkring','budget','ekonomi privat','skuld','ränta'],
+    SH12: ['arbetsmarknad','fackförening','lön','lönebildning','arbetsgivare','kollektivavtal','strejk'],
+    SH13: ['utbud','efterfrågan','inflation','bnp','nationalekonomisk','konjunktur','ekonomisk teori'],
+    SH14: ['välfärdsstat','skattesystem','socialt skyddsnät','pension','sjukförsäkring','a-kassa','skatt'],
+    SH15: ['rättssystem','polis','åklagare','domstol','kriminalvård','rättsväsende','rättsprocess'],
+    SH16: ['lag','regler','lagstiftning','stiftas','riksdagen','ändra lag','rättsregel','lagstiftningsprocess'],
+    SH17: ['brottslighet','brott','brottsorsak','straffet','påföljd','kriminalitet','ungdomsbrott'],
+    SH18: ['källkritik','kritisk granskning','nyhetskritik','information','källa','trovärdighet','falsk nyhet'],
+    SH19: ['desinformation','propaganda','fake news','åsiktspåverkan','opinion','sociala medier','påverkan']
+};
+
+const GRADE_VERBS = {
+    E: ['beskriv','redogör för','berätta','vad är','nämn','lista','förklara kort'],
+    C: ['förklara','analysera','jämför','diskutera','resonera','undersök','motivera'],
+    A: ['värdera','nyansera','dra slutsatser','kritisk analys','bedöm','komplex','nyanserat','välgrundad']
+};
+
+function analyzeLocally(content, subject) {
+    const text = content.toLowerCase();
+    const subjectData = subject ? LGR22[subject] : null;
+    const ciList = subjectData ? subjectData.centraltInnehall : Object.values(LGR22).flatMap(s => s.centraltInnehall);
+
+    // Match CI points
+    const matchedCI = [];
+    ciList.forEach(ci => {
+        const keywords = CI_KEYWORDS[ci.id] || [];
+        const hits = keywords.filter(kw => text.includes(kw));
+        if (hits.length > 0) {
+            matchedCI.push({
+                id: ci.id,
+                text: ci.text,
+                tackningsgrad: hits.length >= 2 ? 'full' : 'delvis',
+                motivering: `Nyckelord funna: ${hits.slice(0, 3).join(', ')}`
+            });
+        }
+    });
+
+    // Detect grade level from task verbs
+    const gradeHits = { E: 0, C: 0, A: 0 };
+    Object.entries(GRADE_VERBS).forEach(([grade, verbs]) => {
+        verbs.forEach(v => { if (text.includes(v)) gradeHits[grade]++; });
+    });
+
+    const hasE = gradeHits.E > 0 || matchedCI.length > 0;
+    const hasC = gradeHits.C > 0;
+    const hasA = gradeHits.A > 0;
+
+    return {
+        centraltInnehall: matchedCI,
+        betygskriterier: { E: hasE, C: hasC, A: hasA },
+        betygsmotiveringar: {
+            E: hasE ? `${gradeHits.E} reproduktionsverb och ${matchedCI.length} CI-träff(ar) hittades.` : 'Inga tydliga E-nivå-indikatorer funna.',
+            C: hasC ? `${gradeHits.C} analysverb funna (förklara, analysera, jämför m.fl.).` : 'Inga tydliga C-nivå-verb funna.',
+            A: hasA ? `${gradeHits.A} värderingsverb funna (värdera, nyansera, dra slutsatser m.fl.).` : 'Inga tydliga A-nivå-verb funna.'
+        },
+        ovrigaObservationer: `Automatisk nyckelordsanalys (ingen AI). ${matchedCI.length} centralt-innehåll-punkt(er) identifierade för ${subjectData ? subjectData.name : 'valt ämne'}. Kontrollera manuellt att träffarna är relevanta.`
+    };
+}
+
+// ============================================================
+// ANALYSIS
+// ============================================================
+function analyzeAssignment() {
+    const subject = document.getElementById('f-subject').value;
+    const content = document.getElementById('f-content').value.trim();
+
+    if (!content) { showToast('Klistra in provfrågor eller uppgiftsbeskrivning', 'error'); return; }
+
+    const btn = document.getElementById('analyzeBtn');
+    btn.classList.add('analyzing');
+    btn.disabled = true;
+
+    try {
+        currentAnalysis = analyzeLocally(content, subject);
+        renderAnalysisResult(currentAnalysis, subject);
+        document.getElementById('analysisResult').style.display = 'block';
+        document.getElementById('analysisResult').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch (e) {
+        showToast('Fel: ' + e.message, 'error');
+    }
+
+    btn.classList.remove('analyzing');
+    btn.disabled = false;
+}
+
+function renderAnalysisResult(analysis, subject) {
+    const subjectData = subject ? LGR22[subject] : null;
+    let html = '';
+
+    // CI coverage
+    if (analysis.centraltInnehall && analysis.centraltInnehall.length > 0) {
+        html += `<p style="font-size:0.85rem;color:var(--text-mid);margin-bottom:0.75rem;">
+            <strong>${analysis.centraltInnehall.length}</strong> centralt-innehåll-punkter täcks
+        </p>`;
+        html += '<ul class="ci-list">';
+        analysis.centraltInnehall.forEach(ci => {
+            const full = ci.tackningsgrad === 'full';
+            html += `<li class="ci-item">
+                <span class="ci-badge ${full ? 'badge-full' : 'badge-partial'}">${full ? 'Täcks' : 'Delvis'}</span>
+                <div>
+                    <strong style="font-size:0.85rem;">${ci.id} – ${ci.text}</strong>
+                    ${ci.motivering ? `<div style="font-size:0.78rem;color:var(--text-light);margin-top:0.2rem;">${ci.motivering}</div>` : ''}
+                </div>
+            </li>`;
+        });
+        html += '</ul>';
+    } else {
+        html += '<p style="color:var(--text-light);font-size:0.875rem;">Inga specifika CI-punkter identifierades.</p>';
+    }
+
+    // Betygskriterier
+    const bc = analysis.betygskriterier || {};
+    const bm = analysis.betygsmotiveringar || {};
+    html += `<div style="margin-top:1rem;">
+        <strong style="font-size:0.85rem;color:var(--text-mid);">Betygsnivåer som täcks:</strong>
+        <div class="grade-tags" style="margin-top:0.5rem;">`;
+    ['A','C','E'].forEach(g => {
+        if (bc[g]) {
+            const cl = g === 'A' ? 'grade-a' : g === 'C' ? 'grade-c' : 'grade-e';
+            html += `<span class="grade-tag ${cl}" title="${bm[g] || ''}">Betyg ${g}</span>`;
+        }
+    });
+    html += `</div>`;
+
+    if (Object.values(bm).some(Boolean)) {
+        html += '<div style="margin-top:0.75rem;">';
+        ['E','C','A'].forEach(g => {
+            if (bm[g]) {
+                html += `<div style="font-size:0.8rem;color:var(--text-mid);margin-bottom:0.3rem;"><strong>Betyg ${g}:</strong> ${bm[g]}</div>`;
+            }
+        });
+        html += '</div>';
+    }
+    html += '</div>';
+
+    // Övrigt
+    if (analysis.ovrigaObservationer) {
+        html += `<div style="margin-top:1rem;padding:0.75rem;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:0.82rem;color:#78350f;">
+            <strong>Pedagogisk kommentar:</strong><br>${analysis.ovrigaObservationer}
+        </div>`;
+    }
+
+    document.getElementById('resultContent').innerHTML = html;
+}
+
+// ============================================================
+// SAVE / DELETE
+// ============================================================
+function saveAssignment() {
+    const title = document.getElementById('f-title').value.trim() || 'Namnlös uppgift';
+    const subject = document.getElementById('f-subject').value;
+    const klass = document.getElementById('f-klass').value.trim();
+    const termin = document.getElementById('f-termin').value;
+    const type = document.getElementById('f-type').value;
+    const content = document.getElementById('f-content').value.trim();
+
+    if (!content) { showToast('Lägg till innehåll innan du sparar', 'error'); return; }
+    if (!klass) { showToast('Ange klass', 'error'); return; }
+
+    const assignment = {
+        id: Date.now(),
+        title,
+        subject,
+        klass,
+        termin,
+        type,
+        content,
+        analysis: currentAnalysis,
+        savedAt: new Date().toISOString()
+    };
+
+    assignments.push(assignment);
+    persistAssignments();
+    showToast('Uppgiften sparad!', 'success');
+    populateKlassList();
+    clearForm();
+}
+
+function deleteAssignment(id) {
+    if (!confirm('Ta bort uppgiften?')) return;
+    assignments = assignments.filter(a => a.id !== id);
+    persistAssignments();
+    renderList();
+    populateFilterDropdowns();
+    showToast('Uppgiften borttagen');
+}
+
+function persistAssignments() {
+    localStorage.setItem('lgr22_assignments', JSON.stringify(assignments));
+}
+
+function clearForm() {
+    document.getElementById('f-title').value = '';
+    document.getElementById('f-content').value = '';
+    document.getElementById('f-subject').value = '';
+    document.getElementById('analysisResult').style.display = 'none';
+    currentAnalysis = null;
+}
+
+// ============================================================
+// LIST VIEW
+// ============================================================
+function populateFilterDropdowns() {
+    const klassSet = [...new Set(assignments.map(a => a.klass).filter(Boolean))].sort();
+    const terminSet = [...new Set(assignments.map(a => a.termin).filter(Boolean))].sort();
+
+    const filterKlass = document.getElementById('filter-klass');
+    const prev = filterKlass.value;
+    filterKlass.innerHTML = '<option value="">Alla klasser</option>';
+    klassSet.forEach(k => {
+        const o = document.createElement('option');
+        o.value = k; o.textContent = k;
+        if (k === prev) o.selected = true;
+        filterKlass.appendChild(o);
+    });
+
+    const filterTermin = document.getElementById('filter-termin');
+    const prevT = filterTermin.value;
+    filterTermin.innerHTML = '<option value="">Alla terminer</option>';
+    terminSet.forEach(t => {
+        const o = document.createElement('option');
+        o.value = t; o.textContent = t;
+        if (t === prevT) o.selected = true;
+        filterTermin.appendChild(o);
+    });
+}
+
+function populateKlassList() {
+    const dl = document.getElementById('klass-list');
+    const klasser = [...new Set(assignments.map(a => a.klass).filter(Boolean))].sort();
+    dl.innerHTML = klasser.map(k => `<option value="${k}">`).join('');
+}
+
+function getFilteredAssignments() {
+    const subj = document.getElementById('filter-subject')?.value || '';
+    const klass = document.getElementById('filter-klass')?.value || '';
+    const termin = document.getElementById('filter-termin')?.value || '';
+    return assignments.filter(a =>
+        (!subj || a.subject === subj) &&
+        (!klass || a.klass === klass) &&
+        (!termin || a.termin === termin)
+    );
+}
+
+function renderList() {
+    populateFilterDropdowns();
+    const container = document.getElementById('list-container');
+    const filtered = getFilteredAssignments().sort((a,b) => b.id - a.id);
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state">
+            <span>📋</span>
+            <p>Inga uppgifter sparade än.<br>Lägg till din första uppgift under "Lägg till".</p>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = filtered.map(a => {
+        const subjectName = LGR22[a.subject]?.name || a.subject || 'Okänt ämne';
+        const typeLabel = { prov:'Prov', inlamning:'Inlämning', muntlig:'Muntlig', grupparbete:'Grupparbete', portfolio:'Portfolio', loggbok:'Loggbok', annat:'Annat' }[a.type] || a.type;
+        const grades = a.analysis?.betygskriterier ? Object.entries(a.analysis.betygskriterier).filter(([,v])=>v).map(([g]) => g).reverse() : [];
+        const ciItems = a.analysis?.centraltInnehall || [];
+
+        return `<div class="assignment-card">
+            <div class="assignment-card-header">
+                <div>
+                    <div class="assignment-meta" style="margin-bottom:0.4rem;">
+                        ${a.subject ? `<span class="meta-chip subject">${subjectName}</span>` : ''}
+                        ${a.klass ? `<span class="meta-chip klass">${a.klass}</span>` : ''}
+                        ${a.termin ? `<span class="meta-chip termin">${a.termin}</span>` : ''}
+                        <span class="meta-chip type">${typeLabel}</span>
+                    </div>
+                    <div class="assignment-title">${escapeHtml(a.title)}</div>
+                </div>
+                <button class="delete-btn" onclick="deleteAssignment(${a.id})" title="Ta bort">✕</button>
+            </div>
+            <div class="assignment-preview">${escapeHtml(a.content)}</div>
+            ${ciItems.length ? `<div class="ci-coverage">${ciItems.slice(0,6).map(ci =>
+                `<span class="ci-chip ${ci.tackningsgrad === 'full' ? '' : 'partial'}">${ci.id}</span>`
+            ).join('')}${ciItems.length > 6 ? `<span class="ci-chip">+${ciItems.length-6}</span>` : ''}</div>` : ''}
+            ${grades.length ? `<div class="grade-tags">${grades.map(g => {
+                const cl = g==='A'?'grade-a':g==='C'?'grade-c':'grade-e';
+                return `<span class="grade-tag ${cl}">Betyg ${g}</span>`;
+            }).join('')}</div>` : ''}
+            <div style="margin-top:0.75rem;">
+                <button class="btn btn-outline" style="font-size:0.8rem;padding:0.4rem 0.875rem;" onclick="openModal(${a.id})">Visa analys</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ============================================================
+// SUMMARY VIEW
+// ============================================================
+function populateSummaryDropdowns() {
+    const klassSet = [...new Set(assignments.map(a => a.klass).filter(Boolean))].sort();
+    const sumKlass = document.getElementById('sum-klass');
+    const prev = sumKlass.value;
+    sumKlass.innerHTML = '<option value="">Välj klass...</option>';
+    klassSet.forEach(k => {
+        const o = document.createElement('option');
+        o.value = k; o.textContent = k;
+        if (k === prev) o.selected = true;
+        sumKlass.appendChild(o);
+    });
+}
+
+function renderSummary() {
+    const klass = document.getElementById('sum-klass').value;
+    const termin = document.getElementById('sum-termin').value;
+    const subject = document.getElementById('sum-subject').value;
+    const container = document.getElementById('summary-container');
+
+    const filtered = assignments.filter(a =>
+        (!klass || a.klass === klass) &&
+        (!termin || a.termin === termin) &&
+        (!subject || a.subject === subject)
+    );
+
+    if (!klass && !termin && !subject) {
+        container.innerHTML = renderGlobalSummary(filtered);
+        return;
+    }
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="empty-state"><span>📊</span><p>Inga uppgifter matchar valt filter.</p></div>`;
+        return;
+    }
+
+    // Stat cards
+    const totalAssignments = filtered.length;
+    const subjects = [...new Set(filtered.map(a => a.subject).filter(Boolean))];
+    const allCi = filtered.flatMap(a => a.analysis?.centraltInnehall || []);
+    const uniqueCiIds = [...new Set(allCi.map(c => c.id))];
+    const gradesA = filtered.filter(a => a.analysis?.betygskriterier?.A).length;
+    const gradesC = filtered.filter(a => a.analysis?.betygskriterier?.C).length;
+    const gradesE = filtered.filter(a => a.analysis?.betygskriterier?.E).length;
+
+    let html = `<div class="summary-grid">
+        <div class="stat-card">
+            <div class="stat-num">${totalAssignments}</div>
+            <div class="stat-label">Betygsgrundande uppgifter</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">${uniqueCiIds.length}</div>
+            <div class="stat-label">Unika CI-punkter täckta</div>
+        </div>
+        <div class="stat-card">
+            <div style="display:flex;gap:0.75rem;align-items:flex-end;">
+                <div><div class="stat-num" style="color:var(--grade-a);">${gradesA}</div><div class="stat-label">A-nivå</div></div>
+                <div><div class="stat-num" style="color:var(--grade-c);">${gradesC}</div><div class="stat-label">C-nivå</div></div>
+                <div><div class="stat-num" style="color:var(--grade-e);">${gradesE}</div><div class="stat-label">E-nivå</div></div>
+            </div>
+            <div class="stat-label" style="margin-top:0.5rem;">Uppgifter per betygsnivå</div>
+        </div>
+    </div>`;
+
+    // Per-subject CI coverage
+    const subjectsToShow = subject ? [subject] : subjects;
+    subjectsToShow.forEach(subj => {
+        const subjectData = LGR22[subj];
+        if (!subjectData) return;
+        const subjAssignments = filtered.filter(a => a.subject === subj);
+        if (subjAssignments.length === 0) return;
+        const subjCiCoverage = {};
+        subjAssignments.forEach(a => {
+            (a.analysis?.centraltInnehall || []).forEach(ci => {
+                if (!subjCiCoverage[ci.id]) subjCiCoverage[ci.id] = { count: 0, full: 0 };
+                subjCiCoverage[ci.id].count++;
+                if (ci.tackningsgrad === 'full') subjCiCoverage[ci.id].full++;
+            });
+        });
+
+        const coveredCount = Object.keys(subjCiCoverage).length;
+        const totalCI = subjectData.centraltInnehall.length;
+        const pct = Math.round((coveredCount / totalCI) * 100);
+
+        html += `<div class="card">
+            <h2>${subjectData.name} – CI-täckning</h2>
+            <div class="coverage-bar-wrap">
+                <div class="coverage-bar-label">
+                    <span>${coveredCount} av ${totalCI} CI-punkter täckta</span>
+                    <span>${pct}%</span>
+                </div>
+                <div class="coverage-bar"><div class="coverage-bar-fill" style="width:${pct}%"></div></div>
+            </div>
+            <div style="margin-top:1.25rem;">`;
+
+        html += '<ul class="ci-summary-list">';
+        subjectData.centraltInnehall.forEach(ci => {
+            const coverage = subjCiCoverage[ci.id];
+            const count = coverage ? coverage.count : 0;
+            const cls = count === 0 ? 'zero' : count === 1 ? 'low' : 'ok';
+            const label = count === 0 ? 'Ej täckt' : count + (count === 1 ? ' gång' : ' ggr');
+            html += `<li class="ci-summary-item">
+                <span style="flex:1;padding-right:1rem;font-size:0.82rem;">
+                    <strong>${ci.id}</strong> – ${ci.text}
+                </span>
+                <span class="ci-count-badge ${cls}">${label}</span>
+            </li>`;
+        });
+        html += '</ul></div></div>';
+    });
+
+    // Betygskriterier accordion
+    html += `<div class="card"><h2>Betygskriterier – täckning</h2>`;
+    const subjForBetygskriterier = subject ? [subject] : subjects.filter(s => LGR22[s]);
+    subjForBetygskriterier.forEach(subj => {
+        const sd = LGR22[subj];
+        if (!sd) return;
+        html += `<div class="accordion">
+            <button class="accordion-toggle" onclick="toggleAccordion(this)">
+                ${sd.name}
+                <span class="arrow">▼</span>
+            </button>
+            <div class="accordion-body">`;
+        ['E','C','A'].forEach(grade => {
+            const gradeAssignments = filtered.filter(a => a.subject === subj && a.analysis?.betygskriterier?.[grade]);
+            const cl = grade==='A'?'grade-a':grade==='C'?'grade-c':'grade-e';
+            html += `<div style="margin-bottom:0.75rem;">
+                <span class="grade-tag ${cl}" style="display:inline-block;margin-bottom:0.4rem;">Betyg ${grade} – ${gradeAssignments.length} uppgifter</span>
+                <ul style="font-size:0.8rem;color:var(--text-mid);padding-left:1.25rem;">`;
+            sd.betygskriterier[grade].forEach(k => {
+                html += `<li style="margin-bottom:0.2rem;">${k}</li>`;
+            });
+            html += `</ul></div>`;
+        });
+        html += `</div></div>`;
+    });
+    html += `</div>`;
+
+    container.innerHTML = html;
+}
+
+function renderGlobalSummary(all) {
+    if (all.length === 0) {
+        return `<div class="empty-state"><span>📊</span><p>Inga uppgifter sparade än.</p></div>`;
+    }
+
+    const klasser = [...new Set(all.map(a => a.klass).filter(Boolean))].sort();
+    const terminer = [...new Set(all.map(a => a.termin).filter(Boolean))].sort();
+
+    let html = `<div class="summary-grid">
+        <div class="stat-card"><div class="stat-num">${all.length}</div><div class="stat-label">Totalt antal uppgifter</div></div>
+        <div class="stat-card"><div class="stat-num">${klasser.length}</div><div class="stat-label">Klasser</div></div>
+        <div class="stat-card"><div class="stat-num">${terminer.length}</div><div class="stat-label">Terminer</div></div>
+    </div>`;
+
+    html += `<div class="card"><h2>Per klass</h2><ul class="ci-summary-list">`;
+    klasser.forEach(k => {
+        const n = all.filter(a => a.klass === k).length;
+        html += `<li class="ci-summary-item">
+            <span style="font-weight:600;">${k}</span>
+            <span class="ci-count-badge ok">${n} uppgifter</span>
+        </li>`;
+    });
+    html += `</ul></div>`;
+
+    return html;
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openModal(id) {
+    const a = assignments.find(x => x.id === id);
+    if (!a) return;
+    const subjectName = LGR22[a.subject]?.name || a.subject || 'Okänt ämne';
+    let html = `<h2 style="margin-bottom:1rem;">${escapeHtml(a.title)}</h2>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+            ${a.subject ? `<span class="meta-chip subject">${subjectName}</span>` : ''}
+            ${a.klass ? `<span class="meta-chip klass">${a.klass}</span>` : ''}
+            ${a.termin ? `<span class="meta-chip termin">${a.termin}</span>` : ''}
+        </div>
+        <h3 style="font-size:0.9rem;font-weight:700;color:var(--text-mid);margin-bottom:0.5rem;">Uppgiftsbeskrivning</h3>
+        <div style="background:#f8fafc;border-radius:8px;padding:0.875rem;font-size:0.875rem;white-space:pre-wrap;margin-bottom:1.25rem;">${escapeHtml(a.content)}</div>`;
+
+    if (a.analysis) {
+        html += `<h3 style="font-size:0.9rem;font-weight:700;color:var(--primary-dark);margin-bottom:0.75rem;">Lgr22-analys</h3>`;
+        const tmpDiv = document.createElement('div');
+        tmpDiv.className = 'result-panel';
+        tmpDiv.style.marginTop = '0';
+        document.getElementById('modal-body').innerHTML = html;
+        document.getElementById('modal-body').appendChild(tmpDiv);
+        renderAnalysisResult(a.analysis, a.subject);
+        const resultDiv = document.getElementById('resultContent');
+        if (resultDiv) tmpDiv.innerHTML = resultDiv.innerHTML;
+    } else {
+        html += `<p style="color:var(--text-light);font-size:0.875rem;">Ingen AI-analys sparad för denna uppgift.</p>`;
+        document.getElementById('modal-body').innerHTML = html;
+    }
+
+    document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+}
+
+// ============================================================
+// ACCORDION
+// ============================================================
+function toggleAccordion(btn) {
+    btn.classList.toggle('open');
+    const body = btn.nextElementSibling;
+    body.classList.toggle('open');
+}
+
+// ============================================================
+// EXPORT CSV
+// ============================================================
+function exportCSV() {
+    const filtered = getFilteredAssignments();
+    if (filtered.length === 0) { showToast('Inga uppgifter att exportera', 'error'); return; }
+
+    const rows = [['Titel','Ämne','Klass','Termin','Typ','CI-täckning','Betyg E','Betyg C','Betyg A','Sparad']];
+    filtered.forEach(a => {
+        const ciIds = (a.analysis?.centraltInnehall || []).map(c => c.id).join('; ');
+        const bc = a.analysis?.betygskriterier || {};
+        rows.push([
+            a.title, LGR22[a.subject]?.name || a.subject || '', a.klass, a.termin,
+            a.type, ciIds, bc.E ? 'Ja' : 'Nej', bc.C ? 'Ja' : 'Nej', bc.A ? 'Ja' : 'Nej',
+            new Date(a.savedAt).toLocaleDateString('sv-SE')
+        ]);
+    });
+
+    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'lgr22-uppgifter.csv'; a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function showToast(msg, type = 'default') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type === 'success' ? 'success' : type === 'error' ? 'error' : '');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function escapeHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function updateCiSelector() {
+    // Could add subject-specific UI hints here
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Svenska Övningar – Nationella Proven</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #006AA7;
+            --primary-dark: #005589;
+            --accent: #FECC02;
+            --accent-dark: #d4a800;
+            --success: #22c55e;
+            --success-light: #dcfce7;
+            --error: #ef4444;
+            --error-light: #fee2e2;
+            --warning: #f59e0b;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #006AA7 0%, #004d7a 50%, #003355 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            color: white;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header h1 span {
+            color: var(--accent);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-tab {
+            padding: 16px 32px;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 14px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-tab:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .nav-tab.active {
+            background: var(--accent);
+            color: #1e293b;
+            border-color: var(--accent);
+            box-shadow: 0 4px 15px rgba(254,204,2,0.4);
+        }
+
+        .exercise-container {
+            background: var(--bg-white);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            display: none;
+        }
+
+        .exercise-container.active {
+            display: block;
+        }
+
+        .exercise-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .exercise-header h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .exercise-header p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Progress */
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .progress-text strong {
+            color: var(--primary);
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: var(--border);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.4s ease;
+            border-radius: 5px;
+        }
+
+        /* Reading Exercise */
+        .reading-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reading-text {
+            background: var(--bg-light);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 1.05rem;
+            line-height: 1.85;
+            border-left: 4px solid var(--primary);
+            white-space: pre-wrap;
+        }
+
+        .question-box {
+            margin-top: 20px;
+        }
+
+        .question-box h3 {
+            margin-bottom: 15px;
+            color: var(--text-dark);
+            font-size: 1.05rem;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            padding: 14px 20px;
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background: #e8f0fe;
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .option-btn.correct {
+            background: var(--success-light);
+            border-color: var(--success);
+            color: #166534;
+            font-weight: 600;
+        }
+
+        .option-btn.incorrect {
+            background: var(--error-light);
+            border-color: var(--error);
+            color: #991b1b;
+        }
+
+        .option-btn.disabled {
+            cursor: not-allowed;
+        }
+
+        .explanation-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            color: #1e40af;
+            display: none;
+        }
+
+        .explanation-box.show {
+            display: block;
+        }
+
+        /* Tidsformer / Gap Fill */
+        .tense-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .gap-sentence {
+            background: var(--bg-light);
+            padding: 22px 25px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            border-left: 4px solid var(--accent);
+        }
+
+        .gap-sentence .blank {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .gap-hint {
+            font-size: 0.88rem;
+            color: var(--text-light);
+            margin-top: 8px;
+            font-style: italic;
+            background: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            display: inline-block;
+        }
+
+        .gap-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .gap-input {
+            flex: 1;
+            min-width: 180px;
+            padding: 13px 18px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-family: inherit;
+            transition: all 0.25s ease;
+        }
+
+        .gap-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0,106,167,0.12);
+        }
+
+        .gap-input.correct {
+            border-color: var(--success);
+            background: var(--success-light);
+        }
+
+        .gap-input.incorrect {
+            border-color: var(--error);
+            background: var(--error-light);
+        }
+
+        .check-btn {
+            padding: 13px 22px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .check-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .check-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .feedback-text {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-weight: 500;
+            display: none;
+            font-size: 0.95rem;
+        }
+
+        .feedback-text.show {
+            display: block;
+        }
+
+        .feedback-text.correct {
+            background: var(--success-light);
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .feedback-text.incorrect {
+            background: var(--error-light);
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .explanation-text {
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: #eff6ff;
+            border-radius: 8px;
+            color: #1e40af;
+            font-size: 0.88rem;
+            display: none;
+        }
+
+        .explanation-text.show {
+            display: block;
+        }
+
+        /* Nav Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 28px;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+
+        .nav-btn.prev {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: 2px solid var(--border);
+        }
+
+        .nav-btn.prev:hover:not(:disabled) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .nav-btn.next {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-btn.next:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Score / Complete Screen */
+        .score-display {
+            text-align: center;
+            padding: 40px 30px;
+            background: linear-gradient(135deg, var(--primary) 0%, #004d7a 100%);
+            border-radius: 18px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .score-display h3 {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+
+        .score-display p {
+            opacity: 0.85;
+            margin-bottom: 15px;
+        }
+
+        .score-value {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 10px 0;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .score-label {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 25px;
+        }
+
+        .restart-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .reset-btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+
+        .reset-btn.same {
+            background: white;
+            color: var(--primary);
+        }
+
+        .reset-btn.same:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .reset-btn.new {
+            background: var(--accent);
+            color: #1e293b;
+        }
+
+        .reset-btn.new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(254,204,2,0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.8rem; }
+            .nav-tab { padding: 13px 20px; font-size: 1rem; }
+            .exercise-container { padding: 20px; }
+            .reading-text { font-size: 0.98rem; }
+            .nav-buttons { flex-direction: column; }
+            .restart-buttons { flex-direction: column; align-items: stretch; }
+            .score-value { font-size: 3rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Svenska <span>Övningar</span></h1>
+            <p>Träna inför Nationella proven – Gymnasiet</p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('lasforstAelse')">📖 Läsförståelse</button>
+            <button class="nav-tab" onclick="showTab('tidsformer')">✏️ Tidsformer</button>
+        </nav>
+
+        <!-- ==================== LÄSFÖRSTÅELSE ==================== -->
+        <div id="tab-lasforstAelse" class="exercise-container active">
+            <div class="exercise-header">
+                <h2>📖 Läsförståelse</h2>
+                <p>Läs texten noggrant och svara på frågorna. Välj det bästa svarsalternativet.</p>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Text <strong id="las-current">1</strong> av <strong id="las-total">5</strong></span>
+                    <span><strong id="las-score">Poäng: 0</strong></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="las-progress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="las-content">
+                <div class="reading-title" id="las-title">Titel</div>
+                <div class="reading-text" id="las-text">Laddar text...</div>
+
+                <div class="question-box">
+                    <h3 id="las-question-label">Fråga 1 av 4</h3>
+                    <div class="options" id="las-options"></div>
+                    <div class="explanation-box" id="las-explanation"></div>
+                </div>
+
+                <div class="nav-buttons" id="las-nav">
+                    <button class="nav-btn prev" id="las-prev-q" onclick="prevQuestion()" disabled>← Föregående fråga</button>
+                    <button class="nav-btn next" id="las-next-q" onclick="nextQuestion()" disabled>Nästa →</button>
+                </div>
+            </div>
+
+            <div class="score-display" id="las-complete" style="display:none;">
+                <h3>Läsförståelse avklarad!</h3>
+                <p>Du har svarat på alla frågor</p>
+                <div class="score-value" id="las-final-score">0</div>
+                <div class="score-label" id="las-score-label">rätta svar av 0</div>
+                <div class="restart-buttons">
+                    <button class="reset-btn same" onclick="restartReading(false)">🔁 Börja om med samma frågor</button>
+                    <button class="reset-btn new" onclick="restartReading(true)">🎲 Välj nya frågor</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TIDSFORMER ==================== -->
+        <div id="tab-tidsformer" class="exercise-container">
+            <div class="exercise-header">
+                <h2>✏️ Tidsformer</h2>
+                <p>Fyll i verbet i rätt form. Ledtråden anger vilket verb och vilken tid som ska användas.</p>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Mening <strong id="tid-current">1</strong> av <strong id="tid-total">12</strong></span>
+                    <span><strong id="tid-score">Poäng: 0</strong></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="tid-progress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="tid-content">
+                <div class="tense-badge" id="tid-tense-badge">Presens</div>
+                <div class="gap-sentence" id="tid-sentence">Laddar mening...</div>
+                <div class="gap-hint" id="tid-hint"></div>
+
+                <div class="gap-input-row">
+                    <input type="text"
+                           class="gap-input"
+                           id="tid-input"
+                           placeholder="Skriv verbformen här..."
+                           onkeydown="if(event.key==='Enter') checkTidsformer()">
+                    <button class="check-btn" id="tid-check" onclick="checkTidsformer()">Kontrollera</button>
+                </div>
+
+                <div class="feedback-text" id="tid-feedback"></div>
+                <div class="explanation-text" id="tid-explanation"></div>
+
+                <div class="nav-buttons">
+                    <button class="nav-btn prev" id="tid-prev" onclick="prevTidsformer()" disabled>← Föregående</button>
+                    <button class="nav-btn next" id="tid-next" onclick="nextTidsformer()" disabled>Nästa →</button>
+                </div>
+            </div>
+
+            <div class="score-display" id="tid-complete" style="display:none;">
+                <h3>Tidsformer avklarade!</h3>
+                <p>Du har slutfört alla meningar</p>
+                <div class="score-value" id="tid-final-score">0</div>
+                <div class="score-label" id="tid-score-label">rätta svar av 0</div>
+                <div class="restart-buttons">
+                    <button class="reset-btn same" onclick="restartTidsformer(false)">🔁 Börja om med samma meningar</button>
+                    <button class="reset-btn new" onclick="restartTidsformer(true)">🎲 Välj nya meningar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ================================================================
+    //  DATA – LÄSFÖRSTÅELSEPOOL (8 texter, 4 frågor per text)
+    // ================================================================
+    const lasforstaelsePool = [
+        {
+            id: 1,
+            title: "Klimatkrisen och framtiden",
+            text: `Klimatförändringarna är en av vår tids mest akuta utmaningar. Sedan industrialiseringens genombrott under 1800-talet har jordens medeltemperatur stigit med nästan 1,2 grader Celsius, och forskare varnar för att konsekvenserna kan bli katastrofala om inte världens länder agerar kraftfullt och samordnat.
+
+I Sverige märks förändringarna tydligt. Vintrarna har blivit mildare, extremväder som skyfall och torka förekommer allt oftare och SMHI – Sveriges meteorologiska och hydrologiska institut – bekräftar att den genomsnittliga årstemperaturen i landet stigit med ungefär två grader under de senaste hundra åren.
+
+Det internationella Parisavtalet från 2015 syftar till att begränsa den globala uppvärmningen till under 2 grader, helst 1,5 grader, jämfört med förindustriella nivåer. För att klara det målet måste världens länder drastiskt minska sina utsläpp av växthusgaser, framför allt koldioxid från förbränning av fossila bränslen som kol, olja och naturgas.
+
+Unga människor spelar en allt viktigare roll i klimatrörelsen. Inspirerade av aktivister som Greta Thunberg har miljontals ungdomar världen över demonstrerat för kraftfullare klimatpolitik. De hävdar att deras generation kommer att tvingas leva med konsekvenserna av dagens beslut, och att politiker och företagsledare måste ta sitt ansvar – nu.`,
+            questions: [
+                {
+                    question: "Med hur mycket har jordens medeltemperatur stigit sedan industrialiseringens början?",
+                    options: ["0,8 grader Celsius", "1,2 grader Celsius", "1,5 grader Celsius", "2,0 grader Celsius"],
+                    correct: 1
+                },
+                {
+                    question: "Vad är syftet med Parisavtalet?",
+                    options: [
+                        "Att förbjuda alla fossila bränslen till 2030",
+                        "Att begränsa uppvärmningen till under 2 grader jämfört med förindustriell tid",
+                        "Att minska utsläppen med 50 % till 2025",
+                        "Att öka andelen förnybar energi till 100 %"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Vad syftar begreppet 'förindustriella nivåer' på i texten?",
+                    options: [
+                        "Temperaturen i Sverige för hundra år sedan",
+                        "Genomsnittliga globala temperaturen innan industrialiseringen",
+                        "Utsläppsnivåerna år 2015",
+                        "SMHIs mätningar från 1800-talet"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Vad är textens huvudbudskap?",
+                    options: [
+                        "Sverige är inte påverkat av klimatförändringarna",
+                        "Greta Thunberg är den viktigaste klimataktivisten i världen",
+                        "Klimatförändringarna kräver omedelbara åtgärder och engagemang från alla nivåer",
+                        "Parisavtalet har lyckats lösa klimatkrisen"
+                    ],
+                    correct: 2
+                }
+            ]
+        },
+        {
+            id: 2,
+            title: "Sociala medier och psykisk hälsa",
+            text: `Under det senaste decenniet har sociala medier blivit en central del av ungas vardagsliv. Plattformar som Instagram, TikTok och Snapchat används dagligen av miljontals svenska tonåringar, men forskning pekar på oroande samband mellan intensivt användande och psykisk ohälsa.
+
+En studie från Karolinska Institutet visar att unga som tillbringar mer än tre timmar om dagen på sociala medier har dubbelt så stor risk att utveckla ångest och depression jämfört med dem som använder plattformarna mer sparsamt. Forskarna tror att konstant jämförelse med andras "perfekta" liv på nätet skapar oro och missnöje med det egna livet.
+
+Nätmobbning är ett annat allvarligt problem. Statistik från Bris – Barnens rätt i samhället – visar att var femte ung person i Sverige har upplevt kränkningar eller mobbning online. Till skillnad från traditionell mobbning kan nätmobbning pågå dygnet runt och nå offret var som helst, utan möjlighet till fristad.
+
+Samtidigt har sociala medier positiva aspekter. De kan ge unga möjlighet att hålla kontakt med vänner, hitta likasinnade och engagera sig i viktiga samhällsfrågor. Nyckeln, menar experter, är att lära unga att använda digitala verktyg på ett medvetet och hälsosamt sätt. Skolor och föräldrar har en viktig roll i att undervisa om digitalt välmående.`,
+            questions: [
+                {
+                    question: "Vad visar studien från Karolinska Institutet om unga som använder sociala medier mer än tre timmar per dag?",
+                    options: [
+                        "De presterar sämre i skolan",
+                        "De har dubbelt så stor risk för ångest och depression",
+                        "De sover i genomsnitt två timmar mindre",
+                        "De är mer socialt aktiva i verkliga livet"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Varför är nätmobbning särskilt problematisk jämfört med traditionell mobbning?",
+                    options: [
+                        "Den är svårare att anmäla till skolpersonal",
+                        "Den förekommer oftare bland äldre ungdomar",
+                        "Den kan pågå dygnet runt och nå offret var som helst",
+                        "Den lämnar alltid synliga spår online"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "Vad innebär ordet 'fristad' i texten?",
+                    options: [
+                        "En plats där man är fri från nätmobbning",
+                        "En statligt finansierad ungdomsgård",
+                        "En app för att blockera kontakter",
+                        "En juridisk term för skyddad identitet"
+                    ],
+                    correct: 0
+                },
+                {
+                    question: "Vad är textens slutsats om sociala medier?",
+                    options: [
+                        "Sociala medier bör förbjudas för alla under 18 år",
+                        "Sociala medier har enbart negativa effekter på unga",
+                        "Med rätt kunskap och medvetenhet kan sociala medier användas positivt",
+                        "Föräldrar bör övervaka all användning av sociala medier"
+                    ],
+                    correct: 2
+                }
+            ]
+        },
+        {
+            id: 3,
+            title: "Astrid Lindgren – Sveriges berättare",
+            text: `Astrid Lindgren, född 1907 i Näs utanför Vimmerby i Småland, är en av världslitteraturens mest älskade barnboksförfattare. Med verk som Pippi Långstrump, Emil i Lönneberga och Ronja Rövardotter skapade hon karaktärer som älskats av generationer av barn och vuxna i hela världen, långt utanför Sveriges gränser.
+
+Lindgrens böcker har översatts till över hundra språk och sålts i mer än 165 miljoner exemplar. Hennes berättelser kännetecknas av starka, oberoende protagonister och en djup respekt för barnets perspektiv och känsloliv. Pippi Långstrump, som skapades 1945, var revolutionerande i sin tid – ett barn som levde ensamt, styrde sitt eget liv och öppet utmanade vuxna auktoriteter.
+
+Förutom sin litterära gärning engagerade sig Lindgren i djurrätt och barnens rättigheter. Hon kämpade enträget för bättre förhållanden för lantbruksdjur och var en av initiativtagarna till den så kallade "lex Lindgren" – en djurskyddslag som antogs av riksdagen 1988.
+
+Astrid Lindgren avled 2002, men hennes arv lever vidare. Astrid Lindgrens Värld i Vimmerby är en av Sveriges mest besökta turistattraktioner, och hennes barndomshem Näs är i dag ett museum. Varje år delas dessutom Astrid Lindgrens Minnespris ut till framstående bidragsgivare till barnlitteraturen världen över.`,
+            questions: [
+                {
+                    question: "Vad var revolutionerande med Pippi Långstrump när boken publicerades 1945?",
+                    options: [
+                        "Hon var den allra första flickfiguren inom barnlitteraturen",
+                        "Hon var ett barn som levde ensamt och utmanade vuxna auktoriteter",
+                        "Boken var den första svenska barnboken att översättas till hundra språk",
+                        "Hon var baserad på en verklig historisk person"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Vad är 'lex Lindgren'?",
+                    options: [
+                        "En lag om upphovsrätt för barnlitteratur",
+                        "En lag om barns rättigheter i skolan",
+                        "En djurskyddslag som antogs 1988",
+                        "En lag som reglerar filmatiseringar av barnböcker"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "Hur definieras begreppet 'protagonist' bäst i litterära sammanhang?",
+                    options: [
+                        "Berättelsens skurk eller antagonist",
+                        "Berättelsens huvudperson",
+                        "En birollskaraktär med viktiga egenskaper",
+                        "Berättaren i en roman"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Hur många exemplar av Lindgrens böcker har sålts världen över?",
+                    options: [
+                        "Mer än 50 miljoner",
+                        "Mer än 100 miljoner",
+                        "Mer än 165 miljoner",
+                        "Mer än 200 miljoner"
+                    ],
+                    correct: 2
+                }
+            ]
+        },
+        {
+            id: 4,
+            title: "Demokratins utmaningar idag",
+            text: `Demokratin – det politiska system som bygger på folkets rätt att välja sina representanter och påverka samhällets styrning – betraktas av många som den bästa möjliga samhällsordningen. Men demokratin står idag inför allvarliga utmaningar som hotar dess grundvalar på ett sätt som historiker sällan sett tidigare.
+
+Desinformation och falska nyheter sprids med rasande fart via sociala medier och kan manipulera väljarnas åsikter och beslut. Det har blivit allt svårare för medborgare att skilja fakta från fiktion, och auktoritära aktörer utnyttjar aktivt informationskrigföring för att destabilisera demokratiska samhällen inifrån.
+
+Valdeltagandet minskar i många länder, och trenden är tydligast bland unga väljare. Många unga medborgare upplever att politikerna inte lyssnar på dem, att systemet är korrumperat eller att deras röst inte spelar någon roll. Denna politiska apati riskerar att urholka demokratins folkliga legitimitet.
+
+Trots dessa utmaningar finns det hopp. Medborgarjournalistik, faktakollsorganisationer och ett aktivt civilsamhälle spelar allt viktigare roller i att försvara demokratiska värden. Forskning visar dessutom att de flesta medborgare – trots allt – fortfarande värnar om demokratin som samhällssystem och inte vill se den ersatt av auktoritärt styre.`,
+            questions: [
+                {
+                    question: "Vilket av följande påståenden stämmer bäst med textens innehåll?",
+                    options: [
+                        "Demokratin fungerar utmärkt och möter inga allvarliga problem",
+                        "Demokratin hotas av desinformation, sjunkande valdeltagande och populism",
+                        "Desinformation är det enda hotet mot demokratin idag",
+                        "Unga är det segment som har störst tilltro till demokratin"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Varför är lågt valdeltagande bland unga problematiskt för demokratin?",
+                    options: [
+                        "Det driver upp kostnaden för att hålla demokratiska val",
+                        "Det visar att unga saknar tillräcklig politisk utbildning",
+                        "Det riskerar att urholka demokratins folkliga legitimitet",
+                        "Det leder automatiskt till att gamla partier alltid vinner val"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "Vad menas med begreppet 'politisk apati' i texten?",
+                    options: [
+                        "Aktivt motstånd mot det demokratiska systemet",
+                        "Brist på politiskt intresse och engagemang",
+                        "Deltagande i demonstrationer och protester",
+                        "Stöd för auktoritärt styre"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Vad ger texten som positiv motkraft till demokratins utmaningar?",
+                    options: [
+                        "Att populistiska partier förlorar i val",
+                        "Att sociala medier regleras hårdare av staten",
+                        "Medborgarjournalistik, faktakoll och aktivt civilsamhälle",
+                        "Att unga väljer att engagera sig mer i traditionella medier"
+                    ],
+                    correct: 2
+                }
+            ]
+        },
+        {
+            id: 5,
+            title: "Arbetsmarknaden förändras",
+            text: `Automatisering och artificiell intelligens förändrar arbetsmarknaden i grunden. Jobb som tidigare krävde mänsklig kompetens kan nu utföras av maskiner och algoritmer, och experter förutspår att miljontals arbetstillfällen kommer att försvinna under de kommande decennierna.
+
+Enligt en rapport från McKinsey Global Institute kan upp till 800 miljoner arbeten världen över automatiseras till år 2030. Yrken som är särskilt utsatta är repetitiva, regelbaserade arbeten inom industri, transport och administration. Däremot är yrken som kräver kreativitet, social kompetens och avancerat beslutsfattande svårare att automatisera.
+
+I Sverige har diskussionen om kompetensutveckling och livslångt lärande blivit allt mer central. Arbetsförmedlingen och utbildningssystemet måste anpassa sig för att hjälpa människor att skaffa de färdigheter som framtidens arbetsmarknad kräver. Gymnasieutbildningen spelar en nyckelroll – den måste förbereda unga för yrken som kanske inte ens existerar i dag.
+
+Men automatiseringen skapar också möjligheter. Ny teknik ger upphov till nya yrken och branscher som vi ännu inte kan föreställa oss. Historien visar att teknologiska revolutioner på lång sikt har skapat fler arbetstillfällen än de förstört. Utmaningen är att samhället investerar i utbildning och omställningsstöd för dem vars yrken försvinner.`,
+            questions: [
+                {
+                    question: "Hur många arbeten kan automatiseras till 2030 enligt McKinsey Global Institute?",
+                    options: [
+                        "Upp till 100 miljoner",
+                        "Upp till 400 miljoner",
+                        "Upp till 800 miljoner",
+                        "Upp till en miljard"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "Vilka yrken är svårast att automatisera enligt texten?",
+                    options: [
+                        "Repetitiva och regelbaserade industriarbeten",
+                        "Administrativa tjänstemän på kontor",
+                        "Yrken som kräver kreativitet, social kompetens och avancerat beslutsfattande",
+                        "Transportyrken som lastbilschaufförer"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "Vad innebär begreppet 'livslångt lärande' i texten?",
+                    options: [
+                        "Att studera på universitetet hela livet",
+                        "Att kontinuerligt uppdatera sina kunskaper och färdigheter under hela arbetslivet",
+                        "Att lära sig läsa och skriva i vuxen ålder",
+                        "Att gymnasium och högskola hålls gratis hela livet"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Vilket historiskt mönster lyfter texten fram angående teknologiska revolutioner?",
+                    options: [
+                        "De har alltid lett till långvarig massarbetslöshet",
+                        "De påverkar bara industriarbetare och aldrig tjänstemän",
+                        "De sker alltid snabbt och utan samhällelig anpassning",
+                        "De skapar på lång sikt fler jobb än de förstör"
+                    ],
+                    correct: 3
+                }
+            ]
+        },
+        {
+            id: 6,
+            title: "Mat och klimatpåverkan",
+            text: `Vad vi äter spelar en avgörande roll för klimatet. Livsmedelssektorn är ansvarig för ungefär en tredjedel av de globala växthusgasutsläppen, och animalieproduktion – kött och mejeriprodukter – står för den allra största delen av dessa utsläpp.
+
+Nötkreatur är särskilt klimatintensiva. De producerar metan, en kraftfull växthusgas, under sin matsmältning, och de kräver stora arealer mark för bete och foderproduktion. Att producera ett kilo nötkött genererar i genomsnitt 60 kilo koldioxidekvivalenter, jämfört med enbart 2,5 kilo för ett kilo linser.
+
+Rörelsen mot mer växtbaserad kost har vuxit sig stark de senaste åren. Veganism och vegetarianism ökar i popularitet, särskilt bland unga. Stora livsmedelsföretag investerar miljarder i att ta fram växtbaserade proteinalternativ som ska efterlikna köttets smak och konsistens.
+
+Men kostförändringar är inte enkla. Mat handlar om kultur, traditioner, ekonomi och tillgänglighet. Att enbart lägga klimatansvaret på individens axlar riskerar att dölja strukturella ojämlikheter – inte alla har råd eller möjlighet att välja den mest klimatsmarta kosten. Verklig förändring kräver insatser på alla nivåer: individ, företag och stat.`,
+            questions: [
+                {
+                    question: "Hur stor andel av de globala växthusgasutsläppen härrör från livsmedelssektorn?",
+                    options: [
+                        "Ungefär en tiondel",
+                        "Ungefär en fjärdedel",
+                        "Ungefär en tredjedel",
+                        "Ungefär hälften"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "Varför är nötkreatur särskilt klimatintensiva enligt texten?",
+                    options: [
+                        "De dricker extremt stora mängder vatten",
+                        "De producerar metan och kräver stora arealer mark",
+                        "De behöver dyra maskiner och antibiotika för att skötas",
+                        "De lever betydligt längre än andra djur"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Vad menas med 'koldioxidekvivalenter' i texten?",
+                    options: [
+                        "Mängden koldioxid som ett djur andas ut per dag",
+                        "Ett mått som omvandlar olika växthusgazer till ett jämförbart värde",
+                        "Koldioxidutsläpp från transporter av livsmedel",
+                        "Andelen fossila bränslen i livsmedelsproduktionen"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Vad är textens kritik mot att enbart betona individens ansvar i klimatfrågan?",
+                    options: [
+                        "Individer saknar information om klimatsmarta val",
+                        "Det riskerar att dölja strukturella ojämlikheter och att inte alla har samma möjligheter",
+                        "Individer bryr sig generellt sett inte om klimatfrågan",
+                        "Det är politiskt ineffektivt att rikta budskap till individer"
+                    ],
+                    correct: 1
+                }
+            ]
+        },
+        {
+            id: 7,
+            title: "Integration i det svenska samhället",
+            text: `Sverige har under de senaste decennierna tagit emot ett stort antal migranter och flyktingar, vilket har förändrat landets befolkningssammansättning och kulturella mångfald. Integration – processen att hjälpa nyanlända att bli en del av det svenska samhället – är en av de mest debatterade frågorna i svensk politik.
+
+Forskning visar att lyckad integration förutsätter tre grundläggande faktorer: arbete, språkkunskaper och sociala nätverk. Sverige erbjuder nyanlända undervisning i Svenska för invandrare (SFI), introduktionsprogram och samhällsorientering. Trots detta är det många som har svårt att etablera sig på arbetsmarknaden, delvis beroende på att utländska utbildningar och erfarenheter inte alltid erkänns.
+
+Segregation är ett annat utmärkande problem. I många svenska städer bor inrikes- och utrikesfödda i olika stadsdelar, vilket försvårar möten och ömsesidig förståelse. Skolan spelar en central roll för att bryta segregationsmönster och ge alla barn, oavsett bakgrund, likvärdiga möjligheter.
+
+Invandringen bidrar emellertid också positivt till samhället. Migranter tillför kompetens, arbetsinsatser och kulturell mångfald. Många som kommit till Sverige har startat företag, bidragit till forskning och berikat kultur och konst. Utmaningen är att skapa ett samhälle där alla – oavsett ursprung – ges möjlighet att bidra och känna tillhörighet.`,
+            questions: [
+                {
+                    question: "Vilka tre faktorer lyfter forskningen fram som avgörande för lyckad integration?",
+                    options: [
+                        "Ekonomiskt stöd, bostad och sjukvård",
+                        "Arbete, språkkunskaper och sociala nätverk",
+                        "Medborgarskap, utbildning och rösträtt",
+                        "SFI, introduktionsprogram och samhällsorientering"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Vad är Svenska för invandrare (SFI)?",
+                    options: [
+                        "En TV-kanal med innehåll anpassat för nyanlända",
+                        "En statlig myndighet som ansvarar för integration",
+                        "Undervisning i svenska språket som erbjuds nyanlända",
+                        "En frivilligorganisation som stödjer flyktingar"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "Vad innebär begreppet 'segregation' i textens sammanhang?",
+                    options: [
+                        "Att invandrare väljer att inte delta i demokratiska val",
+                        "Att inrikes- och utrikesfödda bor i geografiskt åtskilda delar av staden",
+                        "Att utländska examina inte erkänns på den svenska arbetsmarknaden",
+                        "Att nyanlända nekas tillgång till skola och sjukvård"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Vad är textens övergripande syn på invandringen till Sverige?",
+                    options: [
+                        "Invandringen är enbart en belastning för samhället",
+                        "Invandringen har inga problem alls och fungerar väl",
+                        "Invandringen är komplex – den medför utmaningar men också positiva bidrag",
+                        "Sverige bör stoppa all invandring för att lösa integrationsproblemen"
+                    ],
+                    correct: 2
+                }
+            ]
+        },
+        {
+            id: 8,
+            title: "Ungas hälsa och livsstil",
+            text: `Ungas hälsa och livsstilsvanor är ett ämne som engagerar forskare, skolpersonal och föräldrar på bred front. Studier visar att svenska ungdomar generellt mår bättre fysiskt än för några decennier sedan, men att den psykiska ohälsan ökar på ett oroande sätt.
+
+Fysisk aktivitet är avgörande för hälsan, men allt färre unga rör sig tillräckligt. Skärmanvändning – för underhållning, sociala medier och skolarbete – tar allt mer av ungdomars tid och bidrar till en stillasittande livsstil. Folkhälsomyndigheten rekommenderar att barn och unga är fysiskt aktiva i minst 60 minuter om dagen, men många når inte upp till den nivån.
+
+Sömnbrist är ett annat växande problem. Unga behöver i genomsnitt 8–10 timmars sömn per natt för att fungera optimalt, men undersökningar visar att många tonåringar sover för lite. Ljuset från skärmar stör produktionen av sömnhormonet melatonin och försvårar insomnandet, och sociala medier lockar till sena kvällar online.
+
+Kost är en tredje central faktor. Snabbmat, energidrycker och sötsaker är populärt bland unga men ger bristfällig näring och kan bidra till övervikt och andra hälsoproblem. Forskning visar ett tydligt samband: en varierad kost rik på frukt, grönsaker och fullkorn är inte bara bra för kroppen utan även för hjärnans funktioner och det psykiska välbefinnandet.`,
+            questions: [
+                {
+                    question: "Hur beskriver texten hälsoläget bland svenska ungdomar?",
+                    options: [
+                        "De mår sämre både fysiskt och psykiskt jämfört med tidigare generationer",
+                        "De mår bättre fysiskt men den psykiska ohälsan ökar oroande",
+                        "De mår bättre på alla plan tack vare förbättrad sjukvård",
+                        "Forskningen är alltför osäker för att dra några slutsatser"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Hur mycket fysisk aktivitet rekommenderar Folkhälsomyndigheten för barn och unga?",
+                    options: [
+                        "Minst 30 minuter per dag",
+                        "Minst 45 minuter per dag",
+                        "Minst 60 minuter per dag",
+                        "Minst 90 minuter per dag"
+                    ],
+                    correct: 2
+                },
+                {
+                    question: "Vilken biologisk mekanism förklarar varför skärmar försvårar sömnen?",
+                    options: [
+                        "Skärmar ökar pulsen och håller kroppen i vaket tillstånd",
+                        "Ljuset från skärmar stör produktionen av sömnhormonet melatonin",
+                        "Skärmar sänker kroppens blodsocker och orsakar oro",
+                        "Skärmljuset påverkar synen och ger huvudvärk som hindrar sömnen"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "Vad visar forskningen om sambandet mellan kost och psykisk hälsa?",
+                    options: [
+                        "Kost påverkar bara den fysiska hälsan, inte den psykiska",
+                        "Snabbmat är acceptabelt om man kompenserar med tillräcklig rörelse",
+                        "En varierad kost är bra för både kroppen och hjärnans funktioner",
+                        "Energidrycker förbättrar koncentrationsförmågan kortsiktigt"
+                    ],
+                    correct: 2
+                }
+            ]
+        }
+    ];
+
+    // ================================================================
+    //  DATA – TIDSFORMER-POOL (20 meningar)
+    // ================================================================
+    const tidsformerPool = [
+        { id: 1, sentence: "Varje morgon _____ Erik en kopp kaffe innan han går till skolan.", hint: "Verb: dricka | Tid: Presens", tense: "Presens", answers: ["dricker"], explanation: "Presens av oregelbundet verb 'dricka' → dricker. Oregelbundna verb böjs inte med -ar/-er utan har egna former." },
+        { id: 2, sentence: "Klimatförändringarna _____ hela planeten och kräver gemensamma lösningar.", hint: "Verb: påverka | Tid: Presens", tense: "Presens", answers: ["påverkar"], explanation: "Presens av regelbundet verb (grupp 1) 'påverka' → påverkar. Grupp 1-verb får ändelsen -ar i presens." },
+        { id: 3, sentence: "De flesta elever på gymnasiet _____ minst ett främmande språk utöver engelska.", hint: "Verb: läsa | Tid: Presens", tense: "Presens", answers: ["läser"], explanation: "Presens av regelbundet verb (grupp 2) 'läsa' → läser. Grupp 2-verb får ändelsen -er i presens." },
+        { id: 4, sentence: "När det regnar _____ Lina alltid sin cykel och tar bussen istället.", hint: "Verb: lämna | Tid: Presens", tense: "Presens", answers: ["lämnar"], explanation: "Presens av regelbundet verb (grupp 1) 'lämna' → lämnar. Verbet slutar på -a i infinitiv och får -ar i presens." },
+        { id: 5, sentence: "Under nationella provet förra veckan _____ alla elever i stor tystnad.", hint: "Verb: sitta | Tid: Preteritum", tense: "Preteritum", answers: ["satt"], explanation: "Preteritum av oregelbundet verb 'sitta' → satt. Vanligt oregelbundet verb med vokalväxling i stammen." },
+        { id: 6, sentence: "Förra sommaren _____ familjen tre veckor i norra Sverige.", hint: "Verb: tillbringa | Tid: Preteritum", tense: "Preteritum", answers: ["tillbringade"], explanation: "Preteritum av regelbundet verb (grupp 1) 'tillbringa' → tillbringade. Grupp 1-verb får ändelsen -ade i preteritum." },
+        { id: 7, sentence: "Maja _____ hela natten för att hinna klart med sin inlämningsuppgift.", hint: "Verb: arbeta | Tid: Preteritum", tense: "Preteritum", answers: ["arbetade"], explanation: "Preteritum av regelbundet verb (grupp 1) 'arbeta' → arbetade. Grupp 1-verb får ändelsen -ade i preteritum." },
+        { id: 8, sentence: "Riksdagen _____ ett nytt beslut om skolans finansiering i måndags.", hint: "Verb: fatta | Tid: Preteritum", tense: "Preteritum", answers: ["fattade"], explanation: "Preteritum av regelbundet verb (grupp 1) 'fatta' → fattade. Grupp 1-verb med dubbel konsonant (-tt-) får ändelsen -ade." },
+        { id: 9, sentence: "När strömmen gick _____ alla elever upp sina telefoner för att se om det var ett avbrott.", hint: "Verb: ta fram | Tid: Preteritum", tense: "Preteritum", answers: ["tog fram"], explanation: "Preteritum av oregelbundet verb 'ta' (i partikelverbet 'ta fram') → tog fram. 'Ta' bildar preteritum med vokalväxling: ta → tog." },
+        { id: 10, sentence: "Läraren har _____ ut läxan, men många elever har inte börjat än.", hint: "Verb: dela (ut) → supinum | Tid: Perfekt ('har' är redan i meningen)", tense: "Perfekt", answers: ["delat"], explanation: "Supinum av regelbundet verb (grupp 1) 'dela' → delat. Perfekt = 'har' + supinum. Grupp 1-verb får ändelsen -at i supinum." },
+        { id: 11, sentence: "Sverige har _____ stora framsteg inom förnybar energi de senaste tio åren.", hint: "Verb: göra → supinum | Tid: Perfekt ('har' är redan i meningen)", tense: "Perfekt", answers: ["gjort"], explanation: "Supinum av oregelbundet verb 'göra' → gjort. Perfekt = 'har' + supinum. Observera den oregelbundna formen gjort (inte *görat)." },
+        { id: 12, sentence: "Jag har aldrig _____ till ett annat land, men jag hoppas kunna resa snart.", hint: "Verb: resa → supinum | Tid: Perfekt ('har' är redan i meningen)", tense: "Perfekt", answers: ["rest"], explanation: "Supinum av verb 'resa' → rest. 'Resa' tillhör grupp 2 men bildar supinum oregelbundet: rest (inte *resat)." },
+        { id: 13, sentence: "Kommunen har _____ ett nytt ungdomscenter i stadsdelen.", hint: "Verb: bygga → supinum | Tid: Perfekt ('har' är redan i meningen)", tense: "Perfekt", answers: ["byggt"], explanation: "Supinum av oregelbundet verb 'bygga' → byggt. Perfekt = 'har' + supinum. Oregelbundet verb med supinum på -t utan vokal: byggt." },
+        { id: 14, sentence: "När läraren kom in i klassrummet hade eleverna redan _____ sina datorer.", hint: "Verb: stänga → supinum | Tid: Pluskvamperfekt ('hade' är redan i meningen)", tense: "Pluskvamperfekt", answers: ["stängt"], explanation: "Supinum av regelbundet verb (grupp 2) 'stänga' → stängt. Pluskvamperfekt = 'hade' + supinum. Beskriver något som skett före ett annat förflutet skeende." },
+        { id: 15, sentence: "Hon insåg att hon hade _____ fel busslinje och nu var på fel sida av staden.", hint: "Verb: ta → supinum | Tid: Pluskvamperfekt ('hade' är redan i meningen)", tense: "Pluskvamperfekt", answers: ["tagit"], explanation: "Supinum av oregelbundet verb 'ta' → tagit. Pluskvamperfekt = 'hade' + supinum. Notera att supinum av 'ta' är tagit (inte *tat)." },
+        { id: 16, sentence: "Innan projektet startade hade gruppen redan _____ upp arbetsuppgifterna sinsemellan.", hint: "Verb: dela → supinum | Tid: Pluskvamperfekt ('hade' är redan i meningen)", tense: "Pluskvamperfekt", answers: ["delat"], explanation: "Supinum av regelbundet verb (grupp 1) 'dela' → delat. Pluskvamperfekt placerar händelsen före en annan händelse i dåtid." },
+        { id: 17, sentence: "Nästa år _____ gymnasieskolan bygga ut sin naturvetenskapliga avdelning med ett nytt labb.", hint: "Verb: ska (futurum med hjälpverb) | Tid: Futurum", tense: "Futurum", answers: ["ska", "skall"], explanation: "Futurum bildas med hjälpverbet 'ska' (eller 'skall') följt av infinitiv. 'Ska' uttrycker en plan eller avsikt." },
+        { id: 18, sentence: "Forskarna tror att medeltemperaturen på jorden _____ att stiga med ytterligare två grader till år 2100.", hint: "Verb: fortsätta | Tid: Futurum med 'kommer att'", tense: "Futurum", answers: ["kommer"], explanation: "Futurum med 'kommer att' + infinitiv används för framtida händelser och prognoser. Hela konstruktionen: 'kommer att stiga'." },
+        { id: 19, sentence: "Om jag _____ mer tid, skulle jag läsa fler böcker och träna mer.", hint: "Verb: ha | Tid: Konditionalis ('om'-sats)", tense: "Konditionalis", answers: ["hade"], explanation: "I en hypotetisk 'om'-sats används preteritumformen 'hade' för att markera att situationen är osannolik. Bildar par med 'skulle' i huvudsatsen." },
+        { id: 20, sentence: "Om vi hade sorterat soporna bättre, _____ vi ha minskat koldioxidutsläppen avsevärt.", hint: "Verb: skulle | Tid: Konditionalis perfekt", tense: "Konditionalis", answers: ["skulle"], explanation: "Konditionalis perfekt: 'skulle ha' + supinum i huvudsatsen. Beskriver ett hypotetiskt förflutet – något som kunde ha hänt men inte hände." }
+    ];
+
+    // ================================================================
+    //  HELPER – shuffle array
+    // ================================================================
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    // ================================================================
+    //  TAB SWITCHING
+    // ================================================================
+    function showTab(tab) {
+        document.querySelectorAll('.exercise-container').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    // ================================================================
+    //  LÄSFÖRSTÅELSE STATE
+    // ================================================================
+    const LAS_TEXT_COUNT = 5;   // texter per omgång
+    const LAS_Q_PER_TEXT = 4;   // frågor per text (alla)
+
+    let lasTexts = [];           // aktuella texter (subset)
+    let lasTextIndex = 0;        // vilken text vi är på
+    let lasQIndex = 0;           // vilken fråga på nuvarande text
+    let lasAnswered = [];        // [textIdx][qIdx] = chosenOption | null
+    let lasScore = 0;
+
+    function initReading(newSet) {
+        if (newSet || lasTexts.length === 0) {
+            lasTexts = shuffle(lasforstaelsePool).slice(0, LAS_TEXT_COUNT);
+        }
+        lasTextIndex = 0;
+        lasQIndex = 0;
+        lasScore = 0;
+        lasAnswered = lasTexts.map(t => new Array(t.questions.length).fill(null));
+
+        document.getElementById('las-total').textContent = lasTexts.reduce((s, t) => s + t.questions.length, 0);
+        document.getElementById('las-score').textContent = 'Poäng: 0';
+        document.getElementById('las-content').style.display = 'block';
+        document.getElementById('las-nav').style.display = 'flex';
+        document.getElementById('las-complete').style.display = 'none';
+
+        loadReadingQuestion();
+    }
+
+    function loadReadingQuestion() {
+        const text = lasTexts[lasTextIndex];
+        const q = text.questions[lasQIndex];
+        const answered = lasAnswered[lasTextIndex][lasQIndex];
+
+        document.getElementById('las-title').textContent = '📄 ' + text.title;
+        document.getElementById('las-text').textContent = text.text;
+
+        const totalQ = lasTexts.reduce((s, t) => s + t.questions.length, 0);
+        const doneQ = lasAnswered.flat().filter(a => a !== null).length;
+        document.getElementById('las-current').textContent = doneQ + (answered === null ? 1 : 0);
+        document.getElementById('las-question-label').textContent =
+            `Fråga ${lasQIndex + 1} av ${text.questions.length} (Text ${lasTextIndex + 1} av ${lasTexts.length})`;
+
+        // Render options
+        const container = document.getElementById('las-options');
+        container.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt;
+            btn.onclick = () => selectOption(i);
+            if (answered !== null) {
+                btn.classList.add('disabled');
+                if (i === q.correct) btn.classList.add('correct');
+                if (i === answered && i !== q.correct) btn.classList.add('incorrect');
+            }
+            container.appendChild(btn);
+        });
+
+        // Explanation
+        const expBox = document.getElementById('las-explanation');
+        if (answered !== null) {
+            expBox.classList.add('show');
+            if (answered === q.correct) {
+                expBox.textContent = '✅ Rätt! ' + q.options[q.correct];
+                expBox.style.background = '#dcfce7';
+                expBox.style.borderColor = '#bbf7d0';
+                expBox.style.color = '#166534';
+            } else {
+                expBox.textContent = '❌ Fel. Rätt svar: ' + q.options[q.correct];
+                expBox.style.background = '#fee2e2';
+                expBox.style.borderColor = '#fecaca';
+                expBox.style.color = '#991b1b';
+            }
+        } else {
+            expBox.classList.remove('show');
+        }
+
+        updateReadingProgress();
+        updateReadingNav();
+    }
+
+    function selectOption(i) {
+        if (lasAnswered[lasTextIndex][lasQIndex] !== null) return;
+        lasAnswered[lasTextIndex][lasQIndex] = i;
+        const q = lasTexts[lasTextIndex].questions[lasQIndex];
+        if (i === q.correct) lasScore++;
+        document.getElementById('las-score').textContent = 'Poäng: ' + lasScore;
+        loadReadingQuestion();
+    }
+
+    function updateReadingProgress() {
+        const total = lasTexts.reduce((s, t) => s + t.questions.length, 0);
+        const done = lasAnswered.flat().filter(a => a !== null).length;
+        document.getElementById('las-progress').style.width = (done / total * 100) + '%';
+        document.getElementById('las-current').textContent = done + 1 <= total ? done + 1 : total;
+    }
+
+    function updateReadingNav() {
+        const answered = lasAnswered[lasTextIndex][lasQIndex];
+        const isFirst = lasTextIndex === 0 && lasQIndex === 0;
+        const isLastText = lasTextIndex === lasTexts.length - 1;
+        const isLastQ = lasQIndex === lasTexts[lasTextIndex].questions.length - 1;
+
+        document.getElementById('las-prev-q').disabled = isFirst;
+        const nextBtn = document.getElementById('las-next-q');
+        nextBtn.disabled = answered === null;
+
+        if (isLastText && isLastQ) {
+            nextBtn.textContent = 'Visa resultat →';
+        } else if (isLastQ) {
+            nextBtn.textContent = 'Nästa text →';
+        } else {
+            nextBtn.textContent = 'Nästa fråga →';
+        }
+    }
+
+    function prevQuestion() {
+        if (lasQIndex > 0) {
+            lasQIndex--;
+        } else if (lasTextIndex > 0) {
+            lasTextIndex--;
+            lasQIndex = lasTexts[lasTextIndex].questions.length - 1;
+        }
+        loadReadingQuestion();
+    }
+
+    function nextQuestion() {
+        const text = lasTexts[lasTextIndex];
+        if (lasQIndex < text.questions.length - 1) {
+            lasQIndex++;
+            loadReadingQuestion();
+        } else if (lasTextIndex < lasTexts.length - 1) {
+            lasTextIndex++;
+            lasQIndex = 0;
+            loadReadingQuestion();
+        } else {
+            showReadingComplete();
+        }
+    }
+
+    function showReadingComplete() {
+        const total = lasTexts.reduce((s, t) => s + t.questions.length, 0);
+        document.getElementById('las-content').style.display = 'none';
+        document.getElementById('las-nav').style.display = 'none';
+        document.getElementById('las-complete').style.display = 'block';
+        document.getElementById('las-final-score').textContent = lasScore;
+        document.getElementById('las-score-label').textContent = 'rätta svar av ' + total;
+    }
+
+    function restartReading(newSet) {
+        initReading(newSet);
+    }
+
+    // ================================================================
+    //  TIDSFORMER STATE
+    // ================================================================
+    const TID_COUNT = 12;   // meningar per omgång
+
+    let tidItems = [];
+    let tidIndex = 0;
+    let tidScore = 0;
+    let tidAnswered = [];   // { userAnswer, correct, checked } | null
+
+    function initTidsformer(newSet) {
+        if (newSet || tidItems.length === 0) {
+            tidItems = shuffle(tidsformerPool).slice(0, TID_COUNT);
+        }
+        tidIndex = 0;
+        tidScore = 0;
+        tidAnswered = new Array(tidItems.length).fill(null);
+
+        document.getElementById('tid-total').textContent = tidItems.length;
+        document.getElementById('tid-score').textContent = 'Poäng: 0';
+        document.getElementById('tid-content').style.display = 'block';
+        document.getElementById('tid-complete').style.display = 'none';
+
+        loadTidsformer();
+    }
+
+    function loadTidsformer() {
+        const item = tidItems[tidIndex];
+        document.getElementById('tid-tense-badge').textContent = item.tense;
+        document.getElementById('tid-sentence').innerHTML =
+            item.sentence.replace('_____', '<span class="blank">_____</span>');
+        document.getElementById('tid-hint').textContent = '💡 ' + item.hint;
+        document.getElementById('tid-current').textContent = tidIndex + 1;
+
+        const input = document.getElementById('tid-input');
+        const feedback = document.getElementById('tid-feedback');
+        const explanation = document.getElementById('tid-explanation');
+        const checkBtn = document.getElementById('tid-check');
+
+        const state = tidAnswered[tidIndex];
+        input.value = state ? state.userAnswer : '';
+        input.className = 'gap-input';
+        input.disabled = false;
+        feedback.className = 'feedback-text';
+        feedback.textContent = '';
+        explanation.className = 'explanation-text';
+        explanation.textContent = '';
+        checkBtn.disabled = false;
+
+        if (state && state.checked) {
+            input.disabled = true;
+            checkBtn.disabled = true;
+            if (state.correct) {
+                input.classList.add('correct');
+                feedback.classList.add('show', 'correct');
+                feedback.textContent = '✅ Rätt!';
+            } else {
+                input.classList.add('incorrect');
+                feedback.classList.add('show', 'incorrect');
+                feedback.textContent = '❌ Fel. Rätt svar: ' + item.answers[0];
+            }
+            explanation.classList.add('show');
+            explanation.textContent = '📘 ' + item.explanation;
+        }
+
+        updateTidsformerProgress();
+        updateTidsformerNav();
+
+        if (!state) {
+            setTimeout(() => input.focus(), 50);
+    }
+    }
+
+    function checkTidsformer() {
+        const item = tidItems[tidIndex];
+        const input = document.getElementById('tid-input');
+        const userRaw = input.value.trim();
+        const userAnswer = userRaw.toLowerCase();
+
+        if (!userAnswer) return;
+
+        const correct = item.answers.some(a => a.toLowerCase() === userAnswer);
+
+        tidAnswered[tidIndex] = { userAnswer: userRaw, correct, checked: true };
+
+        if (correct) {
+            tidScore++;
+            document.getElementById('tid-score').textContent = 'Poäng: ' + tidScore;
+        }
+
+        loadTidsformer();
+
+        // Auto-advance after 1.5s if correct
+        if (correct && tidIndex < tidItems.length - 1) {
+            setTimeout(() => {
+                tidIndex++;
+                loadTidsformer();
+            }, 1500);
+        }
+    }
+
+    function updateTidsformerProgress() {
+        const done = tidAnswered.filter(a => a !== null).length;
+        document.getElementById('tid-progress').style.width = (done / tidItems.length * 100) + '%';
+    }
+
+    function updateTidsformerNav() {
+        const state = tidAnswered[tidIndex];
+        const isLast = tidIndex === tidItems.length - 1;
+
+        document.getElementById('tid-prev').disabled = tidIndex === 0;
+        const nextBtn = document.getElementById('tid-next');
+        nextBtn.disabled = !state || !state.checked;
+
+        if (isLast && state && state.checked) {
+            nextBtn.textContent = 'Visa resultat →';
+        } else {
+            nextBtn.textContent = 'Nästa →';
+        }
+    }
+
+    function prevTidsformer() {
+        if (tidIndex > 0) {
+            tidIndex--;
+            loadTidsformer();
+        }
+    }
+
+    function nextTidsformer() {
+        if (tidIndex < tidItems.length - 1) {
+            tidIndex++;
+            loadTidsformer();
+        } else {
+            showTidsformerComplete();
+        }
+    }
+
+    function showTidsformerComplete() {
+        document.getElementById('tid-content').style.display = 'none';
+        document.getElementById('tid-complete').style.display = 'block';
+        document.getElementById('tid-final-score').textContent = tidScore;
+        document.getElementById('tid-score-label').textContent = 'rätta svar av ' + tidItems.length;
+    }
+
+    function restartTidsformer(newSet) {
+        initTidsformer(newSet);
+    }
+
+    // ================================================================
+    //  BOOT
+    // ================================================================
+    initReading(true);
+    initTidsformer(true);
+    </script>
+</body>
+</html>

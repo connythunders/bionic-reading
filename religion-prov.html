@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Religionskunskap - Provquiz ak 7-9 | Lgr22</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* HEADER */
+        header {
+            text-align: center;
+            padding: 40px 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.4rem;
+            background: linear-gradient(90deg, #9b59b6, #d2b4de, #9b59b6);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        header p {
+            margin-top: 10px;
+            color: #8899aa;
+            font-size: 1.1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #9b59b6;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover { color: #d2b4de; }
+
+        /* VIEWS */
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* START SCREEN */
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .section-card {
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 28px 22px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #9b59b6, #8e44ad);
+            border-radius: 16px 16px 0 0;
+            opacity: 0.6;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(155, 89, 182, 0.4);
+            box-shadow: 0 8px 30px rgba(155, 89, 182, 0.15);
+        }
+
+        .section-card .card-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .section-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .section-card .card-desc {
+            font-size: 0.85rem;
+            color: #8899aa;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .section-card .card-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(155, 89, 182, 0.15);
+            color: #9b59b6;
+        }
+
+        .all-btn-wrapper {
+            text-align: center;
+            margin: 10px 0 30px;
+        }
+
+        .btn-all {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(155, 89, 182, 0.3);
+        }
+
+        .btn-all:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(155, 89, 182, 0.45);
+        }
+
+        /* MODE PICKER OVERLAY */
+        .mode-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .mode-overlay.active { display: flex; }
+
+        .mode-box {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 2px solid rgba(155, 89, 182, 0.3);
+            border-radius: 20px;
+            padding: 40px 36px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .mode-box h2 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .mode-box p {
+            color: #8899aa;
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+
+        .mode-options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .mode-btn {
+            padding: 18px 20px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.04);
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .mode-btn:hover {
+            border-color: rgba(155, 89, 182, 0.5);
+            background: rgba(155, 89, 182, 0.08);
+        }
+
+        .mode-btn .mode-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 4px;
+        }
+
+        .mode-btn .mode-desc {
+            font-size: 0.8rem;
+            color: #8899aa;
+        }
+
+        .mode-cancel {
+            margin-top: 16px;
+            background: none;
+            border: none;
+            color: #8899aa;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+        }
+
+        .mode-cancel:hover { color: #e0e0e0; }
+
+        /* QUIZ VIEW */
+        .quiz-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .quiz-title-small {
+            font-size: 1rem;
+            color: #8899aa;
+        }
+
+        .quiz-title-small span {
+            color: #9b59b6;
+            font-weight: 700;
+        }
+
+        .quiz-quit {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #8899aa;
+            padding: 8px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .quiz-quit:hover {
+            background: rgba(255,255,255,0.12);
+            color: #e0e0e0;
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab {
+            padding: 10px 18px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #8899aa;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab:hover { background: rgba(255,255,255,0.1); }
+
+        .tab.active {
+            background: rgba(155, 89, 182, 0.15);
+            border-color: rgba(155, 89, 182, 0.4);
+            color: #9b59b6;
+        }
+
+        .tab .tab-count {
+            display: inline-block;
+            margin-left: 6px;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 7px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+        }
+
+        .tab.active .tab-count {
+            background: rgba(155, 89, 182, 0.25);
+        }
+
+        /* PROGRESS BAR */
+        .progress-container {
+            margin-bottom: 24px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: #8899aa;
+        }
+
+        .progress-info .score-display { color: #9b59b6; font-weight: 700; }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #9b59b6, #8e44ad);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        /* QUESTION CARD */
+        .question-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+            padding: 32px 28px;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .question-number {
+            font-size: 0.8rem;
+            color: #9b59b6;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            color: #fff;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        /* MULTIPLE CHOICE OPTIONS */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            line-height: 1.4;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(155, 89, 182, 0.4);
+            transform: translateX(4px);
+        }
+
+        .option-btn.correct {
+            background: rgba(46, 204, 113, 0.15);
+            border-color: #2ecc71;
+            color: #2ecc71;
+        }
+
+        .option-btn.wrong {
+            background: rgba(231, 76, 60, 0.15);
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .option-btn.disabled { pointer-events: none; }
+
+        .option-btn .option-letter {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.08);
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .option-btn.correct .option-letter {
+            background: rgba(46, 204, 113, 0.3);
+        }
+
+        .option-btn.wrong .option-letter {
+            background: rgba(231, 76, 60, 0.3);
+        }
+
+        /* FEEDBACK */
+        .feedback-box {
+            margin-top: 18px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            display: none;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .feedback-box.show { display: block; animation: fadeIn 0.3s ease; }
+
+        .feedback-box.correct {
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+        }
+
+        .feedback-box.wrong {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+
+        .feedback-box .fb-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .next-btn {
+            display: none;
+            margin-top: 18px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .next-btn.show { display: inline-block; }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.35);
+        }
+
+        /* DRAG AND DROP */
+        .dnd-instruction {
+            font-size: 0.9rem;
+            color: #8899aa;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+
+        .dnd-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .dnd-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: grab;
+            transition: all 0.2s;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        .dnd-item:active { cursor: grabbing; }
+
+        .dnd-item:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(155, 89, 182, 0.3);
+        }
+
+        .dnd-item.dragging {
+            opacity: 0.5;
+            border-color: #9b59b6;
+        }
+
+        .dnd-item.drag-over {
+            border-color: #9b59b6;
+            background: rgba(155, 89, 182, 0.1);
+            transform: scale(1.02);
+        }
+
+        .dnd-item .dnd-rank {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            background: rgba(155, 89, 182, 0.15);
+            color: #9b59b6;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .dnd-item .dnd-label {
+            flex: 1;
+            font-size: 1rem;
+            color: #e0e0e0;
+        }
+
+        .dnd-item .dnd-handle {
+            color: #556677;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .dnd-item.correct-pos {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        .dnd-item.wrong-pos {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .check-order-btn {
+            margin-top: 14px;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .check-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.35);
+        }
+
+        .check-order-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* RESULTS VIEW */
+        .results-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .results-container h2 {
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 30px;
+        }
+
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.04);
+            border: 6px solid rgba(155, 89, 182, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .score-circle .score-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #9b59b6;
+            line-height: 1;
+        }
+
+        .score-circle .score-total {
+            font-size: 1rem;
+            color: #8899aa;
+            margin-top: 4px;
+        }
+
+        .score-circle .score-percent {
+            font-size: 1rem;
+            color: #9b59b6;
+            font-weight: 600;
+        }
+
+        .score-message {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+            margin-bottom: 30px;
+            padding: 16px 24px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .section-breakdown {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .breakdown-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .breakdown-card h4 {
+            font-size: 0.95rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .breakdown-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0 6px;
+        }
+
+        .breakdown-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #9b59b6, #8e44ad);
+            border-radius: 6px;
+            transition: width 0.6s ease;
+        }
+
+        .breakdown-score {
+            font-size: 0.85rem;
+            color: #9b59b6;
+            font-weight: 700;
+        }
+
+        .results-buttons {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn-restart {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.35);
+        }
+
+        .btn-home {
+            padding: 14px 32px;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.12);
+            color: #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-home:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-2px);
+        }
+
+        /* FOOTER */
+        .footer-info {
+            text-align: center;
+            padding: 20px 0;
+            color: #556677;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 20px;
+        }
+
+        .footer-info span { color: #8899aa; }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.8rem; }
+            .section-grid { grid-template-columns: 1fr; gap: 14px; }
+            .section-card { padding: 22px 18px; }
+            .section-breakdown { grid-template-columns: 1fr; }
+            .tabs { gap: 4px; }
+            .tab { padding: 8px 12px; font-size: 0.78rem; }
+            .question-card { padding: 24px 20px; }
+            .question-text { font-size: 1.05rem; }
+            .option-btn { padding: 14px 16px; font-size: 0.92rem; }
+            .mode-box { padding: 30px 24px; }
+            .score-circle { width: 150px; height: 150px; }
+            .score-circle .score-number { font-size: 2.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="so-nationella-prov.html" class="back-link">&#8592; Tillbaka till amnesval</a>
+
+        <header>
+            <h1>Religionskunskap</h1>
+            <p>Provquiz for ak 7-9 -- Lgr22</p>
+        </header>
+
+        <!-- MODE PICKER OVERLAY -->
+        <div class="mode-overlay" id="modeOverlay">
+            <div class="mode-box">
+                <h2>Valj ordning</h2>
+                <p>Hur vill du fa fragorna?</p>
+                <div class="mode-options">
+                    <button class="mode-btn" onclick="startQuiz('fixed')">
+                        <div class="mode-title">Fast ordning</div>
+                        <div class="mode-desc">Fragorna kommer i samma ordning varje gang -- bra for att ova systematiskt.</div>
+                    </button>
+                    <button class="mode-btn" onclick="startQuiz('shuffle')">
+                        <div class="mode-title">Slumpad ordning</div>
+                        <div class="mode-desc">Fragorna blandas -- perfekt for att testa dig sjalv pa riktigt.</div>
+                    </button>
+                </div>
+                <button class="mode-cancel" onclick="closeModeOverlay()">Avbryt</button>
+            </div>
+        </div>
+
+        <!-- START VIEW -->
+        <div class="view active" id="startView">
+            <div class="section-grid">
+                <div class="section-card" onclick="openModePicker('varldsreligioner')">
+                    <div class="card-icon">&#128255;</div>
+                    <h3>Varldsreligionerna</h3>
+                    <p class="card-desc">Kristendom, islam, judendom, hinduism och buddhism -- heliga skrifter, hogtider, centrala begrepp</p>
+                    <span class="card-badge">8 fragor</span>
+                </div>
+                <div class="section-card" onclick="openModePicker('etik')">
+                    <div class="card-icon">&#9878;</div>
+                    <h3>Etik och moral</h3>
+                    <p class="card-desc">Etiska modeller, vardagliga dilemman, konsekvensetik, pliktetik, dygdetik</p>
+                    <span class="card-badge">5 fragor</span>
+                </div>
+                <div class="section-card" onclick="openModePicker('livsaskadningar')">
+                    <div class="card-icon">&#128161;</div>
+                    <h3>Livsaskadningar</h3>
+                    <p class="card-desc">Sekularism, ateism, agnosticism, humanism och icke-religiosa perspektiv</p>
+                    <span class="card-badge">4 fragor</span>
+                </div>
+                <div class="section-card" onclick="openModePicker('samhalle')">
+                    <div class="card-icon">&#127963;</div>
+                    <h3>Religion och samhalle</h3>
+                    <p class="card-desc">Religionsfrihet, sekularisering, religion i Sverige, manskliga rattigheter</p>
+                    <span class="card-badge">4 fragor</span>
+                </div>
+                <div class="section-card" onclick="openModePicker('identitet')">
+                    <div class="card-icon">&#10024;</div>
+                    <h3>Identitet och livsfragor</h3>
+                    <p class="card-desc">Existentiella fragor, mening, tro och vetande, livets stora fragor</p>
+                    <span class="card-badge">4 fragor</span>
+                </div>
+            </div>
+            <div class="all-btn-wrapper">
+                <button class="btn-all" onclick="openModePicker('all')">Kor alla 25 fragor</button>
+            </div>
+            <div class="footer-info">
+                <span>Lgr22</span> &middot; Centralt innehall ak 7--9 &middot; Religionskunskap
+            </div>
+        </div>
+
+        <!-- QUIZ VIEW -->
+        <div class="view" id="quizView">
+            <div class="quiz-header-bar">
+                <div class="quiz-title-small">Religionskunskap &middot; <span id="quizSectionLabel">Alla sektioner</span></div>
+                <button class="quiz-quit" onclick="quitQuiz()">Avsluta</button>
+            </div>
+
+            <div class="tabs" id="tabsContainer"></div>
+
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span>Fraga <strong id="qCurrent">1</strong> av <strong id="qTotal">25</strong></span>
+                    <span class="score-display" id="scoreDisplay">0 ratt</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div id="questionArea"></div>
+        </div>
+
+        <!-- RESULTS VIEW -->
+        <div class="view" id="resultsView">
+            <div class="results-container">
+                <h2>Resultat</h2>
+                <div class="score-circle">
+                    <div class="score-number" id="finalScore">0</div>
+                    <div class="score-total" id="finalTotal">av 25</div>
+                    <div class="score-percent" id="finalPercent">0%</div>
+                </div>
+                <div class="score-message" id="scoreMessage"></div>
+                <div class="section-breakdown" id="sectionBreakdown"></div>
+                <div class="results-buttons">
+                    <button class="btn-restart" onclick="restartQuiz()">Gor om</button>
+                    <a href="so-nationella-prov.html" class="btn-home">Tillbaka till amnesval</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ===== DATA =====
+    const sections = {
+        varldsreligioner: {
+            label: 'Varldsreligionerna',
+            icon: '\u{1F54C}',
+            questions: [
+                {
+                    type: 'mc',
+                    q: 'Vilken ar den heliga skriften inom islam?',
+                    options: ['Bibeln', 'Koranen', 'Toran', 'Tripitaka'],
+                    correct: 1,
+                    explanation: 'Koranen ar islams heliga skrift. Muslimer tror att den ar Guds (Allahs) ord som uppenbarades for profeten Muhammed genom angeln Jibril (Gabriel) under 600-talet.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vem ar grundaren av buddhismen?',
+                    options: ['Jesus', 'Muhammed', 'Siddharta Gautama', 'Abraham'],
+                    correct: 2,
+                    explanation: 'Siddharta Gautama, som senare kallades Buddha ("den uppvaknade"), levde i Indien for cirka 2 500 ar sedan. Han undervisade om hur man kan na nirvana och befrias fran lidande.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad kallas de fem grundpelarna (de fem pelarna) inom islam?',
+                    options: [
+                        'Trosbekannelsen, bonen, fastan, allmosan och vallfarden',
+                        'Tro, hopp, karlek, godhet och rattvisa',
+                        'Fodelse, dop, konfirmation, vigsel och begravning',
+                        'Meditation, yoga, bOn, fasta och pilgrimsresa'
+                    ],
+                    correct: 0,
+                    explanation: 'Islams fem pelare ar: shahada (trosbekannelsen), salat (bonen fem ganger dagligen), zakat (allmosan), sawm (fastan under ramadan) och hajj (vallfarden till Mekka).'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken hogtid firar kristna till minne av Jesu uppstandelse?',
+                    options: ['Jul', 'Pingst', 'Pask', 'Advent'],
+                    correct: 2,
+                    explanation: 'Pasken ar kristendomens viktigaste hogtid. Den firar att Jesus, enligt kristen tro, uppstod fran de doda pa tredje dagen efter korsfastelsen.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad ar karma inom hinduismen och buddhismen?',
+                    options: [
+                        'En helig bok',
+                        'En gud som styr oden',
+                        'Lagen om orsak och verkan -- dina handlingar paverkar din framtid',
+                        'En boneform som utfors fem ganger om dagen'
+                    ],
+                    correct: 2,
+                    explanation: 'Karma betyder handling och innebar att varje handling har konsekvenser. Goda handlingar ger gott karma och paverkar framtiden positivt, bade i detta och eventuellt nasta liv.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken religion firar hogtiden Pesach (pasken)?',
+                    options: ['Kristendomen', 'Islam', 'Judendomen', 'Hinduismen'],
+                    correct: 2,
+                    explanation: 'Pesach ar en judisk hogtid som firar israeliternas befrielse fran slaveriet i Egypten, som beskrivs i Toran (Gamla testamentet). Hogtiden varar i atta dagar.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Inom hinduismen finns tron pa att sjalen aterfods i en ny kropp efter doden. Vad kallas detta?',
+                    options: ['Nirvana', 'Reinkarnation', 'Uppstandelse', 'Karma'],
+                    correct: 1,
+                    explanation: 'Reinkarnation (samsara) ar tron pa att sjalen (atman) aterfods i en ny kropp efter doden. Vilken form man aterfods i beror pa ens karma -- summan av ens handlingar.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken av foljande ar en gemensam rot for judendom, kristendom och islam?',
+                    options: [
+                        'De har alla samma heliga skrift',
+                        'De ar alla monoteistiska och har koppling till Abraham',
+                        'De firar alla ramadan',
+                        'De tror alla pa reinkarnation'
+                    ],
+                    correct: 1,
+                    explanation: 'Judendom, kristendom och islam kallas de abrahamitiska religionerna. De ar alla monoteistiska (tror pa en Gud) och har Abraham som en viktig gestalt i sin historia.'
+                }
+            ]
+        },
+        etik: {
+            label: 'Etik och moral',
+            icon: '\u{2696}',
+            questions: [
+                {
+                    type: 'mc',
+                    q: 'Vad innebar konsekvensetik?',
+                    options: [
+                        'Att man alltid ska folja regler oavsett konsekvenser',
+                        'Att en handling ar ratt om den leder till bast konsekvenser for flest',
+                        'Att man ska handla utifran sin inre kansla',
+                        'Att man ska utveckla goda egenskaper'
+                    ],
+                    correct: 1,
+                    explanation: 'Konsekvensetik (utilitarism) bedomer handlingar utifran deras konsekvenser. En handling ar moraliskt ratt om den leder till storsta mojliga lycka for storsta mojliga antal manniskor.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken etisk modell betonar att man alltid ska folja regler och plikter, oavsett konsekvenserna?',
+                    options: ['Konsekvensetik', 'Dygdetik', 'Pliktetik', 'Sinnelagsetik'],
+                    correct: 2,
+                    explanation: 'Pliktetik (deontologisk etik) menar att vissa handlingar ar ratt eller fel i sig sjalva. Man ska folja moraliska regler som "du ska inte ljuga", oavsett vad konsekvenserna blir.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Dygdetik fokuserar pa:',
+                    options: [
+                        'Vilka regler man foljer',
+                        'Konsekvenserna av ens handlingar',
+                        'Vilken sorts manniska man ar och vilka egenskaper man utvecklar',
+                        'Vad lagen sager'
+                    ],
+                    correct: 2,
+                    explanation: 'Dygdetik fokuserar pa karaktaren hos den som handlar. Den fragar: "Vilken sorts manniska vill jag vara?" Goda dygder som mod, rattvisa och matlighet star i centrum.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Sinnelagsetik bedomer en handling utifran:',
+                    options: [
+                        'Hur mycket pengar handlingen genererar',
+                        'Personens avsikt och goda vilja bakom handlingen',
+                        'Vad samhallet tycker ar ratt',
+                        'Hur manga som paverkas av handlingen'
+                    ],
+                    correct: 1,
+                    explanation: 'Sinnelagsetik fokuserar pa avsikten bakom handlingen. Om en person handlar med gott uppsAt och god vilja, ar handlingen moraliskt god -- aven om resultatet inte blir bra.'
+                },
+                {
+                    type: 'mc',
+                    q: 'En kompis ber dig ljuga for en larare for att slippa problem. Du tanker: "Ljuga ar alltid fel, oavsett anledningen." Vilken etisk modell anvander du da?',
+                    options: ['Konsekvensetik', 'Pliktetik', 'Dygdetik', 'Sinnelagsetik'],
+                    correct: 1,
+                    explanation: 'Pliktetiken sager att vissa handlingar ar ratt eller fel i sig sjalva. "Du ska inte ljuga" ar en pliktregel som galler oavsett situation -- darfor ar det pliktetik.'
+                }
+            ]
+        },
+        livsaskadningar: {
+            label: 'Livsaskadningar',
+            icon: '\u{1F4A1}',
+            questions: [
+                {
+                    type: 'mc',
+                    q: 'Vad innebar ateism?',
+                    options: [
+                        'Tron pa manga gudar',
+                        'Ovisshet om huruvida Gud finns',
+                        'Uppfattningen att det inte finns nagon gud',
+                        'Tron pa en enda gud'
+                    ],
+                    correct: 2,
+                    explanation: 'Ateism ar uppfattningen att det inte finns nagon gud eller nagra gudar. Ordet kommer fran grekiskans "a" (utan) och "theos" (gud).'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad innebar agnosticism?',
+                    options: [
+                        'Man ar saker pa att Gud inte finns',
+                        'Man tror pa flera gudar',
+                        'Man anser att det inte gar att veta sakert om Gud finns eller inte',
+                        'Man ar emot alla religioner'
+                    ],
+                    correct: 2,
+                    explanation: 'Agnosticism innebar att man anser att det inte gar att veta sakert om det finns en gud eller inte. Agnostiker tar inte stallning utan menar att fragan ar oppen.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken livsaskadning betonar manniskans varde, fornuft och etik utan att bygga pa religion?',
+                    options: ['Nihilism', 'Humanism', 'Fundamentalism', 'Animism'],
+                    correct: 1,
+                    explanation: 'Humanism ar en livsaskadning som satter manniskan i centrum. Humanister betonar manniskors lika varde, fornuft, empati och ansvar -- utan att bygga pa nagon guds existens.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad innebar sekularism?',
+                    options: [
+                        'Att religion forbjuds helt i samhallet',
+                        'Att staten och religionen ar atskilda -- staten ar neutral i religiosa fragor',
+                        'Att alla maste vara ateister',
+                        'Att man bara far utova religion hemma'
+                    ],
+                    correct: 1,
+                    explanation: 'Sekularism innebar att staten ar skild fran religionen och inte gynnar eller missgynnar nagon religion. Manniskor far fritt utova sin religion, men staten ar neutral.'
+                }
+            ]
+        },
+        samhalle: {
+            label: 'Religion och samhalle',
+            icon: '\u{1F3DB}',
+            questions: [
+                {
+                    type: 'mc',
+                    q: 'Vad innebar religionsfrihet enligt svensk grundlag?',
+                    options: [
+                        'Att man maste tillhora en religion',
+                        'Att man fritt far valja sin religion, byta religion eller inte ha nagon religion alls',
+                        'Att alla religioner ar lika stora i Sverige',
+                        'Att bara kristendomen ar tilaten'
+                    ],
+                    correct: 1,
+                    explanation: 'Religionsfrihet innebar att varje manniska har ratt att fritt valja, utova och byta religion -- eller att inte ha nagon religion alls. Det skyddas bade av svensk grundlag och FN:s deklaration om manskliga rattigheter.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Nar skildes Svenska kyrkan formellt fran svenska staten?',
+                    options: ['1900', '1952', '1975', '2000'],
+                    correct: 3,
+                    explanation: 'Ar 2000 skildes Svenska kyrkan fran staten. Fore det var Sverige ett land med statskyrka dar kungen var kyrkans overhovud. Nu ar kyrkan en fri organisation.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad menas med sekularisering?',
+                    options: [
+                        'Att fler manniskor blir religiosa',
+                        'Att religionens inflytande i samhallet minskar over tid',
+                        'Att alla kyrkor stangs',
+                        'Att man bara far vara religios pa helger'
+                    ],
+                    correct: 1,
+                    explanation: 'Sekularisering ar en process dar religionens roll och inflytande i samhallet minskar. I Sverige har sekulariseringen lett till att farre gar i kyrkan regelbundet och att religion spelar mindre roll i politik och lagar.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken artikel i FN:s deklaration om manskliga rattigheter handlar om tanke-, samvets- och religionsfrihet?',
+                    options: ['Artikel 1', 'Artikel 12', 'Artikel 18', 'Artikel 30'],
+                    correct: 2,
+                    explanation: 'Artikel 18 i FN:s allmanno deklaration om de manskliga rattigheterna slar fast att var och en har ratt till tankefrihet, samvetsfrihet och religionsfrihet, inklusive ratten att byta religion.'
+                }
+            ]
+        },
+        identitet: {
+            label: 'Identitet och livsfragor',
+            icon: '\u{2728}',
+            questions: [
+                {
+                    type: 'mc',
+                    q: 'Vad ar en existentiell fraga?',
+                    options: [
+                        'En fraga pa ett matteprov',
+                        'En fraga om livets stora amnen som mening, dod, ratt och fel',
+                        'En fraga som bara religiosa manniskor staller',
+                        'En fraga som har ett sakert vetenskapligt svar'
+                    ],
+                    correct: 1,
+                    explanation: 'Existentiella fragor handlar om livets stora amnen: Vad ar meningen med livet? Vad hander efter doden? Vad ar ratt och fel? Alla manniskor -- bade religiosa och icke-religiosa -- brottas med dessa fragor.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vilken av foljande fragor ar en typisk livsfraGA som bade religion och filosofi forsOker besvara?',
+                    options: [
+                        'Hur manga invAnare har Sverige?',
+                        'Varfor finns lidande i varlden?',
+                        'Vilken temperatur har det idag?',
+                        'Hur lang ar Amazonfloden?'
+                    ],
+                    correct: 1,
+                    explanation: 'Fragan om varfor lidande finns ar en klassisk livs- och existentiell fraga som religioner, filosofi och livsaskadningar har forsOkt besvara pa olika satt genom historien.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Vad ar skillnaden mellan tro och vetande?',
+                    options: [
+                        'Det finns ingen skillnad',
+                        'Tro bygger pa overtygelse och tillit, vetande bygger pa bevisade fakta och observation',
+                        'Vetande ar alltid religios och tro ar alltid vetenskapligt',
+                        'Tro ar mer sant an vetande'
+                    ],
+                    correct: 1,
+                    explanation: 'Tro handlar om overtygelse och tillit -- man kan tro pa saker utan vetenskapliga bevis. Vetande bygger pa fakta, observation och verifiering. Bada kan spela roll i en manniskas liv.'
+                },
+                {
+                    type: 'mc',
+                    q: 'Hur kan religion och trosuppfattning paverka en manniskas identitet?',
+                    options: [
+                        'Religion paverkar aldrig identiteten',
+                        'Religion bestammer helt vem man ar',
+                        'Religion kan ge gemenskap, varden, traditioner och svar pa livsfragor som formar ens sjalvbild',
+                        'Religion paverkar bara aldres identitet, inte ungas'
+                    ],
+                    correct: 2,
+                    explanation: 'Religion och livsaskadning kan vara en viktig del av en persons identitet. Det kan ge tillhorighet, moraliska riktlinjer, hogtider och traditioner samt svar pa existentiella fragor.'
+                }
+            ]
+        }
+    };
+
+    // ===== STATE =====
+    let currentMode = 'fixed';
+    let selectedSection = 'all';
+    let activeQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let answered = 0;
+    let sectionScores = {};
+    let dragSrcEl = null;
+    let touchStartY = 0;
+    let touchCurrentItem = null;
+
+    // ===== FUNCTIONS =====
+    function showView(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function openModePicker(section) {
+        selectedSection = section;
+        document.getElementById('modeOverlay').classList.add('active');
+    }
+
+    function closeModeOverlay() {
+        document.getElementById('modeOverlay').classList.remove('active');
+    }
+
+    function startQuiz(mode) {
+        currentMode = mode;
+        closeModeOverlay();
+
+        // Build questions
+        activeQuestions = [];
+        if (selectedSection === 'all') {
+            Object.keys(sections).forEach(key => {
+                sections[key].questions.forEach((q, i) => {
+                    activeQuestions.push({ ...q, section: key, origIndex: i });
+                });
+            });
+        } else {
+            sections[selectedSection].questions.forEach((q, i) => {
+                activeQuestions.push({ ...q, section: selectedSection, origIndex: i });
+            });
+        }
+
+        if (mode === 'shuffle') {
+            for (let i = activeQuestions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeQuestions[i], activeQuestions[j]] = [activeQuestions[j], activeQuestions[i]];
+            }
+        }
+
+        currentIndex = 0;
+        score = 0;
+        answered = 0;
+        sectionScores = {};
+        Object.keys(sections).forEach(k => {
+            sectionScores[k] = { correct: 0, total: 0 };
+        });
+        activeQuestions.forEach(q => sectionScores[q.section].total++);
+
+        // Set label
+        const label = selectedSection === 'all' ? 'Alla sektioner' : sections[selectedSection].label;
+        document.getElementById('quizSectionLabel').textContent = label;
+
+        buildTabs();
+        showView('quizView');
+        renderQuestion();
+    }
+
+    function buildTabs() {
+        const container = document.getElementById('tabsContainer');
+        container.innerHTML = '';
+
+        if (selectedSection !== 'all') {
+            container.style.display = 'none';
+            return;
+        }
+        container.style.display = 'flex';
+
+        const sectionKeys = Object.keys(sections);
+        sectionKeys.forEach(key => {
+            const tab = document.createElement('div');
+            tab.className = 'tab';
+            tab.dataset.section = key;
+            tab.innerHTML = sections[key].label + ' <span class="tab-count">' + sectionScores[key].correct + '/' + sectionScores[key].total + '</span>';
+            container.appendChild(tab);
+        });
+
+        updateActiveTabs();
+    }
+
+    function updateActiveTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            const key = tab.dataset.section;
+            tab.querySelector('.tab-count').textContent = sectionScores[key].correct + '/' + sectionScores[key].total;
+            tab.classList.remove('active');
+            if (activeQuestions[currentIndex] && activeQuestions[currentIndex].section === key) {
+                tab.classList.add('active');
+            }
+        });
+    }
+
+    function updateProgress() {
+        document.getElementById('qCurrent').textContent = currentIndex + 1;
+        document.getElementById('qTotal').textContent = activeQuestions.length;
+        document.getElementById('scoreDisplay').textContent = score + ' ratt';
+        const pct = ((currentIndex) / activeQuestions.length) * 100;
+        document.getElementById('progressFill').style.width = pct + '%';
+        updateActiveTabs();
+    }
+
+    function renderQuestion() {
+        updateProgress();
+        const area = document.getElementById('questionArea');
+        const q = activeQuestions[currentIndex];
+
+        if (q.type === 'mc') {
+            renderMC(area, q);
+        } else if (q.type === 'dnd') {
+            renderDnD(area, q);
+        }
+    }
+
+    function renderMC(area, q) {
+        const letters = ['A', 'B', 'C', 'D'];
+        let html = '<div class="question-card">';
+        html += '<div class="question-number">' + sections[q.section].label + ' -- Fraga ' + (currentIndex + 1) + '</div>';
+        html += '<div class="question-text">' + q.q + '</div>';
+        html += '<div class="options-list">';
+        q.options.forEach((opt, i) => {
+            html += '<button class="option-btn" onclick="checkMC(this, ' + i + ', ' + q.correct + ')">';
+            html += '<span class="option-letter">' + letters[i] + '</span> ' + opt;
+            html += '</button>';
+        });
+        html += '</div>';
+        html += '<div class="feedback-box" id="feedback"></div>';
+        html += '<button class="next-btn" id="nextBtn" onclick="nextQuestion()">Nasta fraga</button>';
+        html += '</div>';
+        area.innerHTML = html;
+    }
+
+    function checkMC(btn, selected, correct) {
+        const options = document.querySelectorAll('.option-btn');
+        options.forEach(o => o.classList.add('disabled'));
+
+        if (selected === correct) {
+            btn.classList.add('correct');
+            score++;
+            sectionScores[activeQuestions[currentIndex].section].correct++;
+            showFeedback(true, activeQuestions[currentIndex].explanation);
+        } else {
+            btn.classList.add('wrong');
+            options[correct].classList.add('correct');
+            showFeedback(false, activeQuestions[currentIndex].explanation);
+        }
+
+        answered++;
+        document.getElementById('scoreDisplay').textContent = score + ' ratt';
+        document.getElementById('nextBtn').classList.add('show');
+        updateActiveTabs();
+    }
+
+    function showFeedback(isCorrect, explanation) {
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback-box show ' + (isCorrect ? 'correct' : 'wrong');
+        fb.innerHTML = '<div class="fb-title">' + (isCorrect ? 'Ratt!' : 'Fel!') + '</div>' + explanation;
+    }
+
+    function renderDnD(area, q) {
+        const shuffled = [...q.items];
+        // Shuffle for display
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        let html = '<div class="question-card">';
+        html += '<div class="question-number">' + sections[q.section].label + ' -- Fraga ' + (currentIndex + 1) + '</div>';
+        html += '<div class="question-text">' + q.q + '</div>';
+        html += '<div class="dnd-instruction">' + q.instruction + '</div>';
+        html += '<div class="dnd-container" id="dndContainer">';
+        shuffled.forEach((item, i) => {
+            html += '<div class="dnd-item" draggable="true" data-value="' + item + '">';
+            html += '<span class="dnd-rank">' + (i + 1) + '</span>';
+            html += '<span class="dnd-label">' + item + '</span>';
+            html += '<span class="dnd-handle">&#9776;</span>';
+            html += '</div>';
+        });
+        html += '</div>';
+        html += '<button class="check-order-btn" id="checkOrderBtn" onclick="checkDnD()">Kontrollera ordning</button>';
+        html += '<div class="feedback-box" id="feedback"></div>';
+        html += '<button class="next-btn" id="nextBtn" onclick="nextQuestion()">Nasta fraga</button>';
+        html += '</div>';
+        area.innerHTML = html;
+
+        initDragAndDrop();
+    }
+
+    function initDragAndDrop() {
+        const container = document.getElementById('dndContainer');
+        const items = container.querySelectorAll('.dnd-item');
+
+        items.forEach(item => {
+            // Mouse drag
+            item.addEventListener('dragstart', handleDragStart);
+            item.addEventListener('dragover', handleDragOver);
+            item.addEventListener('dragenter', handleDragEnter);
+            item.addEventListener('dragleave', handleDragLeave);
+            item.addEventListener('drop', handleDrop);
+            item.addEventListener('dragend', handleDragEnd);
+
+            // Touch support
+            item.addEventListener('touchstart', handleTouchStart, { passive: false });
+            item.addEventListener('touchmove', handleTouchMove, { passive: false });
+            item.addEventListener('touchend', handleTouchEnd, { passive: false });
+        });
+    }
+
+    function handleDragStart(e) {
+        dragSrcEl = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleDragEnter(e) {
+        this.classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+        this.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+        if (dragSrcEl !== this) {
+            swapItems(dragSrcEl, this);
+        }
+        this.classList.remove('drag-over');
+        return false;
+    }
+
+    function handleDragEnd(e) {
+        document.querySelectorAll('.dnd-item').forEach(item => {
+            item.classList.remove('dragging', 'drag-over');
+        });
+        updateRanks();
+    }
+
+    // Touch handling
+    function handleTouchStart(e) {
+        e.preventDefault();
+        touchCurrentItem = this;
+        touchStartY = e.touches[0].clientY;
+        this.classList.add('dragging');
+    }
+
+    function handleTouchMove(e) {
+        e.preventDefault();
+        if (!touchCurrentItem) return;
+
+        const touch = e.touches[0];
+        const container = document.getElementById('dndContainer');
+        const items = [...container.querySelectorAll('.dnd-item')];
+
+        items.forEach(item => item.classList.remove('drag-over'));
+
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (target) {
+            const targetItem = target.closest('.dnd-item');
+            if (targetItem && targetItem !== touchCurrentItem) {
+                targetItem.classList.add('drag-over');
+            }
+        }
+    }
+
+    function handleTouchEnd(e) {
+        e.preventDefault();
+        if (!touchCurrentItem) return;
+
+        const touch = e.changedTouches[0];
+        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        if (target) {
+            const targetItem = target.closest('.dnd-item');
+            if (targetItem && targetItem !== touchCurrentItem) {
+                swapItems(touchCurrentItem, targetItem);
+            }
+        }
+
+        document.querySelectorAll('.dnd-item').forEach(item => {
+            item.classList.remove('dragging', 'drag-over');
+        });
+
+        touchCurrentItem = null;
+        updateRanks();
+    }
+
+    function swapItems(a, b) {
+        const container = a.parentNode;
+        const aNext = a.nextElementSibling === b ? a : a.nextElementSibling;
+        container.insertBefore(a, b);
+        container.insertBefore(b, aNext);
+        updateRanks();
+    }
+
+    function updateRanks() {
+        const items = document.querySelectorAll('.dnd-item');
+        items.forEach((item, i) => {
+            item.querySelector('.dnd-rank').textContent = i + 1;
+        });
+    }
+
+    function checkDnD() {
+        const q = activeQuestions[currentIndex];
+        const items = document.querySelectorAll('.dnd-item');
+        const btn = document.getElementById('checkOrderBtn');
+        btn.disabled = true;
+
+        let allCorrect = true;
+        let correctCount = 0;
+
+        items.forEach((item, i) => {
+            const val = item.dataset.value;
+            item.setAttribute('draggable', 'false');
+            item.style.cursor = 'default';
+            if (val === q.correctOrder[i]) {
+                item.classList.add('correct-pos');
+                correctCount++;
+            } else {
+                item.classList.add('wrong-pos');
+                allCorrect = false;
+            }
+        });
+
+        // Give full point if all correct, half point rounded if >50% correct
+        if (allCorrect) {
+            score++;
+            sectionScores[q.section].correct++;
+            showFeedback(true, q.explanation);
+        } else if (correctCount >= Math.ceil(q.correctOrder.length / 2)) {
+            // Partial -- count as half (round up for encouragement on close answers)
+            showFeedback(false, 'Nastan! Ratt ordning: ' + q.correctOrder.join(' > ') + '. ' + q.explanation);
+        } else {
+            showFeedback(false, 'Ratt ordning: ' + q.correctOrder.join(' > ') + '. ' + q.explanation);
+        }
+
+        answered++;
+        document.getElementById('scoreDisplay').textContent = score + ' ratt';
+        document.getElementById('nextBtn').classList.add('show');
+        updateActiveTabs();
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        if (currentIndex >= activeQuestions.length) {
+            showResults();
+        } else {
+            renderQuestion();
+        }
+    }
+
+    function showResults() {
+        showView('resultsView');
+        const total = activeQuestions.length;
+        const pct = Math.round((score / total) * 100);
+
+        document.getElementById('finalScore').textContent = score;
+        document.getElementById('finalTotal').textContent = 'av ' + total;
+        document.getElementById('finalPercent').textContent = pct + '%';
+
+        // Set score circle border color based on performance
+        const circle = document.querySelector('.score-circle');
+        if (pct >= 80) {
+            circle.style.borderColor = '#9b59b6';
+        } else if (pct >= 50) {
+            circle.style.borderColor = '#f39c12';
+        } else {
+            circle.style.borderColor = '#e74c3c';
+        }
+
+        // Message
+        let msg = '';
+        if (pct >= 90) msg = 'Fantastiskt! Du beharsar religionskunskap riktigt bra!';
+        else if (pct >= 75) msg = 'Bra jobbat! Du har bra koll pa det mesta.';
+        else if (pct >= 50) msg = 'Hyfsat! Repetera de delar du hade svart for.';
+        else msg = 'Ovning ger fardighet! Forsok igen och las pa lite mer.';
+        document.getElementById('scoreMessage').textContent = msg;
+
+        // Breakdown
+        const breakdownEl = document.getElementById('sectionBreakdown');
+        let breakdownHTML = '';
+        Object.keys(sections).forEach(key => {
+            const s = sectionScores[key];
+            if (s.total === 0) return;
+            const sPct = s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0;
+            breakdownHTML += '<div class="breakdown-card">';
+            breakdownHTML += '<h4>' + sections[key].icon + ' ' + sections[key].label + '</h4>';
+            breakdownHTML += '<div class="breakdown-bar"><div class="breakdown-fill" style="width:' + sPct + '%"></div></div>';
+            breakdownHTML += '<div class="breakdown-score">' + s.correct + ' / ' + s.total + ' (' + sPct + '%)</div>';
+            breakdownHTML += '</div>';
+        });
+        breakdownEl.innerHTML = breakdownHTML;
+    }
+
+    function quitQuiz() {
+        if (answered > 0 && currentIndex < activeQuestions.length) {
+            if (!confirm('Vill du verkligen avsluta? Dina framsteg forsvinner.')) return;
+        }
+        showView('startView');
+    }
+
+    function restartQuiz() {
+        showView('startView');
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,2645 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GY25 Läroplansverktyg - Fråga, Jämför & Granska</title>
+    <meta name="description" content="Interaktivt verktyg för GY25 läroplanen. Ställ frågor, jämför med GY11, granska provfrågor och bedöm provsvar.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-dark: #1e293b;
+            --text-mid: #475569;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-dark);
+            background: var(--bg-light);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255,255,255,0.95);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+        .nav-links a {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-mid);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            max-width: 1200px;
+            margin: -1.5rem auto 0;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 160px;
+            padding: 1rem 1.25rem;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .tab-btn .tab-icon { font-size: 1.5rem; }
+
+        .tab-btn:hover { background: var(--bg-light); }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem 4rem;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Cards */
+        .card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin: 1rem 0 0.5rem;
+            color: var(--primary-dark);
+        }
+
+        .card-description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 1.25rem; }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            background: var(--bg-white);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .form-group textarea { resize: vertical; min-height: 120px; }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99,102,241,0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-mid);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            color: white;
+        }
+
+        /* Result Box */
+        .result-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #eff6ff 100%);
+            border: 2px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .result-box.visible { display: block; animation: fadeIn 0.4s ease; }
+
+        .result-box h3 {
+            color: var(--primary-dark);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .result-box p, .result-box li {
+            color: var(--text-mid);
+            line-height: 1.7;
+        }
+
+        .result-box ul { padding-left: 1.5rem; margin: 0.5rem 0; }
+        .result-box li { margin-bottom: 0.4rem; }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+
+        /* Comparison table */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .compare-table th {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .compare-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            vertical-align: top;
+        }
+
+        .compare-table tr:hover td { background: #f1f5f9; }
+
+        .compare-table .label-col { font-weight: 600; width: 25%; background: #f8fafc; }
+
+        /* Quick questions */
+        .quick-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-q {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            background: var(--bg-white);
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-mid);
+            transition: all 0.2s;
+        }
+
+        .quick-q:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #f0f0ff;
+        }
+
+        /* Checklist */
+        .checklist { list-style: none; padding: 0; }
+
+        .checklist li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+        }
+
+        .checklist li:last-child { border-bottom: none; }
+
+        .check-icon {
+            flex-shrink: 0;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .check-pass { background: #dcfce7; color: #166534; }
+        .check-fail { background: #fee2e2; color: #991b1b; }
+        .check-warn { background: #fef3c7; color: #92400e; }
+
+        /* Score display */
+        .score-display {
+            text-align: center;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 auto 0.5rem;
+            color: white;
+        }
+
+        .score-label { font-size: 0.9rem; color: var(--text-light); }
+
+        /* Accordion */
+        .accordion-item { border-bottom: 1px solid var(--border); }
+
+        .accordion-header {
+            width: 100%;
+            padding: 1rem 0;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+        }
+
+        .accordion-header::after { content: '+'; font-size: 1.3rem; color: var(--text-light); }
+        .accordion-header.open::after { content: '-'; }
+
+        .accordion-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .accordion-body.open {
+            max-height: 2000px;
+        }
+
+        .accordion-body-inner { padding: 0 0 1rem; color: var(--text-mid); }
+
+        /* Subject selector grid */
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .subject-card {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .subject-card:hover { border-color: var(--primary); background: #f0f0ff; }
+        .subject-card.selected { border-color: var(--primary); background: #eef2ff; color: var(--primary-dark); }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        .loading.visible { display: block; }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Two-column layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero p { font-size: 1rem; }
+            .tab-btn { min-width: 120px; padding: 0.75rem; font-size: 0.8rem; }
+            .tab-btn .tab-icon { font-size: 1.2rem; }
+            .two-col { grid-template-columns: 1fr; }
+            nav { padding: 0.75rem 1rem; }
+            .main-content { padding: 0 1rem 3rem; }
+            .card { padding: 1.25rem; }
+            .compare-table { font-size: 0.8rem; }
+            .compare-table th, .compare-table td { padding: 0.5rem; }
+        }
+
+        /* Print styles */
+        @media print {
+            header, .hero, .tab-nav { display: none; }
+            .tab-panel { display: block !important; }
+            .card { box-shadow: none; border: 1px solid #ddd; }
+        }
+
+        /* Back to top link */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <a href="index.html" class="logo">Bionic Reading</a>
+        <div class="nav-links">
+            <a href="index.html">Hem</a>
+            <a href="start.html">Verktyg</a>
+            <a href="gy25-laroplan.html" class="active">GY25</a>
+        </div>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>GY25 Läroplansverktyg</h1>
+    <p>Ställ frågor om nya läroplanen, jämför med GY11, granska provfrågor och se exempelsvar per betygsnivå -- allt samlat på ett ställe för dig och dina kollegor.</p>
+</section>
+
+<div class="tab-nav">
+    <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="fraga">
+            <span class="tab-icon">?</span>
+            Fråga om GY25
+        </button>
+        <button class="tab-btn" data-tab="jamfor">
+            <span class="tab-icon">&harr;</span>
+            GY25 vs GY11
+        </button>
+        <button class="tab-btn" data-tab="provfraga">
+            <span class="tab-icon">&#10003;</span>
+            Granska provfrågor
+        </button>
+        <button class="tab-btn" data-tab="exempelsvar">
+            <span class="tab-icon">&#9733;</span>
+            Exempelsvar
+        </button>
+        <button class="tab-btn" data-tab="apidata">
+            <span class="tab-icon">&#9741;</span>
+            Utforska GY25
+        </button>
+    </div>
+</div>
+
+<div class="main-content">
+
+    <!-- ==================== TAB 1: FRÅGA OM GY25 ==================== -->
+    <div class="tab-panel active" id="tab-fraga">
+        <div class="card">
+            <h2>Ställ en fråga om GY25</h2>
+            <p class="card-description">Sök i vår kunskapsbas om gymnasiereformen GY25. Välj en snabbfråga eller skriv din egen.</p>
+
+            <div class="quick-questions">
+                <button class="quick-q" onclick="askQuick(this)">Vad är ämnesbetyg?</button>
+                <button class="quick-q" onclick="askQuick(this)">Hur fungerar sammantagen bedömning?</button>
+                <button class="quick-q" onclick="askQuick(this)">Vilka nya ämnen finns?</button>
+                <button class="quick-q" onclick="askQuick(this)">När träder GY25 i kraft?</button>
+                <button class="quick-q" onclick="askQuick(this)">Vad är betygskriterier?</button>
+                <button class="quick-q" onclick="askQuick(this)">Hur sätts betyg D och B?</button>
+                <button class="quick-q" onclick="askQuick(this)">Vad händer med nationella prov?</button>
+                <button class="quick-q" onclick="askQuick(this)">Hur fungerar övergångsperioden?</button>
+            </div>
+
+            <div class="form-group">
+                <label for="qa-input">Din fråga</label>
+                <input type="text" id="qa-input" placeholder="T.ex. Hur påverkar GY25 betygssättningen?" onkeydown="if(event.key==='Enter')searchKB()">
+            </div>
+            <button class="btn btn-primary" onclick="searchKB()">Sök svar</button>
+
+            <div class="result-box" id="qa-result"></div>
+        </div>
+
+        <!-- FAQ Accordion -->
+        <div class="card">
+            <h2>Vanliga frågor om GY25</h2>
+            <div id="faq-accordion"></div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 2: JÄMFÖRELSE GY25 vs GY11 ==================== -->
+    <div class="tab-panel" id="tab-jamfor">
+        <div class="card">
+            <h2>Jämför GY25 med GY11</h2>
+            <p class="card-description">Välj ett område för att se en detaljerad jämförelse mellan den nya och gamla läroplanen.</p>
+
+            <div class="subject-grid">
+                <div class="subject-card selected" onclick="selectCompare(this, 'struktur')">Struktur</div>
+                <div class="subject-card" onclick="selectCompare(this, 'betyg')">Betygssättning</div>
+                <div class="subject-card" onclick="selectCompare(this, 'bedomning')">Bedömning</div>
+                <div class="subject-card" onclick="selectCompare(this, 'amnen')">Ämnen & kurser</div>
+                <div class="subject-card" onclick="selectCompare(this, 'prov')">Nationella prov</div>
+                <div class="subject-card" onclick="selectCompare(this, 'tidslinje')">Tidslinje</div>
+            </div>
+
+            <div id="compare-content"></div>
+        </div>
+
+        <div class="card" id="jamfor-api-card">
+            <h2>Jamfor ett specifikt program (GY25 vs GY11)</h2>
+            <p class="card-description">Valj ett GY25-program for att se hur det skiljer sig fran den gamla versionen. Data hamtas live fran Skolverkets API.</p>
+            <div class="form-group">
+                <label for="jamfor-program-select">Valj program</label>
+                <select id="jamfor-program-select" onchange="compareProgram(this.value)">
+                    <option value="">Laddar program fran API...</option>
+                </select>
+            </div>
+            <div id="jamfor-api-result"></div>
+        </div>
+
+        <div class="card">
+            <h2>Sammanfattning av de viktigaste förändringarna</h2>
+            <div class="two-col">
+                <div>
+                    <h3>Det som försvinner (GY11)</h3>
+                    <ul style="padding-left:1.5rem; color: var(--text-mid);">
+                        <li>Kursbaserat system med kursbetyg</li>
+                        <li>Detaljerade kunskapskrav per kurs</li>
+                        <li>"Till övervägande del" för D och B</li>
+                        <li>Permanenta kursbetyg som inte kan ersättas</li>
+                        <li>Ordet "medverka" i E-kriterier</li>
+                        <li>Separata kunskapskrav per kurs</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Det som tillkommer (GY25)</h3>
+                    <ul style="padding-left:1.5rem; color: var(--text-mid);">
+                        <li>Ämnesbaserat system med nivåer</li>
+                        <li>Övergripande betygskriterier per ämne</li>
+                        <li>Sammantagen bedömning för D och B</li>
+                        <li>Högre nivå ersätter lägre nivås betyg</li>
+                        <li>Nya ämnen: AI, Retorik på engelska m.fl.</li>
+                        <li>Centralt innehåll driver progression</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 3: GRANSKA PROVFRÅGOR ==================== -->
+    <div class="tab-panel" id="tab-provfraga">
+        <div class="card">
+            <h2>Granska provfrågor mot GY25</h2>
+            <p class="card-description">Klistra in dina provfrågor så analyserar verktyget om de uppfyller GY25:s betygskriterier och centralt innehåll.</p>
+
+            <div class="form-group">
+                <label for="pf-amne">Amne (fran Skolverkets API)</label>
+                <select id="pf-amne">
+                    <option value="">Laddar amnen fran Skolverket...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="pf-niva">Betygsnivå som provfrågan riktar sig mot</label>
+                <select id="pf-niva">
+                    <option value="E">E - godkänt</option>
+                    <option value="C">C - mellan</option>
+                    <option value="A">A - högsta</option>
+                    <option value="blandad">Blandade nivåer (hela provet)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="pf-fragor">Provfrågor (en fråga per rad)</label>
+                <textarea id="pf-fragor" rows="8" placeholder="Klistra in dina provfrågor här...&#10;&#10;Exempel:&#10;1. Redogör för huvuddragen i demokratins framväxt i Sverige.&#10;2. Analysera hur olika politiska ideologier påverkar samhället.&#10;3. Diskutera och argumentera för och emot EU-medlemskap."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="pf-syfte">Ämnets syfte / vad provet ska mäta (valfritt)</label>
+                <textarea id="pf-syfte" rows="3" placeholder="T.ex. Elevens förmåga att analysera samhällsfrågor med hjälp av samhällsvetenskapliga begrepp..."></textarea>
+            </div>
+
+            <button class="btn btn-primary" onclick="analyzeQuestions()">Analysera provfrågor</button>
+            <button class="btn btn-secondary" onclick="clearExamForm()">Rensa</button>
+
+            <div class="loading" id="pf-loading">
+                <div class="spinner"></div>
+                <p>Analyserar provfrågor...</p>
+            </div>
+
+            <div class="result-box" id="pf-result"></div>
+        </div>
+
+        <div class="card">
+            <h2>Snabbguide: Bra provfrågor enligt GY25</h2>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">Frågor på E-nivå</button>
+                <div class="accordion-body">
+                    <div class="accordion-body-inner">
+                        <p>E-nivå ska testa grundläggande kunskaper. Frågor bör:</p>
+                        <ul style="padding-left:1.5rem; margin-top:0.5rem;">
+                            <li>Be eleven <strong>redogöra</strong> eller <strong>beskriva</strong> grundläggande innehåll</li>
+                            <li>Använda <strong>enkla</strong> resonemang eller förklaringar</li>
+                            <li>Kräva att eleven visar kunskap inom <strong>alla delar</strong> av betygskriterierna</li>
+                            <li>Vara tydliga och konkreta -- inte tvetydiga</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">Frågor på C-nivå</button>
+                <div class="accordion-body">
+                    <div class="accordion-body-inner">
+                        <p>C-nivå kräver djupare förståelse. Frågor bör:</p>
+                        <ul style="padding-left:1.5rem; margin-top:0.5rem;">
+                            <li>Be eleven <strong>analysera</strong>, <strong>jämföra</strong> eller <strong>diskutera</strong></li>
+                            <li>Kräva <strong>utvecklade</strong> resonemang med kopplingar</li>
+                            <li>Inkludera fler perspektiv eller sammanhang</li>
+                            <li>Testa förmåga att använda ämnesbegrepp korrekt</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">Frågor på A-nivå</button>
+                <div class="accordion-body">
+                    <div class="accordion-body-inner">
+                        <p>A-nivå testar avancerad kunskap. Frågor bör:</p>
+                        <ul style="padding-left:1.5rem; margin-top:0.5rem;">
+                            <li>Be eleven <strong>värdera</strong>, <strong>problematisera</strong> eller göra <strong>komplexa analyser</strong></li>
+                            <li>Kräva <strong>välutvecklade</strong> och <strong>nyanserade</strong> resonemang</li>
+                            <li>Testa förmåga att se samband och dra slutsatser</li>
+                            <li>Inkludera möjlighet att visa djup ämneskunskap</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 4: EXEMPELSVAR ==================== -->
+    <div class="tab-panel" id="tab-exempelsvar">
+        <div class="card">
+            <h2>Generera exempelsvar per betygsnivå</h2>
+            <p class="card-description">Skriv in din provfråga och välj ämne -- verktyget visar hur ett typiskt E-, C- och A-svar kan se ut, med förklaring av vad som skiljer nivåerna åt. Perfekt som bedömningsstöd och för kollegial diskussion.</p>
+
+            <div class="form-group">
+                <label for="ex-amne">Amne (fran Skolverkets API)</label>
+                <select id="ex-amne" onchange="updateExampleQuestions()">
+                    <option value="">Laddar amnen fran Skolverket...</option>
+                </select>
+            </div>
+
+            <div class="quick-questions" id="ex-quick-questions">
+                <span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Välj ett ämne ovan för att se exempelfrågor, eller skriv din egen:</span>
+            </div>
+
+            <div class="form-group">
+                <label for="ex-fraga">Provfråga</label>
+                <textarea id="ex-fraga" rows="3" placeholder="Skriv din provfråga här, t.ex.:&#10;Diskutera hur demokratin i Sverige har utvecklats sedan 1800-talet."></textarea>
+            </div>
+
+            <button class="btn btn-primary" onclick="generateExamples()">Visa exempelsvar E / C / A</button>
+            <button class="btn btn-secondary" onclick="clearExampleForm()">Rensa</button>
+
+            <div class="loading" id="ex-loading">
+                <div class="spinner"></div>
+                <p>Genererar exempelsvar...</p>
+            </div>
+
+            <div class="result-box" id="ex-result"></div>
+        </div>
+
+        <div class="card">
+            <h2>Vad kännetecknar svar på olika nivåer?</h2>
+            <p class="card-description">Generella drag som skiljer E-, C- och A-svar i GY25:s bedömningsmodell.</p>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-top:1rem;">
+                <div style="background:#fef3c7; border-radius:12px; padding:1.25rem; border-left:4px solid #f59e0b;">
+                    <h3 style="color:#92400e; margin-bottom:0.5rem;">E-nivå</h3>
+                    <ul style="padding-left:1.2rem; color:#78350f; font-size:0.9rem;">
+                        <li><strong>Beskriver</strong> och <strong>redogör</strong> för grundläggande innehåll</li>
+                        <li>Enkla, korta resonemang</li>
+                        <li>Visar viss kunskap inom alla delar</li>
+                        <li>Få eller inga kopplingar mellan företeelser</li>
+                        <li>Begränsad användning av ämnesbegrepp</li>
+                    </ul>
+                </div>
+                <div style="background:#dbeafe; border-radius:12px; padding:1.25rem; border-left:4px solid #3b82f6;">
+                    <h3 style="color:#1e40af; margin-bottom:0.5rem;">C-nivå</h3>
+                    <ul style="padding-left:1.2rem; color:#1e3a5f; font-size:0.9rem;">
+                        <li><strong>Analyserar</strong> och <strong>jämför</strong> med utvecklade resonemang</li>
+                        <li>Tydliga kopplingar och orsakssamband</li>
+                        <li>Använder ämnesbegrepp korrekt</li>
+                        <li>Ger konkreta exempel som stöd</li>
+                        <li>Visar förståelse för sammanhang</li>
+                    </ul>
+                </div>
+                <div style="background:#dcfce7; border-radius:12px; padding:1.25rem; border-left:4px solid #10b981;">
+                    <h3 style="color:#166534; margin-bottom:0.5rem;">A-nivå</h3>
+                    <ul style="padding-left:1.2rem; color:#14532d; font-size:0.9rem;">
+                        <li><strong>Problematiserar</strong> och <strong>värderar</strong> med nyansering</li>
+                        <li>Visar flera perspektiv och vägning</li>
+                        <li>Komplexa samband och orsakskedjor</li>
+                        <li>Drar välgrundade egna slutsatser</li>
+                        <li>Avancerad och precis begreppsanvändning</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 style="margin-top:1.5rem;">Betygsstegen i GY25</h3>
+            <table class="compare-table" style="margin-top:0.5rem;">
+                <thead>
+                    <tr>
+                        <th>Betyg</th>
+                        <th>Krav</th>
+                        <th>Bedömningsmodell</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-danger">F</span></td>
+                        <td>Uppfyller inte E-kriterierna</td>
+                        <td>Kunskaper saknas i en eller flera delar</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-warning">E</span></td>
+                        <td>Alla delar av E-kriterierna uppfyllda</td>
+                        <td>Tröskelbetyg -- alla delar måste finnas</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">D</span></td>
+                        <td>Mellan E och C</td>
+                        <td>Sammantagen bedömning</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">C</span></td>
+                        <td>Uppfyller C-kriterierna sammantaget</td>
+                        <td>Sammantagen bedömning</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-info">B</span></td>
+                        <td>Mellan C och A</td>
+                        <td>Sammantagen bedömning</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-success">A</span></td>
+                        <td>Uppfyller A-kriterierna sammantaget</td>
+                        <td>Sammantagen bedömning</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ==================== TAB 5: SKOLVERKETS API-DATA ==================== -->
+    <div class="tab-panel" id="tab-apidata">
+
+        <!-- Laddningsindikator -->
+        <div class="card" id="api-status-card">
+            <div style="display:flex; align-items:center; gap:1rem;">
+                <div class="spinner" id="api-spinner" style="display:block; margin:0;"></div>
+                <div>
+                    <h2 style="margin-bottom:0.25rem;">Ansluter till Skolverkets API...</h2>
+                    <p class="card-description" id="api-status-text">Hamtar program och amnen fran api.skolverket.se</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Programlista -->
+        <div class="card" id="api-programs-card" style="display:none;">
+            <h2>GY25-program</h2>
+            <p class="card-description">Alla gymnasieprogram enligt GY25. Klicka pa ett program for att se inriktningar och detaljer. Data hamtas live fran Skolverkets API.</p>
+            <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap;">
+                <button class="quick-q" onclick="filterPrograms('all')" id="prog-filter-all" style="border-color:var(--primary); color:var(--primary);">Alla</button>
+                <button class="quick-q" onclick="filterPrograms('VOCATIONAL_PROGRAM')" id="prog-filter-voc">Yrkesprogram</button>
+                <button class="quick-q" onclick="filterPrograms('PRELIMINARY_PROGRAM_FOR_HIGHER_EDUCATION')" id="prog-filter-hf">Hogskoleforb.</button>
+            </div>
+            <div id="api-programs-grid" class="subject-grid"></div>
+        </div>
+
+        <!-- Programdetalj -->
+        <div class="card" id="api-program-detail" style="display:none;">
+            <button class="btn btn-secondary" onclick="closeProgramDetail()" style="margin-bottom:1rem;">Tillbaka till programlistan</button>
+            <div id="api-program-detail-content"></div>
+        </div>
+
+        <!-- Inriktningsdetalj -->
+        <div class="card" id="api-orientation-detail" style="display:none;">
+            <button class="btn btn-secondary" onclick="closeOrientationDetail()" style="margin-bottom:1rem;">Tillbaka till programmet</button>
+            <div id="api-orientation-detail-content"></div>
+        </div>
+
+        <!-- Amnesutforskare -->
+        <div class="card" id="api-subjects-card" style="display:none;">
+            <h2>Utforska GY25-amnen</h2>
+            <p class="card-description">Sok bland alla <span id="api-subject-count">0</span> amnen i GY25. Klicka pa ett amne for att se syfte, nivaer, centralt innehall och betygskriterier.</p>
+            <div class="form-group">
+                <label for="api-subject-search">Sok amne</label>
+                <input type="text" id="api-subject-search" placeholder="T.ex. Historia, Matematik, Engelska..." oninput="filterSubjects()">
+            </div>
+            <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap;">
+                <button class="quick-q" onclick="filterSubjectCategory('all')" id="subj-filter-all" style="border-color:var(--primary); color:var(--primary);">Alla</button>
+                <button class="quick-q" onclick="filterSubjectCategory('FOUNDATION_SUBJECT')" id="subj-filter-gym">Gymnasiegemensamma</button>
+                <button class="quick-q" onclick="filterSubjectCategory('VOCATIONAL')" id="subj-filter-voc">Karaktar</button>
+                <button class="quick-q" onclick="filterSubjectCategory('PROGRAM_SPECIALIZATION')" id="subj-filter-prog">Programfordjupning</button>
+            </div>
+            <div id="api-subjects-list" style="max-height:500px; overflow-y:auto;"></div>
+        </div>
+
+        <!-- Amnesdetalj -->
+        <div class="card" id="api-subject-detail" style="display:none;">
+            <button class="btn btn-secondary" onclick="closeSubjectDetail()" style="margin-bottom:1rem;">Tillbaka till amneslistan</button>
+            <div class="loading" id="subject-detail-loading">
+                <div class="spinner"></div>
+                <p>Hamtar amnesdetaljer fran Skolverket...</p>
+            </div>
+            <div id="api-subject-detail-content"></div>
+        </div>
+
+        <!-- Nivadetail -->
+        <div class="card" id="api-level-detail" style="display:none;">
+            <button class="btn btn-secondary" onclick="closeLevelDetail()" style="margin-bottom:1rem;">Tillbaka till amnet</button>
+            <div class="loading" id="level-detail-loading">
+                <div class="spinner"></div>
+                <p>Hamtar nivainfo fran Skolverket...</p>
+            </div>
+            <div id="api-level-detail-content"></div>
+        </div>
+
+        <!-- API-info -->
+        <div class="card" id="api-info-card" style="display:none;">
+            <h2>Om datan</h2>
+            <p class="card-description">All data hamtas live fran <a href="https://api.skolverket.se/syllabus/swagger-ui/index.html" target="_blank" style="color:var(--primary);">Skolverkets Syllabus API</a> (v1). Ingen data lagras lokalt. Datan uppdateras nar Skolverket publicerar nya versioner.</p>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1rem;">
+                <div style="background:#dbeafe; border-radius:10px; padding:1rem; text-align:center;">
+                    <div style="font-size:2rem; font-weight:800; color:#1e40af;" id="api-stat-programs">--</div>
+                    <div style="font-size:0.85rem; color:#1e3a5f;">GY25-program</div>
+                </div>
+                <div style="background:#dcfce7; border-radius:10px; padding:1rem; text-align:center;">
+                    <div style="font-size:2rem; font-weight:800; color:#166534;" id="api-stat-subjects">--</div>
+                    <div style="font-size:0.85rem; color:#14532d;">GY25-amnen</div>
+                </div>
+                <div style="background:#fef3c7; border-radius:10px; padding:1rem; text-align:center;">
+                    <div style="font-size:2rem; font-weight:800; color:#92400e;" id="api-stat-version">--</div>
+                    <div style="font-size:0.85rem; color:#78350f;">API-version</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer style="text-align:center; padding:2rem; color:var(--text-light); font-size:0.9rem; border-top:1px solid var(--border);">
+    <p>GY25 Laroplansverktyg | Baserat pa Skolverkets publicerade material om gymnasiereformen 2025</p>
+    <p style="margin-top:0.3rem;">Observera: Verktyget är ett stöd -- det ersätter inte lärarens professionella bedömning.</p>
+    <p style="margin-top:0.3rem;"><a href="https://www.skolverket.se/styrning-och-ansvar/forandringar-inom-skolomradet/gy25----amnesbetyg-pa-gymnasial-niva" target="_blank" style="color:var(--primary);">Skolverkets officiella GY25-sida</a></p>
+</footer>
+
+<script>
+// ============================================================
+// KNOWLEDGE BASE - GY25 data
+// ============================================================
+const KB = {
+    amnesbetyg: {
+        keywords: ['ämnesbetyg', 'amnesbetyg', 'kursbetyg', 'betygsystem', 'ämnesbaserat'],
+        title: 'Ämnesbetyg i GY25',
+        content: `<p>Den största förändringen i GY25 är övergången från <strong>kursbetyg</strong> till <strong>ämnesbetyg</strong>.</p>
+        <ul>
+            <li><strong>GY11:</strong> Varje kurs (t.ex. Svenska 1, 2, 3) fick ett separat betyg som var permanent.</li>
+            <li><strong>GY25:</strong> Ämnen delas in i <strong>nivåer</strong> istället för kurser. Betyget sätts på hela ämnet, och ett godkänt betyg på en högre nivå <strong>ersätter</strong> betyget från lägre nivåer.</li>
+        </ul>
+        <p>Detta innebär att en elev som presterar dåligt i början av gymnasiet kan förbättra sitt betyg genom att visa bättre kunskaper på högre nivåer.</p>`
+    },
+    sammantagen: {
+        keywords: ['sammantagen', 'bedömning', 'sammantagen bedömning', 'helhetsbedömning', 'kompensatorisk'],
+        title: 'Sammantagen bedömning',
+        content: `<p><strong>Sammantagen bedömning</strong> är den nya principen för hur betyg D, C, B och A sätts i GY25.</p>
+        <ul>
+            <li>Läraren gör en <strong>helhetsbedömning</strong> av elevens kunskaper mot betygskriterierna.</li>
+            <li>Styrkor inom ett område kan <strong>kompensera</strong> för relativa svagheter i ett annat.</li>
+            <li><strong>Undantag för E:</strong> För betyg E måste eleven visa kunskaper inom <strong>alla delar</strong> av E-kriterierna -- inget område kan helt saknas.</li>
+            <li>Läraren ska beakta ämnets <strong>tyngdpunkter</strong> -- de delar av syftet och centralt innehåll som betonas som särskilt viktiga.</li>
+        </ul>
+        <p>I GY11 var D och B definierade som "till övervägande del" av nästa nivås kunskapskrav. Nu ska läraren istället göra en professionell bedömning.</p>`
+    },
+    nyaamnen: {
+        keywords: ['nya ämnen', 'nytt ämne', 'artificiell intelligens', 'retorik engelska', 'nya kurser', 'nya program'],
+        title: 'Nya ämnen och program i GY25',
+        content: `<h3>Helt nya ämnen</h3>
+        <ul>
+            <li><strong>Artificiell intelligens</strong> -- nytt ämne som speglar samhällsutvecklingen</li>
+            <li><strong>Retorik på engelska</strong></li>
+            <li><strong>Tillämpad psykologi</strong></li>
+            <li><strong>Solcellsmontering</strong></li>
+            <li><strong>Siminstruktör</strong></li>
+            <li><strong>Hälsa och välbefinnande</strong></li>
+        </ul>
+        <h3>Ämnen som delats upp</h3>
+        <ul>
+            <li><strong>Matematik</strong> delas i "Matematik" och "Matematik -- fortsättning"</li>
+            <li><strong>Samhällskunskap</strong> delas i "Samhällskunskap", "Internationell ekonomi" och "Internationella relationer"</li>
+            <li><strong>Moderna språk</strong> delas i separata ämnen per språk</li>
+        </ul>
+        <h3>Nytt program</h3>
+        <ul><li><strong>Frisör- och stylistprogrammet</strong> (ersätter specialisering på Hantverksprogrammet)</li></ul>`
+    },
+    tidslinje: {
+        keywords: ['tidslinje', 'när', 'ikraft', 'implementering', 'datum', 'övergång', 'träder i kraft', 'start'],
+        title: 'Tidslinje för GY25',
+        content: `<ul>
+            <li><strong>1 juli 2025:</strong> GY25 träder i kraft. Nya ämnesplaner, examensmål och programstrukturer gäller.</li>
+            <li><strong>Hösten 2025:</strong> Första årskullen börjar under GY25. Alla nya årskurs 1-elever får ämnesbetyg.</li>
+            <li><strong>2025--2028:</strong> Skolor kör <strong>båda systemen parallellt</strong> -- GY11 för åk 2-3, GY25 för åk 1 och uppåt.</li>
+            <li><strong>1 januari 2026:</strong> Föreskriftsändringar om svenska/sva i examensbevis.</li>
+            <li><strong>Våren 2028:</strong> Första GY25-kullen får sina slutliga ämnesbetyg.</li>
+            <li><strong>30 juni 2030:</strong> Övergångsperioden slutar. Kursbetygsystemet avvecklas helt.</li>
+        </ul>
+        <p><strong>Viktigt:</strong> Under övergångsperioden behöver skolor hantera elever i båda systemen samtidigt.</p>`
+    },
+    betygskriterier: {
+        keywords: ['betygskriterier', 'kunskapskrav', 'kriterier', 'betyg', 'värdeord'],
+        title: 'Betygskriterier i GY25 (ersätter kunskapskrav)',
+        content: `<p>I GY25 ersätts <strong>kunskapskrav</strong> med <strong>betygskriterier</strong>.</p>
+        <h3>Viktiga skillnader</h3>
+        <ul>
+            <li><strong>Mindre detaljerade:</strong> Betygskriterierna är mer övergripande och gäller hela ämnet (inte per kurs).</li>
+            <li><strong>Progression via innehåll:</strong> Progressionen drivs av <strong>centralt innehåll</strong> som blir mer avancerat på högre nivåer, inte av olika kriterieformuleringar.</li>
+            <li><strong>Samma kriterier alla nivåer:</strong> Betygskriterierna är samma för hela ämnet -- det är det centrala innehållet som skiljer nivåerna åt.</li>
+            <li><strong>Borttagna ord:</strong> "Medverka" har tagits bort från E-nivå. Ersatts av "mycket enkelt" och "delvis fungerande".</li>
+        </ul>
+        <p>Läraren tolkar betygskriterierna i ljuset av <strong>ämnets syfte</strong> och det <strong>centrala innehållet</strong> för aktuell nivå.</p>`
+    },
+    betygDB: {
+        keywords: ['betyg d', 'betyg b', 'd och b', 'sätta d', 'sätta b', 'mellanbetyg'],
+        title: 'Hur sätts betyg D och B i GY25?',
+        content: `<h3>Tidigare (GY11)</h3>
+        <p>D = alla E-krav + "till övervägande del" av C-kraven.<br>B = alla C-krav + "till övervägande del" av A-kraven.</p>
+        <h3>Nu (GY25)</h3>
+        <p>D och B sätts genom <strong>sammantagen bedömning</strong>:</p>
+        <ul>
+            <li>Läraren bedömer var elevens samlade kunskaper bäst passar in på betygsskalan.</li>
+            <li>Det handlar om en <strong>professionell helhetsbedömning</strong>, inte om att räkna procent av kriterier.</li>
+            <li>Ämnets <strong>tyngdpunkter</strong> ska väga tyngre i bedömningen.</li>
+            <li>Styrkor kan kompensera för svagheter (kompensatorisk princip).</li>
+        </ul>
+        <p>Detta ger läraren <strong>större professionellt utrymme</strong> men kräver också kollegial samverkan för likvärdighet.</p>`
+    },
+    nationellaprov: {
+        keywords: ['nationella prov', 'nationellt prov', 'np', 'prov nationella'],
+        title: 'Nationella prov i GY25',
+        content: `<p>Nationella prov finns kvar men anpassas till det nya systemet:</p>
+        <h3>Högskoleförberedande program</h3>
+        <ul>
+            <li>Nationella prov i den <strong>högsta avslutande nivån</strong> i engelska, matematik, svenska/sva.</li>
+        </ul>
+        <h3>Yrkesprogram</h3>
+        <ul>
+            <li>Nationella prov i både <strong>inledande nivå</strong> och <strong>högsta avslutande nivå</strong> i svenska/sva, engelska och matematik.</li>
+        </ul>
+        <h3>Övergångsperioden</h3>
+        <ul>
+            <li>Från hösten 2025 formateras <strong>alla matematikprov</strong> enligt GY25.</li>
+            <li>Prov från endera systemet kan användas under övergången.</li>
+            <li>Mappning: Matematik 1abc (GY11) → Matematik nivå 1abc (GY25), osv.</li>
+        </ul>`
+    },
+    overgang: {
+        keywords: ['övergång', 'övergångsperiod', 'parallellt', 'båda system', 'gamla elever', 'transition'],
+        title: 'Övergångsperioden 2025-2030',
+        content: `<p>Under övergångsperioden gäller följande:</p>
+        <ul>
+            <li><strong>2025-2028:</strong> Skolor driver <strong>båda systemen parallellt</strong>.</li>
+            <li>Elever som börjar HT25 och framåt → GY25 med ämnesbetyg.</li>
+            <li>Elever som redan går → GY11 med kursbetyg.</li>
+            <li>Lärare kan behöva undervisa i båda systemen samtidigt.</li>
+            <li><strong>30 juni 2030:</strong> Övergångsperioden slutar helt.</li>
+            <li>Nationella prov kan användas från båda systemen under övergången.</li>
+        </ul>
+        <p><strong>Tips:</strong> Planera gemensam fortbildning så att alla lärare förstår båda systemen.</p>`
+    },
+    centralinnehall: {
+        keywords: ['centralt innehåll', 'central innehåll', 'progression', 'innehåll', 'byggstenar'],
+        title: 'Centralt innehåll i GY25',
+        content: `<p>I GY25 bär det centrala innehållet hela <strong>progressionen</strong> mellan nivåer:</p>
+        <ul>
+            <li>Innehållet beskrivs som <strong>"byggstenar"</strong> som kan kombineras i undervisningen.</li>
+            <li>På varje ny nivå <strong>fördjupas och breddas</strong> innehållet.</li>
+            <li>Betygskriterierna är samma för hela ämnet -- det är innehållet som avgör komplexiteten.</li>
+            <li>Lärare behöver ha <strong>god kunskap om alla nivåers innehåll</strong> i sitt ämne.</li>
+        </ul>
+        <p>I GY11 delades progressionen mellan kunskapskrav och centralt innehåll. Nu ligger allt i det centrala innehållet.</p>`
+    },
+    syfte: {
+        keywords: ['syfte', 'ämnets syfte', 'tyngdpunkt', 'tyngdpunkter'],
+        title: 'Ämnets syfte och tyngdpunkter',
+        content: `<p>I GY25 har ämnets syfte en utökad roll:</p>
+        <ul>
+            <li><strong>Ett syfte</strong> gäller hela ämnet (inte per kurs som ibland tolkades i GY11).</li>
+            <li>Syftet är en <strong>primär tolkningsram</strong> för betygskriterierna.</li>
+            <li><strong>Tyngdpunkter</strong> framträder ur syftet och centralt innehåll -- de visar vad som är särskilt viktigt i ämnet.</li>
+            <li>Syftet har uppdaterats för att inkludera hållbar utveckling, digitalisering, jämställdhet.</li>
+        </ul>
+        <p>Lärare bör använda syftet aktivt vid planering, undervisning och bedömning.</p>`
+    }
+};
+
+// ============================================================
+// FAQ DATA
+// ============================================================
+const FAQ = [
+    {
+        q: 'Vad innebär det att gå från kurser till nivåer?',
+        a: 'Istället för separata kurser (t.ex. Historia 1a1, 1a2, 2a) blir ämnet en helhet med nivåer. Betyget sätts på ämnet och ett högre nivås godkända betyg ersätter alla lägre nivåers betyg i samma ämne. Detta ger elever möjlighet att visa att de utvecklats över tid.'
+    },
+    {
+        q: 'Hur påverkar GY25 mitt sätt att planera undervisning?',
+        a: 'Du behöver tänka mer långsiktigt och se hela ämnet som en enhet. Planera undervisningen så att den bygger kumulativt -- varje nivå bör bygga på och fördjupa den förra. Du behöver också ha god kunskap om centralt innehåll på alla nivåer i ditt ämne, inte bara den nivå du just nu undervisar på.'
+    },
+    {
+        q: 'Vad händer om en elev fick F på nivå 1 men klarar nivå 2?',
+        a: 'Om eleven får ett godkänt betyg (E eller högre) på nivå 2, ersätter det betyget automatiskt det underkända betyget på nivå 1. Det innebär att eleven kan reparera sitt betyg genom att visa kunskaper på högre nivå.'
+    },
+    {
+        q: 'Kan en elev få A trots svagheter i ett delområde?',
+        a: 'Ja, genom sammantagen bedömning. Om eleven visar A-kvalitet sammantaget, och styrkor i ämnets tyngdpunkter, kan läraren bedöma att A-betyg bäst representerar elevens kunskaper -- även om det finns relativa svagheter i enstaka delområden. Undantaget är E-gränsen, där alla delar måste vara uppfyllda.'
+    },
+    {
+        q: 'Hur säkerställer vi likvärdighet med sammantagen bedömning?',
+        a: 'Kollegial samverkan är avgörande. Lärare bör diskutera och kalibrera sin bedömning med kollegor, använda Skolverkets stödmaterial, delta i sambedömning och diskutera tolkningar av tyngdpunkter. Skolverket betonar att det professionella utrymmet kräver professionellt ansvar.'
+    },
+    {
+        q: 'Påverkas gymnasiearbetet av GY25?',
+        a: 'Ja, Skolverket har förtydligat den avsedda nivån för gymnasiearbeten och öppnat för fler presentationsformat. Examensmålen har uppdaterats inom GY25-ramverket. Den grundläggande strukturen med gymnasiearbete som avslutning kvarstår.'
+    },
+    {
+        q: 'Vad händer med meritpoäng?',
+        a: 'Meritpoängssystemet är i grunden oförändrat. Samma beräkningsprinciper gäller. Betygsskalan A-F kvarstår. Det som ändras är hur betygen sätts (ämnesbetyg istället för kursbetyg), inte hur de värderas.'
+    },
+    {
+        q: 'Hur hanterar jag elever som läser enligt GY11 och GY25 samtidigt?',
+        a: 'Under övergångsperioden 2025-2030 behöver skolor och lärare hantera båda systemen. Elever som redan gick på gymnasiet före HT25 fortsätter med kursbetyg (GY11). Nya elever från HT25 får ämnesbetyg (GY25). Nationella prov kan användas från båda systemen under övergångsperioden.'
+    }
+];
+
+// ============================================================
+// COMPARISON DATA
+// ============================================================
+const COMPARE = {
+    struktur: {
+        title: 'Strukturella förändringar',
+        table: [
+            ['Grundprincip', 'Kursbaserat system', 'Ämnesbaserat system med nivåer'],
+            ['Betygstyp', 'Kursbetyg -- separat betyg per kurs', 'Ämnesbetyg -- ett betyg per ämne/nivå'],
+            ['Progression', 'Synlig i både kunskapskrav och centralt innehåll', 'Drivs helt av centralt innehåll'],
+            ['Ersättning', 'Kursbetyg är permanenta', 'Godkänt på högre nivå ersätter lägre nivåers betyg'],
+            ['Antal betygsmoment', 'Många (varje kurs)', 'Färre men mer konsekvensrika'],
+            ['Ämnesplaner', 'Per kurs med separata kunskapskrav', 'Per ämne med gemensamma betygskriterier']
+        ]
+    },
+    betyg: {
+        title: 'Betygssättning',
+        table: [
+            ['Betygsskala', 'A-F', 'A-F (oförändrad)'],
+            ['E-betyg', 'Alla kunskapskrav för E uppfyllda', 'Alla delar av E-kriterierna uppfyllda'],
+            ['D-betyg', '"Till övervägande del" av C-kraven + alla E-krav', 'Sammantagen bedömning mellan E och C'],
+            ['C-betyg', 'Alla kunskapskrav för C uppfyllda', 'Sammantagen bedömning mot C-kriterierna'],
+            ['B-betyg', '"Till övervägande del" av A-kraven + alla C-krav', 'Sammantagen bedömning mellan C och A'],
+            ['A-betyg', 'Alla kunskapskrav för A uppfyllda', 'Sammantagen bedömning mot A-kriterierna'],
+            ['Kompensation', 'Nej -- alla krav måste uppfyllas', 'Ja -- styrkor kan kompensera svagheter (utom E)']
+        ]
+    },
+    bedomning: {
+        title: 'Bedömningsprinciper',
+        table: [
+            ['Princip', 'Alla kunskapskrav ska vara uppfyllda', 'Sammantagen bedömning (holistisk)'],
+            ['Detaljnivå', 'Detaljerade kunskapskrav per kurs', 'Övergripande betygskriterier per ämne'],
+            ['Tolkningsram', 'Kunskapskraven styr', 'Syfte + centralt innehåll + betygskriterier tillsammans'],
+            ['Tyngdpunkter', 'Ej formaliserat', 'Läraren ska beakta ämnets tyngdpunkter'],
+            ['Lärarens utrymme', 'Begränsat av detaljerade krav', 'Utökat -- professionell bedömning central'],
+            ['Värdeord E-nivå', 'Inkluderar "medverka"', '"Medverka" borttaget, ersatt av "mycket enkelt" m.fl.'],
+            ['Kollegial kalibrering', 'Önskvärt', 'Nödvändigt för likvärdighet']
+        ]
+    },
+    amnen: {
+        title: 'Ämnen och kurser',
+        table: [
+            ['Struktur', 'Kurser (t.ex. Matematik 1a, 2b, 3c)', 'Nivåer (t.ex. Matematik nivå 1a, 2b, 3c)'],
+            ['Matematik', 'Ett ämne med kurser 1-5', 'Delat: "Matematik" + "Matematik -- fortsättning"'],
+            ['Samhällskunskap', 'Ett ämne med 7 kurser', 'Delat i 3 ämnen: Samhällskunskap, Int. ekonomi, Int. relationer'],
+            ['Moderna språk', 'Ett gemensamt ämne', 'Separata ämnen per språk'],
+            ['Engelska', 'Engelska 4, 5, 6', 'Engelska 1, 2, 3 (omnumrerat)'],
+            ['Nya ämnen', '---', 'AI, Retorik på engelska, Tillämpad psykologi m.fl.'],
+            ['Nytt program', '---', 'Frisör- och stylistprogrammet']
+        ]
+    },
+    prov: {
+        title: 'Nationella prov',
+        table: [
+            ['Grundsystem', 'Prov kopplade till specifika kurser', 'Prov kopplade till nivåer'],
+            ['Högskoleförberedande', 'Prov i slutkurs', 'Prov i högsta avslutande nivå'],
+            ['Yrkesprogram', 'Prov i viss utsträckning', 'Prov i både inledande och högsta nivå'],
+            ['Matematik', 'Kursspecifika prov', 'Alla mateprov formateras enligt GY25 från HT25'],
+            ['Övergångsperiod', '---', 'Prov från båda systemen kan användas']
+        ]
+    },
+    tidslinje: {
+        title: 'Tidslinje',
+        table: [
+            ['Start', 'Infördes 2011', 'Träder i kraft 1 juli 2025'],
+            ['Första eleverna', 'Hösten 2011', 'Hösten 2025'],
+            ['Parallella system', '---', '2025-2030'],
+            ['Slutdatum GY11', '---', '30 juni 2030'],
+            ['Första slutbetyg GY25', '---', 'Våren 2028'],
+            ['Förberedelsetid', '---', 'Ämnesplaner publicerades 2024']
+        ]
+    }
+};
+
+// ============================================================
+// EXAM QUALITY CRITERIA
+// ============================================================
+const QUALITY_CRITERIA = {
+    general: [
+        { name: 'Tydlighet', desc: 'Frågan är tydligt formulerad och eleven förstår vad som efterfrågas', check: q => q.length > 15 && !q.includes('??') && (q.includes('?') || q.includes('.')) },
+        { name: 'Öppen/sluten balans', desc: 'Blandning av öppna och slutna frågor för att testa olika förmågor', check: null },
+        { name: 'Koppling till centralt innehåll', desc: 'Frågan kan kopplas till centralt innehåll i ämnet', check: null },
+        { name: 'Rimlig omfattning', desc: 'Frågan har rimlig svarsomfattning (varken för snäv eller för bred)', check: q => q.length > 20 && q.length < 500 }
+    ],
+    E: [
+        { name: 'Grundläggande kunskap', desc: 'Testar att eleven kan redogöra för eller beskriva grundläggande innehåll', check: q => /redogör|beskriv|förklara|nämn|vad (är|menas|innebär)|vilka|ange|ge exempel/i.test(q) },
+        { name: 'Enkla resonemang', desc: 'Frågan möjliggör enkla resonemang utan krav på analys', check: q => !/analysera|diskutera|problematisera|värdera|jämför.*kritiskt/i.test(q) },
+        { name: 'Alla delar av kriterierna', desc: 'Provet som helhet bör täcka alla delar av E-kriterierna', check: null }
+    ],
+    C: [
+        { name: 'Analys och jämförelse', desc: 'Testar förmåga att analysera, jämföra eller diskutera', check: q => /analysera|jämför|diskutera|resonera|utveckla|koppl/i.test(q) },
+        { name: 'Utvecklade resonemang', desc: 'Frågan möjliggör utvecklade resonemang med kopplingar', check: q => /resonera|argumentera|förklara.*samband|visa.*förståelse|koppla/i.test(q) || q.length > 60 },
+        { name: 'Ämnesbegrepp', desc: 'Frågan testar användning av ämnesspecifika begrepp', check: q => /begrepp|terminologi|använd.*termer|fackspr/i.test(q) }
+    ],
+    A: [
+        { name: 'Problematisering', desc: 'Testar förmåga att värdera, problematisera eller göra komplexa analyser', check: q => /problematisera|värdera|kritiskt|komplex|nyansera|mångfacetter/i.test(q) },
+        { name: 'Nyanserade resonemang', desc: 'Frågan möjliggör välutvecklade och nyanserade resonemang', check: q => /nyansera|välutveckl|djupgående|utförlig|perspektiv|syntes/i.test(q) || q.length > 100 },
+        { name: 'Samband och slutsatser', desc: 'Testar förmåga att se samband och dra egna slutsatser', check: q => /samband|slutsats|konsekvens|orsak.*verkan|koppl.*till|reflek/i.test(q) }
+    ]
+};
+
+// ============================================================
+// EXAMPLE ANSWERS DATABASE
+// ============================================================
+const EXAMPLE_QUESTIONS = {
+    svenska: [
+        'Analysera hur författaren använder språkliga verktyg för att skapa stämning i texten.',
+        'Diskutera hur mediernas framställning kan påverka vår syn på samhällsfrågor.',
+        'Redogör för skillnaden mellan argumenterande och utredande text.'
+    ],
+    engelska: [
+        'Discuss how cultural differences can lead to misunderstandings in international communication.',
+        'Describe the main themes in the text you have read.',
+        'Compare two English-speaking countries and discuss similarities and differences.'
+    ],
+    matematik: [
+        'Förklara vad en funktion är och ge exempel på hur funktioner kan användas i vardagen.',
+        'Redogör för sambandet mellan derivata och en funktions förändring.',
+        'Beskriv hur sannolikhet kan användas för att fatta beslut.'
+    ],
+    samhallskunskap: [
+        'Diskutera hur demokratin i Sverige har utvecklats sedan 1800-talet.',
+        'Analysera hur olika politiska ideologier ser på statens roll i samhället.',
+        'Redogör för hur EU påverkar Sveriges lagstiftning.'
+    ],
+    historia: [
+        'Diskutera orsakerna till första världskrigets utbrott.',
+        'Analysera hur industrialiseringen förändrade samhället under 1800-talet.',
+        'Redogör för kalla krigets huvuddrag och dess konsekvenser.'
+    ],
+    religion: [
+        'Jämför synen på livet efter döden inom kristendom och islam.',
+        'Diskutera hur religiösa normer kan påverka människors vardag.',
+        'Redogör för de fem pelarna inom islam.'
+    ],
+    naturkunskap: [
+        'Diskutera hur människans livsstil påverkar klimatförändringarna.',
+        'Redogör för ekosystemets uppbyggnad och ge exempel på näringskedjor.',
+        'Analysera för- och nackdelar med olika energikällor.'
+    ],
+    biologi: [
+        'Förklara hur naturligt urval driver evolution.',
+        'Diskutera genteknikens möjligheter och etiska dilemman.',
+        'Redogör för cellens uppbyggnad och funktion.'
+    ],
+    fysik: [
+        'Förklara Newtons tre rörelselagar och ge exempel på tillämpningar.',
+        'Diskutera hur energi omvandlas i olika sammanhang.',
+        'Redogör för skillnaden mellan elektromagnetisk strålning och partikelstrålning.'
+    ],
+    kemi: [
+        'Förklara vad en kemisk reaktion är och ge exempel från vardagen.',
+        'Diskutera hur syror och baser påverkar miljön.',
+        'Redogör för det periodiska systemets uppbyggnad.'
+    ],
+    idrott: [
+        'Diskutera hur regelbunden fysisk aktivitet påverkar hälsan.',
+        'Analysera hur genus och normer påverkar deltagande i idrott.',
+        'Redogör för grundläggande principer för träningsplanering.'
+    ]
+};
+
+const EXAMPLE_ANSWERS = {
+    samhallskunskap: {
+        'Diskutera hur demokratin i Sverige har utvecklats sedan 1800-talet.': {
+            E: {
+                svar: 'Demokratin i Sverige har utvecklats mycket sedan 1800-talet. Förr var det bara rika män som fick rösta. Sedan fick fler och fler människor rösträtt. 1921 fick alla vuxna rösta, både män och kvinnor. Idag har vi allmän och lika rösträtt och alla som är 18 år får rösta i riksdagsvalet.',
+                kommentar: 'Svaret redogör för grundläggande fakta om demokratins utveckling. Det nämner några viktiga årtal och förändringar, men håller sig på en beskrivande nivå utan djupare analys eller kopplingar.'
+            },
+            C: {
+                svar: 'Demokratin i Sverige har genomgått en omfattande utveckling sedan 1800-talet. Under tidigt 1800-tal styrdes landet av en kung och riksdag där bara en liten del av befolkningen hade rösträtt, baserat på inkomst och kön. Folkrörelserna, som nykterhetsrörelsen, arbetarrörelsen och frikyrkorörelsen, spelade en avgörande roll i demokratiseringen. De organiserade vanliga människor och krävde politiska rättigheter. Arbetarrörelsen kämpade för allmän rösträtt, vilket ledde till att männen fick rösträtt 1909 och kvinnorna 1921. Parlamentarismen etablerades 1917, vilket innebar att regeringen måste ha riksdagens stöd. Dessa förändringar hängde samman med industrialiseringen som förändrade samhällsstrukturen och skapade nya samhällsklasser som krävde inflytande.',
+                kommentar: 'Svaret analyserar demokratins utveckling med utvecklade resonemang. Det visar kopplingar mellan folkrörelser, industrialisering och demokratisering. Ämnesbegrepp som parlamentarism, folkrörelser och allmän rösträtt används korrekt. Konkreta exempel ges som stöd.'
+            },
+            A: {
+                svar: 'Demokratins framväxt i Sverige sedan 1800-talet kan ses som en komplex process driven av samverkande ekonomiska, sociala och politiska faktorer. Under det tidiga 1800-talets ståndsriksdag var politisk makt kopplad till ekonomisk ställning -- ett system som speglade en agrär samhällsordning. Industrialiseringen under andra halvan av 1800-talet skapade dock helt nya förutsättningar: urbanisering, en växande arbetarklass och nya sociala spänningar som det gamla systemet inte kunde hantera.\n\nFolkrörelserna blev avgörande som katalysatorer för förändring, men det är viktigt att notera att de inte var en enhetlig kraft. Arbetarrörelsen drev framför allt ekonomisk jämlikhet och rösträtt, medan liberala krafter betonade individuella fri- och rättigheter. Dessa olika perspektiv samverkade ibland och stod ibland i konflikt med varandra. Den gradvisa rösträttsutvidgningen -- från förmögenhetskrav till allmän manlig rösträtt 1909 och slutligen kvinnlig rösträtt 1921 -- var resultatet av kompromisser snarare än en linjär utveckling.\n\nSamtidigt bör man problematisera demokratibegreppet: formell rösträtt innebar inte automatiskt reellt inflytande. Samernas rättigheter och minoriteters delaktighet har till exempel varit begränsade långt efter att den formella demokratin var på plats. Demokratins utveckling är alltså inte bara en framgångshistoria, utan en pågående process med kvarvarande utmaningar kring representation och jämlikhet.',
+                kommentar: 'Svaret visar välutvecklade och nyanserade resonemang med flera perspektiv. Eleven problematiserar demokratibegreppet, ser komplexa samband mellan ekonomi, sociala rörelser och politik, och drar egna slutsatser. Resonemangen vänder och vrider på frågan ("å ena sidan / å andra sidan") och visar att demokratisering inte var en enkel, linjär process.'
+            }
+        }
+    },
+    historia: {
+        'Diskutera orsakerna till första världskrigets utbrott.': {
+            E: {
+                svar: 'Första världskriget startade 1914. En viktig orsak var att ärkehertig Franz Ferdinand mördades i Sarajevo. Det ledde till att Österrike-Ungern förklarade krig mot Serbien. Sedan drogs fler länder in i kriget på grund av allianser. Det fanns också spänningar mellan länderna i Europa om kolonier och makt.',
+                kommentar: 'Svaret beskriver grundläggande orsaker på en enkel nivå. Det nämner mordet i Sarajevo, allianserna och rivaliteten, men utan att förklara samband eller gå djupare.'
+            },
+            C: {
+                svar: 'Första världskriget hade flera samverkande orsaker. Den direkta utlösande faktorn var mordet på ärkehertig Franz Ferdinand i Sarajevo 1914, men de underliggande orsakerna var betydligt mer komplexa. Imperialismen hade skapat rivalitet mellan europeiska stormakter om kolonier och inflytande, särskilt mellan Storbritannien och Tyskland. Nationalismen växte i styrka, både som enande kraft (t.ex. i Tyskland och Italien) och som splittrande kraft (t.ex. på Balkan där slaviska folk ville frigöra sig från Österrike-Ungern). Alliansystemen -- trippelententen och trippelalliansen -- innebar att en lokal konflikt snabbt kunde dra in flera stormakter. Kapprustningen, främst mellan Tyskland och Storbritannien om flottan, skapade en känsla av att krig var oundvikligt. Dessa faktorer samverkade och förstärkte varandra, vilket gjorde att en regional kris eskalerade till ett världskrig.',
+                kommentar: 'Svaret analyserar flera orsaker och visar kopplingar mellan dem. Ämnesbegrepp som imperialism, nationalism och alliansystem används korrekt. Eleven ger konkreta exempel och visar att orsakerna samverkade.'
+            },
+            A: {
+                svar: 'Orsakerna till första världskrigets utbrott är en historiografiskt omdebatterad fråga som innefattar strukturella, ideologiska och situationsspecifika faktorer. På strukturell nivå hade det europeiska statssystemet utvecklat en instabilitet genom alliansystemens bipolära logik: trippelententen och trippelalliansen skapade en situation där varje lokal konflikt potentiellt involverade samtliga stormakter. Denna mekaniska koppling förstärktes av kapprustningen, som inte bara var militär utan också psykologisk -- den skapade ömsesidig misstro och en föreställning om krigets oundviklighet.\n\nImperialismen och nationalismen utgjorde de ideologiska drivkrafterna, men deras samspel var komplext. Imperialismen skapade konfliktytor utanför Europa (som Marockokrisen 1905 och 1911), men den stärkte samtidigt nationalistiska narrativ om storhet och ära. Nationalismen verkade dessutom i motsatta riktningar: som sammanhållande kraft i etablerade nationalstater och som destabiliserande kraft i multietniska imperier som Österrike-Ungern och Osmanska riket. Balkans roll som "Europas krutdurk" illustrerar hur dessa spänningar koncentrerades regionalt.\n\nDock bör man vara försiktig med deterministiska tolkningar. Historikern Christopher Clark har i "The Sleepwalkers" argumenterat för att kriget inte var oundvikligt utan resultatet av specifika beslut av specifika aktörer under julikrisen 1914. Frågan om ansvar har skiftat från Versaillestraktens ensidiga tyska krigsansvar till en mer nyanserad bild av delat ansvar. Detta visar att historiska förklaringar alltid präglas av sin egen tid och de frågor historikern ställer.',
+                kommentar: 'Svaret visar välutvecklade resonemang med historiografisk medvetenhet. Eleven problematiserar frågan om orsak och ansvar, refererar till forskning, och visar förståelse för att historisk tolkning är kontextbunden. Komplexa samband analyseras med precision och nyansering.'
+            }
+        }
+    },
+    religion: {
+        'Jämför synen på livet efter döden inom kristendom och islam.': {
+            E: {
+                svar: 'Inom kristendomen tror man på himmel och helvete. Om man lever ett gott liv kommer man till himlen. Inom islam finns också himmel och helvete. Muslimer tror på en domeddag då Allah dömer alla människor. Båda religionerna tror alltså på ett liv efter döden.',
+                kommentar: 'Svaret beskriver grundläggande likheter och skillnader på en enkel nivå. Det visar att eleven har viss kunskap om båda religionerna men jämförelsen är ytlig.'
+            },
+            C: {
+                svar: 'Både kristendom och islam har en tydlig föreställning om livet efter döden, men det finns intressanta likheter och skillnader. Inom kristendomen är tron på uppståndelsen central -- Jesus uppståndelse ses som bevis på att döden inte är slutet. De flesta kristna tror på en yttersta dom där Gud bedömer människans handlingar och tro, vilket leder till antingen evigt liv i himlen eller separation från Gud. Inom protestantismen betonas tron (sola fide) som avgörande, medan katolska kyrkan även betonar gärningar och inkluderar skärselden som ett mellantillstånd.\n\nInom islam spelar tron på domedagen (Yawm al-Qiyama) en central roll -- det är en av islams trosartiklar. Varje människa står inför Allahs dom, och ens handlingar vägs på en våg. Paradiset (Jannah) beskrivs ofta i konkreta termer som en trädgård med floder, medan helvetet (Jahannam) beskrivs som eld och plåga. En viktig likhet är att båda religionerna kopplar det moraliska livet till konsekvenser efter döden, vilket fungerar som etisk vägledning för troende.',
+                kommentar: 'Svaret jämför systematiskt med utvecklade resonemang. Eleven visar kopplingar, använder korrekta begrepp från båda religionerna, och lyfter fram både likheter och skillnader med exempel.'
+            },
+            A: {
+                svar: 'Föreställningar om livet efter döden utgör en grundläggande dimension i både kristendom och islam, men en djupare jämförelse avslöjar både strukturella likheter och teologiskt signifikanta skillnader som speglar respektive traditions grundläggande gudsuppfattning.\n\nBåda religionerna delar en linjär tidsuppfattning med en definitiv eskatologi -- en ändpunkt där Gud/Allah dömer mänskligheten. Detta skiljer dem fundamentalt från exempelvis hinduismens cykliska återfödelse. Inom kristendomen är uppståndelsetron central: Kristi uppståndelse tolkas som seger över döden och löfte om evigt liv. Frälsningsvägen varierar dock markant mellan traditioner -- protestantismens sola fide (tron allena) kontrasterar mot katolska kyrkans betoning av sakrament och gärningar, inklusive skärselden som reningsstadium. Denna inomreligiösa variation visar att "kristendomen" inte har en enhetlig syn.\n\nInom islam är Yawm al-Qiyama (domedagen) en av de sex trosartiklarna och genomsyrar den troende muslimens vardag. Koranens beskrivningar av Jannah (paradiset) och Jahannam (helvetet) är mer detaljerade och konkreta än Bibelns -- frågan är om dessa ska tolkas bokstavligt eller symboliskt, något som muslimska teologer debatterat i sekler. En viktig skillnad är betoningen av individuellt ansvar: i islam vägs varje handling på Allahs våg, medan kristendomen i större utsträckning betonar nåd och förlåtelse som väg till frälsning.\n\nDet är dock viktigt att problematisera generaliseringar. Båda religionerna rymmer en stor mångfald av tolkningar, från bokstavliga till allegoriska. Synen på livet efter döden fungerar i båda fallen inte bara som kosmologisk tro utan som moraliskt ramverk som ger mening åt det jordiska livet och motiverar etiskt handlande -- en funktionell likhet som kanske är viktigare än de teologiska skillnaderna.',
+                kommentar: 'Svaret visar nyanserad analys med flera perspektiv. Eleven problematiserar generaliseringar, jämför på djupet med korrekta begrepp, och drar en egen slutsats om funktionella likheter. Inomreligiös variation lyfts fram, och komparationen går bortom ytliga likheter.'
+            }
+        }
+    }
+};
+
+// Generic templates used when no pre-written answer exists
+const GENERIC_TEMPLATES = {
+    E: {
+        structure: 'Beskrivande, kort, grundläggande fakta',
+        connectors: [],
+        template: (topic) => `[Grundläggande fakta om ${topic}]. [Enkel beskrivning av en aspekt]. [Ytterligare en enkel beskrivning]. [Kort avslutning].`,
+        traits: [
+            'Beskriver och redogör -- nämner fakta utan att analysera',
+            'Enkla, korta meningar och resonemang',
+            'Få eller inga kopplingsord (eftersom, därför, detta beror på...)',
+            'Begränsad användning av ämnesbegrepp',
+            'Visar grundläggande kunskap men utan djup',
+            'Svarar på frågan men utan att utveckla'
+        ]
+    },
+    C: {
+        structure: 'Analyserande, utvecklade resonemang med kopplingar',
+        connectors: ['eftersom', 'därför', 'detta leder till', 'till exempel', 'jämfört med'],
+        template: (topic) => `[Inledning som visar förståelse för ${topic}]. [Utvecklat resonemang med orsakssamband]. [Konkret exempel som stöd]. [Jämförelse eller koppling till annat]. [Slutsats som binder ihop resonemanget].`,
+        traits: [
+            'Analyserar, jämför och diskuterar -- inte bara beskriver',
+            'Utvecklade resonemang med kopplingsord (eftersom, därför, detta innebär...)',
+            'Tydliga orsakssamband och kopplingar',
+            'Använder ämnesbegrepp korrekt',
+            'Ger konkreta exempel som stöd för resonemang',
+            'Visar förståelse för sammanhang och orsak-verkan'
+        ]
+    },
+    A: {
+        structure: 'Problematiserande, nyanserat med flera perspektiv och slutsats',
+        connectors: ['å ena sidan', 'å andra sidan', 'dock', 'emellertid', 'samtidigt', 'visserligen'],
+        template: (topic) => `[Inledning som ramar in ${topic} i ett bredare sammanhang]. [Analys ur ett perspektiv med belägg]. [Kontrasterat med ett annat perspektiv]. [Problematisering -- det är inte så enkelt som det verkar]. [Nyanserad slutsats som väger samman perspektiven och drar egna slutsatser].`,
+        traits: [
+            'Problematiserar och värderar -- inte bara analyserar',
+            'Nyanserade resonemang med flera perspektiv (å ena sidan / å andra sidan)',
+            'Komplexa samband och orsakskedjor',
+            'Drar egna, välgrundade slutsatser',
+            'Avancerad och precis begreppsanvändning',
+            'Visar medvetenhet om att frågan kan ses ur olika synvinklar',
+            'Syntetiserar information till en helhet'
+        ]
+    }
+};
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+    });
+});
+
+// ============================================================
+// FAQ ACCORDION
+// ============================================================
+function buildFAQ() {
+    const container = document.getElementById('faq-accordion');
+    container.innerHTML = FAQ.map(item => `
+        <div class="accordion-item">
+            <button class="accordion-header" onclick="toggleAccordion(this)">${item.q}</button>
+            <div class="accordion-body">
+                <div class="accordion-body-inner"><p>${item.a}</p></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function toggleAccordion(btn) {
+    const body = btn.nextElementSibling;
+    const isOpen = body.classList.contains('open');
+    btn.classList.toggle('open', !isOpen);
+    body.classList.toggle('open', !isOpen);
+}
+
+// ============================================================
+// TAB 1: Q&A SEARCH
+// ============================================================
+function askQuick(btn) {
+    document.getElementById('qa-input').value = btn.textContent;
+    searchKB();
+}
+
+function searchKB() {
+    const query = document.getElementById('qa-input').value.trim().toLowerCase();
+    if (!query) return;
+
+    const resultBox = document.getElementById('qa-result');
+    let bestMatch = null;
+    let bestScore = 0;
+
+    for (const [key, entry] of Object.entries(KB)) {
+        let score = 0;
+        for (const kw of entry.keywords) {
+            if (query.includes(kw)) score += 3;
+            else {
+                const words = kw.split(' ');
+                for (const w of words) {
+                    if (query.includes(w) && w.length > 3) score += 1;
+                }
+            }
+        }
+        if (score > bestScore) {
+            bestScore = score;
+            bestMatch = entry;
+        }
+    }
+
+    // Also search API data for matching subjects/programs
+    const apiHits = searchAPIData(query);
+
+    if (bestMatch && bestScore >= 1) {
+        resultBox.innerHTML = `<h3>${bestMatch.title}</h3>${bestMatch.content}` + apiHits;
+        resultBox.classList.add('visible');
+    } else {
+        // Fuzzy match -- check partial word overlaps
+        const queryWords = query.split(/\s+/).filter(w => w.length > 2);
+        let fallbackMatch = null;
+        let fallbackScore = 0;
+
+        for (const [key, entry] of Object.entries(KB)) {
+            let score = 0;
+            const allText = entry.keywords.join(' ') + ' ' + entry.title.toLowerCase();
+            for (const qw of queryWords) {
+                if (allText.includes(qw)) score++;
+            }
+            if (score > fallbackScore) {
+                fallbackScore = score;
+                fallbackMatch = entry;
+            }
+        }
+
+        if (fallbackMatch && fallbackScore > 0) {
+            resultBox.innerHTML = `<h3>${fallbackMatch.title}</h3><p style="color:var(--warning); margin-bottom:0.5rem;"><em>Närmaste matchning vi hittade:</em></p>${fallbackMatch.content}` + apiHits;
+            resultBox.classList.add('visible');
+        } else if (apiHits) {
+            resultBox.innerHTML = apiHits;
+            resultBox.classList.add('visible');
+        } else {
+            resultBox.innerHTML = `<h3>Inget exakt svar hittades</h3>
+                <p>Vi hittade inget direkt svar pa din fraga i kunskapsbasen. Prova att:</p>
+                <ul>
+                    <li>Omformulera fragan med andra nyckelord</li>
+                    <li>Anvanda en av snabbfragorna ovan</li>
+                    <li>Titta i FAQ-sektionen nedan</li>
+                    <li>Besoka <a href="https://www.skolverket.se/styrning-och-ansvar/forandringar-inom-skolomradet/gy25----amnesbetyg-pa-gymnasial-niva" target="_blank">Skolverkets GY25-sida</a></li>
+                </ul>`;
+            resultBox.classList.add('visible');
+        }
+    }
+}
+
+// Search API data for matching subjects and programs
+function searchAPIData(query) {
+    if (!apiDataLoaded) return '';
+    const q = query.toLowerCase();
+    const matchingSubjects = apiSubjects.filter(s =>
+        s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q)
+    ).slice(0, 6);
+    const matchingPrograms = apiPrograms.filter(p =>
+        p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q)
+    ).slice(0, 4);
+
+    if (matchingSubjects.length === 0 && matchingPrograms.length === 0) return '';
+
+    let html = '<div style="background:linear-gradient(135deg, #eff6ff, #f0fdf4); border:2px solid #93c5fd; border-radius:12px; padding:1.25rem; margin-top:1.5rem;">';
+    html += '<h3 style="color:#1e40af; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;">&#9741; Live-data fran Skolverkets API</h3>';
+
+    if (matchingPrograms.length > 0) {
+        html += '<p style="font-weight:600; margin-bottom:0.5rem;">Matchande GY25-program:</p>';
+        html += '<div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">';
+        for (const p of matchingPrograms) {
+            const isVoc = p.category === 'VOCATIONAL_PROGRAM';
+            const color = isVoc ? '#f59e0b' : '#3b82f6';
+            html += `<div onclick="document.querySelector('[data-tab=apidata]').click(); setTimeout(() => showProgramDetail('${p.code}'), 300)" style="background:white; border:1px solid ${color}40; border-radius:8px; padding:0.5rem 0.75rem; cursor:pointer; font-size:0.9rem;">
+                <strong>${p.name}</strong> <span style="color:var(--text-light); font-size:0.8rem;">${p.code}</span>
+            </div>`;
+        }
+        html += '</div>';
+    }
+
+    if (matchingSubjects.length > 0) {
+        html += '<p style="font-weight:600; margin-bottom:0.5rem;">Matchande GY25-amnen:</p>';
+        html += '<div style="display:flex; flex-wrap:wrap; gap:0.5rem;">';
+        for (const s of matchingSubjects) {
+            const catName = (s.categories || []).map(c => c.name || '').join(', ');
+            html += `<div onclick="document.querySelector('[data-tab=apidata]').click(); setTimeout(() => { apiTabRendered = true; initAPIData().then(() => showSubjectDetail('${s.code}')); }, 300)" style="background:white; border:1px solid #93c5fd; border-radius:8px; padding:0.5rem 0.75rem; cursor:pointer; font-size:0.9rem;">
+                <strong>${s.name}</strong> <span style="color:var(--text-light); font-size:0.8rem;">${s.code}</span>
+                ${catName ? '<span style="font-size:0.75rem; color:var(--text-light); margin-left:0.25rem;">(' + catName + ')</span>' : ''}
+            </div>`;
+        }
+        html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
+}
+
+// ============================================================
+// TAB 2: COMPARISON
+// ============================================================
+function selectCompare(el, topic) {
+    document.querySelectorAll('.subject-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    renderComparison(topic);
+}
+
+function renderComparison(topic) {
+    const data = COMPARE[topic];
+    if (!data) return;
+
+    const container = document.getElementById('compare-content');
+    let html = `<h3>${data.title}</h3><table class="compare-table"><thead><tr><th style="width:25%">Aspekt</th><th style="width:37.5%">GY11</th><th style="width:37.5%">GY25</th></tr></thead><tbody>`;
+
+    for (const row of data.table) {
+        html += `<tr><td class="label-col">${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>`;
+    }
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+// Populate comparison program dropdown when API data loads
+function populateComparisonDropdown() {
+    const sel = document.getElementById('jamfor-program-select');
+    if (!sel || !apiDataLoaded) return;
+    sel.innerHTML = '<option value="">Valj ett GY25-program...</option>';
+    for (const p of apiPrograms) {
+        const isVoc = p.category === 'VOCATIONAL_PROGRAM';
+        sel.innerHTML += `<option value="${p.code}">${p.name} (${p.code}) - ${isVoc ? 'Yrkesprogram' : 'Hogskoleforb.'}</option>`;
+    }
+}
+
+async function compareProgram(code) {
+    if (!code) { document.getElementById('jamfor-api-result').innerHTML = ''; return; }
+    const resultDiv = document.getElementById('jamfor-api-result');
+    resultDiv.innerHTML = '<div style="display:flex; align-items:center; gap:0.5rem; padding:1rem;"><div class="spinner" style="display:block; margin:0;"></div> Hamtar data fran Skolverket...</div>';
+
+    try {
+        // GY25 program detail
+        const gy25Res = await fetch(API_BASE + '/programs/' + code);
+        if (!gy25Res.ok) throw new Error('Kunde inte hamta GY25-program');
+        const gy25Data = await gy25Res.json();
+        const gy25 = gy25Data.program || gy25Data;
+
+        // Try to find matching GY11 program (code without "25" suffix)
+        const gy11Code = code.replace(/25$/, '');
+        let gy11 = null;
+        if (gy11Code !== code) {
+            try {
+                const gy11Res = await fetch(API_BASE + '/programs/' + gy11Code);
+                if (gy11Res.ok) {
+                    const gy11Data = await gy11Res.json();
+                    gy11 = gy11Data.program || gy11Data;
+                }
+            } catch (e) { /* No GY11 version */ }
+        }
+
+        let html = `<h3 style="margin-top:1rem;">${gy25.name}</h3>`;
+
+        if (gy11) {
+            // Orientation comparison
+            const gy11Orients = (gy11.orientations || []).map(o => o.name);
+            const gy25Orients = (gy25.orientations || []).map(o => o.name);
+            const removed = gy11Orients.filter(o => !gy25Orients.includes(o));
+            const added = gy25Orients.filter(o => !gy11Orients.includes(o));
+            const kept = gy25Orients.filter(o => gy11Orients.includes(o));
+
+            html += '<table class="compare-table"><thead><tr><th>Aspekt</th><th>GY11 (' + gy11Code + ')</th><th>GY25 (' + code + ')</th></tr></thead><tbody>';
+            html += `<tr><td class="label-col">Programkod</td><td>${gy11.code}</td><td>${gy25.code}</td></tr>`;
+            html += `<tr><td class="label-col">Startdatum</td><td>${gy11.startDate || '-'}</td><td>${gy25.startDate || '-'}</td></tr>`;
+            html += `<tr><td class="label-col">Avvecklas</td><td>${gy11.canceledDate || '-'}</td><td>-</td></tr>`;
+            html += `<tr><td class="label-col">Antal inriktningar</td><td>${gy11Orients.length}</td><td>${gy25Orients.length}</td></tr>`;
+
+            if (kept.length > 0) {
+                html += `<tr><td class="label-col">Behallna inriktningar</td><td colspan="2">${kept.join(', ')}</td></tr>`;
+            }
+            if (removed.length > 0) {
+                html += `<tr><td class="label-col" style="color:#ef4444;">Borttagna inriktningar</td><td colspan="2" style="color:#ef4444;">${removed.join(', ')}</td></tr>`;
+            }
+            if (added.length > 0) {
+                html += `<tr><td class="label-col" style="color:#10b981;">Nya inriktningar</td><td colspan="2" style="color:#10b981;">${added.join(', ')}</td></tr>`;
+            }
+
+            // Subject comparison
+            const gy11Subjects = (gy11.subjects || []).map(s => s.name);
+            const gy25Subjects = (gy25.subjects || []).map(s => s.name);
+            const removedSubj = gy11Subjects.filter(s => !gy25Subjects.includes(s));
+            const addedSubj = gy25Subjects.filter(s => !gy11Subjects.includes(s));
+
+            if (removedSubj.length > 0) {
+                html += `<tr><td class="label-col" style="color:#ef4444;">Borttagna amnen</td><td colspan="2" style="color:#ef4444; font-size:0.9rem;">${removedSubj.join(', ')}</td></tr>`;
+            }
+            if (addedSubj.length > 0) {
+                html += `<tr><td class="label-col" style="color:#10b981;">Nya amnen</td><td colspan="2" style="color:#10b981; font-size:0.9rem;">${addedSubj.join(', ')}</td></tr>`;
+            }
+
+            html += '</tbody></table>';
+        } else {
+            html += `<p style="background:#f0f9ff; padding:0.75rem; border-radius:8px; margin-top:0.5rem;">Detta ar ett <strong>nytt program i GY25</strong> -- ingen GY11-motsvarighet hittades.</p>`;
+            if (gy25.orientations && gy25.orientations.length > 0) {
+                html += '<p style="margin-top:0.5rem; font-weight:600;">Inriktningar:</p><ul>';
+                for (const o of gy25.orientations) {
+                    html += `<li>${o.name} (${o.code})${o.points ? ' - ' + o.points + ' p' : ''}</li>`;
+                }
+                html += '</ul>';
+            }
+        }
+
+        resultDiv.innerHTML = html;
+    } catch (err) {
+        resultDiv.innerHTML = `<p style="color:var(--danger); margin-top:0.5rem;">Kunde inte jamfora: ${err.message}</p>`;
+    }
+}
+
+// ============================================================
+// TAB 3: EXAM QUESTION ANALYSIS
+// ============================================================
+async function analyzeQuestions() {
+    const amneCode = document.getElementById('pf-amne').value;
+    const niva = document.getElementById('pf-niva').value;
+    const fragorText = document.getElementById('pf-fragor').value.trim();
+    const syfte = document.getElementById('pf-syfte').value.trim();
+
+    if (!fragorText) {
+        alert('Skriv in minst en provfraga.');
+        return;
+    }
+
+    const loading = document.getElementById('pf-loading');
+    const resultBox = document.getElementById('pf-result');
+    loading.classList.add('visible');
+    resultBox.classList.remove('visible');
+
+    // Parse questions
+    const fragor = fragorText.split('\n')
+        .map(f => f.replace(/^\d+[\.\)]\s*/, '').trim())
+        .filter(f => f.length > 5);
+
+    // Fetch real subject data from API
+    let subjectDetail = null;
+    if (amneCode) {
+        try {
+            subjectDetail = await fetchSubjectDetail(amneCode);
+        } catch (e) { /* Continue without API data */ }
+    }
+
+    let totalScore = 0;
+    let maxScore = 0;
+    const amneName = subjectDetail ? subjectDetail.name : (amneCode || 'Inget amne valt');
+    let html = '<h3>Analys av provfragor</h3>';
+
+    if (amneCode) {
+        html += `<p><span class="badge badge-info">${amneName}</span> <span class="badge badge-success">GY25</span> `;
+    }
+    html += `<span class="badge badge-info">Niva: ${niva}</span></p>`;
+
+    fragor.forEach((fraga, i) => {
+        const analysis = analyzeOneQuestion(fraga, niva);
+        totalScore += analysis.score;
+        maxScore += analysis.maxScore;
+
+        html += `<div style="border-left:4px solid ${analysis.color}; padding:0.75rem 1rem; margin:1rem 0; background:#fafafa; border-radius:0 8px 8px 0;">`;
+        html += `<p style="font-weight:600; margin-bottom:0.5rem;">Fraga ${i + 1}: "${fraga.substring(0, 80)}${fraga.length > 80 ? '...' : ''}"</p>`;
+        html += `<ul class="checklist">`;
+
+        for (const check of analysis.checks) {
+            const iconClass = check.pass ? 'check-pass' : (check.warn ? 'check-warn' : 'check-fail');
+            const icon = check.pass ? '&#10003;' : (check.warn ? '!' : '&#10007;');
+            html += `<li><span class="check-icon ${iconClass}">${icon}</span><span>${check.text}</span></li>`;
+        }
+
+        html += '</ul></div>';
+    });
+
+    // Overall score
+    const pct = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
+    const scoreColor = pct >= 75 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444';
+
+    html += `<div class="score-display">
+        <div class="score-circle" style="background:${scoreColor}">${pct}%</div>
+        <div class="score-label">Uppfyllnadsgrad av GY25-kriterier</div>
+    </div>`;
+
+    // Show real GY25 data from Skolverket's API
+    if (subjectDetail) {
+        html += renderSubjectAPIBox(subjectDetail);
+    }
+
+    // Recommendations
+    html += '<h3>Rekommendationer</h3><ul>';
+    if (pct < 50) {
+        html += '<li>Flera fragor behover omarbetas for att battre matcha GY25:s betygskriterier.</li>';
+    }
+    if (niva !== 'blandad' && niva !== 'E') {
+        const hasAnalysis = fragor.some(f => /analysera|jämför|diskutera|problematisera/i.test(f));
+        if (!hasAnalysis) {
+            html += `<li>Inkludera fragor som kraver analys eller jamforelse for ${niva}-niva.</li>`;
+        }
+    }
+    if (fragor.length < 3) {
+        html += '<li>Overvag att lagga till fler fragor for att tacka bredden av centralt innehall.</li>';
+    }
+    if (!syfte) {
+        html += '<li>Koppla provet till amnets syfte och centralt innehall for tydligare bedomningsgrund.</li>';
+    }
+    html += '<li>Kom ihag: Bedomning i GY25 baseras pa sammantagen bedomning -- provet bor ge elever mojlighet att visa kunskaper pa olika nivaer.</li>';
+    html += '</ul>';
+
+    loading.classList.remove('visible');
+    resultBox.innerHTML = html;
+    resultBox.classList.add('visible');
+}
+
+// Render a box with real GY25 subject data from the API
+function renderSubjectAPIBox(subject) {
+    let html = '<div style="background:linear-gradient(135deg, #eff6ff, #f0fdf4); border:2px solid #93c5fd; border-radius:12px; padding:1.25rem; margin:1.5rem 0;">';
+    html += '<h3 style="color:#1e40af; margin-bottom:0.75rem;">&#9741; Amnets GY25-data fran Skolverket</h3>';
+
+    // Purpose
+    if (subject.purpose) {
+        const purposeText = typeof subject.purpose === 'string' ? subject.purpose : (subject.purpose.text || '');
+        if (purposeText) {
+            html += '<div style="margin-bottom:1rem;"><strong>Amnets syfte:</strong>';
+            html += `<div style="font-size:0.9rem; color:var(--text-mid); line-height:1.6; margin-top:0.3rem; max-height:150px; overflow-y:auto;">${purposeText}</div></div>`;
+        }
+    }
+
+    // Knowledge requirements / grading criteria
+    const kr = subject.knowledgeRequirements || subject.gradingCriteria || [];
+    if (Array.isArray(kr) && kr.length > 0) {
+        html += '<div style="margin-bottom:1rem;"><strong>Betygskriterier:</strong>';
+        html += '<div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem;">';
+        for (const k of kr) {
+            const grade = k.gradeStep || k.grade || '';
+            const text = k.text || '';
+            const gradeColor = grade.includes('A') ? '#10b981' : grade.includes('C') ? '#3b82f6' : grade.includes('E') ? '#f59e0b' : '#6b7280';
+            html += `<details style="width:100%; background:white; border:1px solid ${gradeColor}40; border-radius:8px; padding:0.5rem 0.75rem;">`;
+            html += `<summary style="cursor:pointer; font-weight:600; color:${gradeColor};">${grade}</summary>`;
+            html += `<div style="font-size:0.85rem; color:var(--text-mid); line-height:1.5; margin-top:0.5rem;">${text}</div>`;
+            html += '</details>';
+        }
+        html += '</div></div>';
+    }
+
+    // Courses/Levels
+    if (subject.courses && subject.courses.length > 0) {
+        html += '<div><strong>Nivaer i amnet:</strong>';
+        html += '<div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem;">';
+        for (const c of subject.courses) {
+            html += `<span style="background:white; border:1px solid #93c5fd; border-radius:6px; padding:0.25rem 0.5rem; font-size:0.85rem;">${c.name} (${c.code}) ${c.points ? c.points + 'p' : ''}</span>`;
+        }
+        html += '</div></div>';
+    }
+
+    html += '</div>';
+    return html;
+}
+
+function analyzeOneQuestion(fraga, niva) {
+    const checks = [];
+    let score = 0;
+    let maxScore = 0;
+
+    // General checks
+    const criteria = QUALITY_CRITERIA.general;
+    for (const c of criteria) {
+        maxScore++;
+        if (c.check) {
+            const pass = c.check(fraga);
+            checks.push({ text: `${c.name}: ${c.desc}`, pass });
+            if (pass) score++;
+        } else {
+            checks.push({ text: `${c.name}: ${c.desc}`, pass: true, warn: false });
+            score++;
+        }
+    }
+
+    // Level-specific checks
+    const levelCriteria = niva === 'blandad' ? [...QUALITY_CRITERIA.E, ...QUALITY_CRITERIA.C] : (QUALITY_CRITERIA[niva] || QUALITY_CRITERIA.E);
+    for (const c of levelCriteria) {
+        maxScore++;
+        if (c.check) {
+            const pass = c.check(fraga);
+            checks.push({ text: `[${niva === 'blandad' ? 'Blandad' : niva}] ${c.name}: ${c.desc}`, pass });
+            if (pass) score++;
+        } else {
+            checks.push({ text: `[${niva === 'blandad' ? 'Blandad' : niva}] ${c.name}: ${c.desc}`, pass: true, warn: true });
+            score += 0.5;
+        }
+    }
+
+    const pct = maxScore > 0 ? (score / maxScore) : 0;
+    const color = pct >= 0.7 ? '#10b981' : pct >= 0.4 ? '#f59e0b' : '#ef4444';
+
+    return { score, maxScore, checks, color };
+}
+
+function clearExamForm() {
+    document.getElementById('pf-amne').value = '';
+    document.getElementById('pf-niva').value = 'E';
+    document.getElementById('pf-fragor').value = '';
+    document.getElementById('pf-syfte').value = '';
+    document.getElementById('pf-result').classList.remove('visible');
+}
+
+// ============================================================
+// TAB 4: EXAMPLE ANSWER GENERATOR
+// ============================================================
+function updateExampleQuestions() {
+    const amneCode = document.getElementById('ex-amne').value;
+    const container = document.getElementById('ex-quick-questions');
+
+    // Map API codes to our example questions (match by subject name)
+    const subjectInfo = apiSubjects.find(s => s.code === amneCode);
+    const subjectName = subjectInfo ? subjectInfo.name.toLowerCase() : '';
+
+    // Find matching example questions by name
+    let matchKey = null;
+    for (const key of Object.keys(EXAMPLE_QUESTIONS)) {
+        if (subjectName.includes(key) || key.includes(subjectName.split(' ')[0].toLowerCase())) {
+            matchKey = key;
+            break;
+        }
+    }
+    // Direct name mappings for common subjects
+    const nameMap = { 'svenska': 'svenska', 'engelska': 'engelska', 'matematik': 'matematik',
+        'samhallskunskap': 'samhallskunskap', 'historia': 'historia', 'religionskunskap': 'religion',
+        'naturkunskap': 'naturkunskap', 'biologi': 'biologi', 'fysik': 'fysik', 'kemi': 'kemi',
+        'idrott och halsa': 'idrott', 'idrott': 'idrott' };
+    if (!matchKey) {
+        for (const [nameKey, exKey] of Object.entries(nameMap)) {
+            if (subjectName.includes(nameKey)) { matchKey = exKey; break; }
+        }
+    }
+
+    if (!amneCode || !matchKey || !EXAMPLE_QUESTIONS[matchKey]) {
+        container.innerHTML = '<span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Valj ett amne ovan for att se exempelfragor, eller skriv din egen:</span>';
+        return;
+    }
+
+    const questions = EXAMPLE_QUESTIONS[matchKey];
+    container.innerHTML = '<span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Klicka pa en exempelfraga eller skriv din egen:</span>' +
+        questions.map(q => `<button class="quick-q" onclick="document.getElementById('ex-fraga').value='${q.replace(/'/g, "\\'")}';generateExamples()">${q.length > 65 ? q.substring(0, 62) + '...' : q}</button>`).join('');
+}
+
+async function generateExamples() {
+    const amneCode = document.getElementById('ex-amne').value;
+    const fraga = document.getElementById('ex-fraga').value.trim();
+
+    if (!fraga) {
+        alert('Skriv in en provfraga forst.');
+        return;
+    }
+
+    const loading = document.getElementById('ex-loading');
+    const resultBox = document.getElementById('ex-result');
+    loading.classList.add('visible');
+    resultBox.classList.remove('visible');
+
+    // Fetch real subject data from API
+    let subjectDetail = null;
+    if (amneCode) {
+        try {
+            subjectDetail = await fetchSubjectDetail(amneCode);
+        } catch (e) { /* Continue without API data */ }
+    }
+
+    const html = buildExampleAnswers(amneCode, fraga, subjectDetail);
+    loading.classList.remove('visible');
+    resultBox.innerHTML = html;
+    resultBox.classList.add('visible');
+}
+
+function buildExampleAnswers(amneCode, fraga, subjectDetail) {
+    // Try to find pre-written example by mapping API code to old key
+    const subjectName = subjectDetail ? subjectDetail.name.toLowerCase() : '';
+    const nameMap = { 'svenska': 'svenska', 'engelska': 'engelska', 'matematik': 'matematik',
+        'samhallskunskap': 'samhallskunskap', 'historia': 'historia', 'religionskunskap': 'religion',
+        'naturkunskap': 'naturkunskap', 'biologi': 'biologi', 'fysik': 'fysik', 'kemi': 'kemi',
+        'idrott och halsa': 'idrott', 'idrott': 'idrott' };
+    let exampleKey = null;
+    for (const [nameKey, exKey] of Object.entries(nameMap)) {
+        if (subjectName.includes(nameKey)) { exampleKey = exKey; break; }
+    }
+    const preWritten = exampleKey && EXAMPLE_ANSWERS[exampleKey] && EXAMPLE_ANSWERS[exampleKey][fraga];
+    let html = '';
+
+    const displayName = subjectDetail ? subjectDetail.name : (amneCode || '');
+    html += `<h3>Exempelsvar for: "${fraga.length > 80 ? fraga.substring(0, 77) + '...' : fraga}"</h3>`;
+
+    if (displayName) {
+        html += `<p style="margin-bottom:1rem;"><span class="badge badge-info">${displayName}</span> <span class="badge badge-success">GY25</span></p>`;
+    }
+
+    const grades = [
+        { level: 'E', color: '#f59e0b', bgColor: '#fef3c7', borderColor: '#f59e0b', textColor: '#78350f', label: 'E-nivå -- Grundläggande' },
+        { level: 'C', color: '#3b82f6', bgColor: '#dbeafe', borderColor: '#3b82f6', textColor: '#1e3a5f', label: 'C-nivå -- Utvecklat' },
+        { level: 'A', color: '#10b981', bgColor: '#dcfce7', borderColor: '#10b981', textColor: '#14532d', label: 'A-nivå -- Avancerat' }
+    ];
+
+    for (const g of grades) {
+        html += `<div style="background:${g.bgColor}; border-left:4px solid ${g.borderColor}; border-radius:0 12px 12px 0; padding:1.25rem; margin:1rem 0;">`;
+        html += `<h3 style="color:${g.color}; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.5rem;">`;
+        html += `<span class="badge" style="background:${g.color}; color:white;">${g.level}</span> ${g.label}</h3>`;
+
+        if (preWritten) {
+            // Use pre-written example
+            const example = preWritten[g.level];
+            html += `<div style="background:white; border-radius:8px; padding:1rem; margin-bottom:0.75rem; color:${g.textColor}; line-height:1.7; white-space:pre-line; font-size:0.95rem;">${example.svar}</div>`;
+            html += `<div style="background:rgba(255,255,255,0.6); border-radius:8px; padding:0.75rem; font-size:0.9rem;">`;
+            html += `<strong>Bedömningskommentar:</strong> ${example.kommentar}`;
+            html += '</div>';
+        } else {
+            // Use generic template
+            const tmpl = GENERIC_TEMPLATES[g.level];
+            const topic = extractTopic(fraga);
+
+            html += `<div style="background:white; border-radius:8px; padding:1rem; margin-bottom:0.75rem; color:${g.textColor};">`;
+            html += `<p style="font-weight:600; margin-bottom:0.5rem;">Svarsstruktur: ${tmpl.structure}</p>`;
+            html += `<p style="font-style:italic; margin-bottom:0.75rem; line-height:1.6;">${tmpl.template(topic)}</p>`;
+
+            if (tmpl.connectors.length > 0) {
+                html += `<p style="font-size:0.85rem; margin-bottom:0.5rem;"><strong>Typiska kopplingsord:</strong> ${tmpl.connectors.join(', ')}</p>`;
+            }
+            html += '</div>';
+
+            html += `<div style="background:rgba(255,255,255,0.6); border-radius:8px; padding:0.75rem; font-size:0.9rem;">`;
+            html += `<strong>Kännetecken for ${g.level}-svar:</strong>`;
+            html += '<ul style="padding-left:1.2rem; margin-top:0.3rem;">';
+            for (const trait of tmpl.traits) {
+                html += `<li>${trait}</li>`;
+            }
+            html += '</ul></div>';
+        }
+
+        html += '</div>';
+    }
+
+    // Tips section
+    html += `<div style="background:#f0f9ff; border:2px solid #bfdbfe; border-radius:12px; padding:1.25rem; margin-top:1.5rem;">`;
+    html += '<h3 style="color:#1e40af; margin-bottom:0.5rem;">Tips for kollegial diskussion</h3>';
+    html += '<ul style="padding-left:1.5rem; color:#1e3a5f; font-size:0.9rem;">';
+    html += '<li>Diskutera med kollegor: var går gränsen mellan E och C i just denna fråga?</li>';
+    html += '<li>Vilka <strong>tyngdpunkter</strong> i ert ämne bör väga tyngst vid bedömning av den här typen av fråga?</li>';
+    html += '<li>Hur ser ni på sammantagen bedömning om eleven visar A-kvalitet i analys men E-kvalitet i begreppsanvändning?</li>';
+    html += '<li>Använd exempelsvaren som utgångspunkt for sambedömning och kalibrering.</li>';
+    html += '</ul></div>';
+
+    if (!preWritten) {
+        html += `<p style="background:#fff3cd; padding:0.75rem 1rem; border-radius:8px; border-left:4px solid #f59e0b; margin-top:1rem; font-size:0.85rem;">
+            <strong>Obs:</strong> For denna fraga visas generella svarsmallar. Valj en av de foreslagna exempelfrагorna for att se kompletta, amnesspecifika exempelsvar.
+        </p>`;
+    }
+
+    // Show real GY25 grading criteria from Skolverket's API
+    if (subjectDetail) {
+        html += renderSubjectAPIBox(subjectDetail);
+    }
+
+    return html;
+}
+
+function extractTopic(fraga) {
+    // Try to extract the main topic from the question
+    const cleaned = fraga.replace(/^(diskutera|analysera|redogör för|beskriv|förklara|jämför)\s+/i, '')
+        .replace(/[?.!]+$/, '').trim();
+    return cleaned.length > 60 ? cleaned.substring(0, 57) + '...' : cleaned;
+}
+
+function clearExampleForm() {
+    document.getElementById('ex-amne').value = '';
+    document.getElementById('ex-fraga').value = '';
+    document.getElementById('ex-result').classList.remove('visible');
+    document.getElementById('ex-quick-questions').innerHTML = '<span style="color:var(--text-light); font-size:0.85rem; width:100%; margin-bottom:0.25rem;">Valj ett amne ovan for att se exempelfragor, eller skriv din egen:</span>';
+}
+
+// ============================================================
+// TAB 5: SKOLVERKETS API INTEGRATION
+// ============================================================
+const API_BASE = 'https://api.skolverket.se/syllabus/v1';
+let apiPrograms = [];
+let apiSubjects = [];
+let apiDataLoaded = false;
+let apiDataPromise = null;
+let currentProgramFilter = 'all';
+let currentSubjectCategory = 'all';
+let currentSubjectCode = null;
+let currentProgramCode = null;
+let currentProgramDetailData = null;
+
+// Cache for fetched subject details (code -> detail object)
+const subjectDetailCache = {};
+
+// Ensure API data is loaded (call from any tab)
+async function ensureAPIData() {
+    if (apiDataLoaded) return;
+    if (!apiDataPromise) {
+        apiDataPromise = loadAPIData();
+    }
+    await apiDataPromise;
+}
+
+// Fetch subject detail with caching
+async function fetchSubjectDetail(code) {
+    if (subjectDetailCache[code]) return subjectDetailCache[code];
+    const res = await fetch(API_BASE + '/subjects/' + code);
+    if (!res.ok) throw new Error('Kunde inte hamta amnet');
+    const data = await res.json();
+    const subject = data.subject || data;
+    subjectDetailCache[code] = subject;
+    return subject;
+}
+
+async function loadAPIData() {
+    try {
+        const [programsRes, subjectsRes] = await Promise.all([
+            fetch(API_BASE + '/programs?studyPathType=PROGRAM25'),
+            fetch(API_BASE + '/subjects?typeOfSyllabus=SUBJECT_SYLLABUS&schoolType=GY')
+        ]);
+
+        if (!programsRes.ok || !subjectsRes.ok) {
+            throw new Error('API svarade med felkod');
+        }
+
+        const programsData = await programsRes.json();
+        const subjectsData = await subjectsRes.json();
+
+        apiPrograms = (programsData.programs || [])
+            .filter(p => p.studyPathType === 'PROGRAM25' || p.studyPathType === 'FOURTH_TECHNICAL_YEAR25')
+            .sort((a, b) => a.name.localeCompare(b.name, 'sv'));
+        apiSubjects = (subjectsData.subjects || [])
+            .filter(s => s.typeOfSyllabus === 'SUBJECT_SYLLABUS')
+            .sort((a, b) => a.name.localeCompare(b.name, 'sv'));
+
+        apiDataLoaded = true;
+
+        // Populate all API-driven dropdowns across tabs
+        populateSubjectDropdowns();
+        populateComparisonDropdown();
+
+    } catch (err) {
+        console.error('API load failed:', err);
+    }
+}
+
+// Populate subject dropdowns in Tab 3 and Tab 4
+function populateSubjectDropdowns() {
+    if (!apiDataLoaded) return;
+    const dropdowns = ['pf-amne', 'ex-amne'];
+    for (const id of dropdowns) {
+        const sel = document.getElementById(id);
+        if (!sel) continue;
+        const currentVal = sel.value;
+        sel.innerHTML = '<option value="">Valj amne fran Skolverkets API...</option>';
+        for (const s of apiSubjects) {
+            const catNames = (s.categories || []).map(c => c.name || '').join(', ');
+            const opt = document.createElement('option');
+            opt.value = s.code;
+            opt.textContent = s.name + (catNames ? ' (' + catNames + ')' : '');
+            sel.appendChild(opt);
+        }
+        if (currentVal) sel.value = currentVal;
+    }
+}
+
+async function initAPIData() {
+    const statusText = document.getElementById('api-status-text');
+    try {
+        statusText.textContent = 'Hamtar GY25-program...';
+        await ensureAPIData();
+
+        // Update stats
+        document.getElementById('api-stat-programs').textContent = apiPrograms.length;
+        document.getElementById('api-stat-subjects').textContent = apiSubjects.length;
+        document.getElementById('api-stat-version').textContent = '1.16';
+        document.getElementById('api-subject-count').textContent = apiSubjects.length;
+
+        // Render
+        renderPrograms();
+        renderSubjectsList();
+
+        // Show cards, hide loading
+        document.getElementById('api-status-card').style.display = 'none';
+        document.getElementById('api-programs-card').style.display = 'block';
+        document.getElementById('api-subjects-card').style.display = 'block';
+        document.getElementById('api-info-card').style.display = 'block';
+
+    } catch (err) {
+        statusText.textContent = 'Kunde inte ansluta till Skolverkets API: ' + err.message;
+        document.getElementById('api-spinner').style.display = 'none';
+        const card = document.getElementById('api-status-card');
+        card.innerHTML += '<p style="margin-top:1rem;"><a href="https://api.skolverket.se/syllabus/swagger-ui/index.html" target="_blank" class="btn btn-primary">Testa API:t direkt</a></p>';
+    }
+}
+
+// Start loading API data immediately on page load
+ensureAPIData();
+
+// --- Programs ---
+function renderPrograms() {
+    const grid = document.getElementById('api-programs-grid');
+    const filtered = currentProgramFilter === 'all'
+        ? apiPrograms
+        : apiPrograms.filter(p => p.category === currentProgramFilter);
+
+    grid.innerHTML = filtered.map(p => {
+        const isVoc = p.category === 'VOCATIONAL_PROGRAM';
+        const badge = isVoc ? 'Yrkesprogram' : 'Hogskoleforb.';
+        const color = isVoc ? '#f59e0b' : '#3b82f6';
+        return `<div class="subject-card" onclick="showProgramDetail('${p.code}')" style="text-align:left; padding:1rem;">
+            <div style="font-weight:700; margin-bottom:0.3rem;">${p.name}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.8rem; color:var(--text-light);">${p.code}</span>
+                <span style="font-size:0.75rem; padding:0.15rem 0.5rem; border-radius:10px; background:${color}20; color:${color};">${badge}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function filterPrograms(category) {
+    currentProgramFilter = category;
+    document.querySelectorAll('#api-programs-card .quick-q').forEach(b => {
+        b.style.borderColor = '';
+        b.style.color = '';
+    });
+    const btnId = category === 'all' ? 'prog-filter-all' :
+        category === 'VOCATIONAL_PROGRAM' ? 'prog-filter-voc' : 'prog-filter-hf';
+    document.getElementById(btnId).style.borderColor = 'var(--primary)';
+    document.getElementById(btnId).style.color = 'var(--primary)';
+    renderPrograms();
+}
+
+async function showProgramDetail(code) {
+    const program = apiPrograms.find(p => p.code === code);
+    if (!program) return;
+
+    currentProgramCode = code;
+
+    document.getElementById('api-programs-card').style.display = 'none';
+    document.getElementById('api-subjects-card').style.display = 'none';
+    document.getElementById('api-info-card').style.display = 'none';
+    document.getElementById('api-orientation-detail').style.display = 'none';
+    document.getElementById('api-program-detail').style.display = 'block';
+
+    const isVoc = program.category === 'VOCATIONAL_PROGRAM';
+    const badge = isVoc ? 'Yrkesprogram' : 'Hogskoleforb.';
+    const color = isVoc ? '#f59e0b' : '#3b82f6';
+
+    let html = `<h2>${program.name}</h2>`;
+    if (program.englishName) html += `<p style="color:var(--text-light); margin-bottom:0.5rem;">${program.englishName}</p>`;
+    html += `<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+        <span class="badge badge-info">${program.code}</span>
+        <span style="font-size:0.85rem; padding:0.3rem 0.75rem; border-radius:20px; background:${color}20; color:${color}; font-weight:600;">${badge}</span>
+        <span class="badge badge-success">Giltig fran ${program.startDate || '2025-07-01'}</span>
+    </div>`;
+
+    // Orientations - clickable
+    if (program.orientations && program.orientations.length > 0) {
+        html += '<h3>Inriktningar</h3><p style="color:var(--text-light); font-size:0.9rem; margin-bottom:0.5rem;">Klicka pa en inriktning for att se amnen och kurser.</p><div class="subject-grid" style="margin-top:0.5rem;">';
+        for (const o of program.orientations) {
+            html += `<div class="subject-card" onclick="showOrientationDetail('${o.code}')" style="padding:0.75rem 1rem; border:2px solid var(--border); border-radius:10px; cursor:pointer;">
+                <div style="font-weight:600;">${o.name}</div>
+                <div style="font-size:0.8rem; color:var(--text-light);">${o.code}${o.points ? ' | ' + o.points + ' p' : ''}</div>
+                <div style="font-size:0.75rem; color:var(--primary); margin-top:0.3rem; font-weight:500;">Visa amnen &rarr;</div>
+            </div>`;
+        }
+        html += '</div>';
+    }
+
+    // Profiles - clickable
+    if (program.profiles && program.profiles.length > 0) {
+        html += '<h3>Profiler</h3><p style="color:var(--text-light); font-size:0.9rem; margin-bottom:0.5rem;">Klicka pa en profil for att se amnen och kurser.</p><div class="subject-grid" style="margin-top:0.5rem;">';
+        for (const pr of program.profiles) {
+            html += `<div class="subject-card" onclick="showOrientationDetail('${pr.code}')" style="padding:0.75rem 1rem; border:2px solid var(--border); border-radius:10px; cursor:pointer;">
+                <div style="font-weight:600;">${pr.name}</div>
+                <div style="font-size:0.8rem; color:var(--text-light);">${pr.code}</div>
+                <div style="font-size:0.75rem; color:var(--primary); margin-top:0.3rem; font-weight:500;">Visa amnen &rarr;</div>
+            </div>`;
+        }
+        html += '</div>';
+    }
+
+    // Try to fetch detailed program info
+    try {
+        const res = await fetch(API_BASE + '/programs/' + code);
+        if (res.ok) {
+            const detail = await res.json();
+            const prog = detail.program || detail;
+            currentProgramDetailData = prog;
+
+            if (prog.description) {
+                html += `<h3>Beskrivning</h3><div style="color:var(--text-mid); line-height:1.7;">${prog.description}</div>`;
+            }
+
+            // Exam goals
+            if (prog.examinationGoals || prog.degreeObjective) {
+                html += `<h3>Examensmal</h3><div style="color:var(--text-mid); line-height:1.7;">${prog.examinationGoals || prog.degreeObjective}</div>`;
+            }
+
+            // Subjects in program
+            if (prog.subjects && prog.subjects.length > 0) {
+                html += '<h3>Amnen i programmet</h3><div class="subject-grid" style="margin-top:0.5rem;">';
+                for (const s of prog.subjects) {
+                    html += `<div class="subject-card" onclick="closeProgramDetail(); showSubjectDetail('${s.code || ''}')" style="cursor:pointer;">
+                        <div style="font-weight:600; font-size:0.9rem;">${s.name || s.code}</div>
+                        <div style="font-size:0.8rem; color:var(--text-light);">${s.code || ''}</div>
+                    </div>`;
+                }
+                html += '</div>';
+            }
+        }
+    } catch (e) {
+        // Detail fetch failed silently - basic info is enough
+    }
+
+    document.getElementById('api-program-detail-content').innerHTML = html;
+}
+
+function closeProgramDetail() {
+    document.getElementById('api-program-detail').style.display = 'none';
+    document.getElementById('api-orientation-detail').style.display = 'none';
+    document.getElementById('api-programs-card').style.display = 'block';
+    document.getElementById('api-subjects-card').style.display = 'block';
+    document.getElementById('api-info-card').style.display = 'block';
+}
+
+// --- Orientation detail ---
+async function showOrientationDetail(orientationCode) {
+    document.getElementById('api-program-detail').style.display = 'none';
+    const detailCard = document.getElementById('api-orientation-detail');
+    const content = document.getElementById('api-orientation-detail-content');
+    detailCard.style.display = 'block';
+    content.innerHTML = '<div class="loading visible"><div class="spinner"></div><p>Hamtar inriktningsdetaljer...</p></div>';
+
+    // Find orientation data from cached program detail or fetch it
+    let orientationData = null;
+    const findOrientation = (prog) => {
+        const allOrientations = [...(prog.orientations || []), ...(prog.profiles || [])];
+        return allOrientations.find(o => o.code === orientationCode);
+    };
+
+    if (currentProgramDetailData) {
+        orientationData = findOrientation(currentProgramDetailData);
+    }
+
+    if (!orientationData && currentProgramCode) {
+        try {
+            const res = await fetch(API_BASE + '/programs/' + currentProgramCode);
+            if (res.ok) {
+                const detail = await res.json();
+                currentProgramDetailData = detail.program || detail;
+                orientationData = findOrientation(currentProgramDetailData);
+            }
+        } catch (e) { /* fall through */ }
+    }
+
+    if (!orientationData) {
+        content.innerHTML = '<p style="color:var(--danger);">Kunde inte hitta inriktningsdata.</p>';
+        return;
+    }
+
+    let html = `<h2>${orientationData.name}</h2>`;
+    html += `<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+        <span class="badge badge-info">${orientationData.code}</span>
+        ${orientationData.points ? '<span class="badge badge-success">' + orientationData.points + ' poang</span>' : ''}
+        <span class="badge badge-info">${orientationData.type || 'Inriktning'}</span>
+    </div>`;
+
+    // Subjects and their courses
+    if (orientationData.subjects && orientationData.subjects.length > 0) {
+        html += `<h3>Amnen i inriktningen</h3>
+            <p style="color:var(--text-light); font-size:0.9rem; margin-bottom:0.75rem;">${orientationData.subjects.length} amnen med totalt ${orientationData.subjects.reduce((sum, s) => sum + (s.courses ? s.courses.length : 0), 0)} kurser.</p>`;
+
+        for (const s of orientationData.subjects) {
+            html += `<div style="background:var(--bg-white); border:2px solid var(--border); border-radius:12px; padding:1.25rem; margin-bottom:1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+                    <div>
+                        <div style="font-weight:700; font-size:1.05rem;">${s.name}</div>
+                        <span style="font-size:0.8rem; color:var(--text-light);">${s.code}${s.points ? ' | ' + s.points + ' p' : ''}</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="closeOrientationDetail(); closeProgramDetail(); showSubjectDetail('${s.code}')" style="font-size:0.8rem; padding:0.3rem 0.75rem;">Oppna amnet</button>
+                </div>`;
+
+            if (s.courses && s.courses.length > 0) {
+                html += '<div class="subject-grid" style="margin-top:0.5rem;">';
+                for (const c of s.courses) {
+                    html += `<div class="subject-card" onclick="closeOrientationDetail(); closeProgramDetail(); showSubjectDetail('${s.code}'); setTimeout(() => showLevelDetail('${c.code}'), 500)" style="cursor:pointer; text-align:left; padding:0.75rem 1rem;">
+                        <div style="font-weight:600; font-size:0.9rem;">${c.name}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.25rem;">
+                            <span style="font-size:0.8rem; color:var(--text-light);">${c.code}</span>
+                            ${c.points ? '<span style="font-size:0.75rem; padding:0.1rem 0.5rem; border-radius:8px; background:#dbeafe; color:#1e40af;">' + c.points + ' p</span>' : ''}
+                        </div>
+                    </div>`;
+                }
+                html += '</div>';
+            }
+            html += '</div>';
+        }
+    } else {
+        html += '<p style="color:var(--text-light);">Inga amnesdetaljer tillgangliga for denna inriktning. Testa att oppna programmet pa nytt for att ladda detaljerad data.</p>';
+    }
+
+    content.innerHTML = html;
+}
+
+function closeOrientationDetail() {
+    document.getElementById('api-orientation-detail').style.display = 'none';
+    if (currentProgramCode) {
+        document.getElementById('api-program-detail').style.display = 'block';
+    } else {
+        closeProgramDetail();
+    }
+}
+
+// --- Subjects ---
+function renderSubjectsList() {
+    const list = document.getElementById('api-subjects-list');
+    const search = (document.getElementById('api-subject-search').value || '').toLowerCase().trim();
+
+    let filtered = apiSubjects;
+    if (search) {
+        filtered = filtered.filter(s =>
+            s.name.toLowerCase().includes(search) ||
+            s.code.toLowerCase().includes(search)
+        );
+    }
+    if (currentSubjectCategory !== 'all') {
+        filtered = filtered.filter(s => {
+            const cats = (s.categories || []).map(c => c.code || c.name || '');
+            if (currentSubjectCategory === 'FOUNDATION_SUBJECT') {
+                return cats.some(c => c.includes('FOUNDATION') || c.includes('GYMNASIEGEMENSAM') || c.includes('COMMON'));
+            }
+            if (currentSubjectCategory === 'VOCATIONAL') {
+                return cats.some(c => c.includes('VOCATIONAL') || c.includes('KARAKTAR'));
+            }
+            if (currentSubjectCategory === 'PROGRAM_SPECIALIZATION') {
+                return cats.some(c => c.includes('SPECIALIZATION') || c.includes('FORDJUPNING') || c.includes('OTHER'));
+            }
+            return true;
+        });
+    }
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-light); padding:1rem;">Inga amnen matchade sokningen.</p>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(s => {
+        const catNames = (s.categories || []).map(c => c.name || c.code || '').join(', ');
+        return `<div onclick="showSubjectDetail('${s.code}')" style="padding:0.75rem 1rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background=''">
+            <div>
+                <span style="font-weight:600;">${s.name}</span>
+                <span style="font-size:0.8rem; color:var(--text-light); margin-left:0.5rem;">${s.code}</span>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-light);">${catNames || ''}</div>
+        </div>`;
+    }).join('');
+}
+
+function filterSubjects() {
+    renderSubjectsList();
+}
+
+function filterSubjectCategory(category) {
+    currentSubjectCategory = category;
+    document.querySelectorAll('#api-subjects-card .quick-q').forEach(b => {
+        b.style.borderColor = '';
+        b.style.color = '';
+    });
+    const btnId = category === 'all' ? 'subj-filter-all' :
+        category === 'FOUNDATION_SUBJECT' ? 'subj-filter-gym' :
+        category === 'VOCATIONAL' ? 'subj-filter-voc' : 'subj-filter-prog';
+    document.getElementById(btnId).style.borderColor = 'var(--primary)';
+    document.getElementById(btnId).style.color = 'var(--primary)';
+    renderSubjectsList();
+}
+
+async function showSubjectDetail(code) {
+    if (!code) return;
+    currentSubjectCode = code;
+
+    document.getElementById('api-programs-card').style.display = 'none';
+    document.getElementById('api-subjects-card').style.display = 'none';
+    document.getElementById('api-info-card').style.display = 'none';
+    document.getElementById('api-program-detail').style.display = 'none';
+    document.getElementById('api-orientation-detail').style.display = 'none';
+    document.getElementById('api-level-detail').style.display = 'none';
+
+    const detailCard = document.getElementById('api-subject-detail');
+    const loading = document.getElementById('subject-detail-loading');
+    const content = document.getElementById('api-subject-detail-content');
+
+    detailCard.style.display = 'block';
+    loading.classList.add('visible');
+    content.innerHTML = '';
+
+    try {
+        const res = await fetch(API_BASE + '/subjects/' + code);
+        if (!res.ok) throw new Error('Kunde inte hamta amnet');
+        const data = await res.json();
+        const subject = data.subject || data;
+
+        let html = `<h2>${subject.name || code}</h2>`;
+        if (subject.englishName) html += `<p style="color:var(--text-light); margin-bottom:0.5rem;">${subject.englishName}</p>`;
+
+        html += `<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+            <span class="badge badge-info">${subject.code || code}</span>
+            <span class="badge badge-success">GY25</span>
+            <span class="badge badge-info">Version ${subject.version || 1}</span>
+        </div>`;
+
+        // Purpose
+        if (subject.purpose) {
+            const purposeText = typeof subject.purpose === 'string' ? subject.purpose : (subject.purpose.text || JSON.stringify(subject.purpose));
+            html += `<div style="background:#f0f9ff; border:2px solid #bfdbfe; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+                <h3 style="color:#1e40af; margin-bottom:0.5rem;">Amnets syfte</h3>
+                <div style="color:#1e3a5f; line-height:1.7; font-size:0.95rem;">${purposeText}</div>
+            </div>`;
+        }
+
+        // Knowledge requirements / Grading criteria
+        const criteria = subject.knowledgeRequirements || subject.gradingCriteria || subject.gradeSteps || [];
+        if (criteria && (Array.isArray(criteria) ? criteria.length > 0 : Object.keys(criteria).length > 0)) {
+            html += `<div style="background:#fef3c7; border:2px solid #fcd34d; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+                <h3 style="color:#92400e; margin-bottom:0.75rem;">Betygskriterier</h3>`;
+
+            if (Array.isArray(criteria)) {
+                for (const c of criteria) {
+                    const grade = c.gradeStep || c.grade || c.name || '';
+                    const text = c.text || c.criteria || c.description || '';
+                    if (text) {
+                        const gradeColor = grade.includes('A') ? '#10b981' : grade.includes('C') ? '#3b82f6' : '#f59e0b';
+                        html += `<div style="margin-bottom:0.75rem;">
+                            <span class="badge" style="background:${gradeColor}; color:white; margin-bottom:0.3rem;">${grade}</span>
+                            <div style="color:#78350f; font-size:0.9rem; line-height:1.6; margin-top:0.3rem;">${text}</div>
+                        </div>`;
+                    }
+                }
+            } else if (typeof criteria === 'object') {
+                for (const [grade, text] of Object.entries(criteria)) {
+                    const gradeColor = grade.includes('A') ? '#10b981' : grade.includes('C') ? '#3b82f6' : '#f59e0b';
+                    html += `<div style="margin-bottom:0.75rem;">
+                        <span class="badge" style="background:${gradeColor}; color:white; margin-bottom:0.3rem;">${grade}</span>
+                        <div style="color:#78350f; font-size:0.9rem; line-height:1.6; margin-top:0.3rem;">${text}</div>
+                    </div>`;
+                }
+            }
+            html += '</div>';
+        }
+
+        // Courses/Levels
+        if (subject.courses && subject.courses.length > 0) {
+            html += '<h3>Nivaer</h3><p style="color:var(--text-light); font-size:0.9rem; margin-bottom:0.75rem;">Klicka pa en niva for att se centralt innehall.</p>';
+            html += '<div class="subject-grid" style="margin-top:0.5rem;">';
+            const sortedCourses = [...subject.courses].sort((a, b) => (a.name || '').localeCompare(b.name || '', 'sv'));
+            for (const c of sortedCourses) {
+                html += `<div class="subject-card" onclick="showLevelDetail('${c.code}')" style="text-align:left; padding:1rem; cursor:pointer;">
+                    <div style="font-weight:700;">${c.name || c.code}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.3rem;">
+                        <span style="font-size:0.8rem; color:var(--text-light);">${c.code}</span>
+                        ${c.points ? '<span style="font-size:0.8rem; padding:0.1rem 0.5rem; border-radius:8px; background:#dbeafe; color:#1e40af;">' + c.points + ' p</span>' : ''}
+                    </div>
+                </div>`;
+            }
+            html += '</div>';
+        }
+
+        loading.classList.remove('visible');
+        content.innerHTML = html;
+
+    } catch (err) {
+        loading.classList.remove('visible');
+        content.innerHTML = `<p style="color:var(--danger);">Kunde inte hamta amnesdetaljer: ${err.message}</p>
+            <p style="margin-top:0.5rem;"><a href="https://api.skolverket.se/syllabus/v1/subjects/${code}" target="_blank" class="btn btn-secondary">Oppna i API:t direkt</a></p>`;
+    }
+}
+
+function closeSubjectDetail() {
+    document.getElementById('api-subject-detail').style.display = 'none';
+    document.getElementById('api-level-detail').style.display = 'none';
+    document.getElementById('api-programs-card').style.display = 'block';
+    document.getElementById('api-subjects-card').style.display = 'block';
+    document.getElementById('api-info-card').style.display = 'block';
+}
+
+async function showLevelDetail(code) {
+    document.getElementById('api-subject-detail').style.display = 'none';
+
+    const levelCard = document.getElementById('api-level-detail');
+    const loading = document.getElementById('level-detail-loading');
+    const content = document.getElementById('api-level-detail-content');
+
+    levelCard.style.display = 'block';
+    loading.classList.add('visible');
+    content.innerHTML = '';
+
+    try {
+        const res = await fetch(API_BASE + '/courses/' + code);
+        if (!res.ok) throw new Error('Kunde inte hamta nivan');
+        const data = await res.json();
+        const course = data.course || data;
+
+        let html = `<h2>${course.name || code}</h2>`;
+        html += `<div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+            <span class="badge badge-info">${course.code || code}</span>
+            ${course.points ? '<span class="badge badge-success">' + course.points + ' poang</span>' : ''}
+            <span class="badge badge-info">GY25-niva</span>
+        </div>`;
+
+        // Central content
+        if (course.centralContent) {
+            const ccText = typeof course.centralContent === 'string' ? course.centralContent : (course.centralContent.text || JSON.stringify(course.centralContent));
+            html += `<div style="background:#dcfce7; border:2px solid #86efac; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+                <h3 style="color:#166534; margin-bottom:0.5rem;">Centralt innehall</h3>
+                <div style="color:#14532d; line-height:1.7; font-size:0.95rem;">${ccText}</div>
+            </div>`;
+        }
+
+        // Prerequisites
+        if (course.prerequisite || course.prerequisites) {
+            const prereq = course.prerequisite || course.prerequisites;
+            const prereqText = typeof prereq === 'string' ? prereq : (prereq.text || JSON.stringify(prereq));
+            html += `<div style="background:#fef3c7; border:2px solid #fcd34d; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;">
+                <h3 style="color:#92400e; margin-bottom:0.5rem;">Forkunskaper</h3>
+                <div style="color:#78350f; line-height:1.7; font-size:0.95rem;">${prereqText}</div>
+            </div>`;
+        }
+
+        // Back to subject link
+        if (currentSubjectCode) {
+            html += `<button class="btn btn-primary" onclick="closeLevelDetail(); showSubjectDetail('${currentSubjectCode}')">Se alla nivaer i amnet</button>`;
+        }
+
+        loading.classList.remove('visible');
+        content.innerHTML = html;
+
+    } catch (err) {
+        loading.classList.remove('visible');
+        content.innerHTML = `<p style="color:var(--danger);">Kunde inte hamta nivadetaljer: ${err.message}</p>
+            <p style="margin-top:0.5rem;"><a href="https://api.skolverket.se/syllabus/v1/courses/${code}" target="_blank" class="btn btn-secondary">Oppna i API:t direkt</a></p>`;
+    }
+}
+
+function closeLevelDetail() {
+    document.getElementById('api-level-detail').style.display = 'none';
+    if (currentSubjectCode) {
+        document.getElementById('api-subject-detail').style.display = 'block';
+    } else {
+        closeSubjectDetail();
+    }
+}
+
+// Render Utforska-tab UI when first opened (data already loading on page load)
+let apiTabRendered = false;
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        if (this.dataset.tab === 'apidata' && !apiTabRendered) {
+            apiTabRendered = true;
+            initAPIData();
+        }
+    });
+});
+
+// ============================================================
+// INIT
+// ============================================================
+buildFAQ();
+renderComparison('struktur');
+</script>
+</body>
+</html>

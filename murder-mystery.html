@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Murder Mystery - Hästgården</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-surface: #0f3460;
+            --accent-gold: #e2b714;
+            --accent-red: #c0392b;
+            --accent-green: #27ae60;
+            --text-light: #ecf0f1;
+            --text-muted: #95a5a6;
+            --text-warm: #f5e6ca;
+            --border-subtle: rgba(226, 183, 20, 0.2);
+            --shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ===== HEADER ===== */
+        .game-header {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+            border-bottom: 2px solid var(--border-subtle);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .game-header h1 {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #e2b714, #f39c12);
+            color: #1a1a2e;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(226, 183, 20, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent-gold);
+            border: 2px solid var(--accent-gold);
+        }
+
+        .btn-outline:hover {
+            background: rgba(226, 183, 20, 0.1);
+        }
+
+        .btn-red {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .btn-red:hover {
+            background: #e74c3c;
+            transform: translateY(-2px);
+        }
+
+        .btn-green {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .btn-green:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ===== SCREENS ===== */
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* ===== START SCREEN ===== */
+        .start-screen {
+            min-height: calc(100vh - 70px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-top: 2rem;
+        }
+
+        .hero-icon { font-size: 5rem; margin-bottom: 1rem; }
+
+        .hero-section h2 {
+            font-size: 2.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .hero-section .tagline {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Mystery Cards */
+        .mystery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 1100px;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .mystery-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mystery-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-red));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .mystery-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-gold);
+            box-shadow: var(--shadow);
+        }
+
+        .mystery-card:hover::before { opacity: 1; }
+
+        .mystery-card.selected {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(226, 183, 20, 0.3);
+        }
+
+        .mystery-card.selected::before { opacity: 1; }
+
+        .mystery-card .card-num {
+            display: inline-block;
+            background: var(--accent-gold);
+            color: var(--bg-dark);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .mystery-card h3 {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .mystery-card .difficulty {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.8rem;
+        }
+
+        .mystery-card p {
+            color: var(--text-warm);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .mystery-card .tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(226, 183, 20, 0.15);
+            color: var(--accent-gold);
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Mode Selection */
+        .mode-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid var(--border-subtle);
+            margin-bottom: 2rem;
+        }
+
+        .mode-section h3 {
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 1.2rem;
+            background: var(--bg-surface);
+            border: 2px solid var(--border-subtle);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-light);
+        }
+
+        .mode-btn:hover {
+            border-color: var(--accent-gold);
+            background: rgba(226, 183, 20, 0.1);
+        }
+
+        .mode-btn.selected {
+            border-color: var(--accent-gold);
+            background: rgba(226, 183, 20, 0.15);
+        }
+
+        .mode-btn .mode-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .mode-btn .mode-label { font-weight: 700; font-size: 1rem; }
+        .mode-btn .mode-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+        .start-btn-container {
+            margin-top: 1rem;
+        }
+
+        .btn-start-game {
+            font-size: 1.2rem;
+            padding: 1rem 3rem;
+        }
+
+        /* ===== GAME SCREEN ===== */
+        .game-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 25px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .progress-step.active {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            background: rgba(226, 183, 20, 0.1);
+        }
+
+        .progress-step.completed {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .progress-step.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Phase Panels */
+        .phase-panel { display: none; }
+        .phase-panel.active { display: block; }
+
+        .phase-title {
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .phase-desc {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        /* Intro Phase */
+        .intro-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 2rem;
+        }
+
+        .intro-content h3 {
+            color: var(--accent-gold);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .intro-content p {
+            color: var(--text-warm);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .victim-card {
+            background: rgba(192, 57, 43, 0.15);
+            border: 1px solid rgba(192, 57, 43, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .victim-card h4 {
+            color: var(--accent-red);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Suspect Cards */
+        .suspects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .suspect-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .suspect-card:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .suspect-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .suspect-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .suspect-header h4 {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .suspect-header .suspect-role {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .suspect-info {
+            color: var(--text-warm);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .suspect-interview {
+            background: var(--bg-surface);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 0.8rem;
+            display: none;
+        }
+
+        .suspect-interview.revealed {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .suspect-interview h5 {
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .suspect-interview p {
+            color: var(--text-warm);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .btn-interview {
+            width: 100%;
+            margin-top: 0.8rem;
+        }
+
+        /* Pair mode player indicator */
+        .player-indicator {
+            display: none;
+            background: var(--bg-surface);
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .player-indicator.p1 {
+            border: 2px solid #3498db;
+            color: #3498db;
+        }
+
+        .player-indicator.p2 {
+            border: 2px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .pair-mode .player-indicator { display: block; }
+
+        .pair-switch-notice {
+            display: none;
+            background: rgba(226, 183, 20, 0.15);
+            border: 2px solid var(--accent-gold);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .pair-mode .pair-switch-notice { display: block; }
+
+        /* Clues */
+        .clues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .clue-item {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .clue-item:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .clue-item.revealed {
+            border-color: var(--accent-green);
+            background: rgba(39, 174, 96, 0.05);
+        }
+
+        .clue-item.hidden-content .clue-text {
+            filter: blur(6px);
+            user-select: none;
+        }
+
+        .clue-item .clue-label {
+            font-weight: 700;
+            color: var(--accent-gold);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .clue-item .clue-text {
+            color: var(--text-warm);
+            font-size: 0.9rem;
+            transition: filter 0.3s;
+        }
+
+        .clue-item .click-hint {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        /* Evidence Board */
+        .evidence-board {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 2rem;
+            min-height: 300px;
+        }
+
+        .evidence-board h3 {
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+        }
+
+        .evidence-list {
+            list-style: none;
+        }
+
+        .evidence-list li {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-warm);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .evidence-list li::before {
+            content: '>';
+            color: var(--accent-gold);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Notepad */
+        .notepad {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .notepad h3 {
+            color: var(--accent-gold);
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .notepad textarea {
+            width: 100%;
+            min-height: 120px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            color: var(--text-light);
+            padding: 1rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        .notepad textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        /* Accusation */
+        .accusation-section {
+            text-align: center;
+        }
+
+        .suspect-select-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .suspect-select-btn {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-light);
+        }
+
+        .suspect-select-btn:hover {
+            border-color: var(--accent-red);
+            background: rgba(192, 57, 43, 0.1);
+        }
+
+        .suspect-select-btn.selected {
+            border-color: var(--accent-red);
+            background: rgba(192, 57, 43, 0.2);
+            box-shadow: 0 0 15px rgba(192, 57, 43, 0.3);
+        }
+
+        .suspect-select-btn .select-avatar {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .suspect-select-btn .select-name {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .suspect-select-btn .select-role {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .motive-input {
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .motive-input label {
+            display: block;
+            color: var(--accent-gold);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+
+        .motive-input textarea {
+            width: 100%;
+            min-height: 100px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 10px;
+            color: var(--text-light);
+            padding: 1rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        .motive-input textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        /* Reveal */
+        .reveal-section {
+            text-align: center;
+        }
+
+        .reveal-result {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            border: 2px solid var(--border-subtle);
+        }
+
+        .reveal-result.correct {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 30px rgba(39, 174, 96, 0.2);
+        }
+
+        .reveal-result.wrong {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 30px rgba(192, 57, 43, 0.2);
+        }
+
+        .reveal-result .result-icon { font-size: 4rem; margin-bottom: 1rem; }
+
+        .reveal-result h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .reveal-result.correct h3 { color: var(--accent-green); }
+        .reveal-result.wrong h3 { color: var(--accent-red); }
+
+        .reveal-explanation {
+            background: var(--bg-surface);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .reveal-explanation h4 {
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .reveal-explanation p {
+            color: var(--text-warm);
+            margin-bottom: 0.8rem;
+            line-height: 1.8;
+        }
+
+        .reveal-evidence {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .reveal-evidence li {
+            padding: 0.5rem 0;
+            color: var(--text-warm);
+            font-size: 0.95rem;
+        }
+
+        .reveal-evidence li::before {
+            content: '> ';
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        /* Navigation buttons */
+        .phase-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(226, 183, 20, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(226, 183, 20, 0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-section h2 { font-size: 2rem; }
+            .mystery-grid { grid-template-columns: 1fr; }
+            .game-container { padding: 1rem; }
+            .progress-bar { gap: 0.3rem; }
+            .progress-step { padding: 0.4rem 0.6rem; font-size: 0.75rem; }
+            .suspects-grid { grid-template-columns: 1fr; }
+            .clues-grid { grid-template-columns: 1fr; }
+            .suspect-select-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+            .mode-buttons { flex-direction: column; }
+            .game-header { padding: 0.8rem 1rem; }
+            .game-header h1 { font-size: 1.1rem; }
+            .hero-icon { font-size: 3.5rem; }
+        }
+
+        /* Back link */
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: var(--accent-gold); }
+    </style>
+</head>
+<body>
+
+<header class="game-header">
+    <a href="start.html" class="back-link">&larr; Tillbaka till portalen</a>
+    <h1>MURDER MYSTERY - HASTGARDEN</h1>
+    <div class="header-controls">
+        <button class="btn btn-outline" onclick="showRules()" id="rulesBtn" style="display:none;">Regler</button>
+        <button class="btn btn-outline" onclick="restartGame()" id="restartBtn" style="display:none;">Borja om</button>
+    </div>
+</header>
+
+<!-- ===== START SCREEN ===== -->
+<div id="startScreen" class="screen active">
+    <div class="start-screen">
+        <div class="hero-section fade-in">
+            <div class="hero-icon">&#128014;&#128373;</div>
+            <h2>Murder Mystery</h2>
+            <p class="tagline">Tre mysterier utspelar sig pa en hastgard. Kan du avsloja vem som ar skyldig? Undersok brottsplatsen, forhor misstankta och los fallet!</p>
+        </div>
+
+        <h3 style="color: var(--accent-gold); margin-bottom: 1.5rem; font-size: 1.3rem;">Valj ett mysterium</h3>
+
+        <div class="mystery-grid fade-in">
+            <div class="mystery-card" onclick="selectMystery('eklunda')" id="card-eklunda">
+                <span class="card-num">1</span>
+                <h3>Skuggor over Eklunda</h3>
+                <div class="difficulty">Svarighetsgrad: Medel</div>
+                <p>Agaren av Eklunda Hastgard hittas dod i foderforradet en tidig morgon. Fem personer hade motiv - men vem slog till?</p>
+                <div class="tags">
+                    <span class="tag">5 misstankta</span>
+                    <span class="tag">10 ledtradar</span>
+                    <span class="tag">~30 min</span>
+                </div>
+            </div>
+
+            <div class="mystery-card" onclick="selectMystery('midnatt')" id="card-midnatt">
+                <span class="card-num">2</span>
+                <h3>Midnattsridaren</h3>
+                <div class="difficulty">Svarighetsgrad: Medelsvar</div>
+                <p>Under en nattridevent hittas en kand hasthandlare dod vid sjon. Morkret doljer manga hemligheter pa garden...</p>
+                <div class="tags">
+                    <span class="tag">5 misstankta</span>
+                    <span class="tag">10 ledtradar</span>
+                    <span class="tag">~35 min</span>
+                </div>
+            </div>
+
+            <div class="mystery-card" onclick="selectMystery('hindret')" id="card-hindret">
+                <span class="card-num">3</span>
+                <h3>Det sista hindret</h3>
+                <div class="difficulty">Svarighetsgrad: Svar</div>
+                <p>Under den arliga hopptavlingen hittas domaren dod nara arenan. Nagot som liknade en olycka visar sig vara nagot helt annat.</p>
+                <div class="tags">
+                    <span class="tag">5 misstankta</span>
+                    <span class="tag">10 ledtradar</span>
+                    <span class="tag">~40 min</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mode-section fade-in">
+            <h3>Hur vill ni spela?</h3>
+            <div class="mode-buttons">
+                <div class="mode-btn" onclick="selectMode('solo')" id="mode-solo">
+                    <div class="mode-icon">&#128100;</div>
+                    <div class="mode-label">Ensam</div>
+                    <div class="mode-desc">Spela sjalv och los mysteriet pa egen hand</div>
+                </div>
+                <div class="mode-btn" onclick="selectMode('pair')" id="mode-pair">
+                    <div class="mode-icon">&#128101;</div>
+                    <div class="mode-label">I par</div>
+                    <div class="mode-desc">Tva spelare far olika ledtradar och maste samarbeta</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="start-btn-container fade-in">
+            <button class="btn btn-gold btn-start-game" onclick="startGame()" id="startGameBtn" disabled>
+                Starta spelet
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div id="gameScreen" class="screen">
+    <div class="game-container">
+        <!-- Progress bar -->
+        <div class="progress-bar" id="progressBar"></div>
+
+        <!-- Phase 1: Intro -->
+        <div class="phase-panel" id="phase-intro">
+            <h2 class="phase-title">Introduktion</h2>
+            <p class="phase-desc">Las bakgrunden noggrant - varje detalj kan vara viktig.</p>
+            <div class="intro-content" id="introContent"></div>
+            <div class="phase-nav">
+                <div></div>
+                <button class="btn btn-gold" onclick="goToPhase('crime-scene')">Undersok brottsplatsen &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Phase 2: Crime Scene -->
+        <div class="phase-panel" id="phase-crime-scene">
+            <h2 class="phase-title">Brottsplatsen</h2>
+            <p class="phase-desc" id="crimeSceneDesc">Klicka pa ledtradarna for att avsloja dem. I parspel ser varje spelare olika ledtradar.</p>
+
+            <div class="player-indicator p1" id="csPlayer1">&#128309; Spelare 1 - Dina ledtradar</div>
+            <div class="player-indicator p2" id="csPlayer2" style="display:none;">&#128308; Spelare 2 - Dina ledtradar</div>
+
+            <div class="clues-grid" id="cluesGrid"></div>
+
+            <div class="pair-switch-notice" id="pairSwitchClues">
+                <strong>Parspel:</strong> Byt vem som tittar pa skarmen for att se den andra spelarens ledtradar!
+                <br><button class="btn btn-gold" style="margin-top:0.8rem;" onclick="switchCluePlayer()">Byt till nasta spelare</button>
+            </div>
+
+            <div class="notepad">
+                <h3>&#128221; Anteckningar</h3>
+                <textarea id="notesClues" placeholder="Skriv ner viktiga observationer har..."></textarea>
+            </div>
+
+            <div class="phase-nav">
+                <button class="btn btn-outline" onclick="goToPhase('intro')">&larr; Tillbaka</button>
+                <button class="btn btn-gold" onclick="goToPhase('interviews')">Forhor misstankta &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Phase 3: Interviews -->
+        <div class="phase-panel" id="phase-interviews">
+            <h2 class="phase-title">Forhor</h2>
+            <p class="phase-desc">Forhor de misstankta. I parspel far varje spelare prata med olika personer.</p>
+
+            <div class="player-indicator p1" id="intPlayer1">&#128309; Spelare 1 - Dina forhor</div>
+            <div class="player-indicator p2" id="intPlayer2" style="display:none;">&#128308; Spelare 2 - Dina forhor</div>
+
+            <div class="suspects-grid" id="suspectsGrid"></div>
+
+            <div class="pair-switch-notice" id="pairSwitchInterviews">
+                <strong>Parspel:</strong> Byt vem som tittar pa skarmen!
+                <br><button class="btn btn-gold" style="margin-top:0.8rem;" onclick="switchInterviewPlayer()">Byt till nasta spelare</button>
+            </div>
+
+            <div class="notepad">
+                <h3>&#128221; Anteckningar</h3>
+                <textarea id="notesInterviews" placeholder="Vad sa de misstankta? Vilka motsagelser finns?"></textarea>
+            </div>
+
+            <div class="phase-nav">
+                <button class="btn btn-outline" onclick="goToPhase('crime-scene')">&larr; Tillbaka</button>
+                <button class="btn btn-gold" onclick="goToPhase('evidence')">Granska bevisen &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Phase 4: Evidence Board -->
+        <div class="phase-panel" id="phase-evidence">
+            <h2 class="phase-title">Bevissammanstallning</h2>
+            <p class="phase-desc">Har samlas alla ledtradar och forhorssvar. Diskutera och dra era slutsatser!</p>
+
+            <div class="evidence-board">
+                <h3>&#128269; Alla upptackta ledtradar</h3>
+                <ul class="evidence-list" id="evidenceList"></ul>
+            </div>
+
+            <div style="margin-top:1.5rem;" class="evidence-board">
+                <h3>&#128483; Sammanfattning av forhor</h3>
+                <ul class="evidence-list" id="interviewSummary"></ul>
+            </div>
+
+            <div class="notepad">
+                <h3>&#128221; Slutsatser</h3>
+                <textarea id="notesEvidence" placeholder="Vem tror ni ar skyldig? Varfor?"></textarea>
+            </div>
+
+            <div class="phase-nav">
+                <button class="btn btn-outline" onclick="goToPhase('interviews')">&larr; Tillbaka</button>
+                <button class="btn btn-red" onclick="goToPhase('accusation')">Ga till anklagelsen &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Phase 5: Accusation -->
+        <div class="phase-panel" id="phase-accusation">
+            <div class="accusation-section">
+                <h2 class="phase-title">Anklagelsen</h2>
+                <p class="phase-desc">Vem tror ni ar morddaren? Valj en misstankt och forklara varfor.</p>
+
+                <div class="suspect-select-grid" id="accusationGrid"></div>
+
+                <div class="motive-input">
+                    <label for="motiveText">Forklara kort: Varfor tror ni denna person ar skyldig?</label>
+                    <textarea id="motiveText" placeholder="Beskriv motivet och vilka bevis som pekar pa denna person..."></textarea>
+                </div>
+
+                <button class="btn btn-red" style="font-size: 1.1rem; padding: 1rem 2.5rem;" onclick="makeAccusation()" id="accuseBtn" disabled>
+                    &#9760; Avsloja losningen
+                </button>
+            </div>
+
+            <div class="phase-nav">
+                <button class="btn btn-outline" onclick="goToPhase('evidence')">&larr; Tillbaka till bevisen</button>
+                <div></div>
+            </div>
+        </div>
+
+        <!-- Phase 6: Reveal -->
+        <div class="phase-panel" id="phase-reveal">
+            <div class="reveal-section">
+                <h2 class="phase-title">Avslojandet</h2>
+
+                <div class="reveal-result" id="revealResult"></div>
+
+                <div class="reveal-explanation" id="revealExplanation"></div>
+
+                <div style="margin-top: 2rem;">
+                    <button class="btn btn-gold" style="font-size: 1.1rem; padding: 1rem 2rem; margin: 0.5rem;" onclick="restartGame()">Spela ett annat mysterium</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== RULES MODAL ===== -->
+<div id="rulesModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:200; padding:2rem; overflow-y:auto;">
+    <div style="max-width:600px; margin:2rem auto; background:var(--bg-card); border-radius:16px; padding:2rem; border:2px solid var(--accent-gold);">
+        <h2 style="color:var(--accent-gold); margin-bottom:1rem;">Spelregler</h2>
+        <div style="color:var(--text-warm); line-height:1.8;">
+            <p><strong>Mal:</strong> Ta reda pa vem som ar mordaren genom att undersoka brottsplatsen och forhora de misstankta.</p>
+            <br>
+            <p><strong>Sa har spelar ni:</strong></p>
+            <ol style="padding-left:1.5rem; margin:1rem 0;">
+                <li>Las introduktionen noggrant</li>
+                <li>Undersok ledtradarna pa brottsplatsen</li>
+                <li>Forhor alla misstankta</li>
+                <li>Sammanstall bevisen</li>
+                <li>Gor er anklagelse</li>
+            </ol>
+            <br>
+            <p><strong>Parspel:</strong> Varje spelare far tillgang till olika ledtradar och forhor. Ni maste berata for varandra vad ni hittat - men ni far INTE visa skarmen! Diskutera och los fallet tillsammans.</p>
+            <br>
+            <p><strong>Tips:</strong> Skriv anteckningar! Var uppmarksam pa tider, platser och alibier. Alla misstankta har motiv, men bara en ar skyldig.</p>
+        </div>
+        <button class="btn btn-gold" style="margin-top:1.5rem; width:100%;" onclick="closeRules()">Stang</button>
+    </div>
+</div>
+
+<script>
+// ===== GAME DATA =====
+const mysteries = {
+    eklunda: {
+        title: "Skuggor over Eklunda",
+        setting: "Eklunda Hastgard - en anrik gard med anor fran 1800-talet",
+        intro: {
+            background: "Eklunda Hastgard ar en av traktens mest prestigefyllda gardar med 20 hastar och ett anrikt rykte inom dressyr. Garden har agts av familjen Holm i tre generationer.",
+            crime: "Det ar en kall oktobermorgon. Klockan 06:15 hittar stallpraktikanten Kasper agarinnan Margareta Holm, 58 ar, livlos pa golvet i foderforradet. Polisen konstaterar att hon blivit forgiftad - spar av rattgift hittas i hennes kaffetermos. Termosen stod pa hennes vanliga plats i stallkontoret.",
+            timeOfDeath: "Beraknad dodstid: mellan kl. 23:00 och 01:00 natten fore.",
+            lastSeen: "Margareta sags senast vid 21:30 nar hon last stallkontoret och gick mot sitt hus pa gardsomradet."
+        },
+        victim: {
+            name: "Margareta Holm",
+            age: 58,
+            role: "Agarinna av Eklunda Hastgard",
+            desc: "Strikt men rattvis. Kand for att alltid ha koll pa allt som hande pa garden. Hade pa sista tiden verkat stressad och hemlighetsfull."
+        },
+        suspects: [
+            {
+                id: "erik",
+                name: "Erik Lindqvist",
+                age: 35,
+                role: "Stallchef",
+                color: "#2980b9",
+                emoji: "&#128104;",
+                background: "Har arbetat pa Eklunda i 8 ar. Mycket skicklig med hastarna men har hamnat i flera konflikter med Margareta pa sista tiden om gardens framtid.",
+                interview: "Jag var hemma hela kvaellen, ensam. Ja, vi brakade ibland, men jag respekterade Margareta. Hon ville modernisera stallet pa ett satt jag inte hoell med om, men jag skulle aldrig... Nej. Jag gick fran garden vid 18:00 igar.",
+                secretInterview: "Okej, det stammer att jag skickade ett ilsket mejl till en kompis om Margareta forra veckan. Jag var frustrerad over att hon inte lyssnade. Men det var bara att jag blaeste av aanga.",
+                motive: "Margareta planerade att degradera honom och anstalla en ny stallchef."
+            },
+            {
+                id: "sofia",
+                name: "Sofia Berglund",
+                age: 22,
+                role: "Ridlarare",
+                color: "#8e44ad",
+                emoji: "&#128105;",
+                background: "Ung och ambitios ridlarare som borjade pa Eklunda for 2 ar sedan. Margareta hade nyligen upptackt att Sofia gav privatlektioner med gardens hastar utan lov.",
+                interview: "Jag var pa garden till runt 22:00. Jag forsoekte rida klart med en av elevhasterna. Sen gick jag hem till min lagenhet i byn. Att Margareta hotade sparka mig? Ja, hon var arg, men vi hade borjat prata om en loesning.",
+                secretInterview: "Alltsaa... jag hade en privatelev har pa garden klockan 20-21 den kvaellen. Jag ville inte saga det foerst foer att jag inte faar ha privatlektioner. Men min elev kan intyga att jag var i ridhuset da.",
+                motive: "Margareta hotade att avskeda henne och forvarnade andra gardar."
+            },
+            {
+                id: "anders",
+                name: "Anders Holm",
+                age: 30,
+                role: "Margaretas son",
+                color: "#c0392b",
+                emoji: "&#128104;",
+                background: "Bor i stan men har alltid tagit for givet att han ska arva garden. Reste nyligen ut till garden efter ett upprort telefonsamtal.",
+                interview: "Jag koem ut till garden vid 21:00 foer att prata med mamma. Vi diskuterade gardens framtid. Jag aekte daerifran runt 22:30 och koerde raka vaegen hem. Min sambo kan bekraefta att jag var hemma foere midnatt.",
+                secretInterview: "Ja, jag var upprejrd. Jag hade faett reda paa att mamma aendrat testamentet foerra veckan - hon skulle ge garden till en stiftelse istaellet foer till mig. Men att doeda sin egen mamma? Aldrig i livet.",
+                motive: "Upptackte att Margareta andrat testamentet och skulle ge garden till en stiftelse."
+            },
+            {
+                id: "lena",
+                name: "Lena Johansson",
+                age: 45,
+                role: "Veterinar",
+                color: "#27ae60",
+                emoji: "&#128105;",
+                background: "Gardens veterinar sedan 10 ar. Hade nyligen inlett hemliga affarsforhandlingar med Margareta om att kopa den nedre delen av gardsmarken.",
+                interview: "Jag var inte pa garden alls den kvaellen. Jag var hemma och tittade pa TV. Mina affaerer med Margareta? Det handlade om ett markkoepp - helt legitimt. Vi hoell paa att foerhandla.",
+                secretInterview: "Oekej, sanningen aer att Margareta hade loevat saerja marken till mig foer 800 000 kr. Men foerra veckan ringde hon och sa att hon aandrat sig. Jag hade redan tagit laan paa pengarna. Jag blev desperat, men jag soeker andra loesningar.",
+                motive: "Margareta backeade ur en markaffar dar Lena redan tagit lan pa 800 000 kr."
+            },
+            {
+                id: "kasper",
+                name: "Kasper Nilsson",
+                age: 17,
+                role: "Stallpraktikant",
+                color: "#e67e22",
+                emoji: "&#128102;",
+                background: "Gymnasieelev som gor sin praktik pa Eklunda. Har nyligen ertappats med att stjala utrustning fran stallet.",
+                interview: "J-jag hittade henne pa morgonen... Det var hemskt. Jag boerjade klockan 06:00 som vanligt. Ja, jag stulade naa sadlar, det var dumt. Margareta sa att hon skulle polisanmaela mig. Men jag var hemma hela natten, mina foerraeldrar kan intyga det.",
+                secretInterview: "Jag vet att det ser daaeligt ut foer mig, men jag svraer att jag inte var haer. Mina foerraeldrar och min lillasyster kan alla bekraefta att jag var hemma. Jag laade mig vid 22:00.",
+                motive: "Margareta hotade att polisanmala honom for stold av utrustning."
+            }
+        ],
+        clues: {
+            solo: [
+                { label: "Kaffetermosen", text: "Margaretas termos med spar av rattgift. Termosen stod i stallkontoret som var olast under kvaellen." },
+                { label: "Rivit kvitto", text: "Ett slitet kvitto fran jarnhandeln i byn - rattgift kopt for 3 dagar sedan. Betalat kontant." },
+                { label: "Leriga stovlar", text: "Ett par leriga stovlar utanfor foderforradet, storlek 40. Lermonstret matchar stigen fran parkeringen." },
+                { label: "Sent telefonsamtal", text: "Margaretas telefonlogg visar ett samtal fran Anders kl. 19:45, 12 minuter langt." },
+                { label: "Ilsket mejl", text: "Mejl fran Erik till en van: 'Jag star inte ut med Margareta laengre. Hon foeorstoer allt jag byggt upp.' Skickat 5 dagar sedan." },
+                { label: "Bankutdrag", text: "Dolt bankutdrag i Margaretas kontor visar att Lena overforde 50 000 kr till Margareta som handpenning for marken." },
+                { label: "Stallkamera", text: "Overvakningskameran i stallet visar en gestalt vid stallkontoret kl. 23:30. Personen bar en distinkt gron jacka." },
+                { label: "Gron jacka", text: "En gron jacka, likadan som pa kamerafilmen, hittas i Lenas bilbaksaete. Jackans ficka innehaller en anvand plasthandske." },
+                { label: "SMS pa telefonen", text: "SMS pa Margaretas telefon: 'Vi ses vid foderforradet kl 23. Vi maste prata om marken. /L' - fran Lenas nummer." },
+                { label: "Testamentet", text: "Ett nytt testamente, daterat 5 dagar fore mordet: Garden ska ga till en haststiftelse, inte till Anders." }
+            ],
+            player1: [
+                { label: "Kaffetermosen", text: "Margaretas termos med spar av rattgift. Termosen stod i stallkontoret som var olast under kvaellen." },
+                { label: "Rivit kvitto", text: "Ett slitet kvitto fran jarnhandeln i byn - rattgift kopt for 3 dagar sedan. Betalat kontant." },
+                { label: "Sent telefonsamtal", text: "Margaretas telefonlogg visar ett samtal fran Anders kl. 19:45, 12 minuter langt." },
+                { label: "Ilsket mejl", text: "Mejl fran Erik till en van: 'Jag star inte ut med Margareta laengre. Hon foeorstoer allt jag byggt upp.' Skickat 5 dagar sedan." },
+                { label: "Stallkamera", text: "Overvakningskameran i stallet visar en gestalt vid stallkontoret kl. 23:30. Personen bar en distinkt gron jacka." }
+            ],
+            player2: [
+                { label: "Leriga stovlar", text: "Ett par leriga stovlar utanfor foderforradet, storlek 40. Lermonstret matchar stigen fran parkeringen." },
+                { label: "Bankutdrag", text: "Dolt bankutdrag i Margaretas kontor visar att Lena overforde 50 000 kr som handpenning for marken." },
+                { label: "Gron jacka", text: "En gron jacka, likadan som pa kamerafilmen, hittas i Lenas bilbaksaete. Jackans ficka innehaller en anvand plasthandske." },
+                { label: "SMS pa telefonen", text: "SMS pa Margaretas telefon: 'Vi ses vid foderforradet kl 23. Vi maste prata om marken. /L' - fran Lenas nummer." },
+                { label: "Testamentet", text: "Ett nytt testamente, daterat 5 dagar fore mordet: Garden ska ga till en haststiftelse, inte till Anders." }
+            ]
+        },
+        interviewAssign: {
+            player1: ["erik", "sofia", "kasper"],
+            player2: ["anders", "lena"]
+        },
+        solution: {
+            culprit: "lena",
+            explanation: "Lena Johansson ar mordaren. Hon hade avtalat att traffa Margareta vid foderforradet klockan 23:00 for att diskutera markaffaren - bekraftat av SMS:et pa Margaretas telefon. Nar Margareta berattade att hon definitivt backat ur affaren, forgiftade Lena kaffetermosen som stod i det olasta stallkontoret.",
+            evidence: [
+                "SMS:et fran Lena som avtalar ett mote vid foderforradet kl. 23",
+                "Overvakningsfilmen visar en person i gron jacka vid stallkontoret kl. 23:30",
+                "Lenas grona jacka hittades i hennes bil - med en anvand plasthandske i fickan",
+                "De leriga stovlarna (storlek 40) matchar Lenas storlek och stigen fran parkeringen",
+                "Lena hade ett desperat ekonomiskt motiv - 800 000 kr i lan utan nagon markaffar",
+                "Rattgiftet koptes kontant 3 dagar fore mordet - Lena hade tillgang till rattgift genom sitt veterinararbete"
+            ]
+        }
+    },
+
+    midnatt: {
+        title: "Midnattsridaren",
+        setting: "Eklunda Hastgard - under det arliga nattrideventet 'Midnattsritten'",
+        intro: {
+            background: "Varje host arrangerar Eklunda Hastgard 'Midnattsritten' - ett populart nattridningsevent med fackeltag runt sjon. I ar ar det 30 deltagare, och den kande hasthandlaren Johan Kraft ar hedersgast.",
+            crime: "Mitt under eventet, strax efter midnatt, hittas Johan Kraft, 50 ar, dod vid sjokanten. Han har ett kraftigt slag mot huvudet. Bredvid honom i buskarna hittas en blodig hastssko. Nagon har anvant den som vapen.",
+            timeOfDeath: "Beraknad dodstid: cirka kl. 00:00-00:30.",
+            lastSeen: "Johan sags senast klockan 23:45 nar han lamnade lagerelden for att 'ta lite frisk luft' vid sjon."
+        },
+        victim: {
+            name: "Johan Kraft",
+            age: 50,
+            role: "Kand hasthandlare och uppfodare",
+            desc: "Karismatisk men kontroversiell. Kand for att alltid fa de basta affurerna - ibland pa andras bekostnad. Hade manga vanner men annu fler fiender."
+        },
+        suspects: [
+            {
+                id: "isabelle",
+                name: "Isabelle Mansson",
+                age: 28,
+                role: "Hasttranare",
+                color: "#9b59b6",
+                emoji: "&#128105;",
+                background: "Professionell hasttranare som for 6 manader sedan kopte en tavlingshast av Johan for 200 000 kr. Hasten visade sig ha dolda halsproblem.",
+                interview: "Ja, jag var rasande paa Johan. Han saalde mig en sjuk haest och vaegrde betala tillbaka. Men jag stod vid lagerelden hela kvaellen! Fraaga vem som helst. Jag gick daerifraan foerst nar larmet gick.",
+                secretInterview: "Jag hade taenkt konfrontera Johan under kvaellen, men jag valde att inte goera det. Jag saag honom gaa mot sjoen vid 23:45 men jag gick aandaa inte efter honom. Jag var vid elden, det kan minst fem personer bekraefta.",
+                motive: "Johan salde henne en sjuk hast for 200 000 kr och vagrade betala tillbaka."
+            },
+            {
+                id: "tommy",
+                name: "Tommy Aberg",
+                age: 55,
+                role: "Grannbonde",
+                color: "#e67e22",
+                emoji: "&#128104;",
+                background: "Ager garden intill Eklunda. Har haft en langvarig tvist med Johan om en skogstig som bada anser tillhor deras mark.",
+                interview: "Jag gick hem klockan 22:30. Min fru kan bekraefta det. Jag orkade inte vara kvar laengre - jag aer foer gammal foer sana haer sena tilstaellningar. Johan och jag hade vaar tvist, men det handlade om en vaeg, inte om liv och doed.",
+                secretInterview: "Min promenadkaerpp? Jag maeste ha gloemrt den naer jag gick hem. Jag hade den med mig foer att gaa paa de ojaeemna stigarna. Jag kan inte foerklara varfoer den laag naer sjoen - jag gick inte dit.",
+                motive: "Langtgaende marktvist med Johan som hotat att dra honom infor ratta."
+            },
+            {
+                id: "maja",
+                name: "Maja Ekstrom",
+                age: 19,
+                role: "Ridelev",
+                color: "#e74c3c",
+                emoji: "&#128105;",
+                background: "Ung ridelev pa Eklunda som i hemlighet dejtar Johans son Henrik. Johan hade forbjudit forhallandet och hotat hennes familj.",
+                interview: "Jag var i stallet hela kvaellen fran 23:00. En av haestarna, Stella, var sjuk och jag vaakade oever henne. Stallkameran kan bekraefta det. Johan var elak mot mig, men jag skulle aldrig kunna skaada nagon.",
+                secretInterview: "Johan sa till mig att om jag inte laemnade Henrik sa skulle han se till att min familjs ridskola aldrig fick naa fler kunder. Han var hotfull. Men jag var i stallet - kolla kameran.",
+                motive: "Johan hotade att forstora hennes familjs ridskola om hon inte lamnade hans son."
+            },
+            {
+                id: "henrik",
+                name: "Henrik Kraft",
+                age: 25,
+                role: "Johans son",
+                color: "#2ecc71",
+                emoji: "&#128104;",
+                background: "Johans enda son. Har nyligen upptackt att fadern andrat testamentet och lamnar allt till en hastvalgorenhetsorganisation istallet for till honom.",
+                interview: "Jag satt vid lagerelden hela kvaellen. Minst tre personer saag mig daer. Pappa och jag... vi hade vaar problem, men jag oenskade honom inte doed. Jag fick blod paa handskarna tidigare paa kvaellen naer jag hjaelpte till med en haest som skadat sig paa ett staengsel.",
+                secretInterview: "Ja, jag var foerbaannad oever testamentet. Allt till vaalgoeerenhet? Efter allt jag gjort foer foeretaget? Men jag satt vid elden. Kolla med Anna, Mikael och Sara - de satt bredvid mig.",
+                motive: "Nyligen struken ur Johans testamente till forman for en valgoeenhetsorganisation."
+            },
+            {
+                id: "petra",
+                name: "Petra Sandberg",
+                age: 40,
+                role: "Eventarrangor",
+                color: "#3498db",
+                emoji: "&#128105;",
+                background: "Arrangerar Midnattsritten och andra hastervent. Har organiserat evenemang med Johan i 5 ar. Alltid i sin signaturroeda vast.",
+                interview: "Jag sprang runt hela kvaellen och fixade med arrangemanget. Jag var oeverallt - vid elden, i stallet, vid parkeringen. Det aer mitt jobb. Johan och jag? Vi var affaerspartners, inget mer.",
+                secretInterview: "Okej... Johan hade boerjat graanska boeeckerna foer vaara gemensamma event. Han hittade... oregelbundenheter. Jag hade laanaat pengar fraan eventkassan - 150 000 kr. Jag hoell paa att betala tillbaka! Han hotade att anmaela mig.",
+                motive: "Johan hade upptaeckt att hon forsnillat 150 000 kr fran deras gemensamma eventverksamhet."
+            }
+        ],
+        clues: {
+            solo: [
+                { label: "Blodig hastsko", text: "En hastsko med blod hittades i buskarna 3 meter fran Johans kropp. Skostorleken passar gardens kaltblodhastar." },
+                { label: "Henriks handskar", text: "Henriks handskar har blodspar. Veterinaren bekraftar dock att en hast skadade sig pa ett stangsel tidigare pa kvaellen." },
+                { label: "Hotbrev", text: "Ett handskrivet brev i Johans inre jackficka: 'Om du beratter for nagon sa ar det slut for dig.' Inget namn." },
+                { label: "Tommys promenadkapp", text: "Tommys promenadkapp hittades vid sjokanten, ca 10 meter fran brottsplatsen. Inga blodspar." },
+                { label: "Ekonomiska handlingar", text: "I Johans vastficka: utskrivna dokument som visar Petras forsnillning av 150 000 kr fran eventkassan." },
+                { label: "Isabelles SMS", text: "SMS-konversation pa Isabelles telefon med aggressiva meddelanden till Johan: 'Du kommer angra dig' - skickat dagen fore." },
+                { label: "Vittne vid sjon", text: "Ett vittne sag en person i rod vast vid sjokanten vid midnatt. 'Det sag ut som en kvinna.'" },
+                { label: "Petras ridstovlar", text: "Petras ridstovlar har lera fran sjokanten. Lermonstret matchar omradet dar Johan hittades." },
+                { label: "Henriks alibi", text: "Tre oberoende vittnen (Anna, Mikael och Sara) bekraftar att Henrik satt vid lagerelden fran 23:00 till larmet gick." },
+                { label: "Rostmeddelande", text: "Ett rostmeddelande pa Johans telefon fran Petra, inspelat kl. 18:00 samma dag: 'Om du beratar for naagon saa kommer du aangra dig.'" }
+            ],
+            player1: [
+                { label: "Blodig hastsko", text: "En hastsko med blod hittades i buskarna 3 meter fran Johans kropp. Skostorleken passar gardens kaltblodhastar." },
+                { label: "Henriks handskar", text: "Henriks handskar har blodspar. Veterinaren bekraftar dock att en hast skadade sig pa ett stangsel tidigare pa kvaellen." },
+                { label: "Hotbrev", text: "Ett handskrivet brev i Johans inre jackficka: 'Om du beratter for nagon sa ar det slut for dig.' Inget namn." },
+                { label: "Isabelles SMS", text: "SMS-konversation pa Isabelles telefon med aggressiva meddelanden till Johan: 'Du kommer angra dig' - skickat dagen fore." },
+                { label: "Henriks alibi", text: "Tre oberoende vittnen bekraftar att Henrik satt vid lagerelden fran 23:00 till larmet gick." }
+            ],
+            player2: [
+                { label: "Tommys promenadkapp", text: "Tommys promenadkapp hittades vid sjokanten, ca 10 meter fran brottsplatsen. Inga blodspar." },
+                { label: "Ekonomiska handlingar", text: "I Johans vastficka: utskrivna dokument som visar Petras forsnillning av 150 000 kr fran eventkassan." },
+                { label: "Vittne vid sjon", text: "Ett vittne sag en person i rod vast vid sjokanten vid midnatt. 'Det sag ut som en kvinna.'" },
+                { label: "Petras ridstovlar", text: "Petras ridstovlar har lera fran sjokanten. Lermonstret matchar omradet dar Johan hittades." },
+                { label: "Rostmeddelande", text: "Ett rostmeddelande pa Johans telefon fran Petra, inspelat kl. 18:00 samma dag: 'Om du beraettar foer naagon saa kommer du aangra dig.'" }
+            ]
+        },
+        interviewAssign: {
+            player1: ["isabelle", "tommy", "maja"],
+            player2: ["henrik", "petra"]
+        },
+        solution: {
+            culprit: "petra",
+            explanation: "Petra Sandberg ar mordaren. Hon visste att Johan hade bevis for hennes forsnillning och var desperat att stoppa honom. Under Midnattsritten foljde hon efter Johan till sjon, bevaapnad med en hastsko fran stallet. Hennes roda vast avslojades av ett vittne, och leran pa hennes stovlar placerar henne pa brottsplatsen.",
+            evidence: [
+                "Vittnet sag en person i rod vast vid sjon vid midnatt - Petras signaturvast",
+                "Petras ridstovlar hade lera fran sjokanten, exakt dar Johan hittades",
+                "Rostmeddelandet fran Petra till Johan: 'Om du beraettar saa kommer du aangra dig'",
+                "Hotbrevet i Johans ficka matchar Petras motiv - tysta honom om forsnillningen",
+                "Johan bar utskrivna bevis pa Petras forsnillning i fickan - hon hade ett akut motiv",
+                "Henrik hade alibi (3 vittnen), Maja var i stallet (kamerabevis), Tommy gick hem 22:30 (fru bekraftar)"
+            ]
+        }
+    },
+
+    hindret: {
+        title: "Det sista hindret",
+        setting: "Eklunda Hastgard - under den arliga hopptavlingen 'Eklunda Grand Prix'",
+        intro: {
+            background: "Eklunda Grand Prix ar aarets storsta hopptavling i regionen. I ar deltar 40 ekipage och tusentals askadare. Overdomare ar den respekterade Birgitta Wallin som domt tavlingar i 30 ar.",
+            crime: "Klockan 16:30, strax efter att tavlingens final avslutats, hittas Birgitta Wallin, 60 ar, dod i domarbaaset. Dodsorsaken visar sig vara en allergisk chock - Birgitta var svart allergisk mot jordnotter. Hennes EpiPen var tom och utbytt mot en forbrukad.",
+            timeOfDeath: "Beraknad dodstid: cirka kl. 16:00-16:30, under finalomgangen.",
+            lastSeen: "Birgitta sags senast kl. 15:45 nar hon gick fran domarbordet till domarbaaset for en kort paus."
+        },
+        victim: {
+            name: "Birgitta Wallin",
+            age: 60,
+            role: "Overdomare och inspektoer",
+            desc: "Extremt kunnig och orattfardig. Fruktad av fuskare. Hade pa sista tiden genomfort extra kontroller av hastvalfard och doping. Svart allergisk mot jordnotter - bar alltid EpiPen."
+        },
+        suspects: [
+            {
+                id: "oscar",
+                name: "Oscar Strom",
+                age: 32,
+                role: "Tavlingsryttare",
+                color: "#e74c3c",
+                emoji: "&#128104;",
+                background: "Framgangsrik hoppryttare som for 2 ar sedan diskvalificerades av Birgitta for regelbrott. Har sedan dess haft en oppet fientlig relation till henne.",
+                interview: "Ja, jag har avskyt Birgitta sedan diskvalifikationen. Den foerstoerde min karriaer foer ett aar. Men jag laemnade taevlingsomraadet klockan 14:00 efter mitt lopp. Kolla parkeringskameran - min bil aekte daerifraan.",
+                secretInterview: "Jag skrek aat henne vid 13:00 idag, det stoemmer. Alla saag det. Men efter mitt lopp hade jag inget haer att goera. Jag var sa trott paa alltihop att jag bara ville hem.",
+                motive: "Birgitta hade diskvalificerat honom och foerstort ett ars karriar."
+            },
+            {
+                id: "camilla",
+                name: "Camilla Engstrom",
+                age: 38,
+                role: "Hastagare",
+                color: "#9b59b6",
+                emoji: "&#128105;",
+                background: "Ager tre tavlingshastar. Birgitta hade signalerat att en av hennes hastar kunde bli avstangd pa grund av misstankt bristande hastvalfard.",
+                interview: "Min haest behandlas utmaerkt! Birgitta var oraeettvis. Men jag var vid haesttraailern hela eftermiddagen fraan 15:00 - mina skoeotare kan bekraefta det. Vi foerberedde foer hemfaerd.",
+                secretInterview: "Birgittas inspektion visade att min haest var helt frisk! Jag fick rapporten idag paa morgonen. Saa jag hade inte ens ett motiv laengre. Kolla rapporten sjaelv.",
+                motive: "Birgitta hotade att stanga av hennes hast fran tavling."
+            },
+            {
+                id: "david",
+                name: "David Wallin",
+                age: 35,
+                role: "Birgittas brorson",
+                color: "#f39c12",
+                emoji: "&#128104;",
+                background: "Birgittas brorson. Har stora spelskukder pa 500 000 kr och star som formanstagare i Birgittas livforsakring.",
+                interview: "Moster Birgitta var som en mamma foer mig. Jag kan inte fatta att hon aer borta. Jag var i publikomraadet hela dagen - kolla min telefon, jag satt och... tittade paa tavlingarna.",
+                secretInterview: "Okej, jag satt och spelade paa naetet under taevlingen. Jag har spelproblem, det medger jag. Men doeda moster foer pengar? Nej! Jag visste inte ens att jag stod paa hennes livsfoersakring. Och jag har aldrig gaaett naera doemaarbaaset.",
+                motive: "500 000 kr i spelskukder och formanstagare i Birgittas livforsakring."
+            },
+            {
+                id: "frida",
+                name: "Frida Nyman",
+                age: 24,
+                role: "Assisterande domare",
+                color: "#3498db",
+                emoji: "&#128105;",
+                background: "Ung, ambitios domare som assisterar Birgitta. Skulle automatiskt ta over overdomarrollen om Birgitta forsvann.",
+                interview: "Jag satt vid domarbordet hela eftermiddagen. Jag gick aldrig till domarbaaset. Det finns kameror paa domarplatsen - kolla dem. Birgitta var min mentor, jag larde mig allt av henne.",
+                secretInterview: "Ja, jag hade skrivit i min anteckningsbok om att bli oeverdomare. Men det var droemmar, inte planer! Jag respekterade Birgitta enormt. Kameran vid domarbordet visar att jag satt daer hela tiden fraan 14:00 till larmet gick.",
+                motive: "Ville ta over Birgittas position som overdomare."
+            },
+            {
+                id: "gustav",
+                name: "Gustav Ek",
+                age: 50,
+                role: "Sponsor och stallagare",
+                color: "#27ae60",
+                emoji: "&#128104;",
+                background: "Rik sponsor som ager ett av regionens storsta tavlingsstall. Birgitta hade nyligen upptackt att hans stall systematiskt dopade tavlingshastar.",
+                interview: "Birgitta och jag hade en utmaerkt relation. Jag har sponsrat henne i aratal. Jag satt vid domarbordet som hedersgoest under delar av dagen. Sedan gick jag runt och praatade med folk.",
+                secretInterview: "Att Birgitta hittade... Det staemmer att hon hade fraagar om vaara haestars proevresultat. Men det var missfoerstaaand! Vaara hastar aer rena. Jag pratade med henne under lunchen foer att reeda ut det.",
+                motive: "Birgitta hade upptackt systematisk doping i hans stall och var redo att rapportera det."
+            }
+        ],
+        clues: {
+            solo: [
+                { label: "Tom EpiPen", text: "Birgittas EpiPen var tom - nagon har bytt ut den mot en redan forbrukad. Den riktiga pennan saknas." },
+                { label: "Apotekskvitto", text: "Ett apotekskvitto i papperskorgen utanfor domarbaaset - allergimedcin kopt i Gustavs namn 2 dagar sedan." },
+                { label: "Oscar och Birgitta", text: "Flera vittnen sag Oscar skrika at Birgitta kl. 13:00. Men parkeringskameran visar att Oscars bil lamnade omradet kl. 14:05." },
+                { label: "Davids telefon", text: "Davids telefon visar spelapp-aktivitet under hela eftermiddagen. GPS-data placerar honom i publiken, inte nara domarbaaset." },
+                { label: "Fridas anteckningsbok", text: "I Fridas bok star: 'Nar jag blir overdomare ska jag...' - ambition, men kameran vid domarbordet visar att hon satt dar hela tiden." },
+                { label: "Overhoert samtal", text: "En funktionar overhorde Gustav saga i telefon: 'Hon kommer inte vara ett problem mycket laengre' - klockan 14:30." },
+                { label: "Veterinarrapport", text: "Camillas hast forklarades helt frisk i morgonens inspektion. Hennes motiv forsvann innan brottet." },
+                { label: "Gustav vid vaskan", text: "Overvakningsfilm fran domarlunchen visar Gustav som bojer sig over Birgittas vaska medan hon hamtar mat. Tid: 12:15." },
+                { label: "Dopingrapport", text: "I Birgittas portfolj: en detaljerad dopingrapport med Gustavs stalllogo. Rapport daterad igar - redo att skickas till forbundet." },
+                { label: "Gustavs plats", text: "Som 'hedersgoest' satt Gustav bredvid Birgitta vid domarbordet och hade fri tillgang till hennes saker under hela dagen." }
+            ],
+            player1: [
+                { label: "Tom EpiPen", text: "Birgittas EpiPen var tom - nagon har bytt ut den mot en redan forbrukad. Den riktiga pennan saknas." },
+                { label: "Apotekskvitto", text: "Ett apotekskvitto i papperskorgen utanfor domarbaaset - allergimedcin kopt i Gustavs namn 2 dagar sedan." },
+                { label: "Oscar och Birgitta", text: "Flera vittnen sag Oscar skrika at Birgitta kl. 13:00. Men parkeringskameran visar att hans bil lamnade kl. 14:05." },
+                { label: "Fridas anteckningsbok", text: "I Fridas bok star: 'Nar jag blir overdomare ska jag...' - ambition, men kameran visar att hon satt vid domarbordet hela tiden." },
+                { label: "Gustavs plats", text: "Som 'hedersgoest' satt Gustav bredvid Birgitta vid domarbordet och hade fri tillgang till hennes saker." }
+            ],
+            player2: [
+                { label: "Davids telefon", text: "Davids telefon visar spelapp-aktivitet under hela eftermiddagen. GPS-data placerar honom i publiken, inte nara domarbaaset." },
+                { label: "Overhoert samtal", text: "En funktionar overhorde Gustav saga i telefon: 'Hon kommer inte vara ett problem mycket laengre' - klockan 14:30." },
+                { label: "Veterinarrapport", text: "Camillas hast forklarades helt frisk i morgonens inspektion. Hennes motiv forsvann innan brottet." },
+                { label: "Gustav vid vaskan", text: "Overvakningsfilm visar Gustav som bojer sig over Birgittas vaska medan hon hamtar mat vid lunchen. Tid: 12:15." },
+                { label: "Dopingrapport", text: "I Birgittas portfolj: en dopingrapport med Gustavs stalllogo, daterad igar - redo att skickas till forbundet." }
+            ]
+        },
+        interviewAssign: {
+            player1: ["oscar", "camilla", "frida"],
+            player2: ["david", "gustav"]
+        },
+        solution: {
+            culprit: "gustav",
+            explanation: "Gustav Ek ar mordaren. Han visste att Birgitta hade en fardig dopingrapport som skulle forstora hans stall och karriar. Under lunchen, nar Birgitta hamtade mat, bytte han ut hennes EpiPen mot en forbrukad (fangas pa kamera). Sedan sag han till att jordnoetter hamnade i hennes mat eller dryck. Utan fungerande EpiPen dog Birgitta av allergisk chock.",
+            evidence: [
+                "Overvakningsfilm visar Gustav boja sig over Birgittas vaska under lunchen - da byttes EpiPen ut",
+                "Apotekskvitto i Gustavs namn for allergimedcin kopt 2 dagar fore mordet (han undersekte hennes allergi)",
+                "Det overhorda telefonsamtalet: 'Hon kommer inte vara ett problem mycket laengre'",
+                "Dopingrapporten i Birgittas portfolj var redo att skickas - ett akut motiv for Gustav",
+                "Gustav hade fri tillgang till Birgittas saker som 'hedersgoest' vid domarbordet hela dagen",
+                "De ovriga misstankta har alibin: Oscar lamnade 14:05, David var i publiken, Camilla vid trailern, Frida vid domarbordet"
+            ]
+        }
+    }
+};
+
+// ===== GAME STATE =====
+let state = {
+    selectedMystery: null,
+    selectedMode: null,
+    currentPhase: null,
+    revealedClues: new Set(),
+    revealedInterviews: new Set(),
+    accusedSuspect: null,
+    currentCluePlayer: 1,
+    currentInterviewPlayer: 1
+};
+
+const phases = ['intro', 'crime-scene', 'interviews', 'evidence', 'accusation', 'reveal'];
+const phaseLabels = {
+    'intro': 'Introduktion',
+    'crime-scene': 'Brottsplats',
+    'interviews': 'Forhor',
+    'evidence': 'Bevis',
+    'accusation': 'Anklagelse',
+    'reveal': 'Avslojande'
+};
+
+// ===== START SCREEN =====
+function selectMystery(id) {
+    state.selectedMystery = id;
+    document.querySelectorAll('.mystery-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('card-' + id).classList.add('selected');
+    checkStartReady();
+}
+
+function selectMode(mode) {
+    state.selectedMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('mode-' + mode).classList.add('selected');
+    checkStartReady();
+}
+
+function checkStartReady() {
+    document.getElementById('startGameBtn').disabled = !(state.selectedMystery && state.selectedMode);
+}
+
+// ===== GAME FLOW =====
+function startGame() {
+    if (!state.selectedMystery || !state.selectedMode) return;
+
+    state.currentPhase = 'intro';
+    state.revealedClues = new Set();
+    state.revealedInterviews = new Set();
+    state.accusedSuspect = null;
+    state.currentCluePlayer = 1;
+    state.currentInterviewPlayer = 1;
+
+    document.getElementById('startScreen').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    document.getElementById('rulesBtn').style.display = 'inline-block';
+    document.getElementById('restartBtn').style.display = 'inline-block';
+
+    if (state.selectedMode === 'pair') {
+        document.getElementById('gameScreen').classList.add('pair-mode');
+    } else {
+        document.getElementById('gameScreen').classList.remove('pair-mode');
+    }
+
+    renderProgressBar();
+    renderIntro();
+    goToPhase('intro');
+}
+
+function goToPhase(phase) {
+    const phaseIndex = phases.indexOf(phase);
+    const currentIndex = phases.indexOf(state.currentPhase);
+
+    state.currentPhase = phase;
+
+    document.querySelectorAll('.phase-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('phase-' + phase).classList.add('active');
+    document.getElementById('phase-' + phase).classList.add('fade-in');
+
+    renderProgressBar();
+
+    if (phase === 'crime-scene') renderClues();
+    if (phase === 'interviews') renderInterviews();
+    if (phase === 'evidence') renderEvidence();
+    if (phase === 'accusation') renderAccusation();
+    if (phase === 'reveal') renderReveal();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderProgressBar() {
+    const bar = document.getElementById('progressBar');
+    const currentIndex = phases.indexOf(state.currentPhase);
+
+    bar.innerHTML = phases.map((phase, i) => {
+        let cls = 'progress-step';
+        if (i < currentIndex) cls += ' completed';
+        else if (i === currentIndex) cls += ' active';
+        else cls += ' locked';
+
+        const icon = i < currentIndex ? '&#10003;' : (i === currentIndex ? '&#9679;' : '&#9675;');
+        const clickable = i <= currentIndex ? `onclick="goToPhase('${phase}')"` : '';
+
+        return `<div class="${cls}" ${clickable}><span>${icon}</span> ${phaseLabels[phase]}</div>`;
+    }).join('');
+}
+
+// ===== RENDER PHASES =====
+function renderIntro() {
+    const m = mysteries[state.selectedMystery];
+    const container = document.getElementById('introContent');
+
+    container.innerHTML = `
+        <h3>${m.title}</h3>
+        <p><strong>Plats:</strong> ${m.setting}</p>
+        <p>${m.intro.background}</p>
+
+        <div class="victim-card">
+            <h4>&#9760; Offret</h4>
+            <p><strong>${m.victim.name}</strong>, ${m.victim.age} ar - ${m.victim.role}</p>
+            <p>${m.victim.desc}</p>
+        </div>
+
+        <p><strong>Brottet:</strong> ${m.intro.crime}</p>
+        <p><strong>Beraknad dodstid:</strong> ${m.intro.timeOfDeath}</p>
+        <p><strong>Senast sedd:</strong> ${m.intro.lastSeen}</p>
+
+        <h3 style="margin-top:1.5rem;">De misstankta</h3>
+        <p style="margin-bottom:1rem;">Foljande personer har identifierats som misstankta:</p>
+        ${m.suspects.map(s => `
+            <div style="display:flex; align-items:center; gap:0.8rem; padding:0.6rem 0; border-bottom:1px solid var(--border-subtle);">
+                <span class="suspect-avatar" style="background:${s.color}33; color:${s.color}; width:40px; height:40px; font-size:1.1rem;">${s.emoji}</span>
+                <div>
+                    <strong style="color:${s.color};">${s.name}</strong>, ${s.age} ar -
+                    <span style="color:var(--text-muted);">${s.role}</span>
+                </div>
+            </div>
+        `).join('')}
+
+        ${state.selectedMode === 'pair' ? `
+            <div style="background:rgba(226,183,20,0.1); border:1px solid var(--accent-gold); border-radius:10px; padding:1.2rem; margin-top:1.5rem;">
+                <strong style="color:var(--accent-gold);">&#128101; Parspel aktiverat!</strong>
+                <p style="margin-top:0.5rem;">Ni kommer fa olika ledtradar och forhora olika misstankta. Berata foer varandra vad ni hittar - men visa INTE skarmen!</p>
+            </div>
+        ` : ''}
+    `;
+}
+
+function renderClues() {
+    const m = mysteries[state.selectedMystery];
+    const grid = document.getElementById('cluesGrid');
+
+    let clues;
+    if (state.selectedMode === 'solo') {
+        clues = m.clues.solo;
+    } else {
+        clues = state.currentCluePlayer === 1 ? m.clues.player1 : m.clues.player2;
+        document.getElementById('csPlayer1').style.display = state.currentCluePlayer === 1 ? 'block' : 'none';
+        document.getElementById('csPlayer2').style.display = state.currentCluePlayer === 2 ? 'block' : 'none';
+    }
+
+    grid.innerHTML = clues.map((clue, i) => {
+        const key = `${state.currentCluePlayer}-${i}`;
+        const revealed = state.revealedClues.has(key);
+        return `
+            <div class="clue-item ${revealed ? 'revealed' : 'hidden-content'}" onclick="revealClue('${key}', this)">
+                <div class="clue-label">${revealed ? '&#128275;' : '&#128274;'} Ledtrad: ${clue.label}</div>
+                <div class="clue-text">${clue.text}</div>
+                ${!revealed ? '<div class="click-hint">Klicka for att avsloja</div>' : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function revealClue(key, el) {
+    if (state.revealedClues.has(key)) return;
+    state.revealedClues.add(key);
+    el.classList.remove('hidden-content');
+    el.classList.add('revealed');
+    el.querySelector('.clue-label').innerHTML = '&#128275; ' + el.querySelector('.clue-label').textContent.replace('🔒 ', '').replace('🔓 ', '');
+    const hint = el.querySelector('.click-hint');
+    if (hint) hint.remove();
+}
+
+function switchCluePlayer() {
+    state.currentCluePlayer = state.currentCluePlayer === 1 ? 2 : 1;
+    renderClues();
+}
+
+function renderInterviews() {
+    const m = mysteries[state.selectedMystery];
+    const grid = document.getElementById('suspectsGrid');
+
+    let suspects;
+    if (state.selectedMode === 'solo') {
+        suspects = m.suspects;
+    } else {
+        const assignedIds = state.currentInterviewPlayer === 1 ? m.interviewAssign.player1 : m.interviewAssign.player2;
+        suspects = m.suspects.filter(s => assignedIds.includes(s.id));
+        document.getElementById('intPlayer1').style.display = state.currentInterviewPlayer === 1 ? 'block' : 'none';
+        document.getElementById('intPlayer2').style.display = state.currentInterviewPlayer === 2 ? 'block' : 'none';
+    }
+
+    grid.innerHTML = suspects.map(s => {
+        const interviewRevealed = state.revealedInterviews.has(s.id);
+        const secretRevealed = state.revealedInterviews.has(s.id + '-secret');
+
+        return `
+            <div class="suspect-card">
+                <div class="suspect-header">
+                    <span class="suspect-avatar" style="background:${s.color}33; color:${s.color};">${s.emoji}</span>
+                    <div>
+                        <h4 style="color:${s.color};">${s.name}, ${s.age}</h4>
+                        <div class="suspect-role">${s.role}</div>
+                    </div>
+                </div>
+                <div class="suspect-info">${s.background}</div>
+                <p style="color:var(--text-muted); font-size:0.85rem;"><strong>Motiv:</strong> ${s.motive}</p>
+
+                <div class="suspect-interview ${interviewRevealed ? 'revealed' : ''}" id="interview-${s.id}">
+                    <h5>&#128483; Forhor - Forsta svar</h5>
+                    <p>"${s.interview}"</p>
+                </div>
+
+                ${!interviewRevealed ? `
+                    <button class="btn btn-outline btn-interview" onclick="revealInterview('${s.id}')">
+                        &#128483; Forhor denna person
+                    </button>
+                ` : ''}
+
+                <div class="suspect-interview ${secretRevealed ? 'revealed' : ''}" id="secret-${s.id}">
+                    <h5>&#128270; Forhor - Uppfoljningsfraaga</h5>
+                    <p>"${s.secretInterview}"</p>
+                </div>
+
+                ${interviewRevealed && !secretRevealed ? `
+                    <button class="btn btn-outline btn-interview" onclick="revealSecret('${s.id}')" id="secret-btn-${s.id}">
+                        &#128270; Stall uppfoljningsfraaga
+                    </button>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function revealInterview(id) {
+    state.revealedInterviews.add(id);
+    renderInterviews();
+}
+
+function revealSecret(id) {
+    state.revealedInterviews.add(id + '-secret');
+    renderInterviews();
+}
+
+function switchInterviewPlayer() {
+    state.currentInterviewPlayer = state.currentInterviewPlayer === 1 ? 2 : 1;
+    renderInterviews();
+}
+
+function renderEvidence() {
+    const m = mysteries[state.selectedMystery];
+    const evidenceList = document.getElementById('evidenceList');
+    const interviewSummary = document.getElementById('interviewSummary');
+
+    // Collect all revealed clues
+    let allClues = [];
+    if (state.selectedMode === 'solo') {
+        m.clues.solo.forEach((clue, i) => {
+            if (state.revealedClues.has(`1-${i}`)) {
+                allClues.push(clue);
+            }
+        });
+    } else {
+        m.clues.player1.forEach((clue, i) => {
+            if (state.revealedClues.has(`1-${i}`)) {
+                allClues.push(clue);
+            }
+        });
+        m.clues.player2.forEach((clue, i) => {
+            if (state.revealedClues.has(`2-${i}`)) {
+                allClues.push(clue);
+            }
+        });
+    }
+
+    if (allClues.length === 0) {
+        evidenceList.innerHTML = '<li>Inga ledtradar har avslojats an. Ga tillbaka till brottsplatsen!</li>';
+    } else {
+        evidenceList.innerHTML = allClues.map(c =>
+            `<li><strong>${c.label}:</strong> ${c.text}</li>`
+        ).join('');
+    }
+
+    // Interview summary
+    let interviews = [];
+    m.suspects.forEach(s => {
+        if (state.revealedInterviews.has(s.id)) {
+            interviews.push(`<li><strong>${s.name} (${s.role}):</strong> "${s.interview}"</li>`);
+        }
+        if (state.revealedInterviews.has(s.id + '-secret')) {
+            interviews.push(`<li><strong>${s.name} (uppfoljning):</strong> "${s.secretInterview}"</li>`);
+        }
+    });
+
+    if (interviews.length === 0) {
+        interviewSummary.innerHTML = '<li>Inga forhor har genomforts an. Ga tillbaka och forhor de misstankta!</li>';
+    } else {
+        interviewSummary.innerHTML = interviews.join('');
+    }
+}
+
+function renderAccusation() {
+    const m = mysteries[state.selectedMystery];
+    const grid = document.getElementById('accusationGrid');
+
+    grid.innerHTML = m.suspects.map(s => `
+        <div class="suspect-select-btn ${state.accusedSuspect === s.id ? 'selected' : ''}"
+             onclick="selectAccused('${s.id}')">
+            <div class="select-avatar" style="color:${s.color};">${s.emoji}</div>
+            <div class="select-name">${s.name}</div>
+            <div class="select-role">${s.role}</div>
+        </div>
+    `).join('');
+
+    updateAccuseButton();
+}
+
+function selectAccused(id) {
+    state.accusedSuspect = id;
+    renderAccusation();
+}
+
+function updateAccuseButton() {
+    document.getElementById('accuseBtn').disabled = !state.accusedSuspect;
+}
+
+function makeAccusation() {
+    if (!state.accusedSuspect) return;
+    goToPhase('reveal');
+}
+
+function renderReveal() {
+    const m = mysteries[state.selectedMystery];
+    const isCorrect = state.accusedSuspect === m.solution.culprit;
+    const accusedName = m.suspects.find(s => s.id === state.accusedSuspect).name;
+    const culpritName = m.suspects.find(s => s.id === m.solution.culprit).name;
+
+    const resultDiv = document.getElementById('revealResult');
+    const explDiv = document.getElementById('revealExplanation');
+
+    if (isCorrect) {
+        resultDiv.className = 'reveal-result correct';
+        resultDiv.innerHTML = `
+            <div class="result-icon">&#127942;</div>
+            <h3>Ratt! Ni loste fallet!</h3>
+            <p style="color:var(--text-warm); font-size:1.1rem;">
+                <strong>${accusedName}</strong> ar verkligen mordaren. Utmarkt detektivarbete!
+            </p>
+        `;
+    } else {
+        resultDiv.className = 'reveal-result wrong';
+        resultDiv.innerHTML = `
+            <div class="result-icon">&#10060;</div>
+            <h3>Fel misstankt!</h3>
+            <p style="color:var(--text-warm); font-size:1.1rem;">
+                Ni anklagade <strong>${accusedName}</strong>, men den skyldiga ar
+                <strong style="color:var(--accent-gold);">${culpritName}</strong>.
+            </p>
+        `;
+    }
+
+    explDiv.innerHTML = `
+        <h4>&#128269; Sa har gick det till</h4>
+        <p>${m.solution.explanation}</p>
+        <h4 style="margin-top:1.5rem;">Avgoeande bevis:</h4>
+        <ul class="reveal-evidence">
+            ${m.solution.evidence.map(e => `<li>${e}</li>`).join('')}
+        </ul>
+    `;
+}
+
+// ===== UTILITIES =====
+function showRules() {
+    document.getElementById('rulesModal').style.display = 'block';
+}
+
+function closeRules() {
+    document.getElementById('rulesModal').style.display = 'none';
+}
+
+function restartGame() {
+    state = {
+        selectedMystery: null,
+        selectedMode: null,
+        currentPhase: null,
+        revealedClues: new Set(),
+        revealedInterviews: new Set(),
+        accusedSuspect: null,
+        currentCluePlayer: 1,
+        currentInterviewPlayer: 1
+    };
+
+    document.getElementById('gameScreen').classList.remove('active', 'pair-mode');
+    document.getElementById('startScreen').classList.add('active');
+    document.getElementById('rulesBtn').style.display = 'none';
+    document.getElementById('restartBtn').style.display = 'none';
+
+    document.querySelectorAll('.mystery-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('startGameBtn').disabled = true;
+
+    document.querySelectorAll('textarea').forEach(t => t.value = '');
+
+    window.scrollTo({ top: 0 });
+}
+
+// Close modal on background click
+document.getElementById('rulesModal').addEventListener('click', function(e) {
+    if (e.target === this) closeRules();
+});
+</script>
+
+</body>
+</html>

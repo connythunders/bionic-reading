@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Väljarkompass 2026 – Vilka partier tycker som du?</title>
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-dark: #1a1a2e;
+  --bg-mid: #16213e;
+  --bg-light: #0f3460;
+  --text-primary: #f0f0f0;
+  --text-secondary: #b0b0cc;
+  --accent: #e94560;
+  --card-bg: rgba(255,255,255,0.07);
+  --card-border: rgba(255,255,255,0.12);
+  --focus-ring: #e94560;
+  --S: #E8112D;
+  --M: #1B2E74;
+  --SD: #DDCF00;
+  --C: #009933;
+  --V: #DA291C;
+  --KD: #005EA1;
+  --L: #006AB3;
+  --MP: #53A045;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-mid) 50%, var(--bg-light) 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus styles for keyboard nav */
+*:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Screen containers */
+.screen {
+  display: none;
+  min-height: 100vh;
+  padding: 20px;
+  animation: fadeIn 0.5s ease;
+}
+
+.screen.active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes barGrow {
+  from { width: 0; }
+}
+
+/* ===== START SCREEN ===== */
+.start-container {
+  max-width: 600px;
+  text-align: center;
+  margin-top: 15vh;
+}
+
+.start-container h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.start-container .subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.start-container .intro-text {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin-bottom: 36px;
+  line-height: 1.7;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent), #c0392b);
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 18px 48px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 24px rgba(233,69,96,0.4);
+  text-decoration: none;
+}
+
+.btn-primary:hover, .btn-primary:focus-visible {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 32px rgba(233,69,96,0.5);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.disclaimer {
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-wrapper {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+  background: rgba(26,26,46,0.95);
+  backdrop-filter: blur(8px);
+  padding: 12px 20px 8px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 700px;
+  margin: 0 auto 6px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.progress-bar-track {
+  max-width: 700px;
+  margin: 0 auto;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #f39c12);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* ===== QUESTION SCREEN ===== */
+.question-container {
+  max-width: 700px;
+  width: 100%;
+  margin-top: 20px;
+  padding-bottom: 40px;
+}
+
+.question-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 32px 28px;
+  animation: slideIn 0.4s ease;
+  position: relative;
+}
+
+.question-category-chip {
+  display: inline-block;
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.question-text {
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  font-weight: 600;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.info-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 50%;
+  transition: color 0.2s, background 0.2s;
+  vertical-align: middle;
+}
+
+.info-btn:hover, .info-btn:focus-visible {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.1);
+}
+
+.explanation-box {
+  display: none;
+  background: rgba(255,255,255,0.05);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.explanation-box.visible {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Answer buttons */
+.answers-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.answer-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 16px 20px;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+}
+
+.answer-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
+  transform: translateX(4px);
+}
+
+.answer-btn:focus-visible {
+  border-color: var(--focus-ring);
+}
+
+.answer-btn.selected {
+  background: rgba(233,69,96,0.15);
+  border-color: var(--accent);
+}
+
+.answer-btn .answer-emoji {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.answer-btn .answer-label {
+  flex: 1;
+}
+
+/* Important toggle */
+.important-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: rgba(255,215,0,0.05);
+  border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.important-toggle:hover {
+  background: rgba(255,215,0,0.1);
+}
+
+.important-toggle.active {
+  background: rgba(255,215,0,0.12);
+  border-color: rgba(255,215,0,0.4);
+  color: #ffd700;
+}
+
+.important-toggle input[type="checkbox"] {
+  display: none;
+}
+
+.star-icon {
+  font-size: 1.4rem;
+  transition: transform 0.2s;
+}
+
+.important-toggle.active .star-icon {
+  transform: scale(1.2);
+}
+
+/* Nav buttons */
+.question-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  gap: 12px;
+}
+
+.btn-nav {
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btn-back {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.btn-back:hover {
+  background: rgba(255,255,255,0.12);
+  color: var(--text-primary);
+}
+
+.btn-next {
+  background: linear-gradient(135deg, var(--accent), #c0392b);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(233,69,96,0.3);
+}
+
+.btn-next:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(233,69,96,0.4);
+}
+
+.btn-next:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ===== RESULTS SCREEN ===== */
+.results-container {
+  max-width: 800px;
+  width: 100%;
+  padding-bottom: 60px;
+}
+
+.results-header {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.results-header h2 {
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  margin-bottom: 8px;
+}
+
+/* Top match card */
+.top-match-card {
+  border-radius: 24px;
+  padding: 36px 28px;
+  text-align: center;
+  margin-bottom: 36px;
+  animation: scaleIn 0.5s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.top-match-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  opacity: 0.15;
+  z-index: 0;
+}
+
+.top-match-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.top-match-emoji {
+  font-size: 3rem;
+  margin-bottom: 8px;
+}
+
+.top-match-name {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.top-match-pct {
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.top-match-desc {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  max-width: 500px;
+  margin: 0 auto 8px;
+  line-height: 1.6;
+}
+
+.top-match-fact {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 8px;
+}
+
+/* All parties bars */
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 32px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.party-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  animation: fadeIn 0.4s ease;
+}
+
+.party-bar-label {
+  min-width: 40px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: right;
+}
+
+.party-bar-track {
+  flex: 1;
+  height: 32px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.party-bar-fill {
+  height: 100%;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #fff;
+  min-width: 48px;
+  animation: barGrow 0.8s ease forwards;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+.party-bar-name {
+  min-width: 160px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Category analysis */
+.category-analysis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.category-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 18px;
+  animation: scaleIn 0.4s ease;
+}
+
+.category-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.category-card-party {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.category-card-pct {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Category filter chips */
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.filter-chip {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.filter-chip:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.filter-chip.active {
+  background: rgba(233,69,96,0.2);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+/* Accordion */
+.accordion {
+  margin-top: 16px;
+}
+
+.accordion-section {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.05rem;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.2s;
+}
+
+.accordion-header:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.accordion-arrow {
+  transition: transform 0.3s;
+  font-size: 1.2rem;
+}
+
+.accordion-section.open .accordion-arrow {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.accordion-section.open .accordion-content {
+  max-height: 5000px;
+}
+
+.accordion-question {
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.accordion-question-text {
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.accordion-party-stances {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stance-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.stance-chip.positive {
+  background: rgba(46,204,113,0.15);
+  color: #2ecc71;
+}
+
+.stance-chip.neutral {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-secondary);
+}
+
+.stance-chip.negative {
+  background: rgba(231,76,60,0.15);
+  color: #e74c3c;
+}
+
+/* Bottom buttons */
+.results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.btn-secondary {
+  padding: 14px 32px;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* Share toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #2ecc71;
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.toast.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 12px 24px;
+  z-index: 200;
+  font-weight: 600;
+  border-radius: 0 0 8px 0;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .screen { padding: 12px; }
+  .start-container { margin-top: 10vh; }
+  .question-card { padding: 24px 18px; border-radius: 16px; }
+  .answer-btn { padding: 14px 16px; font-size: 0.98rem; }
+  .party-bar-name { min-width: 0; display: none; }
+  .party-bar-label { min-width: 32px; font-size: 0.9rem; }
+  .party-bar-item { gap: 8px; }
+  .top-match-card { padding: 28px 20px; }
+  .top-match-pct { font-size: 2.4rem; }
+  .question-nav { flex-wrap: wrap; }
+  .btn-nav { flex: 1; min-width: 120px; text-align: center; }
+  .category-analysis { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .results-container { padding-bottom: 40px; }
+}
+
+@media (max-width: 380px) {
+  .category-analysis { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Hoppa till innehållet</a>
+
+<!-- ===== START SCREEN ===== -->
+<div id="start-screen" class="screen active" role="main">
+  <div class="start-container">
+    <h1>Vilka partier tycker som du?</h1>
+    <p class="subtitle">Väljarkompass för dig som är ny till val</p>
+    <p class="intro-text">
+      30 frågor om saker som faktiskt spelar roll för dig – bostad, klimat, skola, trygghet och mer. Tar ca 5 minuter. 100% anonymt.
+    </p>
+    <button class="btn-primary" id="start-btn" aria-label="Starta testet">Starta testet &rarr;</button>
+    <p class="disclaimer">Frågorna baseras på riksdagspartiernas faktiska partiprogram. Resultatet är en vägledning, inte ett facit.</p>
+  </div>
+</div>
+
+<!-- ===== QUESTION SCREEN ===== -->
+<div id="question-screen" class="screen" role="main" id="main-content">
+  <div class="progress-wrapper" role="progressbar" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" aria-label="Framsteg i testet">
+    <div class="progress-info">
+      <span id="progress-text">Fråga 1 av 30</span>
+      <span id="progress-category"></span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+  </div>
+  <div class="question-container" id="question-container">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- ===== RESULTS SCREEN ===== -->
+<div id="results-screen" class="screen" role="main">
+  <div class="results-container" id="results-container">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ===== DATA =====
+const questions = [
+  { id:1, category:"bostad", emoji:"🏠", text:"Det ska bli lättare för unga att hyra en egen lägenhet – t.ex. genom kortare bostadsköer och fler hyresrätter.", partyScores:{S:2,M:0,SD:-1,C:1,V:2,KD:0,L:1,MP:1}, explanation:"Unga är den grupp som har svårast att ta sig in på bostadsmarknaden. Många kommuner har akut bostadsbrist för unga." },
+  { id:2, category:"bostad", emoji:"💰", text:"Hyressättningen i Sverige ska vara fri (hyresvärden sätter priset) snarare än reglerad av staten.", partyScores:{S:-2,M:1,SD:0,C:2,V:-2,KD:0,L:2,MP:-1}, explanation:"Debatten handlar om fria hyror vs. hyresreglering. Fri hyressättning kan öka utbudet men riskerar också att driva upp priserna." },
+  { id:3, category:"bostad", emoji:"📚", text:"Det ska byggas fler studentbostäder nära skolor och högskolor, finansierat med skattemedel om det behövs.", partyScores:{S:2,M:0,SD:0,C:1,V:2,KD:1,L:1,MP:1}, explanation:"Studentbostadsbristen är stor i universitetsstäder. Många studenter tvingas pendla långa sträckor." },
+  { id:4, category:"bostad", emoji:"🛒", text:"Matpriser och levnadskostnader är för höga – staten bör göra mer för att hålla nere priserna för unga.", partyScores:{S:1,M:-1,SD:1,C:0,V:2,KD:1,L:-1,MP:0}, explanation:"Inflationen har slagit hårt mot unga med lägre inkomster. Frågan är om staten kan och bör reglera marknadspriser." },
+  { id:5, category:"skola", emoji:"🎓", text:"Betygssystemet i Sverige skapar för mycket stress och press bland unga – det bör reformeras.", partyScores:{S:1,M:-1,SD:0,C:0,V:2,KD:-1,L:0,MP:1}, explanation:"Psykisk ohälsa bland unga har ökat kraftigt. Forskning kopplar delvis detta till prestationspress i skolan." },
+  { id:6, category:"skola", emoji:"🏫", text:"Friskolor ska inte ha rätt att ta ut vinst – överskott ska återinvesteras i skolan.", partyScores:{S:2,M:-2,SD:0,C:-1,V:2,KD:-1,L:-2,MP:2}, explanation:"Vinstdebatten handlar om vem som ska äga och driva skolor och vad som händer med skattepengar." },
+  { id:7, category:"skola", emoji:"💻", text:"Skolan ska ha fler lärarledda lektioner och mindre skärmtid/datorer i undervisningen.", partyScores:{S:0,M:1,SD:1,C:0,V:0,KD:2,L:0,MP:-1}, explanation:"Debatten om skärmtid har blossat upp efter studier som visar samband mellan skärmanvändning och sämre inlärning." },
+  { id:8, category:"skola", emoji:"🎯", text:"Alla unga ska erbjudas praktikplats eller jobb av kommunen om de inte hittar något på 90 dagar.", partyScores:{S:2,M:0,SD:1,C:1,V:2,KD:1,L:0,MP:1}, explanation:"Ungdomsarbetslösheten i Sverige ligger på ca 24% för åldrarna 15–24 år." },
+  { id:9, category:"skola", emoji:"🏛️", text:"Högskoleutbildning ska fortsätta vara gratis (inga terminsavgifter) för svenska medborgare.", partyScores:{S:2,M:1,SD:1,C:1,V:2,KD:1,L:1,MP:2}, explanation:"Sverige har fri högskoleutbildning. Frågan är om det ska förbli så eller om andra finansieringssätt bör utredas." },
+  { id:10, category:"klimat", emoji:"🌡️", text:"Sverige ska bli klimatneutralt senast 2035 – 10 år tidigare än det nuvarande målet 2045.", partyScores:{S:0,M:-1,SD:-2,C:1,V:2,KD:-1,L:0,MP:2}, explanation:"Klimatmålen avgör hur snabbt och drastiskt Sverige måste förändra energi, transport och industri." },
+  { id:11, category:"klimat", emoji:"⚡", text:"Sverige ska bygga fler kärnkraftverk för att säkra elförsörjningen utan fossila bränslen.", partyScores:{S:1,M:2,SD:2,C:-2,V:-2,KD:2,L:2,MP:-2}, explanation:"Kärnkraftsfrågan splittrar partierna. Kärnkraftförespråkare lyfter tillförlitlighet, motståndare lyfter risker och kärnavfall." },
+  { id:12, category:"klimat", emoji:"🚗", text:"Bensin- och dieselbilar ska förbjudas att säljas nya i Sverige från och med 2030.", partyScores:{S:1,M:-1,SD:-2,C:0,V:2,KD:-1,L:0,MP:2}, explanation:"EU har beslutat om förbud mot nyförsäljning av fossildrivna bilar 2035. Frågan är om Sverige ska vara ännu snabbare." },
+  { id:13, category:"klimat", emoji:"🌱", text:"Det ska kosta mer att köpa klimatskadliga produkter (t.ex. flygbiljetter, kött) via skatt, för att styra beteenden.", partyScores:{S:1,M:-1,SD:-2,C:0,V:1,KD:-1,L:0,MP:2}, explanation:"Klimatskatter kan styra konsumtion men slår hårdare mot låginkomsttagare om de inte är utformade rätt." },
+  { id:14, category:"trygghet", emoji:"🔫", text:"Hårdare straff för unga som begår grova brott är rätt väg att gå för att minska ungdomskriminaliteten.", partyScores:{S:0,M:2,SD:2,C:1,V:-1,KD:2,L:1,MP:-1}, explanation:"Ungdomsvåld och gängkriminalitet är ett allvarligt problem i Sverige. Debatten handlar om repression vs. prevention." },
+  { id:15, category:"trygghet", emoji:"🌍", text:"Sverige ska ta emot färre flyktingar och asylsökande än idag.", partyScores:{S:0,M:1,SD:2,C:-1,V:-2,KD:1,L:0,MP:-2}, explanation:"Migrationspolitiken är en av de mest partiskiljande frågorna i svensk politik." },
+  { id:16, category:"trygghet", emoji:"🏘️", text:"Staten ska satsa mer på förebyggande arbete i utsatta områden (fritidsgårdar, fältare, skola) för att motverka kriminalitet.", partyScores:{S:2,M:0,SD:-1,C:1,V:2,KD:1,L:1,MP:2}, explanation:"Förebyggande insatser kostar pengar kortsiktigt men anses av forskning vara mer effektiva långsiktigt." },
+  { id:17, category:"trygghet", emoji:"🍃", text:"Cannabis bör legaliseras och regleras i Sverige, likt alkohol.", partyScores:{S:-1,M:-2,SD:-2,C:0,V:1,KD:-2,L:2,MP:-1}, explanation:"Sverige har restriktiv narkotikapolitik. Liberalerna och Vänsterpartiet är de enda riksdagspartier som stödjer legalisering." },
+  { id:18, category:"trygghet", emoji:"📱", text:"Polisen ska ha rätt att ta barns telefoner och kolla dem om de misstänks planera brott.", partyScores:{S:0,M:2,SD:2,C:0,V:-1,KD:2,L:0,MP:-1}, explanation:"Avvägningen mellan brottsförebyggande åtgärder och integritetsskydd är central i debatten." },
+  { id:19, category:"halsa", emoji:"🧠", text:"Det ska vara gratis att gå till en psykolog eller kurator för alla under 25 år.", partyScores:{S:2,M:0,SD:1,C:1,V:2,KD:1,L:1,MP:2}, explanation:"56% av unga rapporterar ångest eller oro. Psykisk ohälsa bland unga är en av de snabbast växande hälsoutmaningarna." },
+  { id:20, category:"halsa", emoji:"🏥", text:"Privata vårdföretag ska inte ha rätt att ta ut vinst i sjukvården – vården ska drivas utan vinstintresse.", partyScores:{S:2,M:-2,SD:0,C:-1,V:2,KD:-1,L:-2,MP:2}, explanation:"Sjukvårdens organisering är en central politisk fråga – ska den vara helt offentlig eller kan privata aktörer bidra?" },
+  { id:21, category:"halsa", emoji:"⚧️", text:"Transpersoner ska ha rätt till könskorrigering finansierad av sjukvården utan lång väntetid.", partyScores:{S:1,M:0,SD:-2,C:1,V:2,KD:-2,L:2,MP:2}, explanation:"Frågan handlar om tillgång till vård, rättigheter och hur snabbt systemet ska agera på individens önskemål." },
+  { id:22, category:"halsa", emoji:"🍎", text:"Skolmaten ska vara garanterat gratis och hälsosam i alla svenska skolor.", partyScores:{S:2,M:0,SD:1,C:0,V:2,KD:1,L:0,MP:1}, explanation:"Skolmaten varierar kraftigt i kvalitet runt om i Sverige. Det finns inga nationella krav på gratis skolmat i gymnasiet." },
+  { id:23, category:"samhalle", emoji:"♀️", text:"Det är ett problem att unga kvinnor och unga män idag röstar mycket olika – politiken bör aktivt minska det könspolitiska gapet.", partyScores:{S:1,M:0,SD:-1,C:1,V:2,KD:-1,L:1,MP:2}, explanation:"Det politiska könsgapet bland unga är det största det någonsin varit: unga män röstar allt mer höger, unga kvinnor allt mer vänster." },
+  { id:24, category:"samhalle", emoji:"🏳️‍🌈", text:"Hbtq+-personers rättigheter och trygghet ska prioriteras starkare i svensk lagstiftning och skola.", partyScores:{S:1,M:0,SD:-2,C:2,V:2,KD:-2,L:2,MP:2}, explanation:"Sverige rankas nu sämst i Norden gällande hbtq+-rättigheter. Var fjärde ung transperson har försökt ta sitt liv." },
+  { id:25, category:"samhalle", emoji:"💼", text:"Det ska bli lättare för arbetsgivare att säga upp anställda – mer flexibla anställningsregler gynnar ekonomin.", partyScores:{S:-2,M:2,SD:1,C:2,V:-2,KD:1,L:2,MP:-1}, explanation:"LAS (lagen om anställningsskydd) reglerar uppsägningar. Debatten handlar om trygghet för anställda vs. flexibilitet för företag." },
+  { id:26, category:"samhalle", emoji:"🗳️", text:"Rösträttsåldern ska sänkas till 16 år i kommunalval.", partyScores:{S:1,M:-1,SD:-2,C:1,V:2,KD:-2,L:0,MP:2}, explanation:"I många länder diskuteras om 16-17-åringar ska ha rätt att rösta i lokala val. Sverige har det inte idag." },
+  { id:27, category:"samhalle", emoji:"🏦", text:"De rikaste i Sverige ska betala mer i skatt – t.ex. förmögenhetsskatt eller höjd kapitalskatt.", partyScores:{S:1,M:-2,SD:0,C:-1,V:2,KD:-1,L:-2,MP:1}, explanation:"Skattefrågan handlar om fördelning av samhällets resurser. Vänsterpartiet förespråkar rika ska betala mer, Moderaterna vill sänka skatterna." },
+  { id:28, category:"samhalle", emoji:"🛡️", text:"Sveriges NATO-medlemskap är bra för landets säkerhet.", partyScores:{S:2,M:2,SD:2,C:2,V:-2,KD:2,L:2,MP:-1}, explanation:"Sverige gick med i NATO mars 2024. Frågan om det var rätt beslut delar fortfarande opinionen." },
+  { id:29, category:"samhalle", emoji:"🤖", text:"AI och automatisering hotar jobb – staten ska aktivt skydda arbetstagare och omskola dem vars jobb försvinner.", partyScores:{S:2,M:0,SD:1,C:0,V:2,KD:1,L:0,MP:1}, explanation:"AI-revolutionen förändrar arbetsmarknaden snabbt. Frågan är om det behövs aktiv statlig politik eller om marknaden löser det." },
+  { id:30, category:"samhalle", emoji:"🌐", text:"Sverige ska ge mer pengar i internationellt bistånd och ta ett större globalt ansvar.", partyScores:{S:1,M:-1,SD:-2,C:1,V:2,KD:0,L:1,MP:2}, explanation:"Biståndsfrågan handlar om solidaritet och ansvar utanför landets gränser." }
+];
+
+const parties = {
+  S:  { name:"Socialdemokraterna", shortName:"S",  color:"#E8112D", description:"Sveriges största parti med fokus på välfärd, jämlikhet och starka fackliga rättigheter.", youngVoterFact:"Historiskt det parti som fått flest unga röster, men tappat kraftigt de senaste åren.", emoji:"🌹" },
+  M:  { name:"Moderaterna",       shortName:"M",  color:"#1B2E74", description:"Centerparti-höger med fokus på lägre skatter, ordning i skolan och marknadsekonomin.", youngVoterFact:"Populärt bland unga som värdesätter ekonomisk frihet och karriär.", emoji:"🔵" },
+  SD: { name:"Sverigedemokraterna",shortName:"SD", color:"#DDCF00", description:"Nationalkonservativt parti med fokus på begränsad invandring och trygghet.", youngVoterFact:"Drar till sig en stor andel unga män – över 40% av männen 18–29 röstade SD i senaste valet.", emoji:"🟡" },
+  C:  { name:"Centerpartiet",     shortName:"C",  color:"#009933", description:"Liberalt parti med rötter i landsbygden, fokus på frihet, företagande och grön omställning.", youngVoterFact:"Starka bland unga på landsbygden och de som vill kombinera frihet med miljöansvar.", emoji:"🍀" },
+  V:  { name:"Vänsterpartiet",    shortName:"V",  color:"#DA291C", description:"Socialistiskt/feministiskt parti med fokus på jämlikhet, stark välfärd och klimaträttvisa.", youngVoterFact:"Mycket populärt bland unga kvinnor och de som engagerar sig i feminism och klimatfrågor.", emoji:"✊" },
+  KD: { name:"Kristdemokraterna",  shortName:"KD", color:"#005EA1", description:"Konservativt parti med kristen värdegrund, fokus på familj, trygghet och äldrevård.", youngVoterFact:"Litet bland unga generellt, men starka i kristna ungdomsrörelser.", emoji:"✝️" },
+  L:  { name:"Liberalerna",       shortName:"L",  color:"#006AB3", description:"Liberalt parti med stark betoning på utbildning, individens frihet och rättsstaten.", youngVoterFact:"Enda riksdagspartiet som officiellt stöder cannabislegalisering. Populärt bland akademiker.", emoji:"📘" },
+  MP: { name:"Miljöpartiet",      shortName:"MP", color:"#53A045", description:"Grönt parti med fokus på klimat, mänskliga rättigheter och hbtq+-frågor.", youngVoterFact:"Populärt bland unga klimatengagerade, särskilt unga kvinnor.", emoji:"🌿" }
+};
+
+const categoryLabels = {
+  bostad:   { emoji:"🏠", name:"Bostad & Vardagsekonomi" },
+  skola:    { emoji:"🎓", name:"Skola & Utbildning" },
+  klimat:   { emoji:"🌿", name:"Klimat & Miljö" },
+  trygghet: { emoji:"👮", name:"Trygghet & Rättvisa" },
+  halsa:    { emoji:"❤️", name:"Hälsa & Välmående" },
+  samhalle: { emoji:"🌍", name:"Samhälle & Framtid" }
+};
+
+const answerOptions = [
+  { value:  2, emoji:"✅", label:"Ja, absolut" },
+  { value:  1, emoji:"🟢", label:"Ja, ganska mycket" },
+  { value:  0, emoji:"😐", label:"Spelar ingen roll för mig" },
+  { value: -1, emoji:"🟡", label:"Nej, helst inte" },
+  { value: -2, emoji:"❌", label:"Nej, absolut inte" }
+];
+
+// ===== STATE =====
+let currentQuestion = 0;
+let userAnswers = {};       // { questionId: value }
+let importantQuestions = new Set(); // Set of questionId
+
+// ===== LOCAL STORAGE =====
+const STORAGE_KEY = 'valjarkompass_state';
+
+function saveState() {
+  try {
+    const state = {
+      currentQuestion,
+      userAnswers,
+      importantQuestions: [...importantQuestions]
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch(e) { /* ignore */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+    if (state && typeof state.currentQuestion === 'number' && state.userAnswers) {
+      currentQuestion = state.currentQuestion;
+      userAnswers = state.userAnswers;
+      importantQuestions = new Set(state.importantQuestions || []);
+      return true;
+    }
+  } catch(e) { /* ignore */ }
+  return false;
+}
+
+function clearState() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) { /* ignore */ }
+}
+
+// ===== DOM REFS =====
+const startScreen = document.getElementById('start-screen');
+const questionScreen = document.getElementById('question-screen');
+const resultsScreen = document.getElementById('results-screen');
+const startBtn = document.getElementById('start-btn');
+const progressText = document.getElementById('progress-text');
+const progressCategory = document.getElementById('progress-category');
+const progressFill = document.getElementById('progress-fill');
+const progressWrapper = document.querySelector('.progress-wrapper');
+const questionContainer = document.getElementById('question-container');
+const resultsContainer = document.getElementById('results-container');
+const toast = document.getElementById('toast');
+
+// ===== SCREEN MANAGEMENT =====
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== START =====
+startBtn.addEventListener('click', () => {
+  showScreen('question-screen');
+  renderQuestion();
+});
+
+// Check for saved state on load
+if (loadState() && currentQuestion > 0) {
+  // We have saved progress – offer to resume
+  const resumeDiv = document.createElement('div');
+  resumeDiv.style.cssText = 'margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;';
+  const resumeBtn = document.createElement('button');
+  resumeBtn.className = 'btn-secondary';
+  resumeBtn.textContent = 'Fortsätt där du var (fråga ' + (currentQuestion + 1) + ')';
+  resumeBtn.style.borderColor = 'var(--accent)';
+  resumeBtn.addEventListener('click', () => {
+    showScreen('question-screen');
+    renderQuestion();
+  });
+  const restartBtn = document.createElement('button');
+  restartBtn.className = 'btn-secondary';
+  restartBtn.textContent = 'Börja om';
+  restartBtn.addEventListener('click', () => {
+    currentQuestion = 0;
+    userAnswers = {};
+    importantQuestions = new Set();
+    clearState();
+    resumeDiv.remove();
+  });
+  resumeDiv.appendChild(resumeBtn);
+  resumeDiv.appendChild(restartBtn);
+  document.querySelector('.start-container').appendChild(resumeDiv);
+}
+
+// ===== RENDER QUESTION =====
+function renderQuestion() {
+  const q = questions[currentQuestion];
+  const cat = categoryLabels[q.category];
+  const pct = Math.round(((currentQuestion) / questions.length) * 100);
+
+  progressText.textContent = `Fråga ${currentQuestion + 1} av ${questions.length}`;
+  progressCategory.textContent = `${cat.emoji} ${cat.name}`;
+  progressFill.style.width = pct + '%';
+  progressWrapper.setAttribute('aria-valuenow', currentQuestion);
+
+  const selectedValue = userAnswers[q.id];
+  const isImportant = importantQuestions.has(q.id);
+
+  let html = `
+    <div class="question-card" role="group" aria-label="Fråga ${currentQuestion + 1}">
+      <span class="question-category-chip">${cat.emoji} ${cat.name}</span>
+      <div style="display:flex;align-items:flex-start;gap:8px;">
+        <p class="question-text">${q.emoji} ${q.text}</p>
+        <button class="info-btn" aria-label="Visa förklaring" data-qid="${q.id}" title="Mer information">&#8505;</button>
+      </div>
+      <div class="explanation-box" id="explanation-${q.id}">${q.explanation}</div>
+      <div class="answers-grid" role="radiogroup" aria-label="Svarsalternativ">
+  `;
+
+  answerOptions.forEach((opt, i) => {
+    const selected = selectedValue === opt.value ? ' selected' : '';
+    html += `
+      <button class="answer-btn${selected}"
+              role="radio"
+              aria-checked="${selectedValue === opt.value}"
+              data-value="${opt.value}"
+              tabindex="${i === 0 ? '0' : '-1'}">
+        <span class="answer-emoji" aria-hidden="true">${opt.emoji}</span>
+        <span class="answer-label">${opt.label}</span>
+      </button>`;
+  });
+
+  html += `
+      </div>
+      <label class="important-toggle${isImportant ? ' active' : ''}" tabindex="0" role="checkbox" aria-checked="${isImportant}" aria-label="Markera frågan som viktig">
+        <input type="checkbox" ${isImportant ? 'checked' : ''}>
+        <span class="star-icon" aria-hidden="true">${isImportant ? '⭐' : '☆'}</span>
+        <span>Viktig för mig – väger dubbelt</span>
+      </label>
+      <div class="question-nav">
+        <button class="btn-nav btn-back" id="btn-prev" ${currentQuestion === 0 ? 'style="visibility:hidden"' : ''} aria-label="Föregående fråga">&larr; Tillbaka</button>
+        <button class="btn-nav btn-next" id="btn-next" aria-label="${currentQuestion === questions.length - 1 ? 'Visa resultat' : 'Nästa fråga'}">
+          ${currentQuestion === questions.length - 1 ? 'Visa resultat' : 'Nästa &rarr;'}
+        </button>
+      </div>
+    </div>`;
+
+  questionContainer.innerHTML = html;
+
+  // Event: answer buttons
+  questionContainer.querySelectorAll('.answer-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = parseInt(btn.dataset.value);
+      userAnswers[q.id] = val;
+      saveState();
+      // Update visual selection
+      questionContainer.querySelectorAll('.answer-btn').forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-checked', 'false');
+      });
+      btn.classList.add('selected');
+      btn.setAttribute('aria-checked', 'true');
+    });
+  });
+
+  // Keyboard nav for radio group
+  const answerBtns = [...questionContainer.querySelectorAll('.answer-btn')];
+  answerBtns.forEach((btn, i) => {
+    btn.addEventListener('keydown', e => {
+      let next = -1;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        next = (i + 1) % answerBtns.length;
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        next = (i - 1 + answerBtns.length) % answerBtns.length;
+      }
+      if (next >= 0) {
+        e.preventDefault();
+        answerBtns[next].focus();
+        answerBtns[next].click();
+      }
+    });
+  });
+
+  // Event: info button
+  questionContainer.querySelector('.info-btn').addEventListener('click', () => {
+    const box = document.getElementById('explanation-' + q.id);
+    box.classList.toggle('visible');
+  });
+
+  // Event: important toggle
+  const toggle = questionContainer.querySelector('.important-toggle');
+  const checkbox = toggle.querySelector('input');
+  function handleToggle() {
+    const checked = !importantQuestions.has(q.id);
+    if (checked) {
+      importantQuestions.add(q.id);
+    } else {
+      importantQuestions.delete(q.id);
+    }
+    checkbox.checked = checked;
+    toggle.classList.toggle('active', checked);
+    toggle.setAttribute('aria-checked', String(checked));
+    toggle.querySelector('.star-icon').textContent = checked ? '⭐' : '☆';
+    saveState();
+  }
+  toggle.addEventListener('click', e => {
+    e.preventDefault();
+    handleToggle();
+  });
+  toggle.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      handleToggle();
+    }
+  });
+
+  // Event: prev
+  const prevBtn = document.getElementById('btn-prev');
+  if (currentQuestion > 0) {
+    prevBtn.addEventListener('click', () => {
+      currentQuestion--;
+      saveState();
+      renderQuestion();
+    });
+  }
+
+  // Event: next
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.addEventListener('click', () => {
+    // If no answer selected, default to neutral (0)
+    if (userAnswers[q.id] === undefined) {
+      userAnswers[q.id] = 0;
+    }
+    if (currentQuestion < questions.length - 1) {
+      currentQuestion++;
+      saveState();
+      renderQuestion();
+    } else {
+      showResults();
+    }
+  });
+}
+
+// ===== SCORING =====
+function calculateResults(answers, important) {
+  const partyTotals = {};
+  const partyMax = {};
+  Object.keys(parties).forEach(k => { partyTotals[k] = 0; partyMax[k] = 0; });
+
+  questions.forEach(q => {
+    const userAnswer = answers[q.id];
+    if (userAnswer === undefined || userAnswer === 0) return;
+
+    const weight = important.has(q.id) ? 2 : 1;
+
+    Object.keys(parties).forEach(pk => {
+      const partyStance = q.partyScores[pk];
+      const agreement = (4 - Math.abs(userAnswer - partyStance)) / 4;
+      partyTotals[pk] += agreement * weight;
+      partyMax[pk] += weight;
+    });
+  });
+
+  return Object.keys(parties).map(pk => ({
+    party: pk,
+    percentage: partyMax[pk] > 0 ? Math.round((partyTotals[pk] / partyMax[pk]) * 100) : 0
+  })).sort((a, b) => b.percentage - a.percentage);
+}
+
+function calculateCategoryResults(answers, important, category) {
+  const catQuestions = questions.filter(q => q.category === category);
+  const partyTotals = {};
+  const partyMax = {};
+  Object.keys(parties).forEach(k => { partyTotals[k] = 0; partyMax[k] = 0; });
+
+  catQuestions.forEach(q => {
+    const userAnswer = answers[q.id];
+    if (userAnswer === undefined || userAnswer === 0) return;
+    const weight = important.has(q.id) ? 2 : 1;
+    Object.keys(parties).forEach(pk => {
+      const partyStance = q.partyScores[pk];
+      const agreement = (4 - Math.abs(userAnswer - partyStance)) / 4;
+      partyTotals[pk] += agreement * weight;
+      partyMax[pk] += weight;
+    });
+  });
+
+  return Object.keys(parties).map(pk => ({
+    party: pk,
+    percentage: partyMax[pk] > 0 ? Math.round((partyTotals[pk] / partyMax[pk]) * 100) : 0
+  })).sort((a, b) => b.percentage - a.percentage);
+}
+
+// ===== RESULTS =====
+function showResults() {
+  clearState();
+  showScreen('results-screen');
+
+  const results = calculateResults(userAnswers, importantQuestions);
+  const top = results[0];
+  const topParty = parties[top.party];
+
+  let activeFilter = 'all';
+
+  function renderResults(filter) {
+    activeFilter = filter;
+    const displayResults = filter === 'all'
+      ? results
+      : calculateCategoryResults(userAnswers, importantQuestions, filter);
+
+    let html = '';
+
+    // Header
+    html += `<div class="results-header">
+      <h2>Ditt resultat</h2>
+      <p style="color:var(--text-secondary)">Baserat på dina svar på ${Object.keys(userAnswers).filter(k => userAnswers[k] !== 0).length} frågor</p>
+    </div>`;
+
+    // Top match card
+    html += `
+    <div class="top-match-card" style="background:linear-gradient(135deg, ${topParty.color}33, ${topParty.color}11); border: 2px solid ${topParty.color}66;">
+      <div class="top-match-emoji">${topParty.emoji}</div>
+      <div class="top-match-name" style="color:${topParty.color}">${topParty.name}</div>
+      <div class="top-match-pct">${top.percentage}%</div>
+      <p class="top-match-desc">${topParty.description}</p>
+      <p class="top-match-fact">${topParty.youngVoterFact}</p>
+    </div>`;
+
+    // Category filter chips
+    html += `<div class="section-title">📊 Partimatchning</div>`;
+    html += `<div class="filter-chips" role="tablist" aria-label="Filtrera efter kategori">`;
+    html += `<button class="filter-chip${activeFilter === 'all' ? ' active' : ''}" role="tab" aria-selected="${activeFilter === 'all'}" data-filter="all">Alla frågor</button>`;
+    Object.keys(categoryLabels).forEach(cat => {
+      const c = categoryLabels[cat];
+      html += `<button class="filter-chip${activeFilter === cat ? ' active' : ''}" role="tab" aria-selected="${activeFilter === cat}" data-filter="${cat}">${c.emoji} ${c.name}</button>`;
+    });
+    html += `</div>`;
+
+    // Party bars
+    html += `<div id="party-bars">`;
+    displayResults.forEach((r, i) => {
+      const p = parties[r.party];
+      html += `
+      <div class="party-bar-item" style="animation-delay:${i * 0.08}s">
+        <span class="party-bar-label" style="color:${p.color}">${p.shortName}</span>
+        <div class="party-bar-track">
+          <div class="party-bar-fill" style="width:${r.percentage}%; background:${p.color}; animation-delay:${i * 0.1}s">${r.percentage}%</div>
+        </div>
+        <span class="party-bar-name">${p.name}</span>
+      </div>`;
+    });
+    html += `</div>`;
+
+    // Category analysis
+    html += `<div class="section-title">🔍 Bäst match per kategori</div>`;
+    html += `<div class="category-analysis">`;
+    Object.keys(categoryLabels).forEach(cat => {
+      const c = categoryLabels[cat];
+      const catRes = calculateCategoryResults(userAnswers, importantQuestions, cat);
+      const best = catRes[0];
+      const bestParty = parties[best.party];
+      html += `
+      <div class="category-card">
+        <div class="category-card-title">${c.emoji} ${c.name}</div>
+        <div class="category-card-party" style="color:${bestParty.color}">${bestParty.emoji} ${bestParty.name}</div>
+        <div class="category-card-pct">${best.percentage}% matchning</div>
+      </div>`;
+    });
+    html += `</div>`;
+
+    // Question details accordion
+    html += `<div class="section-title">📝 Detaljerad genomgång</div>`;
+    html += `<div class="accordion">`;
+    Object.keys(categoryLabels).forEach(cat => {
+      const c = categoryLabels[cat];
+      const catQuestions = questions.filter(q => q.category === cat);
+      html += `
+      <div class="accordion-section">
+        <button class="accordion-header" aria-expanded="false">
+          <span>${c.emoji} ${c.name} (${catQuestions.length} frågor)</span>
+          <span class="accordion-arrow" aria-hidden="true">&#9660;</span>
+        </button>
+        <div class="accordion-content">`;
+      catQuestions.forEach(q => {
+        const userVal = userAnswers[q.id];
+        const userLabel = userVal !== undefined ? answerOptions.find(o => o.value === userVal) : null;
+        html += `
+          <div class="accordion-question">
+            <div class="accordion-question-text">${q.emoji} ${q.text}</div>
+            ${userLabel ? `<div style="margin-bottom:8px;font-size:0.9rem;color:var(--text-secondary);">Ditt svar: ${userLabel.emoji} ${userLabel.label}${importantQuestions.has(q.id) ? ' ⭐' : ''}</div>` : ''}
+            <div class="accordion-party-stances">`;
+        Object.keys(parties).forEach(pk => {
+          const score = q.partyScores[pk];
+          const cls = score > 0 ? 'positive' : score < 0 ? 'negative' : 'neutral';
+          const label = score === 2 ? 'Starkt för' : score === 1 ? 'För' : score === 0 ? 'Neutral' : score === -1 ? 'Mot' : 'Starkt mot';
+          html += `<span class="stance-chip ${cls}" title="${parties[pk].name}: ${label}">${pk} ${score > 0 ? '+' : ''}${score}</span>`;
+        });
+        html += `</div></div>`;
+      });
+      html += `</div></div>`;
+    });
+    html += `</div>`;
+
+    // Actions
+    html += `
+    <div class="results-actions">
+      <button class="btn-primary" id="btn-restart" style="font-size:1rem;padding:14px 32px;" aria-label="Gör om testet">🔄 Gör om testet</button>
+      <button class="btn-secondary" id="btn-share" aria-label="Dela ditt resultat">📤 Dela ditt resultat</button>
+    </div>`;
+
+    resultsContainer.innerHTML = html;
+
+    // Filter chip events
+    resultsContainer.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        renderResults(chip.dataset.filter);
+      });
+    });
+
+    // Accordion events
+    resultsContainer.querySelectorAll('.accordion-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const section = header.parentElement;
+        const isOpen = section.classList.contains('open');
+        section.classList.toggle('open');
+        header.setAttribute('aria-expanded', String(!isOpen));
+      });
+    });
+
+    // Restart
+    document.getElementById('btn-restart').addEventListener('click', () => {
+      currentQuestion = 0;
+      userAnswers = {};
+      importantQuestions = new Set();
+      clearState();
+      showScreen('start-screen');
+    });
+
+    // Share
+    document.getElementById('btn-share').addEventListener('click', () => {
+      const shareText = `Jag är ${top.percentage}% match med ${topParty.name}! 🗳️ Testa själv på ${window.location.href} #Valet #FörstagångsVäljare`;
+      if (navigator.share) {
+        navigator.share({ title: 'Mitt väljarkompass-resultat', text: shareText }).catch(() => {});
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareText).then(() => {
+          showToast('Kopierat till urklipp!');
+        }).catch(() => {
+          fallbackCopy(shareText);
+        });
+      } else {
+        fallbackCopy(shareText);
+      }
+    });
+  }
+
+  renderResults('all');
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showToast('Kopierat till urklipp!'); }
+  catch(e) { showToast('Kunde inte kopiera'); }
+  document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 2500);
+}
+
+// ===== KEYBOARD: number keys 1-5 for answers =====
+document.addEventListener('keydown', e => {
+  if (!questionScreen.classList.contains('active')) return;
+  const num = parseInt(e.key);
+  if (num >= 1 && num <= 5) {
+    const btns = questionContainer.querySelectorAll('.answer-btn');
+    if (btns[num - 1]) {
+      btns[num - 1].click();
+      btns[num - 1].focus();
+    }
+  }
+  if (e.key === 'Enter' && !e.target.classList.contains('answer-btn') && !e.target.classList.contains('info-btn')) {
+    const nextBtn = document.getElementById('btn-next');
+    if (nextBtn) nextBtn.click();
+  }
+});
+</script>
+</body>
+</html>
