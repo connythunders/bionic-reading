@@ -169,14 +169,16 @@ export default function SpeakingPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Feedback request failed");
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `HTTP ${response.status}`);
       }
 
       const data = await response.json();
       setFeedback(data);
       setPhase("feedback");
-    } catch {
-      setError("Kunde inte hämta feedback. Kontrollera din API-nyckel och försök igen.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Okänt fel";
+      setError(`Kunde inte hämta feedback: ${msg}`);
     } finally {
       setIsLoadingFeedback(false);
     }
