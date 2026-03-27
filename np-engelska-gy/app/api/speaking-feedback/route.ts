@@ -76,8 +76,9 @@ Please evaluate this response according to the Swedish national test criteria fo
     return NextResponse.json(feedback);
   } catch (error) {
     console.error("Speaking feedback error:", error);
+    const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to generate feedback. Please try again." },
+      { error: message },
       { status: 500 }
     );
   }
