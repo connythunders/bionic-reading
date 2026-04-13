@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buddhismens begrepp - Gamifierad Träning | Åk 7-9</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #b45309;
+            --primary-dark: #92400e;
+            --secondary: #d97706;
+            --accent: #f59e0b;
+            --accent-light: #fbbf24;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #fffbeb;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --grundlaggande: #b45309;
+            --etik: #065f46;
+            --riktningar: #7c3aed;
+            --hogtider: #be185d;
+            --platser: #1d4ed8;
+            --jamforelse: #6b7280;
+            --gold: #fbbf24;
+            --silver: #9ca3af;
+            --bronze: #d97706;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #b45309 0%, #78350f 50%, #451a03 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, #1e1b4b 100%);
+            color: white;
+            padding: 25px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(255,255,255,0.02) 30px, rgba(255,255,255,0.02) 60px);
+            animation: patternMove 20s linear infinite;
+        }
+
+        @keyframes patternMove {
+            from { transform: translateX(0); }
+            to { transform: translateX(60px); }
+        }
+
+        .header-content {
+            position: relative; z-index: 1;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 15px;
+        }
+
+        .header-left h1 { font-size: 1.8em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header-left p { font-size: 1em; opacity: 0.9; margin-top: 3px; }
+
+        .stats-bar {
+            display: flex; gap: 15px; align-items: center; flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.15);
+            padding: 8px 16px; border-radius: 12px;
+            text-align: center; backdrop-filter: blur(5px);
+        }
+
+        .stat-box .stat-value { font-size: 1.4em; font-weight: 800; }
+        .stat-box .stat-label { font-size: 0.75em; opacity: 0.8; }
+
+        .xp-bar-container {
+            width: 100%; margin-top: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px; height: 20px; position: relative;
+            overflow: hidden;
+        }
+
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), #fbbf24);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .xp-bar-text {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.7em; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .level-badge {
+            background: linear-gradient(135deg, var(--secondary), #f97316);
+            color: white; padding: 5px 14px; border-radius: 20px;
+            font-weight: 800; font-size: 0.9em;
+            box-shadow: 0 2px 8px rgba(245,158,11,0.4);
+        }
+
+        /* GAME MODE SELECTOR */
+        .mode-selector {
+            padding: 25px 30px;
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .mode-selector h2 {
+            font-size: 1.2em; margin-bottom: 15px; color: var(--text-dark);
+        }
+
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .mode-card {
+            background: white; border: 2px solid var(--border);
+            border-radius: 14px; padding: 15px 10px;
+            text-align: center; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-card:hover {
+            border-color: var(--accent); transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(139,92,246,0.2);
+        }
+
+        .mode-card.active {
+            border-color: var(--primary); background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+            box-shadow: 0 4px 15px rgba(91,33,182,0.2);
+        }
+
+        .mode-icon { font-size: 2em; margin-bottom: 6px; }
+        .mode-name { font-weight: 700; font-size: 0.85em; color: var(--text-dark); }
+        .mode-desc { font-size: 0.7em; color: var(--text-light); margin-top: 3px; }
+
+        /* GAME AREA */
+        .game-area {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .game-area h3 {
+            font-size: 1.3em; margin-bottom: 20px; color: var(--primary);
+        }
+
+        /* FLASHCARDS */
+        .flashcard-container {
+            display: flex; flex-direction: column; align-items: center; gap: 20px;
+        }
+
+        .flashcard {
+            width: 100%; max-width: 500px; height: 280px;
+            perspective: 1000px; cursor: pointer;
+        }
+
+        .flashcard-inner {
+            width: 100%; height: 100%;
+            position: relative;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px; padding: 30px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+
+        .flashcard-front {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+        }
+
+        .flashcard-front .term { font-size: 1.6em; font-weight: 800; }
+        .flashcard-front .hint { font-size: 0.85em; opacity: 0.8; margin-top: 10px; }
+
+        .flashcard-back {
+            background: white; border: 3px solid var(--accent);
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-back .definition { font-size: 1.1em; color: var(--text-dark); line-height: 1.7; }
+        .flashcard-back .category-tag {
+            margin-top: 15px; padding: 4px 12px; border-radius: 15px;
+            font-size: 0.8em; font-weight: 600; color: white;
+        }
+
+        .flashcard-nav {
+            display: flex; gap: 15px; align-items: center;
+        }
+
+        .flashcard-nav button {
+            padding: 10px 25px; border-radius: 12px; border: none;
+            font-weight: 700; cursor: pointer; font-size: 1em;
+            transition: all 0.2s;
+        }
+
+        .btn-prev, .btn-next {
+            background: var(--primary); color: white;
+        }
+
+        .btn-prev:hover, .btn-next:hover {
+            background: var(--primary-dark); transform: translateY(-2px);
+        }
+
+        .btn-know {
+            background: var(--success); color: white;
+        }
+
+        .btn-know:hover { background: #059669; }
+
+        .flashcard-progress { font-size: 0.9em; color: var(--text-light); font-weight: 600; }
+
+        /* QUIZ */
+        .quiz-container { max-width: 700px; margin: 0 auto; }
+
+        .quiz-question {
+            font-size: 1.2em; font-weight: 700; margin-bottom: 20px;
+            color: var(--text-dark); line-height: 1.5;
+        }
+
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+
+        .quiz-option {
+            padding: 15px 20px; border: 2px solid var(--border);
+            border-radius: 12px; cursor: pointer; font-size: 1em;
+            transition: all 0.2s; background: white;
+        }
+
+        .quiz-option:hover { border-color: var(--accent); background: #f5f3ff; }
+        .quiz-option.correct { border-color: var(--success); background: #ecfdf5; }
+        .quiz-option.wrong { border-color: var(--error); background: #fef2f2; }
+        .quiz-option.disabled { pointer-events: none; }
+
+        .quiz-feedback {
+            margin-top: 15px; padding: 15px; border-radius: 12px;
+            font-weight: 600; display: none;
+        }
+
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct { background: #ecfdf5; color: #065f46; }
+        .quiz-feedback.wrong { background: #fef2f2; color: #991b1b; }
+
+        .quiz-next {
+            margin-top: 15px; padding: 12px 30px; background: var(--primary);
+            color: white; border: none; border-radius: 12px;
+            font-weight: 700; cursor: pointer; font-size: 1em;
+            display: none;
+        }
+
+        .quiz-next.show { display: inline-block; }
+        .quiz-next:hover { background: var(--primary-dark); }
+
+        .quiz-score-bar {
+            display: flex; justify-content: space-between; margin-bottom: 20px;
+            padding: 10px 15px; background: var(--bg-light); border-radius: 10px;
+        }
+
+        /* MEMORY MATCH */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .memory-card {
+            height: 100px; border-radius: 12px; cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+            text-align: center; font-size: 0.8em; padding: 8px;
+            transition: all 0.3s; font-weight: 600;
+            border: 2px solid var(--border);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: transparent;
+            user-select: none;
+        }
+
+        .memory-card.revealed {
+            background: white; color: var(--text-dark);
+            border-color: var(--accent);
+        }
+
+        .memory-card.matched {
+            background: #ecfdf5; color: var(--success);
+            border-color: var(--success);
+        }
+
+        .memory-card.wrong-match {
+            animation: shake 0.5s ease;
+            border-color: var(--error);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .memory-info { text-align: center; margin-bottom: 15px; }
+        .memory-info span { margin: 0 15px; font-weight: 600; color: var(--text-light); }
+
+        /* CATEGORIZE */
+        .categorize-container {
+            max-width: 800px; margin: 0 auto;
+        }
+
+        .categorize-term {
+            text-align: center; padding: 20px; margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; border-radius: 16px; font-size: 1.3em; font-weight: 700;
+        }
+
+        .category-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .category-btn {
+            padding: 15px; border-radius: 12px; border: 2px solid;
+            cursor: pointer; font-weight: 700; font-size: 0.95em;
+            transition: all 0.2s; text-align: center;
+        }
+
+        .category-btn.grundlaggande { border-color: var(--grundlaggande); color: var(--grundlaggande); background: #fffbeb; }
+        .category-btn.grundlaggande:hover { background: var(--grundlaggande); color: white; }
+        .category-btn.etik { border-color: var(--etik); color: var(--etik); background: #ecfdf5; }
+        .category-btn.etik:hover { background: var(--etik); color: white; }
+        .category-btn.riktningar { border-color: var(--riktningar); color: var(--riktningar); background: #f5f3ff; }
+        .category-btn.riktningar:hover { background: var(--riktningar); color: white; }
+        .category-btn.hogtider { border-color: var(--hogtider); color: var(--hogtider); background: #fdf2f8; }
+        .category-btn.hogtider:hover { background: var(--hogtider); color: white; }
+        .category-btn.platser { border-color: var(--platser); color: var(--platser); background: #eff6ff; }
+        .category-btn.platser:hover { background: var(--platser); color: white; }
+        .category-btn.jamforelse { border-color: var(--jamforelse); color: var(--jamforelse); background: #f9fafb; }
+        .category-btn.jamforelse:hover { background: var(--jamforelse); color: white; }
+
+        .category-btn.correct-answer { background: var(--success) !important; color: white !important; border-color: var(--success) !important; }
+        .category-btn.wrong-answer { background: var(--error) !important; color: white !important; border-color: var(--error) !important; }
+
+        .categorize-score { text-align: center; margin-top: 15px; }
+        .categorize-progress { margin-bottom: 15px; text-align: center; color: var(--text-light); font-weight: 600; }
+
+        /* FILL IN THE BLANKS */
+        .fill-container { max-width: 600px; margin: 0 auto; }
+
+        .fill-sentence {
+            font-size: 1.15em; line-height: 1.8; margin-bottom: 20px;
+            padding: 20px; background: var(--bg-light); border-radius: 14px;
+            color: var(--text-dark);
+        }
+
+        .fill-blank {
+            display: inline-block;
+            border-bottom: 3px solid var(--primary);
+            min-width: 120px; text-align: center;
+            font-weight: 700; color: var(--primary);
+            padding: 0 5px;
+        }
+
+        .fill-input-area {
+            display: flex; gap: 10px; margin-bottom: 15px;
+        }
+
+        .fill-input {
+            flex: 1; padding: 12px 18px; border: 2px solid var(--border);
+            border-radius: 12px; font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        .fill-input:focus { outline: none; border-color: var(--accent); }
+
+        .fill-submit {
+            padding: 12px 25px; background: var(--primary);
+            color: white; border: none; border-radius: 12px;
+            font-weight: 700; cursor: pointer; font-size: 1em;
+        }
+
+        .fill-submit:hover { background: var(--primary-dark); }
+
+        .fill-feedback { margin-top: 10px; padding: 12px; border-radius: 10px; display: none; }
+        .fill-feedback.show { display: block; }
+        .fill-feedback.correct { background: #ecfdf5; color: #065f46; }
+        .fill-feedback.wrong { background: #fef2f2; color: #991b1b; }
+
+        .fill-hint-btn {
+            background: var(--warning); color: white; border: none;
+            padding: 8px 16px; border-radius: 10px; cursor: pointer;
+            font-weight: 600; font-size: 0.85em; margin-top: 10px;
+        }
+
+        /* SPEED CHALLENGE */
+        .speed-container { max-width: 600px; margin: 0 auto; text-align: center; }
+
+        .speed-timer {
+            font-size: 3em; font-weight: 800; color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .speed-timer.urgent { color: var(--error); animation: pulse 0.5s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .speed-term {
+            font-size: 1.5em; font-weight: 700; margin-bottom: 20px;
+            padding: 20px; background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; border-radius: 16px;
+        }
+
+        .speed-options {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+
+        .speed-option {
+            padding: 15px; border: 2px solid var(--border);
+            border-radius: 12px; cursor: pointer; font-size: 0.9em;
+            transition: all 0.2s; background: white; font-weight: 600;
+        }
+
+        .speed-option:hover { border-color: var(--accent); background: #f5f3ff; }
+        .speed-option.correct { border-color: var(--success); background: #ecfdf5; }
+        .speed-option.wrong { border-color: var(--error); background: #fef2f2; }
+
+        .speed-start-btn {
+            padding: 18px 50px; background: linear-gradient(135deg, var(--secondary), #f97316);
+            color: white; border: none; border-radius: 16px;
+            font-size: 1.3em; font-weight: 800; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245,158,11,0.4);
+            transition: all 0.3s;
+        }
+
+        .speed-start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245,158,11,0.5);
+        }
+
+        .speed-score-display {
+            margin-top: 20px; padding: 15px;
+            background: var(--bg-light); border-radius: 12px;
+        }
+
+        /* RESULTS SCREEN */
+        .results-screen {
+            text-align: center; padding: 40px;
+        }
+
+        .results-screen h2 {
+            font-size: 2em; color: var(--primary); margin-bottom: 10px;
+        }
+
+        .results-stars {
+            font-size: 3em; margin: 15px 0;
+        }
+
+        .results-stat {
+            font-size: 1.2em; margin: 8px 0; color: var(--text-light);
+        }
+
+        .results-stat strong { color: var(--text-dark); }
+
+        .results-buttons {
+            display: flex; gap: 12px; justify-content: center; margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .results-btn {
+            padding: 12px 30px; border-radius: 12px; border: none;
+            font-weight: 700; font-size: 1em; cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .results-btn.primary { background: var(--primary); color: white; }
+        .results-btn.secondary { background: var(--bg-light); color: var(--primary); border: 2px solid var(--primary); }
+
+        /* STREAK INDICATOR */
+        .streak-indicator {
+            position: fixed; top: 20px; right: 20px;
+            background: linear-gradient(135deg, #f97316, #ef4444);
+            color: white; padding: 10px 18px; border-radius: 16px;
+            font-weight: 800; font-size: 1em;
+            box-shadow: 0 4px 15px rgba(249,115,22,0.4);
+            z-index: 200; display: none;
+            animation: bounceIn 0.5s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* XP POPUP */
+        .xp-popup {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5em; font-weight: 900;
+            color: var(--secondary); z-index: 300;
+            pointer-events: none; display: none;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            animation: xpFloat 1s ease forwards;
+        }
+
+        @keyframes xpFloat {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); }
+        }
+
+        /* ACHIEVEMENT POPUP */
+        .achievement-popup {
+            position: fixed; top: 80px; left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--gold), #f97316);
+            color: white; padding: 15px 30px; border-radius: 16px;
+            font-weight: 700; font-size: 1.1em;
+            box-shadow: 0 8px 30px rgba(251,191,36,0.4);
+            z-index: 250; display: none;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-50px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .header { padding: 20px 15px; }
+            .header-left h1 { font-size: 1.3em; }
+            .mode-grid { grid-template-columns: repeat(3, 1fr); }
+            .mode-card { padding: 10px 5px; }
+            .mode-icon { font-size: 1.5em; }
+            .mode-name { font-size: 0.75em; }
+            .mode-desc { display: none; }
+            .game-area { padding: 20px 15px; }
+            .flashcard { height: 230px; }
+            .flashcard-front .term { font-size: 1.2em; }
+            .memory-grid { grid-template-columns: repeat(3, 1fr); }
+            .speed-options { grid-template-columns: 1fr; }
+            .category-buttons { grid-template-columns: 1fr 1fr; }
+            .stats-bar { gap: 8px; }
+            .stat-box { padding: 5px 10px; }
+            .stat-box .stat-value { font-size: 1.1em; }
+        }
+
+        @media (max-width: 480px) {
+            .mode-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* CONFETTI */
+        .confetti-piece {
+            position: fixed;
+            width: 10px; height: 10px;
+            z-index: 500;
+            pointer-events: none;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="streak-indicator" id="streakIndicator"></div>
+<div class="xp-popup" id="xpPopup"></div>
+<div class="achievement-popup" id="achievementPopup"></div>
+
+<div class="container">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1>Buddhismens begrepp</h1>
+                <p>Gamifierad Träning | Åk 7-9</p>
+            </div>
+            <div class="stats-bar">
+                <div class="level-badge" id="levelBadge">Nivå 1</div>
+                <div class="stat-box">
+                    <div class="stat-value" id="totalXP">0</div>
+                    <div class="stat-label">XP</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="streakCount">0</div>
+                    <div class="stat-label">Streak</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="masteredCount">0</div>
+                    <div class="stat-label">Bemästrade</div>
+                </div>
+            </div>
+        </div>
+        <div class="xp-bar-container">
+            <div class="xp-bar-fill" id="xpBarFill"></div>
+            <div class="xp-bar-text" id="xpBarText">0 / 100 XP</div>
+        </div>
+    </div>
+
+    <!-- GAME MODE SELECTOR -->
+    <div class="mode-selector">
+        <h2>Välj spelläge</h2>
+        <div class="mode-grid">
+            <div class="mode-card active" onclick="selectMode('flashcards')" id="mode-flashcards">
+                <div class="mode-icon">🃏</div>
+                <div class="mode-name">Flashkort</div>
+                <div class="mode-desc">Vänd och lär</div>
+            </div>
+            <div class="mode-card" onclick="selectMode('quiz')" id="mode-quiz">
+                <div class="mode-icon">❓</div>
+                <div class="mode-name">Quiz</div>
+                <div class="mode-desc">Flervalsfrågor</div>
+            </div>
+            <div class="mode-card" onclick="selectMode('memory')" id="mode-memory">
+                <div class="mode-icon">🧠</div>
+                <div class="mode-name">Memory</div>
+                <div class="mode-desc">Para ihop</div>
+            </div>
+            <div class="mode-card" onclick="selectMode('categorize')" id="mode-categorize">
+                <div class="mode-icon">📂</div>
+                <div class="mode-name">Sortera</div>
+                <div class="mode-desc">Rätt religion</div>
+            </div>
+            <div class="mode-card" onclick="selectMode('fill')" id="mode-fill">
+                <div class="mode-icon">✏️</div>
+                <div class="mode-name">Lucktext</div>
+                <div class="mode-desc">Fyll i rätt</div>
+            </div>
+            <div class="mode-card" onclick="selectMode('speed')" id="mode-speed">
+                <div class="mode-icon">⚡</div>
+                <div class="mode-name">Snabbspel</div>
+                <div class="mode-desc">Mot klockan</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME AREA -->
+    <div class="game-area" id="gameArea">
+        <!-- Content injected by JS -->
+    </div>
+</div>
+
+<script>
+// ==========================================
+// CONCEPT DATABASE
+// ==========================================
+const concepts = [
+    // GRUNDLÄGGANDE TRO
+    { term: "Siddharta Gautama (Buddha)", definition: "En indisk prins som levde för cirka 2 500 år sedan och som genom djup meditation nådde upplysning. Han kallas Buddha, som betyder 'den uppväcknade', och grundade buddhismen.", category: "Grundläggande tro" },
+    { term: "De fyra ädla sanningarna", definition: "Buddhismens mest grundläggande lära: livet innehåller lidande, lidandet har orsaker (begär), lidandet kan upphöra, och det finns en väg dit – den åttafaldiga vägen.", category: "Grundläggande tro" },
+    { term: "Den åttafaldiga vägen", definition: "En praktisk vägledning med åtta steg för hur man lever ett gott liv och kan nå nirvana. Den handlar om rätt förståelse, rätt tanke, rätt tal, rätt handling med mera.", category: "Grundläggande tro" },
+    { term: "Nirvana", definition: "Tillståndet där allt lidande, begär och okunnighet har slocknat helt, och man befrias från återfödelse. Det är inte en plats utan ett tillstånd av fullständig inre frid.", category: "Grundläggande tro" },
+    { term: "Karma", definition: "Tanken att alla handlingar får konsekvenser – goda handlingar leder till goda följder och dåliga handlingar till dåliga följder. Karma påverkar hur dina framtida återfödelser blir.", category: "Grundläggande tro" },
+    { term: "Samsara", definition: "Det ständiga kretsloppet av födelse, liv, död och återfödelse som alla levande varelser befinner sig i. Målet i buddhismen är att befria sig från samsara.", category: "Grundläggande tro" },
+    { term: "Återfödelse", definition: "Tron att medvetandet efter döden föds på nytt i en ny kropp, som människa, djur eller i en annan existensform. Hur man återföds beror på ens karma.", category: "Grundläggande tro" },
+    { term: "Dharma", definition: "Buddhas lära och undervisning om hur verkligheten är beskaffad och hur man bör leva. Dharma är en av de tre juvelerna.", category: "Grundläggande tro" },
+    { term: "Dukkha", definition: "Ett centralt begrepp som beskriver att livet innehåller lidande, otillfredsställelse och föränderlighet. Det handlar inte bara om stor smärta utan även om att ingenting varar för evigt.", category: "Grundläggande tro" },
+    { term: "Upplysning", definition: "Det ögonblick då man når fullständig insikt om verklighetens natur och befrias från okunnighet och begär. Det var detta Buddha upplevde under bodhi-trädet.", category: "Grundläggande tro" },
+    { term: "De tre juvelerna", definition: "De tre viktigaste pelarna i buddhismen: Buddha (läraren), dharma (läran) och sangha (gemenskapen). Att 'ta sin tillflykt' till dessa gör en person till buddhist.", category: "Grundläggande tro" },
+    { term: "Meditation", definition: "En central övning i buddhismen där man tränas i att stilla sinnet, utveckla närvaro och nå djupare insikt. Det kan handla om att fokusera på andningen eller observera sina tankar.", category: "Grundläggande tro" },
+    { term: "Tomhet (sunyata)", definition: "Tanken att ingenting har en fast, oföränderlig kärna – allting är beroende av andra saker för att existera. Det betyder inte att saker inte finns, utan att allt hänger ihop.", category: "Grundläggande tro" },
+    { term: "Anatta", definition: "Buddhismens lära att det inte finns något fast, oföränderligt själv. Istället är vi ständigt föränderliga, uppbyggda av tankar, känslor och erfarenheter som hela tiden skiftar.", category: "Grundläggande tro" },
+
+    // ETIK OCH LEVNAD
+    { term: "De fem levnadsreglerna", definition: "Fem riktlinjer som buddhister försöker följa: att inte döda, inte stjäla, inte ljuga, inte missbruka sexualitet och inte använda berusningsmedel. De är inte bud från en gud utan frivilliga löften.", category: "Etik och levnad" },
+    { term: "Mittens väg", definition: "Buddhas princip om att undvika extremer – varken lyxliv eller extrem självplågeri leder till upplysning. Det handlar om att hitta en balanserad väg genom livet.", category: "Etik och levnad" },
+    { term: "Ahimsa", definition: "Principen att inte skada något levande väsen, varken människor eller djur. Därför är många buddhister vegetarianer.", category: "Etik och levnad" },
+    { term: "Medkänsla (karuna)", definition: "En djup vilja att andra varelser ska slippa lida, och att man aktivt försöker hjälpa dem. Medkänsla är en av de viktigaste egenskaperna i buddhismen.", category: "Etik och levnad" },
+    { term: "Munkar och nunnor", definition: "Människor som valt att ägna hela sitt liv åt andlig utveckling och lever efter strikta regler i kloster. De rakar ofta huvudet och äger mycket lite.", category: "Etik och levnad" },
+    { term: "Sangha", definition: "Gemenskapen av munkar och nunnor, men i bredare mening alla som följer Buddhas lära tillsammans. Sangha är en av de tre juvelerna.", category: "Etik och levnad" },
+    { term: "Allmoserunda", definition: "En daglig tradition där munkar går genom byn med en skål för att ta emot mat från vanliga människor. Munkarna ger människorna möjlighet att göra en god handling och samla god karma.", category: "Etik och levnad" },
+
+    // RIKTNINGAR
+    { term: "Theravada", definition: "Den äldsta riktningen inom buddhismen, vanlig i Sri Lanka och Sydostasien. Den betonar den enskilda munkens väg till upplysning och håller sig nära Buddhas ursprungliga lära.", category: "Riktningar" },
+    { term: "Mahayana", definition: "Den största riktningen inom buddhismen, vanlig i Kina, Japan och Korea. Den betonar att alla varelser kan nå upplysning och att man bör hjälpa andra på vägen.", category: "Riktningar" },
+    { term: "Zen-buddhism", definition: "En gren av mahayana som betonar meditation, enkelhet och att nå insikt genom direkt upplevelse snarare än genom att studera texter.", category: "Riktningar" },
+    { term: "Tibetansk buddhism", definition: "En färgstark riktning som utvecklats i Tibet, känd för sina ritualer, mantran, böneflaggor och tron på att Dalai Lama är en återfödd bodhisattva.", category: "Riktningar" },
+    { term: "Bodhisattva", definition: "En person som har nått nära upplysning men väljer att stanna kvar i samsara för att hjälpa alla andra levande varelser att också bli fria. Idealet är särskilt viktigt inom mahayana.", category: "Riktningar" },
+
+    // HÖGTIDER OCH RITUALER
+    { term: "Vesak", definition: "Buddhismens viktigaste högtid som firar Buddhas födelse, upplysning och död – alla tre händelserna på samma dag. Firas med ljus, blommor och meditation.", category: "Högtider och ritualer" },
+    { term: "Buddhistiskt tempel", definition: "En helig plats där buddhister samlas för meditation, undervisning och ritualer. Templen innehåller ofta buddhastatyer och är utformade som platser för lugn.", category: "Högtider och ritualer" },
+    { term: "Buddhastatyer", definition: "Skulpturer som föreställer Buddha, ofta sittande i meditation. De är inte avgudar som tillbes utan fungerar som påminnelser om Buddhas lära och inspiration för meditation.", category: "Högtider och ritualer" },
+    { term: "Böneflaggor", definition: "Färgglada tygflaggor, främst i tibetansk buddhism, som hängs upp utomhus. Man tror att vinden sprider de goda önskningar och mantran som är tryckta på dem.", category: "Högtider och ritualer" },
+    { term: "Mantra", definition: "Heliga ord eller fraser som upprepas under meditation. Det mest kända är 'Om mani padme hum' från tibetansk buddhism, som handlar om medkänsla.", category: "Högtider och ritualer" },
+    { term: "Tripitaka", definition: "Buddhismens äldsta samling av heliga texter, indelad i tre delar ('tre korgar'): regler för munkar, Buddhas tal och undervisning, samt filosofiska analyser.", category: "Högtider och ritualer" },
+    { term: "Sutror", definition: "Texter som innehåller Buddhas tal och undervisning, nedskrivna av hans lärjungar efter hans död. De börjar ofta med orden 'Så har jag hört'.", category: "Högtider och ritualer" },
+
+    // PLATSER OCH PERSONER
+    { term: "Bodhi-trädet", definition: "Det fikonträd i Bodh Gaya, Indien, där Siddharta Gautama satt och mediterade när han nådde upplysning och blev Buddha. Platsen är idag en viktig vallfartsort.", category: "Platser och personer" },
+    { term: "Dalai Lama", definition: "Den tibetanska buddhismens viktigaste andliga ledare, som ses som en återfödd bodhisattva. Den nuvarande, Tenzin Gyatso, är den fjortonde Dalai Lama.", category: "Platser och personer" },
+    { term: "Benares", definition: "En av världens äldsta städer vid floden Ganges i Indien. Det var utanför Benares som Buddha höll sin första undervisning efter sin upplysning.", category: "Platser och personer" },
+    { term: "Indien", definition: "Landet där buddhismen föddes för cirka 2 500 år sedan. Även om buddhismen sedan spred sig till stora delar av Asien finns de viktigaste historiska platserna i Indien.", category: "Platser och personer" },
+
+    // JÄMFÖRELSEBEGREPP
+    { term: "Icke-teistisk religion", definition: "Buddhismen är en religion utan en skapargud som styr världen. Istället för att be till en gud fokuserar man på sin egen andliga utveckling och på att följa Buddhas lära.", category: "Jämförelsebegrepp" },
+    { term: "Cirkulär tidsuppfattning", definition: "Till skillnad från de abrahamitiska religionernas linjära tid ser buddhismen tiden som ett kretslopp, där tillvaron upprepas i cykler av födelse, död och återfödelse.", category: "Jämförelsebegrepp" },
+    { term: "Ingen skapargud", definition: "Till skillnad från kristendom och islam har buddhismen ingen allsmäktig gud som skapat världen. Buddhismen fokuserar istället på människans eget ansvar att nå insikt.", category: "Jämförelsebegrepp" },
+    { term: "Lidande vs frälsning", definition: "Medan kristendomen handlar om att bli frälst från synd genom Guds nåd, handlar buddhismen om att befria sig själv från lidande genom insikt, meditation och rätt leverne.", category: "Jämförelsebegrepp" },
+];
+
+// ==========================================
+// FILL IN THE BLANKS SENTENCES
+// ==========================================
+const fillSentences = [
+    { sentence: "_____ var en indisk prins som nådde upplysning och grundade buddhismen.", answer: "Siddharta Gautama", hint: "Buddhismens grundare" },
+    { sentence: "Buddhismens mest grundläggande lära kallas _____.", answer: "De fyra ädla sanningarna", hint: "Fyra punkter om lidande" },
+    { sentence: "_____ är en praktisk vägledning med åtta steg för att nå nirvana.", answer: "Den åttafaldiga vägen", hint: "Åtta steg" },
+    { sentence: "Tillståndet där allt lidande slocknat och man befrias från återfödelse kallas _____.", answer: "Nirvana", hint: "Fullständig inre frid" },
+    { sentence: "_____ innebär att goda handlingar leder till goda följder och dåliga till dåliga.", answer: "Karma", hint: "Handling och konsekvens" },
+    { sentence: "Det ständiga kretsloppet av födelse, liv, död och återfödelse kallas _____.", answer: "Samsara", hint: "Kretsloppet" },
+    { sentence: "Buddhas lära och undervisning kallas _____.", answer: "Dharma", hint: "En av de tre juvelerna" },
+    { sentence: "_____ beskriver att livet innehåller lidande och otillfredsställelse.", answer: "Dukkha", hint: "Centralt begrepp om lidande" },
+    { sentence: "Buddha (läraren), dharma (läran) och sangha (gemenskapen) kallas tillsammans _____.", answer: "De tre juvelerna", hint: "Tre pelare i buddhismen" },
+    { sentence: "En central övning där man tränar att stilla sinnet kallas _____.", answer: "Meditation", hint: "Stilla sinnet" },
+    { sentence: "Principen att inte skada något levande väsen kallas _____.", answer: "Ahimsa", hint: "Icke-våld" },
+    { sentence: "Buddhas princip om att undvika extremer kallas _____.", answer: "Mittens väg", hint: "Balans" },
+    { sentence: "Fem riktlinjer som buddhister försöker följa kallas _____.", answer: "De fem levnadsreglerna", hint: "Frivilliga löften" },
+    { sentence: "En djup vilja att andra ska slippa lida kallas _____.", answer: "Medkänsla", hint: "Karuna" },
+    { sentence: "Gemenskapen av munkar, nunnor och alla som följer Buddhas lära kallas _____.", answer: "Sangha", hint: "En av de tre juvelerna" },
+    { sentence: "Den äldsta riktningen inom buddhismen kallas _____.", answer: "Theravada", hint: "Vanlig i Sydostasien" },
+    { sentence: "Den största riktningen inom buddhismen kallas _____.", answer: "Mahayana", hint: "Vanlig i Kina, Japan, Korea" },
+    { sentence: "En person som väljer att stanna i samsara för att hjälpa andra kallas _____.", answer: "Bodhisattva", hint: "Hjälper andra till upplysning" },
+    { sentence: "Buddhismens viktigaste högtid som firar Buddhas födelse, upplysning och död kallas _____.", answer: "Vesak", hint: "Buddhismens stora högtid" },
+    { sentence: "Heliga ord som upprepas under meditation kallas _____.", answer: "Mantra", hint: "'Om mani padme hum'" },
+    { sentence: "Buddhismens äldsta samling av heliga texter kallas _____.", answer: "Tripitaka", hint: "Tre korgar" },
+    { sentence: "Trädet där Buddha nådde upplysning kallas _____.", answer: "Bodhi-trädet", hint: "Ett fikonträd i Indien" },
+    { sentence: "Den tibetanska buddhismens viktigaste andliga ledare kallas _____.", answer: "Dalai Lama", hint: "Återfödd bodhisattva" },
+    { sentence: "Buddhismen är en _____ religion, det vill säga en religion utan skapargud.", answer: "Icke-teistisk", hint: "Utan gud" },
+    { sentence: "Buddhismens syn på tiden som ett kretslopp kallas _____.", answer: "Cirkulär tidsuppfattning", hint: "Motsatsen till linjär tid" },
+];
+
+// ==========================================
+// GAME STATE
+// ==========================================
+let state = {
+    xp: 0,
+    level: 1,
+    streak: 0,
+    bestStreak: 0,
+    mastered: new Set(),
+    currentMode: 'flashcards',
+    achievements: [],
+    // Flashcard state
+    flashcardIndex: 0,
+    flashcardOrder: [],
+    // Quiz state
+    quizIndex: 0,
+    quizScore: 0,
+    quizTotal: 10,
+    quizQuestions: [],
+    // Memory state
+    memoryCards: [],
+    memoryFirst: null,
+    memoryMatches: 0,
+    memoryAttempts: 0,
+    memoryLocked: false,
+    // Categorize state
+    catIndex: 0,
+    catScore: 0,
+    catTotal: 15,
+    catOrder: [],
+    // Fill state
+    fillIndex: 0,
+    fillScore: 0,
+    fillTotal: 10,
+    fillOrder: [],
+    // Speed state
+    speedRunning: false,
+    speedTimer: 60,
+    speedInterval: null,
+    speedScore: 0,
+    speedIndex: 0,
+    speedQuestions: [],
+};
+
+// ==========================================
+// XP & LEVEL SYSTEM
+// ==========================================
+function addXP(amount) {
+    state.xp += amount;
+    const xpForLevel = state.level * 100;
+    if (state.xp >= xpForLevel) {
+        state.xp -= xpForLevel;
+        state.level++;
+        showAchievement(`Nivå ${state.level}! Grattis!`);
+    }
+    updateHeader();
+    showXPPopup(`+${amount} XP`);
+}
+
+function updateStreak(correct) {
+    if (correct) {
+        state.streak++;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+        if (state.streak >= 3) {
+            document.getElementById('streakIndicator').style.display = 'block';
+            document.getElementById('streakIndicator').textContent = `🔥 ${state.streak} streak!`;
+        }
+        // Streak achievements
+        if (state.streak === 5 && !state.achievements.includes('streak5')) {
+            state.achievements.push('streak5');
+            showAchievement('🔥 5 rätt i rad!');
+        }
+        if (state.streak === 10 && !state.achievements.includes('streak10')) {
+            state.achievements.push('streak10');
+            showAchievement('🔥🔥 10 rätt i rad! Fantastiskt!');
+        }
+    } else {
+        state.streak = 0;
+        document.getElementById('streakIndicator').style.display = 'none';
+    }
+    document.getElementById('streakCount').textContent = state.streak;
+}
+
+function updateHeader() {
+    document.getElementById('totalXP').textContent = state.xp;
+    document.getElementById('levelBadge').textContent = `Nivå ${state.level}`;
+    document.getElementById('masteredCount').textContent = state.mastered.size;
+    const xpForLevel = state.level * 100;
+    const pct = (state.xp / xpForLevel) * 100;
+    document.getElementById('xpBarFill').style.width = pct + '%';
+    document.getElementById('xpBarText').textContent = `${state.xp} / ${xpForLevel} XP`;
+}
+
+function showXPPopup(text) {
+    const el = document.getElementById('xpPopup');
+    el.textContent = text;
+    el.style.display = 'block';
+    el.style.animation = 'none';
+    el.offsetHeight; // trigger reflow
+    el.style.animation = 'xpFloat 1s ease forwards';
+    setTimeout(() => el.style.display = 'none', 1000);
+}
+
+function showAchievement(text) {
+    const el = document.getElementById('achievementPopup');
+    el.textContent = `🏆 ${text}`;
+    el.style.display = 'block';
+    el.style.animation = 'none';
+    el.offsetHeight;
+    el.style.animation = 'slideDown 0.5s ease';
+    setTimeout(() => el.style.display = 'none', 3000);
+}
+
+// ==========================================
+// UTILITY
+// ==========================================
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function getCategoryColor(cat) {
+    const colors = { 'Grundläggande tro': 'var(--grundlaggande)', 'Etik och levnad': 'var(--etik)', 'Riktningar': 'var(--riktningar)', 'Högtider och ritualer': 'var(--hogtider)', 'Platser och personer': 'var(--platser)', 'Jämförelsebegrepp': 'var(--jamforelse)' };
+    return colors[cat] || '#6b7280';
+}
+
+function getStars(pct) {
+    if (pct >= 90) return '⭐⭐⭐';
+    if (pct >= 70) return '⭐⭐';
+    if (pct >= 40) return '⭐';
+    return '💪';
+}
+
+function launchConfetti() {
+    const colors = ['#fbbf24', '#ef4444', '#10b981', '#8b5cf6', '#3b82f6', '#ec4899'];
+    for (let i = 0; i < 50; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.top = '-10px';
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+        el.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        el.style.width = (Math.random() * 8 + 5) + 'px';
+        el.style.height = (Math.random() * 8 + 5) + 'px';
+        document.body.appendChild(el);
+        const duration = Math.random() * 2 + 1.5;
+        const xDrift = (Math.random() - 0.5) * 200;
+        el.animate([
+            { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+            { transform: `translate(${xDrift}px, ${window.innerHeight + 50}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+        ], { duration: duration * 1000, easing: 'ease-out' });
+        setTimeout(() => el.remove(), duration * 1000);
+    }
+}
+
+// ==========================================
+// MODE SELECTION
+// ==========================================
+function selectMode(mode) {
+    // Stop speed timer if running
+    if (state.speedInterval) { clearInterval(state.speedInterval); state.speedInterval = null; }
+    state.currentMode = mode;
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('mode-' + mode).classList.add('active');
+
+    switch(mode) {
+        case 'flashcards': initFlashcards(); break;
+        case 'quiz': initQuiz(); break;
+        case 'memory': initMemory(); break;
+        case 'categorize': initCategorize(); break;
+        case 'fill': initFill(); break;
+        case 'speed': initSpeed(); break;
+    }
+}
+
+// ==========================================
+// 1. FLASHCARDS
+// ==========================================
+function initFlashcards() {
+    state.flashcardOrder = shuffle([...Array(concepts.length).keys()]);
+    state.flashcardIndex = 0;
+    renderFlashcard();
+}
+
+function renderFlashcard() {
+    const idx = state.flashcardOrder[state.flashcardIndex];
+    const c = concepts[idx];
+    const total = state.flashcardOrder.length;
+    const current = state.flashcardIndex + 1;
+
+    document.getElementById('gameArea').innerHTML = `
+        <h3>🃏 Flashkort - Vänd för att se definitionen</h3>
+        <div class="flashcard-container">
+            <div class="flashcard-progress">${current} av ${total}</div>
+            <div class="flashcard" id="flashcard" onclick="document.getElementById('flashcard').classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <div class="term">${c.term}</div>
+                        <div class="hint">Klicka för att vända</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div class="definition">${c.definition}</div>
+                        <div class="category-tag" style="background:${getCategoryColor(c.category)}">${c.category}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="flashcard-nav">
+                <button class="btn-prev" onclick="flashcardPrev()" ${state.flashcardIndex === 0 ? 'disabled style="opacity:0.5"' : ''}>← Föregående</button>
+                <button class="btn-know" onclick="flashcardKnow()">✓ Kan detta!</button>
+                <button class="btn-next" onclick="flashcardNext()" ${state.flashcardIndex >= total - 1 ? 'disabled style="opacity:0.5"' : ''}>Nästa →</button>
+            </div>
+        </div>
+    `;
+}
+
+function flashcardPrev() {
+    if (state.flashcardIndex > 0) { state.flashcardIndex--; renderFlashcard(); }
+}
+
+function flashcardNext() {
+    if (state.flashcardIndex < state.flashcardOrder.length - 1) { state.flashcardIndex++; renderFlashcard(); }
+}
+
+function flashcardKnow() {
+    const idx = state.flashcardOrder[state.flashcardIndex];
+    state.mastered.add(concepts[idx].term);
+    addXP(5);
+    updateStreak(true);
+    if (state.flashcardIndex < state.flashcardOrder.length - 1) {
+        state.flashcardIndex++;
+        renderFlashcard();
+    } else {
+        showResults('Flashkort', state.mastered.size, concepts.length, 'flashcards');
+    }
+}
+
+// ==========================================
+// 2. QUIZ
+// ==========================================
+function initQuiz() {
+    state.quizScore = 0;
+    state.quizIndex = 0;
+    const shuffled = shuffle(concepts);
+    state.quizQuestions = shuffled.slice(0, state.quizTotal).map(c => {
+        const others = concepts.filter(o => o.term !== c.term);
+        const wrongAnswers = shuffle(others).slice(0, 3).map(o => o.definition);
+        const options = shuffle([c.definition, ...wrongAnswers]);
+        return { concept: c, options, correctIndex: options.indexOf(c.definition) };
+    });
+    renderQuiz();
+}
+
+function renderQuiz() {
+    if (state.quizIndex >= state.quizQuestions.length) {
+        showResults('Quiz', state.quizScore, state.quizTotal, 'quiz');
+        return;
+    }
+    const q = state.quizQuestions[state.quizIndex];
+    document.getElementById('gameArea').innerHTML = `
+        <h3>❓ Quiz - Välj rätt definition</h3>
+        <div class="quiz-container">
+            <div class="quiz-score-bar">
+                <span>Fråga ${state.quizIndex + 1} av ${state.quizTotal}</span>
+                <span>Poäng: ${state.quizScore}/${state.quizTotal}</span>
+            </div>
+            <div class="quiz-question">Vad betyder: "${q.concept.term}"?</div>
+            <div class="quiz-options">
+                ${q.options.map((opt, i) => `
+                    <div class="quiz-option" onclick="quizAnswer(${i}, ${q.correctIndex})">${opt}</div>
+                `).join('')}
+            </div>
+            <div class="quiz-feedback" id="quizFeedback"></div>
+            <button class="quiz-next" id="quizNext" onclick="quizNextQ()">Nästa fråga →</button>
+        </div>
+    `;
+}
+
+function quizAnswer(selected, correct) {
+    const options = document.querySelectorAll('.quiz-option');
+    options.forEach((o, i) => {
+        o.classList.add('disabled');
+        if (i === correct) o.classList.add('correct');
+        if (i === selected && i !== correct) o.classList.add('wrong');
+    });
+    const fb = document.getElementById('quizFeedback');
+    if (selected === correct) {
+        state.quizScore++;
+        addXP(10);
+        updateStreak(true);
+        fb.textContent = '✓ Rätt! Bra jobbat!';
+        fb.className = 'quiz-feedback show correct';
+        state.mastered.add(state.quizQuestions[state.quizIndex].concept.term);
+    } else {
+        updateStreak(false);
+        fb.textContent = '✗ Tyvärr fel. Rätt svar är markerat med grönt.';
+        fb.className = 'quiz-feedback show wrong';
+    }
+    document.getElementById('quizNext').classList.add('show');
+    updateHeader();
+}
+
+function quizNextQ() {
+    state.quizIndex++;
+    renderQuiz();
+}
+
+// ==========================================
+// 3. MEMORY MATCH
+// ==========================================
+function initMemory() {
+    state.memoryMatches = 0;
+    state.memoryAttempts = 0;
+    state.memoryFirst = null;
+    state.memoryLocked = false;
+    const pairs = shuffle(concepts).slice(0, 6);
+    const cards = [];
+    pairs.forEach((c, i) => {
+        cards.push({ id: i, type: 'term', text: c.term, pairId: i });
+        cards.push({ id: i, type: 'def', text: c.definition.length > 80 ? c.definition.substring(0, 77) + '...' : c.definition, pairId: i });
+    });
+    state.memoryCards = shuffle(cards);
+    renderMemory();
+}
+
+function renderMemory() {
+    document.getElementById('gameArea').innerHTML = `
+        <h3>🧠 Memory - Para ihop begrepp och definitioner</h3>
+        <div class="memory-info">
+            <span>Matchade: ${state.memoryMatches}/6</span>
+            <span>Försök: ${state.memoryAttempts}</span>
+        </div>
+        <div class="memory-grid">
+            ${state.memoryCards.map((c, i) => `
+                <div class="memory-card ${c.matched ? 'matched' : ''} ${c.revealed ? 'revealed' : ''}"
+                     onclick="memoryClick(${i})" data-index="${i}">
+                    ${c.text}
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function memoryClick(idx) {
+    if (state.memoryLocked) return;
+    const card = state.memoryCards[idx];
+    if (card.matched || card.revealed) return;
+
+    card.revealed = true;
+    renderMemory();
+
+    if (!state.memoryFirst && state.memoryFirst !== 0) {
+        state.memoryFirst = idx;
+    } else {
+        state.memoryLocked = true;
+        state.memoryAttempts++;
+        const first = state.memoryCards[state.memoryFirst];
+        const second = card;
+
+        if (first.pairId === second.pairId && first.type !== second.type) {
+            // Match!
+            first.matched = true;
+            second.matched = true;
+            state.memoryMatches++;
+            addXP(15);
+            updateStreak(true);
+            state.memoryFirst = null;
+            state.memoryLocked = false;
+            renderMemory();
+            if (state.memoryMatches === 6) {
+                setTimeout(() => showResults('Memory', 6, 6, 'memory'), 500);
+            }
+        } else {
+            // No match
+            updateStreak(false);
+            setTimeout(() => {
+                first.revealed = false;
+                second.revealed = false;
+                state.memoryFirst = null;
+                state.memoryLocked = false;
+                renderMemory();
+            }, 1200);
+        }
+    }
+}
+
+// ==========================================
+// 4. CATEGORIZE / SORT
+// ==========================================
+function initCategorize() {
+    state.catScore = 0;
+    state.catIndex = 0;
+    const categorizeable = [...concepts];
+    state.catOrder = shuffle(categorizeable).slice(0, state.catTotal);
+    renderCategorize();
+}
+
+function renderCategorize() {
+    if (state.catIndex >= state.catOrder.length) {
+        showResults('Sortera', state.catScore, state.catTotal, 'categorize');
+        return;
+    }
+    const c = state.catOrder[state.catIndex];
+    document.getElementById('gameArea').innerHTML = `
+        <h3>📂 Sortera - Vilken kategori tillhör begreppet?</h3>
+        <div class="categorize-container">
+            <div class="categorize-progress">${state.catIndex + 1} av ${state.catTotal} | Poäng: ${state.catScore}</div>
+            <div class="categorize-term">${c.term}</div>
+            <div class="category-buttons">
+                <div class="category-btn grundlaggande" data-cat="Grundläggande tro" onclick="categorizeAnswer('Grundläggande tro')">☸ Grundläggande tro</div>
+                <div class="category-btn etik" data-cat="Etik och levnad" onclick="categorizeAnswer('Etik och levnad')">🙏 Etik och levnad</div>
+                <div class="category-btn riktningar" data-cat="Riktningar" onclick="categorizeAnswer('Riktningar')">🔀 Riktningar</div>
+                <div class="category-btn hogtider" data-cat="Högtider och ritualer" onclick="categorizeAnswer('Högtider och ritualer')">🪷 Högtider/ritualer</div>
+                <div class="category-btn platser" data-cat="Platser och personer" onclick="categorizeAnswer('Platser och personer')">📍 Platser/personer</div>
+                <div class="category-btn jamforelse" data-cat="Jämförelsebegrepp" onclick="categorizeAnswer('Jämförelsebegrepp')">⚖ Jämförelse</div>
+            </div>
+            <div class="quiz-feedback" id="catFeedback"></div>
+            <button class="quiz-next" id="catNext" onclick="categorizeNext()">Nästa →</button>
+        </div>
+    `;
+}
+
+function categorizeAnswer(answer) {
+    const c = state.catOrder[state.catIndex];
+    const btns = document.querySelectorAll('.category-btn');
+    btns.forEach(b => b.style.pointerEvents = 'none');
+
+    const fb = document.getElementById('catFeedback');
+    if (answer === c.category) {
+        state.catScore++;
+        addXP(10);
+        updateStreak(true);
+        fb.textContent = `✓ Rätt! "${c.term}" tillhör ${c.category}.`;
+        fb.className = 'quiz-feedback show correct';
+        btns.forEach(b => { if (b.dataset.cat === answer) b.classList.add('correct-answer'); });
+        state.mastered.add(c.term);
+    } else {
+        updateStreak(false);
+        fb.textContent = `✗ Fel! "${c.term}" tillhör ${c.category}, inte ${answer}.`;
+        fb.className = 'quiz-feedback show wrong';
+        btns.forEach(b => {
+            if (b.dataset.cat === answer) b.classList.add('wrong-answer');
+            if (b.dataset.cat === c.category) b.classList.add('correct-answer');
+        });
+    }
+    document.getElementById('catNext').classList.add('show');
+    updateHeader();
+}
+
+function categorizeNext() {
+    state.catIndex++;
+    renderCategorize();
+}
+
+// ==========================================
+// 5. FILL IN THE BLANKS
+// ==========================================
+function initFill() {
+    state.fillScore = 0;
+    state.fillIndex = 0;
+    state.fillOrder = shuffle([...Array(fillSentences.length).keys()]).slice(0, state.fillTotal);
+    renderFill();
+}
+
+function renderFill() {
+    if (state.fillIndex >= state.fillOrder.length) {
+        showResults('Lucktext', state.fillScore, state.fillTotal, 'fill');
+        return;
+    }
+    const s = fillSentences[state.fillOrder[state.fillIndex]];
+    const displaySentence = s.sentence.replace('_____', '<span class="fill-blank">?</span>');
+
+    document.getElementById('gameArea').innerHTML = `
+        <h3>✏️ Lucktext - Fyll i rätt begrepp</h3>
+        <div class="fill-container">
+            <div class="quiz-score-bar">
+                <span>Fråga ${state.fillIndex + 1} av ${state.fillTotal}</span>
+                <span>Poäng: ${state.fillScore}</span>
+            </div>
+            <div class="fill-sentence">${displaySentence}</div>
+            <div class="fill-input-area">
+                <input type="text" class="fill-input" id="fillInput" placeholder="Skriv ditt svar..." onkeydown="if(event.key==='Enter')fillCheck()">
+                <button class="fill-submit" onclick="fillCheck()">Svara</button>
+            </div>
+            <button class="fill-hint-btn" onclick="fillHint()">💡 Ledtråd</button>
+            <div class="fill-feedback" id="fillFeedback"></div>
+            <button class="quiz-next" id="fillNext" onclick="fillNextQ()">Nästa →</button>
+        </div>
+    `;
+    document.getElementById('fillInput').focus();
+}
+
+function fillCheck() {
+    const s = fillSentences[state.fillOrder[state.fillIndex]];
+    const input = document.getElementById('fillInput').value.trim();
+    const fb = document.getElementById('fillFeedback');
+
+    if (!input) return;
+
+    const correct = input.toLowerCase() === s.answer.toLowerCase() ||
+                    input.toLowerCase().includes(s.answer.toLowerCase()) ||
+                    s.answer.toLowerCase().includes(input.toLowerCase()) && input.length > 3;
+
+    document.getElementById('fillInput').disabled = true;
+    document.querySelector('.fill-submit').disabled = true;
+
+    if (correct) {
+        state.fillScore++;
+        addXP(15);
+        updateStreak(true);
+        fb.textContent = `✓ Rätt! Svaret är "${s.answer}".`;
+        fb.className = 'fill-feedback show correct';
+        state.mastered.add(s.answer);
+    } else {
+        updateStreak(false);
+        fb.textContent = `✗ Tyvärr! Rätt svar var "${s.answer}".`;
+        fb.className = 'fill-feedback show wrong';
+    }
+    document.getElementById('fillNext').classList.add('show');
+    updateHeader();
+}
+
+function fillHint() {
+    const s = fillSentences[state.fillOrder[state.fillIndex]];
+    const fb = document.getElementById('fillFeedback');
+    fb.textContent = `💡 Ledtråd: ${s.hint}`;
+    fb.className = 'fill-feedback show';
+    fb.style.background = '#fffbeb';
+    fb.style.color = '#92400e';
+}
+
+function fillNextQ() {
+    state.fillIndex++;
+    renderFill();
+}
+
+// ==========================================
+// 6. SPEED CHALLENGE
+// ==========================================
+function initSpeed() {
+    state.speedRunning = false;
+    state.speedScore = 0;
+    state.speedIndex = 0;
+    state.speedTimer = 60;
+    if (state.speedInterval) clearInterval(state.speedInterval);
+
+    document.getElementById('gameArea').innerHTML = `
+        <h3>⚡ Snabbspel - Hur många hinner du på 60 sekunder?</h3>
+        <div class="speed-container">
+            <div class="speed-timer" id="speedTimerDisplay">60</div>
+            <p style="margin-bottom:20px;color:var(--text-light)">Svara på så många frågor som möjligt innan tiden tar slut!</p>
+            <button class="speed-start-btn" onclick="speedStart()">Starta!</button>
+        </div>
+    `;
+}
+
+function speedStart() {
+    state.speedRunning = true;
+    state.speedScore = 0;
+    state.speedIndex = 0;
+    state.speedTimer = 60;
+    const shuffled = shuffle(concepts);
+    state.speedQuestions = shuffled.map(c => {
+        const others = concepts.filter(o => o.term !== c.term);
+        const wrongAnswers = shuffle(others).slice(0, 3).map(o => o.definition.length > 60 ? o.definition.substring(0, 57) + '...' : o.definition);
+        const correctDef = c.definition.length > 60 ? c.definition.substring(0, 57) + '...' : c.definition;
+        const options = shuffle([correctDef, ...wrongAnswers]);
+        return { concept: c, options, correctIndex: options.indexOf(correctDef) };
+    });
+
+    state.speedInterval = setInterval(() => {
+        state.speedTimer--;
+        const el = document.getElementById('speedTimerDisplay');
+        if (el) {
+            el.textContent = state.speedTimer;
+            if (state.speedTimer <= 10) el.classList.add('urgent');
+        }
+        if (state.speedTimer <= 0) {
+            clearInterval(state.speedInterval);
+            state.speedRunning = false;
+            speedFinish();
+        }
+    }, 1000);
+
+    renderSpeedQuestion();
+}
+
+function renderSpeedQuestion() {
+    if (state.speedIndex >= state.speedQuestions.length || !state.speedRunning) return;
+    const q = state.speedQuestions[state.speedIndex];
+    document.getElementById('gameArea').innerHTML = `
+        <h3>⚡ Snabbspel</h3>
+        <div class="speed-container">
+            <div class="speed-timer ${state.speedTimer <= 10 ? 'urgent' : ''}" id="speedTimerDisplay">${state.speedTimer}</div>
+            <div class="speed-score-display">Rätt: ${state.speedScore} | Fråga: ${state.speedIndex + 1}</div>
+            <div class="speed-term">${q.concept.term}</div>
+            <div class="speed-options">
+                ${q.options.map((opt, i) => `
+                    <div class="speed-option" onclick="speedAnswer(${i}, ${q.correctIndex})">${opt}</div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function speedAnswer(selected, correct) {
+    if (!state.speedRunning) return;
+    const options = document.querySelectorAll('.speed-option');
+    options.forEach(o => o.style.pointerEvents = 'none');
+
+    if (selected === correct) {
+        state.speedScore++;
+        addXP(8);
+        updateStreak(true);
+        options[selected].classList.add('correct');
+    } else {
+        updateStreak(false);
+        options[selected].classList.add('wrong');
+        options[correct].classList.add('correct');
+    }
+
+    state.speedIndex++;
+    setTimeout(() => {
+        if (state.speedRunning) renderSpeedQuestion();
+    }, 400);
+}
+
+function speedFinish() {
+    const bonus = state.speedScore * 5;
+    addXP(bonus);
+    showResults('Snabbspel', state.speedScore, state.speedIndex, 'speed');
+    if (state.speedScore >= 15 && !state.achievements.includes('speed15')) {
+        state.achievements.push('speed15');
+        showAchievement('⚡ 15+ rätt i snabbspelet!');
+    }
+}
+
+// ==========================================
+// RESULTS SCREEN
+// ==========================================
+function showResults(modeName, score, total, modeKey) {
+    const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+    const stars = getStars(pct);
+    if (pct >= 90) launchConfetti();
+
+    document.getElementById('gameArea').innerHTML = `
+        <div class="results-screen">
+            <h2>${modeName} - Klart!</h2>
+            <div class="results-stars">${stars}</div>
+            <div class="results-stat">Resultat: <strong>${score} av ${total}</strong> (${pct}%)</div>
+            <div class="results-stat">Bästa streak: <strong>${state.bestStreak} rätt i rad</strong></div>
+            <div class="results-stat">Bemästrade begrepp: <strong>${state.mastered.size} av ${concepts.length}</strong></div>
+            <div class="results-stat">Nivå: <strong>${state.level}</strong> | Total XP: <strong>${state.xp}</strong></div>
+            <div class="results-buttons">
+                <button class="results-btn primary" onclick="selectMode('${modeKey}')">Spela igen</button>
+                <button class="results-btn secondary" onclick="selectMode('flashcards')">🃏 Flashkort</button>
+                <button class="results-btn secondary" onclick="selectMode('quiz')">❓ Quiz</button>
+                <button class="results-btn secondary" onclick="selectMode('memory')">🧠 Memory</button>
+                <button class="results-btn secondary" onclick="selectMode('categorize')">📂 Sortera</button>
+                <button class="results-btn secondary" onclick="selectMode('fill')">✏️ Lucktext</button>
+                <button class="results-btn secondary" onclick="selectMode('speed')">⚡ Snabbspel</button>
+            </div>
+        </div>
+    `;
+}
+
+// ==========================================
+// INITIALIZE
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => {
+    updateHeader();
+    initFlashcards();
+});
+</script>
+</body>
+</html>
