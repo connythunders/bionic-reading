@@ -8,7 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const INDEX_PATH = path.resolve(__dirname, '../data/content-index.json');
+const INDEX_PATH = path.resolve(__dirname, '../../data/content-index.json');
 
 // Svenska stoppord – måste spegla buildContentIndex.js
 const STOPWORDS = new Set([

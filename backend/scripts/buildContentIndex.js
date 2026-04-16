@@ -13,7 +13,9 @@ const path = require('path');
 const cheerio = require('cheerio');
 
 const ROOT_DIR = path.resolve(__dirname, '../..');
-const OUTPUT_DIR = path.resolve(__dirname, '../data');
+// Skrivs till projektrotens /data/ så att både statisk frontend (GitHub Pages)
+// och backend kan läsa samma fil.
+const OUTPUT_DIR = path.resolve(__dirname, '../../data');
 const OUTPUT_FILE = path.join(OUTPUT_DIR, 'content-index.json');
 
 // Svenska stoppord - filtreras bort från TF/IDF
