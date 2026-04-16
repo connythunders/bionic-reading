@@ -22,6 +22,29 @@
   const GEMINI_ENDPOINT =
     'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
+  // Giltiga platshållare filtreras bort så att "DIN_GEMINI_NYCKEL_HAR" inte
+  // skickas som riktig nyckel om användaren glömt fylla i.
+  function isPlaceholder(k) {
+    if (!k || typeof k !== 'string') return true;
+    if (/DIN_|YOUR_|PASTE|XXXX|PLACEHOLDER/i.test(k)) return true;
+    if (k.length < 20) return true;
+    return false;
+  }
+
+  /** Returnerar bästa tillgängliga nyckel, eller null. */
+  function getApiKey() {
+    const baked = window.BRC_GEMINI_KEY;
+    if (!isPlaceholder(baked)) return baked;
+    const stored = localStorage.getItem(LS_API_KEY);
+    if (!isPlaceholder(stored)) return stored;
+    return null;
+  }
+
+  /** True om en inbakad produktionsnyckel finns – då döljer vi setup-UI:n. */
+  function hasBakedKey() {
+    return !isPlaceholder(window.BRC_GEMINI_KEY);
+  }
+
   const WELCOME =
     'Hej! Jag kan svara på frågor om innehållet på bionicreading.se. Vad undrar du?';
 
@@ -376,7 +399,7 @@
     const question = (input.value || '').trim();
     if (!question) return;
 
-    const apiKey = localStorage.getItem(LS_API_KEY);
+    const apiKey = getApiKey();
     if (!apiKey) {
       addMessage(question, 'user');
       input.value = ''; input.style.height = 'auto';
@@ -427,6 +450,11 @@
   closeBtn.addEventListener('click', closePanel);
 
   settingsBtn.addEventListener('click', () => {
+    // Om sajten har en inbakad nyckel behöver användaren inte byta själv.
+    if (hasBakedKey()) {
+      addMessage('Den här sajten har en färdig API-nyckel konfigurerad. Du behöver inte göra något.', 'bot');
+      return;
+    }
     const existing = localStorage.getItem(LS_API_KEY);
     if (existing && !confirm('Vill du byta API-nyckel? Den nuvarande raderas.')) return;
     localStorage.removeItem(LS_API_KEY);
@@ -449,9 +477,14 @@
 
   // ---- Init -------------------------------------------------------------
   addMessage(WELCOME, 'bot');
-  if (!localStorage.getItem(LS_API_KEY)) {
-    addMessage('Första gången behöver du klistra in din Gemini API-nyckel (gratis). Den sparas bara lokalt i din webbläsare.', 'bot');
-    addSetup();
+  // Visa bara setup-UI om vi saknar både inbakad nyckel och localStorage-nyckel.
+  if (!getApiKey()) {
+    if (hasBakedKey()) {
+      // Ska aldrig hända – getApiKey hade returnerat den – men safety net:
+    } else {
+      addMessage('Första gången behöver du klistra in din Gemini API-nyckel (gratis). Den sparas bara lokalt i din webbläsare.', 'bot');
+      addSetup();
+    }
   }
   try {
     if (localStorage.getItem(LS_STATE) === '1') openPanel();
