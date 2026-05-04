@@ -1,884 +1,772 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bionic Reading - Läs snabbare och mer fokuserat</title>
-    <meta name="description" content="Omvandla text för snabbare och mer fokuserad läsning med Bionic Reading-teknologi">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #ec4899;
-            --accent: #8b5cf6;
-            --text-dark: #1e293b;
-            --text-light: #64748b;
-            --bg-light: #f8fafc;
-            --bg-white: #ffffff;
-            --border: #e2e8f0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-            color: var(--text-dark);
-            background: var(--bg-light);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* Header */
-        header {
-            background: var(--bg-white);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        nav {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .cta-button {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
-        }
-
-        /* Hero Section */
-        .hero {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-            min-height: 600px;
-        }
-
-        .hero-content h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, var(--text-dark) 0%, var(--primary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-content p {
-            font-size: 1.25rem;
-            color: var(--text-light);
-            margin-bottom: 2rem;
-            line-height: 1.8;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .primary-btn {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            border: none;
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
-        }
-
-        .primary-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
-        }
-
-        .secondary-btn {
-            background: var(--bg-white);
-            color: var(--primary);
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            border: 2px solid var(--border);
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .secondary-btn:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        /* Hero Visual */
-        .hero-visual {
-            position: relative;
-        }
-
-        .demo-card {
-            background: var(--bg-white);
-            border-radius: 24px;
-            padding: 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--border);
-            position: relative;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .demo-text {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: var(--text-dark);
-        }
-
-        .demo-text strong {
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        /* Features Section */
-        .features {
-            background: var(--bg-white);
-            padding: 6rem 2rem;
-        }
-
-        .features-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 3rem;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .feature-card {
-            padding: 2rem;
-            border-radius: 16px;
-            background: var(--bg-light);
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--text-dark);
-        }
-
-        .feature-card p {
-            color: var(--text-light);
-            line-height: 1.6;
-        }
-
-        /* Converter Section */
-        .converter {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 6rem 2rem;
-        }
-
-        .converter-container {
-            background: var(--bg-white);
-            border-radius: 24px;
-            padding: 3rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
-            border: 1px solid var(--border);
-        }
-
-        .converter-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .input-section, .output-section {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .section-label {
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text-dark);
-            font-size: 1.1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .char-count {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            font-weight: 400;
-        }
-
-        textarea {
-            flex: 1;
-            min-height: 300px;
-            padding: 1.5rem;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-family: inherit;
-            font-size: 1rem;
-            resize: vertical;
-            transition: all 0.3s ease;
-            background: var(--bg-light);
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: var(--bg-white);
-        }
-
-        .output-box {
-            flex: 1;
-            min-height: 300px;
-            padding: 1.5rem;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            background: var(--bg-white);
-            overflow-y: auto;
-            font-size: 1rem;
-            line-height: 1.8;
-        }
-
-        .output-box:empty::before {
-            content: 'Justera inställningarna till vänster och klicka på konvertera.';
-            color: var(--text-light);
-            font-style: italic;
-        }
-
-        .controls {
-            margin: 2rem 0;
-            padding: 2rem;
-            background: var(--bg-light);
-            border-radius: 12px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .control-group label {
-            font-weight: 600;
-            color: var(--text-dark);
-            font-size: 0.95rem;
-        }
-
-        select {
-            padding: 0.75rem;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 1rem;
-            background: var(--bg-white);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .convert-btn {
-            flex: 1;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            border: none;
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
-        }
-
-        .convert-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
-        }
-
-        .action-btn {
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            border: 2px solid var(--border);
-            background: var(--bg-white);
-            color: var(--text-dark);
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .action-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        /* Social Proof */
-        .social-proof {
-            background: var(--bg-white);
-            padding: 4rem 2rem;
-            text-align: center;
-        }
-
-        .stats-grid {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 3rem;
-            margin-top: 3rem;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stat-label {
-            font-size: 1.1rem;
-            color: var(--text-light);
-            margin-top: 0.5rem;
-        }
-
-        /* Footer */
-        footer {
-            background: var(--text-dark);
-            color: white;
-            padding: 3rem 2rem;
-            text-align: center;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-                padding: 2rem 1.5rem;
-            }
-
-            .hero-content h1 {
-                font-size: 2.5rem;
-            }
-
-            .converter-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .controls {
-                grid-template-columns: 1fr;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .convert-btn, .action-btn {
-                width: 100%;
-            }
-
-            .demo-card {
-                order: -1;
-            }
-        }
-
-        /* Bionic Text Styling */
-        .bionic-text {
-            font-size: inherit;
-            line-height: inherit;
-        }
-
-        .bionic-text strong {
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        /* File upload */
-        .upload-area {
-            margin-bottom: 1rem;
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .upload-btn {
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            border: 2px solid var(--border);
-            background: var(--bg-white);
-            color: var(--text-dark);
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        .upload-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-        .upload-info {
-            font-size: 0.85rem;
-            color: var(--text-light);
-        }
-        .upload-status {
-            font-size: 0.85rem;
-            color: var(--primary);
-            font-weight: 600;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NP SO – Träning åk 9</title>
+<style>
+  :root {
+    --bg: #F5F3EE;
+    --surface: #FFFFFF;
+    --text: #1A1A1A;
+    --muted: #6B6B6B;
+    --border: #E0DDD6;
+    --historia: #8B3A3A;
+    --geografi: #2E6E4E;
+    --samhalle: #1A4B8C;
+    --religion: #6B4E99;
+    --radius: 12px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header h1 span { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 8px; }
+  #stats {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  #stats b { color: var(--text); }
+
+  /* MAIN */
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 16px 80px;
+  }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* START SCREEN */
+  #screen-start h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  #screen-start p {
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+  .subject-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 480px) { .subject-grid { grid-template-columns: 1fr; } }
+
+  .subject-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    text-align: left;
+  }
+  .subject-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+  }
+  .subject-card.selected { border-width: 2px; box-shadow: var(--shadow); }
+  .subject-card[data-subject="historia"].selected  { border-color: var(--historia); }
+  .subject-card[data-subject="geografi"].selected  { border-color: var(--geografi); }
+  .subject-card[data-subject="samhalle"].selected  { border-color: var(--samhalle); }
+  .subject-card[data-subject="religion"].selected  { border-color: var(--religion); }
+
+  .subject-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .subject-card h3 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+  .subject-card p  { font-size: 13px; color: var(--muted); }
+
+  /* LEVEL PICKER */
+  .level-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .level-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .level-btn {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s;
+  }
+  .level-btn .grade { font-size: 22px; font-weight: 700; display: block; }
+  .level-btn .label { font-size: 13px; color: var(--muted); display: block; margin-top: 2px; }
+  .level-btn .desc  { font-size: 11px; color: var(--muted); display: block; margin-top: 4px; line-height: 1.4; }
+  .level-btn.selected {
+    border-color: currentColor;
+    background: #F9F7FF;
+  }
+  .level-btn[data-level="E"].selected { border-color: #2E6E4E; color: #2E6E4E; }
+  .level-btn[data-level="C"].selected { border-color: #1A4B8C; color: #1A4B8C; }
+  .level-btn[data-level="A"].selected { border-color: #6B4E99; color: #6B4E99; }
+
+  /* START BUTTON */
+  #btn-start {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    color: white;
+    background: #1A1A1A;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  #btn-start:hover { background: #333; }
+  #btn-start:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+  /* QUIZ SCREEN */
+  #screen-quiz {}
+
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+  }
+  .badge-historia  { background: var(--historia); }
+  .badge-geografi  { background: var(--geografi); }
+  .badge-samhalle  { background: var(--samhalle); }
+  .badge-religion  { background: var(--religion); }
+  .badge-level {
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .question-card .q-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .question-card .q-text {
+    font-size: 16px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+  .source-box {
+    background: #F5F3EE;
+    border-left: 3px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-top: 16px;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--muted);
+    white-space: pre-wrap;
+  }
+
+  /* ANSWER */
+  textarea#answer {
+    width: 100%;
+    min-height: 120px;
+    padding: 14px;
+    font-size: 15px;
+    font-family: inherit;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    resize: vertical;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  textarea#answer:focus { border-color: #888; }
+
+  .action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .btn-primary {
+    background: #1A1A1A;
+    color: white;
+    border-color: #1A1A1A;
+  }
+  .btn-primary:hover { background: #333; border-color: #333; }
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text);
+    border-color: var(--border);
+  }
+  .btn-secondary:hover { border-color: #999; }
+  .btn-hint {
+    background: #FFF8E6;
+    color: #8B6000;
+    border-color: #F0D080;
+  }
+  .btn-hint:hover { background: #FFF0C0; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* FEEDBACK */
+  .feedback-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-top: 16px;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.25s ease;
+  }
+  .feedback-card .fb-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .feedback-card .fb-text {
+    font-size: 15px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  /* LOADING */
+  .loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 12px 0;
+  }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: #888;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SUMMARY SCREEN */
+  #screen-summary { text-align: center; }
+  #screen-summary h2 { font-size: 26px; margin-bottom: 12px; }
+  #screen-summary p  { color: var(--muted); margin-bottom: 8px; }
+  .summary-stats {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin: 28px 0;
+  }
+  .stat-item { text-align: center; }
+  .stat-item .num { font-size: 36px; font-weight: 700; }
+  .stat-item .lbl { font-size: 13px; color: var(--muted); }
+
+  #btn-restart {
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    background: #1A1A1A;
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+  #btn-restart:hover { background: #333; }
+
+  #error-msg {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    color: #991B1B;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 14px;
+    display: none;
+  }
+</style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <nav>
-            <div class="logo">⚡ Bionic Reading</div>
-            <div style="display:flex;gap:1rem;">
-                <a href="start.html" style="color:var(--text-light);text-decoration:none;font-weight:500;padding:0.5rem 1rem;border-radius:8px;transition:all 0.2s;">Verktyg</a>
-                <a href="gy25-laroplan.html" style="color:var(--text-light);text-decoration:none;font-weight:500;padding:0.5rem 1rem;border-radius:8px;transition:all 0.2s;">GY25</a>
-                <a href="litterara-stockholm.html" style="color:var(--text-light);text-decoration:none;font-weight:500;padding:0.5rem 1rem;border-radius:8px;transition:all 0.2s;">Litterär karta</a>
-            </div>
-        </nav>
-    </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Läs snabbare med Bionic Reading</h1>
-            <p>Omvandla text för snabbare och mer fokuserad läsning. Öka din läshastighet med upp till 30% genom att markera nyckeldelar av orden.</p>
-            <div class="hero-buttons">
-                <button class="primary-btn" onclick="document.getElementById('converter-section').scrollIntoView({behavior: 'smooth'})">
-                    Kom igång gratis
-                </button>
-                <button class="secondary-btn" onclick="document.getElementById('features-section').scrollIntoView({behavior: 'smooth'})">
-                    Läs mer
-                </button>
-            </div>
-        </div>
-        <div class="hero-visual">
-            <div class="demo-card">
-                <p class="demo-text">
-                    <strong>Bi</strong>onic <strong>Rea</strong>ding <strong>hjäl</strong>per <strong>di</strong>na <strong>ö</strong>gon <strong>a</strong>tt <strong>gli</strong>da <strong>över</strong>re <strong>tex</strong>ten <strong>snab</strong>bare <strong>ge</strong>nom <strong>a</strong>tt <strong>mar</strong>kera <strong>de</strong>n <strong>vik</strong>tigaste <strong>de</strong>len <strong>a</strong>v <strong>var</strong>je <strong>o</strong>rd.
-                </p>
-            </div>
-        </div>
-    </section>
+<header>
+  <h1>📖 NP SO <span>Träning åk 9</span></h1>
+  <div id="stats">
+    Frågor: <b id="stat-total">0</b>&nbsp;
+    Bra: <b id="stat-good">0</b>
+  </div>
+</header>
 
-    <!-- Features Section -->
-    <section class="features" id="features-section">
-        <div class="features-container">
-            <h2 class="section-title">Varför Bionic Reading?</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Snabbare läsning</h3>
-                    <p>Öka din läshastighet med upp till 30% genom att guida ögonen till de viktigaste delarna av texten.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Bättre fokus</h3>
-                    <p>Minska distraktion och förbättra koncentrationen genom visuellt stöd för din hjärna.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🧠</div>
-                    <h3>Mindre mental trötthet</h3>
-                    <p>Läs längre stunder utan att bli lika trött genom att underlätta för din hjärna att bearbeta text.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+<main>
 
-    <!-- Converter Section -->
-    <section class="converter" id="converter-section">
-        <div class="converter-container">
-            <h2 class="section-title">Prova konverteraren</h2>
+  <!-- STARTSKÄRM -->
+  <div id="screen-start" class="screen active">
+    <h2>Välkommen!</h2>
+    <p>Välj ett SO-ämne och din betygsnivå, sedan kör vi igång.</p>
 
-            <div class="controls">
-                <div class="control-group">
-                    <label for="focus-level">Fokusnivå</label>
-                    <select id="focus-level">
-                        <option value="low">Låg</option>
-                        <option value="medium" selected>Medel</option>
-                        <option value="high">Hög</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="font-size">Typsnitt</label>
-                    <select id="font-size">
-                        <option value="16">Standard</option>
-                        <option value="18">Stor</option>
-                        <option value="20">Större</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="line-spacing">Radavstånd</label>
-                    <select id="line-spacing">
-                        <option value="1.5">Kompakt</option>
-                        <option value="1.8" selected>Normal</option>
-                        <option value="2.2">Luftig</option>
-                    </select>
-                </div>
-            </div>
+    <div class="subject-grid">
+      <div class="subject-card" data-subject="historia" onclick="selectSubject(this)">
+        <span class="subject-icon">🏛️</span>
+        <h3>Historia</h3>
+        <p>Händelser, orsaker, konsekvenser och källkritik</p>
+      </div>
+      <div class="subject-card" data-subject="geografi" onclick="selectSubject(this)">
+        <span class="subject-icon">🌍</span>
+        <h3>Geografi</h3>
+        <p>Karta, klimat, naturresurser och hållbarhet</p>
+      </div>
+      <div class="subject-card" data-subject="samhalle" onclick="selectSubject(this)">
+        <span class="subject-icon">🏛</span>
+        <h3>Samhällskunskap</h3>
+        <p>Demokrati, EU, lagar och ekonomi</p>
+      </div>
+      <div class="subject-card" data-subject="religion" onclick="selectSubject(this)">
+        <span class="subject-icon">✨</span>
+        <h3>Religion</h3>
+        <p>Världsreligioner, etik och livsåskådning</p>
+      </div>
+    </div>
 
-            <div class="converter-grid">
-                <div class="input-section">
-                    <div class="section-label">
-                        Källtext
-                        <span class="char-count"><span id="char-count">0</span> tecken</span>
-                    </div>
-                    <div class="upload-area">
-                        <input type="file" id="file-input" accept=".pdf,.docx,.pptx,.txt" style="display:none;">
-                        <button class="upload-btn" onclick="document.getElementById('file-input').click()">📁 Ladda upp fil</button>
-                        <span class="upload-info">PDF, Word, PowerPoint, Text</span>
-                        <span class="upload-status" id="upload-status"></span>
-                    </div>
-                    <textarea id="input-text" placeholder="Klistra in text eller ladda upp en fil...">Bionic Reading är en läsmetod som hjälper dig att läsa snabbare och mer fokuserat. Genom att markera de viktigaste delarna av varje ord guidar metoden dina ögon genom texten på ett mer effektivt sätt. Detta gör att din hjärna kan bearbeta informationen snabbare och med mindre ansträngning. Resultatet är att du kan läsa längre stunder utan att bli lika trött, samtidigt som du behåller eller till och med förbättrar din förståelse av texten.</textarea>
-                </div>
-                <div class="output-section">
-                    <div class="section-label">
-                        Resultat
-                        <span class="char-count"></span>
-                    </div>
-                    <div id="output-text" class="output-box"></div>
-                </div>
-            </div>
+    <div class="level-section">
+      <h3>Vilken betygsnivå siktar du på?</h3>
+      <div class="level-buttons">
+        <button class="level-btn" data-level="E" onclick="selectLevel(this)">
+          <span class="grade">E</span>
+          <span class="label">Grundläggande</span>
+          <span class="desc">Beskriva och återge fakta</span>
+        </button>
+        <button class="level-btn" data-level="C" onclick="selectLevel(this)">
+          <span class="grade">C</span>
+          <span class="label">Medel</span>
+          <span class="desc">Förklara orsaker och konsekvenser</span>
+        </button>
+        <button class="level-btn" data-level="A" onclick="selectLevel(this)">
+          <span class="grade">A</span>
+          <span class="label">Fördjupning</span>
+          <span class="desc">Analysera och resonera nyanserat</span>
+        </button>
+      </div>
+    </div>
 
-            <div class="action-buttons">
-                <button class="convert-btn" id="convert-btn">🔄 Konvertera</button>
-                <button class="action-btn" id="copy-btn">📋 Kopiera HTML</button>
-                <button class="action-btn" id="clear-btn">🗑️ Rensa</button>
-            </div>
-        </div>
-    </section>
+    <button id="btn-start" disabled onclick="startQuiz()">Starta träning →</button>
+  </div>
 
-    <!-- Social Proof -->
-    <section class="social-proof">
-        <h2 class="section-title">Används av tusentals läsare</h2>
-        <div class="stats-grid">
-            <div class="stat">
-                <div class="stat-number">30%</div>
-                <div class="stat-label">Snabbare läsning</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">50K+</div>
-                <div class="stat-label">Aktiva användare</div>
-            </div>
-            <div class="stat">
-                <div class="stat-number">4.8/5</div>
-                <div class="stat-label">Användarrecension</div>
-            </div>
-        </div>
-    </section>
+  <!-- ÖVNINGSSKÄRM -->
+  <div id="screen-quiz" class="screen">
+    <div class="quiz-header">
+      <span id="badge-subject" class="badge"></span>
+      <span id="badge-level" class="badge badge-level"></span>
+    </div>
 
-    <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2026 Bionic Reading Konverterare. Läs snabbare, lär dig mer.</p>
-        </div>
-    </footer>
+    <div class="question-card" id="question-card">
+      <div class="q-label">📝 Fråga</div>
+      <div class="q-text" id="q-text">Laddar fråga…</div>
+      <div class="source-box" id="source-box" style="display:none"></div>
+    </div>
 
-    <!-- Libraries for file reading -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <textarea id="answer" placeholder="Skriv ditt svar här…"></textarea>
+    <div id="error-msg"></div>
 
-    <script>
-        // Setup pdf.js worker
-        if (typeof pdfjsLib !== 'undefined') {
-            try { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; } catch(e) {}
-        }
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="submitAnswer()">Skicka svar</button>
+      <button class="btn btn-hint" onclick="requestHint()">💡 Ledtråd</button>
+      <button class="btn btn-secondary" onclick="nextQuestion()">Nästa fråga →</button>
+    </div>
 
-        // Bionic Reading Converter Logic
-        const inputText = document.getElementById('input-text');
-        const outputText = document.getElementById('output-text');
-        const convertBtn = document.getElementById('convert-btn');
-        const copyBtn = document.getElementById('copy-btn');
-        const clearBtn = document.getElementById('clear-btn');
-        const charCount = document.getElementById('char-count');
-        const focusLevel = document.getElementById('focus-level');
-        const fontSize = document.getElementById('font-size');
-        const lineSpacing = document.getElementById('line-spacing');
+    <div id="loading" class="loading" style="display:none">
+      <div class="spinner"></div>
+      <span id="loading-text">Tänker…</span>
+    </div>
 
-        // Update character count
-        inputText.addEventListener('input', () => {
-            charCount.textContent = inputText.value.length;
-        });
+    <div id="feedback-area"></div>
 
-        // Initialize character count
-        charCount.textContent = inputText.value.length;
+    <div style="margin-top: 32px; text-align: right;">
+      <button class="btn btn-secondary" onclick="endSession()">Avsluta session</button>
+    </div>
+  </div>
 
-        // Convert text to bionic reading format
-        function convertToBionic(text, level = 'medium') {
-            const words = text.split(/(\s+)/);
-            const bionicWords = words.map(word => {
-                if (word.trim().length === 0) return word;
+  <!-- SAMMANFATTNINGSSKÄRM -->
+  <div id="screen-summary" class="screen">
+    <h2>🎉 Bra jobbat!</h2>
+    <p>Här är din sammanfattning från träningspasset.</p>
+    <div class="summary-stats">
+      <div class="stat-item">
+        <div class="num" id="sum-total">0</div>
+        <div class="lbl">Frågor totalt</div>
+      </div>
+      <div class="stat-item">
+        <div class="num" id="sum-good" style="color:#2E6E4E">0</div>
+        <div class="lbl">Bra svar</div>
+      </div>
+    </div>
+    <p id="sum-feedback" style="font-size:15px; max-width: 400px; margin: 0 auto 28px;"></p>
+    <button id="btn-restart" onclick="restart()">Träna igen</button>
+  </div>
 
-                let boldLength;
-                const wordLength = word.length;
+</main>
 
-                // Determine how much to bold based on focus level
-                switch(level) {
-                    case 'low':
-                        boldLength = Math.ceil(wordLength * 0.3);
-                        break;
-                    case 'high':
-                        boldLength = Math.ceil(wordLength * 0.5);
-                        break;
-                    default: // medium
-                        boldLength = Math.ceil(wordLength * 0.4);
-                }
+<script>
+// ─── KONFIGURATION ───────────────────────────────────────────────────────────
+const API_KEY   = "DIN_API_NYCKEL_HÄR"; // Ersätt med din nyckel
+const MODEL     = "claude-sonnet-4-20250514";
+const MAX_TOKENS = 1500;
+const TEMP      = 0.4;
 
-                // Handle minimum and maximum
-                boldLength = Math.max(1, Math.min(boldLength, wordLength));
+// ─── SYSTEMPROMPT ────────────────────────────────────────────────────────────
+const SYSTEM = `Du är en pedagogisk assistent som hjälper svenska grundskoleelever i åk 9 att öva inför det nationella provet (NP) i SO-ämnena. Du följer Lgr22 och anpassar alltid dina svar till elevens valda ämne och betygsnivå.
 
-                const boldPart = word.substring(0, boldLength);
-                const normalPart = word.substring(boldLength);
+ÄMNEN: historia, geografi, samhällskunskap, religion.
+BETYGSNIVÅER: E (beskriva/återge), C (förklara orsaker/konsekvenser), A (analysera/värdera nyanserat).
 
-                return `<strong>${boldPart}</strong>${normalPart}`;
-            });
+CENTRALT INNEHÅLL (urval Lgr22):
+HISTORIA: Industrialisering, demokratins framväxt, världskrigen, Förintelsen, kalla kriget, källkritik.
+GEOGRAFI: Befolkning, migration, klimat, naturresurser, hållbarhet, kartkunskap.
+SAMHÄLLSKUNSKAP: Sveriges statsskick, EU, demokrati, rättsväsende, medier, ekonomi, ideologier.
+RELIGION: Världsreligionerna (kristendom, islam, hinduism, buddhism, judendom), etik, livsåskådningar.
 
-            return bionicWords.join('');
-        }
+KUNSKAPSKRAV:
+E → Bloom 1–2: minnas, förstå. Faktafrågor: vad/vem/när/var.
+C → Bloom 3–4: tillämpa, analysera. Förklara orsaker och konsekvenser.
+A → Bloom 5–6: utvärdera, skapa. Nyanserat resonemang, flera perspektiv.
 
-        // Convert button click
-        convertBtn.addEventListener('click', () => {
-            const text = inputText.value;
-            if (!text.trim()) {
-                outputText.innerHTML = '<p style="color: var(--text-light); font-style: italic;">Vänligen skriv in eller klistra in text att konvertera.</p>';
-                return;
-            }
+UPPGIFTSFORMAT: Presentera alltid en fråga i detta format:
+📚 Ämne: [ämnet]
+🎯 Betygsnivå: [E/C/A]
+📝 Fråga: [frågetexten]
+[Om källmaterial behövs: lägg det i ett eget stycke med rubriken "Källmaterial:"]
 
-            const level = focusLevel.value;
-            const bionicText = convertToBionic(text, level);
+FEEDBACK-PRINCIPER:
+1. Bekräfta alltid det som är rätt INNAN du korrigerar.
+2. Ge ALDRIG direkt svar utan att eleven försökt. Använd 3-stegs ledtrådar.
+3. Ledtråd 1 (subtil): peka mot rätt begrepp eller källa.
+4. Ledtråd 2 (medel): konkret tips om vad de ska söka efter.
+5. Ledtråd 3 (tydlig): delförklaring, eleven formulerar slutsatsen.
+6. Avsluta alltid feedback med ett val: "Vill du försöka igen? / Fler ledtrådar? / Nästa fråga?"
+7. Håll tonen uppmuntrande. Undvik "Det är fel" — använd "Tänk på..." eller "Bra start, kan du också..."
+8. Svar alltid på svenska.
 
-            // Apply settings
-            const fontSizeValue = fontSize.value + 'px';
-            const lineSpacingValue = lineSpacing.value;
+VARIATION: Variera innehåll och format så att eleven inte får identiska frågor.
+NP-FORMAT: Kortsvarsuppgifter (E), förklaringsuppgifter (C), analysuppgifter (A).`;
 
-            outputText.innerHTML = `<div class="bionic-text" style="font-size: ${fontSizeValue}; line-height: ${lineSpacingValue};">${bionicText}</div>`;
+// ─── TILLSTÅND ────────────────────────────────────────────────────────────────
+let state = {
+  subject: null, level: null,
+  history: [],
+  stats: { total: 0, good: 0 },
+  hintCount: 0,
+  currentQuestion: ""
+};
 
-            // Smooth scroll to results
-            outputText.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        });
+const subjectNames = {
+  historia:  "Historia",
+  geografi:  "Geografi",
+  samhalle:  "Samhällskunskap",
+  religion:  "Religion"
+};
 
-        // Copy HTML to clipboard
-        copyBtn.addEventListener('click', async () => {
-            const html = outputText.innerHTML;
-            if (!html || html.includes('Justera inställningarna')) {
-                alert('Konvertera text först innan du kopierar.');
-                return;
-            }
+// ─── UI-HJÄLPFUNKTIONER ───────────────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
 
-            try {
-                await navigator.clipboard.writeText(html);
-                const originalText = copyBtn.innerHTML;
-                copyBtn.innerHTML = '✅ Kopierat!';
-                setTimeout(() => {
-                    copyBtn.innerHTML = originalText;
-                }, 2000);
-            } catch (err) {
-                alert('Kunde inte kopiera till urklipp. Försök igen.');
-            }
-        });
+function selectSubject(card) {
+  document.querySelectorAll(".subject-card").forEach(c => c.classList.remove("selected"));
+  card.classList.add("selected");
+  state.subject = card.dataset.subject;
+  checkStartReady();
+}
 
-        // Clear button
-        clearBtn.addEventListener('click', () => {
-            inputText.value = '';
-            outputText.innerHTML = '';
-            charCount.textContent = '0';
-        });
+function selectLevel(btn) {
+  document.querySelectorAll(".level-btn").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+  state.level = btn.dataset.level;
+  checkStartReady();
+}
 
-        // Auto-convert on load with default text
-        window.addEventListener('load', () => {
-            convertBtn.click();
-        });
+function checkStartReady() {
+  document.getElementById("btn-start").disabled = !(state.subject && state.level);
+}
 
-        // Real-time update on setting changes
-        focusLevel.addEventListener('change', () => {
-            if (inputText.value.trim()) {
-                convertBtn.click();
-            }
-        });
+function updateStats() {
+  document.getElementById("stat-total").textContent = state.stats.total;
+  document.getElementById("stat-good").textContent  = state.stats.good;
+}
 
-        fontSize.addEventListener('change', () => {
-            if (inputText.value.trim()) {
-                convertBtn.click();
-            }
-        });
+function setLoading(on, text = "Tänker…") {
+  const el = document.getElementById("loading");
+  el.style.display = on ? "flex" : "none";
+  document.getElementById("loading-text").textContent = text;
+}
 
-        lineSpacing.addEventListener('change', () => {
-            if (inputText.value.trim()) {
-                convertBtn.click();
-            }
-        });
+function showError(msg) {
+  const el = document.getElementById("error-msg");
+  el.textContent = msg;
+  el.style.display = msg ? "block" : "none";
+}
 
-        // File upload handler
-        document.getElementById('file-input').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+// ─── API-ANROP ────────────────────────────────────────────────────────────────
+async function callClaude(userMsg, timeoutMs = 30000) {
+  state.history.push({ role: "user", content: userMsg });
 
-            const status = document.getElementById('upload-status');
-            status.textContent = 'Läser ' + file.name + '...';
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
 
-            try {
-                const ext = file.name.split('.').pop().toLowerCase();
-                let text = '';
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      signal: ctrl.signal,
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: MAX_TOKENS,
+        temperature: TEMP,
+        system: SYSTEM,
+        messages: state.history
+      })
+    });
+    clearTimeout(timer);
 
-                if (ext === 'pdf') {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, useSystemFonts: true }).promise;
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const content = await page.getTextContent();
-                        const pageText = content.items.map(item => item.str).filter(s => s.length > 0).join(' ');
-                        if (pageText.trim()) text += pageText.trim() + '\n\n';
-                    }
-                } else if (ext === 'docx') {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const result = await mammoth.extractRawText({ arrayBuffer });
-                    text = result.value;
-                } else if (ext === 'pptx') {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const zip = await JSZip.loadAsync(arrayBuffer);
-                    const slideFiles = [];
-                    zip.forEach((path, entry) => {
-                        if (path.match(/^ppt\/slides\/slide\d+\.xml$/)) slideFiles.push({ path, entry });
-                    });
-                    slideFiles.sort((a, b) => parseInt(a.path.match(/slide(\d+)/)[1]) - parseInt(b.path.match(/slide(\d+)/)[1]));
-                    for (const slide of slideFiles) {
-                        const xml = await slide.entry.async('text');
-                        const matches = xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g);
-                        if (matches) {
-                            const slideText = matches.map(m => m.replace(/<[^>]+>/g, '')).filter(t => t.trim()).join(' ');
-                            if (slideText.trim()) text += slideText.trim() + '\n\n';
-                        }
-                    }
-                } else if (ext === 'txt') {
-                    text = await file.text();
-                } else {
-                    throw new Error('Filtypen stöds inte. Använd PDF, Word, PowerPoint eller Text.');
-                }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `HTTP ${res.status}`);
+    }
 
-                if (!text || text.trim().length < 10) {
-                    status.textContent = 'Ingen text hittades - filen kan vara skannad.';
-                    status.style.color = '#e53935';
-                    setTimeout(() => { status.style.color = ''; }, 3000);
-                    return;
-                }
+    const data = await res.json();
+    const reply = data.content.map(b => b.text || "").join("");
+    state.history.push({ role: "assistant", content: reply });
+    return reply;
 
-                inputText.value = text.trim();
-                charCount.textContent = inputText.value.length;
-                status.textContent = file.name + ' laddad!';
-                convertBtn.click();
-                setTimeout(() => { status.textContent = ''; }, 3000);
-            } catch (err) {
-                console.error('Upload error:', err);
-                status.textContent = 'Fel: ' + err.message;
-                status.style.color = '#e53935';
-                setTimeout(() => { status.textContent = ''; status.style.color = ''; }, 5000);
-            }
+  } catch (e) {
+    clearTimeout(timer);
+    if (e.name === "AbortError") throw new Error("Timeout – försök igen.");
+    throw e;
+  }
+}
 
-            e.target.value = '';
-        });
-    </script>
+// ─── SPELFLÖDE ────────────────────────────────────────────────────────────────
+function startQuiz() {
+  state.history = [];
+  state.hintCount = 0;
+  state.stats = { total: 0, good: 0 };
+  updateStats();
+
+  // Sätt badges
+  const subj = subjectNames[state.subject];
+  const sb = document.getElementById("badge-subject");
+  sb.textContent = subj;
+  sb.className = `badge badge-${state.subject}`;
+  document.getElementById("badge-level").textContent = `Nivå ${state.level}`;
+
+  show("screen-quiz");
+  document.getElementById("feedback-area").innerHTML = "";
+  loadNewQuestion();
+}
+
+async function loadNewQuestion() {
+  document.getElementById("answer").value = "";
+  document.getElementById("feedback-area").innerHTML = "";
+  document.getElementById("source-box").style.display = "none";
+  showError("");
+  state.hintCount = 0;
+
+  setLoading(true, "Hämtar en ny fråga…");
+  document.getElementById("q-text").textContent = "Laddar…";
+
+  const prompt = `Ge mig en ny övningsfråga i ämnet ${subjectNames[state.subject]} på betygsnivå ${state.level}. Variera gärna ämnesmoment jämfört med tidigare frågor i sessionen.`;
+
+  try {
+    const reply = await callClaude(prompt);
+    state.currentQuestion = reply;
+    renderQuestion(reply);
+    state.stats.total++;
+    updateStats();
+  } catch (e) {
+    showError("Kunde inte hämta fråga: " + e.message);
+    document.getElementById("q-text").textContent = "Något gick fel – försök igen.";
+  } finally {
+    setLoading(false);
+  }
+}
+
+function renderQuestion(text) {
+  // Extrahera källmaterial om det finns
+  const srcMatch = text.match(/Källmaterial:([\s\S]*?)(?=\n📝|\n🎯|$)/i);
+  const qMatch   = text.match(/📝 Fråga:([\s\S]+?)(?=Källmaterial:|$)/i);
+
+  const qEl  = document.getElementById("q-text");
+  const srcEl = document.getElementById("source-box");
+
+  if (qMatch) {
+    qEl.textContent = qMatch[1].trim();
+  } else {
+    // Visa hela texten om formatet saknas
+    qEl.textContent = text.replace(/^📚.*\n🎯.*\n/m, "").trim();
+  }
+
+  if (srcMatch) {
+    srcEl.textContent = srcMatch[1].trim();
+    srcEl.style.display = "block";
+  } else {
+    srcEl.style.display = "none";
+  }
+}
+
+async function submitAnswer() {
+  const ans = document.getElementById("answer").value.trim();
+  if (!ans) {
+    showError("Skriv minst en mening innan du skickar.");
+    return;
+  }
+  showError("");
+  setLoading(true, "Läser ditt svar…");
+
+  const prompt = `Eleven svarade: "${ans}"\n\nGe konstruktiv, sokratisk feedback enligt principerna i systempromten. Betygsnivå: ${state.level}. Bekräfta det som är rätt, korrigera varsamt, avsluta med ett val.`;
+
+  try {
+    const reply = await callClaude(prompt);
+    appendFeedback(reply, "💬 Återkoppling");
+
+    // Enkel heuristik för "bra svar"
+    if (/(bra|rätt|precis|korrekt|stämmer|träffar)/i.test(reply) &&
+        !/(saknar|missa|ofullständig|ej tillräcklig)/i.test(reply)) {
+      state.stats.good++;
+      updateStats();
+    }
+  } catch (e) {
+    showError("Något gick fel: " + e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function requestHint() {
+  state.hintCount++;
+  const level = state.hintCount === 1 ? "subtil" : state.hintCount === 2 ? "medel" : "tydlig";
+  setLoading(true, "Hämtar ledtråd…");
+
+  const prompt = `Ge en ${level} ledtråd (ledtråd ${state.hintCount} av 3) utan att avslöja svaret direkt.`;
+
+  try {
+    const reply = await callClaude(prompt);
+    appendFeedback(reply, `💡 Ledtråd ${state.hintCount}`);
+  } catch (e) {
+    showError("Något gick fel: " + e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function appendFeedback(text, label) {
+  const area = document.getElementById("feedback-area");
+  const card = document.createElement("div");
+  card.className = "feedback-card";
+  card.innerHTML = `<div class="fb-label">${label}</div><div class="fb-text">${escHtml(text)}</div>`;
+  area.appendChild(card);
+  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function nextQuestion() {
+  loadNewQuestion();
+}
+
+function endSession() {
+  document.getElementById("sum-total").textContent = state.stats.total;
+  document.getElementById("sum-good").textContent  = state.stats.good;
+
+  const pct = state.stats.total > 0
+    ? Math.round((state.stats.good / state.stats.total) * 100) : 0;
+
+  let msg = "";
+  if (pct >= 80)      msg = "Fantastiskt bra! Du verkar ha bra koll på ämnet. 🌟";
+  else if (pct >= 50) msg = "Bra jobbat! Fortsätt repetera de delar du kände dig osäker på.";
+  else                msg = "Bra att du tränar! Gå igenom avsnitten du tyckte var svåra och försök igen.";
+
+  document.getElementById("sum-feedback").textContent = msg;
+  show("screen-summary");
+}
+
+function restart() {
+  state.subject = null;
+  state.level   = null;
+  document.querySelectorAll(".subject-card").forEach(c => c.classList.remove("selected"));
+  document.querySelectorAll(".level-btn").forEach(b => b.classList.remove("selected"));
+  document.getElementById("btn-start").disabled = true;
+  show("screen-start");
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+            .replace(/\n/g,"<br>");
+}
+</script>
 </body>
 </html>
