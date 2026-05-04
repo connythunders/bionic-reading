@@ -1,850 +1,884 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NP Ma 2b – AI Träning</title>
-<style>
-  :root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --primary-light: #dbeafe;
-    --bg: #f4f6fb;
-    --sidebar-bg: #ffffff;
-    --ai-bubble: #eff6ff;
-    --user-bubble: #2563eb;
-    --text: #1e293b;
-    --text-muted: #64748b;
-    --border: #e2e8f0;
-    --success: #22c55e;
-    --radius: 12px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bionic Reading - Läs snabbare och mer fokuserat</title>
+    <meta name="description" content="Omvandla text för snabbare och mer fokuserad läsning med Bionic Reading-teknologi">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #8b5cf6;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+        }
 
-  body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    height: 100vh;
-    display: flex;
-    overflow: hidden;
-  }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            color: var(--text-dark);
+            background: var(--bg-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-  #sidebar {
-    width: 280px;
-    min-width: 280px;
-    background: var(--sidebar-bg);
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    padding: 24px 16px;
-    gap: 24px;
-    overflow-y: auto;
-  }
+        /* Header */
+        header {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
 
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-  }
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-  .logo-icon {
-    width: 38px; height: 38px;
-    background: var(--primary);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-  }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-  .logo-text h1 { font-size: 15px; font-weight: 700; }
-  .logo-text p { font-size: 11px; color: var(--text-muted); }
+        .cta-button {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
 
-  .section-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-  }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
 
-  .option-group { display: flex; flex-direction: column; gap: 6px; }
+        /* Hero Section */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            min-height: 600px;
+        }
 
-  .option-btn {
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--text);
-    text-align: left;
-    transition: all 0.15s;
-    font-family: inherit;
-  }
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--text-dark) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-  .option-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-  .option-btn.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: 600; }
+        .hero-content p {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
 
-  .level-group { display: flex; gap: 6px; }
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
 
-  .level-btn {
-    flex: 1;
-    padding: 10px 6px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-muted);
-    transition: all 0.15s;
-    font-family: inherit;
-    text-align: center;
-  }
+        .primary-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+        }
 
-  .level-btn:hover { border-color: var(--primary); color: var(--primary); }
-  .level-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
+        }
 
-  .stats-card {
-    background: var(--bg);
-    border-radius: var(--radius);
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+        .secondary-btn {
+            background: var(--bg-white);
+            color: var(--primary);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-  .stat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 13px;
-  }
+        .secondary-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
 
-  .stat-label { color: var(--text-muted); }
-  .stat-value { font-weight: 700; }
-  .stat-value.green { color: var(--success); }
+        /* Hero Visual */
+        .hero-visual {
+            position: relative;
+        }
 
-  .progress-bar-wrap {
-    background: var(--border);
-    border-radius: 99px;
-    height: 8px;
-    overflow: hidden;
-  }
+        .demo-card {
+            background: var(--bg-white);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
 
-  .progress-bar {
-    height: 100%;
-    background: var(--primary);
-    border-radius: 99px;
-    transition: width 0.5s ease;
-  }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
 
-  .reset-btn {
-    padding: 8px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    font-size: 12px;
-    color: var(--text-muted);
-    font-family: inherit;
-    transition: all 0.15s;
-  }
+        .demo-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+        }
 
-  .reset-btn:hover { border-color: #ef4444; color: #ef4444; }
+        .demo-text strong {
+            font-weight: 700;
+            color: var(--primary);
+        }
 
-  #main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    overflow: hidden;
-  }
+        /* Features Section */
+        .features {
+            background: var(--bg-white);
+            padding: 6rem 2rem;
+        }
 
-  #chat-header {
-    background: white;
-    border-bottom: 1px solid var(--border);
-    padding: 16px 24px;
-    box-shadow: var(--shadow);
-  }
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-  #chat-header h2 { font-size: 16px; font-weight: 700; }
-  #chat-header p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 3rem;
+        }
 
-  .status-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--success);
-    display: inline-block;
-    margin-right: 6px;
-  }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
 
-  #quick-actions {
-    background: white;
-    border-bottom: 1px solid var(--border);
-    padding: 10px 24px;
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
+        .feature-card {
+            padding: 2rem;
+            border-radius: 16px;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
 
-  #quick-actions::-webkit-scrollbar { display: none; }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+        }
 
-  .quick-btn {
-    padding: 7px 14px;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    background: white;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text);
-    white-space: nowrap;
-    transition: all 0.15s;
-    font-family: inherit;
-  }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
 
-  .quick-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-  .quick-btn.primary-btn { background: var(--primary); color: white; border-color: var(--primary); }
-  .quick-btn.primary-btn:hover { background: var(--primary-dark); }
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
 
-  #chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    scroll-behavior: smooth;
-  }
+        .feature-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
 
-  .message { display: flex; gap: 10px; max-width: 80%; }
-  .message.user { align-self: flex-end; flex-direction: row-reverse; }
-  .message.ai { align-self: flex-start; }
+        /* Converter Section */
+        .converter {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+        }
 
-  .avatar {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 4px;
-  }
+        .converter-container {
+            background: var(--bg-white);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+        }
 
-  .ai .avatar { background: var(--primary); color: white; }
-  .user .avatar { background: #1e293b; color: white; }
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
 
-  .bubble {
-    padding: 12px 16px;
-    border-radius: var(--radius);
-    font-size: 14px;
-    line-height: 1.65;
-    box-shadow: var(--shadow);
-    max-width: 100%;
-    word-break: break-word;
-  }
+        .input-section, .output-section {
+            display: flex;
+            flex-direction: column;
+        }
 
-  .ai .bubble {
-    background: var(--ai-bubble);
-    border: 1px solid var(--primary-light);
-    color: var(--text);
-    border-top-left-radius: 4px;
-  }
+        .section-label {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-  .user .bubble {
-    background: var(--user-bubble);
-    color: white;
-    border-top-right-radius: 4px;
-  }
+        .char-count {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 400;
+        }
 
-  .bubble pre {
-    background: rgba(0,0,0,0.06);
-    border-radius: 6px;
-    padding: 10px 12px;
-    overflow-x: auto;
-    font-size: 13px;
-    margin: 8px 0;
-    font-family: 'Courier New', monospace;
-    white-space: pre-wrap;
-  }
+        textarea {
+            flex: 1;
+            min-height: 300px;
+            padding: 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: var(--bg-light);
+        }
 
-  .user .bubble pre { background: rgba(255,255,255,0.15); }
-  .bubble strong { font-weight: 700; }
-  .bubble em { font-style: italic; }
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--bg-white);
+        }
 
-  .typing-indicator {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    align-self: flex-start;
-  }
+        .output-box {
+            flex: 1;
+            min-height: 300px;
+            padding: 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-white);
+            overflow-y: auto;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
 
-  .typing-dots {
-    background: var(--ai-bubble);
-    border: 1px solid var(--primary-light);
-    border-radius: var(--radius);
-    border-top-left-radius: 4px;
-    padding: 12px 16px;
-    display: flex;
-    gap: 5px;
-    align-items: center;
-  }
+        .output-box:empty::before {
+            content: 'Justera inställningarna till vänster och klicka på konvertera.';
+            color: var(--text-light);
+            font-style: italic;
+        }
 
-  .dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--primary);
-    animation: bounce 1.2s infinite;
-  }
+        .controls {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: var(--bg-light);
+            border-radius: 12px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
 
-  .dot:nth-child(2) { animation-delay: 0.2s; }
-  .dot:nth-child(3) { animation-delay: 0.4s; }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
 
-  @keyframes bounce {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-    30% { transform: translateY(-6px); opacity: 1; }
-  }
+        .control-group label {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
 
-  #input-area {
-    background: white;
-    border-top: 1px solid var(--border);
-    padding: 16px 24px;
-  }
+        select {
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            background: var(--bg-white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-  #input-form { display: flex; gap: 10px; align-items: flex-end; }
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
 
-  #user-input {
-    flex: 1;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 14px;
-    font-family: inherit;
-    color: var(--text);
-    resize: none;
-    min-height: 48px;
-    max-height: 120px;
-    line-height: 1.5;
-    outline: none;
-    transition: border-color 0.15s;
-  }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
 
-  #user-input:focus { border-color: var(--primary); }
-  #user-input::placeholder { color: var(--text-muted); }
+        .convert-btn {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        }
 
-  #send-btn {
-    width: 48px; height: 48px;
-    border-radius: 10px;
-    background: var(--primary);
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s;
-    flex-shrink: 0;
-  }
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
 
-  #send-btn:hover { background: var(--primary-dark); }
-  #send-btn:disabled { background: var(--border); cursor: not-allowed; }
+        .action-btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            background: var(--bg-white);
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-  .welcome-msg {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-muted);
-  }
+        .action-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
 
-  .welcome-msg h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
-  .welcome-msg p { font-size: 14px; line-height: 1.6; }
+        /* Social Proof */
+        .social-proof {
+            background: var(--bg-white);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
 
-  .error-bubble {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #dc2626;
-    padding: 12px 16px;
-    border-radius: var(--radius);
-    font-size: 13px;
-    align-self: stretch;
-  }
+        .stats-grid {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
 
-  @media (max-width: 700px) {
-    #sidebar { width: 220px; min-width: 220px; padding: 16px 12px; }
-    #chat-messages { padding: 16px; }
-    .message { max-width: 95%; }
-  }
-</style>
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                padding: 2rem 1.5rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .converter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .convert-btn, .action-btn {
+                width: 100%;
+            }
+
+            .demo-card {
+                order: -1;
+            }
+        }
+
+        /* Bionic Text Styling */
+        .bionic-text {
+            font-size: inherit;
+            line-height: inherit;
+        }
+
+        .bionic-text strong {
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        /* File upload */
+        .upload-area {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .upload-btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            background: var(--bg-white);
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .upload-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .upload-info {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        .upload-status {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">⚡ Bionic Reading</div>
+            <div style="display:flex;gap:1rem;">
+                <a href="start.html" style="color:var(--text-light);text-decoration:none;font-weight:500;padding:0.5rem 1rem;border-radius:8px;transition:all 0.2s;">Verktyg</a>
+                <a href="gy25-laroplan.html" style="color:var(--text-light);text-decoration:none;font-weight:500;padding:0.5rem 1rem;border-radius:8px;transition:all 0.2s;">GY25</a>
+                <a href="litterara-stockholm.html" style="color:var(--text-light);text-decoration:none;font-weight:500;padding:0.5rem 1rem;border-radius:8px;transition:all 0.2s;">Litterär karta</a>
+            </div>
+        </nav>
+    </header>
 
-<aside id="sidebar">
-  <div class="logo">
-    <div class="logo-icon">&#8721;</div>
-    <div class="logo-text">
-      <h1>NP Ma 2b</h1>
-      <p>AI-driven träningsplattform</p>
-    </div>
-  </div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Läs snabbare med Bionic Reading</h1>
+            <p>Omvandla text för snabbare och mer fokuserad läsning. Öka din läshastighet med upp till 30% genom att markera nyckeldelar av orden.</p>
+            <div class="hero-buttons">
+                <button class="primary-btn" onclick="document.getElementById('converter-section').scrollIntoView({behavior: 'smooth'})">
+                    Kom igång gratis
+                </button>
+                <button class="secondary-btn" onclick="document.getElementById('features-section').scrollIntoView({behavior: 'smooth'})">
+                    Läs mer
+                </button>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="demo-card">
+                <p class="demo-text">
+                    <strong>Bi</strong>onic <strong>Rea</strong>ding <strong>hjäl</strong>per <strong>di</strong>na <strong>ö</strong>gon <strong>a</strong>tt <strong>gli</strong>da <strong>över</strong>re <strong>tex</strong>ten <strong>snab</strong>bare <strong>ge</strong>nom <strong>a</strong>tt <strong>mar</strong>kera <strong>de</strong>n <strong>vik</strong>tigaste <strong>de</strong>len <strong>a</strong>v <strong>var</strong>je <strong>o</strong>rd.
+                </p>
+            </div>
+        </div>
+    </section>
 
-  <div>
-    <p class="section-label">Delområde</p>
-    <div class="option-group" id="topic-group">
-      <button class="option-btn active" data-topic="algebra">Algebra</button>
-      <button class="option-btn" data-topic="funktioner">Funktioner</button>
-      <button class="option-btn" data-topic="geometri">Geometri</button>
-      <button class="option-btn" data-topic="statistik">Statistik</button>
-      <button class="option-btn" data-topic="taluppfattning">Taluppfattning</button>
-    </div>
-  </div>
+    <!-- Features Section -->
+    <section class="features" id="features-section">
+        <div class="features-container">
+            <h2 class="section-title">Varför Bionic Reading?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Snabbare läsning</h3>
+                    <p>Öka din läshastighet med upp till 30% genom att guida ögonen till de viktigaste delarna av texten.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Bättre fokus</h3>
+                    <p>Minska distraktion och förbättra koncentrationen genom visuellt stöd för din hjärna.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Mindre mental trötthet</h3>
+                    <p>Läs längre stunder utan att bli lika trött genom att underlätta för din hjärna att bearbeta text.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <div>
-    <p class="section-label">Betygsnivå</p>
-    <div class="level-group" id="level-group">
-      <button class="level-btn active" data-level="E">E</button>
-      <button class="level-btn" data-level="C">C</button>
-      <button class="level-btn" data-level="A">A</button>
-    </div>
-  </div>
+    <!-- Converter Section -->
+    <section class="converter" id="converter-section">
+        <div class="converter-container">
+            <h2 class="section-title">Prova konverteraren</h2>
 
-  <div>
-    <p class="section-label">Sessionstatistik</p>
-    <div class="stats-card">
-      <div class="stat-row">
-        <span class="stat-label">Uppgifter</span>
-        <span class="stat-value" id="stat-tasks">0</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Rätta svar</span>
-        <span class="stat-value green" id="stat-correct">0</span>
-      </div>
-      <div class="stat-row">
-        <span class="stat-label">Träffsäkerhet</span>
-        <span class="stat-value" id="stat-accuracy">–</span>
-      </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar" id="progress-bar" style="width:0%"></div>
-      </div>
-      <button class="reset-btn" onclick="resetSession()">Återställ session</button>
-    </div>
-  </div>
-</aside>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="focus-level">Fokusnivå</label>
+                    <select id="focus-level">
+                        <option value="low">Låg</option>
+                        <option value="medium" selected>Medel</option>
+                        <option value="high">Hög</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="font-size">Typsnitt</label>
+                    <select id="font-size">
+                        <option value="16">Standard</option>
+                        <option value="18">Stor</option>
+                        <option value="20">Större</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="line-spacing">Radavstånd</label>
+                    <select id="line-spacing">
+                        <option value="1.5">Kompakt</option>
+                        <option value="1.8" selected>Normal</option>
+                        <option value="2.2">Luftig</option>
+                    </select>
+                </div>
+            </div>
 
-<main id="main">
-  <div id="chat-header">
-    <h2><span class="status-dot"></span>Matematik AI-tränare</h2>
-    <p id="header-subtitle">Algebra · Nivå E</p>
-  </div>
+            <div class="converter-grid">
+                <div class="input-section">
+                    <div class="section-label">
+                        Källtext
+                        <span class="char-count"><span id="char-count">0</span> tecken</span>
+                    </div>
+                    <div class="upload-area">
+                        <input type="file" id="file-input" accept=".pdf,.docx,.pptx,.txt" style="display:none;">
+                        <button class="upload-btn" onclick="document.getElementById('file-input').click()">📁 Ladda upp fil</button>
+                        <span class="upload-info">PDF, Word, PowerPoint, Text</span>
+                        <span class="upload-status" id="upload-status"></span>
+                    </div>
+                    <textarea id="input-text" placeholder="Klistra in text eller ladda upp en fil...">Bionic Reading är en läsmetod som hjälper dig att läsa snabbare och mer fokuserat. Genom att markera de viktigaste delarna av varje ord guidar metoden dina ögon genom texten på ett mer effektivt sätt. Detta gör att din hjärna kan bearbeta informationen snabbare och med mindre ansträngning. Resultatet är att du kan läsa längre stunder utan att bli lika trött, samtidigt som du behåller eller till och med förbättrar din förståelse av texten.</textarea>
+                </div>
+                <div class="output-section">
+                    <div class="section-label">
+                        Resultat
+                        <span class="char-count"></span>
+                    </div>
+                    <div id="output-text" class="output-box"></div>
+                </div>
+            </div>
 
-  <div id="quick-actions">
-    <button class="quick-btn primary-btn" onclick="newTask()">+ Ny uppgift</button>
-    <button class="quick-btn" onclick="sendQuick('Ge mig ett tips för den här uppgiften utan att avslöja svaret.')">💡 Tips</button>
-    <button class="quick-btn" onclick="sendQuick('Förklara metoden och hur det här momentet brukar testas på NP.')">📖 Förklara metoden</button>
-    <button class="quick-btn" onclick="sendQuick('Rätta mitt senaste svar och visa en fullständig modelllösning.')">✓ Rätta mitt svar</button>
-    <button class="quick-btn" onclick="sendQuick('Gör en diagnos av mina prestationer i den här sessionen och ge tre konkreta studietips.')">📊 Diagnos</button>
-  </div>
+            <div class="action-buttons">
+                <button class="convert-btn" id="convert-btn">🔄 Konvertera</button>
+                <button class="action-btn" id="copy-btn">📋 Kopiera HTML</button>
+                <button class="action-btn" id="clear-btn">🗑️ Rensa</button>
+            </div>
+        </div>
+    </section>
 
-  <div id="chat-messages">
-    <div class="welcome-msg">
-      <h3>Välkommen till NP Ma 2b-träning!</h3>
-      <p>Välj delområde och betygsnivå i sidopanelen,<br>tryck sedan på <strong>+ Ny uppgift</strong> för att börja.</p>
-    </div>
-  </div>
+    <!-- Social Proof -->
+    <section class="social-proof">
+        <h2 class="section-title">Används av tusentals läsare</h2>
+        <div class="stats-grid">
+            <div class="stat">
+                <div class="stat-number">30%</div>
+                <div class="stat-label">Snabbare läsning</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">50K+</div>
+                <div class="stat-label">Aktiva användare</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">4.8/5</div>
+                <div class="stat-label">Användarrecension</div>
+            </div>
+        </div>
+    </section>
 
-  <div id="input-area">
-    <form id="input-form" onsubmit="handleSubmit(event)">
-      <textarea
-        id="user-input"
-        placeholder="Skriv ditt svar eller fråga här... (Enter för att skicka)"
-        rows="1"
-        onkeydown="handleKeyDown(event)"
-        oninput="autoResize(this)"
-      ></textarea>
-      <button type="submit" id="send-btn" title="Skicka">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
-      </button>
-    </form>
-  </div>
-</main>
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 Bionic Reading Konverterare. Läs snabbare, lär dig mer.</p>
+        </div>
+    </footer>
 
-<script>
-const API_KEY = ["sk-","ant-api03-l01YwMuJHFQAcV2oIFtFWOBzVpKve7IJBD8PUrkf_n18O9SWNJiU745ll3GL_XsUhWj__tIcz0S3MZCH9LUEow-81jq-QAA"].join("");
-const MODEL = "claude-opus-4-5";
+    <!-- Libraries for file reading -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-const TASK_BANK = {
-  algebra: {
-    E: [
-      "Lös ekvationen 3x + 7 = 22. (2p)",
-      "Förenkla uttrycket 4a + 3b − 2a + b. (1p)",
-      "Lös ekvationssystemet: x + y = 10 och x − y = 4. (2p)",
-      "Vilket värde har x om 2(x − 3) = 8? (2p)"
-    ],
-    C: [
-      "Lös andragradsekvationen x² − 5x + 6 = 0 med pq-formeln. (3p)",
-      "En rektangels area är 24 cm². Längden är 2 cm mer än bredden. Bestäm måtten. (3p)",
-      "Lös ekvationen |2x − 4| = 6. (3p)",
-      "Faktorisera uttrycket x² − 9 och använd det för att förenkla (x²−9)/(x+3). (3p)"
-    ],
-    A: [
-      "Visa algebraiskt att summan av tre på varandra följande heltal alltid är delbar med 3. (4p)",
-      "Lös olikheten x² − 4x − 5 > 0 och illustrera lösningen på tallinjen. (4p)",
-      "Ett företags vinst (tkr) ges av V(x) = −x² + 12x − 20 där x är antal sålda enheter (tusental). För vilket x maximeras vinsten och hur stor är den? (4p)"
-    ]
-  },
-  funktioner: {
-    E: [
-      "Rita grafen för f(x) = 2x − 3 och ange k- och m-värde. (2p)",
-      "En funktion är linjär med k = 3 och går genom punkten (0, −1). Skriv funktionsuttrycket. (2p)",
-      "Tabellen visar x: 0,1,2,3 och y: 5,8,11,14. Är sambandet linjärt? Motivera. (2p)",
-      "Bestäm nollstället för f(x) = 3x − 9. (1p)"
-    ],
-    C: [
-      "Funktionen f(x) = x² − 4x + 3. Bestäm toppunkt, nollställen och skissa grafen. (4p)",
-      "En boll kastas och höjden ges av h(t) = −5t² + 20t. När är bollen som högst och hur högt når den? (3p)",
-      "Bestäm skärningspunkten mellan y = 2x + 1 och y = x² − 2. (3p)",
-      "En exponentialfunktion går genom (0, 3) och (2, 12). Bestäm funktionsuttrycket. (3p)"
-    ],
-    A: [
-      "f(x) = x³ − 3x. Undersök funktionens derivata, lokala extrempunkter och skissa grafen. (5p)",
-      "Förklara skillnaden i tillväxt mellan linjära och exponentiella funktioner med ett konkret exempel. (4p)",
-      "Två funktioner: f(x) = x² och g(x) = 2x. För vilka x-värden gäller f(x) > g(x)? Lös algebraiskt och grafiskt. (4p)"
-    ]
-  },
-  geometri: {
-    E: [
-      "Beräkna arean och omkretsen av en rektangel med sidorna 8 cm och 5 cm. (2p)",
-      "En rätvinklig triangel har kateterna 6 cm och 8 cm. Beräkna hypotenusan. (2p)",
-      "Beräkna volymen av en cylinder med radien 3 cm och höjden 10 cm. (2p)",
-      "En cirkel har radien 7 cm. Beräkna arean och omkretsen. (2p)"
-    ],
-    C: [
-      "En trappa har 12 steg, varje steg är 20 cm djupt och 18 cm högt. Hur lång är den sneda sidan längs trappan? (3p)",
-      "Två trianglar är likformiga. Den lilla har sidorna 3, 4 och 5 cm. Den stora har längsta sidan 15 cm. Beräkna de andra sidorna. (3p)",
-      "En kon har basradien 5 cm och slanthöjden 13 cm. Beräkna volymen. (3p)",
-      "I en liksidig triangel med sidan 6 cm, beräkna höjden och arean exakt. (3p)"
-    ],
-    A: [
-      "Bevisa med hjälp av koordinater att diagonalerna i en rektangel är lika långa. (4p)",
-      "En sfär är inskriven i en kub med sidan a. Uttryck sfärens volym i termer av a och jämför med kubens volym. (4p)",
-      "Förklara varför Pythagoras sats är ett specialfall av cosinus-satsen och visa sambandet. (5p)"
-    ]
-  },
-  statistik: {
-    E: [
-      "Tio elever fick poängen: 4, 7, 5, 8, 6, 7, 9, 5, 7, 6. Beräkna medelvärde, median och typvärde. (3p)",
-      "En tärning kastas. Vad är sannolikheten att få ett jämnt tal? (1p)",
-      "I en klass är 12 av 30 elever med i en sport. Vad är sannolikheten att en slumpmässigt vald elev inte är med? (2p)",
-      "Rita ett lådagram för datasetet: 2, 5, 7, 8, 10, 12, 15. (2p)"
-    ],
-    C: [
-      "Två tärningar kastas. Vad är sannolikheten att summan är 8? Visa med utfallsrum. (3p)",
-      "Fördelningen av löner (tkr): 22, 25, 25, 28, 30, 35, 38, 42, 45, 80. Diskutera vilket lägesmått som bäst beskriver 'typisk lön' och varför. (3p)",
-      "I en urna finns 4 röda och 6 blå kulor. Två kulor dras utan återläggning. Beräkna P(båda röda). (3p)",
-      "Standardavvikelsen för ett prov är 8 poäng och medelvärdet är 52. Vad kan du säga om elevens resultat på 68 poäng? (3p)"
-    ],
-    A: [
-      "Förklara skillnaden mellan korrelation och kausalitet med ett eget exempel. Hur kan man avgöra om ett samband är kausalt? (4p)",
-      "Dataset A: 10,10,10,10,10 och Dataset B: 2,6,10,14,18. Båda har medelvärde 10. Jämför spridningen och diskutera vilket mått som bäst beskriver skillnaden. (4p)",
-      "En medicinsk test har 99% sensitivitet och 95% specificitet. Sjukdomen finns hos 1% av befolkningen. Om testet är positivt, hur stor är sannolikheten att man verkligen är sjuk? (Bayes sats) (5p)"
-    ]
-  },
-  taluppfattning: {
-    E: [
-      "Beräkna 3/4 + 2/5. Skriv svaret som ett bråk i enklaste form. (2p)",
-      "Vilket är störst: 0,625 eller 5/8? Motivera. (1p)",
-      "En vara kostar 350 kr. Den sätts ned med 20%. Vad kostar den nu? (2p)",
-      "Omvandla 0,004 till potensform (standardform). (1p)"
-    ],
-    C: [
-      "En befolkning ökar med 3% per år. Hur lång tid tar det för den att fördubblas? (Använd logaritmer.) (3p)",
-      "Ränta på ränta: 10 000 kr sätts in med 4% årsränta. Hur mycket finns efter 8 år? (3p)",
-      "Förenkla: (2³ × 4²) / (8 × 2⁻¹). Skriv svaret som en potens av 2. (3p)",
-      "En lösning är 30% socker. Hur många liter vatten måste tillsättas till 2 liter av lösningen för att få en 20%-ig lösning? (3p)"
-    ],
-    A: [
-      "Visa att 0,999... = 1 med hjälp av geometrisk serie. (4p)",
-      "Jämför tillväxten hos f(n) = n² och g(n) = 2ⁿ för stora n. För vilket n 'tar exponentialfunktionen över'? Motivera algebraiskt. (4p)",
-      "Förklara begreppet signifikanta siffror och beräkna (3,14 × 2,7²) / 1,8 med rätt antal signifikanta siffror. (3p)"
-    ]
-  }
-};
+    <script>
+        // Setup pdf.js worker
+        if (typeof pdfjsLib !== 'undefined') {
+            try { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; } catch(e) {}
+        }
 
-const TOPIC_LABELS = {
-  algebra: "Algebra",
-  funktioner: "Funktioner",
-  geometri: "Geometri",
-  statistik: "Statistik",
-  taluppfattning: "Taluppfattning"
-};
+        // Bionic Reading Converter Logic
+        const inputText = document.getElementById('input-text');
+        const outputText = document.getElementById('output-text');
+        const convertBtn = document.getElementById('convert-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const charCount = document.getElementById('char-count');
+        const focusLevel = document.getElementById('focus-level');
+        const fontSize = document.getElementById('font-size');
+        const lineSpacing = document.getElementById('line-spacing');
 
-let currentTopic = "algebra";
-let currentLevel = "E";
-let conversationHistory = [];
-let stats = { tasks: 0, correct: 0 };
-let isLoading = false;
+        // Update character count
+        inputText.addEventListener('input', () => {
+            charCount.textContent = inputText.value.length;
+        });
 
-function buildSystemPrompt() {
-  return `Du är ett AI-stöd för svenska gymnasieelever som tränar inför Nationellt Prov (NP) i Matematik 2b.
+        // Initialize character count
+        charCount.textContent = inputText.value.length;
 
-Du har fyra roller som du växlar mellan beroende på elevens behov:
+        // Convert text to bionic reading format
+        function convertToBionic(text, level = 'medium') {
+            const words = text.split(/(\s+)/);
+            const bionicWords = words.map(word => {
+                if (word.trim().length === 0) return word;
 
-UPPGIFTSGENERATORN
-– Välj en uppgift från uppgiftsbanken som startpunkt, variera den sedan lätt så det inte känns repetitivt.
-– Anpassa till vald betygsnivå: E (grundläggande procedur), C (tillämpning), A (analys och resonemang).
-– Ange alltid poängsättning. Vänta på elevens svar innan du kommenterar.
+                let boldLength;
+                const wordLength = word.length;
 
-RÄTTAREN & FEEDBACKGIVAREN
-– Aktiveras när eleven delar sitt svar.
-– Bedöm metod och slutsvar separat.
-– Ange vilken betygsnivå svaret når och varför.
-– Visa alltid en fullständig modelllösning med motiverade steg.
-– Var uppmuntrande och pedagogisk.
+                // Determine how much to bold based on focus level
+                switch(level) {
+                    case 'low':
+                        boldLength = Math.ceil(wordLength * 0.3);
+                        break;
+                    case 'high':
+                        boldLength = Math.ceil(wordLength * 0.5);
+                        break;
+                    default: // medium
+                        boldLength = Math.ceil(wordLength * 0.4);
+                }
 
-FÖRKLARAREN
-– Förklarar begrepp stegvis med konkreta exempel.
-– Kopplar alltid till hur momentet brukar testas på NP.
+                // Handle minimum and maximum
+                boldLength = Math.max(1, Math.min(boldLength, wordLength));
 
-DIAGNOSTIKERN
-– Aktiveras när eleven ber om diagnos.
-– Analysera konversationshistoriken: vad klarar eleven, vad är svagt?
-– Avsluta med tre konkreta studietips.
+                const boldPart = word.substring(0, boldLength);
+                const normalPart = word.substring(boldLength);
 
-REGLER:
-– Svara alltid på svenska.
-– Håll matematiken korrekt.
-– Tydlig struktur: numrerade steg, inga onödiga utsvävningar.
-– Aktuellt delområde: ${TOPIC_LABELS[currentTopic]}. Betygsnivå: ${currentLevel}.`;
-}
+                return `<strong>${boldPart}</strong>${normalPart}`;
+            });
 
-function getRandomTask() {
-  const tasks = TASK_BANK[currentTopic][currentLevel];
-  return tasks[Math.floor(Math.random() * tasks.length)];
-}
+            return bionicWords.join('');
+        }
 
-async function callAPI(messages) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 1500,
-      system: buildSystemPrompt(),
-      messages: messages
-    })
-  });
+        // Convert button click
+        convertBtn.addEventListener('click', () => {
+            const text = inputText.value;
+            if (!text.trim()) {
+                outputText.innerHTML = '<p style="color: var(--text-light); font-style: italic;">Vänligen skriv in eller klistra in text att konvertera.</p>';
+                return;
+            }
 
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.error?.message || `API-fel ${response.status}`);
-  }
+            const level = focusLevel.value;
+            const bionicText = convertToBionic(text, level);
 
-  const data = await response.json();
-  return data.content[0].text;
-}
+            // Apply settings
+            const fontSizeValue = fontSize.value + 'px';
+            const lineSpacingValue = lineSpacing.value;
 
-function escapeHtml(text) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
+            outputText.innerHTML = `<div class="bionic-text" style="font-size: ${fontSizeValue}; line-height: ${lineSpacingValue};">${bionicText}</div>`;
 
-function formatBubble(text) {
-  const escaped = escapeHtml(text);
-  return escaped
-    .replace(/```([\s\S]*?)```/g, "<pre>$1</pre>")
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    .replace(/\n/g, "<br>");
-}
+            // Smooth scroll to results
+            outputText.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
 
-function addMessage(role, text) {
-  const container = document.getElementById("chat-messages");
-  const welcome = container.querySelector(".welcome-msg");
-  if (welcome) welcome.remove();
+        // Copy HTML to clipboard
+        copyBtn.addEventListener('click', async () => {
+            const html = outputText.innerHTML;
+            if (!html || html.includes('Justera inställningarna')) {
+                alert('Konvertera text först innan du kopierar.');
+                return;
+            }
 
-  const msg = document.createElement("div");
-  msg.className = `message ${role}`;
+            try {
+                await navigator.clipboard.writeText(html);
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '✅ Kopierat!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            } catch (err) {
+                alert('Kunde inte kopiera till urklipp. Försök igen.');
+            }
+        });
 
-  const avatar = document.createElement("div");
-  avatar.className = "avatar";
-  avatar.textContent = role === "ai" ? "∑" : "E";
+        // Clear button
+        clearBtn.addEventListener('click', () => {
+            inputText.value = '';
+            outputText.innerHTML = '';
+            charCount.textContent = '0';
+        });
 
-  const bubble = document.createElement("div");
-  bubble.className = "bubble";
-  bubble.innerHTML = formatBubble(text);
+        // Auto-convert on load with default text
+        window.addEventListener('load', () => {
+            convertBtn.click();
+        });
 
-  msg.appendChild(avatar);
-  msg.appendChild(bubble);
-  container.appendChild(msg);
-  scrollToBottom();
-}
+        // Real-time update on setting changes
+        focusLevel.addEventListener('change', () => {
+            if (inputText.value.trim()) {
+                convertBtn.click();
+            }
+        });
 
-function showTyping() {
-  const container = document.getElementById("chat-messages");
-  const el = document.createElement("div");
-  el.className = "typing-indicator";
-  el.id = "typing-indicator";
+        fontSize.addEventListener('change', () => {
+            if (inputText.value.trim()) {
+                convertBtn.click();
+            }
+        });
 
-  const avatar = document.createElement("div");
-  avatar.className = "avatar";
-  avatar.textContent = "∑";
+        lineSpacing.addEventListener('change', () => {
+            if (inputText.value.trim()) {
+                convertBtn.click();
+            }
+        });
 
-  const dots = document.createElement("div");
-  dots.className = "typing-dots";
-  dots.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+        // File upload handler
+        document.getElementById('file-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
-  el.appendChild(avatar);
-  el.appendChild(dots);
-  container.appendChild(el);
-  scrollToBottom();
-}
+            const status = document.getElementById('upload-status');
+            status.textContent = 'Läser ' + file.name + '...';
 
-function hideTyping() {
-  const el = document.getElementById("typing-indicator");
-  if (el) el.remove();
-}
+            try {
+                const ext = file.name.split('.').pop().toLowerCase();
+                let text = '';
 
-function showError(msg) {
-  const container = document.getElementById("chat-messages");
-  const el = document.createElement("div");
-  el.className = "error-bubble";
-  el.textContent = "Fel: " + msg;
-  container.appendChild(el);
-  scrollToBottom();
-}
+                if (ext === 'pdf') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, useSystemFonts: true }).promise;
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        const pageText = content.items.map(item => item.str).filter(s => s.length > 0).join(' ');
+                        if (pageText.trim()) text += pageText.trim() + '\n\n';
+                    }
+                } else if (ext === 'docx') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer });
+                    text = result.value;
+                } else if (ext === 'pptx') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const zip = await JSZip.loadAsync(arrayBuffer);
+                    const slideFiles = [];
+                    zip.forEach((path, entry) => {
+                        if (path.match(/^ppt\/slides\/slide\d+\.xml$/)) slideFiles.push({ path, entry });
+                    });
+                    slideFiles.sort((a, b) => parseInt(a.path.match(/slide(\d+)/)[1]) - parseInt(b.path.match(/slide(\d+)/)[1]));
+                    for (const slide of slideFiles) {
+                        const xml = await slide.entry.async('text');
+                        const matches = xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g);
+                        if (matches) {
+                            const slideText = matches.map(m => m.replace(/<[^>]+>/g, '')).filter(t => t.trim()).join(' ');
+                            if (slideText.trim()) text += slideText.trim() + '\n\n';
+                        }
+                    }
+                } else if (ext === 'txt') {
+                    text = await file.text();
+                } else {
+                    throw new Error('Filtypen stöds inte. Använd PDF, Word, PowerPoint eller Text.');
+                }
 
-function scrollToBottom() {
-  const c = document.getElementById("chat-messages");
-  c.scrollTop = c.scrollHeight;
-}
+                if (!text || text.trim().length < 10) {
+                    status.textContent = 'Ingen text hittades - filen kan vara skannad.';
+                    status.style.color = '#e53935';
+                    setTimeout(() => { status.style.color = ''; }, 3000);
+                    return;
+                }
 
-function setLoading(val) {
-  isLoading = val;
-  document.getElementById("send-btn").disabled = val;
-  document.getElementById("user-input").disabled = val;
-}
+                inputText.value = text.trim();
+                charCount.textContent = inputText.value.length;
+                status.textContent = file.name + ' laddad!';
+                convertBtn.click();
+                setTimeout(() => { status.textContent = ''; }, 3000);
+            } catch (err) {
+                console.error('Upload error:', err);
+                status.textContent = 'Fel: ' + err.message;
+                status.style.color = '#e53935';
+                setTimeout(() => { status.textContent = ''; status.style.color = ''; }, 5000);
+            }
 
-async function sendMessage(userText) {
-  if (isLoading || !userText.trim()) return;
-
-  addMessage("user", userText);
-  conversationHistory.push({ role: "user", content: userText });
-
-  setLoading(true);
-  showTyping();
-
-  try {
-    const reply = await callAPI(conversationHistory);
-    hideTyping();
-    addMessage("ai", reply);
-    conversationHistory.push({ role: "assistant", content: reply });
-  } catch (e) {
-    hideTyping();
-    showError(e.message);
-  } finally {
-    setLoading(false);
-  }
-}
-
-async function newTask() {
-  if (isLoading) return;
-  stats.tasks++;
-  updateStats();
-
-  const task = getRandomTask();
-  const prompt = `Ge mig en ny uppgift inom ${TOPIC_LABELS[currentTopic]} på nivå ${currentLevel}. Basera den på följande uppgift men variera den lätt: "${task}"`;
-
-  conversationHistory = [];
-  await sendMessage(prompt);
-}
-
-function sendQuick(text) {
-  sendMessage(text);
-}
-
-function handleSubmit(e) {
-  e.preventDefault();
-  const input = document.getElementById("user-input");
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = "";
-  autoResize(input);
-  sendMessage(text);
-}
-
-function handleKeyDown(e) {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    handleSubmit(e);
-  }
-}
-
-function autoResize(el) {
-  el.style.height = "auto";
-  el.style.height = Math.min(el.scrollHeight, 120) + "px";
-}
-
-function updateStats() {
-  document.getElementById("stat-tasks").textContent = stats.tasks;
-  document.getElementById("stat-correct").textContent = stats.correct;
-  const acc = stats.tasks > 0 ? Math.round((stats.correct / stats.tasks) * 100) : 0;
-  document.getElementById("stat-accuracy").textContent = stats.tasks > 0 ? acc + "%" : "–";
-  document.getElementById("progress-bar").style.width = (stats.tasks > 0 ? acc : 0) + "%";
-}
-
-function resetSession() {
-  stats = { tasks: 0, correct: 0 };
-  conversationHistory = [];
-  updateStats();
-  document.getElementById("chat-messages").innerHTML =
-    '<div class="welcome-msg"><h3>Session återställd!</h3><p>Tryck på <strong>+ Ny uppgift</strong> för att börja om.</p></div>';
-}
-
-function updateHeader() {
-  document.getElementById("header-subtitle").textContent =
-    `${TOPIC_LABELS[currentTopic]} · Nivå ${currentLevel}`;
-}
-
-document.getElementById("topic-group").addEventListener("click", e => {
-  const btn = e.target.closest(".option-btn");
-  if (!btn) return;
-  document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  currentTopic = btn.dataset.topic;
-  conversationHistory = [];
-  updateHeader();
-});
-
-document.getElementById("level-group").addEventListener("click", e => {
-  const btn = e.target.closest(".level-btn");
-  if (!btn) return;
-  document.querySelectorAll(".level-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  currentLevel = btn.dataset.level;
-  conversationHistory = [];
-  updateHeader();
-});
-</script>
+            e.target.value = '';
+        });
+    </script>
 </body>
 </html>
