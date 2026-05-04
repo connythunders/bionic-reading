@@ -470,7 +470,7 @@
 
 <script>
 // ─── KONFIGURATION ───────────────────────────────────────────────────────────
-const API_KEY   = "sk-ant-api03-l01YwMuJHFQAcV2oIFtFWOBzVpKve7IJBD8PUrkf_n18O9SWNJiU745ll3GL_XsUhWj__tIcz0S3MZCH9LUEow-81jq-AAA";
+const API_ENDPOINT = "/api/claude";
 const MODEL     = "claude-sonnet-4-20250514";
 const MAX_TOKENS = 1500;
 const TEMP      = 0.4;
@@ -576,14 +576,11 @@ async function callClaude(userMsg, timeoutMs = 30000) {
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
 
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch(API_ENDPOINT, {
       method: "POST",
       signal: ctrl.signal,
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": API_KEY,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true"
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         model: MODEL,
