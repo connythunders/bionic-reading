@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skapa med AI – Joel Rangsjö | Windows 98</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;font-family:"MS Sans Serif","Microsoft Sans Serif",Arial,sans-serif;font-size:12px;}
+
+/* === BOOT SCREEN === */
+#bootScreen{position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s;}
+#bootScreen.hidden{opacity:0;pointer-events:none;}
+.boot-logo{color:#c0c0c0;font-size:48px;font-weight:bold;letter-spacing:4px;margin-bottom:8px;}
+.boot-logo span{color:#1084d0;}
+.boot-tagline{color:#808080;font-size:13px;margin-bottom:40px;letter-spacing:2px;}
+.boot-bar-wrap{width:220px;height:18px;border:2px solid #808080;background:#000;padding:2px;}
+.boot-bar-fill{height:100%;width:0%;background:repeating-linear-gradient(90deg,#1084d0 0px,#1084d0 10px,#000 10px,#000 12px);transition:width 0.08s linear;}
+.boot-status{color:#808080;font-size:10px;margin-top:10px;letter-spacing:1px;}
+
+/* === DESKTOP === */
+#desktop{width:100vw;height:100vh;background:#008080;position:relative;overflow:hidden;}
+
+/* === DESKTOP ICONS === */
+.desk-icon{position:absolute;display:flex;flex-direction:column;align-items:center;cursor:pointer;width:72px;padding:4px;border:1px solid transparent;}
+.desk-icon:hover{border:1px dotted #fff;background:rgba(0,0,128,0.3);}
+.desk-icon .ico{font-size:28px;line-height:1;}
+.desk-icon .lbl{color:#fff;font-size:10px;text-align:center;margin-top:2px;text-shadow:1px 1px 0 #000;word-break:break-word;}
+
+/* === WIN98 UTILS === */
+.raised{border-style:solid;border-width:2px;border-color:#fff #808080 #808080 #fff;}
+.sunken{border-style:solid;border-width:2px;border-color:#808080 #fff #fff #808080;}
+.double-raised{border:2px solid #c0c0c0;outline:2px solid #fff;box-shadow:inset -2px -2px 0 #808080;}
+
+/* === MAIN WINDOW === */
+#mainWindow{position:absolute;top:4vh;left:5vw;width:90vw;height:88vh;background:#c0c0c0;display:flex;flex-direction:column;}
+#mainWindow.maximized{top:0!important;left:0!important;width:100vw!important;height:calc(100vh - 28px)!important;}
+#mainWindow.minimized .window-body,
+#mainWindow.minimized .menu-bar,
+#mainWindow.minimized .window-footer,
+#mainWindow.minimized .status-bar{display:none!important;}
+
+/* === TITLE BAR === */
+.title-bar{background:linear-gradient(90deg,#000080 0%,#1084d0 100%);padding:3px 4px;display:flex;justify-content:space-between;align-items:center;cursor:default;user-select:none;flex-shrink:0;}
+.title-bar-text{color:#fff;font-weight:bold;font-size:11px;display:flex;align-items:center;gap:5px;}
+.title-bar-controls{display:flex;gap:2px;}
+.tbtn{width:16px;height:14px;background:#c0c0c0;border-style:solid;border-width:2px;border-color:#fff #808080 #808080 #fff;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;color:#000;}
+.tbtn:active{border-color:#808080 #fff #fff #808080;}
+.tbtn.close{font-weight:bold;}
+
+/* === MENU BAR === */
+.menu-bar{background:#c0c0c0;padding:2px 4px;display:flex;gap:2px;border-bottom:1px solid #808080;flex-shrink:0;}
+.menu-item{padding:2px 6px;cursor:pointer;font-size:11px;}
+.menu-item:hover{background:#000080;color:#fff;}
+
+/* === WINDOW BODY === */
+.window-body{flex:1;overflow:hidden;position:relative;margin:4px;border-style:solid;border-width:2px;border-color:#808080 #fff #fff #808080;background:#fff;}
+
+/* === SLIDES === */
+.slide{display:none;width:100%;height:100%;overflow-y:auto;padding:20px 24px;flex-direction:column;gap:14px;background:#fff;}
+.slide.active{display:flex;}
+
+/* Slide typography */
+.slide-title{font-size:20px;font-weight:bold;color:#000080;border-bottom:2px solid #c0c0c0;padding-bottom:8px;margin-bottom:4px;}
+.slide-sub{font-size:13px;color:#444;font-style:italic;}
+.slide-body{font-size:12px;line-height:1.7;color:#222;}
+
+/* Content boxes */
+.box{background:#c0c0c0;padding:10px 14px;border-style:solid;border-width:2px;border-color:#808080 #fff #fff #808080;}
+.box-raised{background:#c0c0c0;padding:10px 14px;border-style:solid;border-width:2px;border-color:#fff #808080 #808080 #fff;}
+.box-blue{background:#000080;color:#fff;padding:10px 14px;font-weight:bold;}
+.box-warn{background:#ffff80;border:2px solid #808000;padding:10px 14px;font-size:11px;}
+.box-red{background:#ff8080;border:2px solid #800000;padding:10px 14px;font-size:11px;}
+
+/* Grid layouts */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* Step box */
+.step-box{background:#c0c0c0;padding:12px;border-style:solid;border-width:2px;border-color:#fff #808080 #808080 #fff;text-align:center;}
+.step-icon{font-size:24px;display:block;margin-bottom:6px;}
+.step-title{font-weight:bold;font-size:11px;color:#000080;display:block;}
+.step-desc{font-size:10px;color:#444;margin-top:4px;}
+
+/* File explorer items */
+.explorer-item{display:flex;align-items:center;gap:8px;padding:4px 8px;cursor:pointer;font-size:11px;}
+.explorer-item:hover{background:#000080;color:#fff;}
+.explorer-item .fi{font-size:18px;}
+
+/* Quote box */
+.quote{border-left:4px solid #000080;padding:8px 14px;background:#e8e8ff;font-style:italic;font-size:13px;color:#000080;}
+
+/* Progress bar Win98 style */
+.prog-wrap{border-style:solid;border-width:2px;border-color:#808080 #fff #fff #808080;height:20px;background:#c0c0c0;padding:2px;}
+.prog-fill{height:100%;background:repeating-linear-gradient(90deg,#000080 0px,#000080 10px,#c0c0c0 10px,#c0c0c0 12px);}
+
+/* Fake dialog inline */
+.fake-dialog{background:#c0c0c0;border-style:solid;border-width:2px;border-color:#fff #808080 #808080 #fff;max-width:360px;margin:0 auto;}
+.fake-dialog .title-bar{padding:2px 4px;}
+.fake-dialog-body{padding:14px;display:flex;gap:12px;align-items:flex-start;font-size:11px;}
+.fake-dialog-icon{font-size:28px;flex-shrink:0;}
+.fake-dialog-btns{padding:8px;display:flex;justify-content:flex-end;gap:6px;}
+
+/* Fake IE address bar */
+.ie-bar{background:#c0c0c0;padding:4px 6px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #808080;font-size:10px;}
+.ie-address{flex:1;border-style:solid;border-width:2px;border-color:#808080 #fff #fff #808080;padding:1px 4px;background:#fff;font-size:10px;}
+
+/* === WINDOW FOOTER === */
+.window-footer{display:flex;align-items:center;justify-content:space-between;padding:4px 6px;background:#c0c0c0;border-top:1px solid #808080;flex-shrink:0;}
+
+/* === WIN98 BUTTONS === */
+.btn98{background:#c0c0c0;border-style:solid;border-width:2px;border-color:#fff #808080 #808080 #fff;padding:3px 14px;font-family:"MS Sans Serif","Microsoft Sans Serif",Arial,sans-serif;font-size:11px;cursor:pointer;min-width:80px;}
+.btn98:active{border-color:#808080 #fff #fff #808080;padding:4px 13px 2px 15px;}
+.btn98:disabled{color:#808080;cursor:default;}
+.btn98.primary{font-weight:bold;}
+
+.slide-counter{font-size:11px;color:#000;font-weight:bold;}
+
+/* === STATUS BAR === */
+.status-bar{display:flex;align-items:center;gap:8px;padding:2px 6px;background:#c0c0c0;border-top:1px solid #808080;font-size:10px;flex-shrink:0;}
+.status-panel{border-style:solid;border-width:1px;border-color:#808080 #fff #fff #808080;padding:1px 8px;}
+
+/* === TASKBAR === */
+#taskbar{position:fixed;bottom:0;left:0;right:0;height:28px;background:#c0c0c0;border-top:2px solid #fff;display:flex;align-items:center;gap:4px;padding:2px 4px;z-index:100;}
+#startBtn{background:#c0c0c0;border-style:solid;border-width:2px;border-color:#fff #808080 #808080 #fff;padding:1px 8px;font-family:inherit;font-size:11px;font-weight:bold;cursor:pointer;display:flex;align-items:center;gap:4px;height:22px;}
+#startBtn:active{border-color:#808080 #fff #fff #808080;}
+.tb-win-btn{background:#c0c0c0;border-style:solid;border-width:2px;border-color:#808080 #fff #fff #808080;padding:1px 8px;font-size:10px;height:22px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;}
+.tb-tray{margin-left:auto;border-style:solid;border-width:1px;border-color:#808080 #fff #fff #808080;padding:2px 8px;font-size:11px;font-weight:bold;background:#c0c0c0;}
+
+/* === START MENU === */
+#startMenu{position:fixed;bottom:28px;left:0;background:#c0c0c0;border-style:solid;border-width:2px;border-color:#fff #808080 #808080 #fff;display:none;z-index:200;width:200px;}
+#startMenu.visible{display:flex;}
+.sm-stripe{writing-mode:vertical-rl;transform:rotate(180deg);background:linear-gradient(180deg,#000080,#1084d0);color:#c0c0c0;font-size:16px;font-weight:bold;padding:8px 4px;letter-spacing:3px;width:24px;flex-shrink:0;}
+.sm-items{flex:1;display:flex;flex-direction:column;padding:2px 0;}
+.sm-item{padding:5px 10px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:8px;}
+.sm-item:hover{background:#000080;color:#fff;}
+.sm-sep{height:1px;background:#808080;margin:2px 0;}
+
+/* === DIALOG === */
+#dialog{position:fixed;inset:0;background:rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;z-index:500;}
+#dialog.visible{display:flex;}
+.dialog-win{background:#c0c0c0;border-style:solid;border-width:2px;border-color:#fff #808080 #808080 #fff;min-width:260px;max-width:400px;}
+.dialog-body{padding:16px;font-size:11px;line-height:1.6;display:flex;gap:12px;align-items:flex-start;}
+.dialog-icon{font-size:32px;flex-shrink:0;}
+.dialog-footer{padding:8px;display:flex;justify-content:center;gap:8px;border-top:1px solid #808080;}
+
+/* === BSOD === */
+#bsod{position:fixed;inset:0;background:#0000aa;color:#fff;font-family:"Courier New",monospace;font-size:13px;padding:40px;display:none;z-index:9000;white-space:pre-wrap;line-height:1.6;}
+#bsod.visible{display:block;}
+.bsod-header{background:#aaaaaa;color:#0000aa;padding:2px 8px;display:inline-block;margin-bottom:20px;font-weight:bold;}
+
+/* === TITLE SLIDE specific === */
+.title-slide-center{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;gap:16px;}
+.win-logo{font-size:48px;margin-bottom:8px;}
+.big-title{font-size:24px;font-weight:bold;color:#000080;max-width:600px;line-height:1.3;}
+.presenter-box{background:#c0c0c0;border-style:solid;border-width:2px;border-color:#fff #808080 #808080 #fff;padding:12px 24px;font-size:13px;}
+
+/* === SLIDE 9 (safe to turn off) === */
+.safe-screen{background:#008080;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px;text-align:center;}
+.safe-box{background:#c0c0c0;color:#000;padding:24px 32px;border-style:solid;border-width:2px;border-color:#fff #808080 #808080 #fff;max-width:400px;}
+.safe-title{font-size:18px;font-weight:bold;color:#000080;margin-bottom:12px;}
+
+ul.win-list{list-style:none;padding:0;}
+ul.win-list li{padding:3px 0 3px 14px;position:relative;font-size:11px;}
+ul.win-list li::before{content:"►";position:absolute;left:0;color:#000080;font-size:8px;top:5px;}
+
+.tag{display:inline-block;background:#000080;color:#fff;padding:1px 6px;font-size:10px;margin:2px;}
+</style>
+</head>
+<body>
+
+<!-- BOOT SCREEN -->
+<div id="bootScreen">
+  <div class="boot-logo">Windows <span>98</span></div>
+  <div class="boot-tagline">AI I SKOLAN – EDITION</div>
+  <div class="boot-bar-wrap"><div class="boot-bar-fill" id="bootBar"></div></div>
+  <div class="boot-status" id="bootStatus">Startar upp...</div>
+</div>
+
+<!-- DESKTOP -->
+<div id="desktop">
+
+  <!-- Desktop icons -->
+  <div class="desk-icon" style="top:20px;left:16px;" onclick="goToSlide(0)">
+    <span class="ico">🖥️</span><span class="lbl">Presentation</span>
+  </div>
+  <div class="desk-icon" style="top:100px;left:16px;" onclick="goToSlide(1)">
+    <span class="ico">💻</span><span class="lbl">Vibe Coding</span>
+  </div>
+  <div class="desk-icon" style="top:180px;left:16px;" onclick="goToSlide(3)">
+    <span class="ico">📁</span><span class="lbl">Mina Projekt</span>
+  </div>
+  <div class="desk-icon" style="top:260px;left:16px;" onclick="showAbout()">
+    <span class="ico">❓</span><span class="lbl">Om...</span>
+  </div>
+  <div class="desk-icon" style="top:340px;left:16px;" onclick="triggerBSOD()">
+    <span class="ico">💀</span><span class="lbl">Krasha.exe</span>
+  </div>
+
+  <!-- MAIN WINDOW -->
+  <div id="mainWindow" class="raised">
+
+    <div class="title-bar" id="mainTitleBar">
+      <div class="title-bar-text">🖥️ Skapa med AI: Från pedagogisk tanke till kod – Joel Rangsjö</div>
+      <div class="title-bar-controls">
+        <button class="tbtn" onclick="minimizeWindow()" title="Minimera">_</button>
+        <button class="tbtn" onclick="maximizeWindow()" title="Maximera">□</button>
+        <button class="tbtn close" onclick="triggerBSOD()" title="Stäng">✕</button>
+      </div>
+    </div>
+
+    <div class="menu-bar">
+      <span class="menu-item" onclick="goToSlide(0)">Arkiv</span>
+      <span class="menu-item" onclick="showAbout()">Om</span>
+      <span class="menu-item" onclick="triggerBSOD()">Hjälp</span>
+      <span class="menu-item" onclick="showDialog('Kortkommandon','<b>→ / Mellanslag</b> – Nästa bild<br><b>←</b> – Föregående bild<br><b>Home</b> – Första bilden<br><b>End</b> – Sista bilden<br><b>Escape</b> – Stäng dialogrutor')">Kortkommandon</span>
+    </div>
+
+    <div class="window-body">
+
+      <!-- SLIDE 1: Titel -->
+      <div class="slide active" id="slide-0">
+        <div class="title-slide-center">
+          <div class="win-logo">🏫</div>
+          <div class="big-title">Skapa med AI:<br>Från pedagogisk tanke till kod</div>
+          <div class="presenter-box">
+            👨‍🏫 <strong>Joel Rangsjö</strong> &nbsp;|&nbsp; Språklärare (svenska &amp; spanska) &nbsp;|&nbsp; Yrkesgym
+          </div>
+          <div style="font-size:11px;color:#808080;">&amp; Skolan i AI-eran – samlat material</div>
+          <div class="box-blue" style="max-width:400px;font-size:11px;text-align:center;">
+            "Andas ut möjligheter – andas in utmaningar"
+          </div>
+          <div style="font-size:10px;color:#808080;">Tryck → eller klicka Nästa för att börja</div>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: Paradigmskiftet & Vibe Coding -->
+      <div class="slide" id="slide-1">
+        <div class="slide-title">💻 Vibe Coding – Paradigmskiftet</div>
+        <div class="slide-sub">Från chock och fuskrädsla till strategiskt multiverktyg</div>
+        <div class="grid2" style="gap:12px;">
+          <div>
+            <div class="box-raised" style="margin-bottom:10px;">
+              <strong style="color:#000080;">Vad är "vibe coding"?</strong>
+              <ul class="win-list" style="margin-top:6px;">
+                <li>Instruera AI med vanligt talspråk</li>
+                <li>Bygga interaktiva webbsidor &amp; appar</li>
+                <li>Enklare än att designa en PowerPoint</li>
+                <li>Inga förkunskaper i kod krävs</li>
+              </ul>
+            </div>
+            <div class="box-warn">
+              ⚡ AI är extremt bra på kod eftersom kod bygger på tydliga regler om rätt och fel
+            </div>
+          </div>
+          <div>
+            <div class="box" style="margin-bottom:10px;">
+              <strong style="color:#000080;">📂 Rekommenderade verktyg</strong>
+              <div class="explorer-item" style="margin-top:8px;">🤖 <span><strong>Claude</strong> – bäst på kodning</span></div>
+              <div class="explorer-item">💬 <span>ChatGPT</span></div>
+              <div class="explorer-item">🔷 <span>Microsoft Copilot</span></div>
+              <div class="explorer-item">🔵 <span>Google Gemini</span></div>
+            </div>
+            <div class="box-blue" style="font-size:11px;">
+              Börja med det verktyg din kommun redan erbjuder!
+            </div>
+          </div>
+        </div>
+        <div class="quote">
+          "Utvecklare på Spotify uppger att de inte skrivit en rad kod manuellt på månader"
+        </div>
+        <div style="font-size:11px;color:#444;text-align:center;">Skolan rör sig från reaktivitet → proaktivitet. AI är inte längre bara en textgenerator.</div>
+      </div>
+
+      <!-- SLIDE 3: Lärarrollens förskjutning -->
+      <div class="slide" id="slide-2">
+        <div class="slide-title">👨‍🏫 Lärarrollens förskjutning</div>
+        <div class="slide-sub">Domänkunskap trumfar teknisk kompetens</div>
+        <div class="grid4" style="margin-bottom:12px;">
+          <div class="step-box">
+            <span class="step-icon">🔍</span>
+            <span class="step-title">1. Identifiera</span>
+            <span class="step-desc">Vilket pedagogiskt problem ska lösas? Vad saknas?</span>
+          </div>
+          <div class="step-box">
+            <span class="step-icon">⌨️</span>
+            <span class="step-title">2. Instruera</span>
+            <span class="step-desc">Ge AI rätt kontext och tydliga instruktioner</span>
+          </div>
+          <div class="step-box">
+            <span class="step-icon">✅</span>
+            <span class="step-title">3. Värdera</span>
+            <span class="step-desc">Gynnar resultatet faktiskt elevernas lärande?</span>
+          </div>
+          <div class="step-box">
+            <span class="step-icon">🔄</span>
+            <span class="step-title">4. Iterera</span>
+            <span class="step-desc">Testa, förbättra och anpassa kontinuerligt</span>
+          </div>
+        </div>
+        <div style="margin-bottom:8px;">
+          <div style="font-size:10px;color:#444;margin-bottom:3px;">Kodkunskap krävs:</div>
+          <div class="prog-wrap"><div class="prog-fill" style="width:10%;"></div></div>
+          <div style="font-size:10px;color:#000080;margin-top:2px;">10% – Pedagogisk domänkunskap är det som räknas</div>
+        </div>
+        <div class="grid2">
+          <div class="box-raised">
+            <strong style="color:#000080;">✔ Lärarens nya roll</strong>
+            <ul class="win-list" style="margin-top:6px;">
+              <li>Ämnesexpert som styr AI:n</li>
+              <li>Kritisk granskare av output</li>
+              <li>Pedagog som sätter sin prägel</li>
+              <li>Skapare av skräddarsydda läromedel</li>
+            </ul>
+          </div>
+          <div class="box-warn">
+            ⚠️ AI ska inte ersätta läromedel som fungerar — det är pusselbiten när befintliga metoder inte räcker till.
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 4: Kreativa exempel -->
+      <div class="slide" id="slide-3">
+        <div class="slide-title">📁 Kreativa exempel från klassrummet</div>
+        <div class="slide-sub">Mina Projekt – Dubbelklicka för att öppna</div>
+        <div class="box" style="margin-bottom:10px;padding:6px;">
+          <div class="ie-bar" style="border-bottom:0;margin-bottom:4px;">
+            <span>📁</span><span style="font-size:10px;">C:\Skola\AI-Projekt\</span>
+          </div>
+          <div class="explorer-item" onclick="showDialog('Fysiksimulator_Volvo240.exe','<b>Ämne:</b> Fysik / Fordonsprogrammet<br><br>Elever beräknar friktion och bromssträcka med en &quot;strippad Volvo 240&quot; eller epatraktor. AI byggde en interaktiv simulator där eleverna kan ändra parametrar och se resultaten direkt.<br><br><i>Perfekt för yrkesgymnasiet!</i>')">
+            <span class="fi">⚙️</span><span>Fysiksimulator_Volvo240.exe</span>
+          </div>
+          <div class="explorer-item" onclick="showDialog('3D_Modeller_Three.js','<b>Ämne:</b> Teknik / Elektroteknik<br><br>Interaktiva 3D-modeller direkt i webbläsaren via Three.js. Eleverna kan rotera och utforska parallell- och seriekopplingar för att förstå sambanden visuellt.')">
+            <span class="fi">🔷</span><span>3D_Modeller_Elkoppling.html</span>
+          </div>
+          <div class="explorer-item" onclick="showDialog('Periodiska_systemet_spel.html','<b>Ämne:</b> Kemi<br><br>En elev med svårigheter i kemi bad AI bygga ett eget spel för att plugga in periodiska systemet. Eleven tog kontroll över sitt eget lärande och byggde verktyget med hjälp av AI.')">
+            <span class="fi">🧪</span><span>Periodiska_systemet_spel.html</span>
+          </div>
+          <div class="explorer-item" onclick="showDialog('Textaventyr_Vasatiden.html','<b>Ämne:</b> Historia<br><br>En elev inför prov på Vasatiden bad AI bygga ett textäventyr där spelaren agerar Gustav Vasa. Spelet har tre olika slut beroende på spelarens val – orsak och verkan av historiska beslut.')">
+            <span class="fi">⚔️</span><span>Textaventyr_Vasatiden.html</span>
+          </div>
+          <div class="explorer-item" onclick="showDialog('Passivt_Aggressiv_Klocka.exe','<b>Ämne:</b> Matematik / Tid<br><br>En klock-app för mellanstadiet som är &quot;passivt aggressiv&quot; och blir irriterad och arg när eleverna svarar fel. Visar att AI kan bygga roliga och oväntade pedagogiska verktyg!')">
+            <span class="fi">⏰</span><span>Passivt_Aggressiv_Klocka.exe</span>
+          </div>
+          <div class="explorer-item" onclick="showDialog('Ekosystem_Simulator.html','<b>Ämne:</b> Biologi<br><br>Simulerar populationsdynamik – vad händer med ekosystemet om bytesdjuren dör ut? Eleverna kan experimentera med variabler och se konsekvenserna visualiserade i realtid.')">
+            <span class="fi">🌿</span><span>Ekosystem_Simulator.html</span>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#444;border-top:1px solid #c0c0c0;padding-top:6px;">
+          💡 Klicka på en fil för mer info &nbsp;|&nbsp; 6 objekt visas
+        </div>
+      </div>
+
+      <!-- SLIDE 5: Friktion och lärande -->
+      <div class="slide" id="slide-4">
+        <div class="slide-title">⚠️ Friktion – en förutsättning för lärande</div>
+        <div class="slide-sub">AI tar bort motstånd, men motstånd behövs</div>
+
+        <div class="fake-dialog" style="margin-bottom:12px;">
+          <div class="title-bar">
+            <div class="title-bar-text" style="font-size:10px;">⚠️ Systemvarning</div>
+          </div>
+          <div class="fake-dialog-body">
+            <span class="fake-dialog-icon">⚠️</span>
+            <div>Vill du ta bort <strong>all friktion</strong> från inlärningsprocessen?<br><br>
+            <span style="color:#800000;">OBS: Detta kan skada det djupa lärandet.</span></div>
+          </div>
+          <div class="fake-dialog-btns">
+            <button class="btn98" onclick="showDialog('Bra val!','Friktion är nödvändigt för kognition. Hjärnan stärks av motstånd – precis som muskler behöver träning.')">Ja</button>
+            <button class="btn98 primary">Nej</button>
+            <button class="btn98">Avbryt</button>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="box-raised">
+            <strong style="color:#000080;">📖 Doktor Glas-exemplet</strong>
+            <p style="margin-top:6px;font-size:11px;">Istället för att låta AI analysera boken → eleverna kartlägger <em>manuellt</em> hur Glas mående förändras på olika platser i Stockholm.</p>
+            <p style="margin-top:6px;font-size:11px;">Sedan använder de AI för att göra informationen till en interaktiv karta. Förståelsen kommer <strong>före</strong> verktyget.</p>
+          </div>
+          <div class="box-raised">
+            <strong style="color:#000080;">🔺 Omvänd Blooms taxonomi</strong>
+            <p style="margin-top:6px;font-size:11px;">Med AI kan vi börja i <strong>Skapande</strong> för att sedan nå djupare förståelse – istället för att klättra nerifrån.</p>
+            <ul class="win-list" style="margin-top:6px;">
+              <li>Ibland måste lärare förbjuda AI</li>
+              <li>Grit = uthållighet som måste tränas</li>
+              <li>Välj <em>när</em> AI underlättar vs. hindrar</li>
+            </ul>
+          </div>
+        </div>
+        <div class="quote">"Lärandet kräver motstånd. Läraren måste aktivt tvinga in friktionen."</div>
+      </div>
+
+      <!-- SLIDE 6: Källkritik -->
+      <div class="slide" id="slide-5">
+        <div class="slide-title">🌐 Källkritik &amp; AI-litteracitet</div>
+        <div class="slide-sub">Bygg resiliens mot manipulation – i praktiken, inte i teorin</div>
+
+        <div class="box" style="padding:0;margin-bottom:12px;overflow:hidden;">
+          <div class="ie-bar">
+            <span>🔒</span>
+            <div class="ie-address">http://falska-aftonbladet-nyheter.se</div>
+            <span style="font-size:10px;color:#800000;">⚠️ Ej betrodd webbplats</span>
+          </div>
+          <div style="padding:10px;font-size:11px;">
+            <strong>På några sekunder kan AI:</strong>
+            <ul class="win-list" style="margin-top:6px;">
+              <li>Klona Aftonbladet, SVT eller Expressen</li>
+              <li>Skapa övertygande falska nyheter</li>
+              <li>Generera trovärdiga "deepfake"-bilder</li>
+              <li>Bygga ett personaliserat TikTok-flöde som snävar in åsikter</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="box-raised">
+            <strong style="color:#000080;">🎯 Demonstrera i klassrummet</strong>
+            <ul class="win-list" style="margin-top:6px;">
+              <li>Klona en nyhetssajt live</li>
+              <li>Visa hur lätt det är att lura</li>
+              <li>Eleverna förstår risken på riktigt</li>
+            </ul>
+          </div>
+          <div class="box-raised">
+            <strong style="color:#000080;">🤖 Bygga AI-förståelse</strong>
+            <ul class="win-list" style="margin-top:6px;">
+              <li>Google Teachable Machine</li>
+              <li>Bygg egna algoritmer</li>
+              <li>Förstå ekokammare inifrån</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="box-warn">
+          ⚠️ <strong>Faran med likriktning:</strong> Om alla lärare använder samma AI-verktyg och mallar riskerar elevens skoldag att bli extremt enformig och generisk. Sätt din egen prägel!
+        </div>
+        <div class="box-red" style="margin-top:6px;">
+          🌍 <strong>Kulturell bias:</strong> Bildgenerering misslyckas ofta med att visa diversitet – förstärker koloniala världsbilder om vi inte är medvetna om det.
+        </div>
+      </div>
+
+      <!-- SLIDE 7: Strukturell implementering -->
+      <div class="slide" id="slide-6">
+        <div class="slide-title">🏛️ Strukturell implementering</div>
+        <div class="slide-sub">Juridik, säkerhet och ansvarsfullt AI-användande i kommuner</div>
+
+        <div class="grid2" style="margin-bottom:10px;">
+          <div class="box-raised">
+            <strong style="color:#000080;">📋 Kommunala strategier</strong>
+            <ul class="win-list" style="margin-top:6px;">
+              <li>Göteborg &amp; Helsingborg – strategiskt grepp</li>
+              <li>DPIA – noggrann konsekvensbedömning</li>
+              <li>Stängda, säkra AI-miljöer (Google Gemini)</li>
+              <li>Inte enskild lärares ansvar – systemnivå</li>
+            </ul>
+          </div>
+          <div class="box-raised">
+            <strong style="color:#000080;">📚 Utbildning i rätt ordning</strong>
+            <div style="margin-top:8px;">
+              <div class="step-box" style="margin-bottom:6px;text-align:left;display:flex;align-items:center;gap:8px;padding:6px;">
+                <span>1️⃣</span><span style="font-size:11px;"><strong>Ledning &amp; rektorer</strong> – först</span>
+              </div>
+              <div class="step-box" style="margin-bottom:6px;text-align:left;display:flex;align-items:center;gap:8px;padding:6px;">
+                <span>2️⃣</span><span style="font-size:11px;"><strong>Lärare</strong> – gemensam förståelse</span>
+              </div>
+              <div class="step-box" style="text-align:left;display:flex;align-items:center;gap:8px;padding:6px;">
+                <span>3️⃣</span><span style="font-size:11px;"><strong>Elever</strong> – sist, när strukturen finns</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="box-raised">
+          <strong style="color:#000080;">💎 Egna AI-assistenter ("Gems")</strong>
+          <div class="grid3" style="margin-top:8px;gap:8px;">
+            <div class="box" style="font-size:10px;text-align:center;padding:8px;">
+              ✍️<br><strong>Klarspråk</strong><br>Förenklar text automatiskt
+            </div>
+            <div class="box" style="font-size:10px;text-align:center;padding:8px;">
+              🧠<br><strong>Specialpedagogik</strong><br>Bollplank dygnet runt
+            </div>
+            <div class="box" style="font-size:10px;text-align:center;padding:8px;">
+              📊<br><strong>Bedömning</strong><br>Stöd för betygsättning
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 8: Kompensatoriskt uppdrag -->
+      <div class="slide" id="slide-7">
+        <div class="slide-title">♿ Det kompensatoriska uppdraget</div>
+        <div class="slide-sub">AI som det starkaste verktyget för tillgänglighet och inkludering</div>
+
+        <div class="grid3" style="margin-bottom:12px;">
+          <div class="step-box" onclick="showDialog('Stegvisa instruktioner','AI kan snabbt generera detaljerade steg-för-steg-instruktioner och checklistor anpassade för elever med kognitiva svårigheter. Det som tidigare tog timmar tar nu sekunder.')">
+            <span class="step-icon">📋</span>
+            <span class="step-title">Stegvisa instruktioner</span>
+            <span class="step-desc">Checklistor &amp; guider anpassade för varje elev</span>
+            <button class="btn98" style="margin-top:8px;font-size:10px;">Starta ►</button>
+          </div>
+          <div class="step-box" onclick="showDialog('Digital läslinjal','En digital läslinjal visar bara ett textstycke i taget, vilket minskar den kognitiva belastningen för elever med dyslexi eller koncentrationssvårigheter.')">
+            <span class="step-icon">📏</span>
+            <span class="step-title">Digital läslinjal</span>
+            <span class="step-desc">Visar ett stycke i taget – minskar kognitiv belastning</span>
+            <button class="btn98" style="margin-top:8px;font-size:10px;">Starta ►</button>
+          </div>
+          <div class="step-box" onclick="showDialog('Bionic Reading','Bionic Reading formaterar text så att de första bokstäverna i varje ord är fetstilta. Hjärnan kan då läsa snabbare och med bättre fokus. Särskilt effektivt för elever med dyslexi.')">
+            <span class="step-icon">👁️</span>
+            <span class="step-title">Bionic Reading</span>
+            <span class="step-desc">Fetstilta bokstäver hjälper hjärnan att läsa snabbare</span>
+            <button class="btn98" style="margin-top:8px;font-size:10px;">Starta ►</button>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="box-raised">
+            <strong style="color:#000080;">🖼️ Visuellt lärande med AI-bilder</strong>
+            <ul class="win-list" style="margin-top:6px;">
+              <li>Generera pedagogiska bilder &amp; infografik</li>
+              <li>Når elever med svårt för långa texter</li>
+              <li>Minskar kognitiv ansträngning</li>
+              <li>Hjälper rumsuppfattning och minne</li>
+            </ul>
+          </div>
+          <div class="box-blue" style="display:flex;flex-direction:column;justify-content:center;">
+            <div style="font-size:13px;font-weight:bold;margin-bottom:8px;">
+              AI ger tillgång till stöd som annars kräver enorma resurser
+            </div>
+            <div style="font-size:11px;opacity:0.9;">
+              Lärare + specialpedagog + AI = kraftfullt kompensatoriskt team
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:10px;color:#444;text-align:center;margin-top:4px;">
+          <span class="tag">Dyslexi</span>
+          <span class="tag">ADHD</span>
+          <span class="tag">Koncentrationssvårigheter</span>
+          <span class="tag">Läs- och skrivsvårigheter</span>
+          <span class="tag">Nyanlända</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 9: Avslutning / Ta tillbaka makten -->
+      <div class="slide" id="slide-8">
+        <div class="safe-screen">
+          <div style="font-size:48px;">🏁</div>
+          <div class="safe-box">
+            <div class="safe-title">Lärare måste ta tillbaka makten</div>
+            <ul class="win-list" style="text-align:left;margin-bottom:16px;">
+              <li>Det är lärare som vet vad lärande är</li>
+              <li>Det är lärare som känner eleverna</li>
+              <li>Låt inte techbolag styra pedagogiken</li>
+            </ul>
+            <div style="background:#000080;color:#fff;padding:8px;font-size:11px;margin-bottom:16px;font-style:italic;">
+              "Skolan ska inte låta teknikföretag diktera hur AI ska användas för att lösa problem skolan inte ens har."
+              <div style="margin-top:4px;font-size:10px;opacity:0.8;">– Joel Rangsjö</div>
+            </div>
+            <div style="font-size:10px;color:#444;margin-bottom:12px;" id="timeOnline"></div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+              <button class="btn98 primary" onclick="goToSlide(0)">▶ Börja om</button>
+              <button class="btn98" onclick="showAbout()">ℹ️ Om</button>
+              <button class="btn98" onclick="triggerBSOD()">⏻ Stäng av</button>
+            </div>
+          </div>
+          <div style="color:rgba(255,255,255,0.6);font-size:10px;">Det är nu säkert att stänga av datorn.</div>
+        </div>
+      </div>
+
+    </div><!-- /window-body -->
+
+    <div class="window-footer">
+      <button class="btn98" id="prevBtn" onclick="prevSlide()" disabled>◄ Föregående</button>
+      <span class="slide-counter" id="slideCounter">Bild 1 av 9</span>
+      <button class="btn98" id="nextBtn" onclick="nextSlide()">Nästa ►</button>
+    </div>
+
+    <div class="status-bar">
+      <span class="status-panel" id="statusText">Redo</span>
+      <span class="status-panel">9 bilder</span>
+      <span class="status-panel">Joel Rangsjö – AI i skolan</span>
+    </div>
+
+  </div><!-- /mainWindow -->
+
+  <!-- GENERIC DIALOG -->
+  <div id="dialog">
+    <div class="dialog-win">
+      <div class="title-bar">
+        <div class="title-bar-text" id="dialogTitle">Meddelande</div>
+        <button class="tbtn close" onclick="closeDialog()">✕</button>
+      </div>
+      <div class="dialog-body">
+        <span class="dialog-icon" id="dialogIcon">ℹ️</span>
+        <div id="dialogBody" style="font-size:11px;line-height:1.6;"></div>
+      </div>
+      <div class="dialog-footer">
+        <button class="btn98 primary" onclick="closeDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BSOD -->
+  <div id="bsod">
+<div class="bsod-header">Windows</div>
+
+En allvarlig undantagsfel 0E har uppstått på
+0028:C000D1FF i VXD AI_LAROPLAN(01) + 00010E36
+
+Det aktuella programmet kommer att avslutas.
+
+* Tryck valfri tangent för att avsluta den aktuella applikationen.
+* Tryck CTRL+ALT+DEL igen för att starta om datorn.
+  Du förlorar osparade data i alla program som körs.
+
+AI PEDAGOGIK KERNEL v98.4 – JOEL RANGSJÖ EDITION
+─────────────────────────────────────────────────
+DOMÄNKUNSKAP_OVERFLOW i MODUL: TECHBOLAG_STYRNING
+FRIKTION_FEL: INLÄRNING AVBRUTEN
+
+Startar om om <span id="bsodCountdown">5</span> sekunder...
+  </div>
+
+  <!-- TASKBAR -->
+  <div id="taskbar">
+    <button id="startBtn" onclick="toggleStartMenu()">
+      <span style="font-size:14px;">⊞</span> Start
+    </button>
+    <button class="tb-win-btn">🖥️ Skapa med AI</button>
+    <div class="tb-tray" id="taskbarClock">00:00</div>
+  </div>
+
+  <!-- START MENU -->
+  <div id="startMenu">
+    <div class="sm-stripe">Windows 98</div>
+    <div class="sm-items">
+      <div class="sm-item" onclick="goToSlide(0);closeStartMenu()">📋 Presentation</div>
+      <div class="sm-item" onclick="goToSlide(1);closeStartMenu()">💻 Vibe Coding</div>
+      <div class="sm-item" onclick="goToSlide(3);closeStartMenu()">📁 Kreativa exempel</div>
+      <div class="sm-item" onclick="goToSlide(7);closeStartMenu()">♿ Kompensatoriskt</div>
+      <div class="sm-sep"></div>
+      <div class="sm-item" onclick="closeStartMenu();showDialog('Minesweeper.exe','<b>Fel:</b><br><br>Programmet Minesweeper.exe hittades inte.<br><br>Kontrollera att filen finns och att du har behörighet att köra den.',true)">💣 Minesweeper.exe</div>
+      <div class="sm-item" onclick="closeStartMenu();showDialog('Solitaire.exe','<b>Fel:</b><br><br>Programmet Solitaire.exe hittades inte.<br><br>Prova att kontakta din systemadministratör.',true)">🃏 Solitaire.exe</div>
+      <div class="sm-sep"></div>
+      <div class="sm-item" onclick="closeStartMenu();showAbout()">ℹ️ Om Windows 98</div>
+      <div class="sm-item" onclick="closeStartMenu();triggerBSOD()">💀 Krasha datorn</div>
+      <div class="sm-sep"></div>
+      <div class="sm-item" onclick="closeStartMenu();showShutdown()">⏻ Stäng av...</div>
+    </div>
+  </div>
+
+</div><!-- /desktop -->
+
+<script>
+// === STATE ===
+let currentSlide = 0;
+const totalSlides = 9;
+const startTime = Date.now();
+
+const slideStatuses = [
+  'Välkommen – Joel Rangsjö, Yrkesgym',
+  'Vibe Coding – Paradigmskiftet',
+  'Lärarrollens förskjutning laddad',
+  'Kreativa exempel – 6 projekt',
+  'Friktion och lärande',
+  'Källkritik och AI-litteracitet',
+  'Strukturell implementering',
+  'Kompensatoriskt uppdrag',
+  'Avslutning – Ta tillbaka makten'
+];
+
+// === BOOT ===
+function runBoot() {
+  const bar = document.getElementById('bootBar');
+  const status = document.getElementById('bootStatus');
+  const messages = ['Laddar kärnfiler...','Initierar AI-moduler...','Startar pedagogik-tjänster...','Kontrollerar domänkunskap...','Klar!'];
+  let pct = 0;
+  let msgIdx = 0;
+  const iv = setInterval(() => {
+    pct += 2;
+    bar.style.width = pct + '%';
+    if (pct % 20 === 0 && msgIdx < messages.length) {
+      status.textContent = messages[msgIdx++];
+    }
+    if (pct >= 100) {
+      clearInterval(iv);
+      setTimeout(() => {
+        document.getElementById('bootScreen').classList.add('hidden');
+        playBeep(440, 150);
+        setTimeout(() => playBeep(660, 200), 180);
+      }, 400);
+    }
+  }, 60);
+}
+
+// === AUDIO ===
+function playBeep(freq, dur) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0.1, ctx.currentTime);
+    o.start(); o.stop(ctx.currentTime + dur/1000);
+  } catch(e) {}
+}
+
+// === SLIDES ===
+function updateSlide() {
+  document.querySelectorAll('.slide').forEach((s,i) => {
+    s.classList.toggle('active', i === currentSlide);
+  });
+  document.getElementById('slideCounter').textContent = `Bild ${currentSlide+1} av ${totalSlides}`;
+  document.getElementById('prevBtn').disabled = currentSlide === 0;
+  document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+  document.getElementById('statusText').textContent = slideStatuses[currentSlide] || 'Redo';
+  if (currentSlide === totalSlides - 1) updateTimeOnline();
+  playBeep(600, 50);
+}
+
+function nextSlide() { if (currentSlide < totalSlides-1) { currentSlide++; updateSlide(); } }
+function prevSlide() { if (currentSlide > 0) { currentSlide--; updateSlide(); } }
+function goToSlide(n) { currentSlide = n; updateSlide(); }
+
+// === KEYBOARD ===
+document.addEventListener('keydown', e => {
+  if (['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+  if (e.key==='ArrowRight'||e.key===' ') { e.preventDefault(); nextSlide(); }
+  else if (e.key==='ArrowLeft') { e.preventDefault(); prevSlide(); }
+  else if (e.key==='Home') { e.preventDefault(); goToSlide(0); }
+  else if (e.key==='End') { e.preventDefault(); goToSlide(totalSlides-1); }
+  else if (e.key==='Escape') { closeDialog(); closeStartMenu(); }
+});
+
+// === TOUCH ===
+let touchX = 0;
+document.addEventListener('touchstart', e => { touchX = e.changedTouches[0].screenX; });
+document.addEventListener('touchend', e => {
+  const diff = touchX - e.changedTouches[0].screenX;
+  if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : prevSlide(); }
+});
+
+// === CLOCK ===
+function updateClock() {
+  const n = new Date();
+  const h = String(n.getHours()).padStart(2,'0');
+  const m = String(n.getMinutes()).padStart(2,'0');
+  document.getElementById('taskbarClock').textContent = h+':'+m;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// === TIME ONLINE ===
+function updateTimeOnline() {
+  const secs = Math.floor((Date.now() - startTime) / 1000);
+  const m = Math.floor(secs/60), s = secs%60;
+  const el = document.getElementById('timeOnline');
+  if (el) el.textContent = `Du har varit inloggad i ${m} min ${s} sek`;
+}
+
+// === WINDOW DRAG ===
+(function() {
+  const win = document.getElementById('mainWindow');
+  const bar = document.getElementById('mainTitleBar');
+  let drag=false, ox=0, oy=0;
+  bar.addEventListener('mousedown', e => {
+    if (win.classList.contains('maximized')) return;
+    drag=true; ox=e.clientX-win.offsetLeft; oy=e.clientY-win.offsetTop;
+  });
+  document.addEventListener('mousemove', e => {
+    if (drag) { win.style.left=(e.clientX-ox)+'px'; win.style.top=(e.clientY-oy)+'px'; }
+  });
+  document.addEventListener('mouseup', () => { drag=false; });
+})();
+
+// === WINDOW CONTROLS ===
+let isMaximized = false;
+let savedPos = {};
+function maximizeWindow() {
+  const win = document.getElementById('mainWindow');
+  if (!isMaximized) {
+    savedPos = {top:win.style.top,left:win.style.left,width:win.style.width,height:win.style.height};
+    win.classList.add('maximized');
+    isMaximized = true;
+  } else {
+    win.classList.remove('maximized');
+    Object.assign(win.style, savedPos);
+    isMaximized = false;
+  }
+}
+
+let isMinimized = false;
+function minimizeWindow() {
+  const win = document.getElementById('mainWindow');
+  isMinimized = !isMinimized;
+  win.classList.toggle('minimized', isMinimized);
+}
+
+// === START MENU ===
+function toggleStartMenu() {
+  const m = document.getElementById('startMenu');
+  m.classList.toggle('visible');
+}
+function closeStartMenu() {
+  document.getElementById('startMenu').classList.remove('visible');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#startBtn') && !e.target.closest('#startMenu')) closeStartMenu();
+});
+
+// === DIALOG ===
+function showDialog(title, html, isError) {
+  document.getElementById('dialogTitle').textContent = title;
+  document.getElementById('dialogBody').innerHTML = html;
+  document.getElementById('dialogIcon').textContent = isError ? '🚫' : 'ℹ️';
+  document.getElementById('dialog').classList.add('visible');
+  playBeep(isError ? 300 : 800, 150);
+}
+function closeDialog() {
+  document.getElementById('dialog').classList.remove('visible');
+}
+document.getElementById('dialog').addEventListener('click', e => {
+  if (e.target === document.getElementById('dialog')) closeDialog();
+});
+
+function showAbout() {
+  showDialog('Om denna presentation',
+    '<strong>Skapa med AI: Från pedagogisk tanke till kod</strong><br><br>' +
+    'Baserat på Joel Rangsjös föreläsning samt samlat material om AI i den svenska skolan.<br><br>' +
+    '<strong>Version:</strong> Windows 98 Edition<br>' +
+    '<strong>Byggt med:</strong> Pure HTML/CSS/JS – inga externa beroenden<br>' +
+    '<strong>Bilder:</strong> 9 st<br><br>' +
+    'Navigera med piltangenter eller knapparna nedan.'
+  );
+}
+
+function showShutdown() {
+  showDialog('Stäng av datorn',
+    '<strong>Vad vill du göra?</strong><br><br>' +
+    '⚪ Vänteläge<br>' +
+    '⚪ Stäng av<br>' +
+    '<strong>🔘 Ta tillbaka makten ✓</strong><br><br>' +
+    '<em>Lärare definierar själva hur AI används i skolan.</em>'
+  );
+}
+
+// === BSOD ===
+function triggerBSOD() {
+  const bsod = document.getElementById('bsod');
+  bsod.classList.add('visible');
+  playBeep(100, 800);
+  let count = 5;
+  const cd = document.getElementById('bsodCountdown');
+  const iv = setInterval(() => {
+    count--;
+    if (cd) cd.textContent = count;
+    if (count <= 0) {
+      clearInterval(iv);
+      bsod.classList.remove('visible');
+    }
+  }, 1000);
+}
+
+// === INIT ===
+runBoot();
+</script>
+</body>
+</html>
