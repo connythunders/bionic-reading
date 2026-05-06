@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buddhismen - Gamifierade Övningar | Åk 8</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #7b4f00;
+            --primary-dark: #5a3900;
+            --secondary: #c8a832;
+            --accent: #d4812a;
+            --text-dark: #1a1a1a;
+            --text-light: #666;
+            --bg-light: #f5f0e8;
+            --bg-white: #ffffff;
+            --border: #e0d5c0;
+            --success: #4caf50;
+            --error: #e74c3c;
+            --warning: #f39c12;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #7b4f00 0%, #4a2e00 50%, #2a1a00 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #7b4f00 0%, #5a3900 50%, #3a2400 100%);
+            color: white;
+            padding: 30px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(255,255,255,0.02) 30px, rgba(255,255,255,0.02) 60px);
+            animation: patternMove 20s linear infinite;
+        }
+
+        @keyframes patternMove { from { transform: translateX(0); } to { transform: translateX(60px); } }
+
+        .header-content {
+            position: relative; z-index: 1;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;
+        }
+
+        .header-left h1 { font-size: 2.2em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header-left p { font-size: 1.1em; opacity: 0.9; margin-top: 5px; }
+        .header-right { text-align: right; }
+
+        .level-display { font-size: 1.4em; font-weight: bold; margin-bottom: 8px; }
+
+        .xp-container {
+            background: rgba(0,0,0,0.3); border-radius: 15px;
+            height: 24px; width: 250px; overflow: hidden; position: relative;
+        }
+
+        .xp-bar {
+            background: linear-gradient(90deg, var(--gold), #ffec6e);
+            height: 100%; border-radius: 15px;
+            transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .xp-text { font-size: 0.85em; margin-top: 5px; opacity: 0.9; }
+        .streak-badge {
+            display: inline-block;
+            background: rgba(255,215,0,0.2); border: 1px solid rgba(255,215,0,0.5);
+            padding: 4px 12px; border-radius: 20px; font-size: 0.9em; margin-top: 5px;
+        }
+
+        .nav-tabs {
+            display: flex; background: var(--bg-light);
+            border-bottom: 2px solid var(--border); overflow-x: auto; flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 14px 20px; cursor: pointer; border: none;
+            background: transparent; font-size: 13px; font-weight: 600;
+            color: var(--text-light); transition: all 0.3s ease;
+            border-bottom: 3px solid transparent; white-space: nowrap; position: relative;
+        }
+
+        .nav-tab:hover { background: rgba(123,79,0,0.06); color: var(--primary); }
+        .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); background: white; }
+
+        .content { padding: 35px 40px; }
+
+        .section { display: none; animation: fadeIn 0.4s ease; }
+        .section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { color: var(--primary); font-size: 1.8em; margin-bottom: 20px; border-bottom: 3px solid var(--secondary); padding-bottom: 10px; }
+        h3 { color: var(--primary); font-size: 1.3em; margin: 20px 0 12px; }
+        p { margin-bottom: 12px; color: var(--text-dark); font-size: 1.05em; }
+
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 18px; margin: 20px 0;
+        }
+
+        .dash-card {
+            background: var(--bg-light); border-radius: 14px; padding: 22px;
+            text-align: center; border: 2px solid var(--border);
+            transition: all 0.3s ease; cursor: pointer;
+        }
+
+        .dash-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.12); border-color: var(--primary); }
+        .dash-card .dash-icon { font-size: 2.4em; margin-bottom: 10px; }
+        .dash-card h4 { color: var(--primary); margin-bottom: 6px; font-size: 1em; }
+        .dash-card .dash-score { font-size: 1.8em; font-weight: bold; color: var(--primary-dark); }
+        .dash-card .dash-label { font-size: 0.85em; color: var(--text-light); }
+
+        .achievements-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 12px; margin: 20px 0;
+        }
+
+        .achievement {
+            background: var(--bg-light); border: 2px solid var(--border);
+            border-radius: 12px; padding: 18px; text-align: center;
+            transition: all 0.3s ease; opacity: 0.35;
+        }
+
+        .achievement.unlocked { opacity: 1; border-color: var(--gold); background: linear-gradient(135deg, #fffbe6, #fff9d4); }
+        .achievement .ach-icon { font-size: 2em; margin-bottom: 7px; }
+        .achievement .ach-name { font-weight: bold; font-size: 0.9em; color: var(--text-dark); }
+        .achievement .ach-desc { font-size: 0.78em; color: var(--text-light); margin-top: 3px; }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 22px; border: none; border-radius: 8px;
+            font-size: 0.95em; font-weight: 600; cursor: pointer; transition: all 0.25s ease;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-secondary { background: #e0d5c0; color: var(--text-dark); }
+        .btn-secondary:hover { background: #cec0a8; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--error); color: white; }
+
+        /* Game header */
+        .game-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 22px; flex-wrap: wrap; gap: 12px;
+        }
+
+        .game-stats { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+
+        .stat-box {
+            background: var(--bg-light); border-radius: 10px;
+            padding: 8px 16px; text-align: center; min-width: 80px;
+        }
+
+        .stat-box .stat-val { font-size: 1.5em; font-weight: bold; color: var(--primary); }
+        .stat-box .stat-lbl { font-size: 0.78em; color: var(--text-light); }
+
+        /* Progress bar */
+        .progress-wrap { background: #e0d5c0; border-radius: 10px; height: 12px; margin-bottom: 20px; overflow: hidden; }
+        .progress-bar { background: linear-gradient(90deg, var(--primary), var(--accent)); height: 100%; border-radius: 10px; transition: width 0.5s ease; }
+
+        /* Quiz */
+        .question-card {
+            background: var(--bg-light); border-radius: 14px; padding: 28px;
+            margin-bottom: 20px; border-left: 5px solid var(--primary);
+        }
+
+        .question-text { font-size: 1.2em; font-weight: 600; color: var(--text-dark); margin-bottom: 22px; }
+        .question-theme { font-size: 0.82em; color: var(--text-light); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .option-btn {
+            padding: 14px 18px; border: 2px solid var(--border);
+            border-radius: 10px; background: white; cursor: pointer;
+            text-align: left; font-size: 0.95em; transition: all 0.25s ease; line-height: 1.4;
+        }
+
+        .option-btn:hover:not(:disabled) { border-color: var(--primary); background: var(--bg-light); transform: translateX(3px); }
+        .option-btn.correct { background: #e8f5e9; border-color: var(--success); color: #2e7d32; }
+        .option-btn.wrong { background: #fce4e4; border-color: var(--error); color: #c62828; }
+
+        .explanation {
+            background: #fff8e1; border-radius: 10px; padding: 14px 18px;
+            margin-top: 14px; border-left: 4px solid var(--secondary);
+            font-size: 0.95em; color: var(--text-dark);
+        }
+
+        /* Sorting */
+        .sort-columns { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 20px; }
+
+        .sort-column {
+            background: var(--bg-light); border-radius: 12px; padding: 16px;
+            min-height: 200px; border: 2px dashed var(--border);
+            transition: border-color 0.2s;
+        }
+
+        .sort-column.drag-over { border-color: var(--primary); background: #fdf5e6; }
+        .sort-column h4 { text-align: center; color: var(--primary); font-size: 1em; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+
+        .sort-items { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+
+        .sort-item {
+            background: white; border: 2px solid var(--border); border-radius: 8px;
+            padding: 8px 14px; cursor: grab; font-size: 0.88em;
+            transition: all 0.2s ease; user-select: none;
+        }
+
+        .sort-item:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        .sort-item.dragging { opacity: 0.5; cursor: grabbing; }
+        .sort-item.correct-placed { background: #e8f5e9; border-color: var(--success); }
+        .sort-item.wrong-placed { background: #fce4e4; border-color: var(--error); }
+
+        /* Memory */
+        .memory-grid {
+            display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px;
+        }
+
+        .memory-card {
+            aspect-ratio: 1.2; background: var(--primary); border-radius: 10px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            padding: 10px; text-align: center; transition: all 0.35s ease;
+            font-size: 0.82em; font-weight: 600; color: transparent;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .memory-card.flipped { background: white; color: var(--text-dark); border: 2px solid var(--primary); }
+        .memory-card.matched { background: #e8f5e9; color: #2e7d32; border: 2px solid var(--success); cursor: default; }
+        .memory-card:hover:not(.matched) { transform: scale(1.04); }
+
+        /* True/False */
+        .tf-card {
+            background: var(--bg-light); border-radius: 14px; padding: 28px;
+            margin-bottom: 20px; text-align: center; border: 2px solid var(--border);
+        }
+
+        .tf-statement { font-size: 1.25em; font-weight: 600; color: var(--text-dark); margin-bottom: 26px; line-height: 1.5; }
+
+        .tf-buttons { display: flex; gap: 18px; justify-content: center; }
+
+        .tf-btn {
+            padding: 14px 44px; border: none; border-radius: 10px;
+            font-size: 1.1em; font-weight: 700; cursor: pointer; transition: all 0.25s ease;
+        }
+
+        .tf-btn.true-btn { background: var(--success); color: white; }
+        .tf-btn.false-btn { background: var(--error); color: white; }
+        .tf-btn:hover { transform: scale(1.06); box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
+        .tf-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .tf-result { margin-top: 18px; font-size: 1.05em; font-weight: 600; padding: 12px; border-radius: 8px; }
+        .tf-result.correct { background: #e8f5e9; color: #2e7d32; }
+        .tf-result.wrong { background: #fce4e4; color: #c62828; }
+
+        /* Clues */
+        .clue-card {
+            background: var(--bg-light); border-radius: 14px; padding: 28px;
+            margin-bottom: 20px; border-left: 5px solid var(--accent);
+        }
+
+        .clue-points { font-size: 0.85em; color: var(--text-light); margin-bottom: 14px; }
+        .clue-list { list-style: none; }
+        .clue-list li {
+            padding: 10px 16px; margin-bottom: 8px;
+            background: white; border-radius: 8px; border-left: 3px solid var(--secondary);
+            font-size: 0.95em; display: none;
+        }
+        .clue-list li.visible { display: block; }
+
+        .clue-input-wrap { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+        .clue-input {
+            flex: 1; padding: 11px 16px; border: 2px solid var(--border);
+            border-radius: 8px; font-size: 1em; outline: none;
+            min-width: 200px;
+        }
+        .clue-input:focus { border-color: var(--primary); }
+
+        /* Results */
+        .result-card {
+            background: linear-gradient(135deg, var(--bg-light), #fff8e1);
+            border-radius: 16px; padding: 32px; text-align: center; border: 2px solid var(--secondary);
+        }
+
+        .result-score { font-size: 3em; font-weight: bold; color: var(--primary); }
+        .result-label { font-size: 1em; color: var(--text-light); margin-bottom: 18px; }
+        .result-msg { font-size: 1.15em; color: var(--text-dark); margin-bottom: 22px; }
+
+        /* XP Popup */
+        .xp-popup {
+            position: fixed; top: 80px; right: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; padding: 14px 22px; border-radius: 12px;
+            font-weight: bold; font-size: 1.1em;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            opacity: 0; transform: translateY(-20px);
+            transition: all 0.4s ease; pointer-events: none; z-index: 999;
+        }
+
+        .xp-popup.show { opacity: 1; transform: translateY(0); }
+        .xp-sub { font-size: 0.8em; opacity: 0.9; margin-top: 3px; }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .content { padding: 20px; }
+            .options-grid { grid-template-columns: 1fr; }
+            .sort-columns { grid-template-columns: 1fr; }
+            .memory-grid { grid-template-columns: repeat(3,1fr); }
+            .tf-btn { padding: 12px 28px; }
+            .header { padding: 20px; }
+            .header-left h1 { font-size: 1.6em; }
+            .xp-container { width: 160px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1>☸️ Buddhismen</h1>
+                <p>Gamifierade övningar för åk 8</p>
+            </div>
+            <div class="header-right">
+                <div class="level-display" id="level-display">Nivå 1: Nybörjare</div>
+                <div class="xp-container"><div class="xp-bar" id="xp-bar" style="width:0%"></div></div>
+                <div class="xp-text" id="xp-text">0 / 100 XP till nästa nivå</div>
+                <div class="streak-badge" id="streak-badge">⚡ Streak: 0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAV -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showSection('dashboard')">🏠 Hem</button>
+        <button class="nav-tab" onclick="showSection('quiz')">❓ Quiz Battle</button>
+        <button class="nav-tab" onclick="showSection('sortera')">🔀 Sortera</button>
+        <button class="nav-tab" onclick="showSection('memory')">🃏 Memory</button>
+        <button class="nav-tab" onclick="showSection('santfalskt')">✅ Sant/Falskt</button>
+        <button class="nav-tab" onclick="showSection('ledtradar')">🔍 Vem/Vad är jag?</button>
+    </div>
+
+    <div class="content">
+
+        <!-- DASHBOARD -->
+        <div class="section active" id="dashboard">
+            <h2>☸️ Välkommen till Buddhismen!</h2>
+            <p>Träna på buddhismens viktigaste begrepp och lära. Samla XP, bygg upp din streak och lås upp achievements!</p>
+
+            <div class="dashboard-grid">
+                <div class="dash-card" onclick="showSection('quiz')">
+                    <div class="dash-icon">❓</div>
+                    <h4>Quiz Battle</h4>
+                    <div class="dash-score" id="dash-quiz">0</div>
+                    <div class="dash-label">poäng</div>
+                </div>
+                <div class="dash-card" onclick="showSection('sortera')">
+                    <div class="dash-icon">🔀</div>
+                    <h4>Sortera</h4>
+                    <div class="dash-score" id="dash-sort">0</div>
+                    <div class="dash-label">rätt sorterade</div>
+                </div>
+                <div class="dash-card" onclick="showSection('memory')">
+                    <div class="dash-icon">🃏</div>
+                    <h4>Memory</h4>
+                    <div class="dash-score" id="dash-mem">0</div>
+                    <div class="dash-label">par hittade</div>
+                </div>
+                <div class="dash-card" onclick="showSection('santfalskt')">
+                    <div class="dash-icon">✅</div>
+                    <h4>Sant/Falskt</h4>
+                    <div class="dash-score" id="dash-tf">0</div>
+                    <div class="dash-label">rätt svar</div>
+                </div>
+                <div class="dash-card" onclick="showSection('ledtradar')">
+                    <div class="dash-icon">🔍</div>
+                    <h4>Vem/Vad är jag?</h4>
+                    <div class="dash-score" id="dash-clue">0</div>
+                    <div class="dash-label">gissningar rätt</div>
+                </div>
+                <div class="dash-card">
+                    <div class="dash-icon">⭐</div>
+                    <h4>Totalt XP</h4>
+                    <div class="dash-score" id="dash-totalxp">0</div>
+                    <div class="dash-label">erfarenhetspoäng</div>
+                </div>
+            </div>
+
+            <h3>🏆 Achievements</h3>
+            <div class="achievements-grid">
+                <div class="achievement" id="ach-first" data-name="Första steget">
+                    <div class="ach-icon">🌱</div>
+                    <div class="ach-name">Första steget</div>
+                    <div class="ach-desc">Gör din första övning</div>
+                </div>
+                <div class="achievement" id="ach-quiz" data-name="Quizmästare">
+                    <div class="ach-icon">🎯</div>
+                    <div class="ach-name">Quizmästare</div>
+                    <div class="ach-desc">Klara quizet med 80%+</div>
+                </div>
+                <div class="achievement" id="ach-sort" data-name="Sorteraren">
+                    <div class="ach-icon">🔀</div>
+                    <div class="ach-name">Sorteraren</div>
+                    <div class="ach-desc">Sortera allt rätt</div>
+                </div>
+                <div class="achievement" id="ach-memory" data-name="Minnesexpert">
+                    <div class="ach-icon">🧠</div>
+                    <div class="ach-name">Minnesexpert</div>
+                    <div class="ach-desc">Klara Memory-spelet</div>
+                </div>
+                <div class="achievement" id="ach-tf" data-name="Sanningssökare">
+                    <div class="ach-icon">🔎</div>
+                    <div class="ach-name">Sanningssökare</div>
+                    <div class="ach-desc">10 rätt i rad på S/F</div>
+                </div>
+                <div class="achievement" id="ach-streak" data-name="Streaklord">
+                    <div class="ach-icon">⚡</div>
+                    <div class="ach-name">Streaklord</div>
+                    <div class="ach-desc">5 rätt i rad</div>
+                </div>
+                <div class="achievement" id="ach-buddha" data-name="Den Upplyste">
+                    <div class="ach-icon">☸️</div>
+                    <div class="ach-name">Den Upplyste</div>
+                    <div class="ach-desc">Klara alla 5 spel</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUIZ -->
+        <div class="section" id="quiz">
+            <div class="game-header">
+                <h2>❓ Quiz Battle</h2>
+                <div class="game-stats">
+                    <div class="stat-box"><div class="stat-val" id="q-score">0</div><div class="stat-lbl">Poäng</div></div>
+                    <div class="stat-box"><div class="stat-val" id="q-num">1</div><div class="stat-lbl">Fråga</div></div>
+                    <div class="stat-box"><div class="stat-val" id="q-total">30</div><div class="stat-lbl">Totalt</div></div>
+                </div>
+            </div>
+            <div class="progress-wrap"><div class="progress-bar" id="q-progress" style="width:0%"></div></div>
+            <div id="quiz-area"></div>
+            <div id="quiz-result" style="display:none"></div>
+        </div>
+
+        <!-- SORTERA -->
+        <div class="section" id="sortera">
+            <div class="game-header">
+                <h2>🔀 Sortera begreppen</h2>
+                <div class="game-stats">
+                    <div class="stat-box"><div class="stat-val" id="s-score">0</div><div class="stat-lbl">Rätt</div></div>
+                    <div class="stat-box"><div class="stat-val" id="s-total">0</div><div class="stat-lbl">Totalt</div></div>
+                </div>
+            </div>
+            <p>Dra varje begrepp till rätt inriktning inom buddhismen. Begrepp som gäller <em>alla</em> inriktningar dras till "Alla".</p>
+            <div id="sort-items-pool" class="sort-items"></div>
+            <div class="sort-columns">
+                <div class="sort-column" id="col-theravada" ondragover="dragOver(event)" ondrop="dropItem(event,'Theravada')">
+                    <h4>🟠 Theravada</h4>
+                </div>
+                <div class="sort-column" id="col-mahayana" ondragover="dragOver(event)" ondrop="dropItem(event,'Mahayana')">
+                    <h4>⚪ Mahayana</h4>
+                </div>
+                <div class="sort-column" id="col-vajrayana" ondragover="dragOver(event)" ondrop="dropItem(event,'Vajrayana')">
+                    <h4>🔴 Vajrayana</h4>
+                </div>
+                <div class="sort-column" id="col-alla" ondragover="dragOver(event)" ondrop="dropItem(event,'Alla')" style="grid-column: span 3">
+                    <h4>☸️ Alla inriktningar</h4>
+                </div>
+            </div>
+            <div style="text-align:center; margin-top:10px;">
+                <button class="btn btn-primary" onclick="checkSorting()">Kontrollera svar</button>
+                <button class="btn btn-secondary" style="margin-left:10px;" onclick="resetSorting()">Börja om</button>
+            </div>
+            <div id="sort-feedback" style="margin-top:18px;"></div>
+        </div>
+
+        <!-- MEMORY -->
+        <div class="section" id="memory">
+            <div class="game-header">
+                <h2>🃏 Memory – para ihop</h2>
+                <div class="game-stats">
+                    <div class="stat-box"><div class="stat-val" id="m-pairs">0</div><div class="stat-lbl">Par</div></div>
+                    <div class="stat-box"><div class="stat-val" id="m-tries">0</div><div class="stat-lbl">Försök</div></div>
+                </div>
+            </div>
+            <p>Klicka på korten för att vända dem. Hitta alla par – ett begrepp och dess förklaring!</p>
+            <div class="memory-grid" id="memory-grid"></div>
+            <div style="text-align:center;">
+                <button class="btn btn-secondary" onclick="initMemory()">Ny runda</button>
+            </div>
+        </div>
+
+        <!-- SANT/FALSKT -->
+        <div class="section" id="santfalskt">
+            <div class="game-header">
+                <h2>✅ Sant eller Falskt?</h2>
+                <div class="game-stats">
+                    <div class="stat-box"><div class="stat-val" id="tf-score">0</div><div class="stat-lbl">Rätt</div></div>
+                    <div class="stat-box"><div class="stat-val" id="tf-num">1</div><div class="stat-lbl">Påstående</div></div>
+                    <div class="stat-box"><div class="stat-val" id="tf-total">25</div><div class="stat-lbl">Totalt</div></div>
+                </div>
+            </div>
+            <div class="progress-wrap"><div class="progress-bar" id="tf-progress" style="width:0%"></div></div>
+            <div id="tf-area"></div>
+            <div id="tf-result" style="display:none"></div>
+        </div>
+
+        <!-- LEDTRÅDAR -->
+        <div class="section" id="ledtradar">
+            <div class="game-header">
+                <h2>🔍 Vem/Vad är jag?</h2>
+                <div class="game-stats">
+                    <div class="stat-box"><div class="stat-val" id="cl-score">0</div><div class="stat-lbl">Poäng</div></div>
+                    <div class="stat-box"><div class="stat-val" id="cl-num">1</div><div class="stat-lbl">Mysterium</div></div>
+                    <div class="stat-box"><div class="stat-val" id="cl-total">15</div><div class="stat-lbl">Totalt</div></div>
+                </div>
+            </div>
+            <div class="progress-wrap"><div class="progress-bar" id="cl-progress" style="width:0%"></div></div>
+            <p>Läs ledtrådarna en i taget. Ju färre ledtrådar du behöver, desto mer poäng får du!</p>
+            <div id="clue-area"></div>
+            <div id="clue-result" style="display:none"></div>
+        </div>
+
+    </div><!-- /content -->
+</div><!-- /container -->
+
+<div class="xp-popup" id="xp-popup">
+    <div id="xp-popup-text">+10 XP</div>
+    <div class="xp-sub" id="xp-popup-sub"></div>
+</div>
+
+<script>
+// ============================================================
+//  SPELDATA
+// ============================================================
+
+const quizData = [
+    { q:"Vad heter buddhismens grundare?", opts:["Dalai Lama","Siddhartha Gautama","Mahavira","Ashoka"], correct:1, theme:"Grundaren", explain:"Buddhismens grundare heter Siddhartha Gautama. Han levde i norra Indien på 500-talet f.Kr. och kallas Buddha, vilket betyder 'den upplyste'." },
+    { q:"Vad betyder ordet 'Buddha'?", opts:["Den heliges","Den upplyste","Den starka","Den fridfulle"], correct:1, theme:"Grundaren", explain:"Buddha betyder 'den upplyste' eller 'den uppvaknade'. Det är en titel, inte ett namn." },
+    { q:"Vilka är de fyra ädla sanningarna? Välj det RÄTTA påståendet.", opts:["Tro, hopp, kärlek och frid","Allt är lidande, lidandet har en orsak, lidandet kan få ett slut, den åttafaldiga vägen","Karma, dharma, samsara och nirvana","Theravada, mahayana, vajrayana och zenbuddhism"], correct:1, theme:"Buddhas lära", explain:"De fyra ädla sanningarna är grundstenen i Buddhas lära: 1) Allt är lidande (dukkha). 2) Lidandet har en orsak (livstörsten). 3) Lidandet kan få ett slut. 4) Den åttafaldiga vägen leder dit." },
+    { q:"Vad kallas det eviga kretslopp av återfödelser som buddhister vill befria sig från?", opts:["Nirvana","Dharma","Samsara","Karma"], correct:2, theme:"Grundbegrepp", explain:"Samsara är det eviga kretsloppet av återfödelser. Buddhister strävar efter att bryta sig loss från samsara och nå nirvana." },
+    { q:"Vad är nirvana inom buddhismen?", opts:["Paradis med gudar","Ett tillstånd av total frid och befrielse från återfödelsernas kretslopp","En helig skrift","En buddhistisk högtid"], correct:1, theme:"Grundbegrepp", explain:"Nirvana betyder 'att blåsa ut' på sanskrit. Det innebär att livstörsten och begären är utsläckta och man befrias från samsara – återfödelsernas kretslopp." },
+    { q:"Vad heter den åttafaldiga vägens symbol?", opts:["Davidsstjärnan","Korset","Hjulet med åtta ekrar","Halvmånen"], correct:2, theme:"Symboler", explain:"Den åttafaldiga vägen symboliseras av ett hjul med åtta ekrar, kallat lärans hjul eller dhammachakka." },
+    { q:"Vilket träd satt Siddhartha Gautama under när han fick sin upplysning?", opts:["Cedersträdet","Bodhiträdet","Olivträdet","Palmträdet"], correct:1, theme:"Grundaren", explain:"Siddhartha satt och mediterade under ett bodhiträd utanför staden Gaya när han fick sin upplysning och blev Buddha." },
+    { q:"Vad kallas summan av en persons handlingar som påverkar nästa återfödelse?", opts:["Nirvana","Dharma","Samsara","Karma"], correct:3, theme:"Grundbegrepp", explain:"Karma är summan av ens handlingar. Goda handlingar ger god karma och dåliga handlingar ger dålig karma, vilket påverkar hur och var man återföds." },
+    { q:"Vilka tre inriktningar finns inom asiatisk buddhism?", opts:["Sunni, shia och sufism","Ortodox, katolsk och protestantisk","Theravada, mahayana och vajrayana","Zen, tantrisk och teravada"], correct:2, theme:"Inriktningar", explain:"De tre stora asiatiska inriktningarna är theravada, mahayana och vajrayana. Därtill finns västerländsk konvertitbuddhism." },
+    { q:"Vad kallas en upplyst person inom mahayana och vajrayana som väljer att återfödas för att hjälpa andra?", opts:["Munk","Bodhisattva","Dalai lama","Arhat"], correct:1, theme:"Inriktningar", explain:"En bodhisattva är en person som nått så hög upplysningsnivå att han/hon nästan kan bli buddha, men väljer att återfödas för att hjälpa andra. Dalai lama anses vara en bodhisattva." },
+    { q:"Vad heter buddhismens viktigaste heliga skrift, skriven av Buddha och hans lärjungar?", opts:["Vedaböckerna","Bibeln","Tripitaka","Toran"], correct:2, theme:"Heliga skrifter", explain:"Tripitaka (de tre korgarna) är en av buddhismens viktigaste samling av heliga texter. Den innehåller Buddhas predikningar och regler för klosterlivet." },
+    { q:"Vad kallas buddhismens tre juvelerna?", opts:["Buddha, dharma och sangha","Karma, nirvana och samsara","Theravada, mahayana och vajrayana","Munkar, nunnor och lekmän"], correct:0, theme:"Att leva som buddhist", explain:"De tre juvelerna är Buddha (grundaren), dharma (hans lära) och sangha (den buddhistiska församlingen/gemenskapen)." },
+    { q:"Vad är den buddhistiska dygden 'medlidande' ett uttryck för?", opts:["Att vara ledsen för sig själv","Att känna och visa empati för andras lidande","Att lida för andras skull","Att döda djur för att lindra deras lidande"], correct:1, theme:"Dygder", explain:"Medlidande (karuna) är en central buddhistisk dygd som innebär att känna empati och omsorg för alla levande varelsers lidande." },
+    { q:"Vilken färg bär munkar och nunnor oftast inom theravadabuddhismen?", opts:["Vitt","Rött","Orange","Gult"], correct:2, theme:"Levnadsregler", explain:"Inom theravadabuddhismen bär munkar och nunnor oftast orange kläder. Inom vajrayana är det vanligast med rött." },
+    { q:"Vad är 'dukkha'?", opts:["Glädje och lycka","Lidande och otillfredsställelse","En buddhistisk högtid","En meditationsform"], correct:1, theme:"Buddhas lära", explain:"Dukkha betyder lidande eller otillfredsställelse. Det är den första ädla sanningen: allt liv innehåller lidande." },
+    { q:"Vad är 'den gyllene medelvägen' inom buddhismen?", opts:["En väg av guld i templet","En väg mellan extremt lyxliv och extrem asketer","Den kortaste vägen till nirvana","En buddhistisk pilgrimsväg i Indien"], correct:1, theme:"Grundaren", explain:"Den gyllene medelvägen är Buddhas insikt att varken extrem lyx eller extrem asketism leder till upplysning. Vägen går mellan dessa ytterligheter." },
+    { q:"Vad heter buddhismens stora högtid som firar Buddhas födelse, död och upplysning?", opts:["Diwali","Vesak","Monlam","Vassa"], correct:1, theme:"Högtider", explain:"Vesak är buddhismens viktigaste högtid och firas på fullmånedagen i april-maj. Den commemorerar Buddhas födelse, upplysning och parinirvana (sista döden)." },
+    { q:"Vad kallas det första steget i den åttafaldiga vägen?", opts:["Rätt handling","Rätt syn","Rätt meditation","Rätt livsstil"], correct:1, theme:"Buddhas lära", explain:"Det första steget i den åttafaldiga vägen är rätt syn (samma-ditthi) – att acceptera att de fyra ädla sanningarna ger en sann bild av verkligheten." },
+    { q:"Vad är en 'koan' inom zenbuddhismen?", opts:["En typ av tempel","En olösbar fråga för meditation","En buddhistisk bönetext","En typ av rökelse"], correct:1, theme:"Inriktningar", explain:"En koan är en olösbar fråga eller paradox som används inom zenbuddhismen för meditation, till exempel: 'Hur låter en applåd med bara en hand?'" },
+    { q:"I vilket land är Dalai lama andlig ledare?", opts:["Japan","Kina","Tibet","Thailand"], correct:2, theme:"Inriktningar", explain:"Dalai lama är den tibetanska buddhismens andlige ledare och anses vara en bodhisattva – en inkarnation av medlidandets bodhisattva Avalokiteshvara." },
+    { q:"Vad kallas buddhismens gemensamma församling och gemenskap?", opts:["Dharma","Sangha","Samsara","Karma"], correct:1, theme:"Att leva som buddhist", explain:"Sangha är den buddhistiska gemenskapen eller världsförsamlingen. Det är ett av de tre juvelerna som en buddhist tar sin tillflykt till." },
+    { q:"Varför är många buddhister vegetarianer?", opts:["Det är billigare","Det ger bättre karma att inte döda djur","Buddha förbjöd köttätande","Det är hälsosammare"], correct:1, theme:"Levnadsregler", explain:"Inom buddhismen anses det ge dålig karma att döda djur. Därför väljer många buddhister att vara vegetarianer, men det varierar mellan inriktningarna." },
+    { q:"Vad säger buddhismen om gudar?", opts:["Det finns inga gudar alls","Gudar finns men kan inte hjälpa människor att nå befrielse","En allsmäktig Gud skapade världen","Gudarna bestämmer vår karma"], correct:1, theme:"Gudsuppfattning", explain:"Buddhismen förnekar inte att gudar existerar, men menar att de inte kan hjälpa människor att nå befrielse från samsara. Befrielse kan bara nås genom egna handlingar och meditation." },
+    { q:"Vad kallas Buddhas lärjungars tempel och klostergemenskap?", opts:["Dharma","Sangha","Stupa","Pagoda"], correct:1, theme:"Religiösa byggnader", explain:"Sangha är den buddhistiska kloster- och tempelgemenskapen. Men en stupa är ett buddhistiskt monument, och pagoda är en tornliknande tempelbyggnad i Asien." },
+    { q:"Vilken inriktning har Tibet som sitt centrum?", opts:["Theravada","Mahayana","Vajrayana","Zenbuddhism"], correct:2, theme:"Inriktningar", explain:"Tibet är centrum för vajrayanabuddhism, som är den tibetanska inriktningen. Den innehåller tantriska element och leds av Dalai lama." },
+    { q:"Var höll Buddha sin första predikan?", opts:["Gaya","Varanasi/Sarnath","Delhi","Lumbini"], correct:1, theme:"Grundaren", explain:"Buddha höll sin första predikan i Hjortparken i Sarnath, utanför Varanasi, för en liten skara åhörare. Där berättade han om de fyra ädla sanningarna." },
+    { q:"Vad innebär 'livstörsten' inom buddhismen?", opts:["Törst efter vatten i öknen","Begär, själviskhet och längtan som driver återfödelserna","Önskan om ett långt liv","Kärlek till familjen"], correct:1, theme:"Buddhas lära", explain:"Livstörsten (tanha) är begär, själviskhet och längtan som enligt buddhismen orsakar lidandet och driver på återfödelserna i samsara." },
+    { q:"Vad kallas en buddhistisk ceremoni vid äktenskap?", opts:["Det finns en strikt obligatorisk vigselritual","En välsignelseritual i templet om paret önskar det","Borgerligt äktenskap är förbjudet","Munkar leder alltid vigseln"], correct:1, theme:"Riter och högtider", explain:"Buddhismen saknar en obligatorisk vigselritual. Äktenskap ingås oftast borgerligt, men paret kan välja att gå till ett tempel för en frivillig välsignelseritual." },
+    { q:"Vilken av dessa är en buddhistisk dygd?", opts:["Stolthet","Medglädje","Vrede","Själviskhet"], correct:1, theme:"Dygder", explain:"Medglädje (mudita) är en buddhistisk dygd – förmågan att glädjas av andras lycka och framgång utan avund. De fyra dygderna är medglädje, välvilja, medlidande och jämnmod." },
+    { q:"Hur gammal var Buddha när han dog?", opts:["35 år","50 år","60 år","80 år"], correct:3, theme:"Grundaren", explain:"Siddhartha Gautama blev Buddha vid 35 års ålder och levde sedan ytterligare 45 år. Han dog 80 år gammal omgiven av sina lärjungar." }
+];
+
+const sortData = [
+    { term:"Orange kläder för munkar", category:"Theravada" },
+    { term:"Röda kläder för munkar", category:"Vajrayana" },
+    { term:"Vita/svarta/gula kläder för munkar", category:"Mahayana" },
+    { term:"Dalai lama som andlig ledare", category:"Vajrayana" },
+    { term:"Zenbuddhism (koan-meditation)", category:"Mahayana" },
+    { term:"Bodhisattva-begreppet", category:"Mahayana" },
+    { term:"Strikt vegetarianism obligatorisk", category:"Mahayana" },
+    { term:"Kött accepteras p.g.a. klimat", category:"Vajrayana" },
+    { term:"Tibetansk buddhism", category:"Vajrayana" },
+    { term:"Uposathadagar – bekänna synder", category:"Theravada" },
+    { term:"Regnperioden Vassa", category:"Theravada" },
+    { term:"Monlam – bönefestival", category:"Vajrayana" },
+    { term:"Siddhartha Gautama (Buddha)", category:"Alla" },
+    { term:"Karma – lagen om handlingar", category:"Alla" },
+    { term:"Nirvana – befrielse från samsara", category:"Alla" },
+    { term:"De fyra ädla sanningarna", category:"Alla" },
+    { term:"Den åttafaldiga vägen", category:"Alla" },
+    { term:"Tripitaka – heliga skrifter", category:"Alla" },
+    { term:"Vesak – Buddhas födelsedag", category:"Alla" },
+    { term:"De tre juvelerna", category:"Alla" },
+    { term:"Meditation som central praktik", category:"Alla" },
+    { term:"Theravadamunkar tigger mat", category:"Theravada" },
+    { term:"Ullambana – dag för döda själar", category:"Mahayana" },
+    { term:"Saga dawa – Sakyamunis födelsedag", category:"Vajrayana" }
+];
+
+const memoryPairs = [
+    { a:"Buddha", b:"'Den upplyste' – Siddhartha Gautama" },
+    { a:"Nirvana", b:"Total frid, befrielse från återfödelse" },
+    { a:"Karma", b:"Summan av ens handlingar, påverkar återfödelsen" },
+    { a:"Samsara", b:"Återfödelsernas eviga kretslopp" },
+    { a:"Dukkha", b:"Lidande – den första ädla sanningen" },
+    { a:"Bodhisattva", b:"Upplyst varelse som väljer att återfödas för att hjälpa andra" },
+    { a:"Tripitaka", b:"De tre korgarna – Buddhas heliga skrifter" },
+    { a:"Sangha", b:"Den buddhistiska församlingen/gemenskapen" },
+    { a:"Vesak", b:"Buddhismens största högtid – Buddhas födelsedag" },
+    { a:"Den åttafaldiga vägen", b:"Buddhas handlingsprogram för att nå nirvana" },
+    { a:"Dharma", b:"Buddhas lära och den moraliska världsordningen" },
+    { a:"Bodhiträdet", b:"Trädet under vilket Siddhartha fick sin upplysning" }
+];
+
+const tfData = [
+    { statement:"Buddhism är en av de stora världsreligionerna med ca 300 miljoner anhängare.", answer:true, explain:"Stämmer. Buddhismen räknas som en av världsreligionerna med ungefär 300–500 miljoner utövare globalt." },
+    { statement:"Buddhister ber till en allsmäktig skapargud.", answer:false, explain:"Fel. Till skillnad från de abrahamitiska religionerna har buddhismen ingen gemensam skapargud. Befrielse nås genom egna handlingar och meditation." },
+    { statement:"Siddhartha Gautama växte upp som son till en krigarfurste i norra Indien.", answer:true, explain:"Stämmer. Han var äldste son till en krigarfurste och förväntades ta över makten, men valde en annan väg." },
+    { statement:"Nirvana betyder 'att föddas på nytt' på sanskrit.", answer:false, explain:"Fel. Nirvana betyder 'att blåsa ut' på sanskrit. Det syftar på att livstörsten och begären blåses ut, och man befrias från samsara." },
+    { statement:"Den åttafaldiga vägen symboliseras av ett kors med åtta armar.", answer:false, explain:"Fel. Den åttafaldiga vägen symboliseras av ett hjul med åtta ekrar, kallat lärans hjul." },
+    { statement:"Karma är en naturlag som driver återfödelserna.", answer:true, explain:"Stämmer. Karma är de samlade handlingarnas naturlag. Goda handlingar ger god karma och påverkar positivt vart man återföds." },
+    { statement:"Theravadabuddhister bär vanligtvis röda kläder.", answer:false, explain:"Fel. Theravadabröder bär orange kläder. Det är vajrayanabuddhister (t.ex. tibetanska munkar) som bär röda kläder." },
+    { statement:"Dalai lama är den tibetanska buddhismens andlige ledare.", answer:true, explain:"Stämmer. Dalai lama leder vajrayanabuddhismen och anses vara en bodhisattva – en inkarnation av medlidandets bodhisattva." },
+    { statement:"Alla buddhister är vegetarianer.", answer:false, explain:"Fel. Det varierar mellan inriktningarna. Mahayanabuddhister äter inget kött, men vajrayanabuddhister äter kött och theravadabuddhister accepterar kött under vissa villkor." },
+    { statement:"Buddha höll sin första predikan i Sarnath (Hjortparken) utanför Varanasi.", answer:true, explain:"Stämmer. Den första predikan om de fyra ädla sanningarna hölls i Hjortparken för en liten skara åhörare." },
+    { statement:"De tre juvelerna är karma, nirvana och samsara.", answer:false, explain:"Fel. De tre juvelerna är Buddha, dharma (hans lära) och sangha (den buddhistiska gemenskapen). Dessa är buddhismens tre viktigaste stöttepelare." },
+    { statement:"Siddhartha Gautama var 35 år gammal när han fick sin upplysning.", answer:true, explain:"Stämmer. Han fick sin upplysning under bodhiträdet och blev Buddha vid 35 års ålder. Han levde sedan till 80 år." },
+    { statement:"Zenbuddhism är en gren av vajrayanabuddhismen.", answer:false, explain:"Fel. Zenbuddhism är en gren av mahayanabuddhismen, inte vajrayana. Zen är känt för koan-meditation och används främst i Japan." },
+    { statement:"Vesak firas på fullmånedagen i april-maj.", answer:true, explain:"Stämmer. Vesak är buddhismens viktigaste högtid och firas på fullmånedagen i april-maj. Den hedrar Buddhas födelse, upplysning och parinirvana." },
+    { statement:"Buddhismen förnekar fullständigt att gudar existerar.", answer:false, explain:"Fel. Buddhismen förnekar inte att gudar finns, men tror inte att de kan hjälpa människor att nå befrielse. Befrielse nås enbart genom egna handlingar." },
+    { statement:"Samsara är ett tillstånd av frid och befrielse.", answer:false, explain:"Fel. Det är nirvana som är befrielsens tillstånd. Samsara är det eviga kretsloppet av återfödelser som buddhister vill befria sig från." },
+    { statement:"Inom buddhismen är äktenskapsskillnad (skilsmässa) absolut förbjudet.", answer:false, explain:"Fel. Buddhismen tillåter skilsmässa, även om det inte är vanligt i mer traditionella buddhistiska kulturer. Buddhismen saknar en obligatorisk vigselritual." },
+    { statement:"Tripitaka kallas också 'de tre korgarna'.", answer:true, explain:"Stämmer. Tripitaka (på pali: Tipitaka) betyder bokstavligen 'de tre korgarna' och innehåller Buddhas lära uppdelad i tre delar." },
+    { statement:"Bodhisattva är en person som nått nirvana och aldrig mer återföds.", answer:false, explain:"Fel. En bodhisattva är en upplyst person som VÄLJER att fortsätta återfödas för att hjälpa andra nå upplysning. Det är motsatsen till en arhat som söker personlig befrielse." },
+    { statement:"Den gyllene medelvägen innebär att varken leva i extrem lyx eller extrem asketism.", answer:true, explain:"Stämmer. Siddhartha insåg att varken lyxliv i palatset eller asketliv (att svälta sig) ledde till upplysning. Den gyllene medelvägen går mellan dessa ytterligheter." },
+    { statement:"Munkar och nunnor får äga hur mycket de vill.", answer:false, explain:"Fel. Munkar och nunnor inom buddhismen får inte äga några saker och ska bära enkla kläder. De lever i fattigdom som en del av sin träning." },
+    { statement:"Mahayanabuddhister tror att en bodhisattva kan hjälpa vanliga människor nå nirvana.", answer:true, explain:"Stämmer. Inom mahayana och vajrayana tror man att bodhisattvor kan hjälpa och vägleda andra mot upplysning, till skillnad från theravada som betonar personlig befrielse." },
+    { statement:"Siddhartha Gautama levde på 500-talet f.Kr.", answer:true, explain:"Stämmer. Siddhartha Gautama levde ungefär 563–483 f.Kr. (eller 480–400 f.Kr. enligt andra beräkningar) i norra Indien." },
+    { statement:"Meditation är bara viktig för munkar, inte för vanliga buddhister.", answer:false, explain:"Fel. Meditation är central för alla buddhister, inte bara munkar. Det är ett av de viktigaste verktygen på den åttafaldiga vägen för att träna sinnet." },
+    { statement:"Karma påverkar var och hur man återföds.", answer:true, explain:"Stämmer. Summan av ens handlingar (karma) påverkar direkt var och hur man återföds i nästa liv. God karma leder till bättre återfödelser." }
+];
+
+const clueData = [
+    {
+        clues:["Jag är ett tillstånd, inte en plats.","Mitt namn betyder 'att blåsa ut' på sanskrit.","Jag representerar total frid och befrielse från samsara."],
+        answer:"Nirvana", points:[30,20,10]
+    },
+    {
+        clues:["Jag är en prins som lämnade mitt slott.","Jag satt under ett träd och mediterade tills jag fick insikt.","Jag kallas 'den upplyste' och grundade en av världsreligionerna."],
+        answer:"Siddhartha Gautama (Buddha)", points:[30,20,10]
+    },
+    {
+        clues:["Jag är en naturlag, inte en person.","Jag följer dig från liv till liv.","Goda handlingar ger god variant av mig, dåliga handlingar ger dålig."],
+        answer:"Karma", points:[30,20,10]
+    },
+    {
+        clues:["Jag är ett hjul med åtta ekrar.","Jag representerar Buddhas handlingsprogram.","Jag leder till befrielse från lidandet och är en av de fyra ädla sanningarna."],
+        answer:"Den åttafaldiga vägen", points:[30,20,10]
+    },
+    {
+        clues:["Jag är en samling av heliga texter.","Mitt namn betyder 'de tre korgarna'.","Jag nedtecknades av Buddha och hans lärjungar."],
+        answer:"Tripitaka", points:[30,20,10]
+    },
+    {
+        clues:["Jag är en av tre juvelerna.","Jag är gemenskapen av buddhister.","Utan mig kan visdomstraditionen inte föras vidare."],
+        answer:"Sangha", points:[30,20,10]
+    },
+    {
+        clues:["Jag är en inriktning av buddhismen.","Mina utövare bär orange kläder.","Jag dominerar i Sydostasien och Sri Lanka."],
+        answer:"Theravada", points:[30,20,10]
+    },
+    {
+        clues:["Jag är en högtid inom buddhismen.","Jag firas på fullmånedagen i april-maj.","Jag hedrar Buddhas födelse, upplysning och sista nirvana."],
+        answer:"Vesak", points:[30,20,10]
+    },
+    {
+        clues:["Jag är en person, inte ett begrepp.","Jag leder den tibetanska buddhismen.","Jag anses vara en bodhisattva och lever i exil."],
+        answer:"Dalai lama", points:[30,20,10]
+    },
+    {
+        clues:["Jag är ett träd.","Under mig fick en prins sin upplysning.","Träd av min sort finns idag i Buddh Gaya i Indien."],
+        answer:"Bodhiträdet", points:[30,20,10]
+    },
+    {
+        clues:["Jag är en inriktning av buddhismen.","Jag finns framförallt i Tibet och Nepal.","Mina utövare bär röda kläder och Dalai lama tillhör mig."],
+        answer:"Vajrayana", points:[30,20,10]
+    },
+    {
+        clues:["Jag är ett begrepp som syftar på lidande.","Mitt ord betyder ungefär 'trögt nav' – hjulet kärvar.","Jag är den första av de fyra ädla sanningarna."],
+        answer:"Dukkha", points:[30,20,10]
+    },
+    {
+        clues:["Jag är ett evigt kretslopp.","Inom mig följer död och återfödelse på varandra oändligt.","Buddhister strävar efter att bryta sig loss från mig."],
+        answer:"Samsara", points:[30,20,10]
+    },
+    {
+        clues:["Jag är en typ av fråga utan logiskt svar.","Jag används som meditationsverktyg inom zen.","Exempel på mig: 'Hur låter en applåd med bara en hand?'"],
+        answer:"Koan", points:[30,20,10]
+    },
+    {
+        clues:["Jag är en inriktning av buddhismen.","Zenbuddhism är en del av mig.","Mina utövare tror på bodhisattvorn och äter inget kött."],
+        answer:"Mahayana", points:[30,20,10]
+    }
+];
+
+// ============================================================
+//  GAMIFICATION SYSTEM
+// ============================================================
+const gameState = {
+    xp: 0, level: 1, streak: 0, maxStreak: 0,
+    achievements: new Set(), completedGames: new Set(),
+    scores: { quiz:0, sort:0, memory:0, tf:0, clue:0 }
+};
+
+const LEVELS = [
+    { name:'Nybörjare', xp:0 },
+    { name:'Sökare', xp:80 },
+    { name:'Lärjunge', xp:200 },
+    { name:'Praktisant', xp:400 },
+    { name:'Upplyst', xp:700 }
+];
+
+function addXP(amount, reason) {
+    gameState.xp += amount;
+    document.getElementById('dash-totalxp').textContent = gameState.xp;
+    updateXPDisplay();
+    showXPPopup(amount, reason);
+    checkLevelUp();
+    saveState();
+}
+
+function updateXPDisplay() {
+    const cur = getCurrentLevel();
+    const next = LEVELS[cur.index + 1];
+    const prev = LEVELS[cur.index].xp;
+    const nextXP = next ? next.xp : prev;
+    const progress = next ? ((gameState.xp - prev) / (nextXP - prev)) * 100 : 100;
+    document.getElementById('level-display').textContent = 'Nivå ' + (cur.index+1) + ': ' + cur.name;
+    document.getElementById('xp-bar').style.width = Math.min(progress,100) + '%';
+    document.getElementById('xp-text').textContent = next
+        ? gameState.xp + ' / ' + nextXP + ' XP till nästa nivå'
+        : gameState.xp + ' XP - Maxnivå uppnådd!';
+    document.getElementById('streak-badge').innerHTML = '⚡ Streak: ' + gameState.streak;
+}
+
+function getCurrentLevel() {
+    let level = LEVELS[0], index = 0;
+    for (let i = LEVELS.length-1; i >= 0; i--) {
+        if (gameState.xp >= LEVELS[i].xp) { level = LEVELS[i]; index = i; break; }
+    }
+    return { ...level, index };
+}
+
+function checkLevelUp() {
+    const newLevel = getCurrentLevel();
+    if (newLevel.index + 1 > gameState.level) {
+        gameState.level = newLevel.index + 1;
+        showXPPopup(0, '🎉 Nivå upp! Du är nu ' + newLevel.name + '!');
+    }
+}
+
+function showXPPopup(amount, sub) {
+    const popup = document.getElementById('xp-popup');
+    document.getElementById('xp-popup-text').textContent = amount > 0 ? '+' + amount + ' XP' : '🎉';
+    document.getElementById('xp-popup-sub').textContent = sub || '';
+    popup.classList.add('show');
+    setTimeout(() => popup.classList.remove('show'), 1800);
+}
+
+function incrementStreak() {
+    gameState.streak++;
+    if (gameState.streak > gameState.maxStreak) gameState.maxStreak = gameState.streak;
+    if (gameState.streak >= 5) unlockAchievement('ach-streak');
+    updateXPDisplay();
+}
+
+function resetStreak() { gameState.streak = 0; updateXPDisplay(); }
+
+function unlockAchievement(id) {
+    if (gameState.achievements.has(id)) return;
+    gameState.achievements.add(id);
+    const el = document.getElementById(id);
+    if (el) {
+        el.classList.add('unlocked');
+        showXPPopup(25, '🏆 Achievement: ' + (el.dataset.name||''));
+        gameState.xp += 25;
+        document.getElementById('dash-totalxp').textContent = gameState.xp;
+        updateXPDisplay();
+    }
+    checkAllClear();
+    saveState();
+}
+
+function checkAllClear() {
+    const required = ['ach-quiz','ach-sort','ach-memory','ach-tf'];
+    if (required.every(a => gameState.achievements.has(a))) unlockAchievement('ach-buddha');
+}
+
+function saveState() {
+    try {
+        localStorage.setItem('buddhism-game', JSON.stringify({
+            xp: gameState.xp, level: gameState.level,
+            streak: gameState.streak, maxStreak: gameState.maxStreak,
+            achievements: [...gameState.achievements],
+            scores: gameState.scores
+        }));
+    } catch(e) {}
+}
+
+function loadState() {
+    try {
+        const raw = localStorage.getItem('buddhism-game');
+        if (!raw) return;
+        const d = JSON.parse(raw);
+        gameState.xp = d.xp||0; gameState.level = d.level||1;
+        gameState.streak = d.streak||0; gameState.maxStreak = d.maxStreak||0;
+        gameState.achievements = new Set(d.achievements||[]);
+        gameState.scores = d.scores || gameState.scores;
+        gameState.achievements.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('unlocked');
+        });
+        Object.entries(gameState.scores).forEach(([k,v]) => {
+            const el = document.getElementById('dash-'+k);
+            if (el) el.textContent = v;
+        });
+        document.getElementById('dash-totalxp').textContent = gameState.xp;
+        updateXPDisplay();
+    } catch(e) {}
+}
+
+// ============================================================
+//  NAVIGATION
+// ============================================================
+function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    const map = ['dashboard','quiz','sortera','memory','santfalskt','ledtradar'];
+    const tabs = document.querySelectorAll('.nav-tab');
+    const idx = map.indexOf(id);
+    if (idx >= 0 && tabs[idx]) tabs[idx].classList.add('active');
+    if (id === 'quiz' && !quizState.started) initQuiz();
+    if (id === 'sortera' && !sortState.initialized) initSorting();
+    if (id === 'memory' && !memState.initialized) initMemory();
+    if (id === 'santfalskt' && !tfState.started) initTF();
+    if (id === 'ledtradar' && !clueState.started) initClues();
+}
+
+// ============================================================
+//  1. QUIZ
+// ============================================================
+const quizState = { current:0, score:0, started:false, questions:[] };
+
+function initQuiz() {
+    quizState.started = true;
+    quizState.score = 0;
+    quizState.current = 0;
+    quizState.questions = shuffle([...quizData]);
+    document.getElementById('q-total').textContent = quizState.questions.length;
+    document.getElementById('quiz-result').style.display = 'none';
+    document.getElementById('quiz-area').style.display = 'block';
+    renderQuestion();
+    unlockAchievement('ach-first');
+}
+
+function renderQuestion() {
+    const q = quizState.questions[quizState.current];
+    const pct = (quizState.current / quizState.questions.length) * 100;
+    document.getElementById('q-progress').style.width = pct + '%';
+    document.getElementById('q-num').textContent = quizState.current + 1;
+    document.getElementById('q-score').textContent = quizState.score;
+    document.getElementById('quiz-area').innerHTML = `
+        <div class="question-card">
+            <div class="question-theme">${q.theme}</div>
+            <div class="question-text">${q.q}</div>
+            <div class="options-grid">
+                ${q.opts.map((o,i) => `<button class="option-btn" onclick="answerQuiz(${i})">${o}</button>`).join('')}
+            </div>
+            <div id="q-explain" style="display:none"></div>
+        </div>
+        <div style="text-align:right; margin-top:12px;">
+            <button class="btn btn-secondary" id="q-next-btn" onclick="nextQuestion()" style="display:none">Nästa fråga →</button>
+        </div>`;
+}
+
+function answerQuiz(idx) {
+    const q = quizState.questions[quizState.current];
+    const btns = document.querySelectorAll('.option-btn');
+    btns.forEach(b => b.disabled = true);
+    btns[q.correct].classList.add('correct');
+    const explEl = document.getElementById('q-explain');
+    if (idx === q.correct) {
+        quizState.score++;
+        incrementStreak();
+        addXP(10, 'Rätt svar!');
+        explEl.innerHTML = '<div class="explanation">✅ Rätt! ' + q.explain + '</div>';
+    } else {
+        btns[idx].classList.add('wrong');
+        resetStreak();
+        explEl.innerHTML = '<div class="explanation">❌ ' + q.explain + '</div>';
+    }
+    explEl.style.display = 'block';
+    document.getElementById('q-next-btn').style.display = 'inline-block';
+}
+
+function nextQuestion() {
+    quizState.current++;
+    if (quizState.current >= quizState.questions.length) {
+        finishQuiz(); return;
+    }
+    renderQuestion();
+}
+
+function finishQuiz() {
+    const total = quizState.questions.length;
+    const pct = Math.round((quizState.score / total) * 100);
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('q-progress').style.width = '100%';
+    const bonus = Math.round(quizState.score * 5);
+    addXP(bonus, 'Quiz klar!');
+    gameState.scores.quiz = quizState.score;
+    document.getElementById('dash-quiz').textContent = quizState.score;
+    saveState();
+    if (pct >= 80) unlockAchievement('ach-quiz');
+    gameState.completedGames.add('quiz');
+    const msg = pct >= 90 ? '🏆 Fantastiskt! Du kan buddhismen!' : pct >= 70 ? '😊 Bra jobbat! Lite mer träning så sitter det!' : '📚 Bra försök! Läs igen och prova på nytt!';
+    document.getElementById('quiz-result').style.display = 'block';
+    document.getElementById('quiz-result').innerHTML = `
+        <div class="result-card">
+            <div class="result-score">${quizState.score}/${total}</div>
+            <div class="result-label">${pct}% rätt</div>
+            <div class="result-msg">${msg}</div>
+            <button class="btn btn-primary" onclick="initQuiz()">Spela igen</button>
+            <button class="btn btn-secondary" style="margin-left:10px;" onclick="showSection('dashboard')">Tillbaka</button>
+        </div>`;
+}
+
+// ============================================================
+//  2. SORTING
+// ============================================================
+const sortState = { initialized:false, placed:{}, items:[] };
+
+function initSorting() {
+    sortState.initialized = true;
+    sortState.placed = {};
+    sortState.items = shuffle([...sortData]);
+    const pool = document.getElementById('sort-items-pool');
+    pool.innerHTML = '';
+    ['col-theravada','col-mahayana','col-vajrayana','col-alla'].forEach(id => {
+        const col = document.getElementById(id);
+        const h = col.querySelector('h4');
+        col.innerHTML = '';
+        col.appendChild(h);
+    });
+    sortState.items.forEach((item, i) => {
+        const el = document.createElement('div');
+        el.className = 'sort-item';
+        el.textContent = item.term;
+        el.draggable = true;
+        el.dataset.idx = i;
+        el.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', i);
+            el.classList.add('dragging');
+        });
+        el.addEventListener('dragend', () => el.classList.remove('dragging'));
+        pool.appendChild(el);
+    });
+    document.getElementById('sort-feedback').innerHTML = '';
+    document.getElementById('s-score').textContent = 0;
+    document.getElementById('s-total').textContent = sortState.items.length;
+    unlockAchievement('ach-first');
+}
+
+function dragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+}
+
+function dropItem(e, category) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    const idx = parseInt(e.dataTransfer.getData('text/plain'));
+    const item = sortState.items[idx];
+    sortState.placed[idx] = category;
+    // Move element to column
+    const colMap = { Theravada:'col-theravada', Mahayana:'col-mahayana', Vajrayana:'col-vajrayana', Alla:'col-alla' };
+    const col = document.getElementById(colMap[category]);
+    const pool = document.getElementById('sort-items-pool');
+    // Find and move element
+    const el = pool.querySelector(`[data-idx="${idx}"]`) || document.querySelector(`[data-idx="${idx}"]`);
+    if (el) {
+        el.classList.remove('correct-placed','wrong-placed');
+        col.appendChild(el);
+    }
+}
+
+function checkSorting() {
+    let correct = 0;
+    sortState.items.forEach((item, i) => {
+        const placed = sortState.placed[i];
+        const el = document.querySelector(`[data-idx="${i}"]`);
+        if (!el) return;
+        if (placed === item.category) {
+            correct++;
+            el.classList.add('correct-placed');
+            el.classList.remove('wrong-placed');
+        } else if (placed) {
+            el.classList.add('wrong-placed');
+            el.classList.remove('correct-placed');
+        }
+    });
+    const total = sortState.items.length;
+    document.getElementById('s-score').textContent = correct;
+    const pct = Math.round((correct/total)*100);
+    document.getElementById('sort-feedback').innerHTML = `
+        <div class="result-card">
+            <div class="result-score">${correct}/${total}</div>
+            <div class="result-label">${pct}% rätt sorterade</div>
+            <div class="result-msg">${pct===100?'🏆 Perfekt! Du kan alla inriktningar!': pct>=70?'😊 Bra! Röda markeringar visar vad som var fel.':'📚 Kolla de röda och försök igen!'}</div>
+        </div>`;
+    const bonus = correct * 5;
+    addXP(bonus, 'Sortering klar!');
+    gameState.scores.sort = correct;
+    document.getElementById('dash-sort').textContent = correct;
+    saveState();
+    if (pct === 100) unlockAchievement('ach-sort');
+}
+
+function resetSorting() {
+    sortState.initialized = false;
+    initSorting();
+}
+
+// ============================================================
+//  3. MEMORY
+// ============================================================
+const memState = { initialized:false, flipped:[], matched:0, tries:0, cards:[] };
+
+function initMemory() {
+    memState.initialized = true;
+    memState.flipped = [];
+    memState.matched = 0;
+    memState.tries = 0;
+    document.getElementById('m-pairs').textContent = 0;
+    document.getElementById('m-tries').textContent = 0;
+    const pairs = shuffle([...memoryPairs]).slice(0,8);
+    memState.cards = shuffle([
+        ...pairs.map((p,i) => ({id:i, type:'a', text:p.a, pair:i})),
+        ...pairs.map((p,i) => ({id:i+100, type:'b', text:p.b, pair:i}))
+    ]);
+    const grid = document.getElementById('memory-grid');
+    grid.innerHTML = '';
+    memState.cards.forEach((card, idx) => {
+        const el = document.createElement('div');
+        el.className = 'memory-card';
+        el.dataset.idx = idx;
+        el.textContent = card.text;
+        el.onclick = () => flipCard(idx);
+        grid.appendChild(el);
+    });
+    unlockAchievement('ach-first');
+}
+
+function flipCard(idx) {
+    if (memState.flipped.length >= 2) return;
+    const cards = document.querySelectorAll('.memory-card');
+    const el = cards[idx];
+    if (el.classList.contains('matched') || el.classList.contains('flipped')) return;
+    el.classList.add('flipped');
+    memState.flipped.push(idx);
+    if (memState.flipped.length === 2) {
+        memState.tries++;
+        document.getElementById('m-tries').textContent = memState.tries;
+        const [a, b] = memState.flipped;
+        const ca = memState.cards[a], cb = memState.cards[b];
+        if (ca.pair === cb.pair && ca.type !== cb.type) {
+            setTimeout(() => {
+                cards[a].classList.add('matched');
+                cards[b].classList.add('matched');
+                memState.matched++;
+                memState.flipped = [];
+                document.getElementById('m-pairs').textContent = memState.matched;
+                incrementStreak();
+                addXP(15, 'Par hittat!');
+                gameState.scores.memory = memState.matched;
+                document.getElementById('dash-mem').textContent = memState.matched;
+                saveState();
+                if (memState.matched === 8) {
+                    unlockAchievement('ach-memory');
+                    addXP(30, 'Memory klar!');
+                }
+            }, 400);
+        } else {
+            resetStreak();
+            setTimeout(() => {
+                cards[a].classList.remove('flipped');
+                cards[b].classList.remove('flipped');
+                memState.flipped = [];
+            }, 900);
+        }
+    }
+}
+
+// ============================================================
+//  4. SANT/FALSKT
+// ============================================================
+const tfState = { current:0, score:0, started:false, questions:[], streak:0 };
+
+function initTF() {
+    tfState.started = true;
+    tfState.score = 0;
+    tfState.current = 0;
+    tfState.streak = 0;
+    tfState.questions = shuffle([...tfData]);
+    document.getElementById('tf-total').textContent = tfState.questions.length;
+    document.getElementById('tf-result').style.display = 'none';
+    document.getElementById('tf-area').style.display = 'block';
+    renderTF();
+    unlockAchievement('ach-first');
+}
+
+function renderTF() {
+    const q = tfState.questions[tfState.current];
+    const pct = (tfState.current / tfState.questions.length) * 100;
+    document.getElementById('tf-progress').style.width = pct + '%';
+    document.getElementById('tf-num').textContent = tfState.current + 1;
+    document.getElementById('tf-score').textContent = tfState.score;
+    document.getElementById('tf-area').innerHTML = `
+        <div class="tf-card">
+            <div class="tf-statement">${q.statement}</div>
+            <div class="tf-buttons">
+                <button class="tf-btn true-btn" onclick="answerTF(true)">✅ Sant</button>
+                <button class="tf-btn false-btn" onclick="answerTF(false)">❌ Falskt</button>
+            </div>
+            <div id="tf-feedback"></div>
+        </div>
+        <div style="text-align:right; margin-top:12px;">
+            <button class="btn btn-secondary" id="tf-next" onclick="nextTF()" style="display:none">Nästa →</button>
+        </div>`;
+}
+
+function answerTF(answer) {
+    const q = tfState.questions[tfState.current];
+    document.querySelectorAll('.tf-btn').forEach(b => b.disabled = true);
+    const correct = answer === q.answer;
+    const fb = document.getElementById('tf-feedback');
+    if (correct) {
+        tfState.score++;
+        tfState.streak++;
+        incrementStreak();
+        addXP(10, 'Rätt!');
+        fb.innerHTML = `<div class="tf-result correct">✅ Rätt! ${q.explain}</div>`;
+        if (tfState.streak >= 10) unlockAchievement('ach-tf');
+    } else {
+        tfState.streak = 0;
+        resetStreak();
+        fb.innerHTML = `<div class="tf-result wrong">❌ Fel. ${q.explain}</div>`;
+    }
+    document.getElementById('tf-next').style.display = 'inline-block';
+}
+
+function nextTF() {
+    tfState.current++;
+    if (tfState.current >= tfState.questions.length) { finishTF(); return; }
+    renderTF();
+}
+
+function finishTF() {
+    const total = tfState.questions.length;
+    const pct = Math.round((tfState.score/total)*100);
+    document.getElementById('tf-area').style.display = 'none';
+    document.getElementById('tf-progress').style.width = '100%';
+    addXP(Math.round(tfState.score*5), 'Sant/Falskt klar!');
+    gameState.scores.tf = tfState.score;
+    document.getElementById('dash-tf').textContent = tfState.score;
+    saveState();
+    const msg = pct>=90?'🏆 Utmärkt! Du kan buddhismens fakta!':pct>=70?'😊 Bra! Lite mer träning!':'📚 Läs texten igen och prova!';
+    document.getElementById('tf-result').style.display = 'block';
+    document.getElementById('tf-result').innerHTML = `
+        <div class="result-card">
+            <div class="result-score">${tfState.score}/${total}</div>
+            <div class="result-label">${pct}% rätt</div>
+            <div class="result-msg">${msg}</div>
+            <button class="btn btn-primary" onclick="initTF()">Spela igen</button>
+            <button class="btn btn-secondary" style="margin-left:10px;" onclick="showSection('dashboard')">Tillbaka</button>
+        </div>`;
+}
+
+// ============================================================
+//  5. LEDTRÅDAR
+// ============================================================
+const clueState = { current:0, score:0, started:false, questions:[], cluesShown:1 };
+
+function initClues() {
+    clueState.started = true;
+    clueState.score = 0;
+    clueState.current = 0;
+    clueState.cluesShown = 1;
+    clueState.questions = shuffle([...clueData]);
+    document.getElementById('cl-total').textContent = clueState.questions.length;
+    document.getElementById('clue-result').style.display = 'none';
+    document.getElementById('clue-area').style.display = 'block';
+    renderClue();
+    unlockAchievement('ach-first');
+}
+
+function renderClue() {
+    const q = clueState.questions[clueState.current];
+    clueState.cluesShown = 1;
+    const pct = (clueState.current / clueState.questions.length) * 100;
+    document.getElementById('cl-progress').style.width = pct + '%';
+    document.getElementById('cl-num').textContent = clueState.current + 1;
+    document.getElementById('cl-score').textContent = clueState.score;
+    document.getElementById('clue-area').innerHTML = `
+        <div class="clue-card">
+            <div class="clue-points">Möjliga poäng: <span id="cl-possible">${q.points[0]}</span></div>
+            <ul class="clue-list" id="clue-list">
+                ${q.clues.map((c,i) => `<li id="clue-${i}" ${i===0?'class="visible"':''}>💡 ${c}</li>`).join('')}
+            </ul>
+            <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn btn-secondary" onclick="showNextClue()" id="more-clue-btn">Visa nästa ledtråd</button>
+            </div>
+            <div class="clue-input-wrap">
+                <input type="text" class="clue-input" id="clue-answer" placeholder="Skriv ditt svar här..." onkeydown="if(event.key==='Enter') checkClue()">
+                <button class="btn btn-primary" onclick="checkClue()">Gissa!</button>
+            </div>
+            <div id="clue-feedback" style="margin-top:12px;"></div>
+        </div>
+        <div style="text-align:right; margin-top:10px;">
+            <button class="btn btn-secondary" id="clue-next" onclick="nextClue()" style="display:none">Nästa mysterium →</button>
+        </div>`;
+}
+
+function showNextClue() {
+    const q = clueState.questions[clueState.current];
+    if (clueState.cluesShown >= q.clues.length) return;
+    document.getElementById('clue-' + clueState.cluesShown).classList.add('visible');
+    clueState.cluesShown++;
+    document.getElementById('cl-possible').textContent = q.points[clueState.cluesShown-1] || q.points[q.points.length-1];
+    if (clueState.cluesShown >= q.clues.length) {
+        document.getElementById('more-clue-btn').disabled = true;
+    }
+}
+
+function checkClue() {
+    const q = clueState.questions[clueState.current];
+    const answer = document.getElementById('clue-answer').value.trim().toLowerCase();
+    const correct = q.answer.toLowerCase();
+    const fb = document.getElementById('clue-feedback');
+    const pts = q.points[clueState.cluesShown-1] || q.points[q.points.length-1];
+    if (answer.length < 2) return;
+    // Accept partial match
+    if (correct.includes(answer) || answer.includes(correct.split(' ')[0].toLowerCase())) {
+        clueState.score += pts;
+        addXP(pts, 'Rätt gissning!');
+        incrementStreak();
+        gameState.scores.clue = clueState.score;
+        document.getElementById('dash-clue').textContent = clueState.score;
+        document.getElementById('cl-score').textContent = clueState.score;
+        fb.innerHTML = `<div class="tf-result correct">✅ Rätt! Svaret är: ${q.answer}. Du fick ${pts} poäng!</div>`;
+        // Show all clues
+        q.clues.forEach((_,i) => document.getElementById('clue-'+i).classList.add('visible'));
+        document.querySelectorAll('.clue-input, #more-clue-btn').forEach(e => e.disabled = true);
+        document.getElementById('clue-next').style.display = 'inline-block';
+        saveState();
+    } else {
+        resetStreak();
+        fb.innerHTML = `<div class="tf-result wrong">❌ Inte rätt. Prova igen eller visa fler ledtrådar!</div>`;
+    }
+}
+
+function nextClue() {
+    clueState.current++;
+    if (clueState.current >= clueState.questions.length) { finishClues(); return; }
+    renderClue();
+}
+
+function finishClues() {
+    document.getElementById('clue-area').style.display = 'none';
+    document.getElementById('cl-progress').style.width = '100%';
+    addXP(20, 'Ledtrådar klar!');
+    const maxPossible = clueData.length * 30;
+    const pct = Math.round((clueState.score / maxPossible) * 100);
+    const msg = pct>=80?'🏆 Detektivens öga! Du löste nästan allt!':pct>=50?'😊 Bra jobbat! Du löste många mysterier!':'📚 Bra försök! Träna mer och du löser dem!';
+    document.getElementById('clue-result').style.display = 'block';
+    document.getElementById('clue-result').innerHTML = `
+        <div class="result-card">
+            <div class="result-score">${clueState.score}</div>
+            <div class="result-label">poäng av max ${maxPossible}</div>
+            <div class="result-msg">${msg}</div>
+            <button class="btn btn-primary" onclick="initClues()">Spela igen</button>
+            <button class="btn btn-secondary" style="margin-left:10px;" onclick="showSection('dashboard')">Tillbaka</button>
+        </div>`;
+}
+
+// ============================================================
+//  UTILS
+// ============================================================
+function shuffle(arr) {
+    for (let i = arr.length-1; i > 0; i--) {
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+window.addEventListener('load', () => {
+    loadState();
+    showSection('dashboard');
+});
+</script>
+</body>
+</html>

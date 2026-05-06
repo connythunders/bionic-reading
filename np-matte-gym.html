@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NP Matematik Gymnasium – AI Träning</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #dbeafe;
+    --bg: #f4f6fb;
+    --sidebar-bg: #ffffff;
+    --ai-bubble: #eff6ff;
+    --user-bubble: #2563eb;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --success: #22c55e;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  #sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    gap: 20px;
+    overflow-y: auto;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: var(--primary);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .logo-text h1 { font-size: 14px; font-weight: 700; }
+  .logo-text p { font-size: 11px; color: var(--text-muted); }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  /* Kursväljare */
+  .course-group { display: flex; gap: 6px; }
+
+  .course-btn {
+    flex: 1;
+    padding: 10px 4px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    font-family: inherit;
+    text-align: center;
+  }
+
+  .course-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .course-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .course-badge {
+    display: block;
+    font-size: 9px;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+
+  .option-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .option-btn {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    text-align: left;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .option-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+  .option-btn.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: 600; }
+
+  .level-group { display: flex; gap: 6px; }
+
+  .level-btn {
+    flex: 1;
+    padding: 10px 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    font-family: inherit;
+    text-align: center;
+  }
+
+  .level-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .level-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .stats-card {
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .stat-label { color: var(--text-muted); }
+  .stat-value { font-weight: 700; }
+  .stat-value.green { color: var(--success); }
+
+  .progress-bar-wrap { background: var(--border); border-radius: 99px; height: 8px; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--primary); border-radius: 99px; transition: width 0.5s ease; }
+
+  .reset-btn {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .reset-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+  #main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+
+  #chat-header { background: white; border-bottom: 1px solid var(--border); padding: 16px 24px; box-shadow: var(--shadow); }
+  #chat-header h2 { font-size: 16px; font-weight: 700; }
+  #chat-header p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); display: inline-block; margin-right: 6px; }
+
+  #quick-actions { background: white; border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+  #quick-actions::-webkit-scrollbar { display: none; }
+
+  .quick-btn {
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: white;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .quick-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+  .quick-btn.primary-btn { background: var(--primary); color: white; border-color: var(--primary); }
+  .quick-btn.primary-btn:hover { background: var(--primary-dark); }
+
+  #chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
+
+  .message { display: flex; gap: 10px; max-width: 80%; }
+  .message.user { align-self: flex-end; flex-direction: row-reverse; }
+  .message.ai { align-self: flex-start; }
+
+  .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; margin-top: 4px; }
+  .ai .avatar { background: var(--primary); color: white; }
+  .user .avatar { background: #1e293b; color: white; }
+
+  .bubble { padding: 12px 16px; border-radius: var(--radius); font-size: 14px; line-height: 1.65; box-shadow: var(--shadow); max-width: 100%; word-break: break-word; }
+  .ai .bubble { background: var(--ai-bubble); border: 1px solid var(--primary-light); color: var(--text); border-top-left-radius: 4px; }
+  .user .bubble { background: var(--user-bubble); color: white; border-top-right-radius: 4px; }
+
+  .bubble pre { background: rgba(0,0,0,0.06); border-radius: 6px; padding: 10px 12px; overflow-x: auto; font-size: 13px; margin: 8px 0; font-family: 'Courier New', monospace; white-space: pre-wrap; }
+  .user .bubble pre { background: rgba(255,255,255,0.15); }
+  .bubble strong { font-weight: 700; }
+  .bubble em { font-style: italic; }
+
+  .typing-indicator { display: flex; align-items: center; gap: 10px; align-self: flex-start; }
+  .typing-dots { background: var(--ai-bubble); border: 1px solid var(--primary-light); border-radius: var(--radius); border-top-left-radius: 4px; padding: 12px 16px; display: flex; gap: 5px; align-items: center; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); animation: bounce 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  #input-area { background: white; border-top: 1px solid var(--border); padding: 16px 24px; }
+  #input-form { display: flex; gap: 10px; align-items: flex-end; }
+
+  #user-input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    resize: none;
+    min-height: 48px;
+    max-height: 120px;
+    line-height: 1.5;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  #user-input:focus { border-color: var(--primary); }
+  #user-input::placeholder { color: var(--text-muted); }
+
+  #send-btn { width: 48px; height: 48px; border-radius: 10px; background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; flex-shrink: 0; }
+  #send-btn:hover { background: var(--primary-dark); }
+  #send-btn:disabled { background: var(--border); cursor: not-allowed; }
+
+  .welcome-msg { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+  .welcome-msg h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+  .welcome-msg p { font-size: 14px; line-height: 1.6; }
+
+  .error-bubble { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 12px 16px; border-radius: var(--radius); font-size: 13px; align-self: stretch; }
+
+  @media (max-width: 700px) {
+    #sidebar { width: 220px; min-width: 220px; padding: 16px 12px; }
+    #chat-messages { padding: 16px; }
+    .message { max-width: 95%; }
+  }
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="logo">
+    <div class="logo-icon">&#8721;</div>
+    <div class="logo-text">
+      <h1>NP Matematik Gym</h1>
+      <p>AI-driven träningsplattform</p>
+    </div>
+  </div>
+
+  <div>
+    <p class="section-label">Kurs</p>
+    <div class="course-group" id="course-group">
+      <button class="course-btn" data-course="1b">Ma 1b<span class="course-badge">Grundnivå</span></button>
+      <button class="course-btn active" data-course="2b">Ma 2b<span class="course-badge">Mellannivå</span></button>
+      <button class="course-btn" data-course="3b">Ma 3b<span class="course-badge">Avancerad</span></button>
+    </div>
+  </div>
+
+  <div>
+    <p class="section-label">Delområde</p>
+    <div class="option-group" id="topic-group"></div>
+  </div>
+
+  <div>
+    <p class="section-label">Betygsnivå</p>
+    <div class="level-group" id="level-group">
+      <button class="level-btn active" data-level="E">E</button>
+      <button class="level-btn" data-level="C">C</button>
+      <button class="level-btn" data-level="A">A</button>
+    </div>
+  </div>
+
+  <div>
+    <p class="section-label">Sessionstatistik</p>
+    <div class="stats-card">
+      <div class="stat-row"><span class="stat-label">Uppgifter</span><span class="stat-value" id="stat-tasks">0</span></div>
+      <div class="stat-row"><span class="stat-label">Rätta svar</span><span class="stat-value green" id="stat-correct">0</span></div>
+      <div class="stat-row"><span class="stat-label">Träffsäkerhet</span><span class="stat-value" id="stat-accuracy">–</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+      <button class="reset-btn" onclick="resetSession()">Återställ session</button>
+    </div>
+  </div>
+</aside>
+
+<main id="main">
+  <div id="chat-header">
+    <h2><span class="status-dot"></span>Matematik AI-tränare</h2>
+    <p id="header-subtitle">Ma 2b · Algebra · Nivå E</p>
+  </div>
+
+  <div id="quick-actions">
+    <button class="quick-btn primary-btn" onclick="newTask()">+ Ny uppgift</button>
+    <button class="quick-btn" onclick="sendQuick('Ge mig ett tips för den här uppgiften utan att avslöja svaret.')">💡 Tips</button>
+    <button class="quick-btn" onclick="sendQuick('Förklara metoden och hur det här momentet brukar testas på NP.')">📖 Förklara metoden</button>
+    <button class="quick-btn" onclick="sendQuick('Rätta mitt senaste svar och visa en fullständig modelllösning.')">✓ Rätta mitt svar</button>
+    <button class="quick-btn" onclick="sendQuick('Gör en diagnos av mina prestationer i den här sessionen och ge tre konkreta studietips.')">📊 Diagnos</button>
+  </div>
+
+  <div id="chat-messages">
+    <div class="welcome-msg">
+      <h3>Välkommen till NP Matematik Gymnasium!</h3>
+      <p>Välj kurs (1b, 2b eller 3b), delområde och betygsnivå,<br>tryck sedan på <strong>+ Ny uppgift</strong> för att börja.</p>
+    </div>
+  </div>
+
+  <div id="input-area">
+    <form id="input-form" onsubmit="handleSubmit(event)">
+      <textarea id="user-input" placeholder="Skriv ditt svar eller fråga här... (Enter för att skicka)" rows="1" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+      <button type="submit" id="send-btn" title="Skicka">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </form>
+  </div>
+</main>
+
+<script>
+const API_KEY = ["sk-","ant-api03-l01YwMuJHFQAcV2oIFtFWOBzVpKve7IJBD8PUrkf_n18O9SWNJiU745ll3GL_XsUhWj__tIcz0S3MZCH9LUEow-81jq-QAA"].join("");
+const MODEL = "claude-opus-4-5";
+
+const COURSES = {
+  "1b": {
+    label: "Matematik 1b",
+    topics: {
+      taluppfattning: "Taluppfattning",
+      algebra: "Algebra",
+      geometri: "Geometri",
+      statistik: "Statistik",
+      samband: "Samband & förändring"
+    },
+    tasks: {
+      taluppfattning: {
+        E: [
+          "Beräkna 15 % av 400 kr. (1p)",
+          "Skriv 0,35 som en bråkdel i enklaste form. (1p)",
+          "En vara kostar 240 kr. Priset höjs med 10 %. Vad kostar varan efter höjningen? (2p)",
+          "Ordna talen 0,7 ; 3/4 ; 68 % ; 0,072 i storleksordning från minst till störst. (2p)"
+        ],
+        C: [
+          "Emma tjänar 18 500 kr i månaden. Hon betalar 32 % i skatt. Hur mycket får hon kvar efter skatt? (2p)",
+          "En jacka är nedsatt med 25 % och kostar nu 675 kr. Vad kostade jackan innan reaan? (3p)",
+          "I en klass är 12 av 30 elever flickor. Hur stor andel, i procent, är pojkar? (2p)",
+          "Befolkningen i en stad ökade från 42 000 till 45 360 invånare. Hur många procent ökade befolkningen? (3p)"
+        ],
+        A: [
+          "Förklara skillnaden mellan att öka ett pris med 20 % och att sedan sänka det med 20 %. Blir man tillbaka på ursprungspriset? Motivera med ett exempel. (3p)",
+          "Anna säger att 1/3 är mer än 30 % eftersom 3 är mer än 2. Förklara varför Anna har fel och beräkna vilket tal som är störst. (3p)",
+          "En produkt kostar 500 kr exkl. moms (25 %). Resonera kring om det spelar roll om momsen läggs på före eller efter en rabatt på 100 kr. Visa beräkningar. (4p)",
+          "Kalle hävdar att en ökning med 50 % följt av en minskning med 50 % ger tillbaka ursprungsvärdet. Stämmer det? Analysera med ett konkret tal. (3p)"
+        ]
+      },
+      algebra: {
+        E: [
+          "Lös ekvationen 2x + 3 = 9. (2p)",
+          "Lös ekvationen 5x − 7 = 18. (2p)",
+          "Förenkla uttrycket 3a + 2b − a + 5b. (1p)",
+          "Lös ekvationen 4(x − 2) = 12. (2p)"
+        ],
+        C: [
+          "En rektangel har bredden x cm och längden som är 4 cm mer. Omkretsen är 28 cm. Skriv en ekvation och beräkna x. (3p)",
+          "Två vänner delar på en nota. Den ene betalar 80 kr mer. Totalt 430 kr. Hur mycket betalar var och en? (3p)",
+          "En mobilplan kostar 149 kr/mån + 0,50 kr/min. En annan kostar 199 kr/mån men 0 kr/min. Hur många minuter behöver man ringa för att plan 2 ska löna sig? (3p)",
+          "En buss färdas med konstant hastighet. Efter 2 timmar har den rest 130 km. Hur lång tid tar det att resa 325 km? (3p)"
+        ],
+        A: [
+          "Förklara hur man avgör om 3x + 6 = 3(x + 3) har ingen, en eller oändligt många lösningar utan att lösa den. (4p)",
+          "Linn tänker på ett tal. Multiplicerat med 4 minus 10 ger samma som multiplicerat med 2 plus 6. Formulera och lös ekvationen. (3p)",
+          "Erik påstår att 2(x + 5) + 3x alltid är 10 mer än 5x. Har Erik rätt? Motivera algebraiskt. (3p)",
+          "En rektangel och en kvadrat har samma omkrets. Rektangelns sidor är (2x+1) och (x+3) cm. Uttryck kvadratens sida i x. (4p)"
+        ]
+      },
+      geometri: {
+        E: [
+          "Beräkna arean av en triangel med basen 8 cm och höjden 5 cm. (1p)",
+          "En rektangel har sidorna 6 cm och 9 cm. Beräkna area och omkrets. (2p)",
+          "Beräkna hypotenusan i en rätvinklig triangel med kateterna 3 cm och 4 cm. (2p)",
+          "Beräkna volymen av en låda med måtten 5 cm × 4 cm × 3 cm. (2p)"
+        ],
+        C: [
+          "En cirkelformad fontän har radien 2,5 m. Plattor ska läggas 1 m runt hela cirkeln. Beräkna plattarean. (3p)",
+          "En triangelformad tomt har sidorna 20 m, 21 m och 29 m. Visa att det finns en rät vinkel och beräkna arean. (3p)",
+          "En pool är 12×6×1,8 m. Den fylls till 90 % kapacitet. Hur många liter vatten behövs? (3p)",
+          "Ett rum är 5×4 m med 2,6 m takhöjd. Tak och väggar ska målas. Fönster och dörr tar 4,5 m². Hur stor yta ska målas? (3p)"
+        ],
+        A: [
+          "En kvadrat och en cirkel har samma area. Beräkna förhållandet mellan kvadratens sida och cirkelns radie. (4p)",
+          "Avgör med Pythagoras om en triangel med sidorna 7, 10 och 12 cm är rätvinklig, spetsvinklig eller trubbvinklig. (3p)",
+          "En låda utan lock tillverkas av en 40×30 cm plåt. Man klipper ut kvadrater med sidan 5 cm i hörnen. Beräkna volymen. (4p)",
+          "Två cylindrar har samma volym. Den ena: r=3 cm, h=8 cm. Den andra: r=6 cm. Beräkna h och jämför manteljarna. (4p)"
+        ]
+      },
+      statistik: {
+        E: [
+          "Datamaterialet 4, 7, 3, 9, 7, 5, 7. Beräkna medelvärde, median och typvärde. (3p)",
+          "Fem elevers betyg: 3, 4, 5, 3, 5. Vad är medelvärdet? (1p)",
+          "Påse med 5 röda, 3 blå och 2 gula kulor. Sannolikheten att dra en blå? (2p)",
+          "En tärning kastas. Sannolikheten att få ett tal större än 4? (1p)"
+        ],
+        C: [
+          "Sju elever fick: 12, 18, 15, 20, 14, 9, 17. Beräkna medelvärde och median. En 8:e elev får 20 p. Hur förändras måtten? (3p)",
+          "I en klass på 25 elever är P(körkort) = 0,12. Hur många har körkort? Är det troligare att ha eller inte ha körkort? (3p)",
+          "Löner (tkr): 22, 25, 28, 30, 24, 95, 26, 27. Beräkna medelvärde och median. Vilket mått beskriver typisk lön bäst? (4p)",
+          "60 % av 200 tillfrågade tränar ≥3 ggr/vecka. Hur många är det? Vilka felkällor finns om man generaliserar? (3p)"
+        ],
+        A: [
+          "Poäng: 5,8,8,10,12,14,14,14,18,20. Beräkna alla tre lägesmått och resonera vilket som bäst representerar klassen. (4p)",
+          "Prov 1: 14,14,14,14,14. Prov 2: 2,8,14,20,26. Båda har medelvärde 14. Analysera skillnaden. (4p)",
+          "100 lotter, 10 ger vinst. Köp 3 lotter. Jämför P(vinna minst en) med och utan återläggning. (4p)",
+          "Förklara varför det är viktigt att titta på både lägesmått och spridningsmått. Ge ett eget exempel. (4p)"
+        ]
+      },
+      samband: {
+        E: [
+          "y = 2x + 3. Beräkna y när x = 4 och x = −1. (2p)",
+          "Rita linjen med k = 2 och m = 1. Ange ekvationen. (2p)",
+          "Bil kör 80 km/h. Skriv ett uttryck för sträckan s efter t timmar. (2p)",
+          "Linjen går genom (0, 5) och (2, 11). Bestäm k och m. (2p)"
+        ],
+        C: [
+          "Operatör A: 0,80 kr/min. Operatör B: 49 kr/mån + 0,30 kr/min. När är B billigare? (3p)",
+          "h = 0,5t meter på en rulltrappa. Höjd efter 6 s? Tid till 4 m? Vad betyder 0,5 i formeln? (3p)",
+          "x: 0,2,4,6 och y: 3,7,11,15. Linjärt samband? Skriv formeln. Vad är y när x=10? (3p)",
+          "Taxa: 45 kr startavgift + 12 kr/km. Formel för priset p(k). Hur långt för 200 kr? (3p)"
+        ],
+        A: [
+          "y = 3x−2 och y = −x+6. Bestäm skärningspunkten algebraiskt. (4p)",
+          "Linjen y = kx+m ska gå genom (−1, 5) och (3, −3). Bestäm k och m och tolka k-värdet. (3p)",
+          "Gym: Plan A: 0+80 kr/besök. Plan B: 200+40 kr/besök. Plan C: 500+0 kr/besök. Analysera när varje plan är billigast. (4p)",
+          "y = kx+m: när x ökar med 3 ökar y med 6. Går genom (2, 10). Bestäm formeln och resonera om k fördubblas. (4p)"
+        ]
+      }
+    }
+  },
+  "2b": {
+    label: "Matematik 2b",
+    topics: {
+      algebra: "Algebra",
+      funktioner: "Funktioner",
+      geometri: "Geometri",
+      statistik: "Statistik",
+      taluppfattning: "Taluppfattning"
+    },
+    tasks: {
+      algebra: {
+        E: [
+          "Lös ekvationen 3x + 7 = 22. (2p)",
+          "Förenkla uttrycket 4a + 3b − 2a + b. (1p)",
+          "Lös ekvationssystemet: x + y = 10 och x − y = 4. (2p)",
+          "Vilket värde har x om 2(x − 3) = 8? (2p)"
+        ],
+        C: [
+          "Lös andragradsekvationen x² − 5x + 6 = 0 med pq-formeln. (3p)",
+          "En rektangels area är 24 cm². Längden är 2 cm mer än bredden. Bestäm måtten. (3p)",
+          "Lös ekvationen |2x − 4| = 6. (3p)",
+          "Faktorisera x² − 9 och använd det för att förenkla (x²−9)/(x+3). (3p)"
+        ],
+        A: [
+          "Visa algebraiskt att summan av tre på varandra följande heltal alltid är delbar med 3. (4p)",
+          "Lös olikheten x² − 4x − 5 > 0 och illustrera lösningen på tallinjen. (4p)",
+          "V(x) = −x² + 12x − 20 (vinst i tkr, x i tusental enheter). För vilket x maximeras vinsten? (4p)"
+        ]
+      },
+      funktioner: {
+        E: [
+          "Rita grafen för f(x) = 2x − 3 och ange k- och m-värde. (2p)",
+          "En linjär funktion har k = 3 och går genom (0, −1). Skriv funktionsuttrycket. (2p)",
+          "Tabellen: x: 0,1,2,3 och y: 5,8,11,14. Är sambandet linjärt? Motivera. (2p)",
+          "Bestäm nollstället för f(x) = 3x − 9. (1p)"
+        ],
+        C: [
+          "f(x) = x² − 4x + 3. Bestäm toppunkt, nollställen och skissa grafen. (4p)",
+          "h(t) = −5t² + 20t. När är bollen som högst och hur högt når den? (3p)",
+          "Bestäm skärningspunkten mellan y = 2x + 1 och y = x² − 2. (3p)",
+          "En exponentialfunktion går genom (0, 3) och (2, 12). Bestäm funktionsuttrycket. (3p)"
+        ],
+        A: [
+          "f(x) = x³ − 3x. Undersök derivatan, lokala extrempunkter och skissa grafen. (5p)",
+          "Förklara skillnaden i tillväxt mellan linjära och exponentiella funktioner med ett konkret exempel. (4p)",
+          "f(x) = x² och g(x) = 2x. För vilka x-värden gäller f(x) > g(x)? Lös algebraiskt och grafiskt. (4p)"
+        ]
+      },
+      geometri: {
+        E: [
+          "Beräkna arean och omkretsen av en rektangel med sidorna 8 cm och 5 cm. (2p)",
+          "En rätvinklig triangel har kateterna 6 cm och 8 cm. Beräkna hypotenusan. (2p)",
+          "Beräkna volymen av en cylinder med radien 3 cm och höjden 10 cm. (2p)",
+          "En cirkel har radien 7 cm. Beräkna arean och omkretsen. (2p)"
+        ],
+        C: [
+          "En trappa har 12 steg, varje 20 cm djupt och 18 cm högt. Hur lång är sneda sidan längs trappan? (3p)",
+          "Likformiga trianglar: lilla har sidorna 3, 4 och 5 cm. Stora har längsta sidan 15 cm. Beräkna övriga sidor. (3p)",
+          "En kon har basradien 5 cm och slanthöjden 13 cm. Beräkna volymen. (3p)",
+          "I en liksidig triangel med sidan 6 cm, beräkna höjden och arean exakt. (3p)"
+        ],
+        A: [
+          "Bevisa med koordinater att diagonalerna i en rektangel är lika långa. (4p)",
+          "En sfär är inskriven i en kub med sidan a. Uttryck sfärens volym i a och jämför med kubens volym. (4p)",
+          "Förklara varför Pythagoras sats är ett specialfall av cosinus-satsen. (5p)"
+        ]
+      },
+      statistik: {
+        E: [
+          "Tio elever: 4,7,5,8,6,7,9,5,7,6. Beräkna medelvärde, median och typvärde. (3p)",
+          "En tärning kastas. Sannolikheten att få ett jämnt tal? (1p)",
+          "12 av 30 elever är med i en sport. Sannolikheten att en slumpmässig elev INTE är med? (2p)",
+          "Rita ett lådagram för: 2, 5, 7, 8, 10, 12, 15. (2p)"
+        ],
+        C: [
+          "Två tärningar kastas. Sannolikheten att summan är 8? Visa med utfallsrum. (3p)",
+          "Löner (tkr): 22,25,25,28,30,35,38,42,45,80. Vilket lägesmått beskriver bäst 'typisk lön'? (3p)",
+          "Urna med 4 röda och 6 blå kulor. Dra 2 utan återläggning. Beräkna P(båda röda). (3p)",
+          "Standardavvikelse = 8, medelvärde = 52. Vad kan du säga om 68 poäng? (3p)"
+        ],
+        A: [
+          "Förklara skillnaden mellan korrelation och kausalitet med ett eget exempel. (4p)",
+          "Dataset A: 10,10,10,10,10 och B: 2,6,10,14,18. Båda medelvärde 10. Jämför spridningen. (4p)",
+          "Test: 99% sensitivitet, 95% specificitet. Sjukdomen hos 1% av befolkningen. P(sjuk | positivt test)? (5p)"
+        ]
+      },
+      taluppfattning: {
+        E: [
+          "Beräkna 3/4 + 2/5. Enklaste form. (2p)",
+          "Vilket är störst: 0,625 eller 5/8? Motivera. (1p)",
+          "En vara kostar 350 kr och sätts ned med 20%. Vad kostar den nu? (2p)",
+          "Omvandla 0,004 till potensform (standardform). (1p)"
+        ],
+        C: [
+          "En befolkning ökar med 3% per år. Hur länge tar det att fördubblas? (Använd logaritmer.) (3p)",
+          "10 000 kr med 4% årsränta. Hur mycket finns efter 8 år? (3p)",
+          "Förenkla: (2³ × 4²) / (8 × 2⁻¹). Skriv som potens av 2. (3p)",
+          "En lösning är 30% socker. Hur mycket vatten tillsätts 2 liter för att få 20%-ig lösning? (3p)"
+        ],
+        A: [
+          "Visa att 0,999... = 1 med geometrisk serie. (4p)",
+          "Jämför tillväxten hos f(n) = n² och g(n) = 2ⁿ för stora n. (4p)",
+          "Förklara signifikanta siffror och beräkna (3,14 × 2,7²) / 1,8 med rätt antal. (3p)"
+        ]
+      }
+    }
+  },
+  "3b": {
+    label: "Matematik 3b",
+    topics: {
+      algebra: "Algebra",
+      funktioner: "Funktioner",
+      geometri: "Geometri & vektorer",
+      statistik: "Statistik",
+      trigonometri: "Trigonometri",
+      differentialrakning: "Differentialräkning"
+    },
+    tasks: {
+      algebra: {
+        E: [
+          "Faktorisera p(x) = x³ − 3x² − 4x + 12 fullständigt. (3p)",
+          "Förenkla (x² − 9) / (x² − x − 6) och ange när uttrycket är odefinierat. (3p)",
+          "Lös x³ − 2x² − 5x + 6 = 0 givet att x = 1 är en rot. Faktorisera sedan helt. (3p)",
+          "Förenkla (2x² − 8)/(x² + 4x + 4) · (x + 2)/(x − 2) och ange definitionsmängden. (3p)"
+        ],
+        C: [
+          "Lös ekvationssystemet: x² + y² = 25 och y = x + 1. Tolka lösningarna geometriskt. (4p)",
+          "f(x) = (ax + b)/(x − 2). Bestäm a och b så att f(0) = 3 och f(3) = 8. (4p)",
+          "Faktorisera p(x) = x⁴ − 5x² + 4 med substitutionen t = x². (4p)",
+          "Lös olikheten (x² − 4x)/(x − 1) ≥ 0 exakt. Presentera på tallinje och som mängd. (4p)"
+        ],
+        A: [
+          "Visa att p(x) = x³ + px + q alltid har minst en reell rot med satsen om mellanvärden. (5p)",
+          "Bevisa att om r är en heltalig rot till aₙxⁿ + … + a₀ = 0, måste r dela a₀. Tillämpa på x³ − 7x + 6 = 0. (5p)",
+          "Analysera hur antalet reella rötter till ax² + bx + c beror på diskriminanten. Kan udda grads polynom sakna reella rötter? (5p)",
+          "Partialbråksuppdelning: R(x) = (x³ − x)/(x² − 4). Genomför uppdelningen fullständigt. (5p)"
+        ]
+      },
+      funktioner: {
+        E: [
+          "Bestäm definitionsmängd och värdemängd för f(x) = √(2x − 6). Skissa och markera nollstället. (3p)",
+          "f(x) = x² − 4x + 3. Bestäm nollställen, vertex och skissa grafen. (3p)",
+          "Bestäm asymptoterna för g(x) = (3x + 2)/(x − 5). (3p)",
+          "f(x) = 2x³ − 12x² + 18x. Beräkna f(0), f(1), f(3) och bestäm nollställena. (3p)"
+        ],
+        C: [
+          "Analysera f(x) = (x² − 1)/(x² − 4): definitionsmängd, nollställen, asymptoter och om grafen skär horisontell asymptot. (4p)",
+          "f(x) = x² − 2x och g(x) = x + 4. Bestäm skärningspunkter och arean mellan graferna. (4p)",
+          "p(x) = x³ − 6x² + 9x − 4. Bestäm rötter, extrempunkter och inflexionspunkter. Skissa. (5p)",
+          "f(x) = √x och g(x) = x² − 3. Bestäm (f∘g)(x) och (g∘f)(x) med definitionsmängder. Lös (f∘g)(x) = 2. (4p)"
+        ],
+        A: [
+          "Bevisa att en kontinuerlig funktion med f(a)<0 och f(b)>0 har minst en nollpunkt i (a,b). Tillämpa på x⁵ − 4x + 2 = 0 i (0,1). (5p)",
+          "Konstruera f(x) = P(x)/Q(x) med vertikal asymptot x=3, horisontell asymptot y=2 och nollstället x=−1. Bevisa att kraven uppfylls. (5p)",
+          "Bevisa rigoröst att limₓ→∞ xⁿ/eˣ = 0 för varje naturligt tal n med L'Hôpitals regel. (5p)",
+          "x² + xy + y² = 7. Verifiera att (1,2) ligger på kurvan. Bestäm tangentlinjen med implicit derivering. (5p)"
+        ]
+      },
+      geometri: {
+        E: [
+          "a⃗ = (3,−1) och b⃗ = (−2,4). Beräkna a⃗+b⃗, a⃗−b⃗ och 2a⃗−b⃗. Rita vektorerna. (3p)",
+          "Beräkna skalärprodukten för a⃗=(4,2) och b⃗=(−1,3). Är vektorerna vinkelräta? (3p)",
+          "Bestäm beloppet av v⃗=(5,−12) och en enhetsvektor i samma riktning. (2p)",
+          "A=(1,2), B=(4,6), C=(7,2). Bestäm AB⃗ och AC⃗ och arean av triangeln med vektorer. (3p)"
+        ],
+        C: [
+          "A=(0,0), B=(6,0), C=(3,5). Beräkna alla sidor och vinklar med cosinus- och sinussatsen. (4p)",
+          "Linjen ℓ genom P=(2,1) och Q=(5,7). Bestäm riktnings- och normalvektor. Skriv linjen på parameterform och normalform. (4p)",
+          "u⃗=(3,1) och v⃗=(1,4). Beräkna arean av parallellogrammet och vinkeln mellan vektorerna. (4p)",
+          "x² + y² − 6x + 4y − 3 = 0. Komplettera kvadraterna för att bestämma centrum och radie. Ligger (5,−1) på, innanför eller utanför cirkeln? (4p)"
+        ],
+        A: [
+          "Bevisa med vektorer att diagonalerna i en parallelogram halverar varandra. (5p)",
+          "Bevisa med vektorer att tyngdpunkten G delar varje median i förhållandet 2:1 från hörnet. (5p)",
+          "A=(1,0), B=(0,1), C=(−1,−1). Bestäm omskrivna cirkelns centrum och radie exakt. (5p)",
+          "Visa att v⃗ = (v⃗·e₁)e₁ + (v⃗·e₂)e₂ för ortonormerad bas. Projicera v⃗=(3,5) på u⃗=(1/√2, 1/√2). (5p)"
+        ]
+      },
+      statistik: {
+        E: [
+          "Data: 4,7,7,9,11,13,15. Beräkna medelvärde, median, typvärde och standardavvikelse. (3p)",
+          "X normalfördelad med μ=50, σ=10. Andelen i [40,60] och [30,70]? (3p)",
+          "84 av 200 elever cyklar till skolan. Konstruera ett 95%-igt konfidensintervall för andelen. (3p)",
+          "Data: 2,5,8,4,9,3,7,6,5,1. Beräkna Q1, Q2, Q3 och IQR. Identifiera outliers. (3p)"
+        ],
+        C: [
+          "Tärning kastas 300 ggr. Sexan faller 62 ggr. Testa på 5% om tärningen är osymmetrisk. (4p)",
+          "Klass A: n=25, medel=68, σ=12. Klass B: n=30, medel=72, σ=15. Konstruera 95%-igt KI för skillnaden. (4p)",
+          "r=0,82, n=20, x̄=6,5, ȳ=74, sx=2,1, sy=8,3. Bestäm regressionslinjen och tolka lutningen. (4p)",
+          "Lotto: 7 tal ur 1–35. Sannolikheten att gissa exakt 5 rätt om man väljer 7 tal? (4p)"
+        ],
+        A: [
+          "Resonera kring korrelation vs kausalitet med ett eget exempel. Beskriv konfunderingsvariabelns roll. (5p)",
+          "Behandlingsgrupp: n=100, medel=78, σ=14. Kontrollgrupp: n=100, medel=71, σ=16. Hypotestest (α=0,05) och Cohens d. (5p)",
+          "Förklara statistisk styrka och beräkna minsta n för 80% styrka vid α=0,05 och d=0,5. (5p)",
+          "Sjukdom hos 1%, test: 95% sensitivitet, 90% specificitet. Beräkna P(sjuk|positiv) med Bayes sats. (5p)"
+        ]
+      },
+      trigonometri: {
+        E: [
+          "Bestäm exakta värden för sin(120°), cos(225°) och tan(300°) med enhetscirkeln. (3p)",
+          "Lös 2sin(x) − 1 = 0 för x ∈ [0°, 360°]. Visa med enhetscirkeln. (3p)",
+          "Förenkla sin²(v) + cos²(v) + tan²(v) · cos²(v). Ange vilken identitet du använder. (3p)",
+          "Bestäm exakt vinkeln v ∈ [0, 2π] med cos(v) = −√3/2. Svar i radianer och grader. (2p)"
+        ],
+        C: [
+          "Bevisa additionsformeln sin(α+β) = sinα cosβ + cosα sinβ. Härleda sin(2α) som specialfall. (5p)",
+          "Lös 2cos²(x) − 3cos(x) + 1 = 0 för x ∈ [0, 2π]. Faktorisera och ange exakta svar. (4p)",
+          "Triangel: a=7, b=9, C=60°. Beräkna c, bestäm A och verifiera att A+B+C=180°. (4p)",
+          "Förenkla (sin(3x) + sin(x)) / cos(2x) till en enkel trigonometrisk funktion. (4p)"
+        ],
+        A: [
+          "Härled cosinussatsen från Pythagoras och skalärproduktsformeln. Diskutera generaliseringen. (5p)",
+          "Lös sin(2x) = cos(x) fullständigt för alla reella x. Ange det allmänna lösningsuttrycket. (5p)",
+          "Bevisa tan(α+β) = (tanα+tanβ)/(1−tanα tanβ) från additions formlerna. Undersök undantagen. (5p)",
+          "f(t) = A sin(ωt+φ), f(0)=3, f'(0)=4ω, A=5. Bestäm φ och skriv om på formen R cos(ωt+δ). (5p)"
+        ]
+      },
+      differentialrakning: {
+        E: [
+          "Derivera: (a) f(x)=4x³−5x²+2x−7, (b) g(x)=(3x²−1)(x+4), (c) h(x)=sin(x²). Ange regel för varje. (3p)",
+          "Använd kvotregeln för att derivera f(x) = (x²+3x)/(2x−1). Förenkla. (3p)",
+          "Bestäm tangentlinjens ekvation till f(x) = x³ − 3x² + 2 i punkten x = 2. (3p)",
+          "Bestäm lokala extrempunkter för f(x) = x³ − 6x² + 9x − 4 med f' och f''. (4p)"
+        ],
+        C: [
+          "Fullständig kurvstudie för f(x) = x⁴ − 8x²: extrempunkter, inflexionspunkter, konkavitet. Skissa. (5p)",
+          "Öppen kvadratisk låda utan lock av 54 dm² plåt. Bottensida x. Maximera volymen V(x). (4p)",
+          "Derivera med kedjeregeln: (a) f(x)=(3x²−2)⁵, (b) g(x)=√(sin x), (c) h(x)=cos³(4x). (4p)",
+          "s(t) = t³−6t²+9t för t≥0. Bestäm när partikeln är stationär och hastighet/acceleration vid t=4. (4p)"
+        ],
+        A: [
+          "Bevisa medelvärdessatsen. Ge geometriskt argument och tillämpa på f(x)=x³ på [0,2]. (5p)",
+          "x³+y³−3xy=0 (Descartes' lövblad). Beräkna dy/dx implicit, hitta horisontala tangenter, verifiera (3/2,3/2). (5p)",
+          "Cylinder med lock: V=1000 cm³. Minimera ytarean. Visa att optimal cylinder har h=2r. (5p)",
+          "Approximera √26 med linjärisering kring lämpligt a. Uppskatta felet med f''. Diskutera metodens pålitlighet. (5p)"
+        ]
+      }
+    }
+  }
+};
+
+let currentCourse = "2b";
+let currentTopic = "algebra";
+let currentLevel = "E";
+let conversationHistory = [];
+let stats = { tasks: 0, correct: 0 };
+let isLoading = false;
+
+function getCourseData() { return COURSES[currentCourse]; }
+function getTopics() { return getCourseData().topics; }
+function getFirstTopic() { return Object.keys(getTopics())[0]; }
+
+function buildTopicButtons() {
+  const group = document.getElementById("topic-group");
+  group.innerHTML = "";
+  const topics = getTopics();
+  Object.entries(topics).forEach(([key, label], i) => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn" + (key === currentTopic ? " active" : "");
+    btn.dataset.topic = key;
+    btn.textContent = label;
+    group.appendChild(btn);
+  });
+}
+
+function buildSystemPrompt() {
+  const course = getCourseData();
+  const topicLabel = getTopics()[currentTopic];
+  return `Du är ett AI-stöd för svenska gymnasieelever som tränar inför Nationellt Prov (NP) i ${course.label}.
+
+Du har fyra roller som du växlar mellan beroende på elevens behov:
+
+UPPGIFTSGENERATORN
+– Välj en uppgift från uppgiftsbanken som startpunkt, variera den sedan lätt.
+– Anpassa till betygsnivå: E (grundläggande procedur), C (tillämpning), A (analys och resonemang).
+– Ange alltid poängsättning. Vänta på elevens svar innan du kommenterar.
+
+RÄTTAREN & FEEDBACKGIVAREN
+– Aktiveras när eleven delar sitt svar.
+– Bedöm metod och slutsvar separat.
+– Ange vilken betygsnivå svaret når och varför.
+– Visa alltid en fullständig modelllösning med motiverade steg.
+– Var uppmuntrande och pedagogisk.
+
+FÖRKLARAREN
+– Förklarar begrepp stegvis med konkreta exempel.
+– Kopplar alltid till hur momentet brukar testas på NP.
+
+DIAGNOSTIKERN
+– Aktiveras när eleven ber om diagnos.
+– Analysera konversationshistoriken: vad klarar eleven, vad är svagt?
+– Avsluta med tre konkreta studietips.
+
+REGLER:
+– Svara alltid på svenska.
+– Håll matematiken korrekt och anpassad till ${course.label}-nivå.
+– Tydlig struktur: numrerade steg, inga onödiga utsvävningar.
+– Aktuell kurs: ${course.label}. Delområde: ${topicLabel}. Betygsnivå: ${currentLevel}.`;
+}
+
+function getRandomTask() {
+  const tasks = getCourseData().tasks[currentTopic][currentLevel];
+  return tasks[Math.floor(Math.random() * tasks.length)];
+}
+
+async function callAPI(messages) {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": API_KEY,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true"
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 1500,
+      system: buildSystemPrompt(),
+      messages: messages
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API-fel ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.content[0].text;
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function formatBubble(text) {
+  return escapeHtml(text)
+    .replace(/```([\s\S]*?)```/g,"<pre>$1</pre>")
+    .replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g,"<em>$1</em>")
+    .replace(/\n/g,"<br>");
+}
+
+function addMessage(role, text) {
+  const container = document.getElementById("chat-messages");
+  const welcome = container.querySelector(".welcome-msg");
+  if (welcome) welcome.remove();
+
+  const msg = document.createElement("div");
+  msg.className = `message ${role}`;
+
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.textContent = role === "ai" ? "∑" : "E";
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.innerHTML = formatBubble(text);
+
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  container.appendChild(msg);
+  scrollToBottom();
+}
+
+function showTyping() {
+  const container = document.getElementById("chat-messages");
+  const el = document.createElement("div");
+  el.className = "typing-indicator";
+  el.id = "typing-indicator";
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.textContent = "∑";
+  const dots = document.createElement("div");
+  dots.className = "typing-dots";
+  dots.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  el.appendChild(avatar);
+  el.appendChild(dots);
+  container.appendChild(el);
+  scrollToBottom();
+}
+
+function hideTyping() {
+  const el = document.getElementById("typing-indicator");
+  if (el) el.remove();
+}
+
+function showError(msg) {
+  const container = document.getElementById("chat-messages");
+  const el = document.createElement("div");
+  el.className = "error-bubble";
+  el.textContent = "Fel: " + msg;
+  container.appendChild(el);
+  scrollToBottom();
+}
+
+function scrollToBottom() {
+  const c = document.getElementById("chat-messages");
+  c.scrollTop = c.scrollHeight;
+}
+
+function setLoading(val) {
+  isLoading = val;
+  document.getElementById("send-btn").disabled = val;
+  document.getElementById("user-input").disabled = val;
+}
+
+async function sendMessage(userText) {
+  if (isLoading || !userText.trim()) return;
+  addMessage("user", userText);
+  conversationHistory.push({ role: "user", content: userText });
+  setLoading(true);
+  showTyping();
+  try {
+    const reply = await callAPI(conversationHistory);
+    hideTyping();
+    addMessage("ai", reply);
+    conversationHistory.push({ role: "assistant", content: reply });
+  } catch (e) {
+    hideTyping();
+    showError(e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function newTask() {
+  if (isLoading) return;
+  stats.tasks++;
+  updateStats();
+  const task = getRandomTask();
+  const topicLabel = getTopics()[currentTopic];
+  const prompt = `Ge mig en ny uppgift inom ${topicLabel} på nivå ${currentLevel} i ${getCourseData().label}. Basera den på följande uppgift men variera den lätt: "${task}"`;
+  conversationHistory = [];
+  await sendMessage(prompt);
+}
+
+function sendQuick(text) { sendMessage(text); }
+
+function handleSubmit(e) {
+  e.preventDefault();
+  const input = document.getElementById("user-input");
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = "";
+  autoResize(input);
+  sendMessage(text);
+}
+
+function handleKeyDown(e) {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSubmit(e); }
+}
+
+function autoResize(el) {
+  el.style.height = "auto";
+  el.style.height = Math.min(el.scrollHeight, 120) + "px";
+}
+
+function updateStats() {
+  document.getElementById("stat-tasks").textContent = stats.tasks;
+  document.getElementById("stat-correct").textContent = stats.correct;
+  const acc = stats.tasks > 0 ? Math.round((stats.correct / stats.tasks) * 100) : 0;
+  document.getElementById("stat-accuracy").textContent = stats.tasks > 0 ? acc + "%" : "–";
+  document.getElementById("progress-bar").style.width = (stats.tasks > 0 ? acc : 0) + "%";
+}
+
+function updateHeader() {
+  const course = getCourseData();
+  const topicLabel = getTopics()[currentTopic];
+  document.getElementById("header-subtitle").textContent = `${course.label} · ${topicLabel} · Nivå ${currentLevel}`;
+}
+
+function resetSession() {
+  stats = { tasks: 0, correct: 0 };
+  conversationHistory = [];
+  updateStats();
+  document.getElementById("chat-messages").innerHTML =
+    '<div class="welcome-msg"><h3>Session återställd!</h3><p>Tryck på <strong>+ Ny uppgift</strong> för att börja om.</p></div>';
+}
+
+document.getElementById("course-group").addEventListener("click", e => {
+  const btn = e.target.closest(".course-btn");
+  if (!btn) return;
+  document.querySelectorAll(".course-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentCourse = btn.dataset.course;
+  currentTopic = getFirstTopic();
+  conversationHistory = [];
+  buildTopicButtons();
+  updateHeader();
+});
+
+document.getElementById("topic-group").addEventListener("click", e => {
+  const btn = e.target.closest(".option-btn");
+  if (!btn) return;
+  document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentTopic = btn.dataset.topic;
+  conversationHistory = [];
+  updateHeader();
+});
+
+document.getElementById("level-group").addEventListener("click", e => {
+  const btn = e.target.closest(".level-btn");
+  if (!btn) return;
+  document.querySelectorAll(".level-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  currentLevel = btn.dataset.level;
+  conversationHistory = [];
+  updateHeader();
+});
+
+buildTopicButtons();
+updateHeader();
+</script>
+</body>
+</html>
