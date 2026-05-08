@@ -755,6 +755,17 @@
     Mötestranskribering
   </div>
   <div class="spacer"></div>
+  <!-- API-nyckel input i headern -->
+  <div id="api-key-wrapper" style="display:flex;align-items:center;gap:6px;">
+    <input type="password" id="api-key-input"
+      placeholder="Klistra in API-nyckel…"
+      style="width:220px;padding:5px 9px;border-radius:6px;border:1px solid var(--slate-600);
+             background:var(--slate-800);color:var(--white);font-size:12px;font-family:inherit;"
+      title="Din Anthropic API-nyckel sparas lokalt i webbläsaren">
+    <button id="btn-save-api-key" class="btn btn-primary btn-sm">Spara</button>
+    <span id="api-key-status" style="font-size:12px;color:#86efac;display:none;">✓ Sparad</span>
+  </div>
+
   <div id="header-rec-indicator">
     <div class="rec-dot"></div>
     <span id="header-timer">00:00</span>
@@ -946,7 +957,7 @@
 /* =========================================================
    KONFIGURATION
    ========================================================= */
-const API_KEY = 'DIN_API_NYCKEL';        // Ersätt med din Anthropic API-nyckel
+let API_KEY = localStorage.getItem('anthropic_api_key') || '';
 const MODEL   = 'claude-sonnet-4-20250514';
 const MAX_TOKENS = 2000;
 
@@ -1831,8 +1842,37 @@ function setupEventListeners() {
 }
 
 /* =========================================================
+   API-NYCKEL – SPARA/LADDA FRÅN LOCALSTORAGE
+   ========================================================= */
+function initApiKeyUI() {
+  const input  = document.getElementById('api-key-input');
+  const btn    = document.getElementById('btn-save-api-key');
+  const status = document.getElementById('api-key-status');
+
+  // Visa maskerad nyckel om den redan är sparad
+  if (API_KEY) {
+    input.value = API_KEY;
+    status.style.display = 'inline';
+  }
+
+  btn.addEventListener('click', () => {
+    const key = input.value.trim();
+    if (!key) { showToast('Ange en API-nyckel', 'error'); return; }
+    API_KEY = key;
+    localStorage.setItem('anthropic_api_key', key);
+    status.style.display = 'inline';
+    showToast('API-nyckel sparad!', 'success');
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') btn.click();
+  });
+}
+
+/* =========================================================
    STARTA APPEN
    ========================================================= */
+initApiKeyUI();
 init();
 </script>
 </body>
