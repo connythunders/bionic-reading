@@ -352,12 +352,13 @@
 
     #empty-state p { font-size: 14px; max-width: 240px; line-height: 1.5; }
 
-    /* Transkriberings-segment */
+    /* Transkriberings-segment – konversationsvy */
     .segment {
       display: flex;
-      gap: 12px;
-      margin-bottom: 18px;
+      flex-direction: column;
+      margin-bottom: 14px;
       animation: fadeIn .3s ease;
+      max-width: 85%;
     }
 
     @keyframes fadeIn {
@@ -365,37 +366,59 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .segment-meta {
-      flex-shrink: 0;
-      width: 80px;
-      padding-top: 2px;
+    /* Varannan talare höger-justeras */
+    .segment.align-right {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .segment.align-left {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    #transcript-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .segment-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
     }
 
     .segment-speaker {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
-      padding: 2px 6px;
-      border-radius: 4px;
+      padding: 2px 8px;
+      border-radius: 10px;
       display: inline-block;
       transition: filter .15s;
     }
 
-    .segment-speaker:hover { filter: brightness(.9); }
+    .segment-speaker:hover { filter: brightness(.88); }
 
     .segment-time {
       font-size: 10px;
       color: var(--slate-400);
-      margin-top: 3px;
       font-variant-numeric: tabular-nums;
     }
 
-    .segment-text {
-      flex: 1;
-      line-height: 1.65;
+    .segment-bubble {
+      padding: 10px 14px;
+      border-radius: 16px;
+      line-height: 1.6;
       color: var(--slate-800);
       font-size: 14px;
+      max-width: 100%;
+      word-break: break-word;
     }
+
+    .align-left  .segment-bubble { border-top-left-radius: 4px; }
+    .align-right .segment-bubble { border-top-right-radius: 4px; }
 
     /* Råtext (visas under transkribering tills AI bekräftar) */
     .segment-raw {
@@ -1272,21 +1295,29 @@ function renderSegment(segment) {
   if (emptyState) emptyState.style.display = 'none';
 
   const sp = speakerMap[segment.speakerKey];
+  // Tilldela en fast sida per talare (jämnt index = vänster, udda = höger)
+  const speakerKeys = Object.keys(speakerMap);
+  const speakerIdx  = speakerKeys.indexOf(segment.speakerKey);
+  const side = speakerIdx % 2 === 0 ? 'align-left' : 'align-right';
+
   const div = document.createElement('div');
-  div.className = 'segment';
+  div.className = `segment ${side}`;
   div.id = segment.id;
 
   div.innerHTML = `
-    <div class="segment-meta">
+    <div class="segment-header">
       <span class="segment-speaker"
             style="background:${sp.bgColor};color:${sp.textColor}"
             data-speaker-key="${segment.speakerKey}"
             title="Klicka för att byta namn">
         ${escapeHTML(sp.name)}
       </span>
-      <div class="segment-time">${segment.time}</div>
+      <span class="segment-time">${segment.time}</span>
     </div>
-    <div class="segment-text">${escapeHTML(segment.text)}</div>
+    <div class="segment-bubble"
+         style="background:${sp.bgColor};color:${sp.textColor.replace(')', ', 0.85)').replace('rgb', 'rgba') || sp.textColor}">
+      ${escapeHTML(segment.text)}
+    </div>
   `;
 
   // Klick-hanterare för talarnamn
@@ -1297,16 +1328,19 @@ function renderSegment(segment) {
   transcriptContainer.appendChild(div);
 }
 
-// Uppdaterar alla talar-etiketter i transkriptionen globalt
+// Uppdaterar alla talar-etiketter och bubblor globalt
 function refreshAllSpeakerLabels() {
-  document.querySelectorAll('.segment-speaker').forEach(el => {
-    const key = el.dataset.speakerKey;
-    if (speakerMap[key]) {
-      const sp = speakerMap[key];
-      el.textContent = sp.name;
-      el.style.background  = sp.bgColor;
-      el.style.color       = sp.textColor;
-    }
+  document.querySelectorAll('.segment').forEach(segEl => {
+    const speakerEl = segEl.querySelector('.segment-speaker');
+    if (!speakerEl) return;
+    const key = speakerEl.dataset.speakerKey;
+    if (!speakerMap[key]) return;
+    const sp = speakerMap[key];
+    speakerEl.textContent       = sp.name;
+    speakerEl.style.background  = sp.bgColor;
+    speakerEl.style.color       = sp.textColor;
+    const bubble = segEl.querySelector('.segment-bubble');
+    if (bubble) bubble.style.background = sp.bgColor;
   });
   updateSpeakersList();
 }
