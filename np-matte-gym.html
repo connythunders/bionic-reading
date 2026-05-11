@@ -283,6 +283,7 @@
   <div>
     <p class="section-label">Kurs</p>
     <div class="course-group" id="course-group">
+      <button class="course-btn" data-course="1a">Ma 1a<span class="course-badge">Yrkesförbered.</span></button>
       <button class="course-btn" data-course="1b">Ma 1b<span class="course-badge">Grundnivå</span></button>
       <button class="course-btn active" data-course="2b">Ma 2b<span class="course-badge">Mellannivå</span></button>
       <button class="course-btn" data-course="3b">Ma 3b<span class="course-badge">Avancerad</span></button>
@@ -332,7 +333,7 @@
   <div id="chat-messages">
     <div class="welcome-msg">
       <h3>Välkommen till NP Matematik Gymnasium!</h3>
-      <p>Välj kurs (1b, 2b eller 3b), delområde och betygsnivå,<br>tryck sedan på <strong>+ Ny uppgift</strong> för att börja.</p>
+      <p>Välj kurs (1a, 1b, 2b eller 3b), delområde och betygsnivå,<br>tryck sedan på <strong>+ Ny uppgift</strong> för att börja.</p>
     </div>
   </div>
 
@@ -354,6 +355,118 @@ const API_KEY = ["sk-","ant-api03-l01YwMuJHFQAcV2oIFtFWOBzVpKve7IJBD8PUrkf_n18O9
 const MODEL = "claude-opus-4-5";
 
 const COURSES = {
+  "1a": {
+    label: "Matematik 1a",
+    topics: {
+      taluppfattning: "Taluppfattning",
+      algebra: "Algebra",
+      geometri: "Geometri",
+      statistik: "Statistik",
+      samband: "Samband & förändring"
+    },
+    tasks: {
+      taluppfattning: {
+        E: [
+          "Beräkna 20 % av 350 kr. (1p)",
+          "En vara kostar 180 kr. Priset höjs med 15 %. Vad kostar varan efter höjningen? (2p)",
+          "Skriv 0,4 som en bråkdel i enklaste form. (1p)",
+          "Ordna talen 0,5 ; 2/5 ; 45 % i storleksordning från minst till störst. (2p)"
+        ],
+        C: [
+          "En jacka kostar 560 kr efter en rabatt på 30 %. Vad kostade jackan innan reaan? (3p)",
+          "Lisa tjänar 16 000 kr i månaden och betalar 28 % i skatt. Hur mycket får hon kvar efter skatt? (2p)",
+          "Priset på en cykel ökade från 3 200 kr till 3 680 kr. Hur många procent ökade priset? (3p)",
+          "En butik säljer 240 varor och 60 av dem är på rea. Hur stor andel, i procent, är på rea? (2p)"
+        ],
+        A: [
+          "En produkt kostar 400 kr. Först sänks priset med 10 %, sedan höjs det med 10 %. Hamnar man tillbaka på 400 kr? Visa med beräkningar och förklara varför. (3p)",
+          "Kalle hävdar att 1/4 är lika med 25 %. Förklara på två olika sätt om han har rätt. (3p)",
+          "En vara höjs med 20 % och sedan sänks den nya priset med 20 %. Är slutpriset lika som ursprungspriset? Förklara och beräkna med ett konkret exempel. (4p)",
+          "Jämför: 3/8 och 37 %. Vilket är störst? Förklara och visa med ett tydligt räknesätt. (3p)"
+        ]
+      },
+      algebra: {
+        E: [
+          "Lös ekvationen 3x + 6 = 18. (2p)",
+          "Lös ekvationen 2x − 4 = 10. (2p)",
+          "Förenkla uttrycket 4a + 3b − 2a + b. (1p)",
+          "Lös ekvationen 5(x + 1) = 20. (2p)"
+        ],
+        C: [
+          "Tre vänner delar på hyran. En betalar 500 kr mer än de andra två. Totalt 5 500 kr. Hur mycket betalar var och en? (3p)",
+          "En elektriker tar 400 kr i startavgift och sedan 150 kr per timme. Kunden betalade totalt 1 450 kr. Hur många timmar jobbade elektrikern? (3p)",
+          "En rektangel har bredden x cm och längden är 6 cm mer. Omkretsen är 40 cm. Skriv en ekvation och beräkna x. (3p)",
+          "Linn och Adam samlar på poäng i ett spel. Linn har 30 poäng mer än Adam. Tillsammans har de 150 poäng. Hur många poäng har var och en? (3p)"
+        ],
+        A: [
+          "Förklara med egna ord och ett exempel vad det innebär att lösa en ekvation. Vad är 'okänd' och vad är 'lösning'? (3p)",
+          "Formulera en egen vardagssituation som kan beskrivas med ekvationen 2x + 50 = 150. Lös sedan ekvationen och svara på din situation. (4p)",
+          "En mobilplan kostar 99 kr/mån + 0,60 kr/min. En annan kostar 149 kr/mån men 0 kr/min. Hur många minuter i månaden behöver du ringa för att plan 2 ska löna sig? Skriv en ekvation och lös. (4p)",
+          "Erik påstår att 2(x + 4) alltid ger samma svar som 2x + 4. Har han rätt? Kontrollera med ett exempel och förklara. (3p)"
+        ]
+      },
+      geometri: {
+        E: [
+          "Beräkna arean av en rektangel med sidorna 7 cm och 4 cm. (1p)",
+          "En rätvinklig triangel har kateterna 3 cm och 4 cm. Beräkna hypotenusan. (2p)",
+          "Beräkna omkretsen av en rektangel med sidorna 9 cm och 5 cm. (1p)",
+          "Beräkna volymen av en rätblock med måtten 6 cm × 4 cm × 3 cm. (2p)"
+        ],
+        C: [
+          "Ett rum är 4,5 × 3,5 m. Parkettgolv kostar 180 kr/m². Hur mycket kostar det att lägga golvet i hela rummet? (3p)",
+          "En vägg är 5 m bred och 2,8 m hög. Det finns ett fönster (1,2 × 1,4 m) och en dörr (0,9 × 2,1 m). Hur stor väggyta ska målas? (3p)",
+          "En cirkelbassäng har diametern 6 m. Vad är bassängens area? Hur lång är kanten runt bassängen? Ge svar i två decimaler. (3p)",
+          "En triangelformad trädgård har basen 10 m och höjden 7 m. En kvadratformig gräsmatta med sidan 4 m ska läggas in i trädgården. Hur stor yta är inte gräsmatta? (3p)"
+        ],
+        A: [
+          "Rita en figur och beräkna arean av ett L-format rum som är 8×6 m med ett 3×2 m utskott borttaget i ett hörn. (4p)",
+          "En platta är 30×30 cm. Hur många plattor behövs för att täcka ett golv på 4,5×3 m? Ta hänsyn till eventuellt svinn och beräkna hur många extra plattor man bör köpa om man räknar med 10 % svinn. (4p)",
+          "Förklara skillnaden mellan area och volym med ett yrkesrelevant exempel. (3p)",
+          "En lagerlokal är 20×15 m och 5 m hög. Beräkna golvyta, väggyta (utan tak och dörr) och volym. Vad kostar det att värma lokalen om 1 kWh kostar 1,20 kr och man behöver 15 Wh/m³ per dag? (4p)"
+        ]
+      },
+      statistik: {
+        E: [
+          "Datamaterialet: 5, 8, 3, 7, 8, 4, 8. Beräkna medelvärde, median och typvärde. (3p)",
+          "Fyra elever fick betygen 3, 4, 5, 4 på ett prov. Vad är medelvärdet? (1p)",
+          "En påse har 4 röda, 3 blå och 3 gula kulor. Vad är sannolikheten att dra en blå kula? (2p)",
+          "En tärning kastas. Vad är sannolikheten att få ett tal som är 3 eller mer? (1p)"
+        ],
+        C: [
+          "Sex anställdas löner (kr): 24 000, 26 000, 25 000, 28 000, 27 000, 85 000. Beräkna medelvärde och median. Vilket mått beskriver bäst den 'typiska' lönen? Motivera. (4p)",
+          "En klass på 28 elever svarar på om de har körkort. 7 av dem har körkort. Vad är sannolikheten att en slumpmässig elev har körkort? Är det troligare att ha eller inte ha körkort? (3p)",
+          "Poäng på ett prov: 12, 18, 15, 20, 14, 9, 17. Beräkna medelvärde och median. En 8:e elev får 20 p. Hur förändras medelvärdet och medianen? (3p)",
+          "50 av 200 kunder på ett café väljer kaffe utan socker. Hur stor procentandel är det? Kan man dra slutsatser om alla kafébesökare i Sverige? Ge minst ett argument för och ett emot. (3p)"
+        ],
+        A: [
+          "Klassen mäter sina längder i cm: 162, 171, 168, 175, 180, 163, 172, 169, 176, 174. Beräkna medelvärde och median. Resonera kring om klassen är representativ för alla svenska gymnasieelever. (4p)",
+          "Förklara skillnaden mellan medelvärde och median med ett eget yrkesrelevant exempel där de ger mycket olika svar. (4p)",
+          "I en undersökning svarar 60 % av 100 tillfrågade att de är nöjda med sin arbetsplats. Hur pålitlig är denna undersökning? Diskutera minst tre felkällor. (4p)",
+          "Tärning kastas 120 gånger. Man förväntar sig att ettan ska komma 20 gånger, men den kom 28 gånger. Förklara vad sannolikhet innebär och om detta resultat är förvånande. (3p)"
+        ]
+      },
+      samband: {
+        E: [
+          "y = 3x + 2. Beräkna y när x = 3 och x = −2. (2p)",
+          "En taxi kostar 45 kr startavgift och sedan 12 kr/km. Skriv ett uttryck för totalkostnaden efter k km. (2p)",
+          "En linje går genom (0, 4) och (2, 10). Bestäm k och m i formeln y = kx + m. (2p)",
+          "Rita linjen y = 2x − 1 i ett koordinatsystem. Markera y-skärningspunkten. (2p)"
+        ],
+        C: [
+          "Operatör A: 0,90 kr/min utan månadsavgift. Operatör B: 59 kr/månad + 0,30 kr/min. Skriv formler och beräkna när B är billigare. (3p)",
+          "En snickare tar 500 kr för en hel dags arbete och sedan 200 kr per extra timme. Skriv en formel och beräkna priset för 3 extra timmar. Hur många extra timmar klarar man sig på max 1 300 kr? (3p)",
+          "Tabell: antal timmar (x): 0, 1, 2, 3 och kostnad (y): 200, 350, 500, 650. Är sambandet linjärt? Skriv formeln. Vad kostar det för 5 timmar? (3p)",
+          "Två el-scootrar med olika taxor. Scooter A: 2 kr/min. Scooter B: 15 kr startavgift + 1,20 kr/min. Skriv formler och avgör när A är billigare. (3p)"
+        ],
+        A: [
+          "En affär säljer mer ju lägre priset är. Resonera kring vad ett linjärt samband skulle innebära och om det alltid stämmer i verkligheten. Ge ett eget exempel. (4p)",
+          "y = 2x + 5 och y = −x + 14. Beräkna skärningspunkten algebraiskt och tolka vad den betyder i en vardaglig situation du själv väljer. (4p)",
+          "Formulera en egen situation där det finns ett linjärt samband. Skriv en formel, gör en tabell för 5 värden och rita grafen. Tolka k-värdet (lutningen) i din situation. (4p)",
+          "En biluthyrning tar 300 kr/dag + 2 kr/mil. En annan tar 0 kr/dag men 5 kr/mil. Beräkna när de kostar lika. Resonera kring vilket alternativ som passar bäst för olika typer av resor. (4p)"
+        ]
+      }
+    }
+  },
   "1b": {
     label: "Matematik 1b",
     topics: {
