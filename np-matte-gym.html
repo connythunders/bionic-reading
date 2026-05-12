@@ -77,7 +77,7 @@
   }
 
   /* Kursväljare */
-  .course-group { display: flex; gap: 6px; }
+  .course-group { display: flex; gap: 6px; flex-wrap: wrap; }
 
   .course-btn {
     flex: 1;
@@ -283,9 +283,11 @@
   <div>
     <p class="section-label">Kurs</p>
     <div class="course-group" id="course-group">
+      <button class="course-btn" data-course="1a">Ma 1a<span class="course-badge">Yrkesförbered.</span></button>
       <button class="course-btn" data-course="1b">Ma 1b<span class="course-badge">Grundnivå</span></button>
       <button class="course-btn active" data-course="2b">Ma 2b<span class="course-badge">Mellannivå</span></button>
       <button class="course-btn" data-course="3b">Ma 3b<span class="course-badge">Avancerad</span></button>
+      <button class="course-btn" data-course="3c">Ma 3c<span class="course-badge">Högsta nivå</span></button>
     </div>
   </div>
 
@@ -332,7 +334,7 @@
   <div id="chat-messages">
     <div class="welcome-msg">
       <h3>Välkommen till NP Matematik Gymnasium!</h3>
-      <p>Välj kurs (1b, 2b eller 3b), delområde och betygsnivå,<br>tryck sedan på <strong>+ Ny uppgift</strong> för att börja.</p>
+      <p>Välj kurs (1a, 1b, 2b, 3b eller 3c), delområde och betygsnivå,<br>tryck sedan på <strong>+ Ny uppgift</strong> för att börja.</p>
     </div>
   </div>
 
@@ -354,6 +356,160 @@ const API_KEY = ["sk-","ant-api03-l01YwMuJHFQAcV2oIFtFWOBzVpKve7IJBD8PUrkf_n18O9
 const MODEL = "claude-opus-4-5";
 
 const COURSES = {
+  "1a": {
+    label: "Matematik 1a",
+    topics: {
+      taluppfattning: "Taluppfattning",
+      procent: "Procent",
+      algebra: "Algebra",
+      geometri: "Geometri",
+      statistik: "Statistik",
+      sannolikhet: "Sannolikhet",
+      samband: "Samband & förändring"
+    },
+    tasks: {
+      taluppfattning: {
+        E: [
+          "Beräkna 20 % av 350 kr. (1p)",
+          "En vara kostar 180 kr. Priset höjs med 15 %. Vad kostar varan efter höjningen? (2p)",
+          "Skriv 0,4 som en bråkdel i enklaste form. (1p)",
+          "Ordna talen 0,5 ; 2/5 ; 45 % i storleksordning från minst till störst. (2p)"
+        ],
+        C: [
+          "En jacka kostar 560 kr efter en rabatt på 30 %. Vad kostade jackan innan reaan? (3p)",
+          "Lisa tjänar 16 000 kr i månaden och betalar 28 % i skatt. Hur mycket får hon kvar efter skatt? (2p)",
+          "Priset på en cykel ökade från 3 200 kr till 3 680 kr. Hur många procent ökade priset? (3p)",
+          "En butik säljer 240 varor och 60 av dem är på rea. Hur stor andel, i procent, är på rea? (2p)"
+        ],
+        A: [
+          "En produkt kostar 400 kr. Först sänks priset med 10 %, sedan höjs det med 10 %. Hamnar man tillbaka på 400 kr? Visa med beräkningar och förklara varför. (3p)",
+          "Kalle hävdar att 1/4 är lika med 25 %. Förklara på två olika sätt om han har rätt. (3p)",
+          "En vara höjs med 20 % och sedan sänks den nya priset med 20 %. Är slutpriset lika som ursprungspriset? Förklara och beräkna med ett konkret exempel. (4p)",
+          "Jämför: 3/8 och 37 %. Vilket är störst? Förklara och visa med ett tydligt räknesätt. (3p)"
+        ]
+      },
+      procent: {
+        E: [
+          "Beräkna 25 % av 200 kr. (1p)",
+          "En vara kostar 300 kr. Priset sänks med 10 %. Vad kostar den efter sänkningen? (2p)",
+          "Omvandla 0,35 till procent. (1p)",
+          "Omvandla 3/4 till procent. (1p)"
+        ],
+        C: [
+          "En jacka kostar 480 kr efter 20 % rabatt. Vad kostade jackan ursprungligen? (3p)",
+          "En löneökning på 5 % ger 1 050 kr mer per månad. Vad var lönen innan ökningen? (3p)",
+          "Priset på en bil ökade från 120 000 kr till 129 600 kr. Hur många procent ökade priset? (3p)",
+          "Moms på 25 % läggs på ett pris. Slutpriset är 625 kr. Vad var priset utan moms? (3p)"
+        ],
+        A: [
+          "En vara höjs med 20 % och sedan sänks det nya priset med 20 %. Är slutpriset lika som ursprungspriset? Visa med beräkningar och förklara varför. (4p)",
+          "En butik tar 40 % pålägg på inköpspriset. Kunden får sedan 15 % rabatt på butikspriset. Hur många procent tjänar butiken egentligen? Visa beräkningar. (4p)",
+          "Förklara skillnaden mellan procentuell förändring och procentenheter med ett eget exempel från arbetslivet. (3p)",
+          "Tre steg: pris höjs 10 %, sedan 10 % igen, sedan sänks 20 %. Är slutpriset högre, lägre eller lika som ursprungspriset? Undersök och förklara. (4p)"
+        ]
+      },
+      algebra: {
+        E: [
+          "Lös ekvationen 3x + 6 = 18. (2p)",
+          "Lös ekvationen 2x − 4 = 10. (2p)",
+          "Förenkla uttrycket 4a + 3b − 2a + b. (1p)",
+          "Lös ekvationen 5(x + 1) = 20. (2p)"
+        ],
+        C: [
+          "Tre vänner delar på hyran. En betalar 500 kr mer än de andra två. Totalt 5 500 kr. Hur mycket betalar var och en? (3p)",
+          "En elektriker tar 400 kr i startavgift och sedan 150 kr per timme. Kunden betalade totalt 1 450 kr. Hur många timmar jobbade elektrikern? (3p)",
+          "En rektangel har bredden x cm och längden är 6 cm mer. Omkretsen är 40 cm. Skriv en ekvation och beräkna x. (3p)",
+          "Linn och Adam samlar på poäng i ett spel. Linn har 30 poäng mer än Adam. Tillsammans har de 150 poäng. Hur många poäng har var och en? (3p)"
+        ],
+        A: [
+          "Förklara med egna ord och ett exempel vad det innebär att lösa en ekvation. Vad är 'okänd' och vad är 'lösning'? (3p)",
+          "Formulera en egen vardagssituation som kan beskrivas med ekvationen 2x + 50 = 150. Lös sedan ekvationen och svara på din situation. (4p)",
+          "En mobilplan kostar 99 kr/mån + 0,60 kr/min. En annan kostar 149 kr/mån men 0 kr/min. Hur många minuter i månaden behöver du ringa för att plan 2 ska löna sig? Skriv en ekvation och lös. (4p)",
+          "Erik påstår att 2(x + 4) alltid ger samma svar som 2x + 4. Har han rätt? Kontrollera med ett exempel och förklara. (3p)"
+        ]
+      },
+      geometri: {
+        E: [
+          "Beräkna arean av en rektangel med sidorna 7 cm och 4 cm. (1p)",
+          "En rätvinklig triangel har kateterna 3 cm och 4 cm. Beräkna hypotenusan. (2p)",
+          "Beräkna omkretsen av en rektangel med sidorna 9 cm och 5 cm. (1p)",
+          "Beräkna volymen av en rätblock med måtten 6 cm × 4 cm × 3 cm. (2p)"
+        ],
+        C: [
+          "Ett rum är 4,5 × 3,5 m. Parkettgolv kostar 180 kr/m². Hur mycket kostar det att lägga golvet i hela rummet? (3p)",
+          "En vägg är 5 m bred och 2,8 m hög. Det finns ett fönster (1,2 × 1,4 m) och en dörr (0,9 × 2,1 m). Hur stor väggyta ska målas? (3p)",
+          "En cirkelbassäng har diametern 6 m. Vad är bassängens area? Hur lång är kanten runt bassängen? Ge svar i två decimaler. (3p)",
+          "En triangelformad trädgård har basen 10 m och höjden 7 m. En kvadratformig gräsmatta med sidan 4 m ska läggas in i trädgården. Hur stor yta är inte gräsmatta? (3p)"
+        ],
+        A: [
+          "Rita en figur och beräkna arean av ett L-format rum som är 8×6 m med ett 3×2 m utskott borttaget i ett hörn. (4p)",
+          "En platta är 30×30 cm. Hur många plattor behövs för att täcka ett golv på 4,5×3 m? Ta hänsyn till eventuellt svinn och beräkna hur många extra plattor man bör köpa om man räknar med 10 % svinn. (4p)",
+          "Förklara skillnaden mellan area och volym med ett yrkesrelevant exempel. (3p)",
+          "En lagerlokal är 20×15 m och 5 m hög. Beräkna golvyta, väggyta (utan tak och dörr) och volym. Vad kostar det att värma lokalen om 1 kWh kostar 1,20 kr och man behöver 15 Wh/m³ per dag? (4p)"
+        ]
+      },
+      statistik: {
+        E: [
+          "Datamaterialet: 5, 8, 3, 7, 8, 4, 8. Beräkna medelvärde, median och typvärde. (3p)",
+          "Fyra elever fick betygen 3, 4, 5, 4 på ett prov. Vad är medelvärdet? (1p)",
+          "En påse har 4 röda, 3 blå och 3 gula kulor. Vad är sannolikheten att dra en blå kula? (2p)",
+          "En tärning kastas. Vad är sannolikheten att få ett tal som är 3 eller mer? (1p)"
+        ],
+        C: [
+          "Sex anställdas löner (kr): 24 000, 26 000, 25 000, 28 000, 27 000, 85 000. Beräkna medelvärde och median. Vilket mått beskriver bäst den 'typiska' lönen? Motivera. (4p)",
+          "En klass på 28 elever svarar på om de har körkort. 7 av dem har körkort. Vad är sannolikheten att en slumpmässig elev har körkort? Är det troligare att ha eller inte ha körkort? (3p)",
+          "Poäng på ett prov: 12, 18, 15, 20, 14, 9, 17. Beräkna medelvärde och median. En 8:e elev får 20 p. Hur förändras medelvärdet och medianen? (3p)",
+          "50 av 200 kunder på ett café väljer kaffe utan socker. Hur stor procentandel är det? Kan man dra slutsatser om alla kafébesökare i Sverige? Ge minst ett argument för och ett emot. (3p)"
+        ],
+        A: [
+          "Klassen mäter sina längder i cm: 162, 171, 168, 175, 180, 163, 172, 169, 176, 174. Beräkna medelvärde och median. Resonera kring om klassen är representativ för alla svenska gymnasieelever. (4p)",
+          "Förklara skillnaden mellan medelvärde och median med ett eget yrkesrelevant exempel där de ger mycket olika svar. (4p)",
+          "I en undersökning svarar 60 % av 100 tillfrågade att de är nöjda med sin arbetsplats. Hur pålitlig är denna undersökning? Diskutera minst tre felkällor. (4p)",
+          "Tärning kastas 120 gånger. Man förväntar sig att ettan ska komma 20 gånger, men den kom 28 gånger. Förklara vad sannolikhet innebär och om detta resultat är förvånande. (3p)"
+        ]
+      },
+      sannolikhet: {
+        E: [
+          "En påse innehåller 4 röda, 3 blå och 3 gula kulor. Vad är sannolikheten att dra en röd kula? (1p)",
+          "En tärning kastas. Vad är sannolikheten att få en sexa? (1p)",
+          "En tärning kastas. Vad är sannolikheten att få ett jämnt tal? (1p)",
+          "Det finns 5 vinnarlotter i en omgång med 20 lotter. Vad är sannolikheten att vinna om du köper en lott? (2p)"
+        ],
+        C: [
+          "En påse har 6 röda och 4 blå kulor. Du drar en kula, lägger tillbaka den, och drar igen. Vad är sannolikheten att båda är röda? (3p)",
+          "I en klass på 30 elever har 12 körkort. Vad är sannolikheten att en slumpmässigt vald elev INTE har körkort? (2p)",
+          "En tärning kastas två gånger. Vad är sannolikheten att summan blir 7? Visa med ett utfallsträd eller tabell. (3p)",
+          "En butik har 50 varor. 10 är defekta. Du väljer 2 varor slumpmässigt. Vad är sannolikheten att båda är hela (utan återläggning)? (3p)"
+        ],
+        A: [
+          "Förklara skillnaden mellan sannolikhet med och utan återläggning med ett eget exempel. När spelar det roll i praktiken? (4p)",
+          "En fabrik tillverkar 200 produkter per dag. I genomsnitt är 6 defekta. Om du köper 3 produkter, vad är sannolikheten att minst en är defekt? Resonera kring hur säker beräkningen är. (4p)",
+          "Två lag möts i en serie av 3 matcher. Lag A vinner varje match med sannolikheten 0,6. Vad är sannolikheten att lag A vinner serien (dvs minst 2 av 3 matcher)? (4p)",
+          "Förklara vad det innebär att sannolikheten för att vinna på lotto är extremt liten, men att någon ändå vinner varje vecka. Koppla till begreppen slump och stora tal. (3p)"
+        ]
+      },
+      samband: {
+        E: [
+          "y = 3x + 2. Beräkna y när x = 3 och x = −2. (2p)",
+          "En taxi kostar 45 kr startavgift och sedan 12 kr/km. Skriv ett uttryck för totalkostnaden efter k km. (2p)",
+          "En linje går genom (0, 4) och (2, 10). Bestäm k och m i formeln y = kx + m. (2p)",
+          "Rita linjen y = 2x − 1 i ett koordinatsystem. Markera y-skärningspunkten. (2p)"
+        ],
+        C: [
+          "Operatör A: 0,90 kr/min utan månadsavgift. Operatör B: 59 kr/månad + 0,30 kr/min. Skriv formler och beräkna när B är billigare. (3p)",
+          "En snickare tar 500 kr för en hel dags arbete och sedan 200 kr per extra timme. Skriv en formel och beräkna priset för 3 extra timmar. Hur många extra timmar klarar man sig på max 1 300 kr? (3p)",
+          "Tabell: antal timmar (x): 0, 1, 2, 3 och kostnad (y): 200, 350, 500, 650. Är sambandet linjärt? Skriv formeln. Vad kostar det för 5 timmar? (3p)",
+          "Två el-scootrar med olika taxor. Scooter A: 2 kr/min. Scooter B: 15 kr startavgift + 1,20 kr/min. Skriv formler och avgör när A är billigare. (3p)"
+        ],
+        A: [
+          "En affär säljer mer ju lägre priset är. Resonera kring vad ett linjärt samband skulle innebära och om det alltid stämmer i verkligheten. Ge ett eget exempel. (4p)",
+          "y = 2x + 5 och y = −x + 14. Beräkna skärningspunkten algebraiskt och tolka vad den betyder i en vardaglig situation du själv väljer. (4p)",
+          "Formulera en egen situation där det finns ett linjärt samband. Skriv en formel, gör en tabell för 5 värden och rita grafen. Tolka k-värdet (lutningen) i din situation. (4p)",
+          "En biluthyrning tar 300 kr/dag + 2 kr/mil. En annan tar 0 kr/dag men 5 kr/mil. Beräkna när de kostar lika. Resonera kring vilket alternativ som passar bäst för olika typer av resor. (4p)"
+        ]
+      }
+    }
+  },
   "1b": {
     label: "Matematik 1b",
     topics: {
@@ -705,6 +861,160 @@ const COURSES = {
         ]
       }
     }
+  },
+  "3c": {
+    label: "Matematik 3c",
+    topics: {
+      algebra: "Algebra",
+      funktioner: "Funktioner",
+      trigonometri: "Trigonometri",
+      differentialrakning: "Differentialräkning",
+      integralrakning: "Integralräkning",
+      geometri: "Geometri & vektorer",
+      statistik: "Statistik"
+    },
+    tasks: {
+      algebra: {
+        E: [
+          "Faktorisera p(x) = x³ − 6x² + 11x − 6 fullständigt givet att x = 1 är en rot. (3p)",
+          "Förenkla (x³ − 8)/(x² − 4) och ange när uttrycket är odefinierat. (3p)",
+          "Lös ekvationen x⁴ − 5x² + 4 = 0 med substitutionen t = x². (3p)",
+          "Utför polynomdivision: (x³ + 2x² − 5x − 6) / (x − 2) och verifiera resultatet. (3p)"
+        ],
+        C: [
+          "Lös ekvationssystemet: x² + y² = 13 och y = 2x − 1. Tolka lösningarna geometriskt. (4p)",
+          "Dela upp R(x) = (3x + 5)/((x+1)(x+2)) i partialbråk. (4p)",
+          "Lös olikheten (x² − x − 6)/(x + 4) > 0. Presentera lösningen på tallinje och som mängd. (4p)",
+          "Bestäm alla reella rötter till x⁴ − 10x² + 9 = 0. Faktorisera sedan polynomet helt över de reella talen. (4p)"
+        ],
+        A: [
+          "Visa att p(x) = x³ − 3x + 1 har tre distinkta reella rötter utan att beräkna dem exakt. Motivera med derivatan och mellanvärdesatsen. (5p)",
+          "Partialbråksuppdelning: R(x) = (x² + 2x + 3)/((x−1)(x²+4)). Genomför uppdelningen fullständigt. (5p)",
+          "Bevisa att om r är en heltalsrot till xⁿ + aₙ₋₁xⁿ⁻¹ + … + a₀ = 0 med heltaliga koefficienter och ledande koefficient 1, måste r dela a₀. Tillämpa på x³ − 7x + 6 = 0. (5p)",
+          "Analysera hur antalet reella rötter till kubikpolynomet x³ + px + q = 0 beror på diskriminanten D = −4p³ − 27q². (5p)"
+        ]
+      },
+      funktioner: {
+        E: [
+          "Bestäm definitionsmängd, nollställen och asymptoter för f(x) = (x²−4)/(x²−x−6). Skissa grafen. (3p)",
+          "f(x) = ln(2x − 4). Bestäm definitionsmängd, nollstället och skissa. Vad är den inversa funktionen? (3p)",
+          "Bestäm om f(x) = x³ − 3x är jämn, udda eller ingen av delarna. Motivera algebraiskt. (2p)",
+          "f(x) = e^(2x) − 3. Bestäm nollstället exakt och skissa grafen. Vad är värdemängden? (3p)"
+        ],
+        C: [
+          "Analysera f(x) = (x²+1)/(x²−4): definitionsmängd, nollställen, asymptoter, om grafen skär horisontell asymptot, och skissa. (5p)",
+          "f(x) = x·e^(−x). Bestäm extrempunkter, inflexionspunkter och gränsvärden när x→±∞. Skissa grafen. (5p)",
+          "f(x) = ln(x)/x för x > 0. Bestäm extrempunkt, bevis att f(x) → 0 när x → ∞, och skissa. (4p)",
+          "Bestäm (f∘g)(x) och (g∘f)(x) för f(x) = e^x och g(x) = ln(x²+1). Bestäm definitionsmängderna och lös (f∘g)(x) = e². (4p)"
+        ],
+        A: [
+          "Bevisa med epsilon-delta-definitionen att lim(x→2) (x²−4)/(x−2) = 4. (5p)",
+          "f(x) = x^x för x > 0. Beräkna f'(x) med logaritmisk derivering. Bestäm lokala extrempunkter och undersök gränsvärdet när x→0⁺. (5p)",
+          "Konstruera en rationell funktion R(x) = P(x)/Q(x) med exakt dessa egenskaper: vertikal asymptot x = 2, sned asymptot y = x + 1, nollstället x = −1. Bevisa att kraven uppfylls. (5p)",
+          "Visa att ekvationen sin(x) = x/2 har exakt två lösningar. Använd IVS och monotonianalys. (5p)"
+        ]
+      },
+      trigonometri: {
+        E: [
+          "Bestäm exakta värden för sin(5π/6), cos(4π/3) och tan(−π/4) med enhetscirkeln. (3p)",
+          "Lös ekvationen 2cos(x) + √3 = 0 för x ∈ [0, 2π]. Ge exakta svar i radianer. (3p)",
+          "Bevisa identiteten (sin(x)+cos(x))² = 1 + sin(2x). Ange vilka identiteter du använder. (3p)",
+          "Förenkla cos²(x) − sin²(x) + sin(2x) till en enda trigonometrisk funktion. (3p)"
+        ],
+        C: [
+          "Härled additionsformeln cos(α+β) = cosα cosβ − sinα sinβ geometriskt eller algebraiskt. Härleda cos(2α) som specialfall. (5p)",
+          "Lös 2sin²(x) − sin(x) − 1 = 0 exakt för x ∈ [0, 2π]. Faktorisera och ge alla lösningar. (4p)",
+          "Triangel: a = 8, B = 45°, C = 75°. Beräkna b, c och arean exakt med sinussatsen. (4p)",
+          "Lös sin(2x) + cos(x) = 0 exakt för x ∈ [0, 2π]. Visa alla steg tydligt. (4p)"
+        ],
+        A: [
+          "Härled sinussatsen a/sin(A) = 2R (R = omskriven cirkelns radie) med hjälp av enhetscirkeln och centrumvinkeln. (5p)",
+          "Lös sin(x) + sin(3x) = 0 fullständigt för alla reella x. Ange det allmänna lösningsuttrycket. (5p)",
+          "Bevisa tan(α+β) från additionsformlerna. Bestäm exakta värdet av tan(75°) med formeln. (5p)",
+          "f(t) = 3sin(2t) + 4cos(2t). Skriv om på formen R·sin(2t + φ). Bestäm R och φ exakt och tolka amplituden. (5p)"
+        ]
+      },
+      differentialrakning: {
+        E: [
+          "Derivera med kedjeregeln: (a) f(x) = (x²+3)⁵, (b) g(x) = sin(3x²), (c) h(x) = e^(cos x). (3p)",
+          "Derivera med kvotregeln: f(x) = (x²+1)/(x³−2x). Förenkla täljaren i svaret. (3p)",
+          "Bestäm tangentlinjens ekvation till f(x) = ln(x²) i punkten x = e. (3p)",
+          "Bestäm lokala extrempunkter för f(x) = x⁴ − 8x² + 7 med f' och f''. (4p)"
+        ],
+        C: [
+          "Fullständig kurvstudie för f(x) = x³·e^(−x): definitionsmängd, extrempunkter, inflexionspunkter, gränsvärden och skiss. (6p)",
+          "Derivera implicit: x² + xy + y² = 7. Bestäm tangentlinjens ekvation i punkten (1, 2). (4p)",
+          "En rektangulär låda utan lock ska ha volymen 32 dm³. Botten är kvadratisk med sidan x. Minimera materialåtgången (ytan). (4p)",
+          "Derivera f(x) = x^(sin x) med logaritmisk derivering. Beräkna f'(π/2). (4p)"
+        ],
+        A: [
+          "Bevisa L'Hôpitals regel för 0/0-formen med hjälp av Cauchys medelvärdessats. Tillämpa på lim(x→0) (e^x − 1 − x)/x². (6p)",
+          "Beräkna lim(x→0) (sin x − x)/x³ med L'Hôpital. Jämför med Taylorutvecklingen. (5p)",
+          "f(x) = x^(1/x) för x > 0. Bestäm max med logaritmisk derivering. Bevis att e^(1/e) > π^(1/π). (5p)",
+          "Bevis medelvärdessatsen. Tillämpa för att visa att |sin(a) − sin(b)| ≤ |a − b| för alla reella a, b. (5p)"
+        ]
+      },
+      integralrakning: {
+        E: [
+          "Beräkna integralen av f(x) = 3x² − 4x + 5. Bestäm konstanten om F(1) = 2. (3p)",
+          "Beräkna det bestämda integralen av f(x) = 2x + 1 från x = 0 till x = 3. Tolka geometriskt. (3p)",
+          "Beräkna integralen av f(x) = sin(2x) med substitution. (3p)",
+          "Beräkna arean av ytan begränsad av f(x) = x² och x-axeln mellan x = −2 och x = 2. (3p)"
+        ],
+        C: [
+          "Beräkna arean av ytan mellan f(x) = x² och g(x) = 2x + 3. Bestäm skärningspunkterna och integrera. (4p)",
+          "Beräkna integralen av f(x) = x·e^x med partiell integration. (4p)",
+          "Beräkna integralen av f(x) = ln(x) med partiell integration. Kontrollera med derivering. (4p)",
+          "Beräkna rotationsvolymen som uppstår när y = √x roteras kring x-axeln från x = 0 till x = 4. (4p)"
+        ],
+        A: [
+          "Härleda formeln för rotationsvolym V = π·∫[a,b] f(x)² dx. Tillämpa på konen med radien r och höjden h. (5p)",
+          "Beräkna integralen av f(x) = 1/(x²−1) med partialbråksuppdelning. Ange absolutbeloppet i logaritmerna och definitionsmängden. (5p)",
+          "Lös differentialekvationen dy/dx = ky med separationsmetoden. Tillämpa på befolkningstillväxt med k = 0,03 och P(0) = 1000. Beräkna P(20). (5p)",
+          "Visa med integraler att arean av en ellips med halvaxlarna a och b är A = πab. (5p)"
+        ]
+      },
+      geometri: {
+        E: [
+          "a = (2, −3, 1) och b = (−1, 4, 2). Beräkna a+b, a−b, 2a−3b och |a|. (3p)",
+          "Beräkna skalärprodukten a·b för a = (3, −1, 2) och b = (1, 4, −2). Är vektorerna vinkelräta? (3p)",
+          "Beräkna kryssprodukten a × b för a = (1, 2, 0) och b = (3, 0, 4). Verifiera att resultatet är vinkelrätt mot båda vektorerna. (4p)",
+          "A = (1, 2, 3), B = (4, 0, −1), C = (2, 5, 1). Bestäm vektorerna AB och AC och arean av triangeln ABC. (4p)"
+        ],
+        C: [
+          "Bestäm ekvationen för planet genom P = (1, 2, 3) med normalvektorn n = (2, −1, 4). Bestäm även linjen vinkelrät mot planet genom P. (4p)",
+          "Bestäm skärningspunkten mellan linjen r = (1, 0, 2) + t(2, 1, −1) och planet 2x − y + z = 8. (4p)",
+          "Beräkna volymen av parallellipeden som spänns upp av vektorerna a = (1, 2, 0), b = (0, 1, 3), c = (2, 0, 1) med trippelprodukten. (4p)",
+          "Bestäm avståndet från punkten Q = (3, 1, −2) till planet x + 2y − 2z = 5. (3p)"
+        ],
+        A: [
+          "Bevisa med vektorer att medianerna i en triangel skär varandra i en punkt som delar varje median i förhållandet 2:1. (5p)",
+          "Tre plan: x + y + z = 6, 2x − y + z = 3, x + 2y − z = 2. Lös systemet och tolka geometriskt. (5p)",
+          "Bestäm sfärens ekvation som går genom A = (1, 0, 0), B = (0, 1, 0), C = (0, 0, 1) och D = (1, 1, 1). (5p)",
+          "Visa att kryssprodukten uppfyller a × (b + c) = a × b + a × c algebraiskt med komponentform. (5p)"
+        ]
+      },
+      statistik: {
+        E: [
+          "X är normalfördelad med μ = 60 och σ = 12. Beräkna P(48 < X < 72) och P(X > 84). (3p)",
+          "Datamaterial: 5, 8, 8, 10, 12, 14, 14, 14, 18, 20. Beräkna medelvärde, median, standardavvikelse och IQR. (4p)",
+          "100 elever testas. 68 klarar provet. Konstruera ett 95%-igt konfidensintervall för andelen. (3p)",
+          "Beskriv vad ett 95%-igt konfidensintervall innebär. Vad händer med intervallets bredd om stickprovet ökar? (3p)"
+        ],
+        C: [
+          "Test: H₀: μ = 50 mot H₁: μ > 50. Stickprov: n = 25, x̄ = 54, σ = 10. Utför ett z-test på 5% signifikansnivå. (4p)",
+          "Klass A: n = 30, x̄ = 72, s = 10. Klass B: n = 30, x̄ = 68, s = 12. Testa om det finns signifikant skillnad (α = 0,05). (5p)",
+          "Dataset: x: 2,4,6,8,10 och y: 5,9,11,15,18. Bestäm regressionslinjen, korrelationskoefficienten och tolka r². (4p)",
+          "Lotto: 7 rätt av 35 tal. Beräkna P(exakt 4 rätt) med kombinatorik. (4p)"
+        ],
+        A: [
+          "Förklara typ I- och typ II-fel i hypotesprövning. Konstruera ett exempel där båda felen är möjliga och resonera kring avvägningen. (5p)",
+          "Behandling A: n=50, x̄=82, s=14. Behandling B: n=50, x̄=76, s=16. Utför t-test och beräkna Cohens d. Tolka effektstorleken. (5p)",
+          "Förklara och beräkna statistisk styrka för ett test med α=0,05, d=0,6 och n=40 per grupp. Hur stort n krävs för 90% styrka? (5p)",
+          "Sjukdom förekommer hos 0,5% av befolkningen. Testet: 98% sensitivitet, 95% specificitet. Beräkna P(sjuk | positivt svar) med Bayes sats och kommentera resultatet. (5p)"
+        ]
+      }
+    }
   }
 };
 
@@ -764,6 +1074,7 @@ REGLER:
 – Svara alltid på svenska.
 – Håll matematiken korrekt och anpassad till ${course.label}-nivå.
 – Tydlig struktur: numrerade steg, inga onödiga utsvävningar.
+– Skriv ALDRIG LaTeX-notation ($$, \\frac, \\sqrt osv). Skriv matematik i klartext, t.ex. "5/8 = 0,625" och "√9 = 3" och "x² - 4x + 3".
 – Aktuell kurs: ${course.label}. Delområde: ${topicLabel}. Betygsnivå: ${currentLevel}.`;
 }
 

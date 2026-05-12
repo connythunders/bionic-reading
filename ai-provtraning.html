@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Provträning – Gymnasiet</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --font-size: 16px;
+    --line-height: 1.6;
+    --max-width: 72ch;
+    --bg: #ffffff;
+    --surface: #f8f9fa;
+    --border: #dee2e6;
+    --text: #212529;
+    --text-muted: #6c757d;
+    --accent: #0d6efd;
+    --accent-hover: #0b5ed7;
+    --success: #198754;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --radius: 8px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --transition: 0.2s ease;
+    --font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  body {
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== LAYOUT ===== */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
+  /* ===== HEADER ===== */
+  .app-header {
+    background: var(--accent);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--radius);
+  }
+
+  .app-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .app-header p {
+    opacity: 0.88;
+    font-size: 0.9rem;
+  }
+
+  /* ===== SECTIONS ===== */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .section-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ===== API KEY ===== */
+  .api-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .api-row input {
+    flex: 1;
+    min-width: 200px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: white;
+    color: var(--text);
+  }
+
+  .api-row input:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+
+  .api-status {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-family: monospace;
+    padding: 0.4rem 0.6rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    white-space: nowrap;
+  }
+
+  /* ===== PROFILE SELECTOR ===== */
+  .profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.6rem;
+  }
+
+  .profile-btn {
+    padding: 0.75rem 0.5rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+    transition: var(--transition);
+    line-height: 1.4;
+  }
+
+  .profile-btn:hover {
+    border-color: var(--accent);
+    background: #e8f0fe;
+  }
+
+  .profile-btn.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+  }
+
+  .profile-btn .profile-icon {
+    display: block;
+    font-size: 1.5rem;
+    margin-bottom: 0.3rem;
+  }
+
+  /* ===== FORM CONTROLS ===== */
+  .form-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: white;
+    color: var(--text);
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  select:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 160px;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    background: white;
+    color: var(--text);
+    line-height: var(--line-height);
+  }
+
+  textarea:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1.25rem;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--accent-hover);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--border);
+  }
+
+  .btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.82rem;
+  }
+
+  /* ===== FONT SIZE CONTROLS ===== */
+  .font-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .font-controls span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  /* ===== BACKGROUND COLOR PICKER ===== */
+  .bg-picker {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .bg-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .bg-swatch:hover, .bg-swatch.active {
+    border-color: var(--accent);
+    transform: scale(1.15);
+  }
+
+  /* ===== LOADING ===== */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .loading.visible {
+    display: block;
+  }
+
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  /* ===== ERROR ===== */
+  .error-box {
+    display: none;
+    background: #fff5f5;
+    border: 1px solid #fed7d7;
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    color: #c53030;
+    margin-bottom: 1rem;
+  }
+
+  .error-box.visible {
+    display: block;
+  }
+
+  .error-box strong {
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 1.25rem;
+    overflow-x: auto;
+  }
+
+  .tab-btn {
+    padding: 0.6rem 1rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    white-space: nowrap;
+    transition: var(--transition);
+  }
+
+  .tab-btn:hover {
+    color: var(--accent);
+  }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-panel {
+    display: none;
+  }
+
+  .tab-panel.active {
+    display: block;
+  }
+
+  /* ===== PROGRESS ===== */
+  .progress-bar-wrap {
+    background: var(--border);
+    border-radius: 99px;
+    height: 8px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+  }
+
+  .progress-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  /* ===== QUIZ ===== */
+  .quiz-question-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .quiz-question-text {
+    font-weight: 600;
+    margin-bottom: 0.85rem;
+    font-size: 1rem;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .quiz-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    background: white;
+    text-align: left;
+    font-size: 0.95rem;
+    transition: var(--transition);
+    width: 100%;
+    line-height: 1.5;
+  }
+
+  .quiz-option:hover:not(:disabled) {
+    background: #e8f0fe;
+    border-color: var(--accent);
+  }
+
+  .quiz-option.correct {
+    background: #d4edda;
+    border-color: var(--success);
+    color: #155724;
+  }
+
+  .quiz-option.wrong {
+    background: #f8d7da;
+    border-color: var(--danger);
+    color: #721c24;
+  }
+
+  .quiz-option:disabled {
+    cursor: default;
+  }
+
+  .quiz-feedback {
+    display: none;
+    margin-top: 0.85rem;
+    padding: 0.75rem;
+    background: #f0f4ff;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .quiz-feedback.visible {
+    display: block;
+  }
+
+  .quiz-result-status {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  /* ===== SINGLE QUESTION MODE (ADHD/Autism) ===== */
+  .single-mode .quiz-question-card {
+    display: none;
+  }
+
+  .single-mode .quiz-question-card.current {
+    display: block;
+  }
+
+  /* ===== TIMELINE ===== */
+  .timeline-instructions {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: grab;
+    user-select: none;
+    transition: var(--transition);
+    font-size: 0.95rem;
+  }
+
+  .timeline-item:active {
+    cursor: grabbing;
+    opacity: 0.8;
+  }
+
+  .timeline-item.dragging {
+    opacity: 0.5;
+    border-style: dashed;
+  }
+
+  .timeline-item.drag-over {
+    border-color: var(--accent);
+    background: #e8f0fe;
+  }
+
+  .timeline-item.correct-pos {
+    border-color: var(--success);
+    background: #d4edda;
+  }
+
+  .timeline-item.wrong-pos {
+    border-color: var(--danger);
+    background: #f8d7da;
+  }
+
+  .timeline-handle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ===== CONCEPTS ===== */
+  .concept-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .concept-item {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .concept-term {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    gap: 0.5rem;
+  }
+
+  .concept-term:hover {
+    background: #f0f4ff;
+  }
+
+  .concept-arrow {
+    font-size: 0.7rem;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .concept-item.open .concept-arrow {
+    transform: rotate(90deg);
+  }
+
+  .concept-definition {
+    display: none;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.92rem;
+    line-height: 1.65;
+    background: #f8f9fa;
+  }
+
+  .concept-item.open .concept-definition {
+    display: block;
+  }
+
+  /* Single-concept mode (ADHD/Autism) */
+  .single-concept-mode .concept-item {
+    display: none;
+  }
+
+  .single-concept-mode .concept-item.current {
+    display: block;
+  }
+
+  /* ===== SCORE SUMMARY ===== */
+  .score-summary {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 1rem;
+  }
+
+  .score-big {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .score-label {
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ===== RESULTS AREA ===== */
+  #results {
+    display: none;
+  }
+
+  #results.visible {
+    display: block;
+  }
+
+  /* ===== TTS BUTTON ===== */
+  .tts-btn {
+    display: none;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+
+  body.profile-dyslexi .tts-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  /* ===== PROFILE ADAPTATIONS ===== */
+
+  /* --- DYSLEXI --- */
+  body.profile-dyslexi {
+    --font-size: 18px;
+    --line-height: 1.9;
+    --max-width: 60ch;
+    --font-family: Georgia, 'Times New Roman', serif;
+  }
+
+  body.profile-dyslexi .container {
+    max-width: calc(var(--max-width) + 4rem);
+  }
+
+  body.profile-dyslexi .section p,
+  body.profile-dyslexi .quiz-question-text,
+  body.profile-dyslexi .quiz-option,
+  body.profile-dyslexi .concept-term,
+  body.profile-dyslexi .concept-definition,
+  body.profile-dyslexi .timeline-item {
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+  }
+
+  /* --- ADHD --- */
+  body.profile-adhd {
+    --bg: #fafafa;
+  }
+
+  body.profile-adhd .section {
+    border-left: 4px solid var(--accent);
+  }
+
+  body.profile-adhd .app-header {
+    background: #1a1a2e;
+  }
+
+  body.profile-adhd .quiz-options {
+    gap: 0.75rem;
+  }
+
+  /* Hide decorative elements */
+  body.profile-adhd .profile-btn .profile-icon { display: none; }
+
+  /* --- AUTISM --- */
+  body.profile-autism {
+    --transition: 0s;
+    --shadow: none;
+  }
+
+  body.profile-autism .spinner {
+    animation: none;
+    border-top-color: var(--border);
+    width: 12px;
+    height: 12px;
+    border-width: 2px;
+    display: inline-block;
+  }
+
+  body.profile-autism .app-header {
+    background: #2c3e50;
+    border-radius: 0;
+  }
+
+  body.profile-autism .profile-btn { border-radius: 2px; }
+  body.profile-autism .btn { border-radius: 2px; }
+  body.profile-autism .section { border-radius: 2px; }
+  body.profile-autism .quiz-question-card { border-radius: 2px; }
+
+  /* Feedback always at fixed position */
+  body.profile-autism .quiz-feedback {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    z-index: 10;
+    border: 2px solid var(--accent);
+    border-left-color: var(--accent);
+  }
+
+  /* Explicit right/wrong text */
+  .autism-verdict {
+    display: none;
+    font-size: 1.1rem;
+    font-weight: 800;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    border-radius: 2px;
+  }
+
+  body.profile-autism .autism-verdict {
+    display: block;
+  }
+
+  .autism-verdict.right {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  .autism-verdict.wrong {
+    background: #f8d7da;
+    color: #721c24;
+  }
+
+  /* ===== NEXT BUTTON (single-mode) ===== */
+  .next-btn-wrap {
+    display: none;
+    margin-top: 1rem;
+    text-align: center;
+  }
+
+  .next-btn-wrap.visible {
+    display: block;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 600px) {
+    .profile-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-row {
+      flex-direction: column;
+    }
+
+    .api-row {
+      flex-direction: column;
+    }
+
+    .tabs {
+      gap: 0;
+    }
+
+    .tab-btn {
+      padding: 0.5rem 0.6rem;
+      font-size: 0.82rem;
+    }
+  }
+
+  /* ===== HIDE-ALL MODE (ADHD) ===== */
+  body.profile-adhd.hide-others .quiz-options .quiz-option:not(:focus):not(.correct):not(.wrong) {
+    opacity: 0.35;
+  }
+
+  /* ===== DYSLEXIC FONT ===== */
+  body.font-opendyslexic {
+    --font-family: 'OpenDyslexic', cursive;
+  }
+
+  /* ===== UTILITY ===== */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+  }
+
+  .text-center { text-align: center; }
+  .mt-1 { margin-top: 0.5rem; }
+  .mt-2 { margin-top: 1rem; }
+  .mb-1 { margin-bottom: 0.5rem; }
+  .gap-sm { gap: 0.4rem; }
+
+  .flex { display: flex; }
+  .flex-wrap { flex-wrap: wrap; }
+  .align-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+</style>
+</head>
+<body class="profile-ingen">
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <h1>AI Provträning – Gymnasiet</h1>
+    <p>Klistra in din text, välj ämne och nivå – AI:n skapar anpassade övningar</p>
+  </header>
+
+  <!-- API KEY -->
+  <section class="section" id="api-section">
+    <div class="section-title">API-nyckel (Anthropic)</div>
+    <div class="api-row">
+      <input type="password" id="api-key-input" placeholder="Klistra in din Anthropic API-nyckel (sk-ant-...)" autocomplete="off" aria-label="API-nyckel">
+      <button class="btn btn-secondary btn-sm" id="api-save-btn" onclick="saveApiKey()">Spara</button>
+      <button class="btn btn-secondary btn-sm" id="api-clear-btn" onclick="clearApiKey()" style="display:none">Rensa</button>
+      <span class="api-status" id="api-status" style="display:none"></span>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem;">Nyckeln sparas bara i din webbläsare (localStorage). Ingen data skickas till någon annan server än Anthropic.</p>
+  </section>
+
+  <!-- PROFILE SELECTOR -->
+  <section class="section" id="profile-section">
+    <div class="section-title">Välj din profil</div>
+    <div class="profile-grid">
+      <button class="profile-btn active" onclick="setProfile('ingen')" id="prof-ingen" aria-pressed="true">
+        <span class="profile-icon">📄</span>
+        Ingen anpassning
+      </button>
+      <button class="profile-btn" onclick="setProfile('dyslexi')" id="prof-dyslexi" aria-pressed="false">
+        <span class="profile-icon">🔤</span>
+        Dyslexi
+        <span style="display:block;font-size:0.75rem;font-weight:400;margin-top:0.2rem;">Stor text, uppläsning</span>
+      </button>
+      <button class="profile-btn" onclick="setProfile('adhd')" id="prof-adhd" aria-pressed="false">
+        <span class="profile-icon">🎯</span>
+        ADHD
+        <span style="display:block;font-size:0.75rem;font-weight:400;margin-top:0.2rem;">En uppgift i taget</span>
+      </button>
+      <button class="profile-btn" onclick="setProfile('autism')" id="prof-autism" aria-pressed="false">
+        <span class="profile-icon">📋</span>
+        Autism
+        <span style="display:block;font-size:0.75rem;font-weight:400;margin-top:0.2rem;">Förutsägbar struktur</span>
+      </button>
+    </div>
+
+    <!-- Dyslexi controls (shown when profile=dyslexi) -->
+    <div id="dyslexi-controls" style="display:none;margin-top:1rem;">
+      <div class="font-controls">
+        <span>Textstorlek:</span>
+        <button class="btn btn-secondary btn-sm" onclick="changeFontSize(-1)" aria-label="Minska textstorlek">A−</button>
+        <button class="btn btn-secondary btn-sm" onclick="changeFontSize(1)" aria-label="Öka textstorlek">A+</button>
+        <span id="font-size-display" style="font-size:0.8rem;color:var(--text-muted)"></span>
+      </div>
+      <div style="margin-bottom:0.5rem;font-size:0.85rem;font-weight:600;color:var(--text-muted);">Typsnitt:</div>
+      <div class="flex flex-wrap gap-sm mb-1">
+        <button class="btn btn-secondary btn-sm" id="font-serif-btn" onclick="setDysFont('serif')" aria-pressed="false">Serif (standard)</button>
+        <button class="btn btn-secondary btn-sm" id="font-od-btn" onclick="setDysFont('opendyslexic')" aria-pressed="false">OpenDyslexic</button>
+      </div>
+      <div style="margin-bottom:0.5rem;font-size:0.85rem;font-weight:600;color:var(--text-muted);">Bakgrundsfärg:</div>
+      <div class="bg-picker">
+        <div class="bg-swatch active" style="background:#ffffff;" onclick="setBgColor('#ffffff')" title="Vit" data-color="#ffffff"></div>
+        <div class="bg-swatch" style="background:#FFF8DC;" onclick="setBgColor('#FFF8DC')" title="Beige" data-color="#FFF8DC"></div>
+        <div class="bg-swatch" style="background:#E8F4F8;" onclick="setBgColor('#E8F4F8')" title="Ljusblå" data-color="#E8F4F8"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUBJECT & LEVEL -->
+  <section class="section" id="subject-section">
+    <div class="section-title">Ämne och nivå</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="subject-select">Ämne</label>
+        <select id="subject-select" aria-label="Välj ämne">
+          <option value="historia">Historia</option>
+          <option value="samhallskunskap">Samhällskunskap</option>
+          <option value="geografi">Geografi</option>
+          <option value="religion">Religion</option>
+          <option value="svenska">Svenska</option>
+          <option value="engelska">Engelska</option>
+          <option value="matematik">Matematik</option>
+          <option value="biologi">Biologi</option>
+          <option value="kemi">Kemi</option>
+          <option value="fysik">Fysik</option>
+          <option value="teknik">Teknik</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="level-select">Nivå (Gy25)</label>
+        <select id="level-select" aria-label="Välj nivå">
+          <option value="1">Nivå 1 – Grundläggande referensram</option>
+          <option value="2">Nivå 2 – Fördjupad analys</option>
+          <option value="3">Nivå 3 – Teori och syntes</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEXT INPUT -->
+  <section class="section" id="text-section">
+    <div class="section-title">Klistra in din text</div>
+    <textarea id="source-text" placeholder="Klistra in lärobokstext, anteckningar eller presentationsinnehåll här..." aria-label="Källtext för övningar"></textarea>
+    <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="generate-btn" onclick="generateExercises()">
+        &#9889; Generera övningar
+      </button>
+      <button class="btn btn-secondary" onclick="clearAll()">Rensa allt</button>
+    </div>
+  </section>
+
+  <!-- ERROR -->
+  <div class="error-box" id="error-box" role="alert" aria-live="polite"></div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="spinner" role="status" aria-label="Laddar"></div>
+    <p id="loading-msg">AI:n genererar dina övningar, vänta ett ögonblick...</p>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="tabs" role="tablist" id="tab-bar">
+      <button class="tab-btn active" role="tab" aria-selected="true" onclick="switchTab('quiz')" id="tab-quiz">
+        &#10067; Quiz
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('tidslinje')" id="tab-tidslinje">
+        &#128336; Tidslinje
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false" onclick="switchTab('begrepp')" id="tab-begrepp">
+        &#128218; Begrepp
+      </button>
+    </div>
+
+    <!-- QUIZ TAB -->
+    <div class="tab-panel active" id="panel-quiz" role="tabpanel">
+      <div class="progress-label" id="quiz-progress-label"></div>
+      <div class="progress-bar-wrap" id="quiz-progress-wrap" style="display:none">
+        <div class="progress-bar-fill" id="quiz-progress-bar" style="width:0%"></div>
+      </div>
+      <div id="quiz-container"></div>
+      <div class="next-btn-wrap" id="quiz-next-wrap">
+        <button class="btn btn-primary" onclick="quizNextQuestion()">Nästa fråga &#8594;</button>
+      </div>
+      <div id="quiz-score-summary" style="display:none"></div>
+    </div>
+
+    <!-- TIMELINE TAB -->
+    <div class="tab-panel" id="panel-tidslinje" role="tabpanel">
+      <div id="tidslinje-container"></div>
+    </div>
+
+    <!-- BEGREPP TAB -->
+    <div class="tab-panel" id="panel-begrepp" role="tabpanel">
+      <div class="progress-label" id="begrepp-progress-label" style="display:none"></div>
+      <div id="begrepp-container"></div>
+      <div class="next-btn-wrap" id="begrepp-next-wrap">
+        <button class="btn btn-primary" onclick="begreppNext()">Nästa begrepp &#8594;</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ===================================================
+// STATE
+// ===================================================
+let currentProfile = 'ingen';
+let dyslexiFontSize = 18;
+let currentApiKey = '';
+let quizData = [];
+let timelineData = [];
+let conceptData = [];
+let quizAnswered = [];
+let quizCurrentIdx = 0;
+let quizScore = 0;
+let begreppCurrentIdx = 0;
+let singleQuizMode = false;
+let singleConceptMode = false;
+let ttsAvailable = false;
+let dragSrcEl = null;
+
+// ===================================================
+// INIT
+// ===================================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadApiKey();
+  loadProfile();
+  loadFontSize();
+  checkTTS();
+});
+
+function checkTTS() {
+  ttsAvailable = 'speechSynthesis' in window;
+}
+
+// ===================================================
+// API KEY
+// ===================================================
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('sk-')) {
+    showError('API-nyckeln verkar inte vara korrekt. Den ska börja med "sk-".');
+    return;
+  }
+  currentApiKey = val;
+  localStorage.setItem('ai_provtraning_apikey', val);
+  document.getElementById('api-key-input').value = '';
+  updateApiDisplay();
+  hideError();
+}
+
+function clearApiKey() {
+  currentApiKey = '';
+  localStorage.removeItem('ai_provtraning_apikey');
+  updateApiDisplay();
+}
+
+function loadApiKey() {
+  const stored = localStorage.getItem('ai_provtraning_apikey');
+  if (stored) {
+    currentApiKey = stored;
+    updateApiDisplay();
+  }
+}
+
+function updateApiDisplay() {
+  const status = document.getElementById('api-status');
+  const saveBtn = document.getElementById('api-save-btn');
+  const clearBtn = document.getElementById('api-clear-btn');
+  const input = document.getElementById('api-key-input');
+
+  if (currentApiKey) {
+    const masked = currentApiKey.slice(0, 5) + '...' + currentApiKey.slice(-4);
+    status.textContent = masked;
+    status.style.display = 'inline-block';
+    saveBtn.style.display = 'none';
+    clearBtn.style.display = 'inline-flex';
+    input.style.display = 'none';
+  } else {
+    status.style.display = 'none';
+    saveBtn.style.display = 'inline-flex';
+    clearBtn.style.display = 'none';
+    input.style.display = 'block';
+  }
+}
+
+// ===================================================
+// PROFILES
+// ===================================================
+function setProfile(profile) {
+  currentProfile = profile;
+  localStorage.setItem('ai_provtraning_profile', profile);
+
+  // Remove all profile classes
+  document.body.classList.remove('profile-ingen', 'profile-dyslexi', 'profile-adhd', 'profile-autism');
+  document.body.classList.add('profile-' + profile);
+
+  // Update buttons
+  ['ingen', 'dyslexi', 'adhd', 'autism'].forEach(p => {
+    const btn = document.getElementById('prof-' + p);
+    btn.classList.toggle('active', p === profile);
+    btn.setAttribute('aria-pressed', p === profile ? 'true' : 'false');
+  });
+
+  // Dyslexi controls
+  document.getElementById('dyslexi-controls').style.display = (profile === 'dyslexi') ? 'block' : 'none';
+
+  // Mode flags
+  singleQuizMode = (profile === 'adhd' || profile === 'autism');
+  singleConceptMode = (profile === 'adhd' || profile === 'autism');
+
+  // Re-render if we have data
+  if (quizData.length) renderAll();
+}
+
+function loadProfile() {
+  const stored = localStorage.getItem('ai_provtraning_profile');
+  if (stored) setProfile(stored);
+}
+
+// ===================================================
+// DYSLEXI SETTINGS
+// ===================================================
+function changeFontSize(delta) {
+  dyslexiFontSize = Math.max(14, Math.min(26, dyslexiFontSize + delta));
+  localStorage.setItem('ai_provtraning_fontsize', dyslexiFontSize);
+  applyFontSize();
+}
+
+function applyFontSize() {
+  document.body.style.setProperty('--font-size', dyslexiFontSize + 'px');
+  document.getElementById('font-size-display').textContent = dyslexiFontSize + 'px';
+}
+
+function loadFontSize() {
+  const stored = localStorage.getItem('ai_provtraning_fontsize');
+  if (stored) {
+    dyslexiFontSize = parseInt(stored);
+    applyFontSize();
+  }
+}
+
+function setDysFont(type) {
+  document.body.classList.toggle('font-opendyslexic', type === 'opendyslexic');
+  document.getElementById('font-serif-btn').setAttribute('aria-pressed', type === 'serif' ? 'true' : 'false');
+  document.getElementById('font-od-btn').setAttribute('aria-pressed', type === 'opendyslexic' ? 'true' : 'false');
+
+  if (type === 'opendyslexic') {
+    if (!document.getElementById('od-font')) {
+      const link = document.createElement('link');
+      link.id = 'od-font';
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.cdnfonts.com/css/opendyslexic';
+      document.head.appendChild(link);
+    }
+    document.body.style.setProperty('--font-family', "'OpenDyslexic', cursive");
+  } else {
+    document.body.style.setProperty('--font-family', "Georgia, 'Times New Roman', serif");
+  }
+}
+
+function setBgColor(color) {
+  document.body.style.background = color;
+  document.querySelectorAll('.bg-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.color === color);
+  });
+}
+
+// ===================================================
+// TTS
+// ===================================================
+function speak(text) {
+  if (!ttsAvailable) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+
+  // Try to find Swedish voice
+  const voices = window.speechSynthesis.getVoices();
+  const svVoice = voices.find(v => v.lang.startsWith('sv'));
+  if (svVoice) utt.voice = svVoice;
+  utt.lang = 'sv-SE';
+  utt.rate = 0.92;
+
+  window.speechSynthesis.speak(utt);
+}
+
+function makeTTSBtn(text) {
+  const btn = document.createElement('button');
+  btn.className = 'tts-btn';
+  btn.setAttribute('aria-label', 'Läs upp');
+  btn.innerHTML = '&#128266; Lyssna';
+  btn.onclick = (e) => { e.stopPropagation(); speak(text); };
+  return btn;
+}
+
+// ===================================================
+// GENERATE
+// ===================================================
+async function generateExercises() {
+  if (!currentApiKey) {
+    showError('Du måste ange en Anthropic API-nyckel innan du kan generera övningar.');
+    return;
+  }
+
+  const sourceText = document.getElementById('source-text').value.trim();
+  if (sourceText.length < 50) {
+    showError('Texten är för kort. Klistra in minst ett par meningar för att generera meningsfulla övningar.');
+    return;
+  }
+
+  const subject = document.getElementById('subject-select').value;
+  const level = document.getElementById('level-select').value;
+  const subjectLabel = document.getElementById('subject-select').options[document.getElementById('subject-select').selectedIndex].text;
+
+  hideError();
+  showLoading('AI:n analyserar din text och skapar övningar...');
+  document.getElementById('generate-btn').disabled = true;
+  document.getElementById('results').classList.remove('visible');
+
+  const systemPrompt = buildSystemPrompt(subject, level, subjectLabel);
+  const userPrompt = buildUserPrompt(sourceText, subjectLabel, level);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': currentApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      const errMsg = errData.error?.message || `HTTP ${response.status}`;
+      if (response.status === 401) throw new Error('Ogiltig API-nyckel. Kontrollera att du kopierat hela nyckeln korrekt.');
+      if (response.status === 429) throw new Error('För många förfrågningar. Vänta en stund och försök igen.');
+      if (response.status === 400) throw new Error('Förfrågan avvisades: ' + errMsg);
+      throw new Error('API-fel: ' + errMsg);
+    }
+
+    const data = await response.json();
+    const rawText = data.content[0].text;
+    parseAndRender(rawText);
+
+  } catch (err) {
+    hideLoading();
+    showError(err.message || 'Något gick fel. Kontrollera din internetanslutning och försök igen.');
+  } finally {
+    document.getElementById('generate-btn').disabled = false;
+  }
+}
+
+// ===================================================
+// PROMPTS
+// ===================================================
+function buildSystemPrompt(subject, level, subjectLabel) {
+  const levelDescriptions = {
+    '1': 'Nivå 1 (grundläggande referensram): Fokus på centrala fakta, grundbegrepp och enkel förståelse. Frågorna ska testa om eleven känner till centrala händelser, begrepp och sammanhang.',
+    '2': 'Nivå 2 (fördjupad analys): Fokus på förståelse av samband, orsak-verkan, jämförelser och förklaringar. Eleven ska kunna resonera, inte bara återge fakta.',
+    '3': 'Nivå 3 (teori och syntes): Fokus på kritisk analys, teorianvändning, historiebruk/källkritik och komplexa resonemang. Eleven ska visa djup förståelse och förmåga att problematisera.'
+  };
+
+  const subjectGuidelines = {
+    historia: `För historia: Fokusera på förändringsprocesser, orsak-verkan, historiebruk, källkritik och historiska begrepp – inte bara faktakunskap. Inkludera frågor om historiskt tänkande (t.ex. "Vad visar detta om...?", "Varför tolkade man det som...?"). Progressionen: nivå 1 = referensram och faktakunskap, nivå 2 = analys av samband och orsaker, nivå 3 = historiebruk, källkritik, historiografiska perspektiv.`,
+    samhallskunskap: `För samhällskunskap: Fokusera på samhällsvetenskapliga begrepp, källkritik och källtillit, demokrati kontra auktoritära system, komplexa samhällsfrågor. Inkludera frågor om hur eleverna kan analysera samhällsproblem ur olika perspektiv.`,
+    default: `Formulera ämneskorrekt frågor på professionell svenska som passar för gymnasieelever på ${subjectLabel}.`
+  };
+
+  const guide = subjectGuidelines[subject] || subjectGuidelines.default;
+
+  return `Du är en expert på gymnasiepedagogik och Gy25-läroplanen. Du skapar pedagogiskt anpassade provövningar för gymnasieelever.
+
+VIKTIG INFORMATION OM GY25:
+Gy25 ersätter kurser med sammanhållna ämnen i nivåer (nivå 1, 2, 3). Frågorna ska spegla den nivå eleven har valt.
+${levelDescriptions[level]}
+
+ÄMNESSPECIFIKA RIKTLINJER:
+${guide}
+
+FEEDBACK-KRAV:
+För varje fråga i quiz: inkludera 2–3 meningars fördjupande feedback som kopplar svaret till ett större sammanhang. Förklaringen ska inte bara säga "rätt" eller "fel" utan ge eleven ytterligare förståelse.
+
+SPRÅK:
+- Skriv på korrekt ämnesspecifik svenska
+- Var tydlig och precis i formuleringarna
+- Undvik fackjargong som inte förklaras
+- För feedback: ge kontextuell förklaring, inte bara bekräftelse
+
+FORMAT:
+Svara ALLTID med ett giltigt JSON-objekt med exakt denna struktur. Inga kommentarer, inga förklaringar utanför JSON:
+
+{
+  "quiz": [
+    {
+      "fraga": "Frågetext",
+      "alternativ": ["A) ...", "B) ...", "C) ...", "D) ..."],
+      "korrekt": 0,
+      "feedback": "Fördjupande förklaring på 2–3 meningar."
+    }
+  ],
+  "tidslinje": [
+    {
+      "ar": "1789",
+      "handelse": "Beskrivning av händelse"
+    }
+  ],
+  "begrepp": [
+    {
+      "term": "Begreppets namn",
+      "forklaring": "Förklaring av begreppet i sitt sammanhang, 2–3 meningar."
+    }
+  ]
+}
+
+"korrekt" är index (0-3) för rätt alternativ i "alternativ"-arrayen.
+Om texten INTE innehåller tydliga datum/år, returnera en tom "tidslinje"-array [].
+Generera 5–8 quizfrågor, 0–6 tidslinjehändelser, 4–8 begrepp.`;
+}
+
+function buildUserPrompt(text, subjectLabel, level) {
+  return `Ämne: ${subjectLabel}
+Nivå: ${level}
+
+Text att basera övningarna på:
+---
+${text}
+---
+
+Skapa quiz, tidslinje och begreppslista baserat på texten ovan. Svara ENBART med JSON-objektet, inget annat.`;
+}
+
+// ===================================================
+// PARSE & RENDER
+// ===================================================
+function parseAndRender(rawText) {
+  // Extract JSON from response (handle markdown code blocks)
+  let jsonText = rawText.trim();
+  const jsonMatch = jsonText.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (jsonMatch) jsonText = jsonMatch[1].trim();
+
+  // Try to find JSON object if there's surrounding text
+  const objMatch = jsonText.match(/\{[\s\S]*\}/);
+  if (objMatch) jsonText = objMatch[0];
+
+  let data;
+  try {
+    data = JSON.parse(jsonText);
+  } catch (e) {
+    hideLoading();
+    showError('AI:n returnerade ett oväntat format. Försök igen – ibland händer detta vid komplexa texter.');
+    return;
+  }
+
+  quizData = data.quiz || [];
+  timelineData = data.tidslinje || [];
+  conceptData = data.begrepp || [];
+
+  if (!quizData.length && !conceptData.length) {
+    hideLoading();
+    showError('AI:n kunde inte generera tillräckligt med övningar från texten. Försök med en längre eller mer innehållsrik text.');
+    return;
+  }
+
+  renderAll();
+  hideLoading();
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderAll() {
+  renderQuiz();
+  renderTimeline();
+  renderConcepts();
+  updateTabVisibility();
+}
+
+// ===================================================
+// QUIZ RENDER
+// ===================================================
+function renderQuiz() {
+  quizAnswered = new Array(quizData.length).fill(null);
+  quizCurrentIdx = 0;
+  quizScore = 0;
+
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  container.className = singleQuizMode ? 'single-mode' : '';
+
+  document.getElementById('quiz-score-summary').style.display = 'none';
+  document.getElementById('quiz-next-wrap').classList.toggle('visible', singleQuizMode && quizData.length > 0);
+
+  quizData.forEach((q, idx) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-question-card' + (singleQuizMode ? (idx === 0 ? ' current' : '') : '');
+    card.id = 'quiz-card-' + idx;
+
+    const progLabel = document.createElement('div');
+    progLabel.className = 'progress-label';
+    progLabel.textContent = `Fråga ${idx + 1} av ${quizData.length}`;
+
+    const qText = document.createElement('div');
+    qText.className = 'quiz-question-text';
+    qText.textContent = q.fraga;
+
+    const ttsBtn = makeTTSBtn(q.fraga);
+    qText.appendChild(ttsBtn);
+
+    const opts = document.createElement('div');
+    opts.className = 'quiz-options';
+
+    q.alternativ.forEach((alt, ai) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-option';
+      btn.setAttribute('data-idx', idx);
+      btn.setAttribute('data-alt', ai);
+      btn.textContent = alt;
+      btn.onclick = () => answerQuiz(idx, ai);
+
+      const altTts = makeTTSBtn(alt);
+      btn.appendChild(altTts);
+      opts.appendChild(btn);
+    });
+
+    const feedback = document.createElement('div');
+    feedback.className = 'quiz-feedback';
+    feedback.id = 'feedback-' + idx;
+
+    const verdict = document.createElement('div');
+    verdict.className = 'autism-verdict';
+    feedback.appendChild(verdict);
+
+    const feedText = document.createElement('p');
+    feedText.textContent = q.feedback;
+    feedback.appendChild(feedText);
+
+    if (singleQuizMode) {
+      card.appendChild(progLabel);
+    }
+
+    card.appendChild(qText);
+    card.appendChild(opts);
+    card.appendChild(feedback);
+    container.appendChild(card);
+  });
+
+  // Progress bar
+  const progressWrap = document.getElementById('quiz-progress-wrap');
+  const progressLabel = document.getElementById('quiz-progress-label');
+  if (singleQuizMode) {
+    progressWrap.style.display = 'block';
+    progressLabel.textContent = `Fråga 1 av ${quizData.length}`;
+    updateQuizProgress();
+  } else {
+    progressWrap.style.display = 'none';
+    progressLabel.textContent = '';
+  }
+
+  // Update next button text
+  if (singleQuizMode) {
+    updateQuizNextBtn();
+  }
+}
+
+function answerQuiz(questionIdx, chosenAlt) {
+  if (quizAnswered[questionIdx] !== null) return;
+
+  const q = quizData[questionIdx];
+  const isCorrect = chosenAlt === q.korrekt;
+  quizAnswered[questionIdx] = { chosen: chosenAlt, correct: isCorrect };
+  if (isCorrect) quizScore++;
+
+  const card = document.getElementById('quiz-card-' + questionIdx);
+  const opts = card.querySelectorAll('.quiz-option');
+
+  opts.forEach((btn, ai) => {
+    btn.disabled = true;
+    if (ai === q.korrekt) {
+      btn.classList.add('correct');
+    } else if (ai === chosenAlt && !isCorrect) {
+      btn.classList.add('wrong');
+    }
+  });
+
+  const feedbackEl = document.getElementById('feedback-' + questionIdx);
+  feedbackEl.classList.add('visible');
+
+  const verdict = feedbackEl.querySelector('.autism-verdict');
+  if (isCorrect) {
+    verdict.textContent = 'RÄTT SVAR';
+    verdict.className = 'autism-verdict right';
+  } else {
+    verdict.textContent = 'FEL SVAR';
+    verdict.className = 'autism-verdict wrong';
+  }
+
+  if (ttsAvailable && currentProfile === 'dyslexi') {
+    speak(q.feedback);
+  }
+
+  // Show next button in single mode after answering
+  if (singleQuizMode) {
+    document.getElementById('quiz-next-wrap').classList.add('visible');
+  }
+
+  // Check if all answered
+  const allAnswered = quizAnswered.every(a => a !== null);
+  if (allAnswered) {
+    showQuizSummary();
+  }
+}
+
+function quizNextQuestion() {
+  // In single mode, move to next unanswered question
+  let next = quizCurrentIdx + 1;
+  while (next < quizData.length && quizAnswered[next] !== null) next++;
+
+  if (next >= quizData.length) {
+    // All done
+    showQuizSummary();
+    return;
+  }
+
+  document.getElementById('quiz-card-' + quizCurrentIdx).classList.remove('current');
+  document.getElementById('quiz-card-' + next).classList.add('current');
+  quizCurrentIdx = next;
+
+  updateQuizProgress();
+  updateQuizNextBtn();
+  document.getElementById('quiz-next-wrap').classList.remove('visible');
+}
+
+function updateQuizProgress() {
+  const answered = quizAnswered.filter(a => a !== null).length;
+  const pct = (answered / quizData.length) * 100;
+  document.getElementById('quiz-progress-bar').style.width = pct + '%';
+  document.getElementById('quiz-progress-label').textContent = `Fråga ${quizCurrentIdx + 1} av ${quizData.length}`;
+}
+
+function updateQuizNextBtn() {
+  const btn = document.querySelector('#quiz-next-wrap button');
+  if (btn) {
+    const isLast = quizCurrentIdx >= quizData.length - 1;
+    btn.textContent = isLast ? 'Visa resultat' : 'Nästa fråga →';
+  }
+}
+
+function showQuizSummary() {
+  const summary = document.getElementById('quiz-score-summary');
+  const total = quizData.length;
+  const pct = Math.round((quizScore / total) * 100);
+  let emoji = pct >= 80 ? '🌟' : pct >= 60 ? '👍' : '📚';
+
+  summary.innerHTML = `
+    <div class="score-summary">
+      <div class="score-big">${quizScore}/${total}</div>
+      <div class="score-label">${pct}% rätt svar ${emoji}</div>
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">
+        ${pct >= 80 ? 'Bra jobbat! Du behärskar materialet väl.' : pct >= 60 ? 'Bra! Gå igenom frågorna du missade.' : 'Läs igenom texten igen och försök om en stund.'}
+      </p>
+      <button class="btn btn-secondary" onclick="resetQuiz()">Försök igen</button>
+    </div>`;
+  summary.style.display = 'block';
+  document.getElementById('quiz-next-wrap').classList.remove('visible');
+}
+
+function resetQuiz() {
+  renderQuiz();
+  document.getElementById('quiz-score-summary').style.display = 'none';
+}
+
+// ===================================================
+// TIMELINE RENDER
+// ===================================================
+function renderTimeline() {
+  const container = document.getElementById('tidslinje-container');
+  container.innerHTML = '';
+
+  if (!timelineData.length) {
+    container.innerHTML = '<p style="color:var(--text-muted);padding:1rem;">Texten innehåller inga tydliga datum eller år, så tidslinjen kunde inte skapas.</p>';
+    return;
+  }
+
+  // Shuffle for the exercise
+  const correctOrder = [...timelineData];
+  const shuffled = shuffleArray([...timelineData]);
+
+  const instructions = document.createElement('div');
+  instructions.className = 'timeline-instructions';
+  instructions.innerHTML = '<strong>Uppgift:</strong> Dra och släpp händelserna i rätt kronologisk ordning (äldst överst).';
+
+  const checkBtn = document.createElement('button');
+  checkBtn.className = 'btn btn-primary mt-2 mb-1';
+  checkBtn.textContent = 'Kontrollera ordning';
+  checkBtn.onclick = () => checkTimeline(correctOrder, checkBtn);
+
+  const list = document.createElement('div');
+  list.className = 'timeline-list';
+  list.id = 'timeline-list';
+
+  shuffled.forEach((item, idx) => {
+    const el = document.createElement('div');
+    el.className = 'timeline-item';
+    el.draggable = true;
+    el.dataset.ar = item.ar;
+
+    el.innerHTML = `<span class="timeline-handle" aria-hidden="true">⠿</span>
+      <div><strong>${item.ar}</strong> – ${item.handelse}
+      </div>`;
+
+    const ttsSpan = makeTTSBtn(`${item.ar}: ${item.handelse}`);
+    el.querySelector('div').appendChild(ttsSpan);
+
+    el.addEventListener('dragstart', dragStart);
+    el.addEventListener('dragover', dragOver);
+    el.addEventListener('drop', dragDrop);
+    el.addEventListener('dragend', dragEnd);
+
+    list.appendChild(el);
+  });
+
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'btn btn-secondary btn-sm mt-1';
+  resetBtn.textContent = 'Blanda om';
+  resetBtn.onclick = () => renderTimeline();
+
+  container.appendChild(instructions);
+  container.appendChild(list);
+  container.appendChild(checkBtn);
+  container.appendChild(resetBtn);
+}
+
+function checkTimeline(correctOrder, btn) {
+  const list = document.getElementById('timeline-list');
+  const items = Array.from(list.querySelectorAll('.timeline-item'));
+
+  let allCorrect = true;
+  items.forEach((item, idx) => {
+    item.classList.remove('correct-pos', 'wrong-pos');
+    const isCorrect = item.dataset.ar === correctOrder[idx].ar;
+    item.classList.add(isCorrect ? 'correct-pos' : 'wrong-pos');
+    if (!isCorrect) allCorrect = false;
+  });
+
+  if (allCorrect) {
+    const msg = document.createElement('p');
+    msg.style.cssText = 'color:var(--success);font-weight:700;margin-top:0.75rem;';
+    msg.textContent = '✓ Rätt! Du har placerat alla händelser i korrekt ordning.';
+    btn.parentNode.insertBefore(msg, btn.nextSibling);
+    btn.disabled = true;
+  } else {
+    const existing = btn.nextSibling;
+    if (existing && existing.tagName === 'P') existing.remove();
+    const msg = document.createElement('p');
+    msg.style.cssText = 'color:var(--danger);font-weight:600;margin-top:0.75rem;';
+    msg.textContent = 'Inte helt rätt – markerade i rött. Försök igen!';
+    btn.parentNode.insertBefore(msg, btn.nextSibling);
+  }
+}
+
+// Drag and drop
+function dragStart(e) {
+  dragSrcEl = this;
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  this.classList.add('drag-over');
+  return false;
+}
+
+function dragDrop(e) {
+  e.preventDefault();
+  if (dragSrcEl !== this) {
+    const list = this.parentNode;
+    const items = Array.from(list.children);
+    const srcIdx = items.indexOf(dragSrcEl);
+    const tgtIdx = items.indexOf(this);
+
+    if (srcIdx < tgtIdx) {
+      list.insertBefore(dragSrcEl, this.nextSibling);
+    } else {
+      list.insertBefore(dragSrcEl, this);
+    }
+  }
+  return false;
+}
+
+function dragEnd() {
+  document.querySelectorAll('.timeline-item').forEach(el => {
+    el.classList.remove('dragging', 'drag-over');
+  });
+  dragSrcEl = null;
+}
+
+// ===================================================
+// CONCEPTS RENDER
+// ===================================================
+function renderConcepts() {
+  begreppCurrentIdx = 0;
+
+  const container = document.getElementById('begrepp-container');
+  container.innerHTML = '';
+  container.className = singleConceptMode ? 'concept-list single-concept-mode' : 'concept-list';
+
+  const progressLabel = document.getElementById('begrepp-progress-label');
+  const nextWrap = document.getElementById('begrepp-next-wrap');
+
+  if (singleConceptMode) {
+    progressLabel.style.display = 'block';
+    nextWrap.classList.add('visible');
+    updateBegreppProgress();
+  } else {
+    progressLabel.style.display = 'none';
+    nextWrap.classList.remove('visible');
+  }
+
+  conceptData.forEach((c, idx) => {
+    const item = document.createElement('div');
+    item.className = 'concept-item' + (singleConceptMode ? (idx === 0 ? ' current' : '') : '');
+    item.id = 'concept-' + idx;
+
+    const term = document.createElement('div');
+    term.className = 'concept-term';
+    term.setAttribute('role', 'button');
+    term.setAttribute('aria-expanded', 'false');
+
+    const termText = document.createElement('span');
+    termText.textContent = c.term;
+
+    const ttsBtn = makeTTSBtn(c.term + '. ' + c.forklaring);
+    const arrow = document.createElement('span');
+    arrow.className = 'concept-arrow';
+    arrow.innerHTML = '&#9654;';
+
+    term.appendChild(termText);
+    term.appendChild(ttsBtn);
+    term.appendChild(arrow);
+
+    const definition = document.createElement('div');
+    definition.className = 'concept-definition';
+    definition.textContent = c.forklaring;
+
+    term.onclick = () => {
+      item.classList.toggle('open');
+      term.setAttribute('aria-expanded', item.classList.contains('open'));
+      if (item.classList.contains('open') && ttsAvailable && currentProfile === 'dyslexi') {
+        speak(c.forklaring);
+      }
+    };
+
+    item.appendChild(term);
+    item.appendChild(definition);
+    container.appendChild(item);
+  });
+}
+
+function begreppNext() {
+  const current = document.getElementById('concept-' + begreppCurrentIdx);
+  if (current) current.classList.remove('current');
+
+  begreppCurrentIdx++;
+
+  if (begreppCurrentIdx >= conceptData.length) {
+    // All done
+    const container = document.getElementById('begrepp-container');
+    const done = document.createElement('div');
+    done.className = 'score-summary';
+    done.innerHTML = '<p style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;">Du har gått igenom alla begrepp!</p><button class="btn btn-secondary" onclick="renderConcepts()">Börja om</button>';
+    container.appendChild(done);
+    document.getElementById('begrepp-next-wrap').classList.remove('visible');
+    document.getElementById('begrepp-progress-label').style.display = 'none';
+    return;
+  }
+
+  const next = document.getElementById('concept-' + begreppCurrentIdx);
+  if (next) {
+    next.classList.add('current');
+    // Auto-open in autism mode
+    if (currentProfile === 'autism') {
+      next.classList.add('open');
+      next.querySelector('.concept-term').setAttribute('aria-expanded', 'true');
+    }
+  }
+
+  updateBegreppProgress();
+}
+
+function updateBegreppProgress() {
+  document.getElementById('begrepp-progress-label').textContent =
+    `Begrepp ${begreppCurrentIdx + 1} av ${conceptData.length}`;
+}
+
+// ===================================================
+// TABS
+// ===================================================
+function switchTab(name) {
+  ['quiz', 'tidslinje', 'begrepp'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === name);
+    document.getElementById('tab-' + t).setAttribute('aria-selected', t === name);
+    document.getElementById('panel-' + t).classList.toggle('active', t === name);
+  });
+}
+
+function updateTabVisibility() {
+  // Hide timeline tab if no data
+  const timelineTab = document.getElementById('tab-tidslinje');
+  timelineTab.style.display = timelineData.length ? 'block' : 'none';
+}
+
+// ===================================================
+// UTILS
+// ===================================================
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function showLoading(msg) {
+  document.getElementById('loading-msg').textContent = msg || 'Laddar...';
+  document.getElementById('loading').classList.add('visible');
+}
+
+function hideLoading() {
+  document.getElementById('loading').classList.remove('visible');
+}
+
+function showError(msg) {
+  const box = document.getElementById('error-box');
+  box.innerHTML = `<strong>Fel</strong>${msg}`;
+  box.classList.add('visible');
+}
+
+function hideError() {
+  document.getElementById('error-box').classList.remove('visible');
+}
+
+function clearAll() {
+  document.getElementById('source-text').value = '';
+  document.getElementById('results').classList.remove('visible');
+  document.getElementById('quiz-container').innerHTML = '';
+  document.getElementById('tidslinje-container').innerHTML = '';
+  document.getElementById('begrepp-container').innerHTML = '';
+  quizData = []; timelineData = []; conceptData = [];
+  hideError();
+}
+
+// Load voices (needed on some browsers)
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {};
+}
+</script>
+</body>
+</html>
