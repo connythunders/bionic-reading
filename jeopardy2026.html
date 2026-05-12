@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bryssel Jeopardy</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; background: #060D6E; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2.4rem); text-align: center; padding: 20px 10px 8px; color: #FFD700; text-shadow: 2px 2px 4px #000; letter-spacing: 2px; font-style: italic; }
+  .subtitle { color: #aac4ff; font-size: 0.95rem; margin-bottom: 18px; text-align: center; }
+  .scoreboard { display: flex; gap: 20px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center; }
+  .team { background: #0a1580; border: 2px solid #FFD700; border-radius: 8px; padding: 8px 20px; text-align: center; min-width: 130px; }
+  .team-name { font-size: 0.85rem; color: #aac4ff; margin-bottom: 4px; }
+  .team-score { font-size: 1.8rem; font-weight: bold; color: #FFD700; }
+  .team-score.negative { color: #ff6b6b; }
+  .board-wrapper { width: 100%; max-width: 960px; padding: 0 6px 30px; overflow-x: auto; }
+  .board { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; min-width: 580px; }
+  .category-header { background: #060D6E; border: 2px solid #FFD700; color: #FFD700; text-align: center; padding: 12px 6px; font-size: clamp(0.6rem, 1.5vw, 0.85rem); font-weight: bold; text-transform: uppercase; min-height: 70px; display: flex; align-items: center; justify-content: center; }
+  .cell { background: #060D6E; border: 2px solid #1a2fa0; color: #FFD700; text-align: center; font-size: clamp(1rem, 2.5vw, 1.6rem); font-weight: bold; font-style: italic; cursor: pointer; min-height: 70px; display: flex; align-items: center; justify-content: center; transition: background 0.15s, transform 0.1s; user-select: none; }
+  .cell:hover:not(.used) { background: #1a2fa0; transform: scale(1.03); }
+  .cell.used { background: #020840; color: #020840; cursor: default; border-color: #020840; }
+  .cell.dd { background: linear-gradient(135deg, #060D6E 60%, #b8860b 100%); }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,20,0.88); z-index: 100; justify-content: center; align-items: center; padding: 16px; }
+  .modal-overlay.active { display: flex; }
+  .modal { background: #060D6E; border: 3px solid #FFD700; border-radius: 12px; max-width: 680px; width: 100%; padding: 32px 28px 24px; text-align: center; box-shadow: 0 0 40px rgba(255,215,0,0.3); }
+  .modal-cat { font-size: 0.85rem; color: #FFD700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+  .modal-pts { font-size: 1rem; color: #aac4ff; margin-bottom: 10px; }
+  .modal-clue { font-size: clamp(1rem, 3vw, 1.5rem); line-height: 1.5; color: #fff; margin-bottom: 24px; min-height: 60px; }
+  .modal-ans { background: #020840; border: 2px solid #FFD700; border-radius: 8px; padding: 14px 18px; font-size: clamp(0.9rem, 2.5vw, 1.2rem); color: #FFD700; display: none; margin-bottom: 20px; }
+  .modal-ans.show { display: block; }
+  .dd-banner { font-size: 2rem; color: #FFD700; font-style: italic; font-weight: bold; margin-bottom: 10px; display: none; }
+  .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  button { padding: 10px 22px; border: 2px solid #FFD700; border-radius: 6px; font-size: 0.95rem; font-weight: bold; cursor: pointer; transition: background 0.15s, color 0.15s; }
+  .btn-show { background: #FFD700; color: #060D6E; }
+  .btn-show:hover { background: #fff; }
+  .btn-ok { background: transparent; color: #4cff7a; border-color: #4cff7a; }
+  .btn-ok:hover { background: #4cff7a; color: #000; }
+  .btn-no { background: transparent; color: #ff6b6b; border-color: #ff6b6b; }
+  .btn-no:hover { background: #ff6b6b; color: #fff; }
+  .btn-x { background: transparent; color: #aac4ff; border-color: #aac4ff; font-size: 0.85rem; padding: 8px 16px; }
+  .btn-x:hover { background: #aac4ff; color: #000; }
+  .team-picker { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .btn-lag { background: transparent; color: #fff; border-color: #aac4ff; font-size: 0.85rem; padding: 6px 14px; }
+  .btn-lag.sel { background: #FFD700; color: #060D6E; border-color: #FFD700; }
+  .controls { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; justify-content: center; }
+  .ctrl-btn { background: transparent; color: #aac4ff; border: 2px solid #aac4ff; font-size: 0.85rem; padding: 6px 14px; }
+  .ctrl-btn:hover { background: #aac4ff; color: #000; }
+  .name-input { background: #0a1580; border: 2px solid #FFD700; color: #fff; padding: 4px 10px; font-size: 0.9rem; border-radius: 4px; width: 110px; text-align: center; }
+  .final { display: none; text-align: center; padding: 20px; }
+  .final-txt { font-size: 2rem; color: #FFD700; font-style: italic; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>BRYSSEL JEOPARDY 2026</h1>
+<p class="subtitle">14-17 maj 2026 - Hur val kanner du till resan?</p>
+<div class="scoreboard" id="sb"></div>
+<div class="controls">
+  <button class="ctrl-btn" onclick="addTeam()">+ Lag</button>
+  <button class="ctrl-btn" style="border-color:#ff6b6b;color:#ff6b6b" onclick="reset()">Nytt spel</button>
+</div>
+<div class="board-wrapper"><div class="board" id="board"></div></div>
+<div class="final" id="final"><div class="final-txt" id="ftxt"></div></div>
+<div class="modal-overlay" id="mo">
+  <div class="modal">
+    <div class="modal-cat" id="mc"></div>
+    <div class="dd-banner" id="ddb">DAILY DOUBLE</div>
+    <div class="modal-pts" id="mp"></div>
+    <div class="modal-clue" id="mq"></div>
+    <div class="modal-ans" id="ma"></div>
+    <div class="btn-row" id="r1">
+      <button class="btn-show" onclick="show()">Visa svar</button>
+      <button class="btn-x" onclick="close2()">Stang</button>
+    </div>
+    <div class="btn-row" id="r2" style="display:none;flex-direction:column;gap:12px;align-items:center">
+      <div style="font-size:0.85rem;color:#aac4ff">Vilket lag svarade?</div>
+      <div class="team-picker" id="tp"></div>
+      <div class="btn-row">
+        <button class="btn-ok" onclick="pts(true)">Ratt</button>
+        <button class="btn-no" onclick="pts(false)">Fel</button>
+        <button class="btn-x" onclick="close2()">Stang</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var cats=["Ol och Bryggeri","Restauranger","Transport","Kultur och Museer","Gent","Fakta och Tips"];
+var qs=[
+  [{p:100,q:"Anledningen till att vi inte besoker detta bryggeri pa torsdagen - stangt pa Kristi himmelsfärdsdag.",a:"Cantillon Brewery"},
+   {p:200,q:"Sjalvguidad tur pa Cantillon kostar detta per person och inkluderar tre provningar.",a:"9 euro (8 reducerat)"},
+   {p:300,q:"Dessa tre typer av ol provas pa den sjalvguidade turen.",a:"Lambic, gueuze och fruktblandning"},
+   {p:400,q:"Bar vid Place Fontainas med 40+ ol pa fat - ett av torsdagsalternativen.",a:"Moeder Lambic Fontainas",dd:true},
+   {p:500,q:"Pa denna Gent-bar lamnar du en sko som pant for att fa det stora orgelpipsglaset.",a:"Dulle Griet"}],
+  [{p:100,q:"Denna Brysselbaserade restaurang ersatter Le Mary Celeste (som ligger i Paris).",a:"Le Tournant"},
+   {p:200,q:"Nüetnigenough tar inte emot detta - kom kl 18 nar de oppnar istallet.",a:"Bokningar"},
+   {p:300,q:"Le Tournants 3-ratters meny kostar detta, restaurangen har denna Michelin-utmarkelse.",a:"48 euro, Bib Gourmand"},
+   {p:400,q:"Restaurang i Saint-Gilles fokuserad pa svamp, drivs av samma agare som La Buvette.",a:"Cafe des Spores"},
+   {p:500,q:"Fin de Siecle accepterar bara dessa tva betalningsmetoder.",a:"Payconiq eller kontant"}],
+  [{p:100,q:"Ungefärlig restid med tag fran flygplatsen till Brussels Central.",a:"18 minuter"},
+   {p:200,q:"Dagligt tak for kontaktlost STIB-kort, nas efter fyra resor.",a:"8,50 euro"},
+   {p:300,q:"Restid med tag mellan Bryssel och Gent.",a:"28-36 minuter"},
+   {p:400,q:"Taglinjen fran flygplatsen till Brussels Central heter detta.",a:"Diabolo"},
+   {p:500,q:"Pris for enkelresa med STIB-buss 12 Airport2City med kontaktlost kort.",a:"7,50 euro"}],
+  [{p:100,q:"Biljettpriset for en vuxen till Magritte Museum inkl. ljudguide.",a:"10 euro"},
+   {p:200,q:"MIM - dessa tre ord pa svenska.",a:"Musical Instruments Museum"},
+   {p:300,q:"Klockslag da Place du Jeu de Balle stanger pa vardagar.",a:"14:00"},
+   {p:400,q:"Art deco-jazzbar pa Rue Antoine Dansaert 6, ring pa dorrklockan for att komma in.",a:"L'Archiduc"},
+   {p:500,q:"Lammets tillbedjan av van Eyck hanger i denna katedral i Gent.",a:"Sint-Baafskathedraal"}],
+  [{p:100,q:"Lunchrestaurang pa Guldenspoorstraat 29 av Kobe Desramaults, sourdough-pizza i vedugn.",a:"De Superette"},
+   {p:200,q:"Intrade per vuxen for Gravensteen - Grevarnas slott.",a:"15 euro"},
+   {p:300,q:"Dessa tva medeltida hamnkvarter langs Leie ses fran Sint-Michielsbrug.",a:"Graslei och Korenlei"},
+   {p:400,q:"De Superette ar stangt dessa fyra veckodagar.",a:"Sondag, mandag, tisdag, onsdag"},
+   {p:500,q:"Pris for 40 min batttur pa Gents kanaler fran Korenlei/Graslei.",a:"ca 10 euro"}],
+  [{p:100,q:"Torsdag 14 maj 2026 ar denna svenska helgdag.",a:"Kristi himmelsfärdsdag"},
+   {p:200,q:"Restaurang i Gent kand for gigantiska köttbullar, backup till De Superette.",a:"Balls and Glory"},
+   {p:300,q:"Antal provningar pa Cantillons sjalvguidade tur.",a:"3 stycken"},
+   {p:400,q:"Pris for STIB-dagskort i Bryssel.",a:"9,10 euro"},
+   {p:500,q:"Dessa tva chokladbutiker pa Place du Grand Sablon ar oppna pa helgdagen torsdag.",a:"Pierre Marcolini och Wittamer"}]
+];
+var teams=[{n:"Lag 1",s:0},{n:"Lag 2",s:0}];
+var used=new Set(),cur=null,selT=0;
+function renderSB(){
+  document.getElementById('sb').innerHTML=teams.map(function(t,i){
+    return '<div class="team"><div class="team-name"><input class="name-input" value="'+t.n+'" oninput="teams['+i+'].n=this.value;renderSB()"/></div><div class="team-score'+(t.s<0?' negative':'')+'">'+t.s+'p</div></div>';
+  }).join('');
+}
+function renderBoard(){
+  var b=document.getElementById('board');b.innerHTML='';
+  cats.forEach(function(c){var h=document.createElement('div');h.className='category-header';h.textContent=c;b.appendChild(h);});
+  for(var r=0;r<5;r++){for(var c=0;c<6;c++){
+    var q=qs[c][r],k=c+'-'+r,el=document.createElement('div');
+    el.className='cell'+(used.has(k)?' used':'')+(q.dd&&!used.has(k)?' dd':'');
+    el.textContent=used.has(k)?'':q.p+'p';
+    if(!used.has(k)){(function(cc,rr){el.addEventListener('click',function(){openQ(cc,rr);});})(c,r);}
+    b.appendChild(el);
+  }}
+  if(used.size===30){var best=teams.reduce(function(a,b){return a.s>=b.s?a:b;});document.getElementById('final').style.display='block';document.getElementById('ftxt').textContent='Vinnare: '+best.n+' med '+best.s+' poäng!';}
+}
+function openQ(c,r){
+  var q=qs[c][r];cur={c:c,r:r};selT=0;
+  document.getElementById('mc').textContent=cats[c];
+  document.getElementById('mp').textContent=q.p+'p';
+  document.getElementById('mq').textContent=q.q;
+  document.getElementById('ma').textContent='Svar: '+q.a;
+  document.getElementById('ma').className='modal-ans';
+  document.getElementById('ddb').style.display=q.dd?'block':'none';
+  document.getElementById('r1').style.display='flex';
+  document.getElementById('r2').style.display='none';
+  document.getElementById('mo').className='modal-overlay active';
+}
+function show(){
+  document.getElementById('ma').className='modal-ans show';
+  document.getElementById('r1').style.display='none';
+  document.getElementById('r2').style.display='flex';
+  renderTP();
+}
+function renderTP(){
+  document.getElementById('tp').innerHTML=teams.map(function(t,i){
+    return '<button class="btn-lag'+(selT===i?' sel':'')+'" onclick="selTeam('+i+')">'+t.n+'</button>';
+  }).join('');
+}
+function selTeam(i){selT=i;renderTP();}
+function pts(ok){
+  var p=qs[cur.c][cur.r].p;
+  teams[selT].s+=ok?p:-p;
+  close2();
+}
+function close2(){
+  if(cur){used.add(cur.c+'-'+cur.r);cur=null;}
+  document.getElementById('mo').className='modal-overlay';
+  renderSB();renderBoard();
+}
+function addTeam(){if(teams.length>=6)return;teams.push({n:'Lag '+(teams.length+1),s:0});renderSB();}
+function reset(){if(!confirm('Nytt spel?'))return;used.clear();teams.forEach(function(t){t.s=0;});document.getElementById('final').style.display='none';renderSB();renderBoard();}
+document.getElementById('mo').addEventListener('click',function(e){if(e.target===this)close2();});
+renderSB();renderBoard();
+</script>
+</body>
+</html>
