@@ -352,13 +352,12 @@
 
     #empty-state p { font-size: 14px; max-width: 240px; line-height: 1.5; }
 
-    /* Transkriberings-segment – konversationsvy */
+    /* Transkriberings-segment */
     .segment {
       display: flex;
-      flex-direction: column;
-      margin-bottom: 14px;
+      gap: 12px;
+      margin-bottom: 18px;
       animation: fadeIn .3s ease;
-      max-width: 85%;
     }
 
     @keyframes fadeIn {
@@ -366,59 +365,37 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Varannan talare höger-justeras */
-    .segment.align-right {
-      align-self: flex-end;
-      align-items: flex-end;
-    }
-
-    .segment.align-left {
-      align-self: flex-start;
-      align-items: flex-start;
-    }
-
-    #transcript-container {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .segment-header {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 4px;
+    .segment-meta {
+      flex-shrink: 0;
+      width: 80px;
+      padding-top: 2px;
     }
 
     .segment-speaker {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
-      padding: 2px 8px;
-      border-radius: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
       display: inline-block;
       transition: filter .15s;
     }
 
-    .segment-speaker:hover { filter: brightness(.88); }
+    .segment-speaker:hover { filter: brightness(.9); }
 
     .segment-time {
       font-size: 10px;
       color: var(--slate-400);
+      margin-top: 3px;
       font-variant-numeric: tabular-nums;
     }
 
-    .segment-bubble {
-      padding: 10px 14px;
-      border-radius: 16px;
-      line-height: 1.6;
+    .segment-text {
+      flex: 1;
+      line-height: 1.65;
       color: var(--slate-800);
       font-size: 14px;
-      max-width: 100%;
-      word-break: break-word;
     }
-
-    .align-left  .segment-bubble { border-top-left-radius: 4px; }
-    .align-right .segment-bubble { border-top-right-radius: 4px; }
 
     /* Råtext (visas under transkribering tills AI bekräftar) */
     .segment-raw {
@@ -778,17 +755,6 @@
     Mötestranskribering
   </div>
   <div class="spacer"></div>
-  <!-- API-nyckel input i headern -->
-  <div id="api-key-wrapper" style="display:flex;align-items:center;gap:6px;">
-    <input type="password" id="api-key-input"
-      placeholder="Klistra in API-nyckel…"
-      style="width:220px;padding:5px 9px;border-radius:6px;border:1px solid var(--slate-600);
-             background:var(--slate-800);color:var(--white);font-size:12px;font-family:inherit;"
-      title="Din Anthropic API-nyckel sparas lokalt i webbläsaren">
-    <button id="btn-save-api-key" class="btn btn-primary btn-sm">Spara</button>
-    <span id="api-key-status" style="font-size:12px;color:#86efac;display:none;">✓ Sparad</span>
-  </div>
-
   <div id="header-rec-indicator">
     <div class="rec-dot"></div>
     <span id="header-timer">00:00</span>
@@ -858,20 +824,6 @@
             Talare visas här när AI analyserar transkriptionen
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Agenda -->
-    <div>
-      <div class="panel-title">Agenda</div>
-      <div class="meeting-info-card">
-        <label for="agenda-input">Mötesagenda (valfri)</label>
-        <textarea id="agenda-input"
-          placeholder="1. Genomgång av Q2-resultat&#10;2. Planering inför hösten&#10;3. Övriga frågor"
-          style="width:100%;border:1px solid var(--slate-200);border-radius:6px;
-                 padding:6px 8px;font-size:12px;font-family:inherit;color:var(--slate-800);
-                 background:var(--white);resize:vertical;min-height:90px;line-height:1.5;"
-        ></textarea>
       </div>
     </div>
 
@@ -994,7 +946,7 @@
 /* =========================================================
    KONFIGURATION
    ========================================================= */
-let API_KEY = localStorage.getItem('anthropic_api_key') || '';
+const API_KEY = 'DIN_API_NYCKEL';        // Ersätt med din Anthropic API-nyckel
 const MODEL   = 'claude-sonnet-4-20250514';
 const MAX_TOKENS = 2000;
 
@@ -1295,29 +1247,21 @@ function renderSegment(segment) {
   if (emptyState) emptyState.style.display = 'none';
 
   const sp = speakerMap[segment.speakerKey];
-  // Tilldela en fast sida per talare (jämnt index = vänster, udda = höger)
-  const speakerKeys = Object.keys(speakerMap);
-  const speakerIdx  = speakerKeys.indexOf(segment.speakerKey);
-  const side = speakerIdx % 2 === 0 ? 'align-left' : 'align-right';
-
   const div = document.createElement('div');
-  div.className = `segment ${side}`;
+  div.className = 'segment';
   div.id = segment.id;
 
   div.innerHTML = `
-    <div class="segment-header">
+    <div class="segment-meta">
       <span class="segment-speaker"
             style="background:${sp.bgColor};color:${sp.textColor}"
             data-speaker-key="${segment.speakerKey}"
             title="Klicka för att byta namn">
         ${escapeHTML(sp.name)}
       </span>
-      <span class="segment-time">${segment.time}</span>
+      <div class="segment-time">${segment.time}</div>
     </div>
-    <div class="segment-bubble"
-         style="background:${sp.bgColor};color:${sp.textColor.replace(')', ', 0.85)').replace('rgb', 'rgba') || sp.textColor}">
-      ${escapeHTML(segment.text)}
-    </div>
+    <div class="segment-text">${escapeHTML(segment.text)}</div>
   `;
 
   // Klick-hanterare för talarnamn
@@ -1328,19 +1272,16 @@ function renderSegment(segment) {
   transcriptContainer.appendChild(div);
 }
 
-// Uppdaterar alla talar-etiketter och bubblor globalt
+// Uppdaterar alla talar-etiketter i transkriptionen globalt
 function refreshAllSpeakerLabels() {
-  document.querySelectorAll('.segment').forEach(segEl => {
-    const speakerEl = segEl.querySelector('.segment-speaker');
-    if (!speakerEl) return;
-    const key = speakerEl.dataset.speakerKey;
-    if (!speakerMap[key]) return;
-    const sp = speakerMap[key];
-    speakerEl.textContent       = sp.name;
-    speakerEl.style.background  = sp.bgColor;
-    speakerEl.style.color       = sp.textColor;
-    const bubble = segEl.querySelector('.segment-bubble');
-    if (bubble) bubble.style.background = sp.bgColor;
+  document.querySelectorAll('.segment-speaker').forEach(el => {
+    const key = el.dataset.speakerKey;
+    if (speakerMap[key]) {
+      const sp = speakerMap[key];
+      el.textContent = sp.name;
+      el.style.background  = sp.bgColor;
+      el.style.color       = sp.textColor;
+    }
   });
   updateSpeakersList();
 }
@@ -1516,18 +1457,13 @@ async function summarizeMeeting() {
   btnSummarize.innerHTML = '<span class="spinner"></span> Sammanfattar…';
   summaryOutput.innerHTML = '<span class="placeholder">Hämtar sammanfattning…</span>';
 
-  const agenda = document.getElementById('agenda-input').value.trim();
-  const agendaSection = agenda
-    ? `\nAGENDA:\n${agenda}\n`
-    : '';
-
-  const prompt = `Sammanfatta detta möte på svenska.${agenda ? ' Strukturera sammanfattningen utifrån agendan nedan.' : ''} Inkludera:
+  const prompt = `Sammanfatta detta möte på svenska. Inkludera:
 1) Mötets syfte
-2) Huvudpunkter per talare${agenda ? ' (kopplat till agendapunkterna)' : ''}
+2) Huvudpunkter per talare
 3) Beslut som togs
 4) Åtgärdspunkter med ansvariga
 Formatera med tydliga rubriker.
-${agendaSection}
+
 TRANSKRIPTION:
 ${transcript}`;
 
@@ -1895,37 +1831,8 @@ function setupEventListeners() {
 }
 
 /* =========================================================
-   API-NYCKEL – SPARA/LADDA FRÅN LOCALSTORAGE
-   ========================================================= */
-function initApiKeyUI() {
-  const input  = document.getElementById('api-key-input');
-  const btn    = document.getElementById('btn-save-api-key');
-  const status = document.getElementById('api-key-status');
-
-  // Visa maskerad nyckel om den redan är sparad
-  if (API_KEY) {
-    input.value = API_KEY;
-    status.style.display = 'inline';
-  }
-
-  btn.addEventListener('click', () => {
-    const key = input.value.trim();
-    if (!key) { showToast('Ange en API-nyckel', 'error'); return; }
-    API_KEY = key;
-    localStorage.setItem('anthropic_api_key', key);
-    status.style.display = 'inline';
-    showToast('API-nyckel sparad!', 'success');
-  });
-
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') btn.click();
-  });
-}
-
-/* =========================================================
    STARTA APPEN
    ========================================================= */
-initApiKeyUI();
 init();
 </script>
 </body>
