@@ -944,7 +944,15 @@
 
   <!-- TEXT INPUT -->
   <section class="section" id="text-section">
-    <div class="section-title">Klistra in din text</div>
+    <div class="section-title">Klistra in eller bifoga text</div>
+    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.6rem;">
+      <input type="file" id="file-input" accept=".pdf,.docx,.txt" style="display:none;" onchange="handleFileUpload(event)">
+      <button class="btn btn-secondary" onclick="document.getElementById('file-input').click()" style="display:flex;align-items:center;gap:0.4rem;">
+        &#128206; Bifoga fil
+      </button>
+      <span style="font-size:0.8rem;color:var(--text-muted);">PDF, Word (.docx) eller text</span>
+      <span id="file-status" style="font-size:0.8rem;font-weight:600;color:var(--primary);"></span>
+    </div>
     <textarea id="source-text" placeholder="Klistra in lärobokstext, anteckningar eller presentationsinnehåll här..." aria-label="Källtext för övningar"></textarea>
     <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
       <button class="btn btn-primary" id="generate-btn" onclick="generateExercises()">
@@ -1285,7 +1293,7 @@ async function generateExercises() {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
+        max_tokens: 4000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }]
       })
@@ -1404,12 +1412,21 @@ function parseAndRender(rawText) {
   const objMatch = jsonText.match(/\{[\s\S]*\}/);
   if (objMatch) jsonText = objMatch[0];
 
-  let data;
-  try {
-    data = JSON.parse(jsonText);
-  } catch (e) {
+  // Fix truncated JSON by closing open arrays/objects
+  function repairJson(s) {
+    try { return JSON.parse(s); } catch (_) {}
+    // Strip trailing incomplete entries and close structure
+    let t = s.replace(/,\s*$/, '').replace(/,\s*\{[^{}]*$/, '');
+    const opens = (t.match(/\[/g)||[]).length - (t.match(/\]/g)||[]).length;
+    const openB = (t.match(/\{/g)||[]).length - (t.match(/\}/g)||[]).length;
+    t += ']'.repeat(Math.max(0, opens)) + '}'.repeat(Math.max(0, openB));
+    try { return JSON.parse(t); } catch (_) { return null; }
+  }
+
+  let data = repairJson(jsonText);
+  if (!data) {
     hideLoading();
-    showError('AI:n returnerade ett oväntat format. Försök igen – ibland händer detta vid komplexa texter.');
+    showError('AI:n returnerade ett oväntat format. Försök med en kortare text eller klicka Generera igen.');
     return;
   }
 
@@ -1928,6 +1945,63 @@ function clearAll() {
 if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => {};
 }
+
+// ===================================================
+// FILE UPLOAD
+// ===================================================
+async function handleFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const status = document.getElementById('file-status');
+  status.textContent = 'Läser ' + file.name + '...';
+
+  try {
+    const ext = file.name.split('.').pop().toLowerCase();
+    let text = '';
+
+    if (ext === 'txt') {
+      text = await file.text();
+    } else if (ext === 'pdf') {
+      if (typeof pdfjsLib === 'undefined') throw new Error('PDF-biblioteket laddas, försök igen om ett ögonblick.');
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf, useSystemFonts: true }).promise;
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const pageText = content.items.map(item => item.str).filter(s => s.trim()).join(' ');
+        if (pageText.trim()) text += pageText.trim() + '\n\n';
+      }
+    } else if (ext === 'docx') {
+      if (typeof mammoth === 'undefined') throw new Error('Word-biblioteket laddas, försök igen om ett ögonblick.');
+      const buf = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer: buf });
+      text = result.value;
+    } else {
+      throw new Error('Filtypen stöds inte. Använd PDF, Word (.docx) eller textfil.');
+    }
+
+    if (!text || text.trim().length < 20) {
+      throw new Error('Ingen text hittades i filen – filen kan vara skannad eller skyddad.');
+    }
+
+    document.getElementById('source-text').value = text.trim();
+    status.textContent = '✓ ' + file.name + ' inläst';
+    setTimeout(() => { status.textContent = ''; }, 4000);
+  } catch (err) {
+    status.style.color = 'var(--error)';
+    status.textContent = 'Fel: ' + err.message;
+    setTimeout(() => { status.textContent = ''; status.style.color = 'var(--primary)'; }, 6000);
+  }
+
+  e.target.value = '';
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+<script>
+  if (typeof pdfjsLib !== 'undefined') {
+    try { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; } catch(e) {}
+  }
 </script>
 </body>
 </html>
