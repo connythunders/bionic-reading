@@ -16,8 +16,6 @@
       --text: #1a1a18;
       --text-muted: #6b6657;
       --orange: #c45a1a;
-      --done-bg: #1d5c3a;
-      --done-text: #ffffff;
       --check-active: #1d5c3a;
     }
 
@@ -34,7 +32,6 @@
       border-bottom: 1px solid var(--card-border);
       padding: 1.25rem 2rem;
     }
-
     .header-inner {
       max-width: 1100px;
       margin: 0 auto;
@@ -42,7 +39,6 @@
       align-items: baseline;
       gap: 1rem;
     }
-
     header h1 {
       font-size: 1.1rem;
       font-weight: 700;
@@ -50,26 +46,20 @@
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
+    header span { font-size: 0.85rem; color: var(--text-muted); }
 
-    header span {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    /* ── Main layout ── */
+    /* ── Main ── */
     main {
       max-width: 1100px;
       margin: 0 auto;
       padding: 2.5rem 2rem 4rem;
     }
-
     .page-title {
       font-size: clamp(1.6rem, 4vw, 2.4rem);
       font-weight: 800;
       color: var(--text);
       margin-bottom: 0.5rem;
     }
-
     .page-subtitle {
       font-size: 1rem;
       color: var(--text-muted);
@@ -85,7 +75,6 @@
       gap: 1.25rem;
       margin-bottom: 2.5rem;
     }
-
     .module-card {
       background: var(--card-bg);
       border: 1.5px solid var(--card-border);
@@ -94,29 +83,24 @@
       display: flex;
       flex-direction: column;
       gap: 0.6rem;
+      cursor: pointer;
       transition: box-shadow 0.2s, transform 0.2s;
-      cursor: default;
     }
-
     .module-card:hover {
-      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.1);
       transform: translateY(-2px);
     }
-
     .card-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
     }
-
     .card-number {
       font-size: 2.4rem;
       font-weight: 800;
       color: var(--green);
       line-height: 1;
-      font-variant-numeric: tabular-nums;
     }
-
     .badge-done {
       display: flex;
       align-items: center;
@@ -129,32 +113,11 @@
       opacity: 0;
       transition: opacity 0.3s;
     }
-
     .badge-done.visible { opacity: 1; }
-
     .badge-done svg { width: 12px; height: 12px; }
-
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.3;
-    }
-
-    .card-desc {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      line-height: 1.55;
-      flex: 1;
-    }
-
-    .card-footer {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-top: 0.4rem;
-    }
-
+    .card-title { font-size: 1.05rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .card-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.55; flex: 1; }
+    .card-footer { display: flex; align-items: center; gap: 1rem; margin-top: 0.4rem; }
     .card-time {
       display: flex;
       align-items: center;
@@ -162,17 +125,127 @@
       font-size: 0.82rem;
       color: var(--text-muted);
     }
-
     .card-time svg { width: 14px; height: 14px; opacity: 0.7; }
-
-    .card-extra {
-      font-size: 0.82rem;
-      font-weight: 600;
+    .card-open-hint {
+      margin-left: auto;
+      font-size: 0.78rem;
       color: var(--orange);
-      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
     }
 
-    .card-extra:hover { text-decoration: underline; }
+    /* ── Modal ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 18, 12, 0.45);
+      backdrop-filter: blur(3px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      background: #f5f1e7;
+      border: 1.5px solid var(--card-border);
+      border-radius: 18px;
+      max-width: 660px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 2rem 2.2rem 2.2rem;
+      position: relative;
+      animation: modalIn 0.22s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1.1rem;
+      right: 1.2rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      line-height: 1;
+      transition: background 0.15s;
+    }
+    .modal-close:hover { background: var(--card-border); }
+
+    .modal-number {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--green);
+      margin-bottom: 0.4rem;
+    }
+    .modal-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 1.4rem;
+      line-height: 1.25;
+    }
+    .modal-body { font-size: 0.93rem; color: var(--text); line-height: 1.7; }
+    .modal-body p { margin-bottom: 0.9rem; }
+    .modal-body h3 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--green);
+      margin: 1.4rem 0 0.5rem;
+    }
+    .modal-body ul {
+      padding-left: 1.2rem;
+      margin-bottom: 0.9rem;
+    }
+    .modal-body ul li { margin-bottom: 0.4rem; }
+    .modal-body .example-box {
+      background: var(--card-bg);
+      border-left: 3px solid var(--green);
+      border-radius: 0 8px 8px 0;
+      padding: 0.85rem 1rem;
+      margin: 1rem 0;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .modal-body .example-box strong { color: var(--text); font-style: normal; }
+    .modal-done-btn {
+      margin-top: 1.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7rem 1.3rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .modal-done-btn:hover { background: var(--green-light); }
+    .modal-done-btn.marked { background: #888; }
 
     /* ── Checklist box ── */
     .checklist-box {
@@ -181,109 +254,35 @@
       border-radius: 14px;
       padding: 1.8rem 2rem;
     }
-
-    .checklist-box h2 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--green);
-      margin-bottom: 0.3rem;
-    }
-
-    .checklist-box .cl-subtitle {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 1.4rem;
-    }
-
-    .checklist {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .checklist li {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.8rem;
-      cursor: pointer;
-      user-select: none;
-    }
-
+    .checklist-box h2 { font-size: 1.15rem; font-weight: 700; color: var(--green); margin-bottom: 0.3rem; }
+    .checklist-box .cl-subtitle { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.4rem; }
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+    .checklist li { display: flex; align-items: flex-start; gap: 0.8rem; cursor: pointer; user-select: none; }
     .cl-checkbox {
       flex-shrink: 0;
-      width: 20px;
-      height: 20px;
+      width: 20px; height: 20px;
       border: 2px solid var(--card-border);
       border-radius: 5px;
       background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       margin-top: 1px;
       transition: background 0.2s, border-color 0.2s;
     }
-
-    .checklist li.checked .cl-checkbox {
-      background: var(--check-active);
-      border-color: var(--check-active);
-    }
-
-    .cl-checkmark {
-      opacity: 0;
-      transition: opacity 0.15s;
-    }
-
+    .checklist li.checked .cl-checkbox { background: var(--check-active); border-color: var(--check-active); }
+    .cl-checkmark { opacity: 0; transition: opacity 0.15s; }
     .checklist li.checked .cl-checkmark { opacity: 1; }
+    .cl-label { font-size: 0.92rem; color: var(--text); line-height: 1.4; transition: color 0.2s; }
+    .checklist li.checked .cl-label { color: var(--text-muted); text-decoration: line-through; }
+    .cl-progress { margin-top: 1.4rem; display: flex; align-items: center; gap: 0.9rem; }
+    .cl-bar-wrap { flex: 1; height: 6px; background: var(--card-border); border-radius: 99px; overflow: hidden; }
+    .cl-bar { height: 100%; background: var(--green); border-radius: 99px; width: 0%; transition: width 0.4s ease; }
+    .cl-count { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; min-width: 3.5rem; text-align: right; }
 
-    .cl-label {
-      font-size: 0.92rem;
-      color: var(--text);
-      line-height: 1.4;
-      transition: color 0.2s;
-    }
-
-    .checklist li.checked .cl-label {
-      color: var(--text-muted);
-      text-decoration: line-through;
-    }
-
-    .cl-progress {
-      margin-top: 1.4rem;
-      display: flex;
-      align-items: center;
-      gap: 0.9rem;
-    }
-
-    .cl-bar-wrap {
-      flex: 1;
-      height: 6px;
-      background: var(--card-border);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-
-    .cl-bar {
-      height: 100%;
-      background: var(--green);
-      border-radius: 99px;
-      width: 0%;
-      transition: width 0.4s ease;
-    }
-
-    .cl-count {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      min-width: 3.5rem;
-      text-align: right;
-    }
-
-    /* ── Responsive ── */
     @media (max-width: 600px) {
       main { padding: 1.5rem 1rem 3rem; }
       .module-grid { grid-template-columns: 1fr; }
       .checklist-box { padding: 1.4rem 1.2rem; }
+      .modal { padding: 1.5rem 1.3rem 1.8rem; }
     }
   </style>
 </head>
@@ -298,100 +297,85 @@
 
 <main>
   <h2 class="page-title">Kursöversikt</h2>
-  <p class="page-subtitle">Sex moduler som tar dig från grunderna till ett riktigt starkt framförande — oavsett om du pratar inför klassen eller via skärm.</p>
+  <p class="page-subtitle">Sex moduler som tar dig från grunderna till ett riktigt starkt framförande — oavsett om du pratar inför klassen eller via skärm. Klicka på ett kort för att läsa fördjupningen.</p>
 
   <div class="module-grid" id="moduleGrid">
 
-    <div class="module-card" data-index="0">
+    <div class="module-card" data-module="0">
       <div class="card-top">
         <span class="card-number">01</span>
-        <span class="badge-done">
-          <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Klar
-        </span>
+        <span class="badge-done"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Klar</span>
       </div>
       <p class="card-title">Varför presentationsteknik?</p>
       <p class="card-desc">Vad skiljer en bra presentation från en dålig? Logik, känsla och struktur — fundamentet som allt annat vilar på.</p>
       <div class="card-footer">
         <span class="card-time"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>5 min</span>
+        <span class="card-open-hint">Läs mer →</span>
       </div>
     </div>
 
-    <div class="module-card" data-index="1">
+    <div class="module-card" data-module="1">
       <div class="card-top">
         <span class="card-number">02</span>
-        <span class="badge-done">
-          <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Klar
-        </span>
+        <span class="badge-done"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Klar</span>
       </div>
       <p class="card-title">Bygg din struktur</p>
       <p class="card-desc">Inledning som fångar, ett tydligt kärnbudskap och ett avslut som fastnar. Hur du disponerar 5 minuter — eller 30.</p>
       <div class="card-footer">
         <span class="card-time"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>8 min</span>
-        <a class="card-extra" href="#">+ Fördjupning</a>
+        <span class="card-open-hint">Läs mer →</span>
       </div>
     </div>
 
-    <div class="module-card" data-index="2">
+    <div class="module-card" data-module="2">
       <div class="card-top">
         <span class="card-number">03</span>
-        <span class="badge-done">
-          <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Klar
-        </span>
+        <span class="badge-done"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Klar</span>
       </div>
       <p class="card-title">Designa slides som lyfter</p>
       <p class="card-desc">Ett budskap per slide, färg och typografi, blickstyrning. Reglerna som gör skillnad — och när du kan bryta dem.</p>
       <div class="card-footer">
         <span class="card-time"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>10 min</span>
-        <a class="card-extra" href="#">+ Fördjupning</a>
+        <span class="card-open-hint">Läs mer →</span>
       </div>
     </div>
 
-    <div class="module-card" data-index="3">
+    <div class="module-card" data-module="3">
       <div class="card-top">
         <span class="card-number">04</span>
-        <span class="badge-done">
-          <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Klar
-        </span>
+        <span class="badge-done"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Klar</span>
       </div>
       <p class="card-title">Röst, kropp och närvaro</p>
       <p class="card-desc">Paus, tempo och betoning. Blickkontakt, gester och hur du rör dig i rummet. Det du gör när du inte pratar.</p>
       <div class="card-footer">
         <span class="card-time"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>8 min</span>
+        <span class="card-open-hint">Läs mer →</span>
       </div>
     </div>
 
-    <div class="module-card" data-index="4">
+    <div class="module-card" data-module="4">
       <div class="card-top">
         <span class="card-number">05</span>
-        <span class="badge-done">
-          <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Klar
-        </span>
+        <span class="badge-done"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Klar</span>
       </div>
       <p class="card-title">Digitala presentationer</p>
       <p class="card-desc">Kamera, ljud, bakgrund och ögonkontakt via skärm. Vad som förändras när publiken sitter hemma.</p>
       <div class="card-footer">
         <span class="card-time"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>7 min</span>
-        <a class="card-extra" href="#">+ Fördjupning</a>
+        <span class="card-open-hint">Läs mer →</span>
       </div>
     </div>
 
-    <div class="module-card" data-index="5">
+    <div class="module-card" data-module="5">
       <div class="card-top">
         <span class="card-number">06</span>
-        <span class="badge-done">
-          <svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Klar
-        </span>
+        <span class="badge-done"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Klar</span>
       </div>
       <p class="card-title">Hantera nervositet</p>
       <p class="card-desc">Scenrädsla är normalt — och kan bli din styrka. Konkreta tekniker för andning, förberedelse och mindset.</p>
       <div class="card-footer">
         <span class="card-time"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>6 min</span>
+        <span class="card-open-hint">Läs mer →</span>
       </div>
     </div>
 
@@ -401,112 +385,220 @@
   <div class="checklist-box">
     <h2>Förberedelselista</h2>
     <p class="cl-subtitle">Bocka av varje steg innan du går upp och presenterar.</p>
-
     <ul class="checklist" id="checklist">
-      <li data-id="0">
-        <span class="cl-checkbox">
-          <svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none">
-            <path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="cl-label">Jag vet mitt syfte och mitt kärnbudskap</span>
-      </li>
-      <li data-id="1">
-        <span class="cl-checkbox">
-          <svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none">
-            <path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="cl-label">Disposition är klar: inledning, kärna och avslut</span>
-      </li>
-      <li data-id="2">
-        <span class="cl-checkbox">
-          <svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none">
-            <path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="cl-label">Slides är gjorda (max 1 budskap per bild)</span>
-      </li>
-      <li data-id="3">
-        <span class="cl-checkbox">
-          <svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none">
-            <path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="cl-label">Jag har övat högt — minst en gång i sin helhet</span>
-      </li>
-      <li data-id="4">
-        <span class="cl-checkbox">
-          <svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none">
-            <path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="cl-label">Tidtagning gjord — håller jag inom ramarna?</span>
-      </li>
-      <li data-id="5">
-        <span class="cl-checkbox">
-          <svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none">
-            <path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="cl-label">Tekniken är testad (projektor, ljud, uppkoppling)</span>
-      </li>
-      <li data-id="6">
-        <span class="cl-checkbox">
-          <svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none">
-            <path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="cl-label">Jag är förberedd på möjliga frågor från publiken</span>
-      </li>
-      <li data-id="7">
-        <span class="cl-checkbox">
-          <svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none">
-            <path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
-        <span class="cl-label">Andningsövning gjord — jag är lugn och redo</span>
-      </li>
+      <li><span class="cl-checkbox"><svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none"><path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="cl-label">Jag vet mitt syfte och mitt kärnbudskap</span></li>
+      <li><span class="cl-checkbox"><svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none"><path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="cl-label">Disposition är klar: inledning, kärna och avslut</span></li>
+      <li><span class="cl-checkbox"><svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none"><path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="cl-label">Slides är gjorda (max 1 budskap per bild)</span></li>
+      <li><span class="cl-checkbox"><svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none"><path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="cl-label">Jag har övat högt — minst en gång i sin helhet</span></li>
+      <li><span class="cl-checkbox"><svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none"><path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="cl-label">Tidtagning gjord — håller jag inom ramarna?</span></li>
+      <li><span class="cl-checkbox"><svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none"><path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="cl-label">Tekniken är testad (projektor, ljud, uppkoppling)</span></li>
+      <li><span class="cl-checkbox"><svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none"><path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="cl-label">Jag är förberedd på möjliga frågor från publiken</span></li>
+      <li><span class="cl-checkbox"><svg class="cl-checkmark" viewBox="0 0 10 10" width="11" height="11" fill="none"><path d="M1.5 5l2.5 2.5 5-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="cl-label">Andningsövning gjord — jag är lugn och redo</span></li>
     </ul>
-
     <div class="cl-progress">
-      <div class="cl-bar-wrap">
-        <div class="cl-bar" id="clBar"></div>
-      </div>
+      <div class="cl-bar-wrap"><div class="cl-bar" id="clBar"></div></div>
       <span class="cl-count" id="clCount">0 / 8</span>
     </div>
   </div>
-
 </main>
 
+<!-- Modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" id="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modalClose" aria-label="Stäng">✕</button>
+    <p class="modal-number" id="modalNumber"></p>
+    <h2 class="modal-title" id="modalTitle"></h2>
+    <div class="modal-body" id="modalBody"></div>
+    <button class="modal-done-btn" id="modalDoneBtn">
+      <svg viewBox="0 0 14 14" width="14" height="14" fill="none"><path d="M2 7l3.5 3.5 6.5-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Markera som klar
+    </button>
+  </div>
+</div>
+
 <script>
-  // ── Module cards: click to toggle "Klar" ──
-  document.querySelectorAll('.module-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const badge = card.querySelector('.badge-done');
-      badge.classList.toggle('visible');
-    });
-  });
-
-  // ── Checklist ──
-  const items = document.querySelectorAll('.checklist li');
-  const bar   = document.getElementById('clBar');
-  const count = document.getElementById('clCount');
-  const total = items.length;
-
-  function updateProgress() {
-    const done = document.querySelectorAll('.checklist li.checked').length;
-    bar.style.width = (done / total * 100) + '%';
-    count.textContent = done + ' / ' + total;
+const modules = [
+  {
+    number: "Modul 01",
+    title: "Varför presentationsteknik?",
+    body: `
+      <p>Tänk på de presentationer du sett — de riktigt bra och de riktigt dåliga. Vad skilde dem åt? Sällan handlar det om vem som kunde ämnet bäst. Det handlar nästan alltid om hur budskapet förmedlades.</p>
+      <h3>De tre pelarna: ethos, logos, pathos</h3>
+      <p>Aristoteles identifierade redan på 300-talet f.Kr. tre sätt att övertyga en publik — och de gäller fortfarande:</p>
+      <ul>
+        <li><strong>Ethos</strong> — trovärdighet. Varför ska publiken lita på dig? Visa att du kan ämnet, var ärlig om osäkerheter.</li>
+        <li><strong>Logos</strong> — logik och fakta. Argument, statistik, bevis. Ger intellektuell övertygelse.</li>
+        <li><strong>Pathos</strong> — känsla. Berättelser, bilder, humor. Får publiken att bry sig och minnas.</li>
+      </ul>
+      <p>En stark presentation blandar alla tre. En presentation med bara fakta (logos) kan vara korrekt men tråkig. En presentation med bara känsla (pathos) utan fakta kan uppfattas som ytlig.</p>
+      <h3>Simon Sineks Golden Circle</h3>
+      <p>Kommunikationskonsulten Simon Sinek populariserade idén att de bästa talarna alltid börjar med <em>varför</em> — inte vad eller hur. Varför bryr du dig? Varför spelar det här någon roll? Svaret på den frågan är grunden för hela presentationen.</p>
+      <div class="example-box"><strong>Exempel:</strong> Två elever presenterar klimatförändringar. Den första börjar: "Idag ska jag prata om koldioxidutsläpp och dess effekter." Den andra börjar: "Förra sommaren såg jag hur skogen nära mitt sommarställe brann — och det var ingen tillfällighet." Samma ämne, men den andra fångar rummet direkt.</div>
+      <p>Slutsatsen: teknik och fakta är viktiga, men det är <em>syftet</em> — det du vill att publiken ska känna, tänka eller göra — som är startpunkten för allt.</p>
+    `
+  },
+  {
+    number: "Modul 02",
+    title: "Bygg din struktur",
+    body: `
+      <p>En presentation utan tydlig struktur är som en resa utan karta. Du kanske kommer fram till slut, men publiken tappar vägen längs med. En bra disposition gör att lyssnarna kan följa med — och att du som talare vet var du är hela tiden.</p>
+      <h3>Trepunktsmodellen</h3>
+      <p>Den klassiska strukturen är enkel men kraftfull:</p>
+      <ul>
+        <li><strong>Inledning (hook)</strong> — fånga uppmärksamheten direkt. Ställ en fråga, dela en överraskande siffra, berätta en kort historia eller gör ett djärvt påstående.</li>
+        <li><strong>Kärna</strong> — ditt huvudinnehåll. Begränsa dig till max tre huvudpunkter. Mer än så minns ingen.</li>
+        <li><strong>Avslut</strong> — repetera kärnbudskapet och avsluta med något som fastnar. En uppmaning, en reflektion eller en fråga att ta med sig.</li>
+      </ul>
+      <div class="example-box"><strong>Svag inledning:</strong> "Hej, jag heter Emma och idag ska jag prata om social medias påverkan på tonåringar."<br><br><strong>Stark inledning:</strong> "Genomsnittsungdomen kollar sin telefon 96 gånger om dagen. Det är var tionde minut — dygnet runt. Vad gör det med oss?"</div>
+      <h3>Regeln om tre</h3>
+      <p>Tre är det magiska antalet i kommunikation. "Frihet, jämlikhet, broderskap." "Blod, svett och tårar." Tre punkter är lätta att minnas och skapar en känsla av fullständighet. Välj dina tre viktigaste argument — och håll dig till dem.</p>
+      <h3>Avslutningen är det sista publiken hör</h3>
+      <p>Sluta aldrig med "ja, det var väl ungefär det" eller "jag vet inte riktigt hur jag ska avsluta". Skriv och lägg memorera ditt sista mening ordagrant. Det är det som sitter kvar hos publiken när du går av scenen.</p>
+    `
+  },
+  {
+    number: "Modul 03",
+    title: "Designa slides som lyfter",
+    body: `
+      <p>Slides ska stödja dig som talare — inte ersätta dig. Den vanligaste misstaget är att fylla varje bild med text och sedan läsa upp den. Publiken kan läsa snabbare än du talar, och inom tio sekunder har de hunnit läsa allt och börjat titta på sina telefoner.</p>
+      <h3>En slide, ett budskap</h3>
+      <p>Varje slide ska ha ett enda syfte. Fråga dig: <em>vad vill jag att publiken ska ta med sig från just den här bilden?</em> Om svaret är "två saker" — dela upp den i två slides.</p>
+      <h3>Typografi och storlek</h3>
+      <ul>
+        <li>Använd aldrig mindre än 24pt text. Om det inte ryms — ta bort text.</li>
+        <li>Begränsa dig till max två typsnitt per presentation.</li>
+        <li>Kontrast är allt: mörk text på ljus bakgrund, eller tvärtom. Gråtext på vit bakgrund är svårläst.</li>
+      </ul>
+      <h3>Bilder slår punktlistor</h3>
+      <p>En stark bild med fem ord under sig kommunicerar oftare mer än en slide med åtta bullets. Hjärnan processar bilder 60 000 gånger snabbare än text. Använd det.</p>
+      <div class="example-box"><strong>Före (death by PowerPoint):</strong> En slide med rubriken "Klimatförändringar — konsekvenser" följd av sju punktlistor med fullständiga meningar.<br><br><strong>Efter:</strong> En bild av en isbjörn på ett smältande isflak. Under bilden: "1 meter havsnivåhöjning = 680 miljoner hemlösa."</div>
+      <h3>Squint-testet</h3>
+      <p>Håll din laptop på armslängds avstånd och knip ihop ögonen. Ser du fortfarande nyckelbudskapet? Om inte — förenkla. Det som fungerar suddigt, fungerar skarpt. Det som inte fungerar suddigt, döljer sig i detaljer.</p>
+    `
+  },
+  {
+    number: "Modul 04",
+    title: "Röst, kropp och närvaro",
+    body: `
+      <p>Forskaren Albert Mehrabian visade i en känd studie att hur vi uppfattas när vi kommunicerar känsla fördelas ungefär så här: 7 % ord, 38 % tonfall och 55 % kroppsspråk. Det betyder att <em>hur</em> du säger något väger tyngre än <em>vad</em> du säger.</p>
+      <h3>Kraften i pausen</h3>
+      <p>Nybörjare fruktar tystnad och fyller den med "öh", "ehm" och "liksom". Erfarna talare vet att pausen är ett verktyg. En sekunds tystnad efter en viktig mening ger publiken tid att låta budskapet sjunka in — och signalerar att du är säker nog att inte behöva fylla tomrummet.</p>
+      <div class="example-box"><strong>Exempel:</strong> Martin Luther Kings "I have a dream" från 1963 är fyllt av dramatiska pauser. Han säger "I have a dream" — och stannar. Publiken reagerar. Sedan fortsätter han. Pauserna skapar rytm och emotionell kraft.</div>
+      <h3>Blickkontakt: tresekundersregeln</h3>
+      <p>Håll blicken på en person i ungefär tre sekunder — tillräckligt länge för att det ska kännas som verklig kontakt, tillräckligt kort för att inte bli stirrigt. Flytta sedan vidare. På så sätt "inkluderar" du hela rummet utan att det känns mekaniskt.</p>
+      <h3>Gester och rörelser</h3>
+      <ul>
+        <li><strong>Öppna handflator</strong> signalerar ärlighet och öppenhet.</li>
+        <li><strong>Händerna vid sidan</strong> ger ett lugnt och tryggt intryck.</li>
+        <li><strong>Undvik</strong> att hålla armarna i kors, peta på sig själv eller gunga fram och tillbaka — det signalerar nervositet.</li>
+        <li>Rör dig med syfte: gå ett steg framåt för att betona en poäng, stå stilla när du vill att publiken ska fokusera.</li>
+      </ul>
+      <p>Träna framför en spegel eller filma dig själv — det känns konstigt, men det är det bästa sättet att se vad publiken faktiskt ser.</p>
+    `
+  },
+  {
+    number: "Modul 05",
+    title: "Digitala presentationer",
+    body: `
+      <p>Att presentera via skärm ställer helt andra krav än att stå i ett rum. Mycket av kroppsspråkets kraft försvinner, energin är svårare att förmedla och tekniken kan alltid krångla. Men med rätt förberedelse kan en digital presentation vara minst lika stark.</p>
+      <h3>Kamerans position är allt</h3>
+      <p>Placera kameran i ögonhöjd eller något ovanför — aldrig underifrån. En kamera som filmar nedifrån ger ett ofrivilligt komiskt och oprofessionellt intryck. Stapla böcker under laptopen om det behövs.</p>
+      <h3>Ögonkontakt via skärm</h3>
+      <p>Den vanligaste digitala misstaget: man tittar på sin egenbild eller på presentationen istället för på kameran. För publiken ser det ut som att du tittar bort hela tiden. Sätt en liten tejpbit eller en pilklistermärke bredvid kameraobjektivet som påminnelse — titta dit när du vill skapa kontakt.</p>
+      <div class="example-box"><strong>Test:</strong> Filma dig själv i ett videosamtal medan du tittar på din egenbild. Spela upp inspelningen — du ser förmodligen lite distanserad ut. Titta sedan på kameran och spela in igen. Skillnaden är påtaglig.</div>
+      <h3>Ljud är viktigare än bild</h3>
+      <p>Publiken tolererar ett pixlat video, men ett hackigt eller eko-fyllt ljud gör presentationen omöjlig att följa. Använd hörlurar med mikrofon, sitt nära din dator eller använd ett headset. Testa alltid ljudet i förväg.</p>
+      <h3>Bakgrund och ljussättning</h3>
+      <ul>
+        <li>Håll ljuskällan <em>framför</em> dig — en fönsterljus bakifrån gör dig till en silhuett.</li>
+        <li>En ren, neutral bakgrund är alltid säkrare än en rörig hemmamiljö.</li>
+        <li>Om du använder virtuell bakgrund — testa att den inte "äter upp" håret eller kläderna.</li>
+      </ul>
+      <p>Pausa lite längre mellan dina meningar digitalt — nätverksfördröjningar gör det lätt att avbryta varandra av misstag.</p>
+    `
+  },
+  {
+    number: "Modul 06",
+    title: "Hantera nervositet",
+    body: `
+      <p>74 % av alla människor räknar scenrädsla som sin största rädsla — fler än rädslan för döden. Du är alltså i gott sällskap. Men nervositet är inte ett problem att lösa, det är ett tillstånd att använda.</p>
+      <h3>Nervositet och spänning är samma sak</h3>
+      <p>Fysiologiskt sett är nervositet och positiv spänning identiska: samma hjärtklappning, samma ökade fokus, samma adrenalin. Det enda som skiljer dem är berättelsen du berättar för dig själv. Byt ut "jag är nervös" mot "jag är peppad" — forskning från Harvard visar att det faktiskt fungerar och förbättrar prestationen.</p>
+      <h3>4-7-8-andningen</h3>
+      <p>Två minuter innan du ska börja: andas in i 4 sekunder, håll andan i 7 sekunder, andas ut långsamt i 8 sekunder. Upprepa tre gånger. Det aktiverar det parasympatiska nervsystemet och sänker pulsen märkbart.</p>
+      <div class="example-box"><strong>Kända exempel:</strong> Adele berättar öppet om sin scenrädsla och kräks ibland före konserter. Barbra Streisand slutade uppträda live i 27 år på grund av den. Warren Buffett tog en kurs i presentationsteknik som 20-åring — hans diplom hänger på väggen i hans kontor, inte hans examen från Columbia Business School.</div>
+      <h3>Förberedelse är bästa medicinen</h3>
+      <p>Ångesten kommer nästan alltid från rädslan att glömma bort sig eller göra bort sig. Lösningen är enkel: öva tills de första 30 sekunderna sitter utan att du behöver tänka. När kroppen vet hur starten känns, lugnar sig hjärnan.</p>
+      <h3>Publiken hejar på dig</h3>
+      <p>Kom ihåg: ingen i rummet vill att du ska misslyckas. De flesta sitter och tänker "tur att det inte är jag som står där". De vill att du ska lyckas — de hejar på dig, även om de inte visar det. Ta med dig den känslan upp på scenen.</p>
+    `
   }
+];
 
-  items.forEach(li => {
-    li.addEventListener('click', () => {
-      li.classList.toggle('checked');
-      updateProgress();
-    });
-  });
+let currentModule = null;
+
+const backdrop = document.getElementById('modalBackdrop');
+const modalNumber = document.getElementById('modalNumber');
+const modalTitle  = document.getElementById('modalTitle');
+const modalBody   = document.getElementById('modalBody');
+const modalClose  = document.getElementById('modalClose');
+const doneBtn     = document.getElementById('modalDoneBtn');
+
+function openModal(index) {
+  const m = modules[index];
+  currentModule = index;
+  modalNumber.textContent = m.number;
+  modalTitle.textContent  = m.title;
+  modalBody.innerHTML     = m.body;
+  const card   = document.querySelector(`.module-card[data-module="${index}"]`);
+  const isDone = card.querySelector('.badge-done').classList.contains('visible');
+  doneBtn.textContent = isDone ? '✓ Klar' : 'Markera som klar';
+  doneBtn.classList.toggle('marked', isDone);
+  backdrop.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('modal').scrollTop = 0;
+}
+
+function closeModal() {
+  backdrop.classList.remove('open');
+  document.body.style.overflow = '';
+  currentModule = null;
+}
+
+document.querySelectorAll('.module-card').forEach(card => {
+  card.addEventListener('click', () => openModal(+card.dataset.module));
+});
+
+modalClose.addEventListener('click', closeModal);
+backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+doneBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  if (currentModule === null) return;
+  const card  = document.querySelector(`.module-card[data-module="${currentModule}"]`);
+  const badge = card.querySelector('.badge-done');
+  badge.classList.toggle('visible');
+  const isDone = badge.classList.contains('visible');
+  doneBtn.textContent = isDone ? '✓ Klar' : 'Markera som klar';
+  doneBtn.classList.toggle('marked', isDone);
+});
+
+// ── Checklist ──
+const items = document.querySelectorAll('.checklist li');
+const bar   = document.getElementById('clBar');
+const count = document.getElementById('clCount');
+const total = items.length;
+
+function updateProgress() {
+  const done = document.querySelectorAll('.checklist li.checked').length;
+  bar.style.width = (done / total * 100) + '%';
+  count.textContent = done + ' / ' + total;
+}
+
+items.forEach(li => {
+  li.addEventListener('click', () => { li.classList.toggle('checked'); updateProgress(); });
+});
 </script>
-
 </body>
 </html>
