@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Arlanda Ölguide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --amber: #d97706;
+            --amber-dark: #b45309;
+            --amber-light: #fef3c7;
+            --gold: #f59e0b;
+            --foam: #fffbeb;
+            --brown: #78350f;
+            --text: #1c1917;
+            --text-muted: #78716c;
+            --border: #e7e5e4;
+            --card-bg: #ffffff;
+            --bg: #fafaf9;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #92400e 0%, #d97706 50%, #b45309 100%);
+            padding: 1.25rem 1rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .header-icon {
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+
+        .header-title {
+            flex: 1;
+        }
+
+        .header-title h1 {
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .header-title p {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.7rem;
+            margin-top: 1px;
+        }
+
+        .live-badge {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.3);
+            white-space: nowrap;
+        }
+
+        /* Search */
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            padding: 0.6rem 0.85rem 0.6rem 2.2rem;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .search-wrap input::placeholder { color: rgba(255,255,255,0.65); }
+
+        .search-icon {
+            position: absolute;
+            left: 0.65rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        /* Terminal tabs */
+        .tabs {
+            display: flex;
+            gap: 0.4rem;
+            padding: 0.75rem 1rem 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tabs::-webkit-scrollbar { display: none; }
+
+        .tab {
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            border: 1.5px solid var(--border);
+            background: transparent;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+
+        .tab.active {
+            background: var(--amber);
+            border-color: var(--amber);
+            color: #fff;
+        }
+
+        /* Sort bar */
+        .sort-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .sort-bar span { margin-right: auto; }
+
+        .sort-btn {
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            font-size: 0.72rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .sort-btn.active {
+            background: var(--amber-light);
+            border-color: var(--amber);
+            color: var(--amber-dark);
+            font-weight: 600;
+        }
+
+        /* Content */
+        .content {
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        /* Venue card */
+        .venue-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .venue-header {
+            padding: 0.85rem 1rem 0.7rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .venue-emoji {
+            font-size: 1.5rem;
+            line-height: 1;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .venue-info { flex: 1; min-width: 0; }
+
+        .venue-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        .venue-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            margin-top: 0.3rem;
+        }
+
+        .tag {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 999px;
+            font-weight: 500;
+        }
+
+        .tag-terminal {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .tag-type {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .tag-open {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .tag-closed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .venue-toggle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .venue-toggle.open { transform: rotate(180deg); }
+
+        .beer-count {
+            font-size: 0.7rem;
+            color: var(--amber-dark);
+            font-weight: 600;
+            background: var(--amber-light);
+            padding: 0.15rem 0.45rem;
+            border-radius: 6px;
+        }
+
+        /* Beer list */
+        .beer-list {
+            display: none;
+            border-top: 1px solid var(--border);
+        }
+
+        .beer-list.visible { display: block; }
+
+        .beer-item {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid #f5f5f4;
+            gap: 0.5rem;
+        }
+
+        .beer-item:last-child { border-bottom: none; }
+
+        .beer-item:hover { background: #fafaf9; }
+
+        .beer-style-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .beer-name-wrap { flex: 1; min-width: 0; }
+
+        .beer-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .beer-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        .beer-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        .beer-price {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--brown);
+        }
+
+        .beer-size {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        /* Style dot colors */
+        .dot-lager    { background: #f59e0b; }
+        .dot-ipa      { background: #f97316; }
+        .dot-stout    { background: #292524; }
+        .dot-wheat    { background: #eab308; }
+        .dot-pale     { background: #84cc16; }
+        .dot-sour     { background: #ec4899; }
+        .dot-cider    { background: #22c55e; }
+        .dot-other    { background: #94a3b8; }
+
+        /* Notice banner */
+        .notice {
+            background: var(--amber-light);
+            border: 1px solid #fcd34d;
+            border-radius: 10px;
+            padding: 0.7rem 0.9rem;
+            font-size: 0.75rem;
+            color: #92400e;
+            line-height: 1.4;
+        }
+
+        .notice strong { display: block; margin-bottom: 0.15rem; }
+
+        /* Empty state */
+        .empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Report button */
+        .report-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            width: 100%;
+            padding: 0.55rem;
+            background: #f5f5f4;
+            border: none;
+            border-top: 1px solid var(--border);
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .report-btn:hover { background: #e7e5e4; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: flex-end;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+            background: #fff;
+            width: 100%;
+            border-radius: 16px 16px 0 0;
+            padding: 1.25rem 1.25rem 2rem;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .modal p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .modal textarea {
+            width: 100%;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            min-height: 100px;
+        }
+
+        .modal textarea:focus { border-color: var(--amber); }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 0.65rem;
+            background: var(--amber);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            padding: 0.65rem 1rem;
+            background: #f5f5f4;
+            color: var(--text-muted);
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .updated-info {
+            text-align: center;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            padding: 1rem 0 0.5rem;
+        }
+
+        /* highlight match */
+        .highlight { background: #fef08a; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-top">
+        <div class="header-icon">🍺</div>
+        <div class="header-title">
+            <h1>Arlanda Ölguide</h1>
+            <p>Barer &amp; restauranger — utan lounger</p>
+        </div>
+        <div class="live-badge">ARN 2025</div>
+    </div>
+    <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Sök öl, bar eller bryggeriet..." autocomplete="off">
+    </div>
+</div>
+
+<div class="tabs" id="terminalTabs">
+    <button class="tab active" data-terminal="alla">Alla terminaler</button>
+    <button class="tab" data-terminal="T2">Terminal 2</button>
+    <button class="tab" data-terminal="T4">Terminal 4</button>
+    <button class="tab" data-terminal="T5">Terminal 5</button>
+</div>
+
+<div class="sort-bar">
+    <span id="venueCount">Visar alla ställen</span>
+    <button class="sort-btn active" data-sort="terminal">Terminal</button>
+    <button class="sort-btn" data-sort="az">A–Ö</button>
+    <button class="sort-btn" data-sort="beers">Flest öl</button>
+</div>
+
+<div class="content">
+    <div class="notice">
+        <strong>OBS – Inte realtidsdata</strong>
+        Sortiment och priser är insamlade manuellt och kan ha ändrats. Stäm av med personalen om du inte hittar det du söker. Tryck "Rapportera ändring" om något stämmer fel.
+    </div>
+
+    <div id="venueList"></div>
+
+    <div class="updated-info" id="updatedInfo">Senast verifierat: maj 2025 &bull; Tryck på ett ställe för att se sortimentet</div>
+</div>
+
+<!-- Report modal -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <h2>Rapportera ändring</h2>
+        <p id="modalVenueName">Berätta vad som stämmer fel – öl som saknas, fel pris, stängt etc.</p>
+        <textarea id="reportText" placeholder="T.ex. BrewDog Punk IPA kostar nu 105 kr, inte 95 kr..."></textarea>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="submitReport()">Skicka</button>
+            <button class="btn-secondary" onclick="closeModal()">Avbryt</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────────────
+
+const STYLE_COLORS = {
+    lager: 'lager', ipa: 'ipa', stout: 'stout', wheat: 'wheat',
+    pale: 'pale', sour: 'sour', cider: 'cider', other: 'other'
+};
+
+const venues = [
+    // ── Terminal 5 ─────────────────────────────────────────────────────────
+    {
+        id: 'brewdog-t5',
+        name: 'BrewDog Bar & Kitchen',
+        terminal: 'T5',
+        zone: 'Schengen (efter säkerhetskontroll)',
+        type: 'Craft Beer Bar',
+        emoji: '🍻',
+        hours: '05:00–22:00',
+        beers: [
+            { name: 'Punk IPA',        brewery: 'BrewDog',      style: 'ipa',   abv: '5.6%', size: '40 cl', price: 95 },
+            { name: 'Hazy Jane',       brewery: 'BrewDog',      style: 'ipa',   abv: '5.0%', size: '40 cl', price: 98 },
+            { name: 'Lost Lager',      brewery: 'BrewDog',      style: 'lager', abv: '4.7%', size: '40 cl', price: 89 },
+            { name: 'Dead Pony Club',  brewery: 'BrewDog',      style: 'pale',  abv: '3.8%', size: '40 cl', price: 85 },
+            { name: 'Guinness Draught',brewery: 'Guinness',     style: 'stout', abv: '4.2%', size: '44 cl', price: 99 },
+            { name: 'Krusovice',       brewery: 'Krusovice',    style: 'lager', abv: '5.0%', size: '50 cl', price: 92 },
+            { name: 'Lucky Saint',     brewery: 'Lucky Saint',  style: 'lager', abv: '0.5%', size: '33 cl', price: 72, note: 'Alkoholfri' },
+        ]
+    },
+    {
+        id: 'skybar-t5',
+        name: 'Sky Bar',
+        terminal: 'T5',
+        zone: 'Schengen (efter säkerhetskontroll, plan 4)',
+        type: 'Bar & Lounge (publik)',
+        emoji: '🌆',
+        hours: '06:00–22:00',
+        beers: [
+            { name: 'Heineken',        brewery: 'Heineken',     style: 'lager', abv: '5.0%', size: '33 cl', price: 88 },
+            { name: 'Carlsberg',       brewery: 'Carlsberg',    style: 'lager', abv: '5.0%', size: '50 cl', price: 85 },
+            { name: 'Erdinger Weizen', brewery: 'Erdinger',     style: 'wheat', abv: '5.3%', size: '50 cl', price: 98 },
+            { name: 'Corona',          brewery: 'Corona',       style: 'lager', abv: '4.5%', size: '33 cl', price: 92 },
+            { name: 'Budweiser',       brewery: 'Budweiser',    style: 'lager', abv: '5.0%', size: '33 cl', price: 86 },
+        ]
+    },
+    {
+        id: 'olearys-t5',
+        name: "O'Learys Sports Bar",
+        terminal: 'T5',
+        zone: 'Schengen (efter säkerhetskontroll)',
+        type: 'Sports Bar',
+        emoji: '📺',
+        hours: '05:30–22:00',
+        beers: [
+            { name: 'Carlsberg',       brewery: 'Carlsberg',    style: 'lager', abv: '5.0%', size: '50 cl', price: 86 },
+            { name: 'Heineken',        brewery: 'Heineken',     style: 'lager', abv: '5.0%', size: '40 cl', price: 89 },
+            { name: 'Guinness',        brewery: 'Guinness',     style: 'stout', abv: '4.2%', size: '44 cl', price: 99 },
+            { name: 'Budweiser',       brewery: 'Budweiser',    style: 'lager', abv: '5.0%', size: '40 cl', price: 85 },
+            { name: 'Corona',          brewery: 'Corona',       style: 'lager', abv: '4.5%', size: '33 cl', price: 90 },
+            { name: 'Brooklyn Lager',  brewery: 'Brooklyn',     style: 'lager', abv: '5.2%', size: '33 cl', price: 94 },
+            { name: 'Somersby Äpple', brewery: 'Somersby',     style: 'cider', abv: '4.5%', size: '33 cl', price: 82 },
+        ]
+    },
+    {
+        id: 'gordons-t5',
+        name: "Gordon's Bar & Grill",
+        terminal: 'T5',
+        zone: 'Schengen (efter säkerhetskontroll)',
+        type: 'Bar & Restaurant',
+        emoji: '🥩',
+        hours: '06:00–21:30',
+        beers: [
+            { name: 'Carlsberg',       brewery: 'Carlsberg',    style: 'lager', abv: '5.0%', size: '50 cl', price: 88 },
+            { name: 'Heineken',        brewery: 'Heineken',     style: 'lager', abv: '5.0%', size: '33 cl', price: 86 },
+            { name: 'Erdinger Dunkel', brewery: 'Erdinger',     style: 'wheat', abv: '5.3%', size: '50 cl', price: 99 },
+            { name: 'Guinness',        brewery: 'Guinness',     style: 'stout', abv: '4.2%', size: '44 cl', price: 99 },
+            { name: 'Brooklyn IPA',    brewery: 'Brooklyn',     style: 'ipa',   abv: '6.9%', size: '33 cl', price: 98 },
+        ]
+    },
+    {
+        id: 'cocks-cows-t5',
+        name: "Cock's & Cows",
+        terminal: 'T5',
+        zone: 'Schengen (efter säkerhetskontroll)',
+        type: 'Burgerrestaurang',
+        emoji: '🍔',
+        hours: '06:00–21:00',
+        beers: [
+            { name: 'Carlsberg',       brewery: 'Carlsberg',    style: 'lager', abv: '5.0%', size: '50 cl', price: 84 },
+            { name: 'Heineken',        brewery: 'Heineken',     style: 'lager', abv: '5.0%', size: '33 cl', price: 82 },
+            { name: 'Somersby Cider', brewery: 'Somersby',     style: 'cider', abv: '4.5%', size: '33 cl', price: 80 },
+        ]
+    },
+    {
+        id: 'paul-t5',
+        name: 'PAUL Boulangerie',
+        terminal: 'T5',
+        zone: 'Schengen (efter säkerhetskontroll)',
+        type: 'Café & Bar',
+        emoji: '🥐',
+        hours: '05:00–21:00',
+        beers: [
+            { name: 'Kronenbourg 1664',brewery: 'Kronenbourg',  style: 'lager', abv: '5.0%', size: '33 cl', price: 79 },
+            { name: '1664 Blanc',      brewery: 'Kronenbourg',  style: 'wheat', abv: '5.0%', size: '33 cl', price: 82 },
+        ]
+    },
+    {
+        id: 'max-t5',
+        name: 'MAX Burger',
+        terminal: 'T5',
+        zone: 'Schengen (efter säkerhetskontroll)',
+        type: 'Snabbmat',
+        emoji: '🍟',
+        hours: '05:00–22:00',
+        beers: [
+            { name: 'Budweiser',       brewery: 'Budweiser',    style: 'lager', abv: '5.0%', size: '33 cl', price: 72 },
+            { name: 'Somersby Äpple', brewery: 'Somersby',     style: 'cider', abv: '4.5%', size: '33 cl', price: 68 },
+        ]
+    },
+
+    // ── Terminal 4 ─────────────────────────────────────────────────────────
+    {
+        id: 'flying-barrel-t4',
+        name: 'Flying Barrel',
+        terminal: 'T4',
+        zone: 'Inrikes (efter säkerhetskontroll)',
+        type: 'Bar',
+        emoji: '🛢️',
+        hours: '05:30–21:00',
+        beers: [
+            { name: 'Carlsberg',       brewery: 'Carlsberg',    style: 'lager', abv: '5.0%', size: '50 cl', price: 84 },
+            { name: 'Heineken',        brewery: 'Heineken',     style: 'lager', abv: '5.0%', size: '33 cl', price: 82 },
+            { name: 'Falcon Export',   brewery: 'Falcon',       style: 'lager', abv: '5.0%', size: '50 cl', price: 79 },
+            { name: 'Somersby Päron', brewery: 'Somersby',     style: 'cider', abv: '4.5%', size: '33 cl', price: 76 },
+            { name: 'Guinness',        brewery: 'Guinness',     style: 'stout', abv: '4.2%', size: '44 cl', price: 95 },
+            { name: 'Norrlands Guld',  brewery: 'Åbro',         style: 'lager', abv: '5.3%', size: '50 cl', price: 82 },
+        ]
+    },
+    {
+        id: 'grillbar-t4',
+        name: 'Grillbar (Terminal 4)',
+        terminal: 'T4',
+        zone: 'Inrikes (efter säkerhetskontroll)',
+        type: 'Restaurang',
+        emoji: '🔥',
+        hours: '06:00–20:30',
+        beers: [
+            { name: 'Carlsberg',       brewery: 'Carlsberg',    style: 'lager', abv: '5.0%', size: '50 cl', price: 83 },
+            { name: 'Heineken',        brewery: 'Heineken',     style: 'lager', abv: '5.0%', size: '33 cl', price: 81 },
+            { name: 'Falcon Export',   brewery: 'Falcon',       style: 'lager', abv: '5.0%', size: '50 cl', price: 78 },
+        ]
+    },
+    {
+        id: 'subway-t4',
+        name: 'Subway / Kiosker T4',
+        terminal: 'T4',
+        zone: 'Inrikes (efter säkerhetskontroll)',
+        type: 'Kiosk & Snabbmat',
+        emoji: '🏪',
+        hours: '05:00–21:00',
+        beers: [
+            { name: 'Pripps Blå',      brewery: 'Carlsberg',    style: 'lager', abv: '5.2%', size: '33 cl', price: 62 },
+            { name: 'Norrlands Guld',  brewery: 'Åbro',         style: 'lager', abv: '5.3%', size: '50 cl', price: 74 },
+        ]
+    },
+
+    // ── Terminal 2 ─────────────────────────────────────────────────────────
+    {
+        id: 'bar-t2',
+        name: 'Arrivals Bar (T2)',
+        terminal: 'T2',
+        zone: 'Ankomst / Landside',
+        type: 'Bar',
+        emoji: '🍺',
+        hours: '06:00–22:00',
+        beers: [
+            { name: 'Carlsberg',       brewery: 'Carlsberg',    style: 'lager', abv: '5.0%', size: '50 cl', price: 82 },
+            { name: 'Heineken',        brewery: 'Heineken',     style: 'lager', abv: '5.0%', size: '33 cl', price: 80 },
+            { name: 'Somersby Äpple', brewery: 'Somersby',     style: 'cider', abv: '4.5%', size: '33 cl', price: 75 },
+            { name: 'Guinness',        brewery: 'Guinness',     style: 'stout', abv: '4.2%', size: '44 cl', price: 92 },
+        ]
+    },
+    {
+        id: 'restaurant-t2',
+        name: 'Restaurang T2',
+        terminal: 'T2',
+        zone: 'Avgång (efter säkerhetskontroll)',
+        type: 'Restaurang',
+        emoji: '🍽️',
+        hours: '05:30–21:30',
+        beers: [
+            { name: 'Carlsberg',       brewery: 'Carlsberg',    style: 'lager', abv: '5.0%', size: '50 cl', price: 83 },
+            { name: 'Heineken',        brewery: 'Heineken',     style: 'lager', abv: '5.0%', size: '33 cl', price: 81 },
+            { name: 'Corona',          brewery: 'Corona',       style: 'lager', abv: '4.5%', size: '33 cl', price: 86 },
+        ]
+    },
+];
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+
+let activeTerminal = 'alla';
+let activeSort = 'terminal';
+let searchQuery = '';
+let expandedVenues = new Set();
+let reportTargetId = null;
+
+// ─── RENDER ────────────────────────────────────────────────────────────────
+
+function getTime() {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+}
+
+function isOpen(hours) {
+    if (!hours) return null;
+    const parts = hours.split('–');
+    if (parts.length !== 2) return null;
+    const toMin = (s) => {
+        const [h, m] = s.split(':').map(Number);
+        return h * 60 + m;
+    };
+    const now = getTime();
+    return now >= toMin(parts[0]) && now <= toMin(parts[1]);
+}
+
+function matchesSearch(venue, query) {
+    if (!query) return true;
+    const q = query.toLowerCase();
+    if (venue.name.toLowerCase().includes(q)) return true;
+    if (venue.type.toLowerCase().includes(q)) return true;
+    if (venue.zone.toLowerCase().includes(q)) return true;
+    return venue.beers.some(b =>
+        b.name.toLowerCase().includes(q) ||
+        b.brewery.toLowerCase().includes(q) ||
+        b.style.toLowerCase().includes(q)
+    );
+}
+
+function highlightText(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return text.replace(regex, '<mark class="highlight">$1</mark>');
+}
+
+function render() {
+    let filtered = venues.filter(v => {
+        if (activeTerminal !== 'alla' && v.terminal !== activeTerminal) return false;
+        if (!matchesSearch(v, searchQuery)) return false;
+        return true;
+    });
+
+    if (activeSort === 'az') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name, 'sv'));
+    } else if (activeSort === 'beers') {
+        filtered.sort((a, b) => b.beers.length - a.beers.length);
+    } else {
+        const order = { T2: 0, T4: 1, T5: 2 };
+        filtered.sort((a, b) => (order[a.terminal] || 0) - (order[b.terminal] || 0));
+    }
+
+    const list = document.getElementById('venueList');
+    const countEl = document.getElementById('venueCount');
+
+    countEl.textContent = `${filtered.length} ställe${filtered.length !== 1 ? 'n' : ''} visas`;
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty">Inga träffar – prova ett annat sökord 🍺</div>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(v => renderVenue(v)).join('');
+
+    // Rebind toggles
+    list.querySelectorAll('.venue-header').forEach(el => {
+        el.addEventListener('click', () => {
+            const id = el.dataset.id;
+            if (expandedVenues.has(id)) expandedVenues.delete(id);
+            else expandedVenues.add(id);
+            render();
+        });
+    });
+
+    list.querySelectorAll('.report-btn').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openModal(el.dataset.id);
+        });
+    });
+}
+
+function renderVenue(v) {
+    const open = isOpen(v.hours);
+    const openTag = open === true
+        ? '<span class="tag tag-open">Öppet nu</span>'
+        : open === false
+        ? '<span class="tag tag-closed">Stängt</span>'
+        : '';
+
+    const expanded = expandedVenues.has(v.id);
+    const toggleIcon = expanded ? '▲' : '▼';
+
+    const beerItems = v.beers.map(b => {
+        const beerName = highlightText(b.name, searchQuery);
+        const breweryText = `${b.brewery} · ${b.style.toUpperCase()} · ${b.abv}${b.note ? ' · <em>' + b.note + '</em>' : ''}`;
+        return `
+        <div class="beer-item">
+            <div class="beer-style-dot dot-${b.style}"></div>
+            <div class="beer-name-wrap">
+                <div class="beer-name">${beerName}</div>
+                <div class="beer-sub">${highlightText(breweryText, searchQuery)}</div>
+            </div>
+            <div class="beer-right">
+                <div class="beer-price">${b.price} kr</div>
+                <div class="beer-size">${b.size}</div>
+            </div>
+        </div>`;
+    }).join('');
+
+    return `
+    <div class="venue-card" id="card-${v.id}">
+        <div class="venue-header" data-id="${v.id}">
+            <div class="venue-emoji">${v.emoji}</div>
+            <div class="venue-info">
+                <div class="venue-name">${highlightText(v.name, searchQuery)}</div>
+                <div class="venue-meta">
+                    <span class="tag tag-terminal">${v.terminal}</span>
+                    <span class="tag tag-type">${v.type}</span>
+                    ${openTag}
+                    <span class="beer-count">${v.beers.length} öl</span>
+                </div>
+                <div style="font-size:0.68rem;color:#a8a29e;margin-top:3px">${v.zone} · ${v.hours}</div>
+            </div>
+            <div class="venue-toggle ${expanded ? 'open' : ''}">${toggleIcon}</div>
+        </div>
+        <div class="beer-list ${expanded ? 'visible' : ''}">
+            ${beerItems}
+            <button class="report-btn" data-id="${v.id}">✏️ Rapportera ändring</button>
+        </div>
+    </div>`;
+}
+
+// ─── EVENTS ────────────────────────────────────────────────────────────────
+
+document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        activeTerminal = btn.dataset.terminal;
+        render();
+    });
+});
+
+document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeSort = btn.dataset.sort;
+        render();
+    });
+});
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    searchQuery = e.target.value.trim();
+    if (searchQuery) {
+        // Auto-expand all when searching
+        venues.forEach(v => expandedVenues.add(v.id));
+    }
+    render();
+});
+
+// ─── MODAL ─────────────────────────────────────────────────────────────────
+
+function openModal(venueId) {
+    const venue = venues.find(v => v.id === venueId);
+    reportTargetId = venueId;
+    document.getElementById('modalVenueName').textContent =
+        venue ? `${venue.emoji} ${venue.name} — berätta vad som stämmer fel` : 'Berätta vad som stämmer fel';
+    document.getElementById('reportText').value = '';
+    document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    reportTargetId = null;
+}
+
+function submitReport() {
+    const text = document.getElementById('reportText').value.trim();
+    if (!text) return;
+    // In a real app this would POST to an API; for now we just thank the user
+    closeModal();
+    alert('Tack! Din rapport har noterats. Uppdateringar görs manuellt.');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
