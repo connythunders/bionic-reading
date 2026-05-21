@@ -1,5 +1,5 @@
 const onboardingData = {
-  kommun: "[KOMMUN]",
+  kommun: "Rättviks",
   sections: [
     {
       id: "valkommen",
@@ -7,7 +7,7 @@ const onboardingData = {
       title: "Välkommen till hemtjänsten",
       summary: "Din första vecka och vad du kan förvänta dig.",
       content: `
-        <p>Välkommen som ny medarbetare hos oss i [KOMMUN]s hemtjänst! Du har valt ett av samhällets viktigaste yrken. Det du gör varje dag gör skillnad för människor som behöver stöd för att leva ett tryggt och självständigt liv i sitt eget hem.</p>
+        <p>Välkommen som ny medarbetare hos oss i Rättviks hemtjänst! Du har valt ett av samhällets viktigaste yrken. Det du gör varje dag gör skillnad för människor som behöver stöd för att leva ett tryggt och självständigt liv i sitt eget hem.</p>
         <p>De första veckorna kommer du att gå bredvid en erfaren kollega. Du förväntas inte kunna allt direkt – fråga mycket, ofta och tidigt. Det finns inga dumma frågor.</p>
         <h3>Din första dag</h3>
         <ul>
@@ -30,11 +30,11 @@ const onboardingData = {
       title: "Schema, tidrapportering och frånvaro",
       summary: "Hur arbetstiden fungerar i praktiken.",
       content: `
-        <p>Du arbetar enligt ett rullande schema som publiceras i förväg. Schemat finns i [SCHEMASYSTEM, t.ex. Medvind eller Time Care Pool].</p>
+        <p>Du arbetar enligt ett rullande schema som publiceras i förväg. Schemat finns i schemasystemet – fråga din chef om du är osäker på hur du loggar in.</p>
         <h3>Arbetstider</h3>
         <p>Hemtjänsten har verksamhet dygnet runt. Du jobbar enligt avtal – vanligast är dag- och kvällspass, ibland helger. Tider för rast och kortare paus framgår av schemat.</p>
         <h3>Sjukanmälan</h3>
-        <p>Ring din enhetschef <strong>[TELEFON]</strong> <strong>före kl. 06.30</strong> vid morgonpass, eller senast 2 timmar innan pass börjar vid andra tider. Sms eller mejl räcker inte – ring. Är chefen inte tillgänglig, ring [VIKARIESAMORDNARE/TELEFON].</p>
+        <p>Ring din enhetschef Conny Lindgren <strong>072348</strong> <strong>före kl. 06.30</strong> vid morgonpass, eller senast 2 timmar innan pass börjar vid andra tider. Sms eller mejl räcker inte – ring.</p>
         <h3>Vård av barn (VAB)</h3>
         <p>Anmäl till Försäkringskassan samma dag och meddela din chef.</p>
         <h3>Byta pass</h3>
@@ -58,7 +58,7 @@ const onboardingData = {
         <h3>Nyckelhantering</h3>
         <ul>
           <li>Hämta och lämna nycklar i nyckelskåpet vid varje arbetspass</li>
-          <li>Kvittera nycklar i [SYSTEM, t.ex. Phoniro Care/digital nyckelhantering]</li>
+          <li>Kvittera nycklar i nyckelhanteringssystemet – fråga din handledare om du behöver hjälp</li>
           <li>Bär nycklar i en säkrad ficka eller nyckelband under hela passet</li>
           <li>Tappar du en nyckel: kontakta chef <strong>omedelbart</strong>, oavsett tid på dygnet</li>
         </ul>
@@ -122,7 +122,7 @@ const onboardingData = {
       title: "Transport, arbetskläder och utrustning",
       summary: "Bil, cykel, kläder och praktiska saker.",
       content: `
-        <p>Mellan brukare tar du dig oftast med tjänstebil, tjänstecykel eller till fots beroende på område. Tjänstebilar bokas via [SYSTEM] och tankas på [STATION] med tankkort.</p>
+        <p>Mellan brukare tar du dig oftast med tjänstebil, tjänstecykel eller till fots beroende på område. Fråga din chef Conny Lindgren (072348) om hur bokning och tankning fungerar hos oss.</p>
         <h3>Vid trafikolycka eller skada på tjänstebil</h3>
         <ol>
           <li>Säkra platsen och se till att ingen är skadad</li>
@@ -233,28 +233,28 @@ const onboardingData = {
       summary: "Vem du ringer när.",
       content: `
         <h3>Din närmaste chef – enhetschef</h3>
-        <p>[CHEFENS NAMN]<br>Telefon: [TELEFON]<br>E-post: [E-POST]<br>Träffbar: vardagar [TIDER]</p>
+        <p>Conny Lindgren<br>Telefon: 072348<br>E-post: <em>fyll i</em><br>Träffbar: vardagar – fråga om tider</p>
         <h3>Vid sjukanmälan eller akut frånvaro</h3>
-        <p>[TELEFONNUMMER FÖR SJUKANMÄLAN]</p>
+        <p>Ring Conny Lindgren: <strong>072348</strong></p>
         <h3>Schemaplanerare / bemanning</h3>
-        <p>[NAMN]<br>Telefon: [TELEFON]<br>För: schemafrågor, byten, vikariefrågor</p>
+        <p>Kontakta Conny Lindgren (072348) för schemafrågor, byten och vikariefrågor</p>
         <h3>Sjuksköterska</h3>
-        <p>Telefon: [TELEFON]<br>För: medicinska frågor, sår, mediciner, fallolyckor</p>
+        <p>Telefon: <em>fyll i</em><br>För: medicinska frågor, sår, mediciner, fallolyckor</p>
         <h3>Arbetsterapeut / fysioterapeut</h3>
-        <p>Telefon: [TELEFON]<br>För: hjälpmedel, träning, anpassningar i hemmet</p>
+        <p>Telefon: <em>fyll i</em><br>För: hjälpmedel, träning, anpassningar i hemmet</p>
         <h3>Skyddsombud</h3>
-        <p>[NAMN]<br>För: arbetsmiljöfrågor, om något känns fel</p>
+        <p><em>Fyll i namn</em><br>För: arbetsmiljöfrågor, om något känns fel</p>
         <h3>Facklig representant (Kommunal)</h3>
-        <p>[NAMN]<br>För: anställningsfrågor, stöd</p>
+        <p><em>Fyll i namn</em><br>För: anställningsfrågor, stöd</p>
         <h3>Företagshälsovård</h3>
-        <p>Telefon: [TELEFON]<br>För: arbetsrelaterad ohälsa, stickskador, stress</p>
+        <p>Telefon: <em>fyll i</em><br>För: arbetsrelaterad ohälsa, stickskador, stress</p>
         <h3>IT-support</h3>
-        <p>Telefon: [TELEFON]<br>För: problem med mobil, appar, inloggning</p>
+        <p>Telefon: <em>fyll i</em><br>För: problem med mobil, appar, inloggning</p>
         <h3>Vid akut situation hos brukare</h3>
         <ul>
           <li><strong>112</strong> – ambulans/polis/räddningstjänst</li>
           <li><strong>1177</strong> – sjukvårdsrådgivning</li>
-          <li>Sjuksköterska i tjänst (kvällar/helger): [TELEFON]</li>
+          <li>Sjuksköterska i tjänst (kvällar/helger): <em>fyll i</em></li>
         </ul>
       `,
       checklist: [
