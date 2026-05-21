@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onboarding Hemtjänsten – Rättviks kommun</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #1e3a5f;
+      --color-primary-light: #2d5085;
+      --color-accent: #e87e4f;
+      --color-success: #4a8c5e;
+      --color-success-bg: #eaf5ee;
+      --color-bg: #f7f5f2;
+      --color-card: #ffffff;
+      --color-text: #2a2a2a;
+      --color-text-muted: #6b6b6b;
+      --color-border: #e5e1dc;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-card: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--color-text);
+      background-color: var(--color-bg);
+      min-height: 100vh;
+    }
+
+    .app-container { max-width: 760px; margin: 0 auto; padding: 0 24px 64px; }
+
+    /* HEADER */
+    .app-header {
+      background: var(--color-primary);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+    .header-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-back {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 6px 8px 6px 4px;
+      border-radius: var(--radius-sm);
+      font-size: 20px;
+      line-height: 1;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .header-back:hover, .header-back:focus-visible {
+      background: rgba(255,255,255,0.15);
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+    .header-title { flex: 1; font-size: 17px; font-weight: 600; line-height: 1.3; }
+    .header-title small { display: block; font-size: 12px; font-weight: 400; opacity: 0.75; }
+    .header-settings {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: var(--radius-sm);
+      font-size: 20px;
+      line-height: 1;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .header-settings:hover, .header-settings:focus-visible {
+      background: rgba(255,255,255,0.15);
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+
+    /* VIEWS */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* WELCOME */
+    .welcome-section {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      margin: 24px 0 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-section::after {
+      content: '';
+      position: absolute;
+      right: -20px; top: -20px;
+      width: 120px; height: 120px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+    .welcome-section h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+    .welcome-section p { opacity: 0.88; font-size: 15px; }
+
+    /* PROGRESS */
+    .total-progress {
+      background: var(--color-card);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-card);
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+    .progress-label strong { color: var(--color-primary); font-weight: 600; }
+    .progress-label span { color: var(--color-text-muted); font-size: 13px; }
+    .progress-bar-wrap {
+      background: var(--color-border);
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%);
+      transition: width 0.3s ease;
+    }
+    @media (prefers-reduced-motion: reduce) { .progress-bar-fill { transition: none; } }
+
+    /* SEARCH */
+    .search-wrap { position: relative; margin-bottom: 20px; }
+    .search-icon {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    .search-input {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 16px;
+      background: var(--color-card);
+      color: var(--color-text);
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    .search-input:focus { outline: none; border-color: var(--color-primary); }
+    .search-input::placeholder { color: var(--color-text-muted); }
+    .no-results { display: none; text-align: center; color: var(--color-text-muted); padding: 32px 0; font-size: 15px; }
+
+    /* CARDS */
+    .sections-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .section-card {
+      background: var(--color-card);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: box-shadow 0.15s, border-color 0.15s, transform 0.1s;
+      text-align: left;
+      width: 100%;
+      font-family: inherit;
+      color: var(--color-text);
+    }
+    .section-card:hover { box-shadow: var(--shadow-card-hover); border-color: var(--color-border); transform: translateY(-1px); }
+    .section-card:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+    .section-card.completed { border-color: var(--color-success); background: linear-gradient(135deg, #fff 0%, #f0faf3 100%); }
+    .card-icon { font-size: 28px; margin-bottom: 10px; display: block; line-height: 1; }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; line-height: 1.3; }
+    .card-summary { font-size: 13px; color: var(--color-text-muted); margin-bottom: 12px; line-height: 1.4; }
+    .card-progress { display: flex; align-items: center; gap: 8px; }
+    .card-progress-bar { flex: 1; background: var(--color-border); border-radius: 99px; height: 5px; overflow: hidden; }
+    .card-progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--color-primary), var(--color-accent)); transition: width 0.3s ease; }
+    .card-progress-text { font-size: 12px; color: var(--color-text-muted); white-space: nowrap; font-weight: 500; }
+    .card-done-badge { display: none; font-size: 11px; font-weight: 600; color: var(--color-success); background: var(--color-success-bg); padding: 2px 8px; border-radius: 99px; }
+    .section-card.completed .card-done-badge { display: inline-block; }
+
+    /* CONGRATS */
+    .congrats-banner { display: none; background: linear-gradient(135deg, var(--color-success) 0%, #3a7a50 100%); color: white; border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; text-align: center; }
+    .congrats-banner.show { display: block; }
+    .congrats-banner .congrats-emoji { font-size: 40px; display: block; margin-bottom: 8px; }
+    .congrats-banner h2 { font-size: 20px; margin-bottom: 6px; }
+    .congrats-banner p { font-size: 15px; opacity: 0.9; }
+
+    /* SECTION DETAIL */
+    .section-header { display: flex; align-items: center; gap: 12px; padding: 24px 0 8px; }
+    .section-header-icon { font-size: 36px; line-height: 1; flex-shrink: 0; }
+    .section-header h2 { font-size: 22px; font-weight: 700; color: var(--color-primary); line-height: 1.2; }
+    .section-progress-bar { background: var(--color-card); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px; box-shadow: var(--shadow-card); display: flex; align-items: center; gap: 12px; }
+    .section-progress-text { font-size: 14px; color: var(--color-text-muted); white-space: nowrap; font-weight: 500; min-width: 60px; }
+    .section-progress-bar .progress-bar-wrap { flex: 1; }
+
+    /* CONTENT */
+    .section-content { background: var(--color-card); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow-card); }
+    .section-content h3 { font-size: 16px; font-weight: 600; color: var(--color-primary); margin: 20px 0 8px; }
+    .section-content h3:first-child { margin-top: 0; }
+    .section-content p { margin-bottom: 12px; font-size: 16px; }
+    .section-content p:last-child { margin-bottom: 0; }
+    .section-content ul, .section-content ol { padding-left: 20px; margin-bottom: 12px; }
+    .section-content li { margin-bottom: 6px; font-size: 16px; }
+    .section-content blockquote {
+      border-left: 4px solid var(--color-accent);
+      padding: 12px 16px;
+      margin: 12px 0;
+      background: #fef9f6;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-style: italic;
+      color: var(--color-text-muted);
+      font-size: 15px;
+    }
+
+    /* CHECKLIST */
+    .checklist-section { background: var(--color-card); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 20px; box-shadow: var(--shadow-card); }
+    .checklist-title { font-size: 15px; font-weight: 600; color: var(--color-primary); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .checklist-item { display: flex; align-items: flex-start; margin-bottom: 8px; }
+    .checklist-item:last-child { margin-bottom: 0; }
+    .checklist-item input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .checklist-item label { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 8px 12px; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; font-size: 15px; border: 2px solid transparent; }
+    .checklist-item label:hover { background: var(--color-bg); }
+    .checklist-item input:focus-visible + label { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+    .checklist-item input:checked + label { background: var(--color-success-bg); }
+    .check-box { width: 24px; height: 24px; border: 2px solid var(--color-border); border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; background: white; }
+    .checklist-item input:checked + label .check-box { background: var(--color-success); border-color: var(--color-success); }
+    .check-icon { display: none; font-size: 14px; color: white; font-weight: 700; line-height: 1; }
+    .checklist-item input:checked + label .check-icon { display: block; }
+    .check-text { flex: 1; line-height: 1.4; }
+
+    .section-complete-msg { display: none; text-align: center; padding: 16px; color: var(--color-success); font-weight: 600; font-size: 16px; animation: popIn 0.3s ease; }
+    .section-complete-msg.show { display: block; }
+    @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 60% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .section-complete-msg { animation: none; } }
+
+    /* BUTTONS */
+    .section-nav { display: flex; gap: 12px; margin-top: 8px; }
+    .btn-primary { flex: 1; background: var(--color-primary); color: white; border: none; border-radius: var(--radius-md); padding: 14px 20px; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; text-align: center; }
+    .btn-primary:hover { background: var(--color-primary-light); }
+    .btn-primary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+    .btn-secondary { background: var(--color-card); color: var(--color-text); border: 2px solid var(--color-border); border-radius: var(--radius-md); padding: 12px 20px; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+    .btn-secondary:hover { border-color: var(--color-primary); background: var(--color-bg); }
+    .btn-secondary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: flex-end; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--color-card); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 24px; width: 100%; max-width: 760px; }
+    .modal h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; color: var(--color-primary); }
+    .modal-actions { display: flex; flex-direction: column; gap: 10px; }
+    .btn-danger { background: #fee2e2; color: #b91c1c; border: none; border-radius: var(--radius-md); padding: 14px 20px; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .btn-danger:hover { background: #fca5a5; }
+    .btn-close { background: var(--color-bg); color: var(--color-text-muted); border: none; border-radius: var(--radius-md); padding: 14px 20px; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+    .btn-close:hover { background: var(--color-border); }
+
+    /* RESPONSIVE */
+    @media (max-width: 540px) {
+      body { font-size: 18px; }
+      .app-container { padding: 0 16px 64px; }
+      .header-inner { padding: 12px 16px; }
+      .sections-grid { grid-template-columns: 1fr; }
+      .welcome-section h1 { font-size: 20px; }
+      .section-header h2 { font-size: 19px; }
+      .section-content { padding: 18px; }
+    }
+
+    /* PRINT */
+    @media print {
+      .app-header, .search-wrap, .header-settings, .header-back, .section-nav, .modal-overlay { display: none !important; }
+      .view { display: block !important; }
+      .app-container { max-width: 100%; padding: 0; }
+      .section-card { break-inside: avoid; page-break-inside: avoid; }
+      .section-content, .checklist-section { box-shadow: none; border: 1px solid #ccc; }
+      .section-detail { page-break-before: always; }
+      body { background: white; font-size: 12pt; }
+      .total-progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header" role="banner">
+    <div class="header-inner">
+      <button class="header-back" id="btnBack" aria-label="Gå tillbaka till startsidan">←</button>
+      <div class="header-title">
+        <span id="headerTitle">Rättviks hemtjänst</span>
+        <small id="headerSubtitle">Onboarding för nyanställda</small>
+      </div>
+      <button class="header-settings" id="btnSettings" aria-label="Inställningar">⚙️</button>
+    </div>
+  </header>
+
+  <div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true" aria-label="Inställningar">
+    <div class="modal">
+      <h2>Inställningar</h2>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="window.print()">🖨️ Skriv ut</button>
+        <button class="btn-danger" id="btnReset">🗑️ Nollställ allt framsteg</button>
+        <button class="btn-close" id="btnCloseModal">Stäng</button>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div class="app-container">
+
+      <section class="view active" id="viewHome" aria-label="Startsida">
+        <div class="welcome-section">
+          <h1>Välkommen till hemtjänsten i Rättvik</h1>
+          <p>Gå igenom alla åtta avsnitt och kryssa i checklistorna när du är klar med varje moment.</p>
+        </div>
+
+        <div class="congrats-banner" id="congratsBanner" role="status">
+          <span class="congrats-emoji">🎉</span>
+          <h2>Grattis – du är klar!</h2>
+          <p>Du har slutfört alla moment i onboardingen. Välkommen till teamet!</p>
+        </div>
+
+        <div class="total-progress">
+          <div class="progress-label">
+            <strong>Ditt framsteg</strong>
+            <span aria-live="polite" id="progressText">Laddar…</span>
+          </div>
+          <div class="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="totalProgressBar" aria-label="Totalt framsteg">
+            <div class="progress-bar-fill" id="totalProgressFill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="search-wrap">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <input type="search" class="search-input" id="searchInput" placeholder="Sök bland avsnitt…" aria-label="Sök bland avsnitt" autocomplete="off">
+        </div>
+
+        <p class="no-results" id="noResults" role="status"></p>
+        <div class="sections-grid" id="sectionsGrid" role="list"></div>
+      </section>
+
+      <article class="view" id="viewSection" aria-label="Avsnittsdetalj"></article>
+
+    </div>
+  </main>
+
+  <script>
+  const onboardingData = {
+    kommun: "Rättviks",
+    sections: [
+      {
+        id: "valkommen",
+        icon: "👋",
+        title: "Välkommen till hemtjänsten",
+        summary: "Din första vecka och vad du kan förvänta dig.",
+        content: `
+          <p>Välkommen som ny medarbetare hos oss i Rättviks hemtjänst! Du har valt ett av samhällets viktigaste yrken. Det du gör varje dag gör skillnad för människor som behöver stöd för att leva ett tryggt och självständigt liv i sitt eget hem.</p>
+          <p>De första veckorna kommer du att gå bredvid en erfaren kollega. Du förväntas inte kunna allt direkt – fråga mycket, ofta och tidigt. Det finns inga dumma frågor.</p>
+          <h3>Din första dag</h3>
+          <ul>
+            <li>Du träffar din enhetschef och får en rundtur i lokalerna</li>
+            <li>Du får ditt passerkort, arbetskläder och inloggning till våra system</li>
+            <li>Du följer med en kollega ut på rutten för att lära känna brukare och rutiner</li>
+          </ul>
+        `,
+        checklist: [
+          { id: "v1", text: "Jag har träffat min enhetschef" },
+          { id: "v2", text: "Jag har fått passerkort och arbetskläder" },
+          { id: "v3", text: "Jag har fått inloggningsuppgifter till alla system" },
+          { id: "v4", text: "Jag vet var jag ska börja min första arbetsdag" },
+          { id: "v5", text: "Jag har fått en kontaktperson/handledare" }
+        ]
+      },
+      {
+        id: "schema",
+        icon: "📅",
+        title: "Schema, tidrapportering och frånvaro",
+        summary: "Hur arbetstiden fungerar i praktiken.",
+        content: `
+          <p>Du arbetar enligt ett rullande schema som publiceras i förväg. Schemat finns i schemasystemet – Conny Lindgren (072348) hjälper dig att komma igång.</p>
+          <h3>Arbetstider</h3>
+          <p>Hemtjänsten har verksamhet dygnet runt. Du jobbar enligt avtal – vanligast är dag- och kvällspass, ibland helger. Tider för rast och kortare paus framgår av schemat.</p>
+          <h3>Sjukanmälan</h3>
+          <p>Ring Conny Lindgren <strong>072348</strong> <strong>före kl. 06.30</strong> vid morgonpass, eller senast 2 timmar innan pass börjar vid andra tider. Sms eller mejl räcker inte – ring.</p>
+          <h3>Vård av barn (VAB)</h3>
+          <p>Anmäl till Försäkringskassan samma dag och meddela din chef.</p>
+          <h3>Byta pass</h3>
+          <p>Byten mellan kollegor måste godkännas av chef i förväg.</p>
+        `,
+        checklist: [
+          { id: "s1", text: "Jag vet hur jag loggar in i schemasystemet" },
+          { id: "s2", text: "Jag vet vem jag ska ringa vid sjukdom och vilket nummer" },
+          { id: "s3", text: "Jag vet före vilken tid jag måste sjukanmäla mig" },
+          { id: "s4", text: "Jag vet hur jag rapporterar arbetad tid" },
+          { id: "s5", text: "Jag vet hur jag ansöker om semester och ledighet" }
+        ]
+      },
+      {
+        id: "nycklar",
+        icon: "🔑",
+        title: "Nycklar, larm och trygghet i hemmet",
+        summary: "Hur du hanterar nycklar och larm hos brukare.",
+        content: `
+          <p>Du kommer att hantera nycklar till brukarnas hem. Det är ett stort ansvar – <strong>nycklar får aldrig märkas med namn eller adress.</strong></p>
+          <h3>Nyckelhantering</h3>
+          <ul>
+            <li>Hämta och lämna nycklar i nyckelskåpet vid varje arbetspass</li>
+            <li>Kvittera nycklar i nyckelhanteringssystemet – din handledare visar dig hur</li>
+            <li>Bär nycklar i en säkrad ficka eller nyckelband under hela passet</li>
+            <li>Tappar du en nyckel: kontakta Conny Lindgren (072348) <strong>omedelbart</strong>, oavsett tid på dygnet</li>
+          </ul>
+          <h3>Digitala lås</h3>
+          <p>Många brukare har idag digitala lås som öppnas via mobilen. Du loggar in i appen och får tillgång enbart under den tid besöket är schemalagt.</p>
+          <h3>Trygghetslarm</h3>
+          <p>Om brukaren har trygghetslarm – kontrollera att det fungerar och sitter rätt vid varje besök. Vid utlöst larm: åk dit, ring 112 vid behov, dokumentera händelsen.</p>
+          <h3>Brand och säkerhet i hemmet</h3>
+          <ul>
+            <li>Kolla att spisen är avstängd när du lämnar</li>
+            <li>Notera om brandvarnare saknas eller piper svagt → rapportera</li>
+            <li>Lämna aldrig ytterdörren olåst om brukaren inte uttryckligen ska få besök</li>
+          </ul>
+        `,
+        checklist: [
+          { id: "n1", text: "Jag vet hur jag hämtar och lämnar nycklar" },
+          { id: "n2", text: "Jag vet hur jag kvitterar nycklar i systemet" },
+          { id: "n3", text: "Jag vet vad jag gör om en nyckel försvinner" },
+          { id: "n4", text: "Jag har fått instruktion i digitala lås (om vi använder det)" },
+          { id: "n5", text: "Jag vet hur jag agerar vid utlöst trygghetslarm" }
+        ]
+      },
+      {
+        id: "mobil",
+        icon: "📱",
+        title: "Mobilen, appen och dokumentation",
+        summary: "Verktygen du använder varje dag.",
+        content: `
+          <p>Du får en tjänstemobil med appar för planering, dokumentation och kommunikation.</p>
+          <h3>Verksamhetssystem</h3>
+          <p>I appen kan du:</p>
+          <ul>
+            <li>Se dagens schema och vilka insatser som ska göras hos varje brukare</li>
+            <li>Kvittera att besöket är utfört</li>
+            <li>Skriva social dokumentation (genomförandejournal)</li>
+          </ul>
+          <h3>Social dokumentation – grunderna</h3>
+          <p>Du dokumenterar enligt <strong>Socialtjänstlagen (SoL)</strong>. Det betyder:</p>
+          <ul>
+            <li>Skriv vad du har gjort, inte vad du tycker</li>
+            <li>Skriv kort, sakligt och i kronologisk ordning</li>
+            <li>Använd respektfullt språk – brukaren har rätt att läsa det du skriver</li>
+            <li>Avvikelser från planeringen ska alltid dokumenteras</li>
+          </ul>
+          <h3>Exempel på bra dokumentation</h3>
+          <blockquote>"Stöd vid morgonhygien. Brukaren önskade duscha själv idag och klarade det med tillsyn. Påklädning utfördes med visst stöd. Frukost intogs självständigt."</blockquote>
+          <h3>Sekretess</h3>
+          <p>Du har <strong>tystnadsplikt</strong> enligt lag (Offentlighets- och sekretesslagen). Du får inte prata om brukare med vänner, familj, andra brukare eller på sociala medier – inte ens utan att nämna namn. Det här gäller även efter att du slutat din anställning.</p>
+        `,
+        checklist: [
+          { id: "m1", text: "Jag har fått min tjänstemobil och kan logga in" },
+          { id: "m2", text: "Jag vet hur jag ser dagens schema i appen" },
+          { id: "m3", text: "Jag vet hur jag kvitterar besök" },
+          { id: "m4", text: "Jag har skrivit min första dokumentationsanteckning med handledare" },
+          { id: "m5", text: "Jag har skrivit under sekretessförbindelse" }
+        ]
+      },
+      {
+        id: "transport",
+        icon: "🚗",
+        title: "Transport, arbetskläder och utrustning",
+        summary: "Bil, cykel, kläder och praktiska saker.",
+        content: `
+          <p>Mellan brukare tar du dig oftast med tjänstebil, tjänstecykel eller till fots beroende på område. Conny Lindgren (072348) berättar hur bokning och tankning fungerar hos oss.</p>
+          <h3>Vid trafikolycka eller skada på tjänstebil</h3>
+          <ol>
+            <li>Säkra platsen och se till att ingen är skadad</li>
+            <li>Ring 112 om personskada</li>
+            <li>Ring Conny Lindgren: 072348</li>
+            <li>Fyll i skadeanmälan i bilen</li>
+          </ol>
+          <h3>Arbetskläder</h3>
+          <p>Du får arbetskläder kostnadsfritt – byxor, t-shirts/pikéer, jacka och regnkläder. Kläderna tvättas på arbetsplatsen, inte hemma (smittskydd).</p>
+          <p><strong>Skor</strong> köper du själv men ska vara hela, rena och med halksäker sula. Inga sandaler eller öppna skor.</p>
+          <h3>Personlig utrustning</h3>
+          <ul>
+            <li>ID-bricka ska bäras synligt under hela arbetspasset</li>
+            <li>Inga ringar, klockor eller armband nedanför armbågen (hygien)</li>
+            <li>Långt hår uppsatt</li>
+            <li>Naglar korta, ingen nagellack eller lösnaglar</li>
+          </ul>
+        `,
+        checklist: [
+          { id: "t1", text: "Jag har fått arbetskläder i rätt storlek" },
+          { id: "t2", text: "Jag har en ID-bricka och bär den synligt" },
+          { id: "t3", text: "Jag vet hur jag bokar och hanterar tjänstebil/cykel" },
+          { id: "t4", text: "Jag vet vad jag ska göra vid en trafikolycka" },
+          { id: "t5", text: "Jag följer reglerna för hygienisk klädsel" }
+        ]
+      },
+      {
+        id: "bemont",
+        icon: "🤝",
+        title: "Bemötande och värdegrund",
+        summary: "Hur vi möter människor i deras eget hem.",
+        content: `
+          <p>Du arbetar i någon annans hem. Det är inte din arbetsplats på samma sätt som ett kontor – det är <strong>brukarens privata sfär</strong>, och du är gäst där. Det är en av de viktigaste grundprinciperna i vårt arbete.</p>
+          <p><strong>Den nationella värdegrunden för äldreomsorg</strong> (Socialtjänstlagen 5 kap. 4 §) säger att äldre ska få leva ett värdigt liv och känna välbefinnande.</p>
+          <h3>Självbestämmande</h3>
+          <p>Brukaren bestämmer själv – över sin dag, sin mat, sina vanor och sitt liv. Även om du tycker att något borde göras annorlunda, är det inte ditt beslut.</p>
+          <h3>Integritet</h3>
+          <p>Knacka alltid innan du går in. Hälsa. Berätta vem du är och vad du ska göra. Stäng dörren när brukaren duschar eller går på toaletten – även om du står där bredvid och hjälper till.</p>
+          <h3>Delaktighet</h3>
+          <p>Fråga hur brukaren vill ha det. "Vilken tröja vill du ha idag?" "Vill du att jag öppnar fönstret?" Små frågor gör stor skillnad.</p>
+          <h3>Respekt</h3>
+          <p>Använd titlar och namn som brukaren själv föredrar. Prata med brukaren, inte över huvudet på hen, även om anhöriga är där. Skämta inte om brukaren – inte ens på fikarasten.</p>
+          <h3>Bemötande vid demens</h3>
+          <ul>
+            <li>Tala lugnt, en sak i taget</li>
+            <li>Argumentera inte emot om brukaren är förvirrad om verkligheten – möt personen där hen är</li>
+            <li>Använd kroppsspråk, ögonkontakt och beröring (när det är välkommet)</li>
+          </ul>
+          <h3>När det är svårt</h3>
+          <p>Du kommer möta människor med demens, ångest, sorg och ibland aggressivitet. Du kommer också möta tacksamhet, värme och fantastiska livshistorier. Prata med dina kollegor och din chef – du ska inte bära det ensam.</p>
+        `,
+        checklist: [
+          { id: "b1", text: "Jag har läst om den nationella värdegrunden" },
+          { id: "b2", text: "Jag knackar alltid innan jag går in" },
+          { id: "b3", text: "Jag presenterar mig vid varje nytt besök" },
+          { id: "b4", text: "Jag frågar brukaren hur hen vill ha det" },
+          { id: "b5", text: "Jag vet att jag kan prata med min chef när något känns tungt" }
+        ]
+      },
+      {
+        id: "hygien",
+        icon: "🧴",
+        title: "Hygien, ergonomi och smittskydd",
+        summary: "Skydda dig själv och brukarna.",
+        content: `
+          <p><strong>Basala hygienrutiner</strong> är det viktigaste verktyget du har för att förhindra smittspridning. Det gäller alltid, hos alla brukare, vid alla besök.</p>
+          <h3>De fem stegen</h3>
+          <ol>
+            <li><strong>Handdesinfektion</strong> före och efter varje besök, och mellan moment hos samma brukare</li>
+            <li><strong>Handskar</strong> vid kontakt med kroppsvätskor, sår eller slemhinnor – byts mellan moment</li>
+            <li><strong>Plastförkläde</strong> vid risk för stänk eller nära kroppskontakt (t.ex. dusch, blöjbyte)</li>
+            <li><strong>Munskydd</strong> vid förkylningssymtom hos dig eller brukaren, eller enligt rutin</li>
+            <li><strong>Rena arbetskläder</strong> varje pass – aldrig samma kläder hem och tillbaka</li>
+          </ol>
+          <h3>Tvätta händerna med tvål och vatten</h3>
+          <ul>
+            <li>När händerna är synligt smutsiga</li>
+            <li>Efter toalettbesök</li>
+            <li>Efter kontakt med magsjuk brukare (handsprit räcker inte mot calici/vinterkräksjuka)</li>
+          </ul>
+          <h3>Ergonomi – skydda din rygg</h3>
+          <ul>
+            <li>Använd alltid hjälpmedel som finns: lyftbälte, glidlakan, vridplatta</li>
+            <li>Jobba aldrig ensam vid tunga lyft som kräver två – ring kollega</li>
+            <li>Höj sängen till arbetshöjd innan du börjar</li>
+            <li>Stå nära brukaren, böj knäna, håll ryggen rak</li>
+            <li>Anmäl till chef om hjälpmedel saknas eller är trasiga</li>
+          </ul>
+          <h3>Vid stick- eller skärskada</h3>
+          <ol>
+            <li>Skölj såret rikligt med vatten</li>
+            <li>Desinficera</li>
+            <li>Ring Conny Lindgren (072348) och företagshälsovården samma dag</li>
+          </ol>
+        `,
+        checklist: [
+          { id: "h1", text: "Jag kan de fem stegen i basala hygienrutiner" },
+          { id: "h2", text: "Jag vet skillnaden mellan handsprit och handtvätt med tvål" },
+          { id: "h3", text: "Jag har fått introduktion i de vanligaste lyfthjälpmedlen" },
+          { id: "h4", text: "Jag vet hur jag rapporterar trasiga hjälpmedel" },
+          { id: "h5", text: "Jag vet vad jag gör vid stickskada" }
+        ]
+      },
+      {
+        id: "kontakt",
+        icon: "📞",
+        title: "Kontaktpersoner och vem-gör-vad",
+        summary: "Vem du ringer när.",
+        content: `
+          <h3>Din närmaste chef – enhetschef</h3>
+          <p><strong>Conny Lindgren</strong><br>Telefon: <strong>072348</strong><br>Träffbar: kontakta för tider</p>
+          <h3>Sjukanmälan</h3>
+          <p>Ring Conny Lindgren <strong>072348</strong> – före kl. 06.30 vid morgonpass</p>
+          <h3>Schemaplanerare / bemanning</h3>
+          <p>Kontakta Conny Lindgren, 072348<br>För: schemafrågor, byten, vikariefrågor</p>
+          <h3>Sjuksköterska</h3>
+          <p>Nummer meddelas av din chef vid introduktionen.<br>För: medicinska frågor, sår, mediciner, fallolyckor</p>
+          <h3>Arbetsterapeut / fysioterapeut</h3>
+          <p>Nummer meddelas av din chef vid introduktionen.<br>För: hjälpmedel, träning, anpassningar i hemmet</p>
+          <h3>Skyddsombud</h3>
+          <p>Namn och kontakt meddelas vid introduktionen.<br>För: arbetsmiljöfrågor, om något känns fel</p>
+          <h3>Facklig representant (Kommunal)</h3>
+          <p>Kontaktuppgifter finns på arbetsplatsen.<br>För: anställningsfrågor, stöd</p>
+          <h3>Företagshälsovård</h3>
+          <p>Nummer meddelas av din chef.<br>För: arbetsrelaterad ohälsa, stickskador, stress</p>
+          <h3>IT-support</h3>
+          <p>Nummer meddelas av din chef.<br>För: problem med mobil, appar, inloggning</p>
+          <h3>Vid akut situation hos brukare</h3>
+          <ul>
+            <li><strong>112</strong> – ambulans/polis/räddningstjänst</li>
+            <li><strong>1177</strong> – sjukvårdsrådgivning</li>
+            <li>Sjuksköterska i tjänst (kvällar/helger): nummer meddelas av chef</li>
+          </ul>
+        `,
+        checklist: [
+          { id: "k1", text: "Jag har sparat Conny Lindgrens nummer (072348) i mobilen" },
+          { id: "k2", text: "Jag vet att jag ringer 072348 vid sjukanmälan" },
+          { id: "k3", text: "Jag vet vem sjuksköterskan i mitt område är" },
+          { id: "k4", text: "Jag vet vem som är skyddsombud" },
+          { id: "k5", text: "Jag vet vad jag ska göra vid akut situation hos brukare" }
+        ]
+      }
+    ]
+  };
+
+  const STORAGE_KEY = 'onboarding-hemtjanst-progress';
+  let progress = loadProgress();
+  let currentSectionIndex = -1;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderHomeView();
+    attachHeaderEvents();
+    attachSettingsEvents();
+    document.getElementById('searchInput').addEventListener('input', handleSearch);
+  });
+
+  function loadProgress() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch { return {}; }
+  }
+  function saveProgress() { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
+
+  function getSectionProgress(section) {
+    const total = section.checklist.length;
+    const done = section.checklist.filter(i => progress[i.id]).length;
+    return { done, total };
+  }
+  function getTotalProgress() {
+    let done = 0, total = 0;
+    onboardingData.sections.forEach(s => { const p = getSectionProgress(s); done += p.done; total += p.total; });
+    return { done, total };
+  }
+
+  function renderHomeView() {
+    const { done, total } = getTotalProgress();
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('progressText').textContent = `Du har slutfört ${done} av ${total} moment`;
+    document.getElementById('totalProgressFill').style.width = pct + '%';
+    document.getElementById('totalProgressBar').setAttribute('aria-valuenow', pct);
+    document.getElementById('congratsBanner').classList.toggle('show', done === total && total > 0);
+    renderCards(onboardingData.sections);
+  }
+
+  function renderCards(sections) {
+    const grid = document.getElementById('sectionsGrid');
+    grid.innerHTML = '';
+    sections.forEach(sec => {
+      const { done, total } = getSectionProgress(sec);
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+      const idx = onboardingData.sections.indexOf(sec);
+      const card = document.createElement('button');
+      card.className = 'section-card' + (done === total && total > 0 ? ' completed' : '');
+      card.setAttribute('role', 'listitem');
+      card.setAttribute('aria-label', `${sec.title}. ${done} av ${total} moment klara.`);
+      card.innerHTML = `
+        <span class="card-icon" aria-hidden="true">${sec.icon}</span>
+        <div class="card-title">${sec.title}</div>
+        <div class="card-summary">${sec.summary}</div>
+        <div class="card-progress">
+          <div class="card-progress-bar"><div class="card-progress-fill" style="width:${pct}%"></div></div>
+          <span class="card-progress-text">${done}/${total}</span>
+        </div>
+        <span class="card-done-badge">✓ Klart</span>
+      `;
+      card.addEventListener('click', () => openSection(idx));
+      grid.appendChild(card);
+    });
+  }
+
+  function openSection(index) {
+    currentSectionIndex = index;
+    const sec = onboardingData.sections[index];
+    const { done, total } = getSectionProgress(sec);
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    const view = document.getElementById('viewSection');
+    view.innerHTML = `
+      <div class="section-header">
+        <span class="section-header-icon" aria-hidden="true">${sec.icon}</span>
+        <h2>${sec.title}</h2>
+      </div>
+      <div class="section-progress-bar">
+        <span class="section-progress-text" id="secProgText">${done} av ${total} klara</span>
+        <div class="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}">
+          <div class="progress-bar-fill" id="secProgFill" style="width:${pct}%"></div>
+        </div>
+      </div>
+      <div class="section-content">${sec.content}</div>
+      <div class="checklist-section">
+        <div class="checklist-title">✅ Checklista</div>
+        <div id="checklistItems">
+          ${sec.checklist.map(item => `
+            <div class="checklist-item">
+              <input type="checkbox" id="chk_${item.id}" ${progress[item.id] ? 'checked' : ''}>
+              <label for="chk_${item.id}">
+                <span class="check-box"><span class="check-icon">✓</span></span>
+                <span class="check-text">${item.text}</span>
+              </label>
+            </div>
+          `).join('')}
+        </div>
+        <div class="section-complete-msg${done === total && total > 0 ? ' show' : ''}" id="sectionCompleteMsg">
+          🎉 Du har klarat alla moment i det här avsnittet!
+        </div>
+      </div>
+      <div class="section-nav">
+        ${index > 0 ? `<button class="btn-secondary" onclick="openSection(${index - 1})">← Föregående</button>` : ''}
+        ${index < onboardingData.sections.length - 1
+          ? `<button class="btn-primary" onclick="openSection(${index + 1})">Nästa avsnitt →</button>`
+          : `<button class="btn-primary" onclick="showHome()">← Tillbaka till start</button>`
+        }
+      </div>
+    `;
+    sec.checklist.forEach(item => {
+      const chk = document.getElementById('chk_' + item.id);
+      chk.addEventListener('change', () => {
+        progress[item.id] = chk.checked;
+        saveProgress();
+        updateSecProg(sec);
+        renderHomeView();
+      });
+    });
+    document.getElementById('viewHome').classList.remove('active');
+    view.classList.add('active');
+    document.getElementById('btnBack').style.display = 'flex';
+    document.getElementById('headerTitle').textContent = sec.title;
+    document.getElementById('headerSubtitle').textContent = `${sec.icon} Avsnitt ${index + 1} av ${onboardingData.sections.length}`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateSecProg(sec) {
+    const { done, total } = getSectionProgress(sec);
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    const f = document.getElementById('secProgFill');
+    const t = document.getElementById('secProgText');
+    if (f) f.style.width = pct + '%';
+    if (t) t.textContent = `${done} av ${total} klara`;
+    const msg = document.getElementById('sectionCompleteMsg');
+    if (msg && done === total && total > 0) msg.classList.add('show');
+  }
+
+  function showHome() {
+    document.getElementById('viewSection').classList.remove('active');
+    document.getElementById('viewSection').innerHTML = '';
+    document.getElementById('viewHome').classList.add('active');
+    document.getElementById('btnBack').style.display = 'none';
+    document.getElementById('headerTitle').textContent = 'Rättviks hemtjänst';
+    document.getElementById('headerSubtitle').textContent = 'Onboarding för nyanställda';
+    currentSectionIndex = -1;
+    renderHomeView();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function attachHeaderEvents() {
+    document.getElementById('btnBack').addEventListener('click', showHome);
+  }
+
+  function attachSettingsEvents() {
+    const modal = document.getElementById('settingsModal');
+    const btnS = document.getElementById('btnSettings');
+    const btnC = document.getElementById('btnCloseModal');
+    btnS.addEventListener('click', () => { modal.classList.add('open'); btnC.focus(); });
+    btnC.addEventListener('click', () => modal.classList.remove('open'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) { modal.classList.remove('open'); btnS.focus(); } });
+    document.getElementById('btnReset').addEventListener('click', () => {
+      if (confirm('Är du säker? Det här nollställer alla kryssade moment.')) {
+        progress = {}; saveProgress(); modal.classList.remove('open');
+        currentSectionIndex >= 0 ? openSection(currentSectionIndex) : renderHomeView();
+      }
+    });
+  }
+
+  function handleSearch() {
+    const q = this.value.trim().toLowerCase();
+    const noRes = document.getElementById('noResults');
+    if (!q) { noRes.style.display = 'none'; renderCards(onboardingData.sections); return; }
+    const filtered = onboardingData.sections.filter(s =>
+      s.title.toLowerCase().includes(q) || s.summary.toLowerCase().includes(q) ||
+      s.content.toLowerCase().includes(q) || s.checklist.some(i => i.text.toLowerCase().includes(q))
+    );
+    if (filtered.length === 0) {
+      noRes.style.display = 'block';
+      noRes.textContent = `Inga träffar för "${this.value}"`;
+      document.getElementById('sectionsGrid').innerHTML = '';
+    } else {
+      noRes.style.display = 'none';
+      renderCards(filtered);
+    }
+  }
+  </script>
+</body>
+</html>
