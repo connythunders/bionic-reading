@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samhällskunskap 1a – Provträning Ideologier</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#1d4ed8;--pl:#dbeafe;--pd:#1e3a8a;
+  --ok:#16a34a;--okl:#dcfce7;
+  --err:#dc2626;--errl:#fee2e2;
+  --warn:#d97706;--warnl:#fef9c3;
+  --bg:#f1f5f9;--surf:#fff;--bdr:#e2e8f0;
+  --txt:#0f172a;--muted:#64748b;
+  --r:14px;--rs:8px;
+  --sh:0 2px 8px rgba(0,0,0,.08);
+  --shm:0 4px 20px rgba(0,0,0,.12)
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:17px;line-height:1.6}
+.screen{display:none;min-height:100vh;flex-direction:column;max-width:680px;margin:0 auto;padding:16px}
+.screen.active{display:flex}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;border-radius:var(--r);border:none;font-size:16px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;width:100%;line-height:1.3}
+.btn-primary{background:var(--p);color:#fff}
+.btn-primary:hover{background:var(--pd)}
+.btn-secondary{background:var(--surf);color:var(--p);border:2px solid var(--p)}
+.btn-secondary:hover{background:var(--pl)}
+.btn-ghost{background:transparent;color:var(--muted);border:2px solid var(--bdr);width:auto;padding:10px 16px;font-size:15px}
+.btn-ghost:hover{border-color:var(--p);color:var(--p)}
+.btn-sm{padding:10px 16px;font-size:14px;width:auto}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* CARDS */
+.card{background:var(--surf);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:14px}
+.card-lg{padding:24px}
+
+/* HEADER */
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px}
+.top-bar h3{font-size:15px;color:var(--muted);font-weight:500}
+.top-bar-actions{display:flex;gap:8px}
+.icon-btn{background:var(--surf);border:2px solid var(--bdr);border-radius:var(--rs);padding:8px 12px;cursor:pointer;font-size:18px;line-height:1;transition:all .15s}
+.icon-btn:hover{border-color:var(--p)}
+
+/* PROGRESS BAR */
+.prog-bar{height:8px;background:var(--bdr);border-radius:99px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:100%;background:var(--p);border-radius:99px;transition:width .4s ease}
+.prog-label{font-size:13px;color:var(--muted);text-align:right}
+
+/* HOME SCREEN */
+.home-header{text-align:center;padding:24px 0 8px}
+.home-header h1{font-size:26px;font-weight:800;color:var(--pd);margin-bottom:4px}
+.home-header p{color:var(--muted);font-size:15px}
+.progress-overview{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.prog-card{background:var(--surf);border-radius:var(--r);padding:16px;box-shadow:var(--sh);text-align:center}
+.prog-card .num{font-size:28px;font-weight:800;color:var(--p)}
+.prog-card .label{font-size:13px;color:var(--muted)}
+.menu-grid{display:flex;flex-direction:column;gap:12px;margin:8px 0}
+.menu-btn{background:var(--surf);border:2px solid var(--bdr);border-radius:var(--r);padding:18px 20px;cursor:pointer;text-align:left;box-shadow:var(--sh);transition:all .15s;display:flex;align-items:center;gap:14px}
+.menu-btn:hover{border-color:var(--p);transform:translateY(-1px);box-shadow:var(--shm)}
+.menu-btn .icon{font-size:28px}
+.menu-btn .info h3{font-size:17px;font-weight:700;margin-bottom:2px}
+.menu-btn .info p{font-size:13px;color:var(--muted)}
+.pepp-banner{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:var(--r);padding:14px 18px;font-size:15px;font-weight:500;text-align:center;margin-top:8px}
+
+/* QUIZ */
+.q-number{font-size:14px;font-weight:600;color:var(--p);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.q-text{font-size:19px;font-weight:600;line-height:1.5;margin-bottom:20px}
+.answers{display:flex;flex-direction:column;gap:10px}
+.answer-btn{background:var(--surf);border:2px solid var(--bdr);border-radius:var(--r);padding:14px 18px;cursor:pointer;text-align:left;font-size:16px;transition:all .15s;display:flex;gap:12px;align-items:flex-start}
+.answer-btn:hover:not(:disabled){border-color:var(--p);background:var(--pl)}
+.answer-btn .letter{font-weight:700;color:var(--muted);min-width:22px}
+.answer-btn.correct{background:var(--okl);border-color:var(--ok)!important;color:var(--ok)}
+.answer-btn.correct .letter{color:var(--ok)}
+.answer-btn.wrong{background:var(--errl);border-color:var(--err)!important;color:var(--err)}
+.answer-btn.wrong .letter{color:var(--err)}
+.answer-btn:disabled{cursor:default}
+
+/* FEEDBACK */
+.feedback-box{border-radius:var(--r);padding:16px;margin-top:16px;font-size:15px;line-height:1.6}
+.feedback-box.correct{background:var(--okl);border-left:4px solid var(--ok)}
+.feedback-box.wrong{background:var(--errl);border-left:4px solid var(--err)}
+.feedback-label{font-weight:700;margin-bottom:6px;font-size:16px}
+.pepp-msg{font-size:16px;font-weight:600;text-align:center;padding:10px;color:var(--pd)}
+.next-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+
+/* OPEN QUESTIONS */
+.open-q-text{font-size:19px;font-weight:600;line-height:1.5;margin-bottom:16px}
+textarea{width:100%;min-height:140px;border:2px solid var(--bdr);border-radius:var(--r);padding:14px;font-size:16px;font-family:inherit;resize:vertical;transition:border-color .15s;line-height:1.6}
+textarea:focus{outline:none;border-color:var(--p)}
+.char-count{font-size:13px;color:var(--muted);text-align:right;margin-top:4px}
+.ai-feedback{background:#f8faff;border:2px solid var(--pl);border-radius:var(--r);padding:18px;margin-top:16px;font-size:15px;line-height:1.7}
+.ai-feedback strong{color:var(--pd)}
+
+/* LOADING */
+.loading-wrap{text-align:center;padding:30px;color:var(--muted)}
+.spinner{width:36px;height:36px;border:3px solid var(--bdr);border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* GLOSSARY */
+.glossary-item{cursor:pointer}
+.glossary-item summary{font-size:17px;font-weight:600;padding:14px 0;display:flex;justify-content:space-between;align-items:center;list-style:none;border-bottom:1px solid var(--bdr)}
+.glossary-item summary::-webkit-details-marker{display:none}
+.glossary-item summary .arrow{color:var(--muted);font-size:20px;transition:transform .2s}
+details[open] .arrow{transform:rotate(90deg)}
+.glossary-body{padding:14px 0 8px;font-size:15px;color:var(--txt);line-height:1.7}
+.glossary-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+/* TOAST */
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);z-index:1000;background:#0f172a;color:#fff;padding:12px 20px;border-radius:99px;font-size:15px;font-weight:500;transition:transform .3s;white-space:nowrap;max-width:90vw;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* MODAL */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end;justify-content:center}
+#modal-overlay.open{display:flex}
+#modal-box{background:var(--surf);border-radius:var(--r) var(--r) 0 0;padding:24px;width:100%;max-width:680px;max-height:80vh;overflow-y:auto}
+#modal-box h3{font-size:19px;font-weight:700;margin-bottom:12px}
+#modal-body{font-size:16px;line-height:1.7;color:var(--txt)}
+.modal-close{display:block;margin-top:16px;text-align:center;padding:12px;border:2px solid var(--bdr);border-radius:var(--r);cursor:pointer;font-size:16px;font-weight:600}
+.modal-close:hover{border-color:var(--p);color:var(--p)}
+
+/* RESULTS */
+.score-big{text-align:center;padding:24px}
+.score-big .num{font-size:64px;font-weight:900;color:var(--p)}
+.score-big .denom{font-size:28px;color:var(--muted)}
+.score-big .label{font-size:17px;color:var(--muted);margin-top:4px}
+.result-pepp{font-size:18px;font-weight:600;text-align:center;padding:12px 20px;border-radius:var(--r);margin-bottom:16px}
+.result-pepp.great{background:var(--okl);color:var(--ok)}
+.result-pepp.good{background:var(--pl);color:var(--pd)}
+.result-pepp.ok{background:var(--warnl);color:var(--warn)}
+.result-actions{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.divider{text-align:center;color:var(--muted);font-size:14px;margin:4px 0}
+.wrong-list{margin-top:16px}
+.wrong-list h4{font-size:15px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.wrong-item{background:var(--errl);border-radius:var(--rs);padding:10px 14px;font-size:14px;margin-bottom:6px;color:var(--err)}
+
+/* TOPIC TAG */
+.topic-tag{display:inline-block;background:var(--pl);color:var(--pd);font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px}
+
+@media(max-width:480px){
+  .q-text,.open-q-text{font-size:17px}
+  .score-big .num{font-size:52px}
+}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal-box">
+    <h3 id="modal-title"></h3>
+    <div id="modal-body"></div>
+    <div class="modal-close" onclick="closeModal()">Stäng</div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="home-header">
+    <h1>📚 Provträning</h1>
+    <p>Samhällskunskap 1a – Politiska ideologier</p>
+  </div>
+  <div class="progress-overview">
+    <div class="prog-card">
+      <div class="num" id="home-quiz-num">0/24</div>
+      <div class="label">Quiz klarade</div>
+      <div class="prog-bar" style="margin-top:8px"><div class="prog-fill" id="home-quiz-fill" style="width:0%"></div></div>
+    </div>
+    <div class="prog-card">
+      <div class="num" id="home-open-num">0/8</div>
+      <div class="label">Öppna klarade</div>
+      <div class="prog-bar" style="margin-top:8px"><div class="prog-fill" id="home-open-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="menu-grid">
+    <button class="menu-btn" onclick="initQuiz('new')">
+      <span class="icon">🎯</span>
+      <div class="info"><h3>Träna med quiz</h3><p>24 flervalsfrågor med direkt feedback</p></div>
+    </button>
+    <button class="menu-btn" onclick="initOpenQ('new')">
+      <span class="icon">✍️</span>
+      <div class="info"><h3>Öppna frågor</h3><p>Skriv svar – Claude ger feedback</p></div>
+    </button>
+    <button class="menu-btn" onclick="showGlossary()">
+      <span class="icon">📖</span>
+      <div class="info"><h3>Begreppsordlista</h3><p>12 nyckelbegrepp med förklaringar</p></div>
+    </button>
+  </div>
+  <div class="pepp-banner" id="home-pepp"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="top-bar">
+    <button class="btn-ghost btn" onclick="confirmGoHome()" style="width:auto">← Hem</button>
+    <h3 id="quiz-counter">Fråga 1 / 24</h3>
+    <div class="top-bar-actions">
+      <button class="icon-btn" onclick="speakCurrent()" title="Läs upp">🔊</button>
+      <button class="icon-btn" onclick="explainCurrent()" title="Förklara enklare">💡</button>
+    </div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="quiz-prog-fill" style="width:0%"></div></div>
+  <div class="prog-label" id="quiz-prog-label"></div>
+  <br>
+  <div class="card card-lg">
+    <div class="topic-tag" id="quiz-topic"></div>
+    <div class="q-number" id="quiz-q-number"></div>
+    <div class="q-text" id="quiz-q-text"></div>
+    <div class="answers" id="quiz-answers"></div>
+    <div id="quiz-feedback" style="display:none">
+      <div class="feedback-box" id="quiz-feedback-box">
+        <div class="feedback-label" id="quiz-feedback-label"></div>
+        <div id="quiz-feedback-text"></div>
+      </div>
+      <div class="pepp-msg" id="quiz-pepp"></div>
+      <div class="next-row">
+        <button class="btn btn-primary" id="quiz-next-btn" onclick="nextQuizQ()">Nästa fråga →</button>
+        <button class="btn btn-ghost btn-sm" onclick="explainCurrent()">💡 Förklara enklare</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ RESULTS -->
+<div id="screen-quiz-results" class="screen">
+  <div class="top-bar">
+    <button class="btn-ghost btn" onclick="goHome()" style="width:auto">← Hem</button>
+    <h3>Resultat</h3>
+    <span></span>
+  </div>
+  <div class="card card-lg">
+    <div class="score-big">
+      <span class="num" id="res-score">0</span><span class="denom" id="res-total">/24</span>
+      <div class="label" id="res-pct"></div>
+    </div>
+    <div class="result-pepp" id="res-pepp"></div>
+    <div class="result-actions" id="res-actions"></div>
+    <div class="wrong-list" id="res-wrong-list"></div>
+  </div>
+</div>
+
+<!-- OPEN QUESTIONS -->
+<div id="screen-open" class="screen">
+  <div class="top-bar">
+    <button class="btn-ghost btn" onclick="confirmGoHome()" style="width:auto">← Hem</button>
+    <h3 id="open-counter">Fråga 1 / 8</h3>
+    <div class="top-bar-actions">
+      <button class="icon-btn" onclick="speakOpenCurrent()" title="Läs upp">🔊</button>
+      <button class="icon-btn" onclick="explainOpenCurrent()" title="Förklara enklare">💡</button>
+    </div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="open-prog-fill" style="width:0%"></div></div>
+  <br>
+  <div class="card card-lg" id="open-question-card">
+    <div class="topic-tag" id="open-topic"></div>
+    <div class="open-q-text" id="open-q-text"></div>
+    <textarea id="open-answer" placeholder="Skriv ditt svar här. Ju mer du skriver desto bättre feedback får du..." oninput="updateCharCount()"></textarea>
+    <div class="char-count" id="char-count">0 tecken</div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="open-submit-btn" onclick="submitOpenAnswer()">Lämna in svar</button>
+      <button class="btn btn-ghost btn-sm" onclick="explainOpenCurrent()">💡 Förklara frågan</button>
+    </div>
+  </div>
+  <div id="open-loading" style="display:none" class="card">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <p>Claude läser ditt svar...</p>
+    </div>
+  </div>
+  <div id="open-feedback-card" style="display:none" class="card card-lg">
+    <div style="font-weight:700;font-size:17px;margin-bottom:12px;color:var(--pd)">📝 Feedback från Claude</div>
+    <div class="ai-feedback" id="open-feedback-text"></div>
+    <div class="pepp-msg" id="open-pepp"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="open-next-btn" onclick="nextOpenQ()">Nästa fråga →</button>
+      <button class="btn btn-ghost btn-sm" onclick="reviseAnswer()">Skriv om svar</button>
+    </div>
+  </div>
+</div>
+
+<!-- OPEN RESULTS -->
+<div id="screen-open-results" class="screen">
+  <div class="top-bar">
+    <button class="btn-ghost btn" onclick="goHome()" style="width:auto">← Hem</button>
+    <h3>Klart!</h3>
+    <span></span>
+  </div>
+  <div class="card card-lg" style="text-align:center">
+    <div style="font-size:56px;margin-bottom:8px">🎉</div>
+    <h2 style="font-size:22px;margin-bottom:8px">Bra kämpat!</h2>
+    <p style="color:var(--muted);margin-bottom:24px">Du har svarat på alla öppna frågor. Välj vad du vill göra härnäst:</p>
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="initOpenQ('same')">Kör om samma frågor</button>
+      <button class="btn btn-secondary" onclick="generateNewOpenQ()">✨ Generera nya frågor med AI</button>
+      <button class="btn btn-ghost" onclick="goHome()">Tillbaka till start</button>
+    </div>
+  </div>
+</div>
+
+<!-- GLOSSARY -->
+<div id="screen-glossary" class="screen">
+  <div class="top-bar">
+    <button class="btn-ghost btn" onclick="goHome()" style="width:auto">← Hem</button>
+    <h3>Begreppsordlista</h3>
+    <span></span>
+  </div>
+  <div class="card card-lg" id="glossary-list"></div>
+</div>
+
+<script>
+const API_KEY = 'ENTER_YOUR_API_KEY_HERE';
+const MODEL = 'claude-sonnet-4-20250514';
+
+// ── SOURCE MATERIAL SUMMARY (for AI context) ──────────────────────────
+const MATERIAL = `Politiska ideologier – Samhällskunskap 1a:
+
+IDEOLOGI: Ett paket av idéer som söker helhetslösningar på samhällsproblem. Skiljer sig från enstaka politiska åsikter. En ideologi har en helhetssyn och söker djupare orsaker.
+
+HÖGER/VÄNSTER: Begreppen uppkom vid franska revolutionen. Kungaförsvarare satt till höger, republikaner till vänster i nationalförsamlingen.
+
+LIBERALISM: Från latinets "liber" = fri. Uppstod sent 1700-tal/tidigt 1800-tal. Revolt mot kyrka, kungadöme, privilegier. Kärnvärden: individens frihet, alla människors lika värde, tryckfrihet, yttrandefrihet, näringsfrihet, allmän rösträtt. Fick genomslag i väst mot 1900-talets början.
+
+KONSERVATISM: Uppstod som reaktion på franska revolutionen. Värnar traditioner och stabilitet. Emot snabba våldsamma förändringar. "Patriarkala reformer" under 1800-talet: fabriksägare som omhändertagande fäder utan att ge anställda inflytande. Accepterade demokratin sent.
+
+SOCIALISM: Uppstod tidigt 1800-tal pga dåliga arbetsförhållanden. Karl Marx & Friedrich Engels – Kommunistiska manifestet 1848. Gemensamt: arbetarklassens intressen, jämlikhet, gemensamt ägande. Reformistisk (socialdemokrati) = fredliga reformer. Revolutionär (kommunism) = makten tas med revolution. Kommunistdiktaturer föll runt 1990.
+
+FEMINISM: Teori och rörelse för jämställdhet. Flera inriktningar, gemensamt mål. Mary Wollstonecraft (1792): "A Vindication of the Rights of Woman". Simone de Beauvoir: "Man föds inte till kvinna, man blir det" – könsroller är socialt skapade, inte biologiska.
+
+ANARKISM: Eftersträvar samhälle utan statligt tvång. Staten ska avskaffas, inte reformeras. Proudhon: "Egendom är stöld!" Spontan frivillig samverkan mellan individer.
+
+NATIONALISM: Den egna nationens intressen prioriteras. Nation = folkgrupp med samma språk/kultur. Uppstod 1800-tal vid tyska/italienska rikssamlingarna. Kan vara separatistisk (självständighet) eller destruktiv (fascism, nazism). Fått förnyad kraft via högerpopulism.
+
+NAZISM: Tysk form av fascism. Hitler tog makten 1933. Rasism, antisemitism, nationalism, antikommunism. Förintelsen = systematiskt mördande av judar och romer.
+
+FASCISM: Italien under Mussolini 1920-tal. Ledarkult (Il Duce), nationalism, förakt för demokrati, propaganda, våldsförhärligande. Skillnad mot nazism: fascismen saknade antisemitism.
+
+EKOLOGISM: Ekologisk balans och hållbar utveckling centralt. Mot ständig ekonomisk tillväxt. Decentralisering = makt sprids på många. Gröna partier. Förespråkar miljöskatter, stränga lagar, reformer.
+
+SOCIALLIBERALISM: Staten har ansvar för medborgarnas trygghet inom marknadsekonomi. J.M. Keynes: staten kan minska arbetslöshet via investeringar och skattesänkningar.
+
+NYLIBERALISM: Från 1980-tal. Fri marknad, låga skatter, låga offentliga utgifter. Reagan (USA) och Thatcher (UK). Privatisering, valfrihet, avregleringar.
+
+SOCIALKONSERVATISM: Traditionell syn på familj/sexualitet. Positiv till välfärdsstat. Ofta nationalistisk och invandringskritisk. Förknippad med populism.
+
+TRIANGULERING: Taktik där parti ändrar åsikt i viktiga frågor för att bli populärare. Brittiska Labour använde det på 1990-talet.
+
+KLASSAMHÄLLE: Samhällsskikt med olika möjligheter att påverka sina levnadsförhållanden (t.ex. adel vs bönder, industriägare vs fabriksarbetare).`;
+
+// ── QUIZ QUESTIONS (28 st, väljer 24) ────────────────────────────────
+const ALL_QUIZ = [
+  {q:"Vad är en ideologi?",opts:["En enstaka politisk åsikt om en specifik fråga","Ett sammanhängande paket av idéer om hur samhället bör styras","En lag som styr hur politiska partier ska organiseras","En religiös övertygelse om samhällets organisation"],c:1,exp:"En ideologi är ett 'paket av idéer' som försöker ge helhetslösningar på samhällsproblem – till skillnad från en enstaka åsikt om t.ex. studiemedel.",topic:"Ideologi"},
+  {q:"Var uppstod betecknarna 'höger' och 'vänster' i politiken?",opts:["I det brittiska parlamentet på 1600-talet","I den tyska riksdagen på 1800-talet","I den franska nationalförsamlingen under franska revolutionen","I USA:s kongress under inbördeskriget"],c:2,exp:"De som ville bevara kungadömet satt till höger i nationalförsamlingen, de som ville ha republik satt till vänster. Begreppen uppkom under franska revolutionen.",topic:"Ideologihistoria"},
+  {q:"Vilket latinskt ord härleds 'liberalism' ifrån?",opts:["Libertas – 'rättvisa'","Liber – 'fri'","Librum – 'bok'","Labor – 'arbete'"],c:1,exp:"Liberalism kommer av det latinska liber = 'fri'. Frihet är ideologins absoluta kärnvärde.",topic:"Liberalism"},
+  {q:"Vilka friheter kämpade de tidiga liberalerna för?",opts:["Religiös frihet och rätten till privat militär","Tryckfrihet, yttrandefrihet och näringsfrihet","Rätt till socialbidrag och gratis utbildning","Rätten att bära vapen och starta miliser"],c:1,exp:"De liberala ville ha tryckfrihet, yttrandefrihet och näringsfrihet – rätten att fritt välja yrke och driva företag.",topic:"Liberalism"},
+  {q:"Vilken ideologi uppstod som en reaktion mot franska revolutionen?",opts:["Socialism","Feminism","Anarkism","Konservatism"],c:3,exp:"Konservatismen formulerades av dem som ville bromsa de snabba och våldsamma förändringarna. De konservativa ville bevara ('konservera') gamla traditioner.",topic:"Konservatism"},
+  {q:"Vad innebar de 'patriarkala reformer' som konservativa under 1800-talet förespråkade?",opts:["Att kyrkan skulle ta över fattigvården","Att fabriksägarna – som en omhändertagande far – hjälpte anställda utan att ge dem inflytande","Att staten skulle äga alla industrier","Att bönderna skulle återfå förlorad mark"],c:1,exp:"Konservativa ville undvika revolution genom att fabriksägare tog hand om sina anställda, men utan att ge dem politiskt inflytande.",topic:"Konservatism"},
+  {q:"Vem gav ut Kommunistiska manifestet år 1848?",opts:["Vladimir Lenin och Leon Trotskij","Olof Palme och Göran Persson","Karl Marx och Friedrich Engels","Pierre Joseph Proudhon och Michail Bakunin"],c:2,exp:"Karl Marx och Friedrich Engels publicerade Kommunistiska manifestet 1848. Skriften fick enorm betydelse för socialismens framväxt.",topic:"Socialism"},
+  {q:"Vad är gemensamt för socialismens olika läror?",opts:["De prioriterar individens frihet framför kollektivets","De förespråkar en stark monarki","De sätter arbetarklassens intressen i centrum och förespråkar jämlikhet och gemensamt ägande","De vill avskaffa alla politiska partier"],c:2,exp:"Alla socialistiska läror sätter arbetarklassens intressen i centrum och förespråkar jämlikhet och gemensamt ägande av produktionsmedlen.",topic:"Socialism"},
+  {q:"Vad skiljer socialdemokrati (reformistisk socialism) från kommunism?",opts:["Socialdemokrater vill avskaffa privat äganderätt, kommunister inte","Socialdemokrater förespråkar fredliga reformer, kommunister vill ta makten via revolution","Socialdemokrater är emot demokrati, kommunister är för det","Socialdemokrater vill ha planekonomi, kommunister marknadsekonomi"],c:1,exp:"Reformistiska socialister (socialdemokrater) tar avstånd från våld och förespråkar fredliga reformer. Kommunister förespråkade revolution.",topic:"Socialism"},
+  {q:"Hur definierar källmaterialet feminism?",opts:["En enhetlig ideologi med ett klart program","Enbart en rörelse för kvinnors rösträtt","En teori och politisk rörelse för jämställdhet med flera inriktningar","En biologistisk syn på att kvinnor är överlägsna män"],c:2,exp:"Det går inte att tala om feminism som en sammanhållen ideologi – det handlar om flera feminismer med en gemensam målsättning: ett jämställt samhälle.",topic:"Feminism"},
+  {q:"Vad menar Simone de Beauvoir med 'Man föds inte till kvinna, man blir det'?",opts:["Att biologiska skillnader avgör vad som är manligt och kvinnligt","Att könsegenskaper i grunden formas av sociala villkor, inte biologi","Att alla människor borde vara könsneutrala","Att kvinnor är mer kapabla än vad samhället erkänner"],c:1,exp:"De Beauvoir menar att det är historien och samhället – inte biologin – som skapat skillnader i vad som uppfattas som manligt och kvinnligt.",topic:"Feminism"},
+  {q:"Vad anser anarkisterna om staten?",opts:["Att staten bör omformas till en verklig demokrati","Att staten ska styras av folket direkt, utan representanter","Att staten ska avskaffas helt","Att staten ska äga alla produktionsmedel"],c:2,exp:"Enligt anarkismen ska staten inte tas över eller omformas – den ska avskaffas. Individen ska utsättas för så lite tvång som möjligt.",topic:"Anarkism"},
+  {q:"Vad menade anarkisten Proudhon med 'Egendom är stöld!'?",opts:["Att alla varor borde vara gratis att ta","Att privatägande av egendom är ett grundläggande samhällsproblem","Att staten borde konfiskera all mark","Att kyrkan borde äga all egendom"],c:1,exp:"Proudhon argumenterade att privat äganderätt är ett orättvist system. Han delade denna tanke med kommunismen.",topic:"Anarkism"},
+  {q:"Nationalismen sägs ha uppstått på 1800-talet. Vad sammanföll med detta?",opts:["Den industriella revolutionen i England","Franska revolutionen och kommunismens framväxt","Samlingen av Tyskland och Italien till nationalstater","USA:s självständighetskrig mot Storbritannien"],c:2,exp:"Nationalismen kopplas till 1800-talets statsbildningar, inte minst när Tyskland och Italien enades från att ha bestått av många små riken.",topic:"Nationalism"},
+  {q:"Vad är ekologismens centrala idé?",opts:["Ekonomisk tillväxt är nyckeln till mänskligt välmående","Staten ska äga alla naturresurser","Ekologisk balans och hållbar utveckling är grundläggande värden","Individens frihet prioriteras alltid framför miljöhänsyn"],c:2,exp:"Ekologismen menar att samhället ska organiseras för att minska mänsklig påverkan på naturen och bevara den ekologiska balansen.",topic:"Ekologism"},
+  {q:"Vad menas med 'decentralisering' i ekologismens sammanhang?",opts:["Att staten tar mer makt från kommunerna","Att makt – politisk och ekonomisk – fördelas på så många som möjligt","Att stora företag tar eget ansvar för miljön","Att EU ska styra miljöpolitiken centralt"],c:1,exp:"Ekologismen är kritisk till stora statsbildningar och anser att viktiga frågor ska lösas så nära medborgarna som möjligt.",topic:"Ekologism"},
+  {q:"Vilka var nazismens huvudbeståndsdelar?",opts:["Demokrati, socialism och internationalism","Pacifism, frihandel och individens rättigheter","Rasism, antisemitism, nationalism och antikommunism","Feminism, ekologism och religiös fundamentalism"],c:2,exp:"Nazismens kärna bestod av rasism, antisemitism (judehat), extrem nationalism och hat mot kommunismen.",topic:"Nazism"},
+  {q:"Vad kallas nazisternas systematiska mördande av judar och romer?",opts:["Separatismen","Pogromerna","Annekteringen","Förintelsen"],c:3,exp:"Det systematiska mördandet kallas förintelsen. Judarna var den grupp nazisterna ansåg stå lägst och som drabbades hårdast.",topic:"Nazism"},
+  {q:"Vad innebär nyliberalism?",opts:["Staten tar stort ansvar för medborgarnas välfärd","Kollektivt ägande av produktionsmedlen","Fri marknad, låga skatter och låga offentliga utgifter","Bevarandet av kulturella traditioner och nationalstaten"],c:2,exp:"Nyliberalismen utgår från den klassiska liberalismens tankar om ekonomiskt liv utan statsingripanden och förespråkar låga skatter och privatisering.",topic:"Nyliberalism"},
+  {q:"Vilka statschefer förknippas med nyliberalismens genombrott på 1980-talet?",opts:["Olof Palme och Göran Persson","Barack Obama och Tony Blair","Vladimir Lenin och Mao Zedong","Ronald Reagan och Margaret Thatcher"],c:3,exp:"Nyliberalismen fick starkt politiskt genomslag i USA under Reagan och i Storbritannien under Thatcher på 1980-talet.",topic:"Nyliberalism"},
+  {q:"Vad innebär socialliberalism?",opts:["Att staten inte ska lägga sig i ekonomin alls","Att alla produktionsmedel ska ägas gemensamt","Att traditionella familjevärden ska bevaras","Att staten har ansvar för medborgarnas trygghet inom en marknadsekonomi"],c:3,exp:"Socialliberalismen menar att staten, inom ramen för en marknadsekonomi, måste ta ansvar för trygghet och förbättra villkoren för de sämst ställda.",topic:"Socialliberalism"},
+  {q:"Vad bidrog nationalekonomen John Maynard Keynes med?",opts:["Han grundade socialismen och kommunistiska manifestet","Han hävdade att staten helt ska hålla sig borta från ekonomin","Han visade att staten kan minska arbetslösheten genom investeringar och skattesänkningar","Han formulerade nyliberalismens principer om marknadens frihet"],c:2,exp:"Keynes hävdade att staten kan minska arbetslösheten genom att satsa på infrastruktur eller sänka skatter för ökad köpkraft. Centralt inom socialliberalism.",topic:"Socialliberalism"},
+  {q:"Vad är 'triangulering' i politisk mening?",opts:["Att tre partier bildar en koalitionsregering","Att ett parti ändrar åsikt i viktiga frågor för att bli mer populärt hos väljarna","Att en stat ingår i tre internationella avtal","Att en ideologi kombinerar tre politiska traditioner"],c:1,exp:"Triangulering innebär att ett parti anpassar sin politik mot motståndarens populära ståndpunkter. Labour använde det framgångsrikt på 1990-talet.",topic:"Modern politik"},
+  {q:"Vem grundade fascismen och i vilket land?",opts:["Adolf Hitler i Tyskland","Francisco Franco i Spanien","Benito Mussolini i Italien","Napoleon Bonaparte i Frankrike"],c:2,exp:"Fascismen växte fram i Italien under Benito Mussolinis ledning på 1920-talet. Hitler tog sedan fascismen som förebild för nazismen.",topic:"Fascism"},
+  {q:"Vad skilde fascismen från nazismen?",opts:["Fascismen förespråkade revolution, nazismen inte","Nazismen saknade antisemitism, fascismen hade det","Fascismen saknade antisemitism – det var centralt bara i nazismen","Fascismen var demokratisk, nazismen inte"],c:2,exp:"Fascismen och nazismen delade ledarkult, nationalism och förkastande av demokrati – men antisemitismen var specifik för nazismen.",topic:"Fascism"},
+  {q:"Vad menas med ett 'klassamhälle'?",opts:["Ett samhälle där alla har lika stor politisk makt","Ett samhälle med tydliga grupper som har olika möjligheter att påverka sina levnadsförhållanden","Ett samhälle styrt av den välutbildade medelklassen","Ett samhälle uppdelat efter religiös tillhörighet"],c:1,exp:"Klassamhälle innebär tydliga samhällsskikt med skilda möjligheter att påverka sina livsförhållanden – som adeln vs bönder, eller industriägare vs fabriksarbetare.",topic:"Ideologihistoria"},
+  {q:"Vem skrev 'A Vindication of the Rights of Woman' (1792)?",opts:["Simone de Beauvoir","Emma Goldman","Mary Wollstonecraft","Margaret Thatcher"],c:2,exp:"Mary Wollstonecraft argumenterade 1792 utifrån franska revolutionens princip om alla människors lika rättigheter – att detta gäller även kvinnor.",topic:"Feminism"},
+  {q:"Vad hände med de kommunistiska diktaturerna i Östeuropa?",opts:["De omvandlades till socialistiska demokratier på 1970-talet","De föll runt år 1990 och de flesta övergick till marknadsekonomier","De uppgick i Ryssland och lever fortfarande kvar","De omvandlades till nyliberala stater under Reagan-eran"],c:1,exp:"Åren runt 1990 föll de allra flesta kommunistiska regimerna i Östeuropa. Kina övergick till en sorts statskontrollerad kapitalism.",topic:"Socialism"},
+];
+
+// ── OPEN QUESTIONS (8 st) ─────────────────────────────────────────────
+const BASE_OPEN_Q = [
+  {q:"Förklara vad en ideologi är och hur den skiljer sig från en enstaka politisk åsikt. Använd ett eget exempel för att visa att du förstår skillnaden.",topic:"Ideologi"},
+  {q:"Beskriv liberalismens viktigaste idéer. Vilka rättigheter och friheter kämpade de tidiga liberalerna för, och varför var detta viktigt i deras tid?",topic:"Liberalism"},
+  {q:"Vad är konservatismens grundtanke? Hur förhöll sig konservativa till demokratin under 1800- och 1900-talets början?",topic:"Konservatism"},
+  {q:"Förklara skillnaden mellan kommunism och socialdemokrati (reformistisk socialism). Vad är de viktigaste skillnaderna mellan dessa två?",topic:"Socialism"},
+  {q:"Feminismen menar att könsroller är 'socialt skapade' snarare än biologiska. Vad innebär det? Förklara med egna ord och hänvisa till det du läst.",topic:"Feminism"},
+  {q:"Vad är ekologism och vad menas med begreppet 'decentralisering'? Varför är decentralisering en viktig del av ekologismens idéer?",topic:"Ekologism"},
+  {q:"Jämför liberalism och socialism: vad är de viktigaste skillnaderna vad gäller synen på individen, staten och ekonomin?",topic:"Jämförelse"},
+  {q:"Varför växte socialismen fram under 1800-talet? Vilka samhällsförhållanden ledde till att en ny politisk rörelse behövdes?",topic:"Ideologihistoria"},
+];
+
+// ── GLOSSARY (12 begrepp) ─────────────────────────────────────────────
+const GLOSSARY = [
+  {term:"Ideologi",def:"Ett sammanhängande 'paket' av politiska idéer som försöker förklara hur samhället fungerar och ge helhetslösningar på samhällsproblem. Skiljer sig från enstaka politiska åsikter genom att ha en helhetssyn."},
+  {term:"Liberalism",def:"Politisk ideologi som betonar individens frihet och lika värde. Kärnvärden: tryckfrihet, yttrandefrihet, näringsfrihet, allmän rösträtt. Motståndare till privilegier och statlig maktkoncentration."},
+  {term:"Konservatism",def:"Ideologi som värnar traditioner, stabilitet och gradvisa förändringar. Uppstod som reaktion mot franska revolutionen. Emot snabba och våldsamma samhällsförändringar."},
+  {term:"Socialism",def:"Ideologi som sätter arbetarklassens intressen i centrum och förespråkar jämlikhet och gemensamt ägande. Kan vara reformistisk (socialdemokrati) eller revolutionär (kommunism)."},
+  {term:"Kommunism",def:"Radikal form av socialism som förespråkar revolution för att avskaffa privat ägande och skapa ett klasslöst samhälle. Förknippad med Marx, Lenin och de östeuropeiska diktaturerna som föll runt 1990."},
+  {term:"Feminism",def:"Teori och politisk rörelse för jämställdhet mellan kvinnor och män. Består av flera inriktningar med en gemensam målsättning. Menar ofta att könsroller formas av samhället, inte biologin."},
+  {term:"Nationalism",def:"Politisk åskådning som hävdar den egna nationens värde och intressen, ofta framför andra nationers. En nation definieras vanligen som en folkgrupp med gemensamt språk och kultur."},
+  {term:"Ekologism",def:"Ideologi med ekologisk balans och hållbar utveckling i centrum. Kritisk till ekonomisk tillväxt och stora statsbildningar. Förespråkar decentralisering – att makt fördelas på så många som möjligt."},
+  {term:"Nyliberalism",def:"Politisk inriktning som betonar fri marknad, låga skatter och låga offentliga utgifter. Förespråkar privatisering och avregleringar. Fick genomslag på 1980-talet med Reagan och Thatcher."},
+  {term:"Anarkism",def:"Politisk riktning som eftersträvar ett samhälle utan statligt tvång. Staten ska avskaffas, inte reformeras. Förespråkar frivillig samverkan mellan individer utan överordnad auktoritet."},
+  {term:"Fascism",def:"Högerextrem ideologi präglad av ledarkult, extrem nationalism, förakt för demokrati och propaganda. Uppstod i Italien under Mussolini. Till skillnad från nazismen saknade ursprunglig fascism antisemitism."},
+  {term:"Klassamhälle",def:"Ett samhälle med tydliga grupper (klasser) som har olika möjligheter att påverka sina levnadsförhållanden. Exempel: adeln vs bönder i det gamla samhället, eller industriägare vs fabriksarbetare under industrialiseringen."},
+];
+
+// ── PEPPANDE MEDDELANDEN ──────────────────────────────────────────────
+const PEPP_CORRECT = ["Rätt! Du har koll på det! 💪","Toppen! Det sitter! ⭐","Perfekt! Så ska det låta! 🔥","Bra jobbat! Fortsätt så! 🎯","Precis rätt! Du är på gång nu! ✅"];
+const PEPP_WRONG = ["Inte den här gången – men nu vet du! 📚","Knepig fråga! Läs förklaringen noga. 💡","Det händer – det viktiga är att lära sig! 💪","Nästan! Nu sitter det i ryggmärgen nästa gång! 🎓"];
+const PEPP_HOME = ["Plugga lite varje dag – det ger resultat! 📖","Du klarar det här! Sätt igång! 💪","Varje fråga du svarar på är ett steg närmre provet! 🎯","Kunskap är makt – kör igång! ⚡","Bra att du är här och tränar! 🌟"];
+const PEPP_MILESTONE = {25:"Bra start! Fortsätt! 🚀",50:"Halvvägs! Du klarar det! 💪",75:"Snart i mål! Håll i! 🔥"};
+
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+// ── STATE & STORAGE ───────────────────────────────────────────────────
+let quizSession = {questions:[],idx:0,answers:[],mode:'new'};
+let openSession = {questions:[],idx:0,mode:'new'};
+
+function loadProg(){return JSON.parse(localStorage.getItem('sk_prog')||'{"quizDone":0,"openDone":0}')}
+function saveProg(p){localStorage.setItem('sk_prog',JSON.stringify(p))}
+
+function updateHomeProgress(){
+  const p = loadProg();
+  const qn = Math.min(p.quizDone,24);
+  const on = Math.min(p.openDone,8);
+  document.getElementById('home-quiz-num').textContent = qn+'/24';
+  document.getElementById('home-open-num').textContent = on+'/8';
+  document.getElementById('home-quiz-fill').style.width = (qn/24*100)+'%';
+  document.getElementById('home-open-fill').style.width = (on/8*100)+'%';
+  document.getElementById('home-pepp').textContent = rand(PEPP_HOME);
+}
+
+// ── SCREEN NAV ────────────────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goHome(){showScreen('screen-home');updateHomeProgress()}
+function confirmGoHome(){if(confirm('Vill du avbryta och gå tillbaka till start?'))goHome()}
+
+// ── QUIZ ──────────────────────────────────────────────────────────────
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5)}
+
+function pick24(exclude){
+  let pool = ALL_QUIZ.map((q,i)=>i);
+  if(exclude && exclude.length && pool.length > 24){
+    pool = pool.filter(i=>!exclude.includes(i));
+  }
+  return shuffle(pool).slice(0,24).map(i=>ALL_QUIZ[i]);
+}
+
+function initQuiz(mode){
+  if(mode==='new'){
+    const prev = quizSession.mode==='new'? quizSession.questions.map(q=>ALL_QUIZ.indexOf(q)) : [];
+    quizSession = {questions:pick24(prev),idx:0,answers:[],mode:'new'};
+  } else if(mode==='shuffle'){
+    quizSession = {questions:shuffle(quizSession.questions),idx:0,answers:[],mode:'shuffle'};
+  } else if(mode==='wrong'){
+    const wrongs = quizSession.answers.filter(a=>!a.correct).map(a=>a.q);
+    quizSession = {questions:shuffle(wrongs),idx:0,answers:[],mode:'wrong'};
+  } else if(mode==='same'){
+    quizSession = {...quizSession,idx:0,answers:[]};
+  }
+  showScreen('screen-quiz');
+  renderQuizQ();
+}
+
+function renderQuizQ(){
+  const {questions,idx,answers} = quizSession;
+  const total = questions.length;
+  const q = questions[idx];
+  const pct = Math.round((idx/total)*100);
+
+  document.getElementById('quiz-counter').textContent = `Fråga ${idx+1} / ${total}`;
+  document.getElementById('quiz-prog-fill').style.width = pct+'%';
+  document.getElementById('quiz-prog-label').textContent = `${idx} av ${total} besvarade`;
+  document.getElementById('quiz-topic').textContent = q.topic;
+  document.getElementById('quiz-q-number').textContent = `Fråga ${idx+1}`;
+  document.getElementById('quiz-q-text').textContent = q.q;
+  document.getElementById('quiz-feedback').style.display = 'none';
+
+  const aDiv = document.getElementById('quiz-answers');
+  aDiv.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = ()=>selectAnswer(i,btn);
+    aDiv.appendChild(btn);
+  });
+
+  if(PEPP_MILESTONE[pct]) showToast(PEPP_MILESTONE[pct]);
+}
+
+function selectAnswer(chosen, btn){
+  const q = quizSession.questions[quizSession.idx];
+  const correct = chosen === q.c;
+
+  document.querySelectorAll('.answer-btn').forEach((b,i)=>{
+    b.disabled = true;
+    if(i===q.c) b.classList.add('correct');
+    else if(i===chosen && !correct) b.classList.add('wrong');
+  });
+
+  quizSession.answers.push({q, correct});
+
+  const fbBox = document.getElementById('quiz-feedback-box');
+  fbBox.className = 'feedback-box '+(correct?'correct':'wrong');
+  document.getElementById('quiz-feedback-label').textContent = correct ? '✅ Rätt svar!' : '❌ Fel svar';
+  document.getElementById('quiz-feedback-text').textContent = q.exp;
+  document.getElementById('quiz-pepp').textContent = correct ? rand(PEPP_CORRECT) : rand(PEPP_WRONG);
+
+  const isLast = quizSession.idx >= quizSession.questions.length - 1;
+  document.getElementById('quiz-next-btn').textContent = isLast ? 'Se resultat →' : 'Nästa fråga →';
+  document.getElementById('quiz-feedback').style.display = 'block';
+
+  const p = loadProg();
+  if(correct) p.quizDone = Math.min((p.quizDone||0)+1, 24*10);
+  saveProg(p);
+}
+
+function nextQuizQ(){
+  const {questions,idx} = quizSession;
+  if(idx >= questions.length - 1){
+    showQuizResults();
+  } else {
+    quizSession.idx++;
+    renderQuizQ();
+  }
+}
+
+function showQuizResults(){
+  showScreen('screen-quiz-results');
+  const {questions,answers} = quizSession;
+  const score = answers.filter(a=>a.correct).length;
+  const total = questions.length;
+  const pct = Math.round(score/total*100);
+
+  document.getElementById('res-score').textContent = score;
+  document.getElementById('res-total').textContent = '/'+total;
+  document.getElementById('res-pct').textContent = pct+'% rätt';
+
+  const pDiv = document.getElementById('res-pepp');
+  let peppClass, peppMsg;
+  if(pct>=80){peppClass='great';peppMsg='🏆 Fantastisk! Du är redo för provet!';}
+  else if(pct>=60){peppClass='good';peppMsg='🌟 Riktigt bra kämpat! Fortsätt träna lite till.';}
+  else if(pct>=40){peppClass='ok';peppMsg='💪 Bra start! Öva på felsvaren så går det bättre!';}
+  else{peppClass='ok';peppMsg='📚 Inte fel alls för en första omgång! Kör om igen!';}
+  pDiv.className = 'result-pepp '+peppClass;
+  pDiv.textContent = peppMsg;
+
+  const wrongs = answers.filter(a=>!a.correct);
+  const aDiv = document.getElementById('res-actions');
+  aDiv.innerHTML = '';
+
+  if(wrongs.length>0){
+    const b1 = document.createElement('button');
+    b1.className = 'btn btn-primary';
+    b1.textContent = `Öva på ${wrongs.length} felsvaren`;
+    b1.onclick = ()=>initQuiz('wrong');
+    aDiv.appendChild(b1);
+    aDiv.insertAdjacentHTML('beforeend','<div class="divider">— eller —</div>');
+  }
+  const b2 = document.createElement('button');
+  b2.className = 'btn btn-secondary';
+  b2.textContent = '🔀 Blanda om & kör igen';
+  b2.onclick = ()=>initQuiz('shuffle');
+  aDiv.appendChild(b2);
+
+  const b3 = document.createElement('button');
+  b3.className = 'btn btn-secondary';
+  b3.textContent = '✨ Ny omgång med andra frågor';
+  b3.onclick = ()=>initQuiz('new');
+  aDiv.appendChild(b3);
+
+  const b4 = document.createElement('button');
+  b4.className = 'btn btn-ghost';
+  b4.textContent = 'Tillbaka till start';
+  b4.onclick = ()=>goHome();
+  aDiv.appendChild(b4);
+
+  const wDiv = document.getElementById('res-wrong-list');
+  wDiv.innerHTML = '';
+  if(wrongs.length>0){
+    wDiv.innerHTML = '<h4>Frågor du svarade fel på:</h4>';
+    wrongs.forEach(a=>{
+      const d = document.createElement('div');
+      d.className = 'wrong-item';
+      d.textContent = '• '+a.q.q;
+      wDiv.appendChild(d);
+    });
+  }
+}
+
+// ── OPEN QUESTIONS ────────────────────────────────────────────────────
+function initOpenQ(mode){
+  if(mode==='new' || mode==='same'){
+    openSession = {questions:[...BASE_OPEN_Q],idx:0,mode};
+  }
+  showScreen('screen-open');
+  renderOpenQ();
+}
+
+function renderOpenQ(){
+  const {questions,idx} = openSession;
+  const q = questions[idx];
+  const total = questions.length;
+  document.getElementById('open-counter').textContent = `Fråga ${idx+1} / ${total}`;
+  document.getElementById('open-prog-fill').style.width = Math.round((idx/total)*100)+'%';
+  document.getElementById('open-topic').textContent = q.topic;
+  document.getElementById('open-q-text').textContent = q.q;
+  document.getElementById('open-answer').value = '';
+  document.getElementById('char-count').textContent = '0 tecken';
+  document.getElementById('open-question-card').style.display = 'block';
+  document.getElementById('open-feedback-card').style.display = 'none';
+  document.getElementById('open-loading').style.display = 'none';
+  document.getElementById('open-submit-btn').disabled = false;
+}
+
+function updateCharCount(){
+  const v = document.getElementById('open-answer').value;
+  document.getElementById('char-count').textContent = v.length+' tecken';
+}
+
+function reviseAnswer(){
+  document.getElementById('open-question-card').style.display = 'block';
+  document.getElementById('open-feedback-card').style.display = 'none';
+}
+
+async function submitOpenAnswer(){
+  const answer = document.getElementById('open-answer').value.trim();
+  if(answer.length < 20){showToast('Skriv lite mer! Minst en mening.');return;}
+  const q = openSession.questions[openSession.idx];
+
+  document.getElementById('open-submit-btn').disabled = true;
+  document.getElementById('open-question-card').style.display = 'none';
+  document.getElementById('open-loading').style.display = 'block';
+  document.getElementById('open-feedback-card').style.display = 'none';
+
+  const sys = `Du är en erfaren lärare i Samhällskunskap 1a som bedömer elevsvar.
+Källmaterial:
+${MATERIAL}
+
+Regler för feedback:
+1. Skriv på enkel, tydlig svenska – eleven läser ibland med viss möda.
+2. Börja alltid med att berömma det som är korrekt ("Bra att du...")
+3. Peka sedan konkret på vad som saknas eller missförståtts ("I texten står det att...")
+4. Ge ALDRIG svaret direkt – ställ istället en sokratisk följdfråga som hjälper eleven tänka vidare.
+5. Avsluta med ett kort uppmuntrande meddelande.
+6. Max 200 ord. Inga punktlistor. Naturligt berättande.
+7. Bedöm enligt Skolverkets E-nivå som golv för Samhällskunskap 1a.`;
+
+  const msgs = [{role:'user',content:`Fråga: ${q.q}\n\nElevens svar: ${answer}`}];
+
+  try{
+    const fb = await callAPI(msgs,sys);
+    document.getElementById('open-loading').style.display = 'none';
+    document.getElementById('open-feedback-text').innerHTML = escHtml(fb).replace(/\n/g,'<br>');
+    document.getElementById('open-pepp').textContent = rand(PEPP_CORRECT);
+    const isLast = openSession.idx >= openSession.questions.length-1;
+    document.getElementById('open-next-btn').textContent = isLast ? 'Se sammanfattning →' : 'Nästa fråga →';
+    document.getElementById('open-feedback-card').style.display = 'block';
+
+    const p = loadProg();
+    p.openDone = Math.min((p.openDone||0)+1, 8*10);
+    saveProg(p);
+  } catch(e){
+    document.getElementById('open-loading').style.display = 'none';
+    document.getElementById('open-question-card').style.display = 'block';
+    document.getElementById('open-submit-btn').disabled = false;
+    showToast('Fel vid API-anrop. Kontrollera din API-nyckel.');
+  }
+}
+
+function nextOpenQ(){
+  const {questions,idx} = openSession;
+  if(idx >= questions.length-1){
+    showScreen('screen-open-results');
+  } else {
+    openSession.idx++;
+    renderOpenQ();
+  }
+}
+
+async function generateNewOpenQ(){
+  showToast('Genererar nya frågor...');
+  const btn = document.querySelector('#screen-open-results .btn-secondary');
+  if(btn) btn.disabled = true;
+
+  const sys = `Du är en lärare i Samhällskunskap 1a.
+Generera 5 nya examinationsfrågor om politiska ideologier baserade på detta material:
+${MATERIAL}
+
+Frågorna ska:
+- Vara på svenska
+- Ligga på E-C nivå (inte faktafrågor utan förståelse/analys)
+- Täcka olika ideologier (inte bara liberalism)
+- Inte upprepa dessa som redan finns: ${BASE_OPEN_Q.map(q=>q.q).join(' | ')}
+
+Returnera ENBART ett JSON-objekt, inget annat:
+{"questions":[{"q":"...","topic":"..."},{"q":"...","topic":"..."},{"q":"...","topic":"..."},{"q":"...","topic":"..."},{"q":"...","topic":"..."}]}`;
+
+  try{
+    const res = await callAPI([{role:'user',content:'Generera frågorna nu.'}],sys);
+    const match = res.match(/\{[\s\S]*\}/);
+    if(!match) throw new Error('bad json');
+    const data = JSON.parse(match[0]);
+    if(!data.questions || !data.questions.length) throw new Error('no questions');
+    openSession = {questions:data.questions,idx:0,mode:'ai'};
+    showScreen('screen-open');
+    renderOpenQ();
+    showToast('5 nya frågor genererade! 🎉');
+  } catch(e){
+    if(btn) btn.disabled = false;
+    showToast('Kunde inte generera frågor. Försök igen.');
+  }
+}
+
+// ── GLOSSARY ──────────────────────────────────────────────────────────
+function showGlossary(){
+  showScreen('screen-glossary');
+  const div = document.getElementById('glossary-list');
+  div.innerHTML = '';
+  GLOSSARY.forEach((item,i)=>{
+    const d = document.createElement('details');
+    d.className = 'glossary-item';
+    d.innerHTML = `<summary>${item.term}<span class="arrow">›</span></summary>
+<div class="glossary-body">
+  <p>${item.def}</p>
+  <div class="glossary-actions">
+    <button class="btn btn-ghost btn-sm" onclick="speakText('${escAttr(item.term+'. '+item.def)}')">🔊 Läs upp</button>
+    <button class="btn btn-ghost btn-sm" onclick="explainTermSimpler(${i},this)">💡 Förklara enklare</button>
+  </div>
+  <div class="simpler-result" id="simpler-${i}" style="margin-top:10px;display:none;background:var(--pl);border-radius:var(--rs);padding:12px;font-size:15px"></div>
+</div>`;
+    div.appendChild(d);
+  });
+}
+
+async function explainTermSimpler(i, btn){
+  const item = GLOSSARY[i];
+  const box = document.getElementById('simpler-'+i);
+  btn.disabled = true;
+  btn.textContent = '⏳ Väntar...';
+  try{
+    const res = await callAPI(
+      [{role:'user',content:`Förklara begreppet "${item.term}" i samhällskunskap på enkel svenska för en gymnasieelev. Max 3 meningar. Inget fackspråk.`}],
+      'Du förklarar samhällskunskapsbegrepp på enkel, tydlig svenska. Ingen jargong. Max 3 korta meningar.'
+    );
+    box.textContent = res;
+    box.style.display = 'block';
+    btn.textContent = '✅ Förklarat';
+  } catch(e){
+    btn.disabled = false;
+    btn.textContent = '💡 Förklara enklare';
+    showToast('API-fel. Kontrollera din nyckel.');
+  }
+}
+
+// ── EXPLAIN SIMPLER (quiz & open) ─────────────────────────────────────
+async function explainCurrent(){
+  const q = quizSession.questions[quizSession.idx];
+  if(!q) return;
+  showModal('💡 Frågan förklarad enklare','Hämtar förklaring...');
+  try{
+    const res = await callAPI(
+      [{role:'user',content:`Förklara denna fråga på enkel svenska för en gymnasieelev: "${q.q}". Max 3 meningar. Inget fackspråk.`}],
+      'Du förklarar frågor på enkel, tydlig svenska för gymnasieelever.'
+    );
+    document.getElementById('modal-body').textContent = res;
+  } catch(e){
+    document.getElementById('modal-body').textContent = 'Kunde inte hämta förklaring. Kontrollera API-nyckeln.';
+  }
+}
+
+async function explainOpenCurrent(){
+  const q = openSession.questions[openSession.idx];
+  if(!q) return;
+  showModal('💡 Frågan förklarad enklare','Hämtar förklaring...');
+  try{
+    const res = await callAPI(
+      [{role:'user',content:`Förklara vad denna fråga frågar efter, på enkel svenska: "${q.q}". Max 3 meningar.`}],
+      'Du förklarar frågor på enkel, tydlig svenska för gymnasieelever.'
+    );
+    document.getElementById('modal-body').textContent = res;
+  } catch(e){
+    document.getElementById('modal-body').textContent = 'Kunde inte hämta förklaring. Kontrollera API-nyckeln.';
+  }
+}
+
+// ── SPEECH ────────────────────────────────────────────────────────────
+function speakText(text){
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'sv-SE';
+  utt.rate = 0.9;
+  speechSynthesis.speak(utt);
+}
+function speakCurrent(){
+  const q = quizSession.questions[quizSession.idx];
+  if(q) speakText(q.q+'. '+q.opts.join('. '));
+}
+function speakOpenCurrent(){
+  const q = openSession.questions[openSession.idx];
+  if(q) speakText(q.q);
+}
+
+// ── API ───────────────────────────────────────────────────────────────
+async function callAPI(messages, systemPrompt){
+  if(!API_KEY || API_KEY==='ENTER_YOUR_API_KEY_HERE') throw new Error('No API key');
+  const res = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':API_KEY,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:MODEL,
+      max_tokens:1024,
+      system:systemPrompt,
+      messages
+    })
+  });
+  if(!res.ok) throw new Error('API error '+res.status);
+  const data = await res.json();
+  return data.content[0].text;
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────
+function showModal(title, body){
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').textContent = body;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(e){
+  if(!e || e.target===document.getElementById('modal-overlay') || e.currentTarget===document.querySelector('.modal-close')){
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escAttr(s){return s.replace(/'/g,'&#39;').replace(/"/g,'&quot;')}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+updateHomeProgress();
+</script>
+</body>
+</html>
