@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samhällskunskap 1a – Provträning Marknadsekonomi</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#0f766e;--pl:#ccfbf1;--pd:#134e4a;
+  --ok:#16a34a;--okl:#dcfce7;
+  --err:#dc2626;--errl:#fee2e2;
+  --warn:#d97706;--warnl:#fef9c3;
+  --bg:#f0fdf9;--surf:#fff;--bdr:#e2e8f0;
+  --txt:#0f172a;--muted:#64748b;
+  --r:14px;--rs:8px;
+  --sh:0 2px 8px rgba(0,0,0,.08);
+  --shm:0 4px 20px rgba(0,0,0,.12)
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:17px;line-height:1.6;padding-top:52px}
+.screen{display:none;min-height:100vh;flex-direction:column;max-width:680px;margin:0 auto;padding:16px}
+.screen.active{display:flex}
+
+/* SETTINGS BAR */
+#settings-bar-wrap{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;flex-direction:column;align-items:center;background:var(--pd)}
+#settings-toggle{background:none;border:none;color:#fff;font-size:14px;font-weight:600;padding:14px 20px;cursor:pointer;display:flex;align-items:center;gap:8px;letter-spacing:.3px}
+#key-status-dot{width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;transition:background .3s}
+#key-status-dot.active{background:#4ade80}
+#settings-panel-wrap{position:fixed;top:52px;left:0;right:0;z-index:190;display:none;justify-content:center}
+#settings-panel-wrap .panel-inner{background:var(--surf);border-bottom:3px solid var(--bdr);box-shadow:var(--shm);padding:16px 20px;width:100%;max-width:680px}
+.key-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.key-row input{flex:1;min-width:0;padding:10px 14px;border:2px solid var(--bdr);border-radius:var(--rs);font-size:15px;font-family:inherit}
+.key-row input:focus{outline:none;border-color:var(--p)}
+.key-info{font-size:13px;color:var(--muted);margin-top:8px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;border-radius:var(--r);border:none;font-size:16px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;width:100%;line-height:1.3}
+.btn-primary{background:var(--p);color:#fff}
+.btn-primary:hover{background:var(--pd)}
+.btn-secondary{background:var(--surf);color:var(--p);border:2px solid var(--p)}
+.btn-secondary:hover{background:var(--pl)}
+.btn-ghost{background:transparent;color:var(--muted);border:2px solid var(--bdr);width:auto;padding:10px 16px;font-size:15px}
+.btn-ghost:hover{border-color:var(--p);color:var(--p)}
+.btn-sm{padding:10px 16px;font-size:14px;width:auto}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* CARDS */
+.card{background:var(--surf);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:14px}
+.card-lg{padding:24px}
+
+/* HEADER */
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px}
+.top-bar h3{font-size:15px;color:var(--muted);font-weight:500}
+.top-bar-actions{display:flex;gap:8px}
+.icon-btn{background:var(--surf);border:2px solid var(--bdr);border-radius:var(--rs);padding:8px 12px;cursor:pointer;font-size:18px;line-height:1;transition:all .15s}
+.icon-btn:hover{border-color:var(--p)}
+
+/* PROGRESS */
+.prog-bar{height:8px;background:var(--bdr);border-radius:99px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:100%;background:var(--p);border-radius:99px;transition:width .4s ease}
+.prog-label{font-size:13px;color:var(--muted);text-align:right}
+
+/* HOME */
+.home-header{text-align:center;padding:24px 0 8px}
+.home-header h1{font-size:26px;font-weight:800;color:var(--pd);margin-bottom:4px}
+.home-header p{color:var(--muted);font-size:15px}
+.progress-overview{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.prog-card{background:var(--surf);border-radius:var(--r);padding:16px;box-shadow:var(--sh);text-align:center}
+.prog-card .num{font-size:28px;font-weight:800;color:var(--p)}
+.prog-card .label{font-size:13px;color:var(--muted)}
+.menu-grid{display:flex;flex-direction:column;gap:12px;margin:8px 0}
+.menu-btn{background:var(--surf);border:2px solid var(--bdr);border-radius:var(--r);padding:18px 20px;cursor:pointer;text-align:left;box-shadow:var(--sh);transition:all .15s;display:flex;align-items:center;gap:14px}
+.menu-btn:hover{border-color:var(--p);transform:translateY(-1px);box-shadow:var(--shm)}
+.menu-btn .icon{font-size:28px}
+.menu-btn .info h3{font-size:17px;font-weight:700;margin-bottom:2px}
+.menu-btn .info p{font-size:13px;color:var(--muted)}
+.pepp-banner{background:linear-gradient(135deg,#0f766e,#059669);color:#fff;border-radius:var(--r);padding:14px 18px;font-size:15px;font-weight:500;text-align:center;margin-top:8px}
+
+/* QUIZ */
+.topic-tag{display:inline-block;background:var(--pl);color:var(--pd);font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px}
+.q-number{font-size:14px;font-weight:600;color:var(--p);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.q-text{font-size:19px;font-weight:600;line-height:1.5;margin-bottom:20px}
+.answers{display:flex;flex-direction:column;gap:10px}
+.answer-btn{background:var(--surf);border:2px solid var(--bdr);border-radius:var(--r);padding:14px 18px;cursor:pointer;text-align:left;font-size:16px;transition:all .15s;display:flex;gap:12px;align-items:flex-start}
+.answer-btn:hover:not(:disabled){border-color:var(--p);background:var(--pl)}
+.answer-btn .letter{font-weight:700;color:var(--muted);min-width:22px}
+.answer-btn.correct{background:var(--okl);border-color:var(--ok)!important;color:var(--ok)}
+.answer-btn.correct .letter{color:var(--ok)}
+.answer-btn.wrong{background:var(--errl);border-color:var(--err)!important;color:var(--err)}
+.answer-btn.wrong .letter{color:var(--err)}
+.answer-btn:disabled{cursor:default}
+
+/* FEEDBACK */
+.feedback-box{border-radius:var(--r);padding:16px;margin-top:16px;font-size:15px;line-height:1.6}
+.feedback-box.correct{background:var(--okl);border-left:4px solid var(--ok)}
+.feedback-box.wrong{background:var(--errl);border-left:4px solid var(--err)}
+.feedback-label{font-weight:700;margin-bottom:6px;font-size:16px}
+.pepp-msg{font-size:16px;font-weight:600;text-align:center;padding:10px;color:var(--pd)}
+.next-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+
+/* OPEN Q */
+.open-q-text{font-size:19px;font-weight:600;line-height:1.5;margin-bottom:16px}
+textarea{width:100%;min-height:140px;border:2px solid var(--bdr);border-radius:var(--r);padding:14px;font-size:16px;font-family:inherit;resize:vertical;transition:border-color .15s;line-height:1.6}
+textarea:focus{outline:none;border-color:var(--p)}
+.char-count{font-size:13px;color:var(--muted);text-align:right;margin-top:4px}
+.ai-feedback{background:#f0fdfa;border:2px solid var(--pl);border-radius:var(--r);padding:18px;margin-top:16px;font-size:15px;line-height:1.7}
+
+/* LOADING */
+.loading-wrap{text-align:center;padding:30px;color:var(--muted)}
+.spinner{width:36px;height:36px;border:3px solid var(--bdr);border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* GLOSSARY */
+.glossary-item summary{font-size:17px;font-weight:600;padding:14px 0;display:flex;justify-content:space-between;align-items:center;list-style:none;border-bottom:1px solid var(--bdr);cursor:pointer}
+.glossary-item summary::-webkit-details-marker{display:none}
+.glossary-item summary .arrow{color:var(--muted);font-size:20px;transition:transform .2s}
+details[open] .arrow{transform:rotate(90deg)}
+.glossary-body{padding:14px 0 8px;font-size:15px;color:var(--txt);line-height:1.7}
+.glossary-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+/* TOAST */
+#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);z-index:1000;background:#0f172a;color:#fff;padding:12px 20px;border-radius:99px;font-size:15px;font-weight:500;transition:transform .3s;white-space:nowrap;max-width:90vw;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* MODAL */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end;justify-content:center}
+#modal-overlay.open{display:flex}
+#modal-box{background:var(--surf);border-radius:var(--r) var(--r) 0 0;padding:24px;width:100%;max-width:680px;max-height:80vh;overflow-y:auto}
+#modal-box h3{font-size:19px;font-weight:700;margin-bottom:12px}
+#modal-body{font-size:16px;line-height:1.7}
+.modal-close{display:block;margin-top:16px;text-align:center;padding:12px;border:2px solid var(--bdr);border-radius:var(--r);cursor:pointer;font-size:16px;font-weight:600}
+.modal-close:hover{border-color:var(--p);color:var(--p)}
+
+/* RESULTS */
+.score-big{text-align:center;padding:24px}
+.score-big .num{font-size:64px;font-weight:900;color:var(--p)}
+.score-big .denom{font-size:28px;color:var(--muted)}
+.score-big .label{font-size:17px;color:var(--muted);margin-top:4px}
+.result-pepp{font-size:18px;font-weight:600;text-align:center;padding:12px 20px;border-radius:var(--r);margin-bottom:16px}
+.result-pepp.great{background:var(--okl);color:var(--ok)}
+.result-pepp.good{background:var(--pl);color:var(--pd)}
+.result-pepp.ok{background:var(--warnl);color:var(--warn)}
+.result-actions{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.divider{text-align:center;color:var(--muted);font-size:14px;margin:4px 0}
+.wrong-list{margin-top:16px}
+.wrong-list h4{font-size:15px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.wrong-item{background:var(--errl);border-radius:var(--rs);padding:10px 14px;font-size:14px;margin-bottom:6px;color:var(--err)}
+
+@media(max-width:480px){
+  .q-text,.open-q-text{font-size:17px}
+  .score-big .num{font-size:52px}
+}
+</style>
+</head>
+<body>
+
+<div id="settings-bar-wrap">
+  <button id="settings-toggle" onclick="toggleSettings()">
+    <span id="key-status-dot"></span>
+    <span id="key-status-label">API-nyckel – klicka för att ange</span>
+    <span>⚙️</span>
+  </button>
+</div>
+<div id="settings-panel-wrap" style="display:none">
+  <div class="panel-inner">
+    <div class="key-row">
+      <input type="password" id="api-key-input" placeholder="Klistra in din Anthropic-nyckel (sk-ant-...)" autocomplete="off">
+      <button class="btn btn-primary btn-sm" onclick="saveApiKey()" style="width:auto">Spara</button>
+      <button class="btn btn-ghost btn-sm" id="key-clear-btn" onclick="clearApiKey()" style="display:none">Rensa</button>
+    </div>
+    <div class="key-info">Nyckeln sparas bara i din webbläsare (localStorage). Den skickas bara till Anthropic.</div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal-box">
+    <h3 id="modal-title"></h3>
+    <div id="modal-body"></div>
+    <div class="modal-close" onclick="closeModal()">Stäng</div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="home-header">
+    <h1>📊 Provträning</h1>
+    <p>Samhällskunskap 1a – Marknadsekonomi</p>
+  </div>
+  <div class="progress-overview">
+    <div class="prog-card">
+      <div class="num" id="home-quiz-num">0/24</div>
+      <div class="label">Quiz klarade</div>
+      <div class="prog-bar" style="margin-top:8px"><div class="prog-fill" id="home-quiz-fill" style="width:0%"></div></div>
+    </div>
+    <div class="prog-card">
+      <div class="num" id="home-open-num">0/8</div>
+      <div class="label">Öppna klarade</div>
+      <div class="prog-bar" style="margin-top:8px"><div class="prog-fill" id="home-open-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="menu-grid">
+    <button class="menu-btn" onclick="initQuiz('new')">
+      <span class="icon">🎯</span>
+      <div class="info"><h3>Träna med quiz</h3><p>24 flervalsfrågor med direkt feedback</p></div>
+    </button>
+    <button class="menu-btn" onclick="initOpenQ('new')">
+      <span class="icon">✍️</span>
+      <div class="info"><h3>Öppna frågor</h3><p>Skriv svar – Claude ger feedback</p></div>
+    </button>
+    <button class="menu-btn" onclick="showGlossary()">
+      <span class="icon">📖</span>
+      <div class="info"><h3>Begreppsordlista</h3><p>12 nyckelbegrepp med förklaringar</p></div>
+    </button>
+  </div>
+  <div class="pepp-banner" id="home-pepp"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="top-bar">
+    <button class="btn-ghost btn" onclick="confirmGoHome()" style="width:auto">← Hem</button>
+    <h3 id="quiz-counter">Fråga 1 / 24</h3>
+    <div class="top-bar-actions">
+      <button class="icon-btn" onclick="speakCurrent()" title="Läs upp">🔊</button>
+      <button class="icon-btn" onclick="explainCurrent()" title="Förklara enklare">💡</button>
+    </div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="quiz-prog-fill" style="width:0%"></div></div>
+  <div class="prog-label" id="quiz-prog-label"></div>
+  <br>
+  <div class="card card-lg">
+    <div class="topic-tag" id="quiz-topic"></div>
+    <div class="q-number" id="quiz-q-number"></div>
+    <div class="q-text" id="quiz-q-text"></div>
+    <div class="answers" id="quiz-answers"></div>
+    <div id="quiz-feedback" style="display:none">
+      <div class="feedback-box" id="quiz-feedback-box">
+        <div class="feedback-label" id="quiz-feedback-label"></div>
+        <div id="quiz-feedback-text"></div>
+      </div>
+      <div class="pepp-msg" id="quiz-pepp"></div>
+      <div class="next-row">
+        <button class="btn btn-primary" id="quiz-next-btn" onclick="nextQuizQ()">Nästa fråga →</button>
+        <button class="btn btn-ghost btn-sm" onclick="explainCurrent()">💡 Förklara enklare</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ RESULTS -->
+<div id="screen-quiz-results" class="screen">
+  <div class="top-bar">
+    <button class="btn-ghost btn" onclick="goHome()" style="width:auto">← Hem</button>
+    <h3>Resultat</h3>
+    <span></span>
+  </div>
+  <div class="card card-lg">
+    <div class="score-big">
+      <span class="num" id="res-score">0</span><span class="denom" id="res-total">/24</span>
+      <div class="label" id="res-pct"></div>
+    </div>
+    <div class="result-pepp" id="res-pepp"></div>
+    <div class="result-actions" id="res-actions"></div>
+    <div class="wrong-list" id="res-wrong-list"></div>
+  </div>
+</div>
+
+<!-- OPEN QUESTIONS -->
+<div id="screen-open" class="screen">
+  <div class="top-bar">
+    <button class="btn-ghost btn" onclick="confirmGoHome()" style="width:auto">← Hem</button>
+    <h3 id="open-counter">Fråga 1 / 8</h3>
+    <div class="top-bar-actions">
+      <button class="icon-btn" onclick="speakOpenCurrent()" title="Läs upp">🔊</button>
+      <button class="icon-btn" onclick="explainOpenCurrent()" title="Förklara enklare">💡</button>
+    </div>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="open-prog-fill" style="width:0%"></div></div>
+  <br>
+  <div class="card card-lg" id="open-question-card">
+    <div class="topic-tag" id="open-topic"></div>
+    <div class="open-q-text" id="open-q-text"></div>
+    <textarea id="open-answer" placeholder="Skriv ditt svar här. Ju mer du skriver desto bättre feedback får du..." oninput="updateCharCount()"></textarea>
+    <div class="char-count" id="char-count">0 tecken</div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="open-submit-btn" onclick="submitOpenAnswer()">Lämna in svar</button>
+      <button class="btn btn-ghost btn-sm" onclick="explainOpenCurrent()">💡 Förklara frågan</button>
+    </div>
+  </div>
+  <div id="open-loading" style="display:none" class="card">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <p>Claude läser ditt svar...</p>
+    </div>
+  </div>
+  <div id="open-feedback-card" style="display:none" class="card card-lg">
+    <div style="font-weight:700;font-size:17px;margin-bottom:12px;color:var(--pd)">📝 Feedback från Claude</div>
+    <div class="ai-feedback" id="open-feedback-text"></div>
+    <div class="pepp-msg" id="open-pepp"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="open-next-btn" onclick="nextOpenQ()">Nästa fråga →</button>
+      <button class="btn btn-ghost btn-sm" onclick="reviseAnswer()">Skriv om svar</button>
+    </div>
+  </div>
+</div>
+
+<!-- OPEN RESULTS -->
+<div id="screen-open-results" class="screen">
+  <div class="top-bar">
+    <button class="btn-ghost btn" onclick="goHome()" style="width:auto">← Hem</button>
+    <h3>Klart!</h3>
+    <span></span>
+  </div>
+  <div class="card card-lg" style="text-align:center">
+    <div style="font-size:56px;margin-bottom:8px">🎉</div>
+    <h2 style="font-size:22px;margin-bottom:8px">Bra kämpat!</h2>
+    <p style="color:var(--muted);margin-bottom:24px">Du har svarat på alla öppna frågor. Välj vad du vill göra härnäst:</p>
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="initOpenQ('same')">Kör om samma frågor</button>
+      <button class="btn btn-secondary" onclick="generateNewOpenQ()">✨ Generera nya frågor med AI</button>
+      <button class="btn btn-ghost" onclick="goHome()">Tillbaka till start</button>
+    </div>
+  </div>
+</div>
+
+<!-- GLOSSARY -->
+<div id="screen-glossary" class="screen">
+  <div class="top-bar">
+    <button class="btn-ghost btn" onclick="goHome()" style="width:auto">← Hem</button>
+    <h3>Begreppsordlista</h3>
+    <span></span>
+  </div>
+  <div class="card card-lg" id="glossary-list"></div>
+</div>
+
+<script>
+let API_KEY = localStorage.getItem('sk_ekon_apikey') || '';
+const MODEL = 'claude-sonnet-4-20250514';
+
+// ── SOURCE MATERIAL ───────────────────────────────────────────────────
+const MATERIAL = `Marknadsekonomi – Samhällskunskap 1a:
+
+MARKNADSEKONOMI: System där köpare och säljare möts (fysiskt eller abstrakt). Alla tänker på sig själva – företag vill sälja dyrt, konsumenter vill köpa billigt. I teorin gynnar detta alla.
+
+FRI KONKURRENS: Förutsättning för marknadsekonomi. Många företag tävlar om kunderna med pris och kvalitet. Kunden kan jämföra och välja. Resulterar i bra och prisvärda varor.
+
+MONOPOL: Ett företag ensamt producerar/säljer en vara och bestämmer priset. Ovanligt i marknadsekonomi. Statliga monopol finns, t.ex. Systembolaget – statligt monopol på vin/sprit i butik pga riksdagsbeslut om att begränsa alkoholtillgång. EU-medlemskap kan på sikt påverka.
+
+OLIGOPOL: Vanligt i Norden. Bara ett fåtal företag säljer en vara/tjänst. Beror på att marknaden inte är tillräckligt stor. Exempel: fyra stora banker, tre stora livsmedelsgrossister, bensinmarknaden. Konkurrensen kan ändå vara stark, men risk för otillåtna samarbeten ökar.
+
+KARTELL: Företag med likartade produkter samarbetar i tysthet om priser. Sätter fri konkurrens ur spel – effekten liknar monopol för kunderna. Konkurrensverket arbetar mot karteller och för sund konkurrens.
+
+UTBUD: Mängden varor/tjänster till försäljning vid ett visst pris.
+
+EFTERFRÅGAN: Mängden varor/tjänster kunder är villiga att köpa vid ett visst pris.
+
+PRISBILDNING: Pris styrs av utbud, efterfrågan och kundens nytta. Om utbud > efterfrågan sjunker priset. Om efterfrågan > utbud stiger priset. Låga priser ökar efterfrågan, höga priser sänker den.
+
+PRISKÄNSLIGHET: Salt = låg priskänslighet (nödvändighetsvara, köps oavsett pris). Exotiska frukter = hög priskänslighet (efterfrågan sjunker snabbt vid prispåhopp).
+
+EKONOMISKA AKTÖRER (fyra):
+1. Hushållen – erbjuder arbetskraft, är konsumenter. Lön → konsumtion → skatt → sparande.
+2. Näringslivet (företagen) – producerar varor/tjänster, betalar lön, gör vinst, investerar.
+3. Offentliga sektorn (stat, kommuner, regioner) – sätter lagar/regler, ger transfereringar (barnbidrag, studiebidrag, pension), stor arbetsgivare.
+4. Finanssektorn (banker) – lånar ut kapital till företag och hushåll. Katalysatorn i kretsloppet.
+
+LILLA EKONOMISKA KRETSLOPPET: Mikroekonomi. Beskriver relationen hushåll ↔ företag. Real ekonomi: hushåll ger arbete/kapital, företag ger varor/tjänster. Penningekonomi: hushåll får lön/räntor, betalar tillbaka för varor.
+
+STORA EKONOMISKA KRETSLOPPET: Inkluderar även offentlig sektor, finanssektorn och utlandshandel. Finanssektorn är katalysatorn – ger lån → investeringar → produktion → fler jobb → mer konsumtion → tillväxt.
+
+TRANSFERERINGAR: Bidrag från offentlig sektor till hushåll (barnbidrag, studiebidrag, pensioner).
+
+MIKROEKONOMI: Studerar den lilla delen av ekonomin – hushåll och företag.
+MAKROEKONOMI: Studerar hela samhällets ekonomi. Trender: arbetslöshet, tillväxt, ränteutveckling, statsskuld.
+
+KONJUNKTUR: Det rådande ekonomiska läget.
+TREND: Den långsiktiga ekonomiska utvecklingen.
+HÖGKONJUNKTUR: Hög aktivitet, ökad sysselsättning, stora investeringar, stigande priser.
+LÅGKONJUNKTUR: Lägre aktivitet, minskad produktion, färre investeringar, sjunkande efterfrågan, stigande arbetslöshet.
+RECESSION: Mild, tillfällig lågkonjunktur.
+DEPRESSION: Djupare, mer långvarig lågkonjunktur.
+KONJUNKTURCYKEL: Perioden för en hög- och lågkonjunktur. Ca 5 år sedan andra världskriget (ej exakt).`;
+
+// ── QUIZ (28 frågor) ──────────────────────────────────────────────────
+const ALL_QUIZ = [
+  {q:"Vad är en marknad i ekonomiska sammanhang?",opts:["Enbart en fysisk plats där varor säljs","Ett system där köpare och säljare möts – fysiskt eller abstrakt – för att göra affärer","En statlig organisation som kontrollerar priser","En börs där aktier handlas"],c:1,exp:"En marknad kan vara fysisk (t.ex. ett torg) eller abstrakt (affärer per telefon/digitalt). Det centrala är att köpare och säljare möts.",topic:"Marknadsekonomi"},
+  {q:"Vad är fri konkurrens?",opts:["Att staten sätter priserna på alla varor","Att ett enda företag dominerar en marknad","Att många företag tävlar om kunderna med pris och kvalitet","Att företag samarbetar för att hålla priserna stabila"],c:2,exp:"Fri konkurrens innebär att många företag konkurrerar om kunderna. Kunden kan jämföra och välja, vilket leder till bra och prisvärda varor.",topic:"Fri konkurrens"},
+  {q:"Vad innebär monopol?",opts:["Att två företag delar en marknad lika","Att ett företag ensamt säljer en vara och bestämmer priset","Att staten subventionerar ett visst företag","Att konsumenterna sätter priserna"],c:1,exp:"Monopol innebär att ett enda företag dominerar marknaden och ensamt bestämmer priset – ingen konkurrens.",topic:"Monopol"},
+  {q:"Vilket är ett exempel på statligt monopol i Sverige?",opts:["IKEA","Volvo","Systembolaget","ICA"],c:2,exp:"Systembolaget har monopol på vin- och spritförsäljning i butik. Riksdagen har beslutat om detta för att begränsa tillgången på alkohol.",topic:"Monopol"},
+  {q:"Varför har Sverige statligt monopol på spritförsäljning i butik?",opts:["För att staten vill ha inkomster från försäljningen","För att riksdagen beslutat begränsa tillgången på alkohol","För att inga privata företag vill sälja alkohol","För att Sverige är med i EU"],c:1,exp:"Riksdagen har beslutat att begränsa tillgången på alkohol i landet – det är skälet till Systembolagets monopol.",topic:"Monopol"},
+  {q:"Vad menas med oligopol?",opts:["Att staten äger alla företag i en bransch","Att bara ett fåtal företag säljer en viss vara eller tjänst","Att konsumenterna bestämmer produktionen","Att ett företag har total kontroll över en marknad"],c:1,exp:"Oligopol innebär att ett fåtal företag dominerar marknaden. Vanligt i Norden – t.ex. fyra stora banker och tre stora livsmedelsgrossister.",topic:"Oligopol"},
+  {q:"Hur många stora banker finns det i Sverige enligt källmaterialet?",opts:["Två","Tre","Fyra","Sex"],c:2,exp:"Materialet nämner fyra stora banker i Sverige som ett exempel på oligopol.",topic:"Oligopol"},
+  {q:"Varför är oligopol vanligt i Norden?",opts:["På grund av starka statliga regleringar","För att marknaden ofta är för liten för många aktörer","För att konsumenterna föredrar färre val","På grund av nordiska handelsavtal"],c:1,exp:"Nordiska marknader är geografiskt begränsade, vilket gör att underlaget ofta inte räcker för fler än ett fåtal aktörer i en bransch.",topic:"Oligopol"},
+  {q:"Vad är en kartell?",opts:["En statlig myndighet som övervakar konkurrensen","När företag med likartade produkter i tysthet samarbetar om t.ex. priser","En frivillig konsumentorganisation","Ett internationellt handelsavtal"],c:1,exp:"En kartell bildas när företag i hemlighet samarbetar istället för att konkurrera. Det drabbar konsumenterna ungefär som ett monopol.",topic:"Kartell"},
+  {q:"Vilken myndighet arbetar mot karteller i Sverige?",opts:["Riksbanken","Skatteverket","Konsumentverket","Konkurrensverket"],c:3,exp:"Konkurrensverket har till uppgift att arbeta för sund konkurrens till nytta för konsumenterna – bland annat mot karteller.",topic:"Kartell"},
+  {q:"Vad menas med efterfrågan?",opts:["Den mängd varor ett företag kan producera","Den mängd av en vara som kunder är villiga att köpa vid ett visst pris","Statens krav på hur mycket ett företag ska producera","Det pris ett företag vill ha för sin vara"],c:1,exp:"Efterfrågan är hur mycket kunderna vill och kan köpa till ett visst pris. Stiger priset sjunker vanligtvis efterfrågan.",topic:"Prisbildning"},
+  {q:"Vad händer med priset om utbudet är större än efterfrågan?",opts:["Priset stiger","Priset är oförändrat","Priset sjunker","Staten bestämmer priset"],c:2,exp:"När det finns mer till salu än det finns köpare – utbud > efterfrågan – tvingas säljarna sänka priset för att locka köpare.",topic:"Prisbildning"},
+  {q:"Vad händer med efterfrågan om priset höjs kraftigt?",opts:["Efterfrågan ökar","Efterfrågan är oförändrad","Efterfrågan sjunker","Utbudet minskar automatiskt"],c:2,exp:"Höga priser minskar efterfrågan. Kunderna köper mindre – eller väljer bort varan – när den blir för dyr.",topic:"Prisbildning"},
+  {q:"Salt har låg priskänslighet. Vad innebär det?",opts:["Folk köper mycket mindre salt om priset höjs en aning","Folk köper ungefär lika mycket salt oavsett priset","Folk slutar köpa salt om priset fördubblas","Saltpriset styrs av staten"],c:1,exp:"Salt är en nödvändighetsvara – folk köper det oavsett pris. Det är ett exempel på låg priskänslighet.",topic:"Prisbildning"},
+  {q:"Exotiska frukter har hög priskänslighet. Vad innebär det?",opts:["Priset på exotiska frukter är alltid stabilt","Efterfrågan sjunker snabbt om priset höjs","Exotiska frukter är nödvändighetsvaror","Staten reglerar priset på exotiska frukter"],c:1,exp:"Hög priskänslighet innebär att konsumenterna snabbt minskar köpen om priset stiger, eftersom varan inte är nödvändig.",topic:"Prisbildning"},
+  {q:"Vilka fyra aktörer ingår i det ekonomiska kretsloppet?",opts:["Staten, kommunerna, regionerna och EU","Hushållen, företagen, den offentliga sektorn och finanssektorn","Producenter, distributörer, återförsäljare och konsumenter","Banker, börsen, försäkringsbolag och pensionsfonder"],c:1,exp:"De fyra aktörerna är hushållen, näringslivet (företagen), den offentliga sektorn och finanssektorn.",topic:"Kretsloppet"},
+  {q:"Vad bidrar hushållen med i det ekonomiska kretsloppet?",opts:["Kapital och subventioner","Lagar och regler","Arbetskraft och konsumtion","Utlåning av pengar till företag"],c:2,exp:"Hushållen erbjuder arbetskraft och är drivande konsumenter. Konsumtionen håller kretsloppet igång.",topic:"Kretsloppet"},
+  {q:"Vad beskriver det lilla ekonomiska kretsloppet?",opts:["Kommunernas ekonomi","Utbytet mellan hushåll och företag","Internationell handel","Statens budget"],c:1,exp:"Det lilla kretsloppet fokuserar på relationen hushåll ↔ företag och kallas mikroekonomi.",topic:"Kretsloppet"},
+  {q:"Vad tillkommer i det stora ekonomiska kretsloppet jämfört med det lilla?",opts:["Bara utländska företag","Offentlig sektor, finanssektorn och utlandshandel","Enbart finanssektorn","Regionala arbetsmarknader"],c:1,exp:"Det stora kretsloppet inkluderar, utöver hushåll och företag, även offentlig sektor, finanssektorn och utlandshandel.",topic:"Kretsloppet"},
+  {q:"Varför kallas finanssektorn 'katalysatorn' i det stora kretsloppet?",opts:["Den äger alla företag","Den förser företag med lån som möjliggör investeringar och tillväxt","Den betalar ut bidrag till hushållen","Den sätter räntorna åt staten"],c:1,exp:"Finanssektorn ger lån → företag investerar → producerar mer → anställer fler → folk konsumerar mer → ekonomin växer.",topic:"Kretsloppet"},
+  {q:"Vad är transfereringar?",opts:["Pengar som företag betalar i skatt","Bidrag från offentlig sektor till hushållen, t.ex. barnbidrag och pension","Avgifter hushåll betalar för kommunala tjänster","Lån som banker ger till företag"],c:1,exp:"Transfereringar är pengar som strömmar från offentlig sektor till hushållen – barnbidrag, studiebidrag, pensioner.",topic:"Kretsloppet"},
+  {q:"Vad kallas det när man studerar hela samhällets ekonomi och trender som arbetslöshet och tillväxt?",opts:["Mikroekonomi","Makroekonomi","Nationalekonomi","Branschekonomi"],c:1,exp:"Makroekonomi handlar om hela samhällets ekonomi och stora trender. Det lilla kretsloppet (hushåll + företag) är mikroekonomi.",topic:"Makro/Mikro"},
+  {q:"Vad kallas perioder med hög aktivitet, ökad sysselsättning och stigande priser?",opts:["Lågkonjunktur","Depression","Recession","Högkonjunktur"],c:3,exp:"Högkonjunktur präglas av hög ekonomisk aktivitet, stigande sysselsättning, stora investeringar och stigande priser.",topic:"Konjunktur"},
+  {q:"Vad händer under en lågkonjunktur?",opts:["Priserna stiger kraftigt och sysselsättningen ökar","Företagen producerar mer för ökad efterfrågan","Produktion minskar, investeringar sjunker, arbetslösheten stiger","Räntan sänks alltid direkt av staten"],c:2,exp:"Lågkonjunktur: lägre aktivitet, minskad produktion, färre investeringar, sjunkande efterfrågan och stigande arbetslöshet.",topic:"Konjunktur"},
+  {q:"Vad är skillnaden mellan recession och depression?",opts:["Det är samma sak, bara olika ord","Recession är mild och tillfällig, depression är djupare och mer långvarig","Recession är global, depression är nationell","Depression är mildare än recession"],c:1,exp:"Recession = mild, tillfällig lågkonjunktur. Depression = djupare, mer långvarig nedgång.",topic:"Konjunktur"},
+  {q:"Hur lång har en typisk konjunkturcykel varit sedan andra världskriget?",opts:["Ungefär ett till två år","Ungefär tio år","Ungefär tjugo år","Ungefär fem år"],c:3,exp:"Den normala konjunkturcykeln har haft en längd på ungefär fem år sedan andra världskriget – men det är ingen exakt upprepning.",topic:"Konjunktur"},
+  {q:"Vad är skillnaden mellan konjunktur och trend?",opts:["De betyder samma sak","Konjunktur är det kortsiktiga ekonomiska läget, trend är den långsiktiga utvecklingen","Trend är kortsiktig, konjunktur är långsiktig","Trend handlar om mode, konjunktur om räntor"],c:1,exp:"Trend = den långsiktiga ekonomiska riktningen. Konjunktur = det aktuella läget just nu (hög eller låg aktivitet).",topic:"Konjunktur"},
+  {q:"Vad menas med den 'reala ekonomin' i det lilla kretsloppet?",opts:["Handel med utländsk valuta","Flödet av verkliga varor, tjänster och arbetskraft mellan hushåll och företag","Den officiella statistiken om BNP","Investeringar i aktier och obligationer"],c:1,exp:"Den reala ekonomin är flödet av verkliga varor och tjänster: hushåll ger arbete, företag ger varor och tjänster tillbaka.",topic:"Kretsloppet"},
+];
+
+// ── ÖPPNA FRÅGOR (8 st) ───────────────────────────────────────────────
+const BASE_OPEN_Q = [
+  {q:"Förklara vad marknadsekonomi innebär och varför fri konkurrens är en förutsättning för att det ska fungera. Vad händer för konsumenterna när konkurrensen försvinner?",topic:"Marknadsekonomi"},
+  {q:"Förklara skillnaden mellan monopol och oligopol. Ge ett verkligt exempel på vardera och beskriv hur varje marknadsform påverkar konsumenterna.",topic:"Monopol & oligopol"},
+  {q:"Vad är en kartell och varför är den skadlig? Vad har Konkurrensverket för uppgift, och varför behövs en sådan myndighet?",topic:"Kartell"},
+  {q:"Beskriv hur utbud och efterfrågan påverkar priset på en vara. Använd gärna ett eget exempel från lantbruk eller livsmedel (t.ex. spannmålspriser eller mjölk) för att visa att du förstår.",topic:"Prisbildning"},
+  {q:"Vilka fyra aktörer finns i det ekonomiska kretsloppet? Beskriv kort vad varje aktör bidrar med och hur de är beroende av varandra.",topic:"Ekonomiska aktörer"},
+  {q:"Förklara skillnaden mellan det lilla och det stora ekonomiska kretsloppet. Vad tillkommer i det stora, och varför kallas finanssektorn för 'katalysatorn'?",topic:"Kretsloppet"},
+  {q:"Vad är skillnaden mellan högkonjunktur och lågkonjunktur? Vad kännetecknar de två och vad skiljer en recession från en depression?",topic:"Konjunktur"},
+  {q:"Förklara vad makroekonomi och mikroekonomi är. Vilket av de ekonomiska kretsloppen hör till vilket begrepp, och vad studerar man på respektive nivå?",topic:"Makro & mikro"},
+];
+
+// ── ORDLISTA (12 begrepp) ─────────────────────────────────────────────
+const GLOSSARY = [
+  {term:"Marknadsekonomi",def:"Ekonomiskt system där köpare och säljare möts fritt för att göra affärer. Priset styrs av utbud och efterfrågan, inte av staten. Alla aktörer strävar efter sin egen nytta – i teorin till allas fördel."},
+  {term:"Fri konkurrens",def:"Tillståndet när många företag tävlar om samma kunder med pris och kvalitet. Konsumenten kan jämföra och välja. Leder i teorin till bra och prisvärda varor."},
+  {term:"Monopol",def:"Ett företag säljer ensamt en vara eller tjänst på en marknad och bestämmer priset. Kan vara statligt (t.ex. Systembolaget) eller privat. Ovanligt i marknadsekonomi."},
+  {term:"Oligopol",def:"Marknadsform med bara ett fåtal säljare, vanligt i Norden. Exempel: fyra stora banker, tre stora livsmedelsgrossister. Konkurrens finns men risken för otillåtna samarbeten ökar."},
+  {term:"Kartell",def:"Hemligt samarbete mellan konkurrerande företag om t.ex. priser. Sätter fri konkurrens ur spel och drabbar konsumenterna. Förbjudet – Konkurrensverket arbetar mot karteller."},
+  {term:"Utbud & efterfrågan",def:"Utbud = mängden varor till salu. Efterfrågan = vad kunderna vill köpa till ett visst pris. Priset bestäms av balansen: högt utbud → lägre pris. Hög efterfrågan → högre pris."},
+  {term:"Prisbildning",def:"Hur priset på en vara fastställs. Styrs av utbud, efterfrågan och kundernas betalningsvilja. Varor med låg priskänslighet (nödvändigheter) påverkas mindre av prisförändringar."},
+  {term:"Ekonomiska kretsloppet",def:"Modell som visar hur hushåll, företag, offentlig sektor och finanssektor utbyter pengar, varor och tjänster med varandra och är beroende av varandra."},
+  {term:"Transfereringar",def:"Pengar som den offentliga sektorn betalar ut till hushållen utan direkt motprestation. Exempel: barnbidrag, studiebidrag, pensioner, sjukpenning."},
+  {term:"Konjunktur",def:"Det rådande ekonomiska läget. Högkonjunktur = hög aktivitet, låg arbetslöshet. Lågkonjunktur = lägre aktivitet, högre arbetslöshet. Mild lågkonjunktur = recession. Djup = depression."},
+  {term:"Konjunkturcykel",def:"Den period det tar för ekonomin att genomgå en hög- och en lågkonjunktur. Sedan andra världskriget ungefär 5 år, men variationen är stor."},
+  {term:"Makro- & mikroekonomi",def:"Mikroekonomi studerar den lilla delen – hushåll och företag (det lilla kretsloppet). Makroekonomi studerar hela samhällsekonomin och stora trender som tillväxt, inflation och arbetslöshet."},
+];
+
+// ── PEPPANDE MEDDELANDEN ──────────────────────────────────────────────
+const PEPP_CORRECT = ["Rätt! Du har koll på det! 💪","Toppen! Det sitter! ⭐","Perfekt! Så ska det låta! 🔥","Bra jobbat! Fortsätt så! 🎯","Precis rätt! Du är på gång! ✅"];
+const PEPP_WRONG  = ["Inte den här gången – men nu vet du! 📚","Knepig fråga! Läs förklaringen noga. 💡","Det händer – det viktiga är att lära sig! 💪","Nästan! Nu sitter det nästa gång! 🎓"];
+const PEPP_HOME   = ["Lite plugg varje dag ger resultat! 📖","Du klarar det här! Kör igång! 💪","Varje fråga är ett steg närmre provet! 🎯","Kunskap är makt – sätt igång! ⚡","Bra att du är här och tränar! 🌟"];
+const PEPP_MILESTONE = {25:"Bra start! Fortsätt! 🚀",50:"Halvvägs! Du klarar det! 💪",75:"Snart i mål! Håll i! 🔥"};
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+// ── STATE & STORAGE ───────────────────────────────────────────────────
+let quizSession = {questions:[],idx:0,answers:[],mode:'new'};
+let openSession  = {questions:[],idx:0,mode:'new'};
+function loadProg(){return JSON.parse(localStorage.getItem('sk_ekon_prog')||'{"quizDone":0,"openDone":0}')}
+function saveProg(p){localStorage.setItem('sk_ekon_prog',JSON.stringify(p))}
+
+function updateHomeProgress(){
+  const p = loadProg();
+  const qn = Math.min(p.quizDone,24), on = Math.min(p.openDone,8);
+  document.getElementById('home-quiz-num').textContent = qn+'/24';
+  document.getElementById('home-open-num').textContent = on+'/8';
+  document.getElementById('home-quiz-fill').style.width = (qn/24*100)+'%';
+  document.getElementById('home-open-fill').style.width = (on/8*100)+'%';
+  document.getElementById('home-pepp').textContent = rand(PEPP_HOME);
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
+function goHome(){showScreen('screen-home');updateHomeProgress()}
+function confirmGoHome(){if(confirm('Vill du avbryta och gå tillbaka till start?'))goHome()}
+
+// ── QUIZ ──────────────────────────────────────────────────────────────
+function shuffle(arr){return [...arr].sort(()=>Math.random()-.5)}
+
+function pick24(exclude){
+  let pool = ALL_QUIZ.map((_,i)=>i);
+  if(exclude&&exclude.length&&pool.length>24) pool = pool.filter(i=>!exclude.includes(i));
+  return shuffle(pool).slice(0,24).map(i=>ALL_QUIZ[i]);
+}
+
+function initQuiz(mode){
+  if(mode==='new'){
+    const prev = quizSession.mode==='new'?quizSession.questions.map(q=>ALL_QUIZ.indexOf(q)):[];
+    quizSession = {questions:pick24(prev),idx:0,answers:[],mode:'new'};
+  } else if(mode==='shuffle'){
+    quizSession = {questions:shuffle(quizSession.questions),idx:0,answers:[],mode:'shuffle'};
+  } else if(mode==='wrong'){
+    quizSession = {questions:shuffle(quizSession.answers.filter(a=>!a.correct).map(a=>a.q)),idx:0,answers:[],mode:'wrong'};
+  } else if(mode==='same'){
+    quizSession = {...quizSession,idx:0,answers:[]};
+  }
+  showScreen('screen-quiz');
+  renderQuizQ();
+}
+
+function renderQuizQ(){
+  const {questions,idx} = quizSession;
+  const q = questions[idx];
+  const pct = Math.round((idx/questions.length)*100);
+  document.getElementById('quiz-counter').textContent = `Fråga ${idx+1} / ${questions.length}`;
+  document.getElementById('quiz-prog-fill').style.width = pct+'%';
+  document.getElementById('quiz-prog-label').textContent = `${idx} av ${questions.length} besvarade`;
+  document.getElementById('quiz-topic').textContent = q.topic;
+  document.getElementById('quiz-q-number').textContent = `Fråga ${idx+1}`;
+  document.getElementById('quiz-q-text').textContent = q.q;
+  document.getElementById('quiz-feedback').style.display = 'none';
+  const aDiv = document.getElementById('quiz-answers');
+  aDiv.innerHTML = '';
+  ['A','B','C','D'].forEach((l,i)=>{
+    const btn = document.createElement('button');
+    btn.className='answer-btn';
+    btn.innerHTML=`<span class="letter">${l}</span><span>${q.opts[i]}</span>`;
+    btn.onclick=()=>selectAnswer(i,btn);
+    aDiv.appendChild(btn);
+  });
+  if(PEPP_MILESTONE[pct]) showToast(PEPP_MILESTONE[pct]);
+}
+
+function selectAnswer(chosen){
+  const q = quizSession.questions[quizSession.idx];
+  const correct = chosen===q.c;
+  document.querySelectorAll('.answer-btn').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===q.c) b.classList.add('correct');
+    else if(i===chosen&&!correct) b.classList.add('wrong');
+  });
+  quizSession.answers.push({q,correct});
+  const fb = document.getElementById('quiz-feedback-box');
+  fb.className='feedback-box '+(correct?'correct':'wrong');
+  document.getElementById('quiz-feedback-label').textContent = correct?'✅ Rätt svar!':'❌ Fel svar';
+  document.getElementById('quiz-feedback-text').textContent = q.exp;
+  document.getElementById('quiz-pepp').textContent = correct?rand(PEPP_CORRECT):rand(PEPP_WRONG);
+  const isLast = quizSession.idx>=quizSession.questions.length-1;
+  document.getElementById('quiz-next-btn').textContent = isLast?'Se resultat →':'Nästa fråga →';
+  document.getElementById('quiz-feedback').style.display='block';
+  const p=loadProg(); if(correct) p.quizDone=Math.min((p.quizDone||0)+1,240); saveProg(p);
+}
+
+function nextQuizQ(){
+  if(quizSession.idx>=quizSession.questions.length-1) showQuizResults();
+  else{quizSession.idx++;renderQuizQ();}
+}
+
+function showQuizResults(){
+  showScreen('screen-quiz-results');
+  const {questions,answers} = quizSession;
+  const score = answers.filter(a=>a.correct).length, total=questions.length;
+  const pct = Math.round(score/total*100);
+  document.getElementById('res-score').textContent=score;
+  document.getElementById('res-total').textContent='/'+total;
+  document.getElementById('res-pct').textContent=pct+'% rätt';
+  const pd=document.getElementById('res-pepp');
+  let cls,msg;
+  if(pct>=80){cls='great';msg='🏆 Fantastisk! Du är redo för provet!';}
+  else if(pct>=60){cls='good';msg='🌟 Riktigt bra! Fortsätt träna lite till.';}
+  else{cls='ok';msg='💪 Bra start! Öva på felsvaren så sitter det!';}
+  pd.className='result-pepp '+cls; pd.textContent=msg;
+  const wrongs=answers.filter(a=>!a.correct);
+  const aDiv=document.getElementById('res-actions'); aDiv.innerHTML='';
+  if(wrongs.length>0){
+    const b=document.createElement('button'); b.className='btn btn-primary';
+    b.textContent=`Öva på ${wrongs.length} felsvaren`; b.onclick=()=>initQuiz('wrong'); aDiv.appendChild(b);
+    aDiv.insertAdjacentHTML('beforeend','<div class="divider">— eller —</div>');
+  }
+  [{t:'🔀 Blanda om & kör igen',m:'shuffle'},{t:'✨ Ny omgång med andra frågor',m:'new'}].forEach(({t,m})=>{
+    const b=document.createElement('button'); b.className='btn btn-secondary';
+    b.textContent=t; b.onclick=()=>initQuiz(m); aDiv.appendChild(b);
+  });
+  const bg=document.createElement('button'); bg.className='btn btn-ghost';
+  bg.textContent='Tillbaka till start'; bg.onclick=goHome; aDiv.appendChild(bg);
+  const wDiv=document.getElementById('res-wrong-list'); wDiv.innerHTML='';
+  if(wrongs.length>0){
+    wDiv.innerHTML='<h4>Frågor du svarade fel på:</h4>';
+    wrongs.forEach(a=>{const d=document.createElement('div');d.className='wrong-item';d.textContent='• '+a.q.q;wDiv.appendChild(d);});
+  }
+}
+
+// ── ÖPPNA FRÅGOR ──────────────────────────────────────────────────────
+function initOpenQ(mode){
+  if(mode==='new'||mode==='same') openSession={questions:[...BASE_OPEN_Q],idx:0,mode};
+  showScreen('screen-open'); renderOpenQ();
+}
+
+function renderOpenQ(){
+  const {questions,idx}=openSession, q=questions[idx], total=questions.length;
+  document.getElementById('open-counter').textContent=`Fråga ${idx+1} / ${total}`;
+  document.getElementById('open-prog-fill').style.width=Math.round((idx/total)*100)+'%';
+  document.getElementById('open-topic').textContent=q.topic;
+  document.getElementById('open-q-text').textContent=q.q;
+  document.getElementById('open-answer').value='';
+  document.getElementById('char-count').textContent='0 tecken';
+  document.getElementById('open-question-card').style.display='block';
+  document.getElementById('open-feedback-card').style.display='none';
+  document.getElementById('open-loading').style.display='none';
+  document.getElementById('open-submit-btn').disabled=false;
+}
+
+function updateCharCount(){document.getElementById('char-count').textContent=document.getElementById('open-answer').value.length+' tecken'}
+function reviseAnswer(){document.getElementById('open-question-card').style.display='block';document.getElementById('open-feedback-card').style.display='none'}
+
+async function submitOpenAnswer(){
+  const answer=document.getElementById('open-answer').value.trim();
+  if(answer.length<20){showToast('Skriv lite mer! Minst en mening.');return;}
+  const q=openSession.questions[openSession.idx];
+  document.getElementById('open-submit-btn').disabled=true;
+  document.getElementById('open-question-card').style.display='none';
+  document.getElementById('open-loading').style.display='block';
+  const sys=`Du är en erfaren lärare i Samhällskunskap 1a som bedömer elevsvar om marknadsekonomi.
+Källmaterial:
+${MATERIAL}
+
+Regler:
+1. Enkel, tydlig svenska – eleven läser ibland med viss möda.
+2. Börja alltid med att berömma det som är korrekt ("Bra att du...")
+3. Peka konkret på vad som saknas ("I texten står det att...")
+4. Ge ALDRIG svaret direkt – ställ en sokratisk följdfråga som hjälper eleven tänka vidare.
+5. Avsluta med ett kort uppmuntrande meddelande.
+6. Max 200 ord. Naturligt berättande, inga punktlistor.
+7. Bedöm enligt Skolverkets E-nivå som golv för Samhällskunskap 1a.`;
+  try{
+    const fb=await callAPI([{role:'user',content:`Fråga: ${q.q}\n\nElevens svar: ${answer}`}],sys);
+    document.getElementById('open-loading').style.display='none';
+    document.getElementById('open-feedback-text').innerHTML=escHtml(fb).replace(/\n/g,'<br>');
+    document.getElementById('open-pepp').textContent=rand(PEPP_CORRECT);
+    document.getElementById('open-next-btn').textContent=openSession.idx>=openSession.questions.length-1?'Se sammanfattning →':'Nästa fråga →';
+    document.getElementById('open-feedback-card').style.display='block';
+    const p=loadProg(); p.openDone=Math.min((p.openDone||0)+1,80); saveProg(p);
+  } catch(e){
+    document.getElementById('open-loading').style.display='none';
+    document.getElementById('open-question-card').style.display='block';
+    document.getElementById('open-submit-btn').disabled=false;
+    showToast('Fel vid API-anrop. Kontrollera din nyckel. ⚙️');
+  }
+}
+
+function nextOpenQ(){
+  if(openSession.idx>=openSession.questions.length-1) showScreen('screen-open-results');
+  else{openSession.idx++;renderOpenQ();}
+}
+
+async function generateNewOpenQ(){
+  showToast('Genererar nya frågor...');
+  const btn=document.querySelector('#screen-open-results .btn-secondary'); if(btn) btn.disabled=true;
+  const sys=`Du är lärare i Samhällskunskap 1a. Generera 5 nya examinationsfrågor om marknadsekonomi baserade på detta material:\n${MATERIAL}\n\nFrågorna ska vara på svenska, på E-C-nivå och täcka olika delar av materialet. Returnera ENBART JSON:\n{"questions":[{"q":"...","topic":"..."},{"q":"...","topic":"..."},{"q":"...","topic":"..."},{"q":"...","topic":"..."},{"q":"...","topic":"..."}]}`;
+  try{
+    const res=await callAPI([{role:'user',content:'Generera frågorna nu.'}],sys);
+    const match=res.match(/\{[\s\S]*\}/); if(!match) throw new Error();
+    const data=JSON.parse(match[0]); if(!data.questions?.length) throw new Error();
+    openSession={questions:data.questions,idx:0,mode:'ai'};
+    showScreen('screen-open'); renderOpenQ(); showToast('5 nya frågor genererade! 🎉');
+  } catch(e){
+    if(btn) btn.disabled=false; showToast('Kunde inte generera frågor. Försök igen.');
+  }
+}
+
+// ── ORDLISTA ──────────────────────────────────────────────────────────
+function showGlossary(){
+  showScreen('screen-glossary');
+  const div=document.getElementById('glossary-list'); div.innerHTML='';
+  GLOSSARY.forEach((item,i)=>{
+    const d=document.createElement('details'); d.className='glossary-item';
+    d.innerHTML=`<summary>${item.term}<span class="arrow">›</span></summary>
+<div class="glossary-body">
+  <p>${item.def}</p>
+  <div class="glossary-actions">
+    <button class="btn btn-ghost btn-sm" onclick="speakText('${escAttr(item.term+'. '+item.def)}')">🔊 Läs upp</button>
+    <button class="btn btn-ghost btn-sm" onclick="explainTermSimpler(${i},this)">💡 Förklara enklare</button>
+  </div>
+  <div id="simpler-${i}" style="margin-top:10px;display:none;background:var(--pl);border-radius:var(--rs);padding:12px;font-size:15px"></div>
+</div>`;
+    div.appendChild(d);
+  });
+}
+
+async function explainTermSimpler(i,btn){
+  const item=GLOSSARY[i]; btn.disabled=true; btn.textContent='⏳ Väntar...';
+  try{
+    const res=await callAPI([{role:'user',content:`Förklara begreppet "${item.term}" inom marknadsekonomi på enkel svenska för en gymnasieelev. Max 3 meningar. Inget fackspråk.`}],'Du förklarar ekonomibegrepp på enkel, tydlig svenska. Max 3 korta meningar.');
+    document.getElementById('simpler-'+i).textContent=res; document.getElementById('simpler-'+i).style.display='block';
+    btn.textContent='✅ Förklarat';
+  } catch(e){btn.disabled=false;btn.textContent='💡 Förklara enklare';showToast('API-fel. Kontrollera din nyckel.');}
+}
+
+// ── FÖRKLARA ENKLARE ─────────────────────────────────────────────────
+async function explainCurrent(){
+  const q=quizSession.questions[quizSession.idx]; if(!q) return;
+  showModal('💡 Frågan förklarad enklare','Hämtar förklaring...');
+  try{
+    const res=await callAPI([{role:'user',content:`Förklara denna fråga på enkel svenska för en gymnasieelev: "${q.q}". Max 3 meningar.`}],'Du förklarar ekonomifrågor på enkel svenska för gymnasieelever.');
+    document.getElementById('modal-body').textContent=res;
+  } catch(e){document.getElementById('modal-body').textContent='Kunde inte hämta förklaring. Kontrollera API-nyckeln.';}
+}
+async function explainOpenCurrent(){
+  const q=openSession.questions[openSession.idx]; if(!q) return;
+  showModal('💡 Frågan förklarad enklare','Hämtar förklaring...');
+  try{
+    const res=await callAPI([{role:'user',content:`Förklara vad denna fråga frågar efter, på enkel svenska: "${q.q}". Max 3 meningar.`}],'Du förklarar ekonomifrågor på enkel svenska för gymnasieelever.');
+    document.getElementById('modal-body').textContent=res;
+  } catch(e){document.getElementById('modal-body').textContent='Kunde inte hämta förklaring. Kontrollera API-nyckeln.';}
+}
+
+// ── SPEECH ────────────────────────────────────────────────────────────
+function speakText(text){if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='sv-SE';u.rate=0.9;speechSynthesis.speak(u)}
+function speakCurrent(){const q=quizSession.questions[quizSession.idx];if(q)speakText(q.q+'. '+q.opts.join('. '))}
+function speakOpenCurrent(){const q=openSession.questions[openSession.idx];if(q)speakText(q.q)}
+
+// ── SETTINGS ─────────────────────────────────────────────────────────
+function toggleSettings(){const p=document.getElementById('settings-panel-wrap');p.style.display=p.style.display==='flex'?'none':'flex'}
+function saveApiKey(){
+  const val=document.getElementById('api-key-input').value.trim();
+  if(!val.startsWith('sk-')){showToast('Nyckeln ska börja med "sk-". Kontrollera och försök igen.');return;}
+  API_KEY=val; localStorage.setItem('sk_ekon_apikey',val);
+  document.getElementById('api-key-input').value=''; updateKeyStatus();
+  document.getElementById('settings-panel-wrap').style.display='none'; showToast('API-nyckel sparad! ✅');
+}
+function clearApiKey(){API_KEY='';localStorage.removeItem('sk_ekon_apikey');updateKeyStatus();showToast('API-nyckel borttagen.')}
+function updateKeyStatus(){
+  const has=!!API_KEY;
+  document.getElementById('key-status-dot').className=has?'active':'';
+  document.getElementById('key-status-label').textContent=has?'API-nyckel inlagd ✓':'API-nyckel – klicka för att ange';
+  document.getElementById('key-clear-btn').style.display=has?'inline-flex':'none';
+}
+
+// ── API ───────────────────────────────────────────────────────────────
+async function callAPI(messages,systemPrompt){
+  if(!API_KEY){showToast('Lägg till din API-nyckel i fältet överst! ⚙️');throw new Error('No API key');}
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:MODEL,max_tokens:1024,system:systemPrompt,messages})
+  });
+  if(!res.ok) throw new Error('API error '+res.status);
+  return (await res.json()).content[0].text;
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────
+function showModal(title,body){document.getElementById('modal-title').textContent=title;document.getElementById('modal-body').textContent=body;document.getElementById('modal-overlay').classList.add('open')}
+function closeModal(e){if(!e||e.target===document.getElementById('modal-overlay'))document.getElementById('modal-overlay').classList.remove('open')}
+
+// ── TOAST ─────────────────────────────────────────────────────────────
+let tt;function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3000)}
+
+// ── UTILS ─────────────────────────────────────────────────────────────
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escAttr(s){return s.replace(/'/g,'&#39;').replace(/"/g,'&quot;')}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+updateKeyStatus();
+updateHomeProgress();
+</script>
+</body>
+</html>
