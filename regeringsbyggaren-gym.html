@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regeringsbyggaren – Gymnasienivå</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --bg-card2: #1c2128;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --se-blue: #006FD6;
+  --se-yellow: #FECC02;
+  --green: #2ea043;
+  --red: #da3633;
+  --radius: 12px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+
+/* ── Screens ── */
+.screen{display:none;min-height:100vh;padding:0 0 60px}
+.screen.active{display:block}
+
+/* ── Progress bar ── */
+.progress-wrap{position:sticky;top:0;z-index:100;background:var(--bg-card);border-bottom:1px solid var(--border);padding:12px 20px}
+.progress-steps{display:flex;gap:6px;max-width:700px;margin:0 auto;justify-content:center}
+.step-dot{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .3s}
+.step-dot.done{background:var(--se-yellow)}
+.step-dot.active{background:var(--se-blue)}
+.progress-label{text-align:center;font-size:.78rem;color:var(--text-muted);margin-top:6px}
+
+/* ── Header / Hero ── */
+.hero{background:linear-gradient(135deg,#0a1628 0%,#0d2145 50%,#091630 100%);padding:48px 20px 40px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(0,111,214,.15) 0%,transparent 60%),radial-gradient(ellipse at 70% 50%,rgba(254,204,2,.08) 0%,transparent 60%)}
+.hero-badge{display:inline-block;background:rgba(254,204,2,.15);border:1px solid rgba(254,204,2,.3);color:var(--se-yellow);padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:600;letter-spacing:.05em;margin-bottom:16px}
+.hero h1{font-size:clamp(1.8rem,5vw,3rem);font-weight:800;line-height:1.2;position:relative}
+.hero h1 span{color:var(--se-yellow)}
+.hero p{color:#a0b4c8;margin-top:12px;max-width:560px;margin-left:auto;margin-right:auto;font-size:1.05rem;position:relative}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;text-decoration:none}
+.btn-primary{background:var(--se-blue);color:#fff}
+.btn-primary:hover{background:#0082ff;transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,111,214,.4)}
+.btn-secondary{background:var(--bg-card2);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:#58a6ff;color:#58a6ff}
+.btn-yellow{background:var(--se-yellow);color:#000}
+.btn-yellow:hover{background:#ffd83d;transform:translateY(-1px)}
+
+/* ── Content containers ── */
+.container{max-width:900px;margin:0 auto;padding:0 20px}
+.section{padding:32px 0 0}
+.section-title{font-size:1.4rem;font-weight:700;margin-bottom:6px}
+.section-sub{color:var(--text-muted);font-size:.92rem;margin-bottom:20px}
+
+/* ── Cards ── */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.card-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.card-sm{background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:14px}
+
+/* ── Party cards ── */
+.party-card{background:var(--bg-card);border:2px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .2s;position:relative;user-select:none}
+.party-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.party-card.selected{border-color:var(--se-yellow);background:rgba(254,204,2,.07)}
+.party-card.selected::after{content:'✓';position:absolute;top:10px;right:12px;font-size:1.1rem;color:var(--se-yellow)}
+.party-card .party-color-bar{height:5px;border-radius:3px;margin-bottom:12px}
+.party-card .party-abbr{font-size:1.5rem;font-weight:800;margin-bottom:2px}
+.party-card .party-name{font-size:.8rem;color:var(--text-muted);margin-bottom:8px}
+.party-card .party-seats{font-size:1.1rem;font-weight:700}
+.party-card .party-seats span{font-size:.75rem;font-weight:400;color:var(--text-muted)}
+
+/* ── Hemicycle ── */
+.hemicycle-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px}
+.hemicycle-wrap svg{display:block;margin:0 auto;max-width:100%;width:560px}
+.hemicycle-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;justify-content:center}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:.8rem}
+.legend-dot{width:12px;height:12px;border-radius:50%}
+
+/* ── Seat counter ── */
+.seat-counter{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;position:sticky;top:72px;z-index:50}
+.seat-num{font-size:2.5rem;font-weight:800;line-height:1}
+.seat-num.majority{color:var(--green)}
+.seat-num.short{color:var(--red)}
+.seat-bar-wrap{background:var(--border);border-radius:3px;height:10px;margin:10px 0;overflow:hidden}
+.seat-bar{height:100%;background:var(--se-blue);border-radius:3px;transition:width .4s}
+.seat-bar.majority{background:var(--green)}
+.majority-line{border-left:2px dashed var(--se-yellow);height:10px;margin-left:50%;position:relative;top:-10px;pointer-events:none}
+.coalition-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;justify-content:center}
+.coalition-chip{padding:3px 10px;border-radius:12px;font-size:.78rem;font-weight:700;color:#000}
+
+/* ── Compatibility meter ── */
+.compat-meter{margin-top:14px;font-size:.85rem}
+.compat-bar-wrap{background:var(--border);border-radius:3px;height:8px;overflow:hidden;margin:6px 0}
+.compat-bar{height:100%;border-radius:3px;transition:width .4s}
+.compat-label{display:flex;justify-content:space-between;color:var(--text-muted);font-size:.78rem}
+
+/* ── Policy area ── */
+.policy-grid{display:grid;gap:16px;grid-template-columns:1fr}
+.policy-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.policy-card h3{font-size:1rem;font-weight:700;margin-bottom:4px}
+.policy-card .policy-desc{font-size:.85rem;color:var(--text-muted);margin-bottom:14px}
+.policy-choice-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.policy-choice{background:var(--bg-card2);border:2px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;font-size:.83rem;transition:all .2s}
+.policy-choice:hover{border-color:#58a6ff}
+.policy-choice.selected{border-color:var(--se-yellow);background:rgba(254,204,2,.06)}
+.policy-choice .choice-label{font-weight:700;font-size:.75rem;color:var(--text-muted);margin-bottom:4px}
+.party-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.party-tag{padding:2px 6px;border-radius:4px;font-size:.7rem;font-weight:700}
+.conflict-badge{background:rgba(218,54,51,.15);border:1px solid rgba(218,54,51,.3);color:#ff7b72;padding:6px 10px;border-radius:6px;font-size:.8rem;margin-bottom:10px}
+.agreement-badge{background:rgba(46,160,67,.15);border:1px solid rgba(46,160,67,.3);color:#3fb950;padding:6px 10px;border-radius:6px;font-size:.8rem;margin-bottom:10px}
+
+/* ── Government form ── */
+.form-group{margin-bottom:20px}
+.form-label{font-size:.9rem;font-weight:600;margin-bottom:8px;display:block}
+.form-input{width:100%;background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:.95rem;font-family:inherit}
+.form-input:focus{outline:2px solid var(--se-blue);border-color:var(--se-blue)}
+select.form-input option{background:var(--bg-card2)}
+.priority-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+.priority-num{background:var(--se-yellow);color:#000;font-weight:800;font-size:.85rem;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:10px}
+
+/* ── Analysis ── */
+.score-big{font-size:3.5rem;font-weight:900;text-align:center;line-height:1}
+.score-ring{width:130px;height:130px;margin:0 auto 16px;position:relative}
+.score-ring svg{width:100%;height:100%}
+.score-ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800}
+.score-ring-num{font-size:2rem;line-height:1}
+.score-ring-label{font-size:.7rem;color:var(--text-muted)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.compare-card{background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.compare-card h3{font-size:.9rem;font-weight:600;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+.compare-card .big{font-size:1.4rem;font-weight:800;margin-bottom:4px}
+.reflect-list{list-style:none;counter-reset:reflect}
+.reflect-list li{counter-increment:reflect;display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);font-size:.92rem}
+.reflect-list li::before{content:counter(reflect);background:var(--se-yellow);color:#000;font-weight:800;font-size:.8rem;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-top:16px}
+.concept-card{background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:14px}
+.concept-card dt{font-weight:700;font-size:.88rem;color:var(--se-yellow);margin-bottom:4px}
+.concept-card dd{font-size:.83rem;color:var(--text-muted);margin:0}
+.process-steps{counter-reset:steps}
+.process-step{counter-increment:steps;display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.process-step::before{content:counter(steps);background:var(--se-blue);color:#fff;font-weight:700;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.process-step strong{display:block;margin-bottom:2px}
+.info-box{background:rgba(0,111,214,.1);border:1px solid rgba(0,111,214,.25);border-radius:8px;padding:14px 16px;font-size:.88rem;color:#a0c8f0;margin-bottom:16px}
+.info-box strong{color:#58a6ff}
+.spectrum-bar{position:relative;height:28px;background:linear-gradient(90deg,#AF0000,#E8112D,#53A045,#009933,#006AB3,#005EA1,#1B2E74,#DDCF00);border-radius:4px;margin:20px 0 30px}
+.spectrum-bar::before{content:'◄ Vänster';position:absolute;left:0;top:100%;margin-top:4px;font-size:.72rem;color:var(--text-muted)}
+.spectrum-bar::after{content:'Höger ►';position:absolute;right:0;top:100%;margin-top:4px;font-size:.72rem;color:var(--text-muted)}
+.spectrum-pin{position:absolute;top:-28px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;cursor:default}
+.spectrum-pin .pin-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--bg-card)}
+.spectrum-pin .pin-label{font-size:.68rem;font-weight:700;white-space:nowrap;background:var(--bg-card);padding:1px 4px;border-radius:3px;margin-bottom:2px}
+.spectrum-pin .pin-arrow{font-size:1rem;line-height:1;color:var(--text-muted);margin-top:-2px}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--se-blue);text-decoration:none;font-size:.88rem;padding:8px 0}
+.back-link:hover{color:#58a6ff}
+
+/* ── Util ── */
+.flex{display:flex}.gap-12{gap:12px}.items-center{align-items:center}.justify-between{justify-content:space-between}.mt-8{margin-top:8px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}.mb-4{margin-bottom:4px}.text-muted{color:var(--text-muted)}.text-sm{font-size:.85rem}.text-yellow{color:var(--se-yellow)}.text-green{color:var(--green)}.text-red{color:var(--red)}.text-blue{color:#58a6ff}.font-bold{font-weight:700}.text-center{text-align:center}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:600}
+.tag-blue{background:rgba(0,111,214,.2);color:#58a6ff}
+.tag-yellow{background:rgba(254,204,2,.15);color:var(--se-yellow)}
+.tag-green{background:rgba(46,160,67,.2);color:var(--green)}
+.tag-red{background:rgba(218,54,51,.2);color:#ff7b72}
+
+@media(max-width:600px){
+  .card-grid{grid-template-columns:1fr 1fr}
+  .policy-choice-row{grid-template-columns:1fr}
+  .compare-grid{grid-template-columns:1fr}
+  .concept-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 1: START
+══════════════════════════════════════════ -->
+<div id="screen-start" class="screen active">
+  <div class="hero">
+    <div class="hero-badge">GYMNASIENIVÅ · GY25</div>
+    <h1>🏛️ <span>Regeringsbyggaren</span></h1>
+    <p>Simulera Sveriges regeringsbildning. Bygg koalitioner, förhandla om politik och forma en regering – precis som i verkligheten.</p>
+    <div style="margin-top:28px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="goTo('screen-riksdag')">Börja simulationen ›</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('learn-intro').scrollIntoView({behavior:'smooth'})">Läs teorin först</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="section" id="learn-intro">
+      <div class="section-title">Vad du kommer att lära dig</div>
+      <div class="section-sub">Kursmoment: Demokrati och politiska system – Gy25 Samhällskunskap 1</div>
+      <div class="card-grid">
+        <div class="card-sm">
+          <div class="text-yellow font-bold mb-4">🗳️ Parlamentarism</div>
+          <div class="text-sm text-muted">Hur riksdagen och regeringen förhåller sig till varandra i ett parlamentariskt system.</div>
+        </div>
+        <div class="card-sm">
+          <div class="text-yellow font-bold mb-4">🤝 Koalitionspolitik</div>
+          <div class="text-sm text-muted">Varför partier samarbetar, vilka kompromisser det kräver och hur block bildas.</div>
+        </div>
+        <div class="card-sm">
+          <div class="text-yellow font-bold mb-4">⚖️ Regeringsbildning</div>
+          <div class="text-sm text-muted">Processen från val till att en statsminister kan tillträda – talmansrundor och statsministeromröstning.</div>
+        </div>
+        <div class="card-sm">
+          <div class="text-yellow font-bold mb-4">📋 Politisk ideologi</div>
+          <div class="text-sm text-muted">Hur partiernas ståndpunkter i sakfrågor avgör vilka som kan regera tillsammans.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Hur det svenska systemet fungerar</div>
+      <div class="info-box" style="margin-top:16px">
+        <strong>Negativt parlamentarism</strong> – Sverige är unikt: en statsminister väljs om <em>färre än 175 riksdagsledamöter</em> röstar emot. Det räcker alltså inte att ha stöd – det gäller att inte ha motstånd.
+      </div>
+      <div class="card" style="margin-top:0">
+        <div style="font-size:.9rem;font-weight:700;margin-bottom:12px">Regeringsbildningsprocessen</div>
+        <ol class="process-steps">
+          <li><strong>Riksdagsval</strong> Allmänna val hålls vart fjärde år, tredje söndagen i september.</li>
+          <li><strong>Riksdagen konstitueras</strong> Riksdagen väljer talman och vice talmän. Talmannen leder bildningsprocessen.</li>
+          <li><strong>Sonderingsamtal</strong> Talmannen håller möten med partiledarna för att kartlägga möjliga majoriteter.</li>
+          <li><strong>Statsministeromröstning</strong> Talmannen lämnar förslag på statsminister. Riksdagen röstar – om inte 175+ röstar emot, väljs kandidaten.</li>
+          <li><strong>Regeringen tillträder</strong> Statsministern utser statsråd (ministrar). Regeringen avger en <em>regeringsförklaring</em> i riksdagen.</li>
+          <li><strong>Budgetomröstning</strong> Regeringens budget prövas. En minoritetsregering kan fällas om oppositionen samlas om en alternativ budget.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="section" style="padding-bottom:40px">
+      <div class="section-title">Politiska block 2022</div>
+      <div class="section-sub">Riksdagsvalet 2022 – utgångspunkten för din simulation</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px">
+        <div class="card" style="border-color:rgba(232,17,45,.3)">
+          <div style="font-size:.85rem;font-weight:700;color:#ff7b72;margin-bottom:10px">VÄNSTERBLOCKET · 173 mandat</div>
+          <div class="flex gap-12" style="flex-wrap:wrap">
+            <span><strong style="color:#E8112D">S</strong> 107</span>
+            <span><strong style="color:#AF0000">V</strong> 24</span>
+            <span><strong style="color:#53A045">MP</strong> 18</span>
+          </div>
+          <div class="text-sm text-muted mt-8">Socialdemokraterna, Vänsterpartiet och Miljöpartiet. Ledd av Stefan Löfven/Magdalena Andersson.</div>
+        </div>
+        <div class="card" style="border-color:rgba(27,46,116,.4)">
+          <div style="font-size:.85rem;font-weight:700;color:#79b8ff;margin-bottom:10px">HÖGERBLOCKET · 176 mandat</div>
+          <div class="flex gap-12" style="flex-wrap:wrap">
+            <span><strong style="color:#1B2E74">M</strong> 68</span>
+            <span><strong style="color:#DDCF00">SD</strong> 73</span>
+            <span><strong style="color:#005EA1">KD</strong> 19</span>
+            <span><strong style="color:#006AB3">L</strong> 16</span>
+          </div>
+          <div class="text-sm text-muted mt-8">Moderaterna, Sverigedemokraterna, Kristdemokraterna och Liberalerna. Bildade Tidöregeringen.</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;text-align:center">
+        <button class="btn btn-primary" onclick="goTo('screen-riksdag')">Starta simulationen ›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 2: RIKSDAGEN – VISUALISERING
+══════════════════════════════════════════ -->
+<div id="screen-riksdag" class="screen">
+  <div class="progress-wrap">
+    <div class="progress-steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="progress-label">Steg 2 av 6 – Riksdagen 2022</div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <a href="#" class="back-link" onclick="goTo('screen-start');return false">← Tillbaka</a>
+      <div class="section-title">Riksdagen – valresultatet 2022</div>
+      <div class="section-sub">349 mandat totalt. En regering behöver stöd (eller tolerans) av minst 175 ledamöter.</div>
+
+      <div class="hemicycle-wrap">
+        <svg id="hemicycle-static" viewBox="0 0 560 290" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="hemicycle-legend" id="legend-static"></div>
+      </div>
+
+      <!-- Party detail cards -->
+      <div class="card-grid" id="party-overview-grid"></div>
+
+      <!-- Political spectrum -->
+      <div class="card mt-32">
+        <div style="font-size:.9rem;font-weight:700;margin-bottom:10px">Politiskt spektrum</div>
+        <div class="text-sm text-muted mb-4">Partiernas position på vänster-höger-skalan (förenklad)</div>
+        <div class="spectrum-bar" id="spectrum-static"></div>
+      </div>
+
+      <div class="mt-24" style="text-align:center">
+        <button class="btn btn-primary" onclick="goTo('screen-builder')">Bygg din regering ›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 3: KOALITIONSBYGGAREN
+══════════════════════════════════════════ -->
+<div id="screen-builder" class="screen">
+  <div class="progress-wrap">
+    <div class="progress-steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="progress-label">Steg 3 av 6 – Koalitionsbyggaren</div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <a href="#" class="back-link" onclick="goTo('screen-riksdag');return false">← Tillbaka</a>
+      <div class="section-title">Välj dina koalitionspartner</div>
+      <div class="section-sub">Klicka på partier för att lägga till dem i din koalition. Du behöver minst 175 mandat.</div>
+
+      <div style="display:grid;grid-template-columns:1fr minmax(200px,240px);gap:20px;align-items:start">
+        <div>
+          <!-- Hemicycle (interactive) -->
+          <div class="hemicycle-wrap">
+            <svg id="hemicycle-builder" viewBox="0 0 560 290" xmlns="http://www.w3.org/2000/svg"></svg>
+            <div class="hemicycle-legend" id="legend-builder"></div>
+          </div>
+
+          <!-- Party cards grid -->
+          <div class="card-grid" id="party-builder-grid"></div>
+
+          <div class="info-box mt-24">
+            <strong>Viktigt:</strong> Kom ihåg negativt parlamentarism – du behöver inte att alla 175+ aktivt stöder din PM. Det räcker att de tolererar regeringen (lägger ned sin röst eller är frånvarande).
+          </div>
+        </div>
+
+        <!-- Sticky seat counter -->
+        <div>
+          <div class="seat-counter" id="seat-counter">
+            <div class="text-muted text-sm mb-4">Dina mandat</div>
+            <div class="seat-num short" id="seat-num">0</div>
+            <div class="text-muted text-sm">av 349 · behöver 175</div>
+            <div class="seat-bar-wrap">
+              <div class="seat-bar" id="seat-bar" style="width:0%"></div>
+            </div>
+            <div class="coalition-list" id="coalition-chips"></div>
+
+            <div class="compat-meter">
+              <div class="compat-label">
+                <span>Koalitionskompatibilitet</span>
+                <span id="compat-pct">–</span>
+              </div>
+              <div class="compat-bar-wrap">
+                <div class="compat-bar" id="compat-bar" style="width:0%;background:#58a6ff"></div>
+              </div>
+              <div class="text-sm text-muted" id="compat-desc">Välj minst ett parti</div>
+            </div>
+
+            <div id="majority-msg" class="mt-8 text-sm" style="display:none"></div>
+            <button class="btn btn-yellow mt-16" style="width:100%;justify-content:center" id="proceed-btn" onclick="goTo('screen-policy')" disabled>Gå vidare till förhandling ›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 4: POLITISK FÖRHANDLING
+══════════════════════════════════════════ -->
+<div id="screen-policy" class="screen">
+  <div class="progress-wrap">
+    <div class="progress-steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="progress-label">Steg 4 av 6 – Politisk förhandling</div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <a href="#" class="back-link" onclick="goTo('screen-builder');return false">← Tillbaka</a>
+      <div class="section-title">Koalitionsförhandlingar</div>
+      <div class="section-sub">Välj din regerings ståndpunkt i varje sakfråga. Partier som föredrar ditt val markeras. Ju fler partier som är nöjda, desto starkare koalition.</div>
+
+      <div class="policy-grid" id="policy-grid"></div>
+
+      <div class="mt-24 text-center">
+        <button class="btn btn-primary" id="policy-proceed" onclick="goTo('screen-form')">Forma din regering ›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 5: REGERINGSFORMULÄR
+══════════════════════════════════════════ -->
+<div id="screen-form" class="screen">
+  <div class="progress-wrap">
+    <div class="progress-steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="progress-label">Steg 5 av 6 – Bilda regering</div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <a href="#" class="back-link" onclick="goTo('screen-policy');return false">← Tillbaka</a>
+      <div class="section-title">Forma din regering</div>
+      <div class="section-sub">Ge din regering ett namn, välj statsminister och skriv en kort regeringsförklaring.</div>
+
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Regeringens namn</label>
+          <input type="text" class="form-input" id="gov-name" placeholder="T.ex. Samlingsregeringen, Samarbetsregeringen…" maxlength="60">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Statsminister – välj parti</label>
+          <select class="form-input" id="pm-party"></select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Statsministerns namn <span class="text-muted">(valfritt)</span></label>
+          <input type="text" class="form-input" id="pm-name" placeholder="Ange statsministerns namn" maxlength="50">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tre viktigaste politiska prioriteringar</label>
+          <div class="priority-row"><div class="priority-num">1</div><input type="text" class="form-input" id="prio1" placeholder="Prioritering 1" maxlength="80"></div>
+          <div class="priority-row"><div class="priority-num">2</div><input type="text" class="form-input" id="prio2" placeholder="Prioritering 2" maxlength="80"></div>
+          <div class="priority-row"><div class="priority-num">3</div><input type="text" class="form-input" id="prio3" placeholder="Prioritering 3" maxlength="80"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Regeringsförklaring <span class="text-muted">(2–4 meningar)</span></label>
+          <textarea class="form-input" id="gov-declaration" rows="4" maxlength="600" placeholder="Min regering kommer att prioritera…"></textarea>
+          <div class="text-sm text-muted mt-8" id="decl-chars">0/600 tecken</div>
+        </div>
+
+        <!-- Ministry assignment -->
+        <div class="form-group">
+          <label class="form-label">Nyckelministerier</label>
+          <div class="section-sub" style="margin-top:-6px;margin-bottom:12px">Tilldela viktiga ministerier till dina koalitionspartier</div>
+          <div id="ministry-grid" style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))"></div>
+        </div>
+      </div>
+
+      <div class="mt-24 text-center">
+        <button class="btn btn-yellow" onclick="goTo('screen-analysis')">Analysera din regering ›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCREEN 6: ANALYS
+══════════════════════════════════════════ -->
+<div id="screen-analysis" class="screen">
+  <div class="progress-wrap">
+    <div class="progress-steps">
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot done"></div>
+      <div class="step-dot active"></div>
+    </div>
+    <div class="progress-label">Steg 6 av 6 – Analys & reflektion</div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <a href="#" class="back-link" onclick="goTo('screen-form');return false">← Tillbaka</a>
+      <div class="section-title">Din regering – analys</div>
+      <div class="section-sub">Se hur din koalition och dina val jämförs med det verkliga utfallet 2022.</div>
+
+      <!-- Score ring -->
+      <div class="card text-center" style="margin-bottom:20px">
+        <div class="score-ring" id="score-ring">
+          <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--border)" stroke-width="12"/><circle id="score-circle" cx="60" cy="60" r="52" fill="none" stroke="var(--se-yellow)" stroke-width="12" stroke-dasharray="327" stroke-dashoffset="327" stroke-linecap="round" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s ease"/></svg>
+          <div class="score-ring-text"><div class="score-ring-num" id="score-num">–</div><div class="score-ring-label">KOALITIONSKRAFT</div></div>
+        </div>
+        <div id="score-summary" class="text-muted text-sm" style="max-width:420px;margin:0 auto"></div>
+      </div>
+
+      <!-- Din vs. verklig regering -->
+      <div class="compare-grid">
+        <div class="compare-card">
+          <h3>Din regering</h3>
+          <div class="big" id="result-your-name">–</div>
+          <div class="text-sm text-muted" id="result-your-seats"></div>
+          <div class="text-sm text-muted" id="result-your-pm"></div>
+          <div class="coalition-list mt-8" id="result-your-chips"></div>
+          <div class="mt-8 text-sm" id="result-your-prios"></div>
+        </div>
+        <div class="compare-card">
+          <h3>Verklig regering 2022 – Tidöregeringen</h3>
+          <div class="big">Ulf Kristersson (M)</div>
+          <div class="text-sm text-muted">M + KD + L · 103 mandat i regering</div>
+          <div class="text-sm text-muted">SD (73) stöder utan att ingå</div>
+          <div class="coalition-list mt-8">
+            <span class="coalition-chip" style="background:#1B2E74">M</span>
+            <span class="coalition-chip" style="background:#005EA1">KD</span>
+            <span class="coalition-chip" style="background:#006AB3">L</span>
+            <span class="coalition-chip" style="background:#DDCF00">SD ↗</span>
+          </div>
+          <div class="mt-8 text-sm text-muted">Tidöavtalet: Migration, brott & kriminalitet, energi, arbetsmarknad.</div>
+        </div>
+      </div>
+
+      <!-- Policy-poäng -->
+      <div class="card mt-16">
+        <div style="font-weight:700;margin-bottom:14px">Dina politiska val – hur nöjda var partierna?</div>
+        <div id="party-satisfaction"></div>
+      </div>
+
+      <!-- Reflection questions -->
+      <div class="card mt-16">
+        <div style="font-weight:700;margin-bottom:14px">Reflektionsfrågor</div>
+        <ul class="reflect-list">
+          <li>Vilka sakfrågor visade sig vara svårast att kompromissa om i din koalition? Varför?</li>
+          <li>Jämför din koalitions politiska bredd med Tidöregeringens. Vad är för- och nackdelarna med en bredare vs. smalare koalition?</li>
+          <li>Hur skiljer sig det svenska systemet (negativt parlamentarism) från t.ex. det brittiska majoritetssystemet? Vilka konsekvenser får det?</li>
+          <li>Vad händer med en minoritetsregering i Sverige? Ge exempel från historien (t.ex. 2021 när Löfven fälldes i en misstroendeomröstning).</li>
+          <li>Diskutera: Är det demokratiskt att ett litet parti kan ha stor makt i en koalition jämfört med sin väljarandel?</li>
+        </ul>
+      </div>
+
+      <!-- Key concepts -->
+      <div class="card mt-16">
+        <div style="font-weight:700;margin-bottom:4px">Nyckelbegrepp</div>
+        <div class="text-sm text-muted" style="margin-bottom:14px">Viktiga termer för kursmomentet</div>
+        <dl class="concept-grid">
+          <div class="concept-card"><dt>Parlamentarism</dt><dd>Principen att regeringen måste ha riksdagens förtroende.</dd></div>
+          <div class="concept-card"><dt>Negativt parlamentarism</dt><dd>Statsministern väljs om färre än 175 röstar emot.</dd></div>
+          <div class="concept-card"><dt>Minoritetsregering</dt><dd>En regering utan eget riksdagsmajoritet – behöver stöd utifrån.</dd></div>
+          <div class="concept-card"><dt>Koalitionsavtal</dt><dd>Skriftlig överenskommelse om politik mellan samarbetande partier.</dd></div>
+          <div class="concept-card"><dt>Tidöavtalet</dt><dd>Koalitionsavtalet 2022 mellan M, KD, L och SD.</dd></div>
+          <div class="concept-card"><dt>Misstroendeomröstning</dt><dd>Riksdagen kan avsätta en statsminister med 175 röster.</dd></div>
+          <div class="concept-card"><dt>Statsministeromröstning</dt><dd>Riksdagen godkänner (passivt) talmans PM-förslag.</dd></div>
+          <div class="concept-card"><dt>Regeringsförklaring</dt><dd>Statsministerns presentation av regeringens politiska agenda.</dd></div>
+          <div class="concept-card"><dt>Passivt stöd</dt><dd>Parti stöder regering utan att ingå, ofta mot politiska löften.</dd></div>
+          <div class="concept-card"><dt>Sakfråga</dt><dd>Konkret politisk fråga (t.ex. skatter, migration, klimat).</dd></div>
+        </dl>
+      </div>
+
+      <div class="mt-24 text-center" style="padding-bottom:40px">
+        <button class="btn btn-secondary" onclick="resetAll()">↩ Börja om</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+const PARTIES = {
+  V:  { name:'Vänsterpartiet',      abbr:'V',  seats:24,  color:'#AF0000', spectrum:1.8, bloc:'vänster',
+        desc:'Socialistiskt parti. Stark välfärd, hög beskattning av kapital, klimatinvesteringar, stoppad välfärdsvinst.',
+        demands:['Stoppad privatisering i välfärden','Höjd a-kassa och sociala skyddsnät','Stor klimatomställning – fossila subventioner bort'] },
+  MP: { name:'Miljöpartiet',        abbr:'MP', seats:18,  color:'#3d9e3d', spectrum:3.2, bloc:'vänster',
+        desc:'Grönt parti med fokus på klimat och mångfald. Feministisk och progressiv värdegrund.',
+        demands:['Ambitiösa klimatmål – netto noll senast 2045','Stopp för ny kärnkraft','Generös asyl- och flyktingpolitik'] },
+  S:  { name:'Socialdemokraterna',  abbr:'S',  seats:107, color:'#E8112D', spectrum:3.8, bloc:'vänster',
+        desc:'Historiskt dominerande parti. Stark välfärdsstat, arbetsmarknadspolitik och internationellt samarbete.',
+        demands:['Bibehållen stark offentlig sektor','Aktiv arbetsmarknadspolitik – låg arbetslöshet','Solidarisk migrationspolitik med EU-fokus'] },
+  C:  { name:'Centerpartiet',       abbr:'C',  seats:24,  color:'#009933', spectrum:5.2, bloc:'mitt',
+        desc:'Liberalt landsbygdsparti. Marknadsekonomi, decentralisering, öppen migration och fri handel.',
+        demands:['Sänkta skatter och enklare regler för företag','Kommunernas självstyre stärks','Öppen och human migrationspolitik'] },
+  L:  { name:'Liberalerna',         abbr:'L',  seats:16,  color:'#006AB3', spectrum:5.8, bloc:'höger',
+        desc:'Liberalt parti med fokus på utbildning, rättsstat och EU. Stöder asylrätten men kräver integration.',
+        demands:['Kraftig satsning på skolan och lärarkåren','Stark rättsstat och oberoende domstolar','EU-integration och transatlantiskt samarbete'] },
+  KD: { name:'Kristdemokraterna',   abbr:'KD', seats:19,  color:'#005EA1', spectrum:7.0, bloc:'höger',
+        desc:'Konservativt parti med kristen värdegrund. Familjepolitik, trygghet och traditionella värden.',
+        demands:['Stärkt familjepolitik – barnbidrag och vårdnadsbidrag','Hårdare tag mot kriminalitet och gängbrott','Bevarad socialtjänstens familjefokus'] },
+  M:  { name:'Moderaterna',         abbr:'M',  seats:68,  color:'#1B2E74', spectrum:7.2, bloc:'höger',
+        desc:'Borgerligt parti. Lägre skatter, arbetslinjen, lag och ordning och fri marknad.',
+        demands:['Sänkt inkomstskatt – arbete ska löna sig','Krafttag mot gängkriminalitet – hårdare straff','Energiomställning med kärnkraft'] },
+  SD: { name:'Sverigedemokraterna', abbr:'SD', seats:73,  color:'#DDCF00', spectrum:8.5, bloc:'höger',
+        desc:'Nationalistiskt parti med fokus på migration och trygghet. Vill begränsa invandringen kraftigt.',
+        demands:['Kraftigt begränsad invandring – bland EU:s lägsta','Mer resurser till polisen och hårdare straff','Minskat utländskt bistånd – pengarna till Sverige'] },
+};
+
+// Policy questions with positions
+const POLICIES = [
+  { id:'migration', title:'Migration & asylpolitik',
+    desc:'Sverige tar emot tusentals asylsökande varje år. Hur ska politiken utformas?',
+    optA:{ text:'Human flyktingpolitik med lagliga vägar, familjåterförening och ambitiösa kvottflyktingmottaganden.', parties:['V','MP','S','C'] },
+    optB:{ text:'Kraftigt begränsad invandring, strikt prövning, snabbare utvisningar och nationella kvoter.', parties:['M','KD','SD'] } },
+  { id:'ekonomi', title:'Skatter & ekonomi',
+    desc:'Ska Sverige sänka skatterna eller satsa på en stark offentlig sektor?',
+    optA:{ text:'Bibehållna eller höjda skatter för att finansiera stark välfärd och investeringar i skola och sjukvård.', parties:['V','MP','S'] },
+    optB:{ text:'Sänkta inkomst- och bolagsskatter för att stimulera tillväxt och göra arbete mer lönsamt.', parties:['C','L','M','KD','SD'] } },
+  { id:'klimat', title:'Klimat & energi',
+    desc:'Hur ska Sverige nå klimatmålen och säkra energiförsörjningen?',
+    optA:{ text:'Massiv utbyggnad av förnybar energi, inga nya kärnkraftverk, bindande klimatmål och fossilskatter.', parties:['V','MP','S','C'] },
+    optB:{ text:'Kärnkraft som del av lösningen, marknadsbaserad klimatpolitik, ingen extra bördning på hushåll och industri.', parties:['L','M','KD','SD'] } },
+  { id:'brott', title:'Kriminalitet & polis',
+    desc:'Gängkriminaliteten har ökat. Hur bekämpas den bäst?',
+    optA:{ text:'Förebyggande arbete – sociala insatser, skola, jobb och bostäder i utsatta områden.', parties:['V','MP','S'] },
+    optB:{ text:'Hårdare straff, fler poliser, anonyma vittnen, organisationsförbud och utvisning av utländska brottslingar.', parties:['C','L','M','KD','SD'] } },
+  { id:'valfard', title:'Välfärd & sjukvård',
+    desc:'Hur ska vården och skolan organiseras – offentligt eller med privata aktörer?',
+    optA:{ text:'Välfärden ska vara offentligägd och icke-vinstdrivande. Vinster i välfärden bör förbjudas.', parties:['V','MP','S'] },
+    optB:{ text:'Fritt val och privata alternativ stärker kvalitet och effektivitet. Valfrihet är viktig.', parties:['C','L','M','KD','SD'] } },
+  { id:'eu', title:'EU & internationellt',
+    desc:'Vilken roll ska Sverige spela i EU och internationellt?',
+    optA:{ text:'Aktivt EU-samarbete, generöst bistånd, stöd för global solidaritet och Agenda 2030.', parties:['MP','S','C','L'] },
+    optB:{ text:'Nationellt självbestämmande, kritisk EU-inställning, minskat bistånd och Sverige-första-politik.', parties:['V','M','KD','SD'] } },
+];
+
+const MINISTRIES = [
+  'Statsminister (Statsrådsberedningen)',
+  'Finansminister',
+  'Utrikesminister',
+  'Inrikesminister',
+  'Justitieminister',
+  'Utbildningsminister',
+  'Klimat- och miljöminister',
+  'Socialminister',
+];
+
+// Party order in hemicycle (left → right)
+const PARTY_ORDER = ['V','MP','S','C','L','KD','M','SD'];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let selectedParties = new Set();
+let policyChoices = {}; // policy id → 'A' or 'B'
+
+// ═══════════════════════════════════════════
+// SVG HEMICYCLE
+// ═══════════════════════════════════════════
+function polarToCart(cx, cy, r, deg) {
+  const rad = deg * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
+}
+
+function buildHemicycleSVG(svgEl, interactive, highlightSet) {
+  svgEl.innerHTML = '';
+  const cx = 280, cy = 270, rO = 220, rI = 130, gap = 1.2;
+  const total = 349;
+  let angle = 180;
+
+  PARTY_ORDER.forEach(key => {
+    const p = PARTIES[key];
+    const span = (p.seats / total) * 180;
+    const startA = angle, endA = angle - span + gap;
+    angle -= span;
+
+    const oS = polarToCart(cx, cy, rO, startA);
+    const oE = polarToCart(cx, cy, rO, endA);
+    const iS = polarToCart(cx, cy, rI, startA);
+    const iE = polarToCart(cx, cy, rI, endA);
+
+    const laf = span > 180 ? 1 : 0;
+    const d = `M${iS.x},${iS.y} L${oS.x},${oS.y} A${rO},${rO} 0 ${laf} 0 ${oE.x},${oE.y} L${iE.x},${iE.y} A${rI},${rI} 0 ${laf} 1 ${iS.x},${iS.y}Z`;
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', d);
+
+    const dimmed = highlightSet && highlightSet.size > 0 && !highlightSet.has(key);
+    path.setAttribute('fill', dimmed ? '#2a2a2a' : p.color);
+    path.setAttribute('opacity', dimmed ? '0.3' : '1');
+    path.setAttribute('stroke', '#0d1117');
+    path.setAttribute('stroke-width', '1');
+
+    if (interactive) {
+      path.style.cursor = 'pointer';
+      path.addEventListener('click', () => toggleParty(key));
+      path.addEventListener('mouseenter', () => { if (!selectedParties.has(key)) path.setAttribute('opacity','0.75'); });
+      path.addEventListener('mouseleave', () => { path.setAttribute('opacity', selectedParties.has(key) ? '1' : (highlightSet && highlightSet.size > 0 ? '0.3' : '1')); });
+    }
+
+    // Label
+    const midA = (startA + endA) / 2;
+    const rLabel = (rO + rI) / 2;
+    const lp = polarToCart(cx, cy, rLabel, midA);
+    if (span > 8) {
+      const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+      text.setAttribute('x', lp.x);
+      text.setAttribute('y', lp.y + 4);
+      text.setAttribute('text-anchor','middle');
+      text.setAttribute('font-size', span > 20 ? '13' : '10');
+      text.setAttribute('font-weight','700');
+      text.setAttribute('fill', key === 'SD' ? '#000' : '#fff');
+      text.setAttribute('pointer-events','none');
+      text.textContent = p.abbr;
+      svgEl.appendChild(text);
+    }
+
+    svgEl.appendChild(path);
+  });
+
+  // Base line
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1', cx - rO - 6); line.setAttribute('y1', cy);
+  line.setAttribute('x2', cx + rO + 6); line.setAttribute('y2', cy);
+  line.setAttribute('stroke','#30363d'); line.setAttribute('stroke-width','2');
+  svgEl.appendChild(line);
+
+  // 175 indicator
+  const totalAngle = (175/349)*180;
+  const markA = 180 - totalAngle;
+  const mp = polarToCart(cx, cy, rO + 14, markA);
+  const ml = document.createElementNS('http://www.w3.org/2000/svg','line');
+  const mS = polarToCart(cx, cy, rI - 4, markA);
+  const mE = polarToCart(cx, cy, rO + 10, markA);
+  ml.setAttribute('x1',mS.x); ml.setAttribute('y1',mS.y);
+  ml.setAttribute('x2',mE.x); ml.setAttribute('y2',mE.y);
+  ml.setAttribute('stroke','#FECC02'); ml.setAttribute('stroke-width','2'); ml.setAttribute('stroke-dasharray','4,3');
+  svgEl.appendChild(ml);
+  const mt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  mt.setAttribute('x', mp.x); mt.setAttribute('y', mp.y);
+  mt.setAttribute('text-anchor','middle'); mt.setAttribute('font-size','9');
+  mt.setAttribute('fill','#FECC02'); mt.setAttribute('font-weight','600');
+  mt.textContent = '175';
+  svgEl.appendChild(mt);
+}
+
+function buildLegend(el) {
+  el.innerHTML = '';
+  PARTY_ORDER.forEach(key => {
+    const p = PARTIES[key];
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<div class="legend-dot" style="background:${p.color}"></div><strong>${p.abbr}</strong> <span class="text-muted">${p.seats}</span>`;
+    el.appendChild(item);
+  });
+}
+
+// ═══════════════════════════════════════════
+// SCREEN: RIKSDAG (static)
+// ═══════════════════════════════════════════
+function initRiksdagScreen() {
+  buildHemicycleSVG(document.getElementById('hemicycle-static'), false, null);
+  buildLegend(document.getElementById('legend-static'));
+
+  const grid = document.getElementById('party-overview-grid');
+  grid.innerHTML = '';
+  PARTY_ORDER.forEach(key => {
+    const p = PARTIES[key];
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div style="height:4px;border-radius:2px;background:${p.color};margin-bottom:12px"></div>
+      <div style="font-size:1.4rem;font-weight:800;margin-bottom:2px">${p.abbr}</div>
+      <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:8px">${p.name}</div>
+      <div style="font-size:1.1rem;font-weight:700">${p.seats} <span style="font-size:.75rem;font-weight:400;color:var(--text-muted)">mandat</span></div>
+      <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px">${(p.seats/349*100).toFixed(1)}% av riksdagen</div>
+      <div style="font-size:.78rem;color:var(--text-muted);margin-top:8px;line-height:1.4">${p.desc}</div>
+      <div class="mt-8"><span class="tag ${p.bloc==='vänster'?'tag-red':p.bloc==='höger'?'tag-blue':'tag-green'}">${p.bloc.charAt(0).toUpperCase()+p.bloc.slice(1)}blocket</span></div>`;
+    grid.appendChild(card);
+  });
+
+  // Spectrum
+  const specEl = document.getElementById('spectrum-static');
+  PARTY_ORDER.forEach(key => {
+    const p = PARTIES[key];
+    const pct = ((p.spectrum - 1) / 9) * 100;
+    const pin = document.createElement('div');
+    pin.className = 'spectrum-pin';
+    pin.style.left = pct + '%';
+    pin.innerHTML = `<div class="pin-label" style="color:${p.color}">${p.abbr}</div><div class="pin-dot" style="background:${p.color}"></div><div class="pin-arrow">↓</div>`;
+    specEl.appendChild(pin);
+  });
+}
+
+// ═══════════════════════════════════════════
+// SCREEN: BUILDER
+// ═══════════════════════════════════════════
+function initBuilderScreen() {
+  buildHemicycleSVG(document.getElementById('hemicycle-builder'), true, selectedParties);
+  buildLegend(document.getElementById('legend-builder'));
+
+  const grid = document.getElementById('party-builder-grid');
+  grid.innerHTML = '';
+  PARTY_ORDER.forEach(key => {
+    const p = PARTIES[key];
+    const card = document.createElement('div');
+    card.className = 'party-card' + (selectedParties.has(key) ? ' selected' : '');
+    card.onclick = () => toggleParty(key);
+    card.innerHTML = `
+      <div class="party-color-bar" style="background:${p.color}"></div>
+      <div class="party-abbr">${p.abbr}</div>
+      <div class="party-name">${p.name}</div>
+      <div class="party-seats">${p.seats} <span>mandat</span></div>
+      <div class="text-sm text-muted mt-8">${p.demands[0]}</div>`;
+    grid.appendChild(card);
+  });
+
+  updateCoalitionUI();
+}
+
+function toggleParty(key) {
+  if (selectedParties.has(key)) selectedParties.delete(key);
+  else selectedParties.add(key);
+  updateCoalitionUI();
+  buildHemicycleSVG(document.getElementById('hemicycle-builder'), true, selectedParties);
+
+  // Sync card state
+  document.querySelectorAll('#party-builder-grid .party-card').forEach((card, i) => {
+    const k = PARTY_ORDER[i];
+    card.classList.toggle('selected', selectedParties.has(k));
+  });
+}
+
+function calculateCompatibility(keys) {
+  if (keys.length <= 1) return keys.length === 1 ? 100 : 0;
+  const spectrums = keys.map(k => PARTIES[k].spectrum);
+  const min = Math.min(...spectrums), max = Math.max(...spectrums);
+  const spread = max - min;
+  // 0 spread → 100%, spread 9 → 0%
+  return Math.max(0, Math.round(100 - spread * 11));
+}
+
+function updateCoalitionUI() {
+  const keys = [...selectedParties];
+  const seats = keys.reduce((s, k) => s + PARTIES[k].seats, 0);
+  const pct = (seats / 349) * 100;
+  const majority = seats >= 175;
+
+  const numEl = document.getElementById('seat-num');
+  numEl.textContent = seats;
+  numEl.className = 'seat-num ' + (majority ? 'majority' : 'short');
+
+  const bar = document.getElementById('seat-bar');
+  bar.style.width = Math.min(pct, 100) + '%';
+  bar.className = 'seat-bar' + (majority ? ' majority' : '');
+
+  const chips = document.getElementById('coalition-chips');
+  chips.innerHTML = keys.map(k => `<span class="coalition-chip" style="background:${PARTIES[k].color};color:${k==='SD'?'#000':'#fff'}">${PARTIES[k].abbr}</span>`).join('');
+
+  const compat = keys.length > 0 ? calculateCompatibility(keys) : 0;
+  const compatPct = document.getElementById('compat-pct');
+  const compatBar = document.getElementById('compat-bar');
+  const compatDesc = document.getElementById('compat-desc');
+  compatPct.textContent = keys.length > 0 ? compat + '%' : '–';
+  compatBar.style.width = compat + '%';
+  compatBar.style.background = compat >= 70 ? 'var(--green)' : compat >= 40 ? 'var(--se-yellow)' : 'var(--red)';
+  compatDesc.textContent = keys.length === 0 ? 'Välj minst ett parti' :
+    compat >= 70 ? 'Bra samstämmighet' : compat >= 40 ? 'Viss politisk spänning' : 'Stor ideologisk spridning – svårt att regera';
+
+  const msgEl = document.getElementById('majority-msg');
+  if (keys.length === 0) { msgEl.style.display='none'; }
+  else if (majority) {
+    msgEl.style.display = 'block';
+    msgEl.className = 'mt-8 text-sm text-green';
+    msgEl.textContent = `✓ Majoritet uppnådd – ${seats} mandat (${(seats/349*100).toFixed(1)}%)`;
+  } else {
+    msgEl.style.display = 'block';
+    msgEl.className = 'mt-8 text-sm text-red';
+    msgEl.textContent = `✗ Saknar ${175 - seats} mandat för majoritet`;
+  }
+
+  const btn = document.getElementById('proceed-btn');
+  btn.disabled = !majority;
+  btn.textContent = majority ? 'Gå vidare till förhandling ›' : `Saknar ${Math.max(0, 175 - seats)} mandat`;
+}
+
+// ═══════════════════════════════════════════
+// SCREEN: POLICY
+// ═══════════════════════════════════════════
+function initPolicyScreen() {
+  const grid = document.getElementById('policy-grid');
+  grid.innerHTML = '';
+
+  POLICIES.forEach(pol => {
+    const coalitionKeys = [...selectedParties];
+    const aParties = pol.optA.parties.filter(k => coalitionKeys.includes(k));
+    const bParties = pol.optB.parties.filter(k => coalitionKeys.includes(k));
+    const hasConflict = aParties.length > 0 && bParties.length > 0;
+
+    const card = document.createElement('div');
+    card.className = 'policy-card';
+    card.innerHTML = `
+      <h3>${pol.title}</h3>
+      <div class="policy-desc">${pol.desc}</div>
+      ${hasConflict ? `<div class="conflict-badge">⚠ Konflikt i din koalition – partierna är inte överens</div>` : aParties.length > 0 || bParties.length > 0 ? `<div class="agreement-badge">✓ Din koalition är relativt enig i denna fråga</div>` : ''}
+      <div class="policy-choice-row">
+        <div class="policy-choice ${policyChoices[pol.id]==='A'?'selected':''}" onclick="choosePolicy('${pol.id}','A',this)">
+          <div class="choice-label">ALTERNATIV A</div>
+          <div>${pol.optA.text}</div>
+          <div class="party-tags">${pol.optA.parties.filter(k=>coalitionKeys.includes(k)).map(k=>`<span class="party-tag" style="background:${PARTIES[k].color};color:${k==='SD'?'#000':'#fff'}">${k}</span>`).join('')}</div>
+        </div>
+        <div class="policy-choice ${policyChoices[pol.id]==='B'?'selected':''}" onclick="choosePolicy('${pol.id}','B',this)">
+          <div class="choice-label">ALTERNATIV B</div>
+          <div>${pol.optB.text}</div>
+          <div class="party-tags">${pol.optB.parties.filter(k=>coalitionKeys.includes(k)).map(k=>`<span class="party-tag" style="background:${PARTIES[k].color};color:${k==='SD'?'#000':'#fff'}">${k}</span>`).join('')}</div>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function choosePolicy(id, choice, el) {
+  policyChoices[id] = choice;
+  const row = el.closest('.policy-choice-row');
+  row.querySelectorAll('.policy-choice').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ═══════════════════════════════════════════
+// SCREEN: FORM
+// ═══════════════════════════════════════════
+function initFormScreen() {
+  const pmSel = document.getElementById('pm-party');
+  pmSel.innerHTML = '';
+  [...selectedParties].forEach(k => {
+    const opt = document.createElement('option');
+    opt.value = k; opt.textContent = PARTIES[k].name;
+    pmSel.appendChild(opt);
+  });
+
+  const minGrid = document.getElementById('ministry-grid');
+  minGrid.innerHTML = '';
+  MINISTRIES.forEach(m => {
+    const row = document.createElement('div');
+    row.className = 'flex gap-12 items-center';
+    const sel = document.createElement('select');
+    sel.className = 'form-input';
+    sel.style.flex = '1';
+    [...selectedParties].forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k; opt.textContent = PARTIES[k].abbr;
+      sel.appendChild(opt);
+    });
+    sel.dataset.ministry = m;
+    const label = document.createElement('div');
+    label.style.cssText = 'font-size:.8rem;color:var(--text-muted);min-width:150px;flex:2';
+    label.textContent = m;
+    row.appendChild(sel);
+    row.appendChild(label);
+    minGrid.appendChild(row);
+  });
+
+  document.getElementById('decl-chars').textContent = '0/600 tecken';
+  document.getElementById('gov-declaration').addEventListener('input', function() {
+    document.getElementById('decl-chars').textContent = this.value.length + '/600 tecken';
+  });
+}
+
+// ═══════════════════════════════════════════
+// SCREEN: ANALYSIS
+// ═══════════════════════════════════════════
+function initAnalysisScreen() {
+  const keys = [...selectedParties];
+  const seats = keys.reduce((s, k) => s + PARTIES[k].seats, 0);
+  const govName = document.getElementById('gov-name').value || 'Din regering';
+  const pmParty = document.getElementById('pm-party').value;
+  const pmName = document.getElementById('pm-name').value;
+  const prio1 = document.getElementById('prio1').value;
+  const prio2 = document.getElementById('prio2').value;
+  const prio3 = document.getElementById('prio3').value;
+
+  // Calculate score
+  let satisfied = 0, total = 0;
+  POLICIES.forEach(pol => {
+    const choice = policyChoices[pol.id];
+    if (!choice) return;
+    const happyParties = choice === 'A' ? pol.optA.parties : pol.optB.parties;
+    keys.forEach(k => { total++; if (happyParties.includes(k)) satisfied++; });
+  });
+  const policyScore = total > 0 ? Math.round((satisfied / total) * 100) : 50;
+  const compat = calculateCompatibility(keys);
+  const finalScore = Math.round((policyScore * 0.6 + compat * 0.4));
+
+  // Score ring animation
+  const circle = document.getElementById('score-circle');
+  const circumference = 327;
+  setTimeout(() => {
+    circle.style.strokeDashoffset = circumference - (circumference * finalScore / 100);
+    circle.setAttribute('stroke', finalScore >= 70 ? 'var(--green)' : finalScore >= 50 ? 'var(--se-yellow)' : 'var(--red)');
+  }, 200);
+  document.getElementById('score-num').textContent = finalScore + '%';
+
+  const summaryText =
+    finalScore >= 80 ? 'Stark och sammanhållen regering. God förutsättning att klara en hel mandatperiod.' :
+    finalScore >= 60 ? 'Fungerande koalition men med politiska spänningar som kan orsaka problem.' :
+    finalScore >= 40 ? 'Instabil koalition med stora ideologiska klyftor – svårt att regera stabilt.' :
+    'Mycket svag koalition. Stor risk för misstroendeomröstning eller koalitionskris.';
+  document.getElementById('score-summary').textContent = summaryText;
+
+  // Your result
+  document.getElementById('result-your-name').textContent = govName;
+  document.getElementById('result-your-seats').textContent = `${seats} mandat (${(seats/349*100).toFixed(1)}%)`;
+  document.getElementById('result-your-pm').textContent = `Statsminister: ${pmName || '–'} (${PARTIES[pmParty]?.abbr || '–'})`;
+  document.getElementById('result-your-chips').innerHTML = keys.map(k => `<span class="coalition-chip" style="background:${PARTIES[k].color};color:${k==='SD'?'#000':'#fff'}">${PARTIES[k].abbr}</span>`).join('');
+  const prioHtml = [prio1, prio2, prio3].filter(Boolean).map((p, i) => `<div>${i+1}. ${p}</div>`).join('');
+  document.getElementById('result-your-prios').innerHTML = prioHtml || '<span class="text-muted">Inga prioriteringar angivna</span>';
+
+  // Party satisfaction
+  const satEl = document.getElementById('party-satisfaction');
+  satEl.innerHTML = '';
+  keys.forEach(k => {
+    let happy = 0, ttl = 0;
+    POLICIES.forEach(pol => {
+      const choice = policyChoices[pol.id];
+      if (!choice) return;
+      ttl++;
+      const happyParties = choice === 'A' ? pol.optA.parties : pol.optB.parties;
+      if (happyParties.includes(k)) happy++;
+    });
+    const satPct = ttl > 0 ? Math.round((happy/ttl)*100) : 50;
+    const satDiv = document.createElement('div');
+    satDiv.style.cssText = 'display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:.88rem';
+    satDiv.innerHTML = `
+      <span style="width:32px;font-weight:800;color:${PARTIES[k].color}">${k}</span>
+      <div style="flex:1;background:var(--border);border-radius:3px;height:8px;overflow:hidden">
+        <div style="height:100%;width:${satPct}%;background:${satPct>=60?'var(--green)':satPct>=40?'var(--se-yellow)':'var(--red)'};border-radius:3px;transition:width 1s"></div>
+      </div>
+      <span style="width:36px;text-align:right">${satPct}%</span>
+      <span class="text-muted">${satPct>=60?'Nöjd':'Missnöjd'}</span>`;
+    satEl.appendChild(satDiv);
+  });
+
+  // Animate bars after render
+  setTimeout(() => {
+    satEl.querySelectorAll('[style*="transition"]').forEach(el => { el.style.width = el.style.width; });
+  }, 100);
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+
+  if (id === 'screen-riksdag') initRiksdagScreen();
+  if (id === 'screen-builder') initBuilderScreen();
+  if (id === 'screen-policy') initPolicyScreen();
+  if (id === 'screen-form') initFormScreen();
+  if (id === 'screen-analysis') initAnalysisScreen();
+}
+
+function resetAll() {
+  selectedParties.clear();
+  policyChoices = {};
+  ['gov-name','pm-name','prio1','prio2','prio3','gov-declaration'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  goTo('screen-start');
+}
+</script>
+</body>
+</html>
