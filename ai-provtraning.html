@@ -864,23 +864,29 @@
     <div class="profile-grid">
       <button class="profile-btn active" onclick="setProfile('ingen')" id="prof-ingen" aria-pressed="true">
         <span class="profile-icon">📄</span>
-        Ingen anpassning
+        <span style="display:block;font-size:0.85rem;font-weight:500;margin-top:0.2rem;">Standardlayout</span>
       </button>
       <button class="profile-btn" onclick="setProfile('dyslexi')" id="prof-dyslexi" aria-pressed="false">
         <span class="profile-icon">🔤</span>
-        Dyslexi
-        <span style="display:block;font-size:0.75rem;font-weight:400;margin-top:0.2rem;">Stor text, uppläsning</span>
+        <span style="display:block;font-size:0.85rem;font-weight:500;margin-top:0.2rem;">Stor text, uppläsning</span>
       </button>
       <button class="profile-btn" onclick="setProfile('adhd')" id="prof-adhd" aria-pressed="false">
         <span class="profile-icon">🎯</span>
-        ADHD
-        <span style="display:block;font-size:0.75rem;font-weight:400;margin-top:0.2rem;">En uppgift i taget</span>
+        <span style="display:block;font-size:0.85rem;font-weight:500;margin-top:0.2rem;">En uppgift i taget</span>
       </button>
       <button class="profile-btn" onclick="setProfile('autism')" id="prof-autism" aria-pressed="false">
         <span class="profile-icon">📋</span>
-        Autism
-        <span style="display:block;font-size:0.75rem;font-weight:400;margin-top:0.2rem;">Förutsägbar struktur</span>
+        <span style="display:block;font-size:0.85rem;font-weight:500;margin-top:0.2rem;">Förutsägbar struktur</span>
       </button>
+    </div>
+
+    <!-- Bionic Reading toggle -->
+    <div style="margin-top:1rem;display:flex;align-items:center;gap:0.75rem;">
+      <button id="bionic-toggle" onclick="toggleBionic()" aria-pressed="false"
+        style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;border-radius:8px;border:2px solid var(--border);background:var(--bg);font-size:0.9rem;font-weight:600;cursor:pointer;transition:all 0.2s;color:var(--text);">
+        <span style="font-size:1.1rem;">⚡</span> Bionic Reading
+      </button>
+      <span id="bionic-status" style="font-size:0.8rem;color:var(--text-muted);">Av</span>
     </div>
 
     <!-- Dyslexi controls (shown when profile=dyslexi) -->
@@ -938,7 +944,15 @@
 
   <!-- TEXT INPUT -->
   <section class="section" id="text-section">
-    <div class="section-title">Klistra in din text</div>
+    <div class="section-title">Klistra in eller bifoga text</div>
+    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.6rem;">
+      <input type="file" id="file-input" accept=".pdf,.docx,.txt" style="display:none;" onchange="handleFileUpload(event)">
+      <button class="btn btn-secondary" onclick="document.getElementById('file-input').click()" style="display:flex;align-items:center;gap:0.4rem;">
+        &#128206; Bifoga fil
+      </button>
+      <span style="font-size:0.8rem;color:var(--text-muted);">PDF, Word (.docx) eller text</span>
+      <span id="file-status" style="font-size:0.8rem;font-weight:600;color:var(--primary);"></span>
+    </div>
     <textarea id="source-text" placeholder="Klistra in lärobokstext, anteckningar eller presentationsinnehåll här..." aria-label="Källtext för övningar"></textarea>
     <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
       <button class="btn btn-primary" id="generate-btn" onclick="generateExercises()">
@@ -1005,6 +1019,7 @@
 // ===================================================
 // STATE
 // ===================================================
+let bionicEnabled = false;
 let currentProfile = 'ingen';
 let dyslexiFontSize = 18;
 let currentApiKey = '';
@@ -1026,6 +1041,7 @@ let dragSrcEl = null;
 document.addEventListener('DOMContentLoaded', () => {
   loadApiKey();
   loadProfile();
+  loadBionic();
   loadFontSize();
   checkTTS();
 });
@@ -1088,6 +1104,38 @@ function updateApiDisplay() {
 // ===================================================
 // PROFILES
 // ===================================================
+function toBionic(text) {
+  if (!text) return '';
+  return text.split(/(\s+)/).map(word => {
+    if (!word.trim()) return word;
+    const clean = word.replace(/[^a-zA-ZåäöÅÄÖéèüúùóòíìàâêîôûæøëïœñ]/g, '');
+    if (clean.length === 0) return word;
+    const boldLen = Math.max(1, Math.ceil(clean.length * 0.4));
+    return `<strong>${word.substring(0, boldLen)}</strong>${word.substring(boldLen)}`;
+  }).join('');
+}
+
+function applyBionic(el, text) {
+  if (bionicEnabled) {
+    el.innerHTML = toBionic(text);
+  } else {
+    el.textContent = text;
+  }
+}
+
+function toggleBionic() {
+  bionicEnabled = !bionicEnabled;
+  localStorage.setItem('ai_provtraning_bionic', bionicEnabled);
+  const btn = document.getElementById('bionic-toggle');
+  const status = document.getElementById('bionic-status');
+  btn.setAttribute('aria-pressed', bionicEnabled);
+  btn.style.borderColor = bionicEnabled ? 'var(--primary)' : 'var(--border)';
+  btn.style.color = bionicEnabled ? 'var(--primary)' : 'var(--text)';
+  status.textContent = bionicEnabled ? 'På' : 'Av';
+  // Re-render if content exists
+  if (quizData.length || timelineData.length || conceptData.length) renderAll();
+}
+
 function setProfile(profile) {
   currentProfile = profile;
   localStorage.setItem('ai_provtraning_profile', profile);
@@ -1117,6 +1165,19 @@ function setProfile(profile) {
 function loadProfile() {
   const stored = localStorage.getItem('ai_provtraning_profile');
   if (stored) setProfile(stored);
+}
+
+function loadBionic() {
+  const stored = localStorage.getItem('ai_provtraning_bionic');
+  if (stored === 'true') {
+    bionicEnabled = true;
+    const btn = document.getElementById('bionic-toggle');
+    const status = document.getElementById('bionic-status');
+    btn.setAttribute('aria-pressed', 'true');
+    btn.style.borderColor = 'var(--primary)';
+    btn.style.color = 'var(--primary)';
+    status.textContent = 'På';
+  }
 }
 
 // ===================================================
@@ -1232,7 +1293,7 @@ async function generateExercises() {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
+        max_tokens: 4000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }]
       })
@@ -1351,12 +1412,21 @@ function parseAndRender(rawText) {
   const objMatch = jsonText.match(/\{[\s\S]*\}/);
   if (objMatch) jsonText = objMatch[0];
 
-  let data;
-  try {
-    data = JSON.parse(jsonText);
-  } catch (e) {
+  // Fix truncated JSON by closing open arrays/objects
+  function repairJson(s) {
+    try { return JSON.parse(s); } catch (_) {}
+    // Strip trailing incomplete entries and close structure
+    let t = s.replace(/,\s*$/, '').replace(/,\s*\{[^{}]*$/, '');
+    const opens = (t.match(/\[/g)||[]).length - (t.match(/\]/g)||[]).length;
+    const openB = (t.match(/\{/g)||[]).length - (t.match(/\}/g)||[]).length;
+    t += ']'.repeat(Math.max(0, opens)) + '}'.repeat(Math.max(0, openB));
+    try { return JSON.parse(t); } catch (_) { return null; }
+  }
+
+  let data = repairJson(jsonText);
+  if (!data) {
     hideLoading();
-    showError('AI:n returnerade ett oväntat format. Försök igen – ibland händer detta vid komplexa texter.');
+    showError('AI:n returnerade ett oväntat format. Försök med en kortare text eller klicka Generera igen.');
     return;
   }
 
@@ -1409,7 +1479,7 @@ function renderQuiz() {
 
     const qText = document.createElement('div');
     qText.className = 'quiz-question-text';
-    qText.textContent = q.fraga;
+    applyBionic(qText, q.fraga);
 
     const ttsBtn = makeTTSBtn(q.fraga);
     qText.appendChild(ttsBtn);
@@ -1422,7 +1492,7 @@ function renderQuiz() {
       btn.className = 'quiz-option';
       btn.setAttribute('data-idx', idx);
       btn.setAttribute('data-alt', ai);
-      btn.textContent = alt;
+      applyBionic(btn, alt);
       btn.onclick = () => answerQuiz(idx, ai);
 
       const altTts = makeTTSBtn(alt);
@@ -1439,7 +1509,7 @@ function renderQuiz() {
     feedback.appendChild(verdict);
 
     const feedText = document.createElement('p');
-    feedText.textContent = q.feedback;
+    applyBionic(feedText, q.feedback);
     feedback.appendChild(feedText);
 
     if (singleQuizMode) {
@@ -1612,12 +1682,24 @@ function renderTimeline() {
     el.draggable = true;
     el.dataset.ar = item.ar;
 
-    el.innerHTML = `<span class="timeline-handle" aria-hidden="true">⠿</span>
-      <div><strong>${item.ar}</strong> – ${item.handelse}
-      </div>`;
+    const tlDiv = document.createElement('div');
+    const arStrong = document.createElement('strong');
+    arStrong.textContent = item.ar;
+    tlDiv.appendChild(arStrong);
+    tlDiv.insertAdjacentText('beforeend', ' – ');
+    const handelseSpan = document.createElement('span');
+    applyBionic(handelseSpan, item.handelse);
+    tlDiv.appendChild(handelseSpan);
+
+    const handle = document.createElement('span');
+    handle.className = 'timeline-handle';
+    handle.setAttribute('aria-hidden', 'true');
+    handle.textContent = '⠿';
+    el.appendChild(handle);
+    el.appendChild(tlDiv);
 
     const ttsSpan = makeTTSBtn(`${item.ar}: ${item.handelse}`);
-    el.querySelector('div').appendChild(ttsSpan);
+    tlDiv.appendChild(ttsSpan);
 
     el.addEventListener('dragstart', dragStart);
     el.addEventListener('dragover', dragOver);
@@ -1737,7 +1819,7 @@ function renderConcepts() {
     term.setAttribute('aria-expanded', 'false');
 
     const termText = document.createElement('span');
-    termText.textContent = c.term;
+    applyBionic(termText, c.term);
 
     const ttsBtn = makeTTSBtn(c.term + '. ' + c.forklaring);
     const arrow = document.createElement('span');
@@ -1750,7 +1832,7 @@ function renderConcepts() {
 
     const definition = document.createElement('div');
     definition.className = 'concept-definition';
-    definition.textContent = c.forklaring;
+    applyBionic(definition, c.forklaring);
 
     term.onclick = () => {
       item.classList.toggle('open');
@@ -1863,6 +1945,63 @@ function clearAll() {
 if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => {};
 }
+
+// ===================================================
+// FILE UPLOAD
+// ===================================================
+async function handleFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const status = document.getElementById('file-status');
+  status.textContent = 'Läser ' + file.name + '...';
+
+  try {
+    const ext = file.name.split('.').pop().toLowerCase();
+    let text = '';
+
+    if (ext === 'txt') {
+      text = await file.text();
+    } else if (ext === 'pdf') {
+      if (typeof pdfjsLib === 'undefined') throw new Error('PDF-biblioteket laddas, försök igen om ett ögonblick.');
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf, useSystemFonts: true }).promise;
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const pageText = content.items.map(item => item.str).filter(s => s.trim()).join(' ');
+        if (pageText.trim()) text += pageText.trim() + '\n\n';
+      }
+    } else if (ext === 'docx') {
+      if (typeof mammoth === 'undefined') throw new Error('Word-biblioteket laddas, försök igen om ett ögonblick.');
+      const buf = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer: buf });
+      text = result.value;
+    } else {
+      throw new Error('Filtypen stöds inte. Använd PDF, Word (.docx) eller textfil.');
+    }
+
+    if (!text || text.trim().length < 20) {
+      throw new Error('Ingen text hittades i filen – filen kan vara skannad eller skyddad.');
+    }
+
+    document.getElementById('source-text').value = text.trim();
+    status.textContent = '✓ ' + file.name + ' inläst';
+    setTimeout(() => { status.textContent = ''; }, 4000);
+  } catch (err) {
+    status.style.color = 'var(--error)';
+    status.textContent = 'Fel: ' + err.message;
+    setTimeout(() => { status.textContent = ''; status.style.color = 'var(--primary)'; }, 6000);
+  }
+
+  e.target.value = '';
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+<script>
+  if (typeof pdfjsLib !== 'undefined') {
+    try { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; } catch(e) {}
+  }
 </script>
 </body>
 </html>
