@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bryssel 2026 - Spelzonen</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #1a1a2e;
+  --primary-dark: #0f0f1a;
+  --gold: #FFD700;
+  --gold-light: #ffec6e;
+  --red: #c8102e;
+  --red-light: #e8394f;
+  --accent: #2196F3;
+  --text-dark: #1a1a1a;
+  --text-light: #555;
+  --bg-light: #f5f5f5;
+  --bg-white: #fff;
+  --border: #e0e0e0;
+  --success: #2e7d32;
+  --success-light: #4caf50;
+  --error: #c62828;
+  --error-light: #ef5350;
+}
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d1b00 50%, #1a0010 100%);
+  min-height: 100vh;
+  padding: 20px;
+  line-height: 1.6;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 60%, #1a0010 100%);
+  color: white;
+  padding: 28px 36px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 4px solid var(--gold);
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(255,215,0,0.03) 30px, rgba(255,215,0,0.03) 60px);
+  animation: patternMove 20s linear infinite;
+}
+@keyframes patternMove { from { transform: translateX(0); } to { transform: translateX(60px); } }
+.header-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.header-left h1 { font-size: 2em; color: var(--gold); text-shadow: 2px 2px 8px rgba(0,0,0,0.5); }
+.header-left p { font-size: 0.95em; opacity: 0.85; margin-top: 4px; }
+.flag { display: inline-flex; gap: 3px; margin-left: 8px; vertical-align: middle; }
+.flag span { width: 16px; height: 20px; display: inline-block; border-radius: 2px; }
+.flag .f1 { background: #1a1a1a; }
+.flag .f2 { background: var(--gold); }
+.flag .f3 { background: var(--red); }
+.header-right { text-align: right; }
+.level-display { font-size: 1.2em; font-weight: bold; margin-bottom: 8px; color: var(--gold); }
+.xp-container {
+  background: rgba(255,255,255,0.15);
+  border-radius: 15px;
+  height: 22px;
+  width: 240px;
+  overflow: hidden;
+  position: relative;
+}
+.xp-bar {
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  height: 100%;
+  border-radius: 15px;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.xp-text { font-size: 0.8em; opacity: 0.8; margin-top: 4px; }
+.streak-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--red), var(--red-light));
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+  margin-top: 8px;
+}
+.nav-tabs {
+  display: flex;
+  overflow-x: auto;
+  background: #f8f8f8;
+  border-bottom: 2px solid var(--border);
+  gap: 2px;
+  padding: 0 10px;
+}
+.nav-tab {
+  padding: 14px 18px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: var(--text-light);
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+.nav-tab:hover { color: var(--primary); background: rgba(0,0,0,0.04); }
+.nav-tab.active { color: var(--primary); border-bottom-color: var(--gold); background: white; }
+.content { padding: 30px; }
+.section { display: none; }
+.section.active { display: block; }
+.section h2 { font-size: 1.7em; color: var(--primary); margin-bottom: 8px; }
+.section > p { color: var(--text-light); margin-bottom: 24px; font-size: 1em; }
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin: 20px 0 30px;
+}
+.dash-card {
+  background: var(--bg-light);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dash-card:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+.dash-icon { font-size: 2em; margin-bottom: 8px; }
+.dash-card h4 { font-size: 0.9em; color: var(--text-light); margin-bottom: 8px; }
+.dash-score { font-size: 1.8em; font-weight: bold; color: var(--primary); }
+.dash-label { font-size: 0.75em; color: var(--text-light); margin-top: 4px; }
+.section h3 { font-size: 1.3em; color: var(--primary); margin: 28px 0 16px; }
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+.achievement {
+  background: var(--bg-light);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  opacity: 0.45;
+  transition: all 0.4s;
+}
+.achievement.unlocked {
+  opacity: 1;
+  border-color: var(--gold);
+  background: linear-gradient(135deg, #fffde7, #fff9c4);
+  box-shadow: 0 4px 15px rgba(255,215,0,0.3);
+}
+.ach-icon { font-size: 2em; }
+.ach-name { font-size: 0.85em; font-weight: bold; margin: 6px 0 2px; color: var(--primary); }
+.ach-desc { font-size: 0.72em; color: var(--text-light); }
+.game-header { background: var(--bg-light); border-radius: 10px; padding: 12px 18px; margin-bottom: 18px; }
+.game-info { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.game-stat {
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+.game-stat.points { border-color: var(--gold); color: #8a6d00; }
+.game-stat.streak { border-color: var(--error); color: var(--error); }
+.progress-bar-container { background: var(--border); border-radius: 10px; height: 10px; margin-bottom: 24px; }
+.progress-bar-fill { background: linear-gradient(90deg, var(--gold), var(--gold-light)); height: 100%; border-radius: 10px; transition: width 0.5s; }
+.quiz-level-selector { display: flex; gap: 16px; margin: 16px 0 24px; flex-wrap: wrap; }
+.level-btn {
+  flex: 1;
+  min-width: 150px;
+  background: var(--bg-light);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.level-btn:hover { border-color: var(--gold); transform: translateY(-2px); }
+.level-icon { font-size: 1.8em; }
+.level-name { font-weight: bold; font-size: 1.1em; margin: 6px 0 2px; color: var(--primary); }
+.level-desc { font-size: 0.82em; color: var(--text-light); }
+.level-xp { font-size: 0.8em; color: var(--gold); font-weight: bold; margin-top: 6px; }
+.quiz-area { background: var(--bg-light); border-radius: 14px; padding: 24px; }
+.quiz-question-text { font-size: 1.25em; font-weight: 600; color: var(--primary); margin-bottom: 20px; line-height: 1.4; }
+.quiz-options { display: grid; gap: 10px; }
+.quiz-option {
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  cursor: pointer;
+  font-size: 1em;
+  text-align: left;
+  transition: all 0.15s;
+  font-family: inherit;
+  color: var(--text-dark);
+}
+.quiz-option:hover:not(:disabled) { border-color: var(--accent); background: #e3f2fd; }
+.quiz-option.correct { border-color: var(--success-light); background: #e8f5e9; color: var(--success); font-weight: bold; }
+.quiz-option.incorrect { border-color: var(--error-light); background: #ffebee; color: var(--error); }
+.quiz-option:disabled { cursor: default; }
+.feedback {
+  margin-top: 16px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: none;
+}
+.feedback.correct-fb { background: #e8f5e9; color: var(--success); border-left: 4px solid var(--success-light); display: block; }
+.feedback.incorrect-fb { background: #ffebee; color: var(--error); border-left: 4px solid var(--error-light); display: block; }
+.result-screen { text-align: center; padding: 30px; }
+.result-icon { font-size: 4em; margin-bottom: 12px; }
+.result-stars { font-size: 2.2em; margin-bottom: 12px; }
+.result-score { font-size: 2em; font-weight: bold; color: var(--primary); }
+.result-message { font-size: 1.1em; color: var(--text-light); margin: 10px 0; }
+.btn {
+  padding: 11px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.btn-primary { background: linear-gradient(135deg, var(--primary), #2d2d5e); color: white; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--primary); }
+.btn-gold:hover { transform: translateY(-1px); }
+.btn-secondary { background: var(--bg-light); border: 2px solid var(--border); color: var(--text-dark); }
+.matching-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+.match-column h4 { font-size: 0.9em; text-transform: uppercase; color: var(--text-light); margin-bottom: 10px; letter-spacing: 0.5px; }
+.match-item {
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 0.95em;
+  margin-bottom: 8px;
+  transition: all 0.15s;
+  line-height: 1.4;
+}
+.match-item:hover { border-color: var(--accent); background: #e3f2fd; }
+.match-item.selected { border-color: var(--gold); background: #fffde7; font-weight: bold; }
+.match-item.correct { border-color: var(--success-light); background: #e8f5e9; color: var(--success); cursor: default; }
+.match-item.incorrect { border-color: var(--error-light); background: #ffebee; animation: shake 0.4s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.day-columns { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin: 20px 0; }
+.day-col {
+  background: var(--bg-light);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  min-height: 180px;
+  transition: border-color 0.2s;
+}
+.day-col h4 { font-size: 0.9em; font-weight: bold; color: var(--primary); margin-bottom: 10px; text-align: center; }
+.activity-pool { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; padding: 16px; background: var(--bg-light); border-radius: 10px; min-height: 80px; }
+.activity-chip {
+  background: white;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.88em;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s;
+}
+.activity-chip:hover { border-color: var(--accent); transform: scale(1.02); }
+.dropped-chip {
+  background: #e3f2fd;
+  border: 2px solid var(--accent);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 0.82em;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.dropped-chip.correct { background: #e8f5e9; border-color: var(--success-light); }
+.dropped-chip.incorrect { background: #ffebee; border-color: var(--error-light); }
+.remove-chip { cursor: pointer; color: #999; font-weight: bold; flex-shrink: 0; }
+.remove-chip:hover { color: var(--error); }
+.flashcard-wrap { perspective: 1000px; margin: 24px auto; max-width: 500px; }
+.flashcard {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  transition: transform 0.6s;
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.card-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  backface-visibility: hidden;
+  text-align: center;
+}
+.card-front {
+  background: linear-gradient(135deg, var(--primary), #2d2d5e);
+  color: white;
+  border: 3px solid var(--gold);
+}
+.card-back {
+  background: linear-gradient(135deg, #1b5e20, #2e7d32);
+  color: white;
+  transform: rotateY(180deg);
+  border: 3px solid #81c784;
+}
+.card-label { font-size: 0.8em; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.card-term { font-size: 1.5em; font-weight: bold; }
+.card-def { font-size: 1.05em; line-height: 1.5; }
+.card-hint { font-size: 0.8em; opacity: 0.7; margin-top: 10px; }
+.flashcard-nav { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 16px; }
+.flashcard-counter { font-size: 1em; color: var(--text-light); }
+.flashcard-progress { display: flex; gap: 6px; justify-content: center; margin: 10px 0; flex-wrap: wrap; }
+.fc-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: background 0.3s; }
+.fc-dot.known { background: var(--success-light); }
+.fc-dot.current { background: var(--gold); }
+.fc-btns { display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+.sf-question { background: var(--bg-light); border-radius: 12px; padding: 22px; margin-bottom: 20px; }
+.sf-text { font-size: 1.15em; color: var(--primary); font-weight: 600; margin-bottom: 16px; line-height: 1.4; }
+.sf-btns { display: flex; gap: 12px; }
+.btn-sant { background: linear-gradient(135deg, #2e7d32, #4caf50); color: white; }
+.btn-falskt { background: linear-gradient(135deg, #c62828, #ef5350); color: white; }
+.sf-result { margin-top: 10px; padding: 10px 14px; border-radius: 8px; font-weight: 600; display: none; }
+.sf-result.show { display: block; }
+.sf-result.sant-right { background: #e8f5e9; color: var(--success); }
+.sf-result.sant-wrong { background: #ffebee; color: var(--error); }
+.mt16 { margin-top: 16px; }
+.mt24 { margin-top: 24px; }
+.text-center { text-align: center; }
+.xp-popup {
+  position: fixed;
+  right: 30px;
+  top: 80px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--primary);
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-weight: bold;
+  font-size: 1.2em;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  z-index: 999;
+  animation: popUp 2s forwards;
+}
+@keyframes popUp {
+  0% { transform: translateY(0) scale(0.8); opacity: 0; }
+  20% { transform: translateY(-10px) scale(1); opacity: 1; }
+  80% { transform: translateY(-20px) scale(1); opacity: 1; }
+  100% { transform: translateY(-40px) scale(0.8); opacity: 0; }
+}
+@media (max-width: 600px) {
+  .matching-grid { grid-template-columns: 1fr; }
+  .quiz-level-selector { flex-direction: column; }
+  .content { padding: 18px; }
+  .header { padding: 20px; }
+  .header-left h1 { font-size: 1.5em; }
+  .xp-container { width: 180px; }
+  .day-columns { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <div class="header-content">
+    <div class="header-left">
+      <h1>&#127981; Bryssel 2026 - Spelzonen <span class="flag"><span class="f1"></span><span class="f2"></span><span class="f3"></span></span></h1>
+      <p>Interaktiva ovningar infor resan 14-17 maj &mdash; samla XP och las upp achievements!</p>
+    </div>
+    <div class="header-right">
+      <div class="level-display" id="level-display">Niva 1: Nyborjare</div>
+      <div class="xp-container"><div class="xp-bar" id="xp-bar" style="width:0%"></div></div>
+      <div class="xp-text" id="xp-text">0 / 100 XP till nasta niva</div>
+      <div class="streak-badge" id="streak-badge">&#9889; Streak: 0</div>
+    </div>
+  </div>
+</div>
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="showSection('dashboard')">&#127968; Oversikt</button>
+  <button class="nav-tab" onclick="showSection('quiz')">&#127919; Quiz</button>
+  <button class="nav-tab" onclick="showSection('matchning')">&#128279; Matchning</button>
+  <button class="nav-tab" onclick="showSection('planera')">&#128198; Planera resan</button>
+  <button class="nav-tab" onclick="showSection('ordkort')">&#128218; Ordkort</button>
+  <button class="nav-tab" onclick="showSection('santfalskt')">&#10067; Sant eller Falskt</button>
+</div>
+<div class="content">
+<div id="dashboard" class="section active">
+  <h2>&#127981; Din spelframgang</h2>
+  <p>Valj en ovning nedan for att borja samla XP och lasa upp achievements!</p>
+  <div class="dashboard-grid">
+    <div class="dash-card" onclick="showSection('quiz')"><div class="dash-icon">&#127919;</div><h4>Bryssel-Quiz</h4><div class="dash-score" id="dash-quiz">0/15</div><div class="dash-label">Fragor besvarade</div></div>
+    <div class="dash-card" onclick="showSection('matchning')"><div class="dash-icon">&#128279;</div><h4>Matchning</h4><div class="dash-score" id="dash-matchning">0/6</div><div class="dash-label">Par matchade</div></div>
+    <div class="dash-card" onclick="showSection('planera')"><div class="dash-icon">&#128198;</div><h4>Planera resan</h4><div class="dash-score" id="dash-planera">-</div><div class="dash-label">Status</div></div>
+    <div class="dash-card" onclick="showSection('ordkort')"><div class="dash-icon">&#128218;</div><h4>Ordkort</h4><div class="dash-score" id="dash-ordkort">0/8</div><div class="dash-label">Kort genomgangna</div></div>
+    <div class="dash-card" onclick="showSection('santfalskt')"><div class="dash-icon">&#10067;</div><h4>Sant eller Falskt</h4><div class="dash-score" id="dash-sf">0/8</div><div class="dash-label">Ratt svar</div></div>
+    <div class="dash-card"><div class="dash-icon">&#11088;</div><h4>Total XP</h4><div class="dash-score" id="dash-xp">0</div><div class="dash-label">Erfarenhetspoang</div></div>
+  </div>
+  <h3>&#127942; Achievements</h3>
+  <div class="achievements-grid">
+    <div class="achievement" id="ach-first"><div class="ach-icon">&#128118;</div><div class="ach-name">Forsta steget</div><div class="ach-desc">Klar med din forsta ovning</div></div>
+    <div class="achievement" id="ach-quiz"><div class="ach-icon">&#127919;</div><div class="ach-name">Quizmaster</div><div class="ach-desc">Alla 15 quizfragor ratt</div></div>
+    <div class="achievement" id="ach-match"><div class="ach-icon">&#128279;</div><div class="ach-name">Matcher</div><div class="ach-desc">Alla 6 par matchade</div></div>
+    <div class="achievement" id="ach-plan"><div class="ach-icon">&#128198;</div><div class="ach-name">Reseplaneraren</div><div class="ach-desc">Ratt planerad resa</div></div>
+    <div class="achievement" id="ach-flash"><div class="ach-icon">&#128218;</div><div class="ach-name">Ordkunig</div><div class="ach-desc">Alla ordkort genomgangna</div></div>
+    <div class="achievement" id="ach-sf"><div class="ach-icon">&#10067;</div><div class="ach-name">Faktatroll</div><div class="ach-desc">Alla sant/falskt ratt</div></div>
+    <div class="achievement" id="ach-streak"><div class="ach-icon">&#128293;</div><div class="ach-name">Pa rulle!</div><div class="ach-desc">5 ratt svar i rad</div></div>
+    <div class="achievement" id="ach-master"><div class="ach-icon">&#127775;</div><div class="ach-name">Brysselkannare</div><div class="ach-desc">Klara alla ovningar</div></div>
+  </div>
+</div>
+<div id="quiz" class="section">
+  <h2>&#127919; Bryssel-Quiz</h2>
+  <p>Testa dina kunskaper om resan! Valj svarighetsgrad och samla XP.</p>
+  <div class="quiz-level-selector" id="quiz-level-selector">
+    <div class="level-btn" onclick="startQuiz('easy')"><div class="level-icon">&#11088;</div><div class="level-name">Latt</div><div class="level-desc">Grundlaggande fakta</div><div class="level-xp">+10 XP per ratt svar</div></div>
+    <div class="level-btn" onclick="startQuiz('medium')"><div class="level-icon">&#11088;&#11088;</div><div class="level-name">Medel</div><div class="level-desc">Priser &amp; detaljer</div><div class="level-xp">+20 XP per ratt svar</div></div>
+    <div class="level-btn" onclick="startQuiz('hard')"><div class="level-icon">&#11088;&#11088;&#11088;</div><div class="level-name">Svar</div><div class="level-desc">Expertnivakunskaper</div><div class="level-xp">+30 XP per ratt svar</div></div>
+  </div>
+  <div id="quiz-area" class="quiz-area" style="display:none;">
+    <div class="game-header"><div class="game-info"><span class="game-stat" id="quiz-progress">Fraga 1/5</span><span class="game-stat points" id="quiz-pts">&#11088; 0 XP</span><span class="game-stat streak" id="quiz-streak">&#128293; 0</span></div></div>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="quiz-bar" style="width:0%"></div></div>
+    <div id="quiz-content"></div>
+    <div id="quiz-feedback" class="feedback"></div>
+    <div class="text-center mt16"><button class="btn btn-primary" id="quiz-next" style="display:none;" onclick="nextQ()">Nasta fraga &#8594;</button></div>
+  </div>
+  <div id="quiz-result" class="result-screen" style="display:none;">
+    <div class="result-icon" id="quiz-ri"></div><div class="result-stars" id="quiz-stars"></div>
+    <div class="result-score" id="quiz-rscore"></div><div class="result-message" id="quiz-rmsg"></div>
+    <p id="quiz-rxp" style="font-size:1.2em;color:#8a6d00;font-weight:bold;margin-top:8px;"></p>
+    <div class="text-center mt24">
+      <button class="btn btn-primary" onclick="resetQuiz()">Spela igen</button>
+      <button class="btn btn-secondary" onclick="showSection('dashboard')" style="margin-left:10px;">Tillbaka</button>
+    </div>
+  </div>
+</div>
+<div id="matchning" class="section">
+  <h2>&#128279; Matchning - Platser &amp; Beskrivningar</h2>
+  <p>Para ihop varje plats med ratt beskrivning. Klicka forst till vanster, sedan ratt svar till hoger.</p>
+  <div class="game-header"><div class="game-info"><span class="game-stat" id="match-progress">0/6 matchade</span><span class="game-stat points" id="match-pts">&#11088; 0 XP</span></div></div>
+  <div class="matching-grid">
+    <div class="match-column"><h4>Plats / Restaurang</h4><div id="match-left"></div></div>
+    <div class="match-column"><h4>Beskrivning</h4><div id="match-right"></div></div>
+  </div>
+  <div id="match-feedback" class="feedback"></div>
+  <div id="match-result" style="display:none;" class="text-center mt24">
+    <div class="result-icon">&#127942;</div>
+    <div class="result-score" id="match-rscore"></div>
+    <div class="mt16"><button class="btn btn-primary" onclick="resetMatch()">Spela igen</button><button class="btn btn-secondary" onclick="showSection('dashboard')" style="margin-left:10px;">Tillbaka</button></div>
+  </div>
+</div>
+<div id="planera" class="section">
+  <h2>&#128198; Planera resan</h2>
+  <p>Klicka pa ett chip och sedan pa ratt dag for att placera aktiviteten. Klicka pa x for att ta bort.</p>
+  <div class="activity-pool" id="activity-pool"></div>
+  <div class="day-columns" id="day-columns"></div>
+  <div class="text-center mt24">
+    <button class="btn btn-gold" onclick="checkPlan()">Kolla svaret &#10003;</button>
+    <button class="btn btn-secondary" onclick="resetPlan()" style="margin-left:10px;">Borja om</button>
+  </div>
+  <div id="plan-feedback" class="feedback mt16"></div>
+  <div id="plan-result" style="display:none;" class="text-center mt16">
+    <div class="result-score" id="plan-rscore"></div>
+    <p id="plan-rxp" style="color:#8a6d00;font-weight:bold;margin-top:8px;"></p>
+    <button class="btn btn-primary mt16" onclick="resetPlan()">Forsok igen</button>
+  </div>
+</div>
+<div id="ordkort" class="section">
+  <h2>&#128218; Ordkort</h2>
+  <p>Klicka pa kortet for att se forklaringen. Markera om du kan ordet eller behover ovning.</p>
+  <div class="flashcard-wrap">
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="card-face card-front"><div class="card-label">Begrepp</div><div class="card-term" id="card-term">-</div><div class="card-hint">Klicka for att se forklaring</div></div>
+      <div class="card-face card-back"><div class="card-label">Forklaring</div><div class="card-def" id="card-def">-</div></div>
+    </div>
+  </div>
+  <div class="flashcard-progress" id="fc-dots"></div>
+  <div class="flashcard-nav">
+    <button class="btn btn-secondary" onclick="prevCard()">&#8592; Forra</button>
+    <div class="flashcard-counter" id="fc-counter">1 / 8</div>
+    <button class="btn btn-primary" onclick="nextCard()">Nasta &#8594;</button>
+  </div>
+  <div class="fc-btns">
+    <button class="btn btn-secondary" onclick="markCard(false)">&#128337; Behover ovning</button>
+    <button class="btn btn-gold" onclick="markCard(true)">&#10003; Kan det!</button>
+  </div>
+  <div class="text-center mt24" id="fc-done" style="display:none;">
+    <div class="result-icon">&#127942;</div>
+    <div class="result-score" id="fc-score"></div>
+    <button class="btn btn-primary mt16" onclick="resetCards()">Gor om</button>
+  </div>
+</div>
+<div id="santfalskt" class="section">
+  <h2>&#10067; Sant eller Falskt</h2>
+  <p>Ar pastandena om Bryssel sanna eller falska? Svara pa alla 8 och samla XP!</p>
+  <div class="game-header"><div class="game-info"><span class="game-stat" id="sf-progress">0/8 besvarade</span><span class="game-stat points" id="sf-pts">&#11088; 0 XP</span></div></div>
+  <div id="sf-questions"></div>
+  <div class="text-center mt24">
+    <button class="btn btn-gold" onclick="checkSF()">Kolla alla svar &#10003;</button>
+    <button class="btn btn-secondary" onclick="resetSF()" style="margin-left:10px;">Borja om</button>
+  </div>
+  <div id="sf-result" style="display:none;" class="text-center mt24">
+    <div class="result-icon" id="sf-ri"></div>
+    <div class="result-score" id="sf-rscore"></div>
+    <p id="sf-rxp" style="color:#8a6d00;font-weight:bold;margin-top:8px;"></p>
+    <button class="btn btn-primary mt16" onclick="resetSF()">Forsok igen</button>
+    <button class="btn btn-secondary" onclick="showSection('dashboard')" style="margin-left:10px;">Tillbaka</button>
+  </div>
+</div>
+</div></div>
+<script>
+var totalXP=0,globalStreak=0,quizCompleted=[false,false,false],matchCompleted=false,planCompleted=false,flashCompleted=false,sfCompleted=false,dashQuiz=0,dashMatch=0,dashOrd=0,dashSF=0;
+var levels=[{name:"Nyborjare",xp:0},{name:"Turist",xp:100},{name:"Resenaren",xp:250},{name:"Bryssel-fan",xp:450},{name:"Belgisk Expert",xp:700},{name:"Ol-sommelier",xp:1000},{name:"Brysselkannare",xp:1400}];
+function addXP(n){totalXP+=n;document.getElementById('dash-xp').textContent=totalXP;updateLevelBar();showXPPopup('+'+n+' XP');}
+function updateLevelBar(){var l=0;for(var i=levels.length-1;i>=0;i--){if(totalXP>=levels[i].xp){l=i;break;}}var mn=levels[l].xp,mx=l<levels.length-1?levels[l+1].xp:mn+500,p=l<levels.length-1?Math.min(100,(totalXP-mn)/(mx-mn)*100):100;document.getElementById('xp-bar').style.width=p+'%';document.getElementById('level-display').textContent='Niva '+(l+1)+': '+levels[l].name;document.getElementById('xp-text').textContent=totalXP+' XP — '+(l<levels.length-1?(mx-totalXP)+' XP till nasta niva':'Max niva!');}
+function showXPPopup(t){var e=document.createElement('div');e.className='xp-popup';e.textContent=t;document.body.appendChild(e);setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},2100);}
+function addStreak(){globalStreak++;document.getElementById('streak-badge').textContent='⚡ Streak: '+globalStreak;if(globalStreak>=5)unlockAchievement('ach-streak');}
+function resetStreak(){globalStreak=0;document.getElementById('streak-badge').textContent='⚡ Streak: 0';}
+function showSection(id){document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});document.querySelectorAll('.nav-tab').forEach(function(t){t.classList.remove('active');});document.getElementById(id).classList.add('active');var tabs=document.querySelectorAll('.nav-tab'),secs=['dashboard','quiz','matchning','planera','ordkort','santfalskt'],idx=secs.indexOf(id);if(idx>=0&&tabs[idx])tabs[idx].classList.add('active');}
+function unlockAchievement(id){var el=document.getElementById(id);if(el&&!el.classList.contains('unlocked')){el.classList.add('unlocked');showXPPopup('🏆 Achievement!');checkAllClear();}}
+function checkAllClear(){var ids=['ach-quiz','ach-match','ach-plan','ach-flash','ach-sf','ach-streak'];if(ids.every(function(id){var e=document.getElementById(id);return e&&e.classList.contains('unlocked');}))unlockAchievement('ach-master');}
+function unlockFirst(){unlockAchievement('ach-first');}
+var quizData={
+  easy:[
+    {q:"Vilken stad ar Belgiens huvudstad?",opts:["Amsterdam","Bryssel","Antwerpen","Liege"],a:1},
+    {q:"Vilket bryggeri far vi INTE besoka pa torsdag 14 maj?",opts:["Moeder Lambic","Dulle Griet","Cantillon Brewery","Delirium Tremens"],a:2},
+    {q:"Ungefar hur lang ar tagresan fran Bryssel till Gent?",opts:["10 minuter","30 minuter","1 timme","2 timmar"],a:1},
+    {q:"Vad kostar en vuxenbiljett till Magritte Museum?",opts:["5 euro","8 euro","10 euro","15 euro"],a:2},
+    {q:"Vilken helgdag infaller torsdag 14 maj 2026?",opts:["Midsommar","Kristi himmelsfärdsdag","Pingstdagen","Nationaldagen"],a:1}
+  ],
+  medium:[
+    {q:"Vad kostar Cantillons sjalvguidade bryggeritur (ordinarie)?",opts:["5 euro","9 euro","12 euro","15 euro"],a:1},
+    {q:"Vilken restaurang tar inte emot bokningar och oppnar kl 18:00?",opts:["Le Tournant","Cafe des Spores","Nueetnigenough","Fin de Siecle"],a:2},
+    {q:"Vad kostar ett STIB-dagskort i Bryssel?",opts:["6,50 euro","8,50 euro","9,10 euro","11 euro"],a:2},
+    {q:"Vad kostar entrén till Gravensteen i Gent?",opts:["5 euro","10 euro","12 euro","15 euro"],a:3},
+    {q:"Vad ar Graslei och Korenlei i Gent?",opts:["Tva berömda öl","Medeltida hamnkvarter langs Leie","Katedralens portaler","Tunnelbanestationer"],a:1}
+  ],
+  hard:[
+    {q:"Vilka tre öltyper provar man pa Cantillons tur?",opts:["Lambic, gueuze och fruktblandning","Tripel, dubbel och witbier","Stout, IPA och pilsner","Lambic, kriek och blanche"],a:0},
+    {q:"Vilken Michelin-utmarkelse har Le Tournant?",opts:["En stjarna","Bib Gourmand","Gron stjarna","Ingen"],a:1},
+    {q:"Vilka betalmetoder accepterar Fin de Siecle?",opts:["Kort och kontant","Payconiq eller kontant","Swish och kort","Enbart kontant"],a:1},
+    {q:"Vad ar De Superette i Gent kand for?",opts:["Belgiska vafflor","Sourdough-pizza i vedugn","Mosselsoppa","Belgisk choklad"],a:1},
+    {q:"Var hanger altarskapet Lammets tillbedjan av van Eyck?",opts:["Magritte Museum","Kungliga Slottet","Sint-Baafskathedraal i Gent","MIM i Bryssel"],a:2}
+  ]
+};
+var qState={level:'easy',qIdx:0,pts:0,correct:0,xpPerQ:10};
+function startQuiz(level){qState.level=level;qState.qIdx=0;qState.pts=0;qState.correct=0;qState.xpPerQ=level==='easy'?10:level==='medium'?20:30;document.getElementById('quiz-level-selector').style.display='none';document.getElementById('quiz-area').style.display='block';document.getElementById('quiz-result').style.display='none';renderQuestion();unlockFirst();}
+function renderQuestion(){var qs=quizData[qState.level],q=qs[qState.qIdx];document.getElementById('quiz-progress').textContent='Fraga '+(qState.qIdx+1)+'/'+qs.length;document.getElementById('quiz-pts').textContent='⭐ '+qState.pts+' XP';document.getElementById('quiz-bar').style.width=(qState.qIdx/qs.length*100)+'%';document.getElementById('quiz-feedback').className='feedback';document.getElementById('quiz-feedback').textContent='';document.getElementById('quiz-next').style.display='none';var h='<div class="quiz-question-text">'+q.q+'</div><div class="quiz-options">';q.opts.forEach(function(o,i){h+='<button class="quiz-option" onclick="answerQ('+i+')">'+o+'</button>';});h+='</div>';document.getElementById('quiz-content').innerHTML=h;}
+function answerQ(chosen){var q=quizData[qState.level][qState.qIdx],opts=document.querySelectorAll('.quiz-option');opts.forEach(function(o){o.disabled=true;});var ok=chosen===q.a;opts[q.a].classList.add('correct');if(!ok)opts[chosen].classList.add('incorrect');var fb=document.getElementById('quiz-feedback');if(ok){qState.pts+=qState.xpPerQ;qState.correct++;addStreak();addXP(qState.xpPerQ);fb.className='feedback correct-fb';fb.textContent='✓ Ratt! '+q.opts[q.a];document.getElementById('quiz-pts').textContent='⭐ '+qState.pts+' XP';}else{resetStreak();fb.className='feedback incorrect-fb';fb.textContent='✗ Fel! Ratt svar: '+q.opts[q.a];}document.getElementById('quiz-next').style.display='inline-block';}
+function nextQ(){qState.qIdx++;if(qState.qIdx>=quizData[qState.level].length)showQuizResult();else renderQuestion();}
+function showQuizResult(){document.getElementById('quiz-area').style.display='none';document.getElementById('quiz-result').style.display='block';var s=qState.correct,t=quizData[qState.level].length,stars=s===t?'⭐⭐⭐':s>=t*0.7?'⭐⭐':'⭐';document.getElementById('quiz-ri').textContent=s===t?'🏆':'💪';document.getElementById('quiz-stars').textContent=stars;document.getElementById('quiz-rscore').textContent=s+' av '+t+' ratt!';document.getElementById('quiz-rmsg').textContent=s===t?'Utmarkt!':s>=t*0.7?'Bra jobbat!':'Forsok igen!';document.getElementById('quiz-rxp').textContent='⭐ +'+qState.pts+' XP intjanat!';var li=qState.level==='easy'?0:qState.level==='medium'?1:2;dashQuiz=Math.max(dashQuiz,s+li*5);document.getElementById('dash-quiz').textContent=dashQuiz+'/15';if(s===t){quizCompleted[li]=true;if(quizCompleted.every(function(x){return x;}))unlockAchievement('ach-quiz');}}
+function resetQuiz(){document.getElementById('quiz-level-selector').style.display='flex';document.getElementById('quiz-area').style.display='none';document.getElementById('quiz-result').style.display='none';}
+var matchPairs=[
+  {left:"Cantillon Brewery",right:"Sjalvguidad tur med 3 provningar (lambic, gueuze, frukt) for 9 euro"},
+  {left:"Le Tournant",right:"3-ratters meny 48 euro, Bib Gourmand, ersatter Le Mary Celeste"},
+  {left:"Cafe des Spores",right:"Svampfokuserad restaurang i Saint-Gilles, samma agare som La Buvette"},
+  {left:"De Superette",right:"Sourdough-pizza i vedugn, Guldenspoorstraat 29 i Gent"},
+  {left:"Moeder Lambic Fontainas",right:"Bar vid Place Fontainas med 40+ ol pa fat"},
+  {left:"Dulle Griet",right:"Gentbar dar du lamnar en sko som pant for det stora glaset"}
+];
+var matchState={selLeft:null,matched:0,pts:0,shuffledRight:[]};
+function initMatch(){var r=matchPairs.map(function(p,i){return{text:p.right,idx:i};});r.sort(function(){return Math.random()-0.5;});matchState.shuffledRight=r;matchState.selLeft=null;matchState.matched=0;matchState.pts=0;document.getElementById('match-pts').textContent='⭐ 0 XP';document.getElementById('match-progress').textContent='0/6 matchade';document.getElementById('match-result').style.display='none';document.getElementById('match-feedback').className='feedback';renderMatchLeft();renderMatchRight();}
+function renderMatchLeft(){var h='';matchPairs.forEach(function(p,i){h+='<div class="match-item" id="ml-'+i+'" onclick="selectLeft('+i+')">'+p.left+'</div>';});document.getElementById('match-left').innerHTML=h;}
+function renderMatchRight(){var h='';matchState.shuffledRight.forEach(function(r,i){h+='<div class="match-item" id="mr-'+i+'" onclick="selectRight('+i+')">'+r.text+'</div>';});document.getElementById('match-right').innerHTML=h;}
+function selectLeft(idx){var el=document.getElementById('ml-'+idx);if(!el||el.classList.contains('correct'))return;document.querySelectorAll('#match-left .match-item').forEach(function(e){e.classList.remove('selected');});matchState.selLeft=idx;el.classList.add('selected');}
+function selectRight(ridx){if(matchState.selLeft===null){document.getElementById('match-feedback').className='feedback incorrect-fb';document.getElementById('match-feedback').textContent='Valj forst ett alternativ till vanster!';return;}var ri=matchState.shuffledRight[ridx],ok=ri.idx===matchState.selLeft,eR=document.getElementById('mr-'+ridx),eL=document.getElementById('ml-'+matchState.selLeft);if(ok){eR.classList.add('correct');eR.onclick=null;eL.classList.add('correct');eL.onclick=null;matchState.matched++;matchState.pts+=25;addXP(25);addStreak();document.getElementById('match-pts').textContent='⭐ '+matchState.pts+' XP';document.getElementById('match-progress').textContent=matchState.matched+'/6 matchade';document.getElementById('match-feedback').className='feedback correct-fb';document.getElementById('match-feedback').textContent='✓ Ratt match!';dashMatch=matchState.matched;document.getElementById('dash-matchning').textContent=dashMatch+'/6';if(matchState.matched===6){unlockAchievement('ach-match');unlockFirst();matchCompleted=true;document.getElementById('match-result').style.display='block';document.getElementById('match-rscore').textContent='Alla 6 par matchade! +'+matchState.pts+' XP';}}else{eR.classList.add('incorrect');resetStreak();document.getElementById('match-feedback').className='feedback incorrect-fb';document.getElementById('match-feedback').textContent='✗ Fel, forsok igen!';setTimeout(function(){eR.classList.remove('incorrect');},500);}matchState.selLeft=null;document.querySelectorAll('#match-left .match-item').forEach(function(e){e.classList.remove('selected');});}
+function resetMatch(){initMatch();}
+var planDays=[{label:"Tors 14/5",key:"thu",hint:"Helgdag"},{label:"Fre 15/5",key:"fri",hint:"Vardagsaktiviteter"},{label:"Lor 16/5",key:"sat",hint:"Dagutflykt Gent"},{label:"Son 17/5",key:"sun",hint:"Hemresa"}];
+var planActivities=[{text:"Ankomst Bryssel",day:"thu"},{text:"Pierre Marcolini / Wittamer choklad",day:"thu"},{text:"Moeder Lambic Fontainas",day:"thu"},{text:"Cantillon Brewery (sjalvguidad tur)",day:"fri"},{text:"Magritte Museum",day:"fri"},{text:"Place du Jeu de Balle loppis",day:"fri"},{text:"Dagstur till Gent med tag",day:"sat"},{text:"De Superette - lunch",day:"sat"},{text:"Gravensteen - Grevarnas slott",day:"sat"},{text:"Flyg/tag hem",day:"sun"}];
+var planState={placed:{},selChip:null};
+function initPlan(){planState.placed={};planState.selChip=null;document.getElementById('plan-feedback').className='feedback';document.getElementById('plan-result').style.display='none';var pool=document.getElementById('activity-pool');pool.innerHTML=planActivities.map(function(a,i){return'<div class="activity-chip" id="chip-'+i+'" onclick="selectChip('+i+')">'+a.text+'</div>';}).join('');document.getElementById('day-columns').innerHTML=planDays.map(function(d){return'<div class="day-col" id="col-'+d.key+'" onclick="placeChip(\''+d.key+'\')">'+'<h4>'+d.label+'<br><small style="font-weight:normal;font-size:0.8em;color:#888;">'+d.hint+'</small></h4>'+'<div id="placed-'+d.key+'"></div></div>';}).join('');}
+function selectChip(idx){if(planState.placed[idx]===undefined){document.querySelectorAll('.activity-chip').forEach(function(c){c.style.border='2px solid var(--border)';});planState.selChip=idx;var el=document.getElementById('chip-'+idx);if(el)el.style.border='2px solid var(--gold)';}}
+function placeChip(dayKey){if(planState.selChip===null)return;var idx=planState.selChip,chipEl=document.getElementById('chip-'+idx);planState.placed[idx]=dayKey;var placed=document.getElementById('placed-'+dayKey),chip=document.createElement('div');chip.className='dropped-chip';chip.id='dropped-'+idx;chip.innerHTML=planActivities[idx].text+'<span class="remove-chip" onclick="removeChip('+idx+',\''+dayKey+'\')" >x</span>';placed.appendChild(chip);if(chipEl)chipEl.style.display='none';planState.selChip=null;document.querySelectorAll('.activity-chip').forEach(function(c){c.style.border='2px solid var(--border)';});}
+function removeChip(idx,dayKey){var d=document.getElementById('dropped-'+idx);if(d)d.parentNode.removeChild(d);delete planState.placed[idx];var c=document.getElementById('chip-'+idx);if(c){c.style.display='inline-block';c.style.border='2px solid var(--border)';}}
+function checkPlan(){var correct=0,total=0;planActivities.forEach(function(a,i){var day=planState.placed[i],dropped=document.getElementById('dropped-'+i);if(day!==undefined&&dropped){total++;if(day===a.day){correct++;dropped.classList.add('correct');dropped.classList.remove('incorrect');}else{dropped.classList.add('incorrect');dropped.classList.remove('correct');}}});var fb=document.getElementById('plan-feedback');if(total<planActivities.length){fb.className='feedback incorrect-fb';fb.textContent='Du har '+(planActivities.length-total)+' aktiviteter kvar att placera!';return;}var xp=correct*15;addXP(xp);document.getElementById('plan-result').style.display='block';document.getElementById('plan-rscore').textContent=correct+' av '+total+' ratt placerade!';document.getElementById('plan-rxp').textContent='⭐ +'+xp+' XP!';document.getElementById('dash-planera').textContent=correct+'/'+total;if(correct===total){planCompleted=true;unlockAchievement('ach-plan');unlockFirst();fb.className='feedback correct-fb';fb.textContent='✓ Perfekt reseplan!';}else{fb.className='feedback incorrect-fb';fb.textContent=(total-correct)+' aktiviteter pa fel dag. De roda ar felplacerade.';}}
+function resetPlan(){initPlan();document.getElementById('plan-feedback').className='feedback';document.getElementById('plan-result').style.display='none';}
+var flashCards=[
+  {term:"Lambic",def:"Spontanjast belgiskt ol bryggt pa vete och korn. Anvands som bas i Cantillons produkter och kräver langa lagringtider."},
+  {term:"Gueuze",def:"Blandning av gammalt och ungt lambic-ol. Sätts pa flaska for en andra jastning, torrt och mousserande."},
+  {term:"Bib Gourmand",def:"Michelin-utmarkelse for restauranger med bra mat till rimligt pris (under ca 40 euro for tre ratter)."},
+  {term:"Diabolo",def:"Taglinjen fran Bryssels flygplats (Zaventem) till Bryssel Central. Avgår var 15:e minut, restid ca 18 min."},
+  {term:"STIB / MIVB",def:"Bryssels kollektivtrafiksystem. Dagskort 9,10 euro. Kontaktlost dagtak nas efter 4 resor = 8,50 euro."},
+  {term:"Sint-Baafskathedraal",def:"Gotisk katedral i centrala Gent med altarskapet Lammets tillbedjan av Jan van Eyck (1432)."},
+  {term:"Graslei & Korenlei",def:"Medeltida hamnkvarter langs floden Leie i Gent. Ikonisk vy fran Sint-Michielsbrug."},
+  {term:"Payconiq",def:"Belgisk betalapp. Fin de Siecle accepterar enbart Payconiq eller kontant - inte vanliga kortbetalningar."}
+];
+var fcState={idx:0,known:new Array(8).fill(false),seen:new Array(8).fill(false)};
+function initCards(){fcState.idx=0;fcState.known=new Array(flashCards.length).fill(false);fcState.seen=new Array(flashCards.length).fill(false);document.getElementById('fc-done').style.display='none';document.getElementById('flashcard').style.display='block';document.querySelector('.flashcard-nav').style.display='flex';document.querySelector('.fc-btns').style.display='flex';renderCard();}
+function renderCard(){var c=flashCards[fcState.idx];fcState.seen[fcState.idx]=true;document.getElementById('card-term').textContent=c.term;document.getElementById('card-def').textContent=c.def;document.getElementById('fc-counter').textContent=(fcState.idx+1)+' / '+flashCards.length;document.getElementById('flashcard').classList.remove('flipped');var dots='';flashCards.forEach(function(_,i){dots+='<div class="fc-dot'+(i===fcState.idx?' current':fcState.known[i]?' known':'')+'"></div>';});document.getElementById('fc-dots').innerHTML=dots;document.getElementById('dash-ordkort').textContent=fcState.known.filter(Boolean).length+'/8';}
+function flipCard(){document.getElementById('flashcard').classList.toggle('flipped');}
+function prevCard(){fcState.idx=(fcState.idx-1+flashCards.length)%flashCards.length;renderCard();}
+function nextCard(){fcState.idx=(fcState.idx+1)%flashCards.length;renderCard();}
+function markCard(known){fcState.known[fcState.idx]=known;if(known)addXP(10);var kn=fcState.known.filter(Boolean).length;document.getElementById('dash-ordkort').textContent=kn+'/8';if(fcState.seen.every(Boolean)&&kn===flashCards.length){flashCompleted=true;unlockAchievement('ach-flash');unlockFirst();document.getElementById('flashcard').style.display='none';document.querySelector('.flashcard-nav').style.display='none';document.querySelector('.fc-btns').style.display='none';document.getElementById('fc-dots').innerHTML='';document.getElementById('fc-done').style.display='block';document.getElementById('fc-score').textContent='Du kan alla '+flashCards.length+' begrepp!';}else{nextCard();}}
+function resetCards(){initCards();}
+var sfData=[
+  {text:"Cantillon Brewery ar öppet alla dagar i veckan.",ans:false,expl:"Cantillon ar stängt pa Kristi himmelsfärdsdag (torsdag 14 maj)."},
+  {text:"Le Tournant har en Bib Gourmand fran Michelin.",ans:true,expl:"Ja! Le Tournant har Bib Gourmand och serverar 3-ratters for 48 euro."},
+  {text:"Nüetnigenough tar emot bordsbokningar.",ans:false,expl:"De tar inte emot bokningar - kom kl 18 nar de oppnar."},
+  {text:"Ett STIB-dagskort i Bryssel kostar 9,10 euro.",ans:true,expl:"Korrekt! Kontaktlost dagtak nas efter 4 resor = 8,50 euro."},
+  {text:"Gravensteen kostar 10 euro for vuxna.",ans:false,expl:"Fel - Gravensteen kostar 15 euro per vuxen."},
+  {text:"Van Eyck-altarskapet hänger i en kyrka i Bryssel.",ans:false,expl:"Det hanger i Sint-Baafskathedraal i Gent, inte i Bryssel."},
+  {text:"Tagresan fran Bryssel flygplats till Bryssel Central tar ca 18 minuter.",ans:true,expl:"Ratt! Diabolo-linjen kor pa ca 18 minuter."},
+  {text:"De Superette i Gent ar öppet alla dagar.",ans:false,expl:"Stängt son-ons. Öppet bara torsdag-lordag."}
+];
+var sfAnswers=new Array(sfData.length).fill(null),sfSubmitted=false;
+function initSF(){sfAnswers=new Array(sfData.length).fill(null);sfSubmitted=false;document.getElementById('sf-result').style.display='none';document.getElementById('sf-progress').textContent='0/8 besvarade';document.getElementById('sf-pts').textContent='⭐ 0 XP';var h='';sfData.forEach(function(item,i){h+='<div class="sf-question"><div class="sf-text">'+item.text+'</div><div class="sf-btns"><button class="btn btn-sant" id="sf-sant-'+i+'" onclick="answerSF('+i+',true)">Sant</button><button class="btn btn-falskt" id="sf-falskt-'+i+'" onclick="answerSF('+i+',false)">Falskt</button></div><div class="sf-result" id="sf-res-'+i+'"></div></div>';});document.getElementById('sf-questions').innerHTML=h;}
+function answerSF(idx,val){if(sfSubmitted)return;sfAnswers[idx]=val;document.getElementById('sf-sant-'+idx).style.opacity=val?'1':'0.4';document.getElementById('sf-falskt-'+idx).style.opacity=!val?'1':'0.4';document.getElementById('sf-progress').textContent=sfAnswers.filter(function(a){return a!==null;}).length+'/8 besvarade';}
+function checkSF(){if(sfSubmitted)return;if(sfAnswers.filter(function(a){return a!==null;}).length<sfData.length){alert('Svara pa alla 8 forst!');return;}sfSubmitted=true;var correct=0;sfData.forEach(function(item,i){var res=document.getElementById('sf-res-'+i);res.classList.add('show');if(sfAnswers[i]===item.ans){correct++;res.className='sf-result show sant-right';res.textContent='✓ Ratt! '+item.expl;}else{res.className='sf-result show sant-wrong';res.textContent='✗ Fel. '+item.expl;}});var xp=correct*15;addXP(xp);dashSF=correct;document.getElementById('dash-sf').textContent=correct+'/8';document.getElementById('sf-pts').textContent='⭐ '+xp+' XP';document.getElementById('sf-result').style.display='block';document.getElementById('sf-ri').textContent=correct===8?'🏆':correct>=6?'👍':'💪';document.getElementById('sf-rscore').textContent=correct+' av 8 ratt!';document.getElementById('sf-rxp').textContent='⭐ +'+xp+' XP!';if(correct===8){sfCompleted=true;unlockAchievement('ach-sf');unlockFirst();}}
+function resetSF(){sfSubmitted=false;initSF();document.getElementById('sf-result').style.display='none';}
+initMatch();initPlan();initCards();initSF();updateLevelBar();
+</script>
+</body>
+</html>
