@@ -447,7 +447,7 @@
     </div>
 
     <div class="info-box">
-      <strong>Om Live-flödet:</strong> Sidan hämtar automatiskt Arsenal-nyheter från internationella källor som BBC Sport, The Guardian, Sky Sports och Goal.com. Uppdateras var 60:e minut.
+      <strong>Om Live-flödet:</strong> Arsenal-nyheter hämtas server-side varje timme via GitHub Actions från BBC Sport, The Guardian, Sky Sports, Football London, Mirror Sport och ESPN. Sidan läser lokalt cachad data – inga CORS-problem.
     </div>
 
     <div class="section-header">
@@ -750,113 +750,30 @@ function renderRSSSources() {
     </div>`).join('');
 }
 
-// ===== FETCH RSS =====
-function parseRSSXML(xml, sourceName) {
-  try {
-    const doc = new DOMParser().parseFromString(xml, 'text/xml');
-    const items = doc.querySelectorAll('item, entry');
-    return Array.from(items).slice(0, 50).map(item => {
-      const getText = sel => {
-        for (const s of sel) {
-          const el = item.querySelector(s);
-          if (el) return el.textContent.trim();
-        }
-        return '';
-      };
-      const link = getText(['link']) ||
-        item.querySelector('link[rel="alternate"]')?.getAttribute('href') ||
-        item.querySelector('link')?.getAttribute('href') || '';
-      return {
-        title: getText(['title']),
-        link,
-        pubDate: getText(['pubDate', 'published', 'updated', 'dc\\:date']),
-        description: getText(['description', 'summary', 'content\\:encoded', 'content']),
-        source: sourceName
-      };
-    }).filter(a => a.title && a.link);
-  } catch (e) { return []; }
-}
-
-async function fetchViaProxy(proxyUrl, sourceName) {
-  const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
-  if (!resp.ok) return null;
-  const data = await resp.json();
-  const xml = data.contents || data.data || '';
-  if (!xml) return null;
-  return parseRSSXML(xml, sourceName);
-}
-
-async function fetchSource(source) {
-  const name = source.name.split(' – ')[0];
-  const enc = encodeURIComponent(source.url);
-
-  // 1. rss2json.com
-  try {
-    const resp = await fetch(
-      `https://api.rss2json.com/v1/api.json?rss_url=${enc}&count=50`,
-      { signal: AbortSignal.timeout(10000) }
-    );
-    if (resp.ok) {
-      const data = await resp.json();
-      if (data.status === 'ok' && Array.isArray(data.items) && data.items.length) {
-        source.count = data.items.length;
-        return data.items.map(item => ({
-          title: item.title || '',
-          link: item.link || '',
-          pubDate: item.pubDate || '',
-          description: item.description || item.content || '',
-          source: name
-        }));
-      }
-    }
-  } catch (e) {}
-
-  // 2. allorigins.win
-  try {
-    const items = await fetchViaProxy(
-      `https://api.allorigins.win/get?url=${enc}`, name
-    );
-    if (items && items.length) { source.count = items.length; return items; }
-  } catch (e) {}
-
-  // 3. corsproxy.io
-  try {
-    const resp = await fetch(
-      `https://corsproxy.io/?${enc}`,
-      { signal: AbortSignal.timeout(12000) }
-    );
-    if (resp.ok) {
-      const xml = await resp.text();
-      const items = parseRSSXML(xml, name);
-      if (items.length) { source.count = items.length; return items; }
-    }
-  } catch (e) {}
-
-  fetchErrors++;
-  return [];
-}
+// ===== FETCH LOCAL DATA (genererat av GitHub Actions) =====
+let lastUpdatedISO = null;
 
 async function fetchAll() {
-  fetchErrors = 0;
-  const promises = SOURCES.map(s => fetchSource(s));
-  const results = await Promise.allSettled(promises);
-  const items = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
-
-  // Deduplicate by link
-  const seen = new Set();
-  const unique = items.filter(a => {
-    if (!a.link || seen.has(a.link)) return false;
-    seen.add(a.link);
-    return true;
-  });
-
-  return unique;
+  try {
+    const resp = await fetch('arsenal-data.json?t=' + Date.now(), { signal: AbortSignal.timeout(10000) });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    lastUpdatedISO = data.updated || null;
+    // Uppdatera källräknare för RSS-fliken
+    const counts = {};
+    (data.articles || []).forEach(a => { counts[a.source] = (counts[a.source] || 0) + 1; });
+    SOURCES.forEach(s => { s.count = counts[s.name.split(' – ')[0]] || 0; });
+    return data.articles || [];
+  } catch (e) {
+    return [];
+  }
 }
 
 // ===== UPDATE UI =====
 function updateStats(articles) {
   document.getElementById('articleCount').textContent = articles.length;
-  document.getElementById('lastUpdated').textContent = formatFullDate(new Date());
+  const d = lastUpdatedISO ? new Date(lastUpdatedISO) : new Date();
+  document.getElementById('lastUpdated').textContent = formatFullDate(d);
 }
 
 function scheduleRefresh() {
@@ -888,11 +805,11 @@ function scheduleRefresh() {
   if (!allArticles.length) {
     document.getElementById('articlesContainer').innerHTML = `
       <div class="empty-state">
-        <div class="icon">⚠️</div>
+        <div class="icon">⏳</div>
         <div>
-          Kunde inte hämta nyheter just nu.<br>
+          Nyheter laddas in inom kort.<br>
           <small style="color:var(--text-muted);margin-top:4px;display:block;">
-            RSS-hämtning blockeras ibland av webbläsarens CORS-policy. Försök ladda om sidan om en stund.
+            GitHub Actions hämtar Arsenal-nyheter varje timme och sparar dem automatiskt.
           </small>
         </div>
       </div>`;
