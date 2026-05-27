@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jens Arsenal News</title>
+  <meta name="description" content="Live Arsenal-nyheter från internationella källor – uppdateras automatiskt varje timme.">
+  <style>
+    :root {
+      --bg: #f5f6fa;
+      --bg-card: #ffffff;
+      --bg-header: #0a0a0a;
+      --bg-header-bar: #1a0000;
+      --text: #1a1a1a;
+      --text-secondary: #555;
+      --text-muted: #888;
+      --border: #e0e0e0;
+      --red: #EF0107;
+      --red-dark: #b80006;
+      --gold: #9C824A;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-lg: 0 4px 16px rgba(0,0,0,0.12);
+      --radius: 10px;
+    }
+    [data-theme="dark"] {
+      --bg: #111;
+      --bg-card: #1e1e1e;
+      --bg-header: #0a0a0a;
+      --bg-header-bar: #1a0000;
+      --text: #e8e8e8;
+      --text-secondary: #aaa;
+      --text-muted: #666;
+      --border: #333;
+      --shadow: 0 1px 3px rgba(0,0,0,0.4);
+      --shadow-lg: 0 4px 16px rgba(0,0,0,0.5);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { color: var(--red); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ===== HEADER ===== */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-header);
+      color: white;
+      box-shadow: var(--shadow-lg);
+    }
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 14px 16px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .logo-block { display: flex; align-items: center; gap: 12px; }
+    .arsenal-badge {
+      width: 44px;
+      height: 44px;
+      background: var(--red);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(239,1,7,0.5);
+    }
+    .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.03em; color: white; }
+    .logo span { color: var(--red); }
+    .subtitle { font-size: 0.78rem; color: #aaa; margin-top: 1px; }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .btn-theme {
+      background: none;
+      border: 1px solid #444;
+      color: #ccc;
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    .btn-theme:hover { background: #333; color: white; }
+    .live-dot {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.78rem;
+      color: #4caf50;
+      font-weight: 600;
+    }
+    .live-dot::before {
+      content: '';
+      width: 7px; height: 7px;
+      background: #4caf50;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* ===== NAV TABS ===== */
+    .nav-wrap {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    [data-theme="dark"] .nav-wrap { background: #1a1a1a; }
+    .nav-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 16px;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 12px 18px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      outline: none;
+    }
+    .tab-btn:hover { color: var(--red); }
+    .tab-btn.active {
+      color: var(--red);
+      border-bottom-color: var(--red);
+      font-weight: 700;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+
+    /* ===== PAGE TITLE ===== */
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+      letter-spacing: -0.03em;
+    }
+    .page-title-under {
+      width: 60px;
+      height: 3px;
+      background: var(--red);
+      border-radius: 2px;
+      margin-bottom: 20px;
+    }
+
+    /* ===== STAT CARDS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 500px) { .stats-grid { grid-template-columns: 1fr; } }
+    .stat-card {
+      background: var(--red);
+      color: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(239,1,7,0.3);
+    }
+    .stat-card.dark {
+      background: #1a1a1a;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    [data-theme="dark"] .stat-card.dark { background: #2a2a2a; }
+    .stat-num { font-size: 2.5rem; font-weight: 900; line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 0.88rem; opacity: 0.9; }
+    .stat-date { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+
+    /* ===== INFO BOX ===== */
+    .info-box {
+      background: #fff8f8;
+      border-left: 4px solid var(--red);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 14px 16px;
+      margin-bottom: 28px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    [data-theme="dark"] .info-box { background: #1e1010; }
+    .info-box strong { color: var(--text); }
+
+    /* ===== SECTION HEADER ===== */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--red);
+    }
+    .sort-label { font-size: 0.85rem; color: var(--text-muted); }
+    .sort-label span { color: var(--red); font-weight: 600; cursor: pointer; }
+
+    /* ===== ARTICLE LIST ===== */
+    .articles-list { display: flex; flex-direction: column; gap: 0; }
+    .article-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: box-shadow 0.2s, transform 0.15s;
+      box-shadow: var(--shadow);
+    }
+    .article-item:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-1px);
+    }
+    .article-num {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--red);
+      min-width: 34px;
+      padding-top: 2px;
+      opacity: 0.7;
+    }
+    .article-body { flex: 1; min-width: 0; }
+    .article-meta {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .source-badge {
+      background: #fef0f0;
+      color: var(--red);
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+    [data-theme="dark"] .source-badge { background: #2a0a0a; }
+    .article-title {
+      font-size: 0.97rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .article-title a { color: var(--text); }
+    .article-title a:hover { color: var(--red); text-decoration: none; }
+    .article-desc {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .article-star {
+      color: var(--gold);
+      font-size: 1.1rem;
+      padding-top: 2px;
+      flex-shrink: 0;
+    }
+    .article-star.new { color: #EF0107; }
+
+    /* ===== LOADING ===== */
+    .loading-wrap {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--text-secondary);
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== EMPTY / ERROR ===== */
+    .empty-state {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--text-muted);
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    /* ===== RSS TAB ===== */
+    .rss-panel { display: none; }
+    .rss-panel.active { display: block; }
+    .rss-source-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+    }
+    .rss-source-name { font-weight: 700; margin-bottom: 4px; font-size: 0.97rem; }
+    .rss-source-url { font-size: 0.8rem; color: var(--text-muted); word-break: break-all; }
+    .rss-source-count { font-size: 0.8rem; color: var(--red); font-weight: 600; margin-top: 4px; }
+
+    /* ===== LOAD MORE ===== */
+    .load-more-wrap { text-align: center; margin-top: 20px; }
+    .btn-load-more {
+      background: var(--red);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 28px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-load-more:hover { background: var(--red-dark); }
+    .btn-load-more:disabled { opacity: 0.5; cursor: default; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      padding: 24px 16px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      margin-top: 32px;
+    }
+    .footer a { color: var(--red); }
+
+    /* ===== REFRESH NOTICE ===== */
+    .refresh-notice {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      padding: 8px;
+      margin-bottom: 16px;
+    }
+
+    /* ===== ARCHIVE SECTION HEADERS ===== */
+    .archive-date-header {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      padding: 8px 0 6px;
+      margin-top: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+    .archive-date-header:first-child { margin-top: 0; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-block">
+      <div class="arsenal-badge">⚽</div>
+      <div>
+        <div class="logo">Jens <span>Arsenal</span> News</div>
+        <div class="subtitle">Live · Internationella källor · Automatisk uppdatering</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="live-dot" id="liveIndicator">LIVE</div>
+      <button class="btn-theme" onclick="toggleTheme()" id="themeBtn">🌙 Mörkt</button>
+    </div>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav-wrap">
+  <div class="nav-inner">
+    <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">Live</button>
+    <button class="tab-btn" data-tab="week" onclick="switchTab('week')">Veckan</button>
+    <button class="tab-btn" data-tab="month" onclick="switchTab('month')">Månaden</button>
+    <button class="tab-btn" data-tab="archive" onclick="switchTab('archive')">Arkiv</button>
+    <button class="tab-btn" data-tab="rss" onclick="switchTab('rss')">RSS-källor</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- LIVE TAB -->
+  <div id="tab-live" class="tab-panel">
+    <div class="page-title">Live Arsenal-Nyheter</div>
+    <div class="page-title-under"></div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="articleCount">–</div>
+        <div class="stat-label">Artiklar hämtade nu</div>
+      </div>
+      <div class="stat-card dark">
+        <div class="stat-date" id="lastUpdated">Laddar…</div>
+        <div class="stat-label">Senast uppdaterad</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Om Live-flödet:</strong> Sidan hämtar automatiskt Arsenal-nyheter från internationella källor som BBC Sport, The Guardian, Sky Sports och Goal.com. Uppdateras var 60:e minut.
+    </div>
+
+    <div class="section-header">
+      <div class="section-title" id="sectionTitle">Alla artiklar</div>
+      <div class="sort-label">Sortering: <span onclick="toggleSort()">Nyaste</span></div>
+    </div>
+
+    <div id="articlesContainer">
+      <div class="loading-wrap">
+        <div class="spinner"></div>
+        <div>Hämtar Arsenal-nyheter…</div>
+      </div>
+    </div>
+
+    <div class="load-more-wrap" id="loadMoreWrap" style="display:none;">
+      <button class="btn-load-more" id="loadMoreBtn" onclick="loadMore()">Visa fler artiklar</button>
+    </div>
+
+    <div class="refresh-notice" id="refreshNotice"></div>
+  </div>
+
+  <!-- WEEK TAB -->
+  <div id="tab-week" class="tab-panel" style="display:none;">
+    <div class="page-title">Senaste veckan</div>
+    <div class="page-title-under"></div>
+    <div class="section-header">
+      <div class="section-title" style="color:var(--red)">Arsenal-nyheter – 7 dagar</div>
+    </div>
+    <div id="weekContainer">
+      <div class="loading-wrap"><div class="spinner"></div><div>Filtrerar…</div></div>
+    </div>
+  </div>
+
+  <!-- MONTH TAB -->
+  <div id="tab-month" class="tab-panel" style="display:none;">
+    <div class="page-title">Senaste månaden</div>
+    <div class="page-title-under"></div>
+    <div class="section-header">
+      <div class="section-title" style="color:var(--red)">Arsenal-nyheter – 30 dagar</div>
+    </div>
+    <div id="monthContainer">
+      <div class="loading-wrap"><div class="spinner"></div><div>Filtrerar…</div></div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE TAB -->
+  <div id="tab-archive" class="tab-panel" style="display:none;">
+    <div class="page-title">Arkiv</div>
+    <div class="page-title-under"></div>
+    <div class="section-header">
+      <div class="section-title" style="color:var(--red)">Alla sparade artiklar</div>
+    </div>
+    <div id="archiveContainer">
+      <div class="empty-state">
+        <div class="icon">📁</div>
+        <div>Artiklar sparas automatiskt lokalt i din webbläsare.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RSS SOURCES TAB -->
+  <div id="tab-rss" class="tab-panel" style="display:none;">
+    <div class="page-title">RSS-källor</div>
+    <div class="page-title-under"></div>
+    <div class="info-box">
+      <strong>Aktiva RSS-flöden:</strong> Dessa internationella källor bevakas för Arsenal-nyheter.
+    </div>
+    <div id="rssList"></div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  Jens Arsenal News &middot; Live nyheter från internationella källor &middot;
+  <a href="https://www.arsenal.com" target="_blank" rel="noopener">Arsenal FC</a>
+</footer>
+
+<script>
+// ===== SOURCES =====
+const SOURCES = [
+  {
+    name: 'BBC Sport – Arsenal',
+    url: 'https://feeds.bbci.co.uk/sport/football/teams/arsenal/rss.xml',
+    count: 0
+  },
+  {
+    name: 'The Guardian – Arsenal',
+    url: 'https://www.theguardian.com/football/arsenal/rss',
+    count: 0
+  },
+  {
+    name: 'Sky Sports – Arsenal',
+    url: 'https://www.skysports.com/rss/12040',
+    count: 0
+  },
+  {
+    name: 'Goal.com – Arsenal',
+    url: 'https://www.goal.com/feeds/en/news?teamid=14',
+    count: 0
+  },
+  {
+    name: 'Football London – Arsenal',
+    url: 'https://www.football.london/rss/news/arsenal-fc/',
+    count: 0
+  },
+  {
+    name: 'Mirror Sport – Arsenal',
+    url: 'https://www.mirror.co.uk/sport/football/teams/arsenal/rss.xml',
+    count: 0
+  }
+];
+
+const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
+const ITEMS_PER_PAGE = 20;
+
+let allArticles = [];
+let displayedCount = ITEMS_PER_PAGE;
+let sortNewest = true;
+let currentTab = 'live';
+let fetchErrors = 0;
+
+// ===== THEME =====
+function toggleTheme() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? '' : 'dark');
+  document.getElementById('themeBtn').textContent = dark ? '🌙 Mörkt' : '☀️ Ljust';
+  localStorage.setItem('arsenal-theme', dark ? 'light' : 'dark');
+}
+(function initTheme() {
+  const saved = localStorage.getItem('arsenal-theme');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('themeBtn').textContent = '☀️ Ljust';
+  }
+})();
+
+// ===== TABS =====
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('tab-' + tab).style.display = 'block';
+
+  if (tab === 'week') renderFiltered('weekContainer', 7);
+  if (tab === 'month') renderFiltered('monthContainer', 30);
+  if (tab === 'archive') renderArchive();
+  if (tab === 'rss') renderRSSSources();
+}
+
+// ===== SORT =====
+function toggleSort() {
+  sortNewest = !sortNewest;
+  document.querySelector('.sort-label span').textContent = sortNewest ? 'Nyaste' : 'Äldsta';
+  renderArticles(allArticles, 'articlesContainer', true);
+}
+
+// ===== FORMAT DATE =====
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return dateStr;
+  const now = new Date();
+  const diff = Math.floor((now - d) / 1000);
+  if (diff < 60) return 'Just nu';
+  if (diff < 3600) return Math.floor(diff / 60) + ' min sedan';
+  if (diff < 86400) return Math.floor(diff / 3600) + ' tim sedan';
+  if (diff < 172800) return 'Igår';
+  return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+}
+
+function formatFullDate(d) {
+  return new Intl.DateTimeFormat('sv-SE', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  }).format(new Date(d));
+}
+
+// ===== ARTICLE HTML =====
+function articleHTML(a, index, showNum = true) {
+  const isNew = (new Date() - new Date(a.pubDate)) < 3 * 3600 * 1000;
+  return `
+    <div class="article-item">
+      ${showNum ? `<div class="article-num">#${index + 1}</div>` : ''}
+      <div class="article-body">
+        <div class="article-meta">
+          <span class="source-badge">${escapeHtml(a.source)}</span>
+          <span>${formatDate(a.pubDate)}</span>
+        </div>
+        <div class="article-title">
+          <a href="${escapeAttr(a.link)}" target="_blank" rel="noopener">${escapeHtml(a.title)}</a>
+        </div>
+        ${a.description ? `<div class="article-desc">${stripHtml(a.description)}</div>` : ''}
+      </div>
+      <div class="article-star ${isNew ? 'new' : ''}">
+        ${isNew ? '⚡' : '⭐'}
+      </div>
+    </div>`;
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escapeAttr(s) {
+  return String(s || '').replace(/"/g,'%22');
+}
+function stripHtml(s) {
+  return String(s || '').replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').trim().substring(0, 200);
+}
+
+// ===== RENDER ARTICLES =====
+function renderArticles(articles, containerId, resetCount) {
+  const el = document.getElementById(containerId);
+  if (!articles.length) {
+    el.innerHTML = `<div class="empty-state"><div class="icon">📰</div><div>Inga artiklar hittades.</div></div>`;
+    document.getElementById('loadMoreWrap').style.display = 'none';
+    return;
+  }
+  const sorted = [...articles].sort((a, b) => {
+    const ta = new Date(a.pubDate || 0), tb = new Date(b.pubDate || 0);
+    return sortNewest ? tb - ta : ta - tb;
+  });
+  if (resetCount) displayedCount = ITEMS_PER_PAGE;
+  const slice = sorted.slice(0, displayedCount);
+  el.innerHTML = slice.map((a, i) => articleHTML(a, i)).join('');
+  const moreWrap = document.getElementById('loadMoreWrap');
+  if (containerId === 'articlesContainer') {
+    moreWrap.style.display = sorted.length > displayedCount ? 'block' : 'none';
+    document.getElementById('loadMoreBtn').disabled = false;
+  }
+}
+
+function loadMore() {
+  displayedCount += ITEMS_PER_PAGE;
+  renderArticles(allArticles, 'articlesContainer', false);
+}
+
+// ===== FILTER BY DAYS =====
+function renderFiltered(containerId, days) {
+  const cutoff = new Date(Date.now() - days * 86400 * 1000);
+  const filtered = allArticles.filter(a => a.pubDate && new Date(a.pubDate) >= cutoff);
+  const el = document.getElementById(containerId);
+  if (!filtered.length && !allArticles.length) {
+    el.innerHTML = `<div class="loading-wrap"><div class="spinner"></div><div>Väntar på artiklar…</div></div>`;
+    return;
+  }
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-state"><div class="icon">📰</div><div>Inga artiklar de senaste ${days} dagarna.</div></div>`;
+    return;
+  }
+  const sorted = [...filtered].sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+  el.innerHTML = sorted.map((a, i) => articleHTML(a, i)).join('');
+}
+
+// ===== ARCHIVE (localStorage) =====
+function saveToArchive(articles) {
+  try {
+    const existing = JSON.parse(localStorage.getItem('arsenal-archive') || '[]');
+    const existingLinks = new Set(existing.map(a => a.link));
+    const newOnes = articles.filter(a => !existingLinks.has(a.link));
+    const combined = [...newOnes, ...existing].slice(0, 500);
+    localStorage.setItem('arsenal-archive', JSON.stringify(combined));
+  } catch(e) {}
+}
+
+function renderArchive() {
+  const el = document.getElementById('archiveContainer');
+  try {
+    const archived = JSON.parse(localStorage.getItem('arsenal-archive') || '[]');
+    if (!archived.length) {
+      el.innerHTML = `<div class="empty-state"><div class="icon">📁</div><div>Inga sparade artiklar ännu. Besök sidan igen för att börja spara historik.</div></div>`;
+      return;
+    }
+    const sorted = [...archived].sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+    // Group by date
+    const groups = {};
+    sorted.forEach(a => {
+      const d = a.pubDate ? new Date(a.pubDate).toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'Okänt datum';
+      if (!groups[d]) groups[d] = [];
+      groups[d].push(a);
+    });
+    let html = '';
+    for (const [date, arts] of Object.entries(groups)) {
+      html += `<div class="archive-date-header">${date}</div>`;
+      html += arts.map((a, i) => articleHTML(a, i, false)).join('');
+    }
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><div>Kunde inte läsa arkiv.</div></div>`;
+  }
+}
+
+// ===== RSS SOURCES PANEL =====
+function renderRSSSources() {
+  const el = document.getElementById('rssList');
+  el.innerHTML = SOURCES.map(s => `
+    <div class="rss-source-card">
+      <div class="rss-source-name">${escapeHtml(s.name)}</div>
+      <div class="rss-source-url">${escapeHtml(s.url)}</div>
+      <div class="rss-source-count">${s.count > 0 ? s.count + ' artiklar hämtade' : 'Hämtar…'}</div>
+    </div>`).join('');
+}
+
+// ===== FETCH RSS =====
+async function fetchSource(source) {
+  const url = RSS2JSON + encodeURIComponent(source.url) + '&count=50';
+  try {
+    const resp = await fetch(url, { signal: AbortSignal.timeout(12000) });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    if (data.status !== 'ok' || !Array.isArray(data.items)) return [];
+    source.count = data.items.length;
+    return data.items.map(item => ({
+      title: item.title || '',
+      link: item.link || '',
+      pubDate: item.pubDate || '',
+      description: item.description || item.content || '',
+      source: source.name.split(' – ')[0]
+    }));
+  } catch (e) {
+    fetchErrors++;
+    return [];
+  }
+}
+
+async function fetchAll() {
+  fetchErrors = 0;
+  const promises = SOURCES.map(s => fetchSource(s));
+  const results = await Promise.allSettled(promises);
+  const items = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
+
+  // Deduplicate by link
+  const seen = new Set();
+  const unique = items.filter(a => {
+    if (!a.link || seen.has(a.link)) return false;
+    seen.add(a.link);
+    return true;
+  });
+
+  return unique;
+}
+
+// ===== UPDATE UI =====
+function updateStats(articles) {
+  document.getElementById('articleCount').textContent = articles.length;
+  document.getElementById('lastUpdated').textContent = formatFullDate(new Date());
+}
+
+function scheduleRefresh() {
+  const INTERVAL = 60 * 60 * 1000; // 1 hour
+  let nextRefresh = Date.now() + INTERVAL;
+  function tick() {
+    const remaining = Math.max(0, Math.round((nextRefresh - Date.now()) / 60000));
+    document.getElementById('refreshNotice').textContent =
+      'Nästa uppdatering om ' + remaining + ' min';
+  }
+  tick();
+  setInterval(tick, 60000);
+  setTimeout(async () => {
+    document.getElementById('liveIndicator').style.color = '#ff9800';
+    allArticles = await fetchAll();
+    updateStats(allArticles);
+    renderArticles(allArticles, 'articlesContainer', true);
+    saveToArchive(allArticles);
+    document.getElementById('liveIndicator').style.color = '';
+    nextRefresh = Date.now() + INTERVAL;
+    scheduleRefresh();
+  }, INTERVAL);
+}
+
+// ===== INIT =====
+(async function init() {
+  allArticles = await fetchAll();
+
+  if (!allArticles.length) {
+    document.getElementById('articlesContainer').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">⚠️</div>
+        <div>
+          Kunde inte hämta nyheter just nu.<br>
+          <small style="color:var(--text-muted);margin-top:4px;display:block;">
+            RSS-hämtning blockeras ibland av webbläsarens CORS-policy. Försök ladda om sidan om en stund.
+          </small>
+        </div>
+      </div>`;
+    document.getElementById('articleCount').textContent = '0';
+    document.getElementById('lastUpdated').textContent = formatFullDate(new Date());
+  } else {
+    updateStats(allArticles);
+    renderArticles(allArticles, 'articlesContainer', true);
+    saveToArchive(allArticles);
+    scheduleRefresh();
+  }
+})();
+</script>
+</body>
+</html>
