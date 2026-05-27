@@ -1,0 +1,34 @@
+name: Uppdatera Arsenal-nyheter
+
+on:
+  schedule:
+    - cron: '5 * * * *'   # Varje timme (5 min in för att undvika trafiktoppar)
+  workflow_dispatch:        # Manuell körning via GitHub UI
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: Main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Hämta Arsenal-nyheter
+        run: python scripts/fetch-arsenal-news.py
+
+      - name: Committa och pusha
+        run: |
+          git config user.name  "Arsenal News Bot"
+          git config user.email "arsenal-bot@users.noreply.github.com"
+          git add arsenal-data.json
+          git diff --staged --quiet || git commit -m "Auto: Arsenal-nyheter $(date -u '+%Y-%m-%d %H:%M') UTC"
+          git push
