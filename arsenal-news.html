@@ -545,7 +545,6 @@ const SOURCES = [
   }
 ];
 
-const RSS2JSON = 'https://api.rss2json.com/v1/api.json?rss_url=';
 const ITEMS_PER_PAGE = 20;
 
 let allArticles = [];
@@ -736,25 +735,89 @@ function renderRSSSources() {
 }
 
 // ===== FETCH RSS =====
-async function fetchSource(source) {
-  const url = RSS2JSON + encodeURIComponent(source.url) + '&count=50';
+function parseRSSXML(xml, sourceName) {
   try {
-    const resp = await fetch(url, { signal: AbortSignal.timeout(12000) });
-    if (!resp.ok) return [];
-    const data = await resp.json();
-    if (data.status !== 'ok' || !Array.isArray(data.items)) return [];
-    source.count = data.items.length;
-    return data.items.map(item => ({
-      title: item.title || '',
-      link: item.link || '',
-      pubDate: item.pubDate || '',
-      description: item.description || item.content || '',
-      source: source.name.split(' – ')[0]
-    }));
-  } catch (e) {
-    fetchErrors++;
-    return [];
-  }
+    const doc = new DOMParser().parseFromString(xml, 'text/xml');
+    const items = doc.querySelectorAll('item, entry');
+    return Array.from(items).slice(0, 50).map(item => {
+      const getText = sel => {
+        for (const s of sel) {
+          const el = item.querySelector(s);
+          if (el) return el.textContent.trim();
+        }
+        return '';
+      };
+      const link = getText(['link']) ||
+        item.querySelector('link[rel="alternate"]')?.getAttribute('href') ||
+        item.querySelector('link')?.getAttribute('href') || '';
+      return {
+        title: getText(['title']),
+        link,
+        pubDate: getText(['pubDate', 'published', 'updated', 'dc\\:date']),
+        description: getText(['description', 'summary', 'content\\:encoded', 'content']),
+        source: sourceName
+      };
+    }).filter(a => a.title && a.link);
+  } catch (e) { return []; }
+}
+
+async function fetchViaProxy(proxyUrl, sourceName) {
+  const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(12000) });
+  if (!resp.ok) return null;
+  const data = await resp.json();
+  const xml = data.contents || data.data || '';
+  if (!xml) return null;
+  return parseRSSXML(xml, sourceName);
+}
+
+async function fetchSource(source) {
+  const name = source.name.split(' – ')[0];
+  const enc = encodeURIComponent(source.url);
+
+  // 1. rss2json.com
+  try {
+    const resp = await fetch(
+      `https://api.rss2json.com/v1/api.json?rss_url=${enc}&count=50`,
+      { signal: AbortSignal.timeout(10000) }
+    );
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.status === 'ok' && Array.isArray(data.items) && data.items.length) {
+        source.count = data.items.length;
+        return data.items.map(item => ({
+          title: item.title || '',
+          link: item.link || '',
+          pubDate: item.pubDate || '',
+          description: item.description || item.content || '',
+          source: name
+        }));
+      }
+    }
+  } catch (e) {}
+
+  // 2. allorigins.win
+  try {
+    const items = await fetchViaProxy(
+      `https://api.allorigins.win/get?url=${enc}`, name
+    );
+    if (items && items.length) { source.count = items.length; return items; }
+  } catch (e) {}
+
+  // 3. corsproxy.io
+  try {
+    const resp = await fetch(
+      `https://corsproxy.io/?${enc}`,
+      { signal: AbortSignal.timeout(12000) }
+    );
+    if (resp.ok) {
+      const xml = await resp.text();
+      const items = parseRSSXML(xml, name);
+      if (items.length) { source.count = items.length; return items; }
+    }
+  } catch (e) {}
+
+  fetchErrors++;
+  return [];
 }
 
 async function fetchAll() {
