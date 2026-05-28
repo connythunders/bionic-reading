@@ -1,59 +1,67 @@
-import { ArrowUpRight } from 'lucide-react'
+import { Briefcase } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { messages } from '@/data/messages'
 
 function formatDate(dateStr: string) {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short', year: 'numeric' })
+  return new Date(dateStr).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })
 }
 
 export function MessagesWidget() {
   const navigate = useNavigate()
-  const recent = messages.slice(0, 3)
+  const recent = messages.slice(0, 4)
+  const unreadCount = messages.filter(m => !m.isRead).length
 
   return (
-    <section aria-labelledby="messages-heading" className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+    <section aria-labelledby="messages-heading" className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 id="messages-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+        <h2 id="messages-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           Meddelanden
-          <ArrowUpRight size={15} className="text-gray-400" aria-hidden="true" />
+          {unreadCount > 0 && (
+            <span
+              className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-xs font-bold"
+              aria-label={`${unreadCount} olästa meddelanden`}
+            >
+              {unreadCount}
+            </span>
+          )}
         </h2>
         <button
           onClick={() => navigate('/meddelanden')}
-          className="text-xs text-green-700 dark:text-green-400 hover:underline"
+          className="text-xs text-green-700 dark:text-green-400 hover:underline font-medium"
           aria-label="Se alla meddelanden"
-        >
-          Se alla
-        </button>
-      </div>
-
-      <ul className="space-y-0 list-none m-0 p-0 divide-y divide-gray-100 dark:divide-gray-700" role="list">
-        {recent.map(msg => (
-          <li key={msg.id}>
-            <button
-              className="w-full text-left py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors -mx-1 px-1 rounded"
-              onClick={() => navigate('/meddelanden')}
-              aria-label={`Läs: ${msg.title}`}
-            >
-              <p className={`text-sm leading-snug ${msg.isRead ? 'font-normal text-gray-700 dark:text-gray-300' : 'font-semibold text-gray-900 dark:text-gray-100'}`}>
-                {msg.title}
-              </p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                {formatDate(msg.date)} · {msg.author}
-              </p>
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-        <button
-          onClick={() => navigate('/meddelanden')}
-          className="text-sm text-green-700 dark:text-green-400 hover:underline font-medium"
         >
           Se alla →
         </button>
       </div>
+
+      {recent.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-8 text-gray-400 dark:text-gray-500 gap-2">
+          <Briefcase size={32} aria-hidden="true" />
+          <p className="text-sm">Inga meddelanden</p>
+        </div>
+      ) : (
+        <ul className="space-y-1 list-none m-0 p-0" role="list">
+          {recent.map(msg => (
+            <li key={msg.id}>
+              <button
+                className={`w-full text-left px-3 py-2.5 rounded-xl transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${!msg.isRead ? 'border-l-2 border-blue-500 pl-2.5' : ''}`}
+                onClick={() => navigate('/meddelanden')}
+                aria-label={`Läs meddelande: ${msg.title}`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className={`text-sm leading-snug flex-1 min-w-0 truncate ${msg.isRead ? 'font-normal text-gray-700 dark:text-gray-300' : 'font-semibold text-gray-900 dark:text-gray-100'}`}>
+                    {msg.title}
+                  </p>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5">
+                    {formatDate(msg.date)}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{msg.author}</p>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   )
 }

@@ -1,20 +1,24 @@
-import { ArrowUpRight, ChevronUp, ChevronDown } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { lessons, weekDays } from '@/data/schedule'
 
-const TODAY_DATE = 28  // Thursday 28 in the mockdata
-const TODAY_DAY = 'TOR'
+const TODAY_DATE = 28   // Torsdag 28 i mockdatan
+const TODAY_DAY_SHORT = 'Tor'
+const TODAY_MONTH = 'mars'
 
-const subjectColors: Record<string, string> = {
-  REL: 'border-blue-400 bg-blue-50 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-  HIS: 'border-orange-400 bg-orange-50 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-  GEO: 'border-green-500 bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-  SAM: 'border-purple-400 bg-purple-50 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-  Provtillfällen: 'border-red-400 bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+// Torsdag är index 3 i weekDays (Mån=0, Tis=1, Ons=2, Tor=3, Fre=4)
+const TODAY_WEEK_INDEX = 3
+
+const subjectBorderColors: Record<string, string> = {
+  REL: 'border-l-blue-400',
+  HIS: 'border-l-orange-400',
+  GEO: 'border-l-green-500',
+  SAM: 'border-l-purple-400',
+  Provtillfällen: 'border-l-red-400',
 }
 
-function getSubjectColor(subject: string) {
-  return subjectColors[subject] ?? 'border-gray-400 bg-gray-50 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+function getSubjectBorder(subject: string) {
+  return subjectBorderColors[subject] ?? 'border-l-gray-400'
 }
 
 export function ScheduleWidget() {
@@ -22,93 +26,105 @@ export function ScheduleWidget() {
   const todayLessons = lessons.filter(l => l.dayOffset === 0)
 
   return (
-    <section aria-labelledby="schedule-heading" className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+    <section aria-labelledby="schedule-heading" className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl p-5">
+      {/* Widget-header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 id="schedule-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-          Schema
-          <ArrowUpRight size={15} className="text-gray-400" aria-hidden="true" />
-        </h2>
-        <button
-          onClick={() => navigate('/kalender')}
-          className="text-xs text-green-700 dark:text-green-400 hover:underline"
-          aria-label="Se hela schemat"
-        >
-          Hela schemat
-        </button>
-      </div>
-
-      {/* Day header */}
-      <div className="flex items-start gap-3 mb-4">
-        <div className="flex flex-col items-center">
-          <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-0.5" aria-label="Föregående dag">
-            <ChevronUp size={14} />
-          </button>
-          <div className="flex flex-col items-center">
-            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase">
-              {TODAY_DAY}
-            </span>
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-sm">
-              {TODAY_DATE}
-            </span>
-          </div>
-          <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-0.5" aria-label="Nästa dag">
-            <ChevronDown size={14} />
-          </button>
+        <div>
+          <h2 id="schedule-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100">
+            Schema
+          </h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            {TODAY_DAY_SHORT} {TODAY_DATE} {TODAY_MONTH}
+          </p>
         </div>
-
-        {/* Time grid */}
-        <div className="flex-1 space-y-2" role="list" aria-label="Lektioner idag">
-          {todayLessons.length === 0 ? (
-            <p className="text-sm text-gray-400 dark:text-gray-500 py-4 text-center">
-              Inga lektioner idag
-            </p>
-          ) : (
-            todayLessons.map(lesson => (
-              <div
-                key={lesson.id}
-                className={`p-2.5 rounded-md border-l-3 ${getSubjectColor(lesson.subject)}`}
-                role="listitem"
-              >
-                <p className="text-xs font-semibold leading-tight">
-                  {lesson.subject} - {lesson.groupCode}
-                </p>
-                <p className="text-xs mt-0.5 opacity-80">
-                  {lesson.start} – {lesson.end}
-                  {lesson.room && <> · <span className="font-medium">{lesson.room}</span></>}
-                </p>
-              </div>
-            ))
-          )}
+        <div className="flex items-center gap-1">
+          <button
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Föregående dag"
+          >
+            <ChevronLeft size={16} aria-hidden="true" />
+          </button>
+          <button
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            aria-label="Nästa dag"
+          >
+            <ChevronRight size={16} aria-hidden="true" />
+          </button>
+          <button
+            onClick={() => navigate('/kalender')}
+            className="ml-1 text-xs text-green-700 dark:text-green-400 hover:underline font-medium"
+            aria-label="Se hela schemat"
+          >
+            Hela schemat →
+          </button>
         </div>
       </div>
 
-      {/* Week overview bar */}
-      <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
-        <div className="flex gap-1" role="list" aria-label="Veckans dagar">
-          {weekDays.map((day, i) => {
-            const dayLessons = lessons.filter(l => l.dayOffset === i - 3)
-            const isToday = i === 3  // Thursday
-            return (
-              <div
-                key={day}
-                className={`flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${isToday ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
-                role="listitem"
-                aria-label={`${day}, ${dayLessons.length} lektioner`}
-              >
-                <span className={`text-xs font-medium ${isToday ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                  {day}
+      {/* Dag-indikatorer (Mån–Fre) */}
+      <div className="flex gap-1 mb-4" role="list" aria-label="Veckans dagar">
+        {weekDays.map((day, i) => {
+          const dayLessons = lessons.filter(l => l.dayOffset === i - TODAY_WEEK_INDEX)
+          const isToday = i === TODAY_WEEK_INDEX
+          return (
+            <div
+              key={day}
+              className={`flex-1 flex flex-col items-center gap-0.5 py-1.5 px-1 rounded-xl text-center cursor-pointer transition-colors ${
+                isToday
+                  ? 'bg-green-700 text-white'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'
+              }`}
+              role="listitem"
+              aria-label={`${day}, ${dayLessons.length} lektioner`}
+              aria-current={isToday ? 'date' : undefined}
+            >
+              <span className={`text-xs font-medium ${isToday ? 'text-white' : ''}`}>
+                {day}
+              </span>
+              {dayLessons.length > 0 ? (
+                <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-xs font-bold ${
+                  isToday ? 'bg-white/20 text-white' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                }`}>
+                  {dayLessons.length}
                 </span>
-                {dayLessons.length > 0 ? (
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-green-600 text-white text-xs font-bold">
-                    {dayLessons.length}
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center justify-center w-4 h-4 text-gray-300 text-xs">–</span>
-                )}
+              ) : (
+                <span className={`text-xs ${isToday ? 'text-white/60' : 'text-gray-300 dark:text-gray-600'}`}>–</span>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Lektionslista */}
+      <div className="space-y-2" role="list" aria-label="Lektioner idag">
+        {todayLessons.length === 0 ? (
+          <p className="text-sm text-gray-400 dark:text-gray-500 py-4 text-center">
+            Inga lektioner idag
+          </p>
+        ) : (
+          todayLessons.map(lesson => (
+            <div
+              key={lesson.id}
+              className={`flex items-start gap-3 p-3 rounded-xl border-l-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${getSubjectBorder(lesson.subject)}`}
+              role="listitem"
+            >
+              <div className="text-center min-w-[46px] flex-shrink-0">
+                <p className="text-xs font-mono font-semibold text-gray-700 dark:text-gray-200">{lesson.start}</p>
+                <p className="text-xs font-mono text-gray-400 dark:text-gray-500">{lesson.end}</p>
               </div>
-            )
-          })}
-        </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{lesson.subject}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs">
+                    {lesson.groupCode}
+                  </span>
+                  {lesson.room && (
+                    <span className="text-xs text-gray-400 dark:text-gray-500">{lesson.room}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </section>
   )
