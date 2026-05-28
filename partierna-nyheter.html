@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partierna i Media – Svenska riksdagspartier</title>
+  <meta name="description" content="Automatisk bevakning av svenska riksdagspartier i media. Filtrera per parti, bionic reading-stöd, och ställ frågor om partiernas ståndpunkter.">
+  <style>
+    :root {
+      --bg: #f5f6fa;
+      --bg-card: #ffffff;
+      --bg-header: #1a1f36;
+      --bg-nav: #12172a;
+      --text: #1a1a2e;
+      --text-secondary: #555e7a;
+      --text-muted: #8890a8;
+      --border: #e2e5ef;
+      --shadow: 0 1px 3px rgba(0,0,0,0.07);
+      --shadow-lg: 0 4px 16px rgba(0,0,0,0.10);
+      --radius: 10px;
+      --accent: #2563eb;
+
+      /* Party colors */
+      --s-color:  #EE2420;
+      --m-color:  #1B7EC2;
+      --sd-color: #C8A800;
+      --c-color:  #009933;
+      --v-color:  #B91C1C;
+      --kd-color: #004B8D;
+      --l-color:  #0073B7;
+      --mp-color: #57A000;
+    }
+    [data-theme="dark"] {
+      --bg: #0f1117;
+      --bg-card: #1a1f2e;
+      --bg-header: #0a0d18;
+      --bg-nav: #070a14;
+      --text: #e8eaf2;
+      --text-secondary: #9ba3c2;
+      --text-muted: #5a6280;
+      --border: #252c40;
+      --shadow: 0 1px 3px rgba(0,0,0,0.35);
+      --shadow-lg: 0 4px 16px rgba(0,0,0,0.5);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: var(--bg-header);
+      color: white;
+      padding: 16px 20px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: var(--shadow-lg);
+    }
+    .logo-block { display: flex; align-items: center; gap: 10px; }
+    .logo { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; color: white; }
+    .logo span { color: #60a5fa; }
+    .subtitle { font-size: 0.75rem; color: #8899bb; margin-top: 1px; }
+    .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .btn-sm {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #c8d4f0;
+      border-radius: 6px;
+      padding: 5px 11px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .btn-sm:hover { background: rgba(255,255,255,0.15); color: white; }
+    .btn-sm.on { background: #2563eb; border-color: #2563eb; color: white; font-weight: 600; }
+    .live-badge {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 0.72rem; color: #4ade80; font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+    .live-badge::before {
+      content: '';
+      width: 7px; height: 7px;
+      background: #4ade80;
+      border-radius: 50%;
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* ===== NAV TABS ===== */
+    .nav-wrap {
+      background: var(--bg-nav);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0 16px;
+      position: sticky;
+      top: 57px;
+      z-index: 190;
+      overflow-x: auto;
+      white-space: nowrap;
+      scrollbar-width: none;
+    }
+    .nav-wrap::-webkit-scrollbar { display: none; }
+    .nav-inner {
+      display: inline-flex;
+      gap: 2px;
+      padding: 6px 0;
+    }
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: rgba(255,255,255,0.55);
+      padding: 6px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.83rem;
+      font-weight: 500;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: white; background: rgba(255,255,255,0.07); }
+    .tab-btn.active {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: white;
+      font-weight: 700;
+    }
+
+    /* ===== PARTY FILTER BAR ===== */
+    .party-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      position: sticky;
+      top: 101px;
+      z-index: 180;
+      box-shadow: var(--shadow);
+    }
+    .party-label { font-size: 0.73rem; color: var(--text-muted); font-weight: 600; margin-right: 2px; flex-shrink: 0; }
+    .party-btn {
+      border: 2px solid currentColor;
+      border-radius: 20px;
+      padding: 3px 11px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 700;
+      transition: all 0.18s;
+      background: transparent;
+      letter-spacing: 0.01em;
+    }
+    .party-btn:hover { opacity: 0.8; }
+    .party-btn.active { color: white !important; }
+    .party-btn[data-party="alla"] { color: var(--text); border-color: var(--border); }
+    .party-btn[data-party="alla"].active { background: var(--text); border-color: var(--text); }
+    .party-btn[data-party="S"]  { color: var(--s-color); }
+    .party-btn[data-party="S"].active  { background: var(--s-color); border-color: var(--s-color); }
+    .party-btn[data-party="M"]  { color: var(--m-color); }
+    .party-btn[data-party="M"].active  { background: var(--m-color); border-color: var(--m-color); }
+    .party-btn[data-party="SD"] { color: var(--sd-color); }
+    .party-btn[data-party="SD"].active { background: var(--sd-color); border-color: var(--sd-color); color: #1a1a1a !important; }
+    .party-btn[data-party="C"]  { color: var(--c-color); }
+    .party-btn[data-party="C"].active  { background: var(--c-color); border-color: var(--c-color); }
+    .party-btn[data-party="V"]  { color: var(--v-color); }
+    .party-btn[data-party="V"].active  { background: var(--v-color); border-color: var(--v-color); }
+    .party-btn[data-party="KD"] { color: var(--kd-color); }
+    .party-btn[data-party="KD"].active { background: var(--kd-color); border-color: var(--kd-color); }
+    .party-btn[data-party="L"]  { color: var(--l-color); }
+    .party-btn[data-party="L"].active  { background: var(--l-color); border-color: var(--l-color); }
+    .party-btn[data-party="MP"] { color: var(--mp-color); }
+    .party-btn[data-party="MP"].active { background: var(--mp-color); border-color: var(--mp-color); }
+
+    /* ===== MAIN ===== */
+    .main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      min-height: 60vh;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ===== PAGE TITLE ===== */
+    .page-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .page-title-under {
+      height: 3px;
+      width: 60px;
+      background: var(--accent);
+      border-radius: 2px;
+      margin-bottom: 20px;
+    }
+
+    /* ===== STATS GRID ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: #1e9b5a;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      color: white;
+      text-align: center;
+    }
+    .stat-card.dark { background: #14794a; }
+    .stat-num { font-size: 2.2rem; font-weight: 800; line-height: 1; }
+    .stat-date { font-size: 1rem; font-weight: 700; }
+    .stat-label { font-size: 0.78rem; opacity: 0.85; margin-top: 4px; }
+
+    /* ===== INFO BOX ===== */
+    .info-box {
+      background: #f0fdf4;
+      border-left: 3px solid #22c55e;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    [data-theme="dark"] .info-box { background: #0a2a18; border-color: #1a8a40; color: #8bc4a0; }
+
+    /* ===== SECTION HEADER ===== */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .sort-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .sort-label span {
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .sort-label span:hover { text-decoration: underline; }
+
+    /* ===== ARTICLE CARD ===== */
+    .article-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 15px 16px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.18s, border-color 0.18s;
+    }
+    .article-card:hover { box-shadow: var(--shadow-lg); }
+    .article-top {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+    .source-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .party-chip {
+      font-size: 0.69rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 10px;
+      color: white;
+      white-space: nowrap;
+      letter-spacing: 0.03em;
+    }
+    .party-chip-S  { background: var(--s-color); }
+    .party-chip-M  { background: var(--m-color); }
+    .party-chip-SD { background: var(--sd-color); color: #1a1a1a; }
+    .party-chip-C  { background: var(--c-color); }
+    .party-chip-V  { background: var(--v-color); }
+    .party-chip-KD { background: var(--kd-color); }
+    .party-chip-L  { background: var(--l-color); }
+    .party-chip-MP { background: var(--mp-color); }
+    .article-date { font-size: 0.74rem; color: var(--text-muted); margin-left: auto; flex-shrink: 0; }
+    .article-title {
+      font-size: 0.97rem;
+      font-weight: 600;
+      line-height: 1.45;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+    .article-desc {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: 8px;
+    }
+    .article-link {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    /* ===== BIONIC READING ===== */
+    body.bionic .article-title b,
+    body.bionic .article-desc b {
+      font-weight: 900;
+    }
+
+    /* ===== LOADING / EMPTY ===== */
+    .loading-wrap {
+      text-align: center;
+      padding: 56px 16px;
+      color: var(--text-muted);
+    }
+    .spinner {
+      display: inline-block;
+      width: 34px; height: 34px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-state {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--text-muted);
+    }
+
+    /* ===== LOAD MORE ===== */
+    .load-more-wrap { text-align: center; margin-top: 16px; }
+    .btn-load-more {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 28px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.18s;
+    }
+    .btn-load-more:hover { opacity: 0.85; }
+    .btn-load-more:disabled { opacity: 0.4; cursor: default; }
+
+    /* ===== SEARCH BOX ===== */
+    .search-wrap {
+      margin-bottom: 16px;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text);
+      font-size: 0.88rem;
+    }
+    .search-wrap input:focus { outline: none; border-color: var(--accent); }
+    .search-wrap input::placeholder { color: var(--text-muted); }
+
+    /* ===== AI Q&A PANEL ===== */
+    .ai-panel { }
+    .ai-intro {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+    .ai-intro h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+    .ai-intro p { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.55; }
+    .api-key-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .api-key-section label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px; }
+    .api-key-row { display: flex; gap: 8px; }
+    .api-key-row input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.85rem;
+    }
+    .api-key-row input:focus { outline: none; border-color: var(--accent); }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.18s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-primary:disabled { opacity: 0.5; cursor: default; }
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: opacity 0.18s;
+    }
+    .btn-danger:hover { opacity: 0.85; }
+    .key-status { font-size: 0.78rem; margin-top: 6px; }
+    .key-status.ok { color: #16a34a; }
+    .key-status.missing { color: var(--text-muted); }
+    .ai-quick-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+    .quick-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 6px 13px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.79rem;
+      transition: all 0.18s;
+    }
+    .quick-btn:hover { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
+    [data-theme="dark"] .quick-btn:hover { background: #1e2a40; }
+    .ai-ask-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .ai-ask-row input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-card);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .ai-ask-row input:focus { outline: none; border-color: var(--accent); }
+    .ai-ask-row input::placeholder { color: var(--text-muted); }
+    .ai-answer {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      min-height: 80px;
+    }
+    .ai-answer.empty { color: var(--text-muted); font-size: 0.85rem; }
+    .ai-answer-content {
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .ai-answer-content h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 12px 0 4px;
+      color: var(--text);
+    }
+    .ai-answer-content h4:first-child { margin-top: 0; }
+    .ai-answer-content p { margin-bottom: 10px; }
+    .ai-answer-content p:last-child { margin-bottom: 0; }
+    .ai-answer-content ul { margin: 6px 0 10px 20px; }
+    .ai-answer-content li { margin-bottom: 4px; }
+    .ai-loading { text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.85rem; }
+    .ai-error { color: #dc2626; font-size: 0.85rem; }
+
+    /* ===== ARCHIVE DATE HEADER ===== */
+    .date-header {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      padding: 8px 0 6px;
+      margin-top: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+    .date-header:first-child { margin-top: 0; }
+
+    /* ===== RSS SOURCES ===== */
+    .rss-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+    .rss-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 3px; }
+    .rss-url { font-size: 0.78rem; color: var(--text-muted); word-break: break-all; }
+    .rss-count { font-size: 0.8rem; color: var(--accent); font-weight: 600; margin-top: 3px; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      padding: 24px 16px 32px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+    .footer a { color: var(--accent); }
+    .footer-back { display: inline-block; margin-bottom: 8px; font-size: 0.85rem; color: var(--accent); }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e293b;
+      color: white;
+      padding: 11px 22px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      box-shadow: var(--shadow-lg);
+      transition: transform 0.28s ease;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .header { padding: 12px 14px 10px; }
+      .logo { font-size: 1.1rem; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .stat-num { font-size: 1.7rem; }
+      .page-title { font-size: 1.3rem; }
+      .main { padding: 16px 12px; }
+      .party-bar { top: 97px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo-block">
+    <div>
+      <div class="logo">🏛️ Partierna <span>i Media</span></div>
+      <div class="subtitle">Svenska riksdagspartier · Automatisk nyhetsbevakning</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <div class="live-badge" id="liveBadge">LIVE</div>
+    <button class="btn-sm" id="bionicBtn" onclick="toggleBionic()" title="Bionic Reading – underlättar läsning för NPF">👁 Bionic</button>
+    <button class="btn-sm" id="themeBtn" onclick="toggleTheme()">🌙</button>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav-wrap">
+  <div class="nav-inner">
+    <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">Live</button>
+    <button class="tab-btn" data-tab="week" onclick="switchTab('week')">Veckan</button>
+    <button class="tab-btn" data-tab="month" onclick="switchTab('month')">Månaden</button>
+    <button class="tab-btn" data-tab="archive" onclick="switchTab('archive')">Arkiv</button>
+    <button class="tab-btn" data-tab="ai" onclick="switchTab('ai')">🤖 Fråga AI</button>
+    <button class="tab-btn" data-tab="rss" onclick="switchTab('rss')">RSS-källor</button>
+  </div>
+</nav>
+
+<!-- PARTY FILTER BAR -->
+<div class="party-bar" id="partyBar">
+  <span class="party-label">Parti:</span>
+  <button class="party-btn active" data-party="alla" onclick="filterParty('alla')">Alla</button>
+  <button class="party-btn" data-party="S"  onclick="filterParty('S')">S</button>
+  <button class="party-btn" data-party="M"  onclick="filterParty('M')">M</button>
+  <button class="party-btn" data-party="SD" onclick="filterParty('SD')">SD</button>
+  <button class="party-btn" data-party="C"  onclick="filterParty('C')">C</button>
+  <button class="party-btn" data-party="V"  onclick="filterParty('V')">V</button>
+  <button class="party-btn" data-party="KD" onclick="filterParty('KD')">KD</button>
+  <button class="party-btn" data-party="L"  onclick="filterParty('L')">L</button>
+  <button class="party-btn" data-party="MP" onclick="filterParty('MP')">MP</button>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- LIVE TAB -->
+  <div id="tab-live" class="tab-panel active">
+    <div class="page-title">Live Partinyheter</div>
+    <div class="page-title-under"></div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="articleCount">–</div>
+        <div class="stat-label">Artiklar i nuvarande flöde</div>
+      </div>
+      <div class="stat-card dark">
+        <div class="stat-date" id="lastUpdated">Laddar…</div>
+        <div class="stat-label">Senast uppdaterad</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Om flödet:</strong> Nyheter om svenska riksdagspartier hämtas server-side varje timme via GitHub Actions från SVT, SR, Aftonbladet, Expressen, DN, SvD, DI och Omni. Artiklar taggas automatiskt per parti. Välj parti i filtret ovan.
+    </div>
+
+    <div class="search-wrap">
+      <input type="search" id="searchInput" placeholder="Sök bland artiklar…" oninput="onSearch(this.value)" autocomplete="off">
+    </div>
+
+    <div class="section-header">
+      <div class="section-title" id="sectionTitle">Alla artiklar</div>
+      <div class="sort-label">Sortering: <span onclick="toggleSort()" id="sortLabel">Nyaste</span></div>
+    </div>
+
+    <div id="liveContainer">
+      <div class="loading-wrap">
+        <div class="spinner"></div>
+        <div>Hämtar nyheter…</div>
+      </div>
+    </div>
+    <div class="load-more-wrap" id="loadMoreWrap" style="display:none;">
+      <button class="btn-load-more" id="loadMoreBtn" onclick="loadMore()">Visa fler artiklar</button>
+    </div>
+  </div>
+
+  <!-- WEEK TAB -->
+  <div id="tab-week" class="tab-panel">
+    <div class="page-title">Senaste veckan</div>
+    <div class="page-title-under"></div>
+    <div class="section-header">
+      <div class="section-title">Partinyheter – 7 dagar</div>
+    </div>
+    <div id="weekContainer">
+      <div class="loading-wrap"><div class="spinner"></div><div>Filtrerar…</div></div>
+    </div>
+  </div>
+
+  <!-- MONTH TAB -->
+  <div id="tab-month" class="tab-panel">
+    <div class="page-title">Senaste månaden</div>
+    <div class="page-title-under"></div>
+    <div class="section-header">
+      <div class="section-title">Partinyheter – 30 dagar</div>
+    </div>
+    <div id="monthContainer">
+      <div class="loading-wrap"><div class="spinner"></div><div>Filtrerar…</div></div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE TAB -->
+  <div id="tab-archive" class="tab-panel">
+    <div class="page-title">Arkiv</div>
+    <div class="page-title-under"></div>
+    <div class="section-header">
+      <div class="section-title">Alla sparade artiklar</div>
+    </div>
+    <div id="archiveContainer">
+      <div class="loading-wrap"><div class="spinner"></div><div>Laddar arkiv…</div></div>
+    </div>
+  </div>
+
+  <!-- AI Q&A TAB -->
+  <div id="tab-ai" class="tab-panel">
+    <div class="page-title">Fråga AI om partierna</div>
+    <div class="page-title-under"></div>
+
+    <div class="ai-intro">
+      <h3>Hur står partierna i olika frågor?</h3>
+      <p>Ställ frågor om hur de svenska riksdagspartierna ställer sig i politiska frågor. Ange din Claude API-nyckel (Anthropic) nedan för att aktivera AI-svaren. Nyckeln lagras lokalt i din webbläsare.</p>
+    </div>
+
+    <div class="api-key-section">
+      <label for="apiKeyInput">Anthropic Claude API-nyckel</label>
+      <div class="api-key-row">
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-…" autocomplete="off">
+        <button class="btn-primary" onclick="saveApiKey()">Spara</button>
+        <button class="btn-danger" onclick="clearApiKey()">Rensa</button>
+      </div>
+      <div class="key-status missing" id="keyStatus">Ingen API-nyckel sparad</div>
+    </div>
+
+    <div class="ai-quick-btns">
+      <button class="quick-btn" onclick="quickAsk('Hur ser partierna på invandring och flyktingpolitik?')">Invandring</button>
+      <button class="quick-btn" onclick="quickAsk('Hur vill partierna hantera klimatfrågan och miljöpolitik?')">Klimat & miljö</button>
+      <button class="quick-btn" onclick="quickAsk('Hur skiljer sig partierna i skattepolitik?')">Skatter</button>
+      <button class="quick-btn" onclick="quickAsk('Hur ser partierna på skola och utbildning?')">Skola</button>
+      <button class="quick-btn" onclick="quickAsk('Hur vill partierna lösa bostadsbristen?')">Bostäder</button>
+      <button class="quick-btn" onclick="quickAsk('Hur ser partierna på lag och ordning, brott och straff?')">Lag & ordning</button>
+      <button class="quick-btn" onclick="quickAsk('Hur skiljer sig partierna i välfärds- och sjukvårdspolitik?')">Välfärd & vård</button>
+      <button class="quick-btn" onclick="quickAsk('Vad är skillnaden mellan blocken i Sverige?')">Blocken</button>
+      <button class="quick-btn" onclick="quickAsk('Hur ser partierna på EU och Nato-medlemskapet?')">EU & Nato</button>
+      <button class="quick-btn" onclick="quickAsk('Hur ser partierna på pensioner och äldrevård?')">Pensioner</button>
+    </div>
+
+    <div class="ai-ask-row">
+      <input type="text" id="aiQuestion" placeholder="Skriv din fråga om partierna…" onkeydown="if(event.key==='Enter') askAI()">
+      <button class="btn-primary" id="askBtn" onclick="askAI()">Fråga</button>
+    </div>
+
+    <div class="ai-answer empty" id="aiAnswer">
+      <span>Svaret visas här. Ange en fråga ovan.</span>
+    </div>
+  </div>
+
+  <!-- RSS SOURCES TAB -->
+  <div id="tab-rss" class="tab-panel">
+    <div class="page-title">RSS-källor</div>
+    <div class="page-title-under"></div>
+    <div id="rssContainer">
+      <div class="loading-wrap"><div class="spinner"></div><div>Laddar källinfo…</div></div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <a class="footer-back" href="/">&larr; Tillbaka till startsidan</a>
+  <p>Nyheter från svenska medier · Uppdateras automatiskt varje timme via GitHub Actions</p>
+  <p style="margin-top:4px">Data är automatiskt filtrerad och taggad · Kontrollera alltid originalkällan</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── STATE ──────────────────────────────────────────────────────────────
+  let allArticles = [];
+  let sourcesData = {};
+  let apiKey = localStorage.getItem('parti_api_key') || '';
+  let activeParty = 'alla';
+  let activeTab = 'live';
+  let sortDesc = true;
+  let shownCount = 30;
+  let searchQuery = '';
+  let searchTimer = null;
+  const PAGE_SIZE = 30;
+
+  const PARTY_NAMES = {
+    S: 'Socialdemokraterna', M: 'Moderaterna', SD: 'Sverigedemokraterna',
+    C: 'Centerpartiet', V: 'Vänsterpartiet', KD: 'Kristdemokraterna',
+    L: 'Liberalerna', MP: 'Miljöpartiet'
+  };
+
+  const RSS_SOURCES = [
+    { name: 'SVT Nyheter',      url: 'https://www.svt.se/rss/nyheter/inrikes' },
+    { name: 'SR Ekot',          url: 'https://api.sr.se/api/rss/program/83' },
+    { name: 'Aftonbladet',      url: 'https://rss.aftonbladet.se/rss2/small/pages/sections/senastenytt/' },
+    { name: 'Expressen',        url: 'https://feeds.expressen.se/nyheter/' },
+    { name: 'Dagens Nyheter',   url: 'https://www.dn.se/rss/nyheter/' },
+    { name: 'Svenska Dagbladet',url: 'https://www.svd.se/?service=rss' },
+    { name: 'Dagens Industri',  url: 'https://www.di.se/rss' },
+    { name: 'Omni Nyheter',     url: 'https://omni.se/rss' },
+  ];
+
+  // ── BIONIC READING ─────────────────────────────────────────────────────
+  function bionicWord(word) {
+    if (!word || word.length < 2) return esc(word);
+    const len = word.length;
+    let b;
+    if (len <= 3) b = 1;
+    else if (len <= 5) b = 2;
+    else b = Math.ceil(len * 0.42);
+    return '<b>' + esc(word.slice(0, b)) + '</b>' + esc(word.slice(b));
+  }
+
+  function applyBionic(text) {
+    if (!text) return '';
+    return text.split(/(\s+)/).map(part => {
+      if (/^\s+$/.test(part)) return part;
+      // keep punctuation attached
+      return bionicWord(part);
+    }).join('');
+  }
+
+  let bionicOn = localStorage.getItem('bionic') === '1';
+  function toggleBionic() {
+    bionicOn = !bionicOn;
+    localStorage.setItem('bionic', bionicOn ? '1' : '0');
+    document.body.classList.toggle('bionic', bionicOn);
+    document.getElementById('bionicBtn').classList.toggle('on', bionicOn);
+    renderCurrent();
+    showToast(bionicOn ? 'Bionic Reading aktiverat' : 'Bionic Reading avstängt');
+  }
+  if (bionicOn) {
+    document.body.classList.add('bionic');
+    document.getElementById('bionicBtn').classList.add('on');
+  }
+
+  // ── THEME ──────────────────────────────────────────────────────────────
+  const savedTheme = localStorage.getItem('parti-theme');
+  if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+  function toggleTheme() {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (dark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('parti-theme', 'light');
+      document.getElementById('themeBtn').textContent = '🌙';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('parti-theme', 'dark');
+      document.getElementById('themeBtn').textContent = '☀️';
+    }
+  }
+  if (savedTheme === 'dark') document.getElementById('themeBtn').textContent = '☀️';
+
+  // ── TAB SWITCHING ──────────────────────────────────────────────────────
+  function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('active');
+
+    // hide party bar for AI and RSS tabs
+    document.getElementById('partyBar').style.display = (tab === 'ai' || tab === 'rss') ? 'none' : '';
+
+    if (tab === 'week') renderWeek();
+    if (tab === 'month') renderMonth();
+    if (tab === 'archive') renderArchive();
+    if (tab === 'rss') renderRss();
+  }
+
+  // ── PARTY FILTER ──────────────────────────────────────────────────────
+  function filterParty(party) {
+    activeParty = party;
+    document.querySelectorAll('.party-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.party === party);
+    });
+    shownCount = PAGE_SIZE;
+    renderCurrent();
+  }
+
+  function getFilteredArticles() {
+    let arts = allArticles;
+    if (activeParty !== 'alla') {
+      arts = arts.filter(a => Array.isArray(a.parties) && a.parties.includes(activeParty));
+    }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      arts = arts.filter(a =>
+        (a.title || '').toLowerCase().includes(q) ||
+        (a.description || '').toLowerCase().includes(q)
+      );
+    }
+    return arts;
+  }
+
+  // ── DATA LOADING ───────────────────────────────────────────────────────
+  async function loadData() {
+    try {
+      const resp = await fetch('partierna-data.json?t=' + Date.now(), { signal: AbortSignal.timeout(12000) });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      allArticles = data.articles || [];
+      sourcesData = data.sources || {};
+
+      // Sort by parsed date descending
+      allArticles.sort((a, b) => parseDateMs(b.pubDate) - parseDateMs(a.pubDate));
+
+      // Update stats
+      const updated = data.updated ? formatUpdated(data.updated) : '–';
+      document.getElementById('lastUpdated').textContent = updated;
+      document.getElementById('articleCount').textContent = allArticles.length;
+
+      renderLive();
+    } catch (e) {
+      document.getElementById('liveContainer').innerHTML =
+        '<div class="empty-state">⚠️ Kunde inte ladda nyheter. Kontrollera att partierna-data.json finns och är giltig JSON. ' + esc(e.message) + '</div>';
+    }
+  }
+
+  function parseDateMs(str) {
+    if (!str) return 0;
+    const d = new Date(str);
+    return isNaN(d.getTime()) ? 0 : d.getTime();
+  }
+
+  function formatUpdated(iso) {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('sv-SE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) +
+      ' kl. ' + d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // ── RENDERING ──────────────────────────────────────────────────────────
+  function renderCurrent() {
+    if (activeTab === 'live') renderLive();
+    else if (activeTab === 'week') renderWeek();
+    else if (activeTab === 'month') renderMonth();
+    else if (activeTab === 'archive') renderArchive();
+  }
+
+  function renderLive() {
+    const arts = getFilteredArticles();
+    const sorted = sortDesc ? arts : [...arts].reverse();
+    const titleEl = document.getElementById('sectionTitle');
+    const label = activeParty === 'alla' ? 'Alla artiklar' : PARTY_NAMES[activeParty] || activeParty;
+    titleEl.textContent = label + (sorted.length !== allArticles.length ? ' (' + sorted.length + ')' : '');
+    document.getElementById('articleCount').textContent = sorted.length;
+
+    renderCards(sorted.slice(0, shownCount), 'liveContainer');
+    const wrap = document.getElementById('loadMoreWrap');
+    wrap.style.display = sorted.length > shownCount ? '' : 'none';
+    if (sorted.length > shownCount) {
+      document.getElementById('loadMoreBtn').textContent = 'Visa fler (' + (sorted.length - shownCount) + ' kvar)';
+    }
+  }
+
+  function renderWeek() {
+    const cutoff = Date.now() - 7 * 24 * 3600 * 1000;
+    const arts = getFilteredArticles().filter(a => parseDateMs(a.pubDate) >= cutoff);
+    renderCards(arts, 'weekContainer');
+  }
+
+  function renderMonth() {
+    const cutoff = Date.now() - 30 * 24 * 3600 * 1000;
+    const arts = getFilteredArticles().filter(a => parseDateMs(a.pubDate) >= cutoff);
+    renderCards(arts, 'monthContainer');
+  }
+
+  function renderArchive() {
+    const arts = getFilteredArticles();
+    // Group by date
+    const groups = {};
+    for (const a of arts) {
+      const d = parseDateMs(a.pubDate);
+      const key = d ? new Date(d).toLocaleDateString('sv-SE') : 'Okänt datum';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(a);
+    }
+    const keys = Object.keys(groups).sort((a, b) => {
+      const da = new Date(a.split('-').reverse().join('-'));
+      const db = new Date(b.split('-').reverse().join('-'));
+      return db - da;
+    });
+    let html = '';
+    if (keys.length === 0) {
+      html = '<div class="empty-state">Inga artiklar i arkivet.</div>';
+    } else {
+      for (const key of keys) {
+        html += '<div class="date-header">' + esc(key) + ' – ' + groups[key].length + ' artiklar</div>';
+        html += groups[key].map(renderCard).join('');
+      }
+    }
+    document.getElementById('archiveContainer').innerHTML = html;
+  }
+
+  function renderRss() {
+    const allSources = [
+      ...RSS_SOURCES,
+      { name: 'Riksdagen', url: 'https://data.riksdagen.se/dokumentlista/' }
+    ];
+    const html = allSources.map(s => {
+      const count = sourcesData[s.name];
+      const countHtml = count !== undefined
+        ? '<div class="rss-count">' + count + ' politikartiklar</div>'
+        : '';
+      return '<div class="rss-card">' +
+        '<div class="rss-name">' + esc(s.name) + '</div>' +
+        '<div class="rss-url">' + esc(s.url) + '</div>' +
+        countHtml +
+        '</div>';
+    }).join('');
+    document.getElementById('rssContainer').innerHTML = html || '<div class="empty-state">Inga RSS-källor konfigurerade.</div>';
+  }
+
+  function renderCards(arts, containerId) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!arts.length) {
+      el.innerHTML = '<div class="empty-state">Inga artiklar hittades.</div>';
+      return;
+    }
+    el.innerHTML = arts.map(renderCard).join('');
+  }
+
+  function renderCard(a) {
+    const dateStr = formatDate(a.pubDate);
+    const parties = (a.parties || []).slice(0, 4).map(p =>
+      '<span class="party-chip party-chip-' + esc(p) + '">' + esc(p) + '</span>'
+    ).join('');
+
+    const title = bionicOn ? applyBionic(a.title || '') : esc(a.title || '');
+    const desc = a.description
+      ? (bionicOn ? applyBionic(truncate(a.description, 160)) : esc(truncate(a.description, 160)))
+      : '';
+
+    return '<article class="article-card">' +
+      '<div class="article-top">' +
+        '<span class="source-badge">' + esc(a.source || '') + '</span>' +
+        parties +
+        '<span class="article-date">' + esc(dateStr) + '</span>' +
+      '</div>' +
+      '<h3 class="article-title">' + title + '</h3>' +
+      (desc ? '<p class="article-desc">' + desc + '</p>' : '') +
+      '<a class="article-link" href="' + safeUrl(a.link) + '" target="_blank" rel="noopener noreferrer">Läs mer ↗</a>' +
+    '</article>';
+  }
+
+  function formatDate(str) {
+    if (!str) return '';
+    const d = new Date(str);
+    if (isNaN(d.getTime())) return str;
+    const now = new Date();
+    const diffMs = now - d;
+    const diffH = diffMs / 3600000;
+    if (diffH < 1) return Math.round(diffMs / 60000) + ' min sedan';
+    if (diffH < 24) return Math.round(diffH) + ' h sedan';
+    if (diffH < 48) return 'Igår';
+    return d.toLocaleDateString('sv-SE');
+  }
+
+  // ── SORT & SEARCH ──────────────────────────────────────────────────────
+  function toggleSort() {
+    sortDesc = !sortDesc;
+    document.getElementById('sortLabel').textContent = sortDesc ? 'Nyaste' : 'Äldsta';
+    allArticles.reverse();
+    shownCount = PAGE_SIZE;
+    renderCurrent();
+  }
+
+  function onSearch(val) {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchQuery = val.trim();
+      shownCount = PAGE_SIZE;
+      renderCurrent();
+    }, 230);
+  }
+
+  function loadMore() {
+    shownCount += PAGE_SIZE;
+    renderLive();
+    window.scrollTo({ top: document.getElementById('loadMoreWrap').offsetTop - 120, behavior: 'smooth' });
+  }
+
+  // ── API KEY ─────────────────────────────────────────────────────────────
+  function saveApiKey() {
+    const val = document.getElementById('apiKeyInput').value.trim();
+    if (!val) { showToast('Ange en API-nyckel'); return; }
+    apiKey = val;
+    localStorage.setItem('parti_api_key', val);
+    updateKeyStatus();
+    document.getElementById('apiKeyInput').value = '';
+    showToast('API-nyckel sparad ✓');
+  }
+
+  function clearApiKey() {
+    apiKey = '';
+    localStorage.removeItem('parti_api_key');
+    document.getElementById('apiKeyInput').value = '';
+    updateKeyStatus();
+    showToast('API-nyckel borttagen');
+  }
+
+  function updateKeyStatus() {
+    const el = document.getElementById('keyStatus');
+    if (apiKey) {
+      el.textContent = 'API-nyckel sparad ✓ (' + apiKey.slice(0, 10) + '…)';
+      el.className = 'key-status ok';
+    } else {
+      el.textContent = 'Ingen API-nyckel sparad';
+      el.className = 'key-status missing';
+    }
+  }
+  updateKeyStatus();
+
+  // ── AI Q&A ──────────────────────────────────────────────────────────────
+  const SYSTEM_PROMPT = `Du är en opartisk politisk guide om svenska riksdagspartier. Svara alltid på svenska.
+Ge faktabaserade, balanserade svar om hur de åtta riksdagspartierna ställer sig i frågor.
+Riksdagspartierna är: Socialdemokraterna (S), Moderaterna (M), Sverigedemokraterna (SD), Centerpartiet (C), Vänsterpartiet (V), Kristdemokraterna (KD), Liberalerna (L), Miljöpartiet (MP).
+
+Strukturera svar med partinamn som rubriker. Var konkret och informativ men kortfattad (max 400 ord).
+Påminn om att politiska ståndpunkter förändras och uppmana till att kolla partiernas egna webbplatser för aktuell information.`;
+
+  async function askAI() {
+    const question = document.getElementById('aiQuestion').value.trim();
+    if (!question) { showToast('Skriv en fråga'); return; }
+    if (!apiKey) { showToast('Ange en Claude API-nyckel under "Anthropic Claude API-nyckel" ovan'); return; }
+
+    const btn = document.getElementById('askBtn');
+    btn.disabled = true;
+    btn.textContent = '…';
+    document.getElementById('aiAnswer').innerHTML = '<div class="ai-loading"><div class="spinner"></div><br>Frågar AI…</div>';
+    document.getElementById('aiAnswer').classList.remove('empty');
+
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-opus-4-7',
+          max_tokens: 1024,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: question }]
+        })
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error((err.error && err.error.message) || 'API-fel ' + resp.status);
+      }
+
+      const data = await resp.json();
+      const text = data.content && data.content[0] && data.content[0].text || '';
+      document.getElementById('aiAnswer').innerHTML = '<div class="ai-answer-content">' + formatAIResponse(text) + '</div>';
+    } catch (e) {
+      document.getElementById('aiAnswer').innerHTML = '<p class="ai-error">⚠️ ' + esc(e.message) + '</p>';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Fråga';
+    }
+  }
+
+  function quickAsk(q) {
+    document.getElementById('aiQuestion').value = q;
+    if (activeTab !== 'ai') switchTab('ai');
+    askAI();
+  }
+
+  function formatAIResponse(rawText) {
+    // Convert markdown to safe HTML – escape first, then apply markup
+    const escaped = rawText
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    const lines = escaped.split('\n');
+    let html = '';
+    let inList = false;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += '<br>';
+        continue;
+      }
+      // Heading: ## or ### Partynamn
+      if (/^#{1,3} /.test(trimmed)) {
+        if (inList) { html += '</ul>'; inList = false; }
+        const headText = trimmed.replace(/^#{1,3} /, '').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html += '<h4>' + headText + '</h4>';
+        continue;
+      }
+      // List item
+      if (/^[-*] /.test(trimmed)) {
+        if (!inList) { html += '<ul>'; inList = true; }
+        const itemText = trimmed.slice(2).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html += '<li>' + itemText + '</li>';
+        continue;
+      }
+      if (inList) { html += '</ul>'; inList = false; }
+      const lineHtml = trimmed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html += '<p>' + lineHtml + '</p>';
+    }
+    if (inList) html += '</ul>';
+    return html;
+  }
+
+  // ── HELPERS ─────────────────────────────────────────────────────────────
+  function safeUrl(url) {
+    if (!url) return '#';
+    const u = String(url).trim();
+    return /^https?:\/\//i.test(u) ? esc(u) : '#';
+  }
+
+  function truncate(s, max) {
+    if (!s || s.length <= max) return s || '';
+    return s.substring(0, max).trim() + '…';
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ── INIT ───────────────────────────────────────────────────────────────
+  loadData();
+})();
+</script>
+</body>
+</html>
