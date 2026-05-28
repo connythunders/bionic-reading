@@ -1,0 +1,70 @@
+name: Driftsätt lärplattformen
+
+# SETUP: Gå till Settings → Pages → Source och välj "GitHub Actions"
+# Appen blir tillgänglig på: https://bionicreading.se/larplattform/
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'larplattform/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: larplattform/package-lock.json
+
+      - name: Installera beroenden
+        working-directory: larplattform
+        run: npm ci
+
+      - name: Bygg React-appen
+        working-directory: larplattform
+        run: npm run build
+        env:
+          GITHUB_ACTIONS: 'true'
+
+      - name: Förbered hela sajten
+        run: |
+          mkdir -p _site/larplattform
+
+          # Befintliga statiska filer i roten
+          find . -maxdepth 1 \( -name "*.html" -o -name "*.json" \) ! -name "package*.json" -exec cp {} _site/ \;
+          for dir in css js quiz-games np-engelska np-engelska-gy rattvik-atervinning riksdag-skola lashjalpen workshop-app; do
+            [ -d "$dir" ] && cp -r "$dir" _site/ || true
+          done
+          [ -f CNAME ] && cp CNAME _site/
+
+          # React-appens build-output
+          cp -r larplattform/dist/. _site/larplattform/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}larplattform/
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
