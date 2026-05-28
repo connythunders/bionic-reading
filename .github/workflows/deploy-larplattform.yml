@@ -6,8 +6,6 @@ name: Driftsätt lärplattformen
 on:
   push:
     branches: [main]
-    paths:
-      - 'larplattform/**'
   workflow_dispatch:
 
 permissions:
@@ -45,12 +43,13 @@ jobs:
         run: |
           mkdir -p _site/larplattform
 
-          # Befintliga statiska filer i roten
-          find . -maxdepth 1 \( -name "*.html" -o -name "*.json" \) ! -name "package*.json" -exec cp {} _site/ \;
-          for dir in css js quiz-games np-engelska np-engelska-gy rattvik-atervinning riksdag-skola lashjalpen workshop-app; do
-            [ -d "$dir" ] && cp -r "$dir" _site/ || true
-          done
-          [ -f CNAME ] && cp CNAME _site/
+          # Kopiera hela repots rotkatalog (exkludera källa, bygg-artefakter och git)
+          rsync -a \
+            --exclude='.git' \
+            --exclude='larplattform' \
+            --exclude='_site' \
+            --exclude='node_modules' \
+            . _site/
 
           # React-appens build-output
           cp -r larplattform/dist/. _site/larplattform/
