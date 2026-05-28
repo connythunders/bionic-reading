@@ -4,7 +4,8 @@ import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { RightPanel } from './RightPanel'
 import { AccessibilityToolbar } from '@/components/shared/AccessibilityToolbar'
-import { currentUser } from '@/data/user'
+import { teacherUser, studentUser } from '@/data/user'
+import { useRole } from '@/context/RoleContext'
 import type { FontSize, Theme } from '@/hooks/useAccessibility'
 
 type Props = {
@@ -26,6 +27,9 @@ export function AppShell({
 }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [rightPanelOpen, setRightPanelOpen] = useState(false)
+  const { role, setRole } = useRole()
+
+  const user = role === 'teacher' ? teacherUser : studentUser
 
   return (
     <div className={`flex h-dvh overflow-hidden bg-gray-50 dark:bg-gray-900 ${focusMode ? 'focus-mode' : ''}`}>
@@ -49,7 +53,7 @@ export function AppShell({
 
         {/* Top bar */}
         <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0 gap-3">
-          {/* Left: hamburger (mobile) + breadcrumb */}
+          {/* Left: hamburger + breadcrumb */}
           <div className="flex items-center gap-2 min-w-0">
             <button
               onClick={() => setSidebarOpen(s => !s)}
@@ -61,11 +65,11 @@ export function AppShell({
             </button>
             <div className="flex items-center gap-1.5 min-w-0">
               <span className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
-                {currentUser.name}
+                {user.name}
               </span>
               <span className="text-gray-300 dark:text-gray-600 text-sm">›</span>
               <span className="text-sm text-gray-500 dark:text-gray-400 truncate hidden sm:block">
-                {currentUser.school}
+                {user.school}
               </span>
             </div>
           </div>
@@ -80,8 +84,40 @@ export function AppShell({
             />
           </div>
 
-          {/* Right: profile + tools toggle */}
+          {/* Right: role switcher + tools + avatar */}
           <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Role switcher */}
+            <div
+              className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5"
+              role="group"
+              aria-label="Byt roll"
+            >
+              <button
+                onClick={() => setRole('teacher')}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                  role === 'teacher'
+                    ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                }`}
+                aria-pressed={role === 'teacher'}
+                aria-label="Visa som lärare"
+              >
+                Lärare
+              </button>
+              <button
+                onClick={() => setRole('student')}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                  role === 'student'
+                    ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                }`}
+                aria-pressed={role === 'student'}
+                aria-label="Visa som elev"
+              >
+                Elev
+              </button>
+            </div>
+
             <button
               onClick={() => setRightPanelOpen(o => !o)}
               className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
@@ -90,12 +126,13 @@ export function AppShell({
             >
               <Grid3X3 size={20} />
             </button>
+
             <button
               className="inline-flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold flex-shrink-0"
-              style={{ backgroundColor: currentUser.color }}
-              aria-label={`Profil: ${currentUser.name}`}
+              style={{ backgroundColor: user.color }}
+              aria-label={`Profil: ${user.name}`}
             >
-              {currentUser.initials}
+              {user.initials}
             </button>
           </div>
         </div>
@@ -110,7 +147,7 @@ export function AppShell({
           />
         </div>
 
-        {/* Main content + optional right panel */}
+        {/* Main content + right panel */}
         <div className="flex flex-1 overflow-hidden">
           <div className="flex-1 overflow-hidden bg-gray-50 dark:bg-gray-900">
             <Outlet />
