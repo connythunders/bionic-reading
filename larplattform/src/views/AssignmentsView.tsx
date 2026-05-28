@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { Plus, Clock, ClipboardX, ChevronRight } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { assignments } from '@/data/assignments'
 import { cn } from '@/lib/utils'
@@ -11,7 +11,7 @@ function ProgressBar({ graded, total }: { graded: number; total: number }) {
   return (
     <div className="flex items-center gap-2">
       <div
-        className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden"
+        className="flex-1 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden"
         role="progressbar"
         aria-valuenow={pct}
         aria-valuemin={0}
@@ -19,14 +19,35 @@ function ProgressBar({ graded, total }: { graded: number; total: number }) {
         aria-label={`${graded} av ${total} rättade`}
       >
         <div
-          className="h-full bg-green-500 dark:bg-green-400 rounded-full transition-all"
+          className="h-full bg-green-500 dark:bg-green-400 rounded-full transition-all duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums min-w-[60px]">
-        {graded} / {total}
+      <span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums min-w-[72px] text-right">
+        {graded}/{total} rättade
       </span>
     </div>
+  )
+}
+
+function DeadlineBadge({ dueDate }: { dueDate: string }) {
+  const days = Math.ceil((new Date(dueDate).getTime() - new Date('2026-03-28').getTime()) / 86400000)
+  const label = new Date(dueDate).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })
+  const isOverdue = days < 0
+  const isSoon = days >= 0 && days <= 2
+
+  return (
+    <span className={cn(
+      'inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg',
+      isOverdue
+        ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+        : isSoon
+        ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300'
+        : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+    )}>
+      <Clock size={11} aria-hidden="true" />
+      {label}
+    </span>
   )
 }
 
@@ -40,23 +61,24 @@ export function AssignmentsView() {
     return true
   })
 
+  const openCount   = assignments.filter(a => a.status === 'open').length
+  const closedCount = assignments.filter(a => a.status === 'closed').length
+
   return (
     <div className="flex flex-col h-full">
       <header className="px-6 pt-5 pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/')}
-              className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 transition-colors"
-              aria-label="Tillbaka"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Uppgifter</h1>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Uppgifter</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              <span className="font-medium text-green-700 dark:text-green-400">{openCount} öppna</span>
+              <span className="mx-1.5 text-gray-300 dark:text-gray-600">·</span>
+              <span>{closedCount} avslutade</span>
+            </p>
           </div>
           <button
             onClick={() => navigate('/uppgifter/skapa')}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-green-700 hover:bg-green-800 text-white rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-green-700 hover:bg-green-800 text-white rounded-xl transition-colors"
             aria-label="Skapa ny uppgift"
           >
             <Plus size={16} aria-hidden="true" />
@@ -64,17 +86,17 @@ export function AssignmentsView() {
           </button>
         </div>
 
-        {/* Filter tabs */}
-        <div className="flex gap-1 mt-4" role="group" aria-label="Filtrera uppgifter">
+        {/* Filter pills */}
+        <div className="flex gap-1.5" role="group" aria-label="Filtrera uppgifter">
           {(['all', 'open', 'closed'] as Filter[]).map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={cn(
-                'px-3 py-1.5 text-sm rounded-md font-medium transition-colors',
+                'px-3.5 py-1.5 text-sm rounded-full font-medium transition-all duration-200',
                 filter === f
-                  ? 'bg-green-700 text-white'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? 'bg-green-700 text-white shadow-sm'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
               )}
               aria-pressed={filter === f}
             >
@@ -85,57 +107,77 @@ export function AssignmentsView() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 main-area">
-        <div className="max-w-3xl space-y-3">
-          {filtered.length === 0 ? (
-            <p className="text-sm text-gray-400 dark:text-gray-500 py-8 text-center">
-              Inga uppgifter matchar filtret
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+              <ClipboardX size={28} className="text-gray-300 dark:text-gray-600" aria-hidden="true" />
+            </div>
+            <p className="text-base font-medium text-gray-500 dark:text-gray-400">Inga uppgifter än</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+              {filter === 'all'
+                ? 'Skapa din första uppgift med knappen ovan.'
+                : 'Inga uppgifter matchar det valda filtret.'}
             </p>
-          ) : (
-            filtered.map(task => (
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-5xl">
+            {filtered.map(task => (
               <button
                 key={task.id}
                 onClick={() => navigate(`/uppgifter/${task.id}`)}
-                className="w-full text-left p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-700 transition-colors"
+                className="w-full text-left bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm rounded-2xl hover:shadow-md hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200 cursor-pointer overflow-hidden"
                 aria-label={`Öppna uppgift: ${task.title}`}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        {task.title}
-                      </h2>
-                      <span className={cn(
-                        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
-                        task.status === 'open'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                          : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
-                      )}>
-                        {task.status === 'open' ? 'Öppen' : 'Avslutad'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      {task.groupName}
-                    </p>
+                {/* Card top */}
+                <div className="px-5 pt-4 pb-3">
+                  <div className="flex items-start justify-between gap-3 mb-2.5">
+                    <span
+                      className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold text-white"
+                      style={{ backgroundColor: '#166534' }}
+                    >
+                      {task.groupName.split('-')[0].trim()}
+                    </span>
+                    <span className={cn(
+                      'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border',
+                      task.status === 'open'
+                        ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800'
+                        : 'bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700'
+                    )}>
+                      {task.status === 'open' ? 'Öppen' : 'Avslutad'}
+                    </span>
                   </div>
-                  <div className="flex-shrink-0 text-right">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Inlämning: {new Date(task.dueDate).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })}
-                    </p>
-                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mt-0.5">
-                      {task.submissions} inlämning{task.submissions !== 1 ? 'ar' : ''}
-                    </p>
-                  </div>
+
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-snug mb-1">
+                    {task.title}
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{task.groupName}</p>
                 </div>
-                <div className="mt-3">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Rättade: {task.graded} av {task.submissions}
-                  </p>
+
+                {/* Divider */}
+                <div className="border-t border-gray-100 dark:border-gray-800 mx-5" />
+
+                {/* Card bottom */}
+                <div className="px-5 py-3 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <DeadlineBadge dueDate={task.dueDate} />
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {task.submissions} inlämning{task.submissions !== 1 ? 'ar' : ''}
+                    </span>
+                  </div>
                   <ProgressBar graded={task.graded} total={task.submissions} />
                 </div>
+
+                {/* Footer CTA */}
+                <div className="px-5 pb-4">
+                  <span className="inline-flex items-center gap-1 text-sm font-medium text-green-700 dark:text-green-400">
+                    Visa inlämningar
+                    <ChevronRight size={14} aria-hidden="true" />
+                  </span>
+                </div>
               </button>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   )

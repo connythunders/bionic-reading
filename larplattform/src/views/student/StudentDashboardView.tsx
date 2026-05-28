@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Clock, CheckCircle, BookOpen, ArrowUpRight } from 'lucide-react'
+import { BookOpen, ClipboardList, CheckCircle, ArrowRight, CalendarDays } from 'lucide-react'
 import { groups } from '@/data/groups'
 import { assignments } from '@/data/assignments'
 import { messages } from '@/data/messages'
@@ -20,72 +20,140 @@ function daysUntil(dateStr: string) {
   return diff
 }
 
+function DeadlineBadge({ dueDate, isSubmitted }: { dueDate: string; isSubmitted: boolean }) {
+  if (isSubmitted) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+        <CheckCircle size={11} aria-hidden="true" />
+        Inlämnad
+      </span>
+    )
+  }
+  const days = daysUntil(dueDate)
+  if (days <= 0) {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+        {days === 0 ? 'Idag' : 'Försenad'}
+      </span>
+    )
+  }
+  if (days <= 3) {
+    return (
+      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400">
+        {days} dag{days !== 1 ? 'ar' : ''}
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+      {formatDate(dueDate)}
+    </span>
+  )
+}
+
+const subjectBorderColors: Record<string, string> = {
+  REL: 'border-l-blue-400',
+  HIS: 'border-l-orange-400',
+  GEO: 'border-l-green-500',
+  SAM: 'border-l-purple-400',
+  Provtillfällen: 'border-l-red-400',
+}
+
+function getSubjectBorder(subject: string) {
+  return subjectBorderColors[subject] ?? 'border-l-gray-400'
+}
+
 export function StudentDashboardView() {
   const navigate = useNavigate()
 
   const myGroups = groups.filter(g => ENROLLED.includes(g.id))
-  const myAssignments = assignments.filter(a => ENROLLED.includes(a.groupId) && a.status === 'open')
+  const myAssignments = assignments
+    .filter(a => ENROLLED.includes(a.groupId) && a.status === 'open')
+    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
   const todayLessons = lessons.filter(l => l.dayOffset === 0)
-  const recentMessages = messages.slice(0, 3)
+  const recentMessages = messages.slice(0, 4)
 
-  const submittedCount = myAssignments.filter(a =>
-    submissions.some(s => s.assignmentId === a.id && s.studentId === STUDENT_ID && s.status !== 'not_submitted')
-  ).length
+  const submittedIds = new Set(
+    submissions
+      .filter(s => s.studentId === STUDENT_ID && s.status !== 'not_submitted')
+      .map(s => s.assignmentId)
+  )
+  const submittedCount = myAssignments.filter(a => submittedIds.has(a.id)).length
+  const todoCount = myAssignments.length - submittedCount
+  const unreadMessages = messages.filter(m => !m.isRead).length
 
   return (
     <div className="flex flex-col h-full">
-      <header className="px-6 pt-5 pb-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Min startsida</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-          Välkommen, {studentUser.name}
-        </p>
-      </header>
-
       <main className="flex-1 overflow-y-auto px-6 py-5 main-area">
-        <div className="max-w-5xl space-y-5">
+        <div className="max-w-5xl space-y-6">
 
-          {/* Stats row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-                <BookOpen size={20} className="text-blue-600 dark:text-blue-400" aria-hidden="true" />
+          {/* Välkomstheader — lila gradient för elev */}
+          <div className="bg-gradient-to-r from-violet-50 to-white dark:from-violet-900/10 dark:to-gray-950 rounded-2xl p-6">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              Hej, {studentUser.name.split(' ')[0]}! 🎒
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {todoCount > 0
+                ? `Du har ${todoCount} uppgift${todoCount !== 1 ? 'er' : ''} att lämna in`
+                : 'Alla uppgifter är inlämnade – bra jobbat!'}
+            </p>
+          </div>
+
+          {/* Statistikrad */}
+          <div className="grid grid-cols-3 gap-4" role="list" aria-label="Statistiköversikt">
+            <div
+              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 flex items-center gap-4"
+              role="listitem"
+            >
+              <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
+                <BookOpen size={20} className="text-green-700 dark:text-green-400" aria-hidden="true" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{myGroups.length}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Kurser</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{myGroups.length}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Mina kurser</p>
               </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0">
-                <Clock size={20} className="text-orange-600 dark:text-orange-400" aria-hidden="true" />
+
+            <div
+              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 flex items-center gap-4"
+              role="listitem"
+            >
+              <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center flex-shrink-0">
+                <ClipboardList size={20} className="text-orange-600 dark:text-orange-400" aria-hidden="true" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {myAssignments.length - submittedCount}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Ej inlämnade</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{todoCount}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Att göra</p>
               </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
-                <CheckCircle size={20} className="text-green-600 dark:text-green-400" aria-hidden="true" />
+
+            <div
+              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 flex items-center gap-4"
+              role="listitem"
+            >
+              <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
+                <CheckCircle size={20} className="text-blue-600 dark:text-blue-400" aria-hidden="true" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{submittedCount}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Inlämnade</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{submittedCount}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Inlämnade</p>
               </div>
             </div>
           </div>
 
-          {/* Upcoming assignments */}
-          <section aria-labelledby="upcoming-heading" className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+          {/* Kommande deadlines */}
+          <section
+            aria-labelledby="deadlines-heading"
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+          >
             <div className="flex items-center justify-between mb-4">
-              <h2 id="upcoming-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                Kommande inlämningar
+              <h2 id="deadlines-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                Kommande deadlines
               </h2>
               <button
                 onClick={() => navigate('/uppgifter')}
                 className="text-xs text-green-700 dark:text-green-400 hover:underline"
+                aria-label="Se alla uppgifter"
               >
                 Se alla
               </button>
@@ -95,38 +163,26 @@ export function StudentDashboardView() {
             ) : (
               <ul className="space-y-2 list-none m-0 p-0" role="list">
                 {myAssignments.map(a => {
-                  const sub = submissions.find(s => s.assignmentId === a.id && s.studentId === STUDENT_ID)
-                  const days = daysUntil(a.dueDate)
-                  const isSubmitted = sub && sub.status !== 'not_submitted'
+                  const isSubmitted = submittedIds.has(a.id)
                   return (
                     <li key={a.id}>
-                      <button
-                        onClick={() => navigate(`/uppgifter/${a.id}`)}
-                        className="flex items-center justify-between w-full text-left p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                        aria-label={`Uppgift: ${a.title}${isSubmitted ? ', inlämnad' : `, deadline om ${days} dagar`}`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          {isSubmitted ? (
-                            <CheckCircle size={16} className="text-green-600 dark:text-green-400 flex-shrink-0" aria-hidden="true" />
-                          ) : (
-                            <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${days <= 1 ? 'border-red-400' : days <= 3 ? 'border-orange-400' : 'border-gray-300'}`} aria-hidden="true" />
-                          )}
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{a.title}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{a.groupName}</p>
-                          </div>
+                      <div className="flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:shadow-md hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{a.title}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{a.groupName}</p>
                         </div>
-                        <div className="text-right flex-shrink-0 ml-3">
-                          {isSubmitted ? (
-                            <span className="text-xs font-medium text-green-600 dark:text-green-400">Inlämnad</span>
-                          ) : (
-                            <span className={`text-xs font-medium ${days <= 1 ? 'text-red-600' : days <= 3 ? 'text-orange-600' : 'text-gray-500'}`}>
-                              {days <= 0 ? 'Passerad' : days === 1 ? 'Idag' : `${days} dagar`}
-                            </span>
-                          )}
-                          <p className="text-xs text-gray-400 dark:text-gray-500">{formatDate(a.dueDate)}</p>
+                        <div className="ml-3 flex-shrink-0 flex items-center gap-2">
+                          <DeadlineBadge dueDate={a.dueDate} isSubmitted={isSubmitted} />
+                          <button
+                            onClick={() => navigate(`/uppgifter/${a.id}`)}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-green-700 dark:text-green-400 hover:underline"
+                            aria-label={`Lämna in uppgiften ${a.title}`}
+                          >
+                            Lämna in
+                            <ArrowRight size={12} aria-hidden="true" />
+                          </button>
                         </div>
-                      </button>
+                      </div>
                     </li>
                   )
                 })}
@@ -134,37 +190,49 @@ export function StudentDashboardView() {
             )}
           </section>
 
-          {/* Two-column: My courses + Today's schedule */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Två kolumner: Mina kurser + Schema idag */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            {/* My courses */}
-            <section aria-labelledby="courses-heading" className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+            {/* Mina kurser */}
+            <section
+              aria-labelledby="courses-heading"
+              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+            >
               <h2 id="courses-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">
                 Mina kurser
               </h2>
-              <ul className="space-y-2 list-none m-0 p-0" role="list">
-                {myGroups.map(g => (
-                  <li key={g.id}>
-                    <button
-                      onClick={() => navigate(`/grupp/${g.id}`)}
-                      className="flex items-center gap-3 w-full text-left p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                      aria-label={`Öppna kurs: ${g.name}`}
-                    >
-                      <GroupIcon code={g.code} size="sm" color={g.color} />
-                      <span className="text-sm text-gray-700 dark:text-gray-300 truncate">{g.name}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              {myGroups.length === 0 ? (
+                <p className="text-sm text-gray-400 dark:text-gray-500 py-2">Du är inte inskriven i några kurser.</p>
+              ) : (
+                <ul className="space-y-2 list-none m-0 p-0" role="list">
+                  {myGroups.map(g => (
+                    <li key={g.id}>
+                      <button
+                        onClick={() => navigate(`/grupp/${g.id}`)}
+                        className="flex items-center gap-3 w-full text-left p-3 rounded-xl border border-gray-100 dark:border-gray-800 hover:shadow-md hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200"
+                        aria-label={`Öppna kurs: ${g.name}`}
+                      >
+                        <GroupIcon code={g.code} size="sm" color={g.color} />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{g.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{g.subject}</p>
+                        </div>
+                        <ArrowRight size={14} className="text-gray-300 dark:text-gray-600 flex-shrink-0" aria-hidden="true" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
 
-            {/* Today's schedule */}
-            <section aria-labelledby="today-heading" className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-              <h2 id="today-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-1.5">
+            {/* Schema idag */}
+            <section
+              aria-labelledby="today-schedule-heading"
+              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+            >
+              <h2 id="today-schedule-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                <CalendarDays size={16} className="text-gray-400" aria-hidden="true" />
                 Schema idag
-                <span className="text-sm font-normal text-gray-400 dark:text-gray-500">
-                  — Tor 28 mars
-                </span>
               </h2>
               {todayLessons.length === 0 ? (
                 <p className="text-sm text-gray-400 dark:text-gray-500 py-2">Inga lektioner idag.</p>
@@ -173,16 +241,19 @@ export function StudentDashboardView() {
                   {todayLessons.map(l => (
                     <li
                       key={l.id}
-                      className="flex items-start gap-3 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-700/50"
+                      className={`flex items-start gap-3 p-3 rounded-xl border-l-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${getSubjectBorder(l.subject)}`}
                     >
-                      <div className="text-center min-w-[48px]">
-                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{l.start}</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">{l.end}</p>
+                      <div className="text-center min-w-[46px]">
+                        <p className="text-xs font-mono font-semibold text-gray-700 dark:text-gray-200">{l.start}</p>
+                        <p className="text-xs font-mono text-gray-400 dark:text-gray-500">{l.end}</p>
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{l.subject}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {l.groupCode}{l.room ? ` · ${l.room}` : ''}
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs mr-1">
+                            {l.groupCode}
+                          </span>
+                          {l.room && <span>{l.room}</span>}
                         </p>
                       </div>
                     </li>
@@ -192,29 +263,45 @@ export function StudentDashboardView() {
             </section>
           </div>
 
-          {/* Messages */}
-          <section aria-labelledby="msgs-heading" className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+          {/* Senaste meddelanden */}
+          <section
+            aria-labelledby="student-msgs-heading"
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5"
+          >
             <div className="flex items-center justify-between mb-4">
-              <h2 id="msgs-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
-                Meddelanden <ArrowUpRight size={15} className="text-gray-400" aria-hidden="true" />
+              <h2 id="student-msgs-heading" className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                Meddelanden
+                {unreadMessages > 0 && (
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-xs font-bold" aria-label={`${unreadMessages} olästa`}>
+                    {unreadMessages}
+                  </span>
+                )}
               </h2>
-              <button onClick={() => navigate('/meddelanden')} className="text-xs text-green-700 dark:text-green-400 hover:underline">
+              <button
+                onClick={() => navigate('/meddelanden')}
+                className="text-xs text-green-700 dark:text-green-400 hover:underline"
+                aria-label="Se alla meddelanden"
+              >
                 Se alla
               </button>
             </div>
-            <ul className="divide-y divide-gray-100 dark:divide-gray-700 list-none m-0 p-0" role="list">
+            <ul className="divide-y divide-gray-100 dark:divide-gray-800 list-none m-0 p-0" role="list">
               {recentMessages.map(m => (
                 <li key={m.id}>
                   <button
                     onClick={() => navigate('/meddelanden')}
-                    className="w-full text-left py-3 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors -mx-1 px-1 rounded"
+                    className={`w-full text-left py-3 px-2 -mx-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-start gap-2 ${!m.isRead ? 'border-l-2 border-blue-500 pl-3' : ''}`}
+                    aria-label={`Läs meddelande: ${m.title}`}
                   >
-                    <p className={`text-sm ${m.isRead ? 'text-gray-700 dark:text-gray-300' : 'font-semibold text-gray-900 dark:text-gray-100'}`}>
-                      {m.title}
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                      {new Date(m.date).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })} · {m.author}
-                    </p>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm leading-snug truncate ${m.isRead ? 'text-gray-700 dark:text-gray-300' : 'font-semibold text-gray-900 dark:text-gray-100'}`}>
+                        {m.title}
+                      </p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{m.author}</p>
+                    </div>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5">
+                      {new Date(m.date).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' })}
+                    </span>
                   </button>
                 </li>
               ))}
