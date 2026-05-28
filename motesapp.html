@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MötesAI">
+  <meta name="theme-color" content="#0f172a">
+  <title>MötesAI</title>
+  <style>
+    :root {
+      --bg:       #0f172a;
+      --surf1:    #1e293b;
+      --surf2:    #334155;
+      --primary:  #6366f1;
+      --prim-dk:  #4f46e5;
+      --danger:   #ef4444;
+      --success:  #22c55e;
+      --warning:  #f59e0b;
+      --text:     #f1f5f9;
+      --muted:    #94a3b8;
+      --border:   rgba(255,255,255,0.07);
+      --rad:      16px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html { height: 100%; height: -webkit-fill-available; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+    }
+
+    /* ── APP SHELL ─────────────────────────────────────────────────────── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding-top: env(safe-area-inset-top);
+    }
+
+    /* ── HEADER ────────────────────────────────────────────────────────── */
+    .hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px 12px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .hdr-title {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -.4px;
+    }
+    .hdr-right { display: flex; align-items: center; gap: 4px; }
+    .hdr-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 22px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .rec-badge {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      background: rgba(239,68,68,.15);
+      color: #fca5a5;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: .5px;
+    }
+    .rec-badge.show { display: flex; }
+    .rec-badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--danger);
+      animation: blink 1.2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+    /* ── CONTENT / VIEWS ───────────────────────────────────────────────── */
+    .content {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .view {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+      padding: 16px 16px 0;
+    }
+    .view.active { display: flex; }
+
+    /* ── BOTTOM NAV ────────────────────────────────────────────────────── */
+    .bnav {
+      display: flex;
+      background: var(--surf1);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .bnav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 10px 0;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color .18s;
+    }
+    .bnav-btn svg { width: 23px; height: 23px; fill: currentColor; }
+    .bnav-btn.active { color: var(--primary); }
+
+    /* ── BUTTONS ───────────────────────────────────────────────────────── */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 15px 18px;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .12s, opacity .15s;
+      -webkit-user-select: none;
+      user-select: none;
+      line-height: 1;
+    }
+    .btn:active { transform: scale(.96); }
+    .btn:disabled { opacity: .38; pointer-events: none; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-danger  { background: var(--danger);  color: #fff; }
+    .btn-ghost   { background: var(--surf2);   color: var(--text); }
+    .btn-gradient {
+      background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+      color: #fff;
+      width: 100%;
+    }
+    .btn-sm { padding: 10px 14px; font-size: 13px; border-radius: 10px; }
+
+    /* ── RECORDING VIEW ────────────────────────────────────────────────── */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surf1);
+      border-radius: 12px;
+      padding: 11px 14px;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
+    .status-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--surf2);
+      flex-shrink: 0;
+      transition: background .3s;
+    }
+    .status-dot.rec { background: var(--danger); animation: blink 1.2s infinite; }
+    .status-dot.pau { background: var(--warning); }
+    .status-lbl {
+      flex: 1;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .status-lbl.rec { color: #fca5a5; }
+    .status-lbl.pau { color: #fcd34d; }
+    .timer {
+      font-size: 15px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .5px;
+      color: var(--text);
+    }
+
+    .transcript-box {
+      flex: 1;
+      background: var(--surf1);
+      border-radius: 16px;
+      padding: 14px 16px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .transcript-empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-align: center;
+      padding: 24px;
+      pointer-events: none;
+    }
+    .transcript-empty svg {
+      width: 44px;
+      height: 44px;
+      fill: var(--surf2);
+    }
+    .transcript-empty p { font-size: 15px; color: var(--muted); }
+    .transcript-empty span { font-size: 13px; color: var(--surf2); }
+
+    #transcript-live {
+      display: none;
+      font-size: 17px;
+      line-height: 1.7;
+    }
+    .t-final { color: var(--text); }
+    .t-interim { color: var(--muted); font-style: italic; }
+    .word-count { font-size: 11px; color: var(--surf2); text-align: right; margin-top: 6px; }
+
+    .ctrl-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+    .ctrl-row .btn { flex: 1; }
+
+    .summarize-row {
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+
+    /* ── SUMMARY VIEW ──────────────────────────────────────────────────── */
+    .summary-scroll {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 16px;
+    }
+
+    .card {
+      background: var(--surf1);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .card-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 10px;
+    }
+    .card-text { font-size: 15px; line-height: 1.65; }
+
+    .prio-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .prio-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .prio-chip {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .chip-hog  { background: rgba(239,68,68,.18); color: #fca5a5; }
+    .chip-med  { background: rgba(245,158,11,.18); color: #fde68a; }
+    .chip-lag  { background: rgba(34,197,94,.18); color: #86efac; }
+    .prio-body { flex: 1; }
+    .prio-task { font-size: 14px; line-height: 1.45; margin-bottom: 3px; }
+    .prio-who  { font-size: 12px; color: var(--muted); }
+
+    .beslut-row {
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .beslut-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .beslut-check { color: var(--success); flex-shrink: 0; margin-top: 1px; font-size: 15px; }
+
+    .sum-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+    .sum-title-input {
+      width: 100%;
+      background: var(--surf1);
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 700;
+      outline: none;
+      margin-bottom: 4px;
+      flex-shrink: 0;
+    }
+    .sum-title-input:focus { border-color: var(--primary); }
+    .sum-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-left: 2px;
+      flex-shrink: 0;
+    }
+
+    /* ── SAVED VIEW ────────────────────────────────────────────────────── */
+    .saved-scroll {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 16px;
+    }
+
+    .mtg-item {
+      display: flex;
+      align-items: center;
+      background: var(--surf1);
+      border-radius: 14px;
+      padding: 13px 14px;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+    .mtg-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .mtg-info { flex: 1; cursor: pointer; min-width: 0; }
+    .mtg-name {
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 3px;
+    }
+    .mtg-sub { font-size: 12px; color: var(--muted); }
+    .mtg-btns { display: flex; gap: 6px; flex-shrink: 0; }
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      border: none;
+      background: var(--surf2);
+      color: var(--muted);
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .icon-btn.del { background: rgba(239,68,68,.14); color: #fca5a5; }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--muted);
+      gap: 12px;
+    }
+    .empty-state svg { width: 56px; height: 56px; fill: var(--surf2); }
+    .empty-state h3 { font-size: 17px; color: var(--text); }
+    .empty-state p { font-size: 14px; }
+
+    /* ── SETTINGS SHEET ────────────────────────────────────────────────── */
+    .sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+    }
+    .sheet-overlay.open { display: flex; }
+    .sheet {
+      background: var(--surf1);
+      border-radius: 22px 22px 0 0;
+      padding: 0 20px 20px;
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--surf2);
+      border-radius: 2px;
+      margin: 12px auto 18px;
+    }
+    .sheet h2 { font-size: 19px; font-weight: 700; margin-bottom: 18px; }
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .field input, .field select {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .field input:focus, .field select:focus { border-color: var(--primary); }
+    .field-hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    /* ── LOADING / ERROR ───────────────────────────────────────────────── */
+    .loading-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 60px 24px;
+    }
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 3px solid var(--surf2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-box p { color: var(--muted); font-size: 15px; }
+
+    .error-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+      padding: 40px 24px;
+    }
+    .error-box .err-icon { font-size: 40px; }
+    .error-box h3 { font-size: 17px; }
+    .error-box p { font-size: 14px; color: var(--muted); }
+
+    /* ── TOAST ─────────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: calc(72px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: var(--surf2);
+      color: var(--text);
+      padding: 10px 20px;
+      border-radius: 22px;
+      font-size: 14px;
+      font-weight: 500;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .25s, transform .25s;
+      white-space: nowrap;
+      z-index: 300;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+  <header class="hdr">
+    <span class="hdr-title" id="hdr-title">MötesAI</span>
+    <div class="hdr-right">
+      <span class="rec-badge" id="rec-badge">
+        <span class="rec-badge-dot"></span>REC
+      </span>
+      <button class="hdr-btn" onclick="openSheet()" aria-label="Inställningar">⚙️</button>
+    </div>
+  </header>
+
+  <!-- ── CONTENT ────────────────────────────────────────────────────────── -->
+  <div class="content">
+
+    <!-- VIEW: INSPELNING ───────────────────────────────────────────────── -->
+    <div class="view active" id="view-rec">
+
+      <div class="status-bar">
+        <div class="status-dot" id="s-dot"></div>
+        <span class="status-lbl" id="s-lbl">Redo att spela in</span>
+        <span class="timer" id="timer">0:00</span>
+      </div>
+
+      <div class="transcript-box" id="t-box">
+        <div class="transcript-empty" id="t-empty">
+          <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+          <p>Tryck Starta för att börja spela in</p>
+          <span>Taligenkänning på svenska (sv-SE)</span>
+        </div>
+        <div id="transcript-live">
+          <span class="t-final" id="t-final"></span><span class="t-interim" id="t-interim"></span>
+          <p class="word-count" id="word-count"></p>
+        </div>
+      </div>
+
+      <div class="ctrl-row">
+        <button class="btn btn-primary" id="btn-start" onclick="startRec()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+          Starta
+        </button>
+        <button class="btn btn-ghost" id="btn-pause" onclick="togglePause()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          Pausa
+        </button>
+        <button class="btn btn-danger" id="btn-stop" onclick="stopRec()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M6 6h12v12H6z"/></svg>
+          Stoppa
+        </button>
+      </div>
+
+      <div class="summarize-row">
+        <button class="btn btn-gradient" id="btn-sum" onclick="runSummary()" disabled>
+          ✨ Sammanfatta möte
+        </button>
+      </div>
+
+    </div><!-- /view-rec -->
+
+    <!-- VIEW: SAMMANFATTNING ──────────────────────────────────────────── -->
+    <div class="view" id="view-sum">
+      <input class="sum-title-input" id="sum-title" placeholder="Mötestitel…" />
+      <p class="sum-meta" id="sum-meta"></p>
+      <div class="sum-actions">
+        <button class="btn btn-primary" id="btn-save" onclick="saveMeeting()" style="flex:2" disabled>
+          💾 Spara möte
+        </button>
+        <button class="btn btn-ghost" onclick="newRec()" style="flex:1">
+          + Ny
+        </button>
+      </div>
+      <div class="summary-scroll" id="sum-scroll">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- VIEW: SPARADE ─────────────────────────────────────────────────── -->
+    <div class="view" id="view-saved">
+      <div class="saved-scroll" id="saved-scroll">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- ── BOTTOM NAV ─────────────────────────────────────────────────────── -->
+  <nav class="bnav">
+    <button class="bnav-btn active" id="bnav-rec" onclick="showView('rec')">
+      <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
+      Inspelning
+    </button>
+    <button class="bnav-btn" id="bnav-sum" onclick="showView('sum')">
+      <svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
+      Sammanfattning
+    </button>
+    <button class="bnav-btn" id="bnav-saved" onclick="showView('saved')">
+      <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+      Sparade
+    </button>
+  </nav>
+
+</div><!-- /app -->
+
+<!-- ── SETTINGS SHEET ──────────────────────────────────────────────────── -->
+<div class="sheet-overlay" id="sheet" onclick="sheetBackdrop(event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>⚙️ Inställningar</h2>
+
+    <div class="field">
+      <label>Anthropic API-nyckel</label>
+      <input type="password" id="cfg-key" placeholder="sk-ant-api03-…" autocomplete="off" spellcheck="false" />
+      <p class="field-hint">Hämtas på console.anthropic.com – lagras bara lokalt i webbläsaren.</p>
+    </div>
+
+    <div class="field">
+      <label>AI-modell</label>
+      <select id="cfg-model">
+        <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (rekommenderas)</option>
+        <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (snabbare/billigare)</option>
+        <option value="claude-opus-4-7">Claude Opus 4.7 (mest kapabel)</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveSettings()" style="width:100%;margin-top:4px">
+      Spara inställningar
+    </button>
+  </div>
+</div>
+
+<!-- ── TOAST ───────────────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════ */
+let meetings     = JSON.parse(localStorage.getItem('mtg_v2') || '[]');
+let curSummary   = null;   // summary object being composed
+let finalTx      = '';     // committed transcript text
+let recognition  = null;
+let isRecording  = false;
+let isPaused     = false;
+let timerTick    = null;
+let elapsed      = 0;      // seconds
+let viewSumMode  = 'new';  // 'new' | 'view'
+let viewSumIdx   = -1;
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  const k = localStorage.getItem('mtg_key');
+  const m = localStorage.getItem('mtg_model') || 'claude-sonnet-4-6';
+  if (k) document.getElementById('cfg-key').value = k;
+  document.getElementById('cfg-model').value = m;
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   VIEW MANAGEMENT
+═══════════════════════════════════════════════════════════════ */
+const HDR_TITLES = { rec: 'MötesAI', sum: 'Sammanfattning', saved: 'Sparade möten' };
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('bnav-' + name).classList.add('active');
+  document.getElementById('hdr-title').textContent = HDR_TITLES[name];
+  if (name === 'saved') renderSaved();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SETTINGS SHEET
+═══════════════════════════════════════════════════════════════ */
+function openSheet()  { document.getElementById('sheet').classList.add('open'); }
+function closeSheet() { document.getElementById('sheet').classList.remove('open'); }
+function sheetBackdrop(e) { if (e.target === document.getElementById('sheet')) closeSheet(); }
+
+function saveSettings() {
+  const k = document.getElementById('cfg-key').value.trim();
+  const m = document.getElementById('cfg-model').value;
+  if (k) localStorage.setItem('mtg_key', k);
+  localStorage.setItem('mtg_model', m);
+  closeSheet();
+  toast('✓ Inställningar sparade');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════════════════════ */
+function startTimer() {
+  timerTick = setInterval(() => { elapsed++; renderTimer(); }, 1000);
+}
+function stopTimer()  { clearInterval(timerTick); timerTick = null; }
+function resetTimer() { stopTimer(); elapsed = 0; renderTimer(); }
+function renderTimer() {
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  document.getElementById('timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SPEECH RECOGNITION
+═══════════════════════════════════════════════════════════════ */
+function buildRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+
+  const r = new SR();
+  r.lang = 'sv-SE';
+  r.continuous = true;
+  r.interimResults = true;
+  r.maxAlternatives = 1;
+
+  r.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) finalTx += t + ' ';
+      else interim = t;
+    }
+    renderTranscript(interim);
+  };
+
+  r.onerror = e => {
+    if (e.error === 'no-speech' || e.error === 'aborted') return;
+    toast('Taligenkänningsfel: ' + e.error);
+  };
+
+  /* Auto-restart on unexpected end while still recording */
+  r.onend = () => {
+    if (isRecording && !isPaused) {
+      try { r.start(); } catch(_) {}
+    }
+  };
+
+  return r;
+}
+
+function renderTranscript(interim) {
+  const empty = document.getElementById('t-empty');
+  const live  = document.getElementById('transcript-live');
+  const hasTx = finalTx || interim;
+
+  empty.style.display = hasTx ? 'none' : '';
+  live.style.display  = hasTx ? 'block' : 'none';
+
+  document.getElementById('t-final').textContent   = finalTx;
+  document.getElementById('t-interim').textContent = interim;
+
+  const words = finalTx.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('word-count').textContent = words > 0 ? `${words} ord` : '';
+
+  const box = document.getElementById('t-box');
+  box.scrollTop = box.scrollHeight;
+
+  document.getElementById('btn-sum').disabled = !finalTx.trim();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RECORDING CONTROLS
+═══════════════════════════════════════════════════════════════ */
+async function startRec() {
+  if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+    toast('⚠️ Taligenkänning stöds ej i denna webbläsare');
+    return;
+  }
+
+  try {
+    /* Request mic permission — required before SpeechRecognition on iOS */
+    await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+  } catch(_) {
+    toast('⚠️ Mikrofonåtkomst nekad');
+    return;
+  }
+
+  finalTx = '';
+  renderTranscript('');
+  elapsed = 0;
+
+  recognition = buildRecognition();
+  if (!recognition) { toast('Kunde inte starta taligenkänning'); return; }
+
+  isRecording = true;
+  isPaused    = false;
+
+  recognition.start();
+  resetTimer();
+  startTimer();
+  setRecUI('rec');
+}
+
+function togglePause() {
+  if (!isRecording) return;
+  if (!isPaused) {
+    isPaused = true;
+    recognition.stop();   /* onend will NOT restart because isPaused=true */
+    stopTimer();
+    setRecUI('pau');
+  } else {
+    isPaused = false;
+    recognition.start();
+    startTimer();
+    setRecUI('rec');
+  }
+}
+
+function stopRec() {
+  if (!isRecording) return;
+  isRecording = false;
+  isPaused    = false;
+  if (recognition) { recognition.stop(); recognition = null; }
+  stopTimer();
+  setRecUI('idle');
+  /* clear interim */
+  document.getElementById('t-interim').textContent = '';
+  if (finalTx.trim()) {
+    document.getElementById('btn-sum').disabled = false;
+    toast('Inspelning klar – tryck "Sammanfatta möte"');
+  }
+}
+
+function setRecUI(state) {
+  const dot    = document.getElementById('s-dot');
+  const lbl    = document.getElementById('s-lbl');
+  const bStart = document.getElementById('btn-start');
+  const bPause = document.getElementById('btn-pause');
+  const bStop  = document.getElementById('btn-stop');
+  const badge  = document.getElementById('rec-badge');
+
+  dot.className  = 'status-dot';
+  lbl.className  = 'status-lbl';
+
+  if (state === 'rec') {
+    dot.classList.add('rec');
+    lbl.classList.add('rec');
+    lbl.textContent       = 'Spelar in…';
+    bStart.disabled       = true;
+    bPause.disabled       = false;
+    bPause.innerHTML      = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg> Pausa';
+    bStop.disabled        = false;
+    badge.classList.add('show');
+  } else if (state === 'pau') {
+    dot.classList.add('pau');
+    lbl.classList.add('pau');
+    lbl.textContent       = 'Pausad';
+    bStart.disabled       = true;
+    bPause.disabled       = false;
+    bPause.innerHTML      = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Fortsätt';
+    bStop.disabled        = false;
+    badge.classList.remove('show');
+  } else {
+    lbl.textContent       = 'Redo att spela in';
+    bStart.disabled       = false;
+    bPause.disabled       = true;
+    bPause.innerHTML      = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg> Pausa';
+    bStop.disabled        = true;
+    badge.classList.remove('show');
+  }
+}
+
+function newRec() {
+  showView('rec');
+  if (!isRecording) {
+    finalTx = '';
+    renderTranscript('');
+    resetTimer();
+    document.getElementById('btn-sum').disabled = true;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SUMMARIZATION
+═══════════════════════════════════════════════════════════════ */
+async function runSummary() {
+  if (!finalTx.trim()) { toast('Ingen text att sammanfatta'); return; }
+
+  /* Stop recording first if still active */
+  if (isRecording) stopRec();
+
+  showView('sum');
+  viewSumMode = 'new';
+  viewSumIdx  = -1;
+
+  const scroll = document.getElementById('sum-scroll');
+  scroll.innerHTML = `
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <p>Analyserar mötet med AI…</p>
+    </div>`;
+
+  document.getElementById('sum-title').value = '';
+  document.getElementById('sum-meta').textContent = '';
+  document.getElementById('btn-save').disabled = true;
+
+  const apiKey = localStorage.getItem('mtg_key') || '';
+  if (!apiKey) {
+    scroll.innerHTML = `
+      <div class="error-box">
+        <span class="err-icon">⚙️</span>
+        <h3>API-nyckel saknas</h3>
+        <p>Ange din Anthropic API-nyckel under inställningarna (⚙️) och försök igen.</p>
+        <button class="btn btn-primary btn-sm" onclick="openSheet()" style="margin-top:12px">Öppna inställningar</button>
+      </div>`;
+    return;
+  }
+
+  const model = localStorage.getItem('mtg_model') || 'claude-sonnet-4-6';
+
+  const PROMPT = `Du är en professionell mötessekreterare. Analysera mötestransskriptet nedan och svara ENBART med ett giltigt JSON-objekt – inga markdown-koder, inga backticks, ingen text utanför JSON.
+
+JSON-struktur (exakt dessa fält):
+{
+  "titel": "Kort mötestitel, max 5 ord",
+  "sammanfattning": "2–4 meningar som sammanfattar mötet",
+  "prioriteringar": [
+    { "uppgift": "Beskrivning", "prioritet": "hög|medel|låg", "ansvarig": "Namn eller null" }
+  ],
+  "beslut": ["Beslut 1", "Beslut 2"]
+}
+
+Transskript:
+${finalTx.slice(0, 12000)}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: PROMPT }]
+      })
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status}: ${errBody.slice(0, 120)}`);
+    }
+
+    const data = await res.json();
+    const raw  = data.content?.[0]?.text || '';
+
+    let parsed;
+    try {
+      const jsonStr = raw.match(/\{[\s\S]*\}/)?.[0] ?? raw;
+      parsed = JSON.parse(jsonStr);
+    } catch(_) {
+      throw new Error('Kunde inte tolka JSON-svaret från AI');
+    }
+
+    const now = new Date();
+    curSummary = {
+      id:           Date.now().toString(),
+      date:         now.toISOString(),
+      title:        parsed.titel || 'Möte ' + now.toLocaleDateString('sv-SE'),
+      transcript:   finalTx,
+      summary:      parsed.sammanfattning || '',
+      priorities:   Array.isArray(parsed.prioriteringar) ? parsed.prioriteringar : [],
+      decisions:    Array.isArray(parsed.beslut)         ? parsed.beslut         : [],
+      duration:     elapsed,
+      model
+    };
+
+    document.getElementById('sum-title').value = curSummary.title;
+    document.getElementById('sum-meta').textContent =
+      fmtDate(now) + (elapsed ? ` · ${fmtDur(elapsed)}` : '') + ` · ${model}`;
+    document.getElementById('btn-save').disabled = false;
+
+    renderSummaryCards(scroll, curSummary, false);
+
+  } catch(err) {
+    console.error(err);
+    scroll.innerHTML = `
+      <div class="error-box">
+        <span class="err-icon">❌</span>
+        <h3>Något gick fel</h3>
+        <p>${esc(err.message)}</p>
+        <button class="btn btn-ghost btn-sm" onclick="runSummary()" style="margin-top:12px">Försök igen</button>
+      </div>`;
+  }
+}
+
+function renderSummaryCards(container, mtg, showTranscript) {
+  const pClass = { 'hög':'chip-hog', 'high':'chip-hog',
+                   'medel':'chip-med', 'medium':'chip-med',
+                   'låg':'chip-lag',  'low':'chip-lag' };
+  const pLabel = { 'hög':'HÖG','high':'HÖG',
+                   'medel':'MEDEL','medium':'MEDEL',
+                   'låg':'LÅG','low':'LÅG' };
+
+  let html = '';
+
+  /* Summary */
+  html += `<div class="card"><p class="card-label">📋 Sammanfattning</p><p class="card-text">${esc(mtg.summary)}</p></div>`;
+
+  /* Priorities */
+  if (mtg.priorities?.length) {
+    html += `<div class="card"><p class="card-label">🎯 Åtgärdspunkter</p>`;
+    mtg.priorities.forEach(p => {
+      const key = (p.prioritet || '').toLowerCase();
+      const cls = pClass[key] || 'chip-med';
+      const lbl = pLabel[key] || (p.prioritet || 'MEDEL').toUpperCase();
+      html += `
+        <div class="prio-row">
+          <span class="prio-chip ${cls}">${lbl}</span>
+          <div class="prio-body">
+            <p class="prio-task">${esc(p.uppgift || '')}</p>
+            ${p.ansvarig ? `<p class="prio-who">👤 ${esc(p.ansvarig)}</p>` : ''}
+          </div>
+        </div>`;
+    });
+    html += `</div>`;
+  }
+
+  /* Decisions */
+  if (mtg.decisions?.length) {
+    html += `<div class="card"><p class="card-label">✅ Beslut</p>`;
+    mtg.decisions.forEach(d => {
+      html += `<div class="beslut-row"><span class="beslut-check">✓</span>${esc(d)}</div>`;
+    });
+    html += `</div>`;
+  }
+
+  /* Transcript (only in view mode) */
+  if (showTranscript && mtg.transcript) {
+    html += `
+      <div class="card">
+        <p class="card-label">📝 Transskript</p>
+        <p class="card-text" style="white-space:pre-wrap;max-height:220px;overflow-y:auto;font-size:13px;color:var(--muted)">${esc(mtg.transcript)}</p>
+      </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SAVE / LOAD
+═══════════════════════════════════════════════════════════════ */
+function saveMeeting() {
+  if (!curSummary) return;
+
+  curSummary.title = document.getElementById('sum-title').value.trim() || curSummary.title;
+
+  if (viewSumMode === 'view' && viewSumIdx >= 0) {
+    meetings[viewSumIdx] = curSummary;
+  } else {
+    const existing = meetings.findIndex(m => m.id === curSummary.id);
+    if (existing >= 0) meetings[existing] = curSummary;
+    else meetings.unshift(curSummary);
+  }
+
+  localStorage.setItem('mtg_v2', JSON.stringify(meetings));
+
+  const btn = document.getElementById('btn-save');
+  btn.textContent = '✓ Sparat';
+  btn.disabled = true;
+  toast('Mötet sparades ✓');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SAVED MEETINGS VIEW
+═══════════════════════════════════════════════════════════════ */
+function renderSaved() {
+  const container = document.getElementById('saved-scroll');
+  if (!meetings.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+        <h3>Inga sparade möten</h3>
+        <p>Starta en inspelning och spara sammanfattningen.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = meetings.map((m, i) => `
+    <div class="mtg-item">
+      <div class="mtg-icon">🎙️</div>
+      <div class="mtg-info" onclick="openMeeting(${i})">
+        <p class="mtg-name">${esc(m.title)}</p>
+        <p class="mtg-sub">${fmtDate(new Date(m.date))}${m.duration ? ' · ' + fmtDur(m.duration) : ''}</p>
+      </div>
+      <div class="mtg-btns">
+        <button class="icon-btn" onclick="renameMeeting(${i})" title="Byt namn">✏️</button>
+        <button class="icon-btn del" onclick="deleteMeeting(${i})" title="Radera">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function openMeeting(idx) {
+  const m = meetings[idx];
+  if (!m) return;
+
+  viewSumMode = 'view';
+  viewSumIdx  = idx;
+  curSummary  = { ...m };
+
+  document.getElementById('sum-title').value = m.title;
+  document.getElementById('sum-meta').textContent =
+    fmtDate(new Date(m.date)) + (m.duration ? ` · ${fmtDur(m.duration)}` : '');
+  document.getElementById('btn-save').disabled = false;
+  document.getElementById('btn-save').textContent = '💾 Uppdatera';
+
+  renderSummaryCards(document.getElementById('sum-scroll'), m, true);
+  showView('sum');
+}
+
+function renameMeeting(idx) {
+  const m = meetings[idx];
+  const t = prompt('Nytt namn:', m.title);
+  if (t?.trim()) {
+    meetings[idx].title = t.trim();
+    localStorage.setItem('mtg_v2', JSON.stringify(meetings));
+    renderSaved();
+    toast('Namn ändrat');
+  }
+}
+
+function deleteMeeting(idx) {
+  if (!confirm(`Radera "${meetings[idx].title}"?`)) return;
+  meetings.splice(idx, 1);
+  localStorage.setItem('mtg_v2', JSON.stringify(meetings));
+  renderSaved();
+  toast('Möte raderat');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════════════ */
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s ?? '';
+  return d.innerHTML;
+}
+
+function fmtDate(d) {
+  return d.toLocaleDateString('sv-SE', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+function fmtDur(sec) {
+  return `${Math.floor(sec/60)}:${(sec%60).toString().padStart(2,'0')}`;
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>
