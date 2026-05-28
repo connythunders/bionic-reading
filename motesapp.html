@@ -961,7 +961,8 @@ ${finalTx.slice(0, 12000)}`;
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-request-unsafe-browser-intl-api': 'true'
       },
       body: JSON.stringify({
         model,
@@ -1008,12 +1009,17 @@ ${finalTx.slice(0, 12000)}`;
 
   } catch(err) {
     console.error(err);
+    const isCors = err instanceof TypeError && err.message.includes('fetch');
+    const hint = isCors
+      ? 'Kontrollera att API-nyckeln är korrekt (⚙️). Öppna appen i Safari på iPhone – Chrome och Firefox stöder inte CORS-anrop härifrån.'
+      : '';
     scroll.innerHTML = `
       <div class="error-box">
         <span class="err-icon">❌</span>
         <h3>Något gick fel</h3>
         <p>${esc(err.message)}</p>
-        <button class="btn btn-ghost btn-sm" onclick="runSummary()" style="margin-top:12px">Försök igen</button>
+        ${hint ? `<p style="margin-top:8px;font-size:13px;color:var(--warning)">${hint}</p>` : ''}
+        <button class="btn btn-ghost btn-sm" onclick="runSummary()" style="margin-top:14px">Försök igen</button>
       </div>`;
   }
 }
