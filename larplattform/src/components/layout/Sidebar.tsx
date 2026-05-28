@@ -5,19 +5,13 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { GroupIcon } from '@/components/shared/GroupIcon'
-import { currentUser } from '@/data/user'
+import { teacherUser, studentUser } from '@/data/user'
 import { groups } from '@/data/groups'
+import { useRole } from '@/context/RoleContext'
 
 type Props = {
   isOpen: boolean
 }
-
-const navItems = [
-  { to: '/',          icon: Home,         label: 'Min startsida' },
-  { to: '/notiser',   icon: Bell,         label: 'Notiser',      badge: currentUser.notificationCount },
-  { to: '/hitta',     icon: Search,       label: 'Hitta' },
-  { to: '/skolbanken', icon: BookOpen,    label: 'Skolbanken' },
-]
 
 const bottomItems = [
   { icon: Palette,       label: 'Byt tema',   href: '#' },
@@ -27,6 +21,19 @@ const bottomItems = [
 ]
 
 export function Sidebar({ isOpen }: Props) {
+  const { role } = useRole()
+  const user = role === 'teacher' ? teacherUser : studentUser
+  const visibleGroups = role === 'student'
+    ? groups.filter(g => studentUser.enrolledGroupIds.includes(g.id))
+    : groups
+
+  const navItems = [
+    { to: '/',           icon: Home,     label: 'Min startsida' },
+    { to: '/notiser',    icon: Bell,     label: 'Notiser', badge: user.notificationCount },
+    { to: '/hitta',      icon: Search,   label: 'Hitta' },
+    { to: '/skolbanken', icon: BookOpen, label: 'Skolbanken' },
+  ]
+
   return (
     <aside
       className={cn(
@@ -84,7 +91,7 @@ export function Sidebar({ isOpen }: Props) {
             SI
           </span>
           <span className="text-sm text-gray-700 dark:text-gray-200 flex-1 truncate leading-tight">
-            {currentUser.school}
+            {user.school}
           </span>
           <ChevronRight size={14} className="text-gray-400 flex-shrink-0" aria-hidden="true" />
         </button>
@@ -95,10 +102,10 @@ export function Sidebar({ isOpen }: Props) {
       {/* Groups */}
       <div className="px-3 py-3 flex-1">
         <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
-          Grupper
+          {role === 'student' ? 'Mina kurser' : 'Grupper'}
         </p>
         <ul className="space-y-0.5 list-none m-0 p-0" role="list">
-          {groups.map(group => (
+          {visibleGroups.map(group => (
             <li key={group.id}>
               <NavLink
                 to={`/grupp/${group.id}`}

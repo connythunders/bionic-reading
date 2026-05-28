@@ -1,44 +1,78 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { DashboardView } from '@/views/DashboardView'
 import { MessagesView } from '@/views/MessagesView'
 import { CalendarView } from '@/views/CalendarView'
 import { AssignmentsView } from '@/views/AssignmentsView'
 import { GroupView } from '@/views/GroupView'
+import { StudentDashboardView } from '@/views/student/StudentDashboardView'
+import { StudentAssignmentsView } from '@/views/student/StudentAssignmentsView'
+import { SubmitAssignmentView } from '@/views/student/SubmitAssignmentView'
+import { CreateAssignmentView } from '@/views/teacher/CreateAssignmentView'
+import { AssignmentDetailView } from '@/views/teacher/AssignmentDetailView'
 import { useAccessibility } from '@/hooks/useAccessibility'
+import { RoleProvider, useRole } from '@/context/RoleContext'
 
-function App() {
+function AppRoutes() {
   const accessibility = useAccessibility()
+  const { role } = useRole()
+
+  const shellProps = {
+    theme: accessibility.theme,
+    setTheme: accessibility.setTheme,
+    fontSize: accessibility.fontSize,
+    setFontSize: accessibility.setFontSize,
+    dyslexiaFont: accessibility.dyslexiaFont,
+    setDyslexiaFont: accessibility.setDyslexiaFont,
+    focusMode: accessibility.focusMode,
+    setFocusMode: accessibility.setFocusMode,
+  }
 
   return (
-    <BrowserRouter>
-      <Routes>
+    <Routes>
+      <Route element={<AppShell {...shellProps} />}>
+        {/* Home — role-dependent */}
         <Route
-          element={
-            <AppShell
-              theme={accessibility.theme}
-              setTheme={accessibility.setTheme}
-              fontSize={accessibility.fontSize}
-              setFontSize={accessibility.setFontSize}
-              dyslexiaFont={accessibility.dyslexiaFont}
-              setDyslexiaFont={accessibility.setDyslexiaFont}
-              focusMode={accessibility.focusMode}
-              setFocusMode={accessibility.setFocusMode}
-            />
-          }
-        >
-          <Route index element={<DashboardView />} />
-          <Route path="meddelanden" element={<MessagesView />} />
-          <Route path="kalender" element={<CalendarView />} />
-          <Route path="uppgifter" element={<AssignmentsView />} />
-          <Route path="uppgifter/:id" element={<AssignmentsView />} />
-          <Route path="grupp/:id" element={<GroupView />} />
-          <Route path="notiser" element={<PlaceholderView title="Notiser" text="Inga nya notiser." />} />
-          <Route path="hitta" element={<PlaceholderView title="Hitta" text="Sökfunktion kommer snart." />} />
-          <Route path="skolbanken" element={<PlaceholderView title="Skolbanken" text="Integreras med Skolbanken API." />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          index
+          element={role === 'teacher' ? <DashboardView /> : <StudentDashboardView />}
+        />
+
+        {/* Shared views */}
+        <Route path="meddelanden" element={<MessagesView />} />
+        <Route path="kalender"    element={<CalendarView />} />
+        <Route path="grupp/:id"   element={<GroupView />} />
+        <Route path="notiser"     element={<PlaceholderView title="Notiser" text="Inga nya notiser." />} />
+        <Route path="hitta"       element={<PlaceholderView title="Hitta" text="Sökfunktion kommer snart." />} />
+        <Route path="skolbanken"  element={<PlaceholderView title="Skolbanken" text="Integreras med Skolbanken API." />} />
+
+        {/* Teacher-only routes */}
+        {role === 'teacher' && (
+          <>
+            <Route path="uppgifter"       element={<AssignmentsView />} />
+            <Route path="uppgifter/skapa" element={<CreateAssignmentView />} />
+            <Route path="uppgifter/:id"   element={<AssignmentDetailView />} />
+          </>
+        )}
+
+        {/* Student-only routes */}
+        {role === 'student' && (
+          <>
+            <Route path="uppgifter"     element={<StudentAssignmentsView />} />
+            <Route path="uppgifter/:id" element={<SubmitAssignmentView />} />
+          </>
+        )}
+      </Route>
+    </Routes>
+  )
+}
+
+function App() {
+  return (
+    <RoleProvider>
+      <HashRouter>
+        <AppRoutes />
+      </HashRouter>
+    </RoleProvider>
   )
 }
 

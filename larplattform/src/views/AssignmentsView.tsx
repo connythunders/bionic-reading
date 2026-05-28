@@ -55,6 +55,7 @@ export function AssignmentsView() {
             <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Uppgifter</h1>
           </div>
           <button
+            onClick={() => navigate('/uppgifter/skapa')}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-green-700 hover:bg-green-800 text-white rounded-lg transition-colors"
             aria-label="Skapa ny uppgift"
           >
