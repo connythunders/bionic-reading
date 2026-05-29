@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt-labb för lärare åk 7–9</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:    #2563eb;
+      --blue-lt: #dbeafe;
+      --green:   #16a34a;
+      --green-lt:#dcfce7;
+      --amber:   #d97706;
+      --amber-lt:#fef3c7;
+      --purple:  #7c3aed;
+      --purple-lt:#ede9fe;
+      --rose:    #e11d48;
+      --rose-lt: #ffe4e6;
+      --teal:    #0d9488;
+      --teal-lt: #ccfbf1;
+      --indigo:  #4338ca;
+      --indigo-lt:#e0e7ff;
+      --slate:   #475569;
+      --bg:      #f1f5f9;
+      --card:    #ffffff;
+      --border:  #e2e8f0;
+      --text:    #0f172a;
+      --muted:   #64748b;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 40%, #7c3aed 100%);
+      color: #fff;
+      padding: 56px 24px 48px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 999px;
+      padding: 4px 14px;
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      opacity: .85;
+      max-width: 580px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
+    }
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 1.9rem; font-weight: 800; }
+    .stat-lbl { font-size: .78rem; opacity: .75; text-transform: uppercase; letter-spacing: .05em; }
+
+    /* ── MAIN LAYOUT ── */
+    .main { max-width: 1200px; margin: 0 auto; padding: 36px 20px 60px; }
+
+    /* ── SEARCH + FILTERS ── */
+    .toolbar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .search-row { position: relative; }
+    .search-row svg {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); pointer-events: none;
+    }
+    #search {
+      width: 100%;
+      padding: 11px 14px 11px 42px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: .95rem;
+      background: var(--bg);
+      outline: none;
+      transition: border-color .15s;
+    }
+    #search:focus { border-color: var(--blue); }
+
+    .filter-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .filter-label { font-size: .8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-right: 4px; }
+
+    .chip {
+      padding: 5px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-size: .83rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      color: var(--slate);
+      white-space: nowrap;
+    }
+    .chip:hover { border-color: var(--blue); color: var(--blue); }
+    .chip.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+    /* ── RESULT COUNT ── */
+    .result-count {
+      font-size: .88rem;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+    .result-count span { font-weight: 700; color: var(--text); }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .card:hover { box-shadow: 0 8px 32px rgba(0,0,0,.1); transform: translateY(-2px); }
+
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .tag-subject {}
+    .tag-diff {}
+
+    /* difficulty colours */
+    .diff-grund  { background: var(--green-lt);  color: var(--green);  }
+    .diff-mellan { background: var(--amber-lt);  color: var(--amber);  }
+    .diff-avance { background: var(--rose-lt);   color: var(--rose);   }
+
+    /* subject colours */
+    .subj-svenska   { background: var(--blue-lt);   color: var(--blue);   }
+    .subj-matematik { background: var(--rose-lt);    color: var(--rose);   }
+    .subj-so        { background: var(--amber-lt);   color: var(--amber);  }
+    .subj-no        { background: var(--green-lt);   color: var(--green);  }
+    .subj-engelska  { background: var(--indigo-lt);  color: var(--indigo); }
+    .subj-bedömning { background: var(--purple-lt);  color: var(--purple); }
+    .subj-planering { background: var(--teal-lt);    color: var(--teal);   }
+    .subj-elevhälsa { background: #fce7f3;           color: #be185d;       }
+    .subj-idrott    { background: #ecfdf5;           color: #065f46;       }
+    .subj-bild      { background: #fff7ed;           color: #c2410c;       }
+    .subj-musik     { background: #f0fdf4;           color: #166534;       }
+    .subj-teknik    { background: var(--indigo-lt);  color: var(--indigo); }
+    .subj-hem       { background: #fdf2f8;           color: #9d174d;       }
+
+    .card h3 { font-size: 1rem; font-weight: 700; line-height: 1.4; }
+    .card-desc { font-size: .88rem; color: var(--muted); line-height: 1.6; flex: 1; }
+
+    .card-footer { display: flex; flex-direction: column; gap: 10px; }
+    .prompt-preview {
+      background: var(--bg);
+      border-left: 3px solid var(--blue);
+      border-radius: 0 8px 8px 0;
+      padding: 10px 12px;
+      font-size: .8rem;
+      color: var(--slate);
+      line-height: 1.55;
+      font-style: italic;
+      max-height: 90px;
+      overflow: hidden;
+      position: relative;
+    }
+    .prompt-preview::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 28px;
+      background: linear-gradient(transparent, var(--bg));
+    }
+
+    .btn-copy {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: none;
+      background: var(--blue);
+      color: #fff;
+      font-size: .86rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+    }
+    .btn-copy:hover { background: #1d4ed8; }
+    .btn-copy:active { transform: scale(.97); }
+    .btn-copy.copied { background: var(--green); }
+
+    .no-results {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .no-results svg { opacity: .3; margin-bottom: 12px; }
+    .no-results p { font-size: 1rem; }
+
+    @media (max-width: 600px) {
+      .stats { gap: 20px; }
+      .hero { padding: 40px 16px 36px; }
+      .main { padding: 24px 14px 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge">
+    <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+    Lgr22-anpassat • Åk 7–9
+  </div>
+  <h1>Prompt-labb för lärare<br>i grundskolans högstadium</h1>
+  <p>Välkurerade AI-prompts för undervisning, bedömning och planering – anpassade till Lgr22 och svenska grundskolans åk 7–9.</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="totalCount">50</div><div class="stat-lbl">Prompts</div></div>
+    <div class="stat"><div class="stat-num">13</div><div class="stat-lbl">Ämnen</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-lbl">Nivåer</div></div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="toolbar">
+    <div class="search-row">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Sök prompt, ämne eller nyckelord…">
+    </div>
+    <div class="filter-row" id="subjectFilters">
+      <span class="filter-label">Ämne</span>
+      <button class="chip active" data-filter="subject" data-value="alla">Alla ämnen</button>
+      <button class="chip" data-filter="subject" data-value="svenska">Svenska</button>
+      <button class="chip" data-filter="subject" data-value="matematik">Matematik</button>
+      <button class="chip" data-filter="subject" data-value="so">SO</button>
+      <button class="chip" data-filter="subject" data-value="no">NO</button>
+      <button class="chip" data-filter="subject" data-value="engelska">Engelska</button>
+      <button class="chip" data-filter="subject" data-value="bedömning">Bedömning</button>
+      <button class="chip" data-filter="subject" data-value="planering">Planering</button>
+      <button class="chip" data-filter="subject" data-value="elevhälsa">Elevhälsa</button>
+    </div>
+    <div class="filter-row" id="diffFilters">
+      <span class="filter-label">Nivå</span>
+      <button class="chip active" data-filter="diff" data-value="alla">Alla nivåer</button>
+      <button class="chip" data-filter="diff" data-value="grund">Grundnivå</button>
+      <button class="chip" data-filter="diff" data-value="mellan">Mellannivå</button>
+      <button class="chip" data-filter="diff" data-value="avance">Avancerad</button>
+    </div>
+  </div>
+
+  <p class="result-count">Visar <span id="showCount">50</span> av <span id="ofCount">50</span> prompts</p>
+
+  <div class="grid" id="grid"></div>
+</main>
+
+<script>
+const prompts = [
+  // ── SVENSKA ──
+  {
+    subject: "svenska",
+    diff: "grund",
+    title: "Skapa en lättläst förklaring av ett litterärt begrepp",
+    desc: "Generera en elevvänlig förklaring av ett litterärt begrepp med exempel från populärkultur som elever i åk 7 känner igen.",
+    prompt: "Du är en erfaren SVA-lärare för åk 7. Förklara begreppet [BEGREPP] på ett lättillgängligt sätt med minst två exempel från film, serier eller böcker som tonåringar känner till. Avsluta med en enkel övningsfråga."
+  },
+  {
+    subject: "svenska",
+    diff: "grund",
+    title: "Anpassa en text till olika läsnivåer",
+    desc: "Ta en befintlig faktaText och producera tre versioner: enkel, standard och utmanande – utan att ändra innehållets kärna.",
+    prompt: "Här är en text: [KLISTRA IN TEXT]. Skriv om den i tre versioner för åk 7–9: (1) Enkel – korta meningar, vanliga ord. (2) Standard – kursplansnivå. (3) Utmanande – akademiskt språk med facktermer. Behåll alla fakta men anpassa ordförråd och meningsbyggnad."
+  },
+  {
+    subject: "svenska",
+    diff: "mellan",
+    title: "Argumentationsanalys med responsprotokoll",
+    desc: "Låt AI:n analysera en elevtext utifrån argumentationsstruktur och ge konstruktiv återkoppling.",
+    prompt: "Analysera följande elevuppsats skriven av en elev i åk 8: [KLISTRA IN TEXT]. Identifiera: (1) tydlig tes, (2) argument och belägg, (3) motargument, (4) slutsats. Ge sedan tre konkreta förbättringsförslag formulerade som frågor eleven kan ställa sig själv. Avsluta med ett uppmuntrande omdöme."
+  },
+  {
+    subject: "svenska",
+    diff: "mellan",
+    title: "Generera diskussionsfrågor till skönlitteratur",
+    desc: "Skapa Socratiska diskussionsfrågor på tre kognitiva nivåer för ett litterärt verk.",
+    prompt: "Boken vi läser är [TITEL] av [FÖRFATTARE]. Skapa 9 diskussionsfrågor – 3 faktafrågor (återberättande), 3 tolkningsfrågor (vad menar författaren?) och 3 värderingsfrågor (vad tycker du och varför?). Anpassa frågorna för elever i åk 8."
+  },
+  {
+    subject: "svenska",
+    diff: "avance",
+    title: "Planera en skrivprocess i fyra steg",
+    desc: "Designa en komplett skrivprocess för en argumenterande text med formativ bedömning inbyggd i varje steg.",
+    prompt: "Hjälp mig designa en 3-veckors skrivprocess för åk 9 kring en argumenterande text om [ÄMNE]. Inkludera: (1) Brainstorming och planering, (2) Utkast med kamratrespons, (3) Revidering utifrån kunskapskrav C i Lgr22, (4) Publicering/presentation. Ange mål, aktivitet, formativ bedömningsmetod och tidsåtgång per steg."
+  },
+  {
+    subject: "svenska",
+    diff: "avance",
+    title: "Skapa ett bedömningsschema för muntlig presentation",
+    desc: "Generera ett detaljerat matrisbaserat bedömningsschema för muntlig presentation anpassat till Lgr22:s kunskapskrav.",
+    prompt: "Skapa ett bedömningsschema (matris) för muntlig presentation i svenska åk 9. Raderna ska vara: innehåll och fakta, struktur och disposition, språk och ordval, kroppsspråk och röst, publikanpassning. Kolumnerna: under godkänt, E, C, A. Basera kriterierna på Lgr22. Formatet: tabell i markdown."
+  },
+
+  // ── MATEMATIK ──
+  {
+    subject: "matematik",
+    diff: "grund",
+    title: "Förklara ett matematiskt begrepp med vardagsexempel",
+    desc: "Gör ett abstrakt matematiskt begrepp konkret med exempel från elevernas vardag.",
+    prompt: "Förklara [MATEMATISKT BEGREPP] för en elev i åk 7 som tycker matematik är svårt. Använd ett vardagligt exempel (t.ex. pengar, sport, mat), rita en mental bild med ord och lägg till ett enkelt räkneexempel som eleven kan lösa med miniräknare. Max 150 ord."
+  },
+  {
+    subject: "matematik",
+    diff: "grund",
+    title: "Generera differentierade övningsuppgifter",
+    desc: "Skapa en uppsättning uppgifter på tre svårighetsgrader för samma matematikmoment.",
+    prompt: "Skapa 5 uppgifter per nivå (totalt 15) om [MATEMATIK-OMRÅDE] för åk 7–9. Nivå 1 (stöd): procedurmässig träning med tydlig struktur. Nivå 2 (standard): tillämpning i nya sammanhang. Nivå 3 (utmaning): öppna problem och resonemang. Ange vilket kunskapskrav i Lgr22 varje nivå primärt tränar."
+  },
+  {
+    subject: "matematik",
+    diff: "mellan",
+    title: "Felanalys – vad tänker eleven fel?",
+    desc: "Analysera ett vanligt elevmisstag och föreslå hur läraren bör bemöta missförståndet.",
+    prompt: "En elev i åk 8 gör följande misstag när de löser [UPPGIFTSTYP]: [BESKRIV FELET]. Analysera: (1) Vilket matematiskt missförstånd ligger troligtvis bakom? (2) Hur kan jag som lärare ställa frågor som hjälper eleven att hitta felet själv? (3) Föreslå en konkret övning som adresserar just detta missförstånd."
+  },
+  {
+    subject: "matematik",
+    diff: "mellan",
+    title: "Skapa en problemlösningslektion i samarbete",
+    desc: "Bygg upp en lektion kring ett öppet problem som uppmuntrar matematiskt samtal.",
+    prompt: "Designa en 60-minuterslektion i matematik för åk 8 kring det öppna problemet: [PROBLEM]. Strukturera lektionen i: uppstart (10 min), pararbete (20 min), helklassdiskussion (20 min), reflektion (10 min). Ange vilka matematiska förmågor enligt Lgr22 som tränas och hur jag som lärare stödjer samtalet utan att ge svaret."
+  },
+  {
+    subject: "matematik",
+    diff: "avance",
+    title: "Designa ett autentiskt bedömningsuppdrag",
+    desc: "Skapa ett projektbaserat bedömningsuppdrag där eleven tillämpar matematik i ett verkligt sammanhang.",
+    prompt: "Skapa ett autentiskt bedömningsuppdrag i matematik för åk 9 med temat [TEMA, t.ex. privatekonomi, statistik]. Eleven ska: samla in och tolka data, genomföra beräkningar, dra slutsatser och presentera resultaten. Ange examinationsform, bedömningsaspekter (E/C/A enligt Lgr22) och hur uppdraget kan anpassas för elever i behov av extra anpassningar."
+  },
+  {
+    subject: "matematik",
+    diff: "avance",
+    title: "Koppla matematik till Agenda 2030",
+    desc: "Integrera hållbarhetsmål med matematik för ett ämnesövergripande projekt.",
+    prompt: "Hjälp mig planera ett ämnesövergripande projekt för åk 9 där matematik används för att analysera [HÅLLBARHETSMÅL, t.ex. klimatdata, ojämlikhet]. Inkludera: centrala matematiska innehåll (statistik, proportionalitet, algebra), koppling till Lgr22-mål i matematik och SO, tre lektionstillfällen med lärarmaterial, och en formativ checkpunkt per tillfälle."
+  },
+
+  // ── SO ──
+  {
+    subject: "so",
+    diff: "grund",
+    title: "Tidslinje-aktivitet för historieundervisning",
+    desc: "Skapa material för en interaktiv tidslinjeövning om ett historiskt skeende.",
+    prompt: "Skapa en tidslinjeövning om [HISTORISKT SKEENDE] för åk 7. Ge mig: 10 nyckelårtalet med korta förklaringar (max 30 ord/händelse), 5 diskussionsfrågor om orsak och verkan, och ett tips på hur eleverna kan göra tidslinjens egna digitala version i [VERKTYG, t.ex. Canva, Google Slides]."
+  },
+  {
+    subject: "so",
+    diff: "grund",
+    title: "Förenkla en nyhetsartikel för klassrumsdiskussion",
+    desc: "Omvandla en komplex nyhetstext till ett tillgängligt klassrumsunderlag med diskussionsfrågor.",
+    prompt: "Klistra in nyhetstexten: [TEXT]. Gör om den till ett klassrumsunderlag för åk 7–8: (1) Sammanfattning i 100 ord med enkelt språk. (2) Ordlista med 5 svåra ord förklarade. (3) Tre diskussionsfrågor på olika kognitiva nivåer. (4) En koppling till ett kunskapskrav i SO Lgr22."
+  },
+  {
+    subject: "so",
+    diff: "mellan",
+    title: "Rollspel om ett historiskt dilemma",
+    desc: "Bygg upp ett klassrumsrollspel kring ett etiskt historiskt val.",
+    prompt: "Designa ett rollspel för åk 8 kring det historiska dilemmat: [DILEMMA, t.ex. Berlinmurens fall, flyktingmottagning under WWII]. Ge mig: 5 roller med kort bakgrund och intressen, 3 diskussionsfrågor, ett manus för läraren att leda diskussionen, och en reflektion efteråt som kopplar till historiskt tänkande i Lgr22."
+  },
+  {
+    subject: "so",
+    diff: "mellan",
+    title: "Källkritisk analys – workshop",
+    desc: "Skapa en källkritikworkshop med konkreta övningar för åk 8.",
+    prompt: "Planera en 80-minutersworkshop i källkritik för åk 8. Innehåll: vad är SKVADER-metoden? (introduktion 15 min), par-granskning av tre webbsidor om [ÄMNE] (25 min), helklassdiskussion (15 min), individuell skriftlig reflektion (15 min), summering (10 min). Ge mig lärarmanus, tre konkreta webbadresser eller typer av källor att använda, och bedömningsaspekter."
+  },
+  {
+    subject: "so",
+    diff: "avance",
+    title: "Designa ett samhällsvetenskapligt fördjupningsarbete",
+    desc: "Skapa en komplett projektplan för ett fördjupningsarbete i samhällskunskap eller historia för åk 9.",
+    prompt: "Hjälp mig designa ett 4-veckors fördjupningsarbete för åk 9 i [SO-ÄMNE]. Inkludera: syfte och frågeställning, arbetsprocess med hållpunkter, krav på källor (antal och typ), presentationsform, bedömningsmatris (E/C/A enligt Lgr22) och tre förslag på ämnesval som engagerar tonåringar 2024."
+  },
+  {
+    subject: "so",
+    diff: "avance",
+    title: "Skapa ett simulerat FN-möte",
+    desc: "Förbered ett klassrumsbaserat FN-rollspel om en aktuell global fråga.",
+    prompt: "Förbered ett simulerat FN-möte för åk 9 om [GLOBAL FRÅGA]. Skapa: 8 landsroller med bakgrund, intressen och föreslagen ståndpunkt, mötesordning och regler, tre resolutionsförslag att ta ställning till, och en reflektionsövning efteråt som kopplar till demokratibegreppet i SO Lgr22."
+  },
+
+  // ── NO ──
+  {
+    subject: "no",
+    diff: "grund",
+    title: "Förklara ett naturvetenskapligt begrepp visuellt",
+    desc: "Skapa en steg-för-steg-förklaring av ett NO-begrepp med analogier och visualiseringsuppmaningar.",
+    prompt: "Förklara [NO-BEGREPP] för en elev i åk 7 med hjälp av: (1) en analogi till vardagen, (2) ett enkelt diagram beskrivet i text som eleven kan rita, (3) tre saker begreppet INTE är (vanliga missuppfattningar). Anpassa språket till mellanstadieövergång."
+  },
+  {
+    subject: "no",
+    diff: "grund",
+    title: "Skapa ett labprotokoll för enkel undersökning",
+    desc: "Generera ett elevvänligt labprotokoll med syfte, hypotes, metod och reflektionsfrågor.",
+    prompt: "Skriv ett labprotokoll för åk 7 för undersökningen: [BESKRIV UNDERSÖKNING]. Inkludera: syfte (1 mening), hypotes (eleverna fyller i), materiallista, steg-för-steg-metod med säkerhetsanvisningar, observationstabell, slutsatsfrågor och koppling till kunskapskrav i NO Lgr22."
+  },
+  {
+    subject: "no",
+    diff: "mellan",
+    title: "Bygg upp ett argumenterat naturvetenskapligt resonemang",
+    desc: "Träna eleverna i att resonera naturvetenskapligt med påstående–belägg–slutledning (PBS).",
+    prompt: "Designa en skrivövning för åk 8 i [NO-ÄMNE] där eleverna använder PBS-modellen (Påstående–Belägg–Slutledning). Ge mig: fyra påståenden av varierande svårighetsgrad, instruktioner för hur eleverna hittar belägg (laborationsdata, lärobokstext, webbkälla), ett exempelresonemang som läraren visar, och bedömningskriterier kopplade till Lgr22."
+  },
+  {
+    subject: "no",
+    diff: "mellan",
+    title: "Koppla NO till samhällsfrågor – etik och hållbarhet",
+    desc: "Skapa ett diskussionsunderlag som kopplar naturvetenskap till etiska och hållbara perspektiv.",
+    prompt: "Skapa ett diskussionsunderlag för åk 8 kring frågan: [SAMHÄLLSFRÅGA MED NO-KOPPLING, t.ex. kärnkraft, vaccin, GMO]. Inkludera: faktabas (150 ord), tre perspektiv (naturvetenskapligt, etiskt, ekonomiskt), fem diskussionsfrågor och en avslutande skrivuppgift kopplad till kunskapskraven i Lgr22 NO."
+  },
+  {
+    subject: "no",
+    diff: "avance",
+    title: "Planera ett ämnesövergripande naturvetenskapsprojekt",
+    desc: "Bygg ett projekt som integrerar biologi, kemi och fysik kring ett gemensamt tema.",
+    prompt: "Designa ett 3-veckors ämnesövergripande projekt för åk 9 med temat [TEMA, t.ex. kroppen och kemi, energi och klimat]. Integrera minst två NO-ämnen. Ange: övergripande frågeställning, vilka Lgr22-mål som uppnås per ämne, lektionsstruktur, undersökning eller experiment, presentation och bedömningsform med matris."
+  },
+
+  // ── ENGELSKA ──
+  {
+    subject: "engelska",
+    diff: "grund",
+    title: "Skapa vokabulärövningar kring ett tema",
+    desc: "Generera varierade ordförrådsövningar för att befästa engelska ord inom ett specifikt tema.",
+    prompt: "Skapa fyra vokabulärövningar på engelska för åk 7 kring temat [TEMA]: (1) matchning ord–definition, (2) gap-fill-meningar, (3) en bild att beskriva med de nya orden, (4) ett enkelt korsord. Inkludera 12 ord. Anpassa svårigheten till A2–B1 (CEFR)."
+  },
+  {
+    subject: "engelska",
+    diff: "grund",
+    title: "Rollspelsdialog för muntlig kommunikation",
+    desc: "Skapa en realistisk dialogövning som tränar muntlig engelska i vardagliga situationer.",
+    prompt: "Skriv en rollspelsdialog på engelska för åk 7–8 i situationen: [SITUATION, t.ex. på restaurang, boka hotell, lösa en konflikt]. Dialog A och Dialog B med tydliga roller. Svårighetsgrad B1. Lägg till: nyckelfraser att öva in, tre följdfrågor för diskussion och en utmaningsvariant för snabbare elever."
+  },
+  {
+    subject: "engelska",
+    diff: "mellan",
+    title: "Analysera en engelskspråkig text utifrån syfte och publik",
+    desc: "Guide eleverna i textanalys med fokus på avsändare, mottagare och retoriska grepp.",
+    prompt: "Jag vill att mina elever i åk 8 analyserar följande text: [KLISTRA IN TEXT PÅ ENGELSKA]. Skapa ett analysschema med frågorna: Vem är avsändaren? Vilken är målgruppen? Vad är syftet? Vilka retoriska grepp används (ethos, pathos, logos)? Ge ett exempelsvar på B1-nivå och markera vilka kunskapskrav i Lgr22 Engelska som tränas."
+  },
+  {
+    subject: "engelska",
+    diff: "avance",
+    title: "Designa ett autentiskt skrivprojekt på engelska",
+    desc: "Skapa ett skrivprojekt med verkligt syfte och publik – exempelvis en blogg, podcast-manus eller TED-tal.",
+    prompt: "Designa ett 2-veckorsskrivprojekt för åk 9 engelska med genren [GENRE, t.ex. opinion article, short story, speech]. Eleven ska: välja ett ämne, planera, skriva utkast, ge/ta emot peer feedback och revidera. Ange bedömningskriterier (E/C/A) enligt Lgr22, scaffolding för elever under godkänt och en autentisk publikationsform."
+  },
+
+  // ── BEDÖMNING ──
+  {
+    subject: "bedömning",
+    diff: "grund",
+    title: "Skapa en formativ exit ticket",
+    desc: "Generera snabba utcheckningsfrågor som ger läraren information om elevförståelse.",
+    prompt: "Jag har precis undervisat om [ÄMNE OCH LEKTION] för åk [7/8/9]. Skapa 3 exit ticket-frågor: (1) faktafråga (visar om eleven minns), (2) tillämpningsfråga (visar om eleven förstår), (3) reflektionsfråga (visar om eleven kan värdera). Frågorna ska besvaras på 3–5 minuter. Inkludera ett snabbsvarsnyckel för mig."
+  },
+  {
+    subject: "bedömning",
+    diff: "grund",
+    title: "Generera kamratrespons-mallar",
+    desc: "Skapa strukturerade mallar för eleverna att ge varandra återkoppling.",
+    prompt: "Skapa en kamratresponsmall för [UPPGIFTSTYP] i åk [7/8/9]. Mallen ska guida eleven att kommentera: (1) vad som är starkt, (2) vad som är oklart, (3) ett konkret förslag på förbättring. Inkludera exempel på bra vs dålig feedback och en påminnelse om 'tänk på din ton'. Lägg till en lärardel för att kalibrering i klassen."
+  },
+  {
+    subject: "bedömning",
+    diff: "mellan",
+    title: "Skapa en bedömningsmatris för ett projektarbete",
+    desc: "Generera en tydlig matris med kunskapskrav E, C och A för ett specifikt ämne och uppgift.",
+    prompt: "Skapa en bedömningsmatris för [UPPGIFT] i [ÄMNE] för åk [7/8/9] med kolumnerna E, C, A och raderna: [ASPEKT 1], [ASPEKT 2], [ASPEKT 3]. Basera kriterierna på Lgr22. Formatet: markdown-tabell. Lägg till en kolumn 'Under E' för stödsamtal. Avsluta med en elevvänlig version av matrisen i punktlista-form."
+  },
+  {
+    subject: "bedömning",
+    diff: "mellan",
+    title: "Planera ett summativt prov med variation",
+    desc: "Konstruera ett prov med frågor som täcker flera kunskapskrav och kognitiva nivåer.",
+    prompt: "Skapa ett 60-minutersprov i [ÄMNE] för åk [7/8/9] om [AVSNITT]. Inkludera: 5 faktafrågor (1 p/st), 3 tillämpningsuppgifter (2–3 p/st), 1 längre resonerande fråga (4–6 p). Märk varje fråga med aktuellt kunskapskrav från Lgr22, betygsnivå (E/C/A) och svarsförslag/bedömningsanvisning för läraren."
+  },
+  {
+    subject: "bedömning",
+    diff: "avance",
+    title: "Designa en portföljbedömning",
+    desc: "Skapa ett system för portföljbedömning som dokumenterar elevers kunskapsutveckling över tid.",
+    prompt: "Designa ett portföljbedömningssystem för [ÄMNE] åk 7–9 (treårsplan). Inkludera: vilka artefakter som samlas in per termin, hur eleven reflekterar och sätter mål, hur läraren dokumenterar progression mot kunskapskrav, hur portföljen används i utvecklingssamtal och en mall för elevens självbedömning per år."
+  },
+  {
+    subject: "bedömning",
+    diff: "avance",
+    title: "Analysera betygsdata och planera åtgärder",
+    desc: "Använd AI för att tolka betygsmönster och föreslå pedagogiska insatser.",
+    prompt: "Här är betygsdistributionen i [ÄMNE] för min klass: [KLISTRA IN DATA ELLER BESKRIV MÖNSTER]. Analysera: (1) Vilka mönster syns? (2) Vilka kunskapskrav verkar flest elever inte nå? (3) Föreslå tre konkreta pedagogiska åtgärder jag kan testa nästa termin. (4) Hur kommunicerar jag detta med eleverna på ett motiverande sätt?"
+  },
+
+  // ── PLANERING ──
+  {
+    subject: "planering",
+    diff: "grund",
+    title: "Skapa en veckoplanering med tydliga mål",
+    desc: "Generera en strukturerad veckoplanering för en kurs med lektionsmål kopplade till Lgr22.",
+    prompt: "Skapa en veckoplanering för [ÄMNE] åk [7/8/9], vecka [X], tema: [TEMA]. Lektionerna är [ANTAL] × [LÄNGD] minuter. Ge varje lektion: ett specifikt lärande­mål (vad eleven ska kunna), centralt innehåll, föreslagen aktivitet, formativ bedömnings­aktivitet och läxa (om lämpligt). Koppla till Lgr22."
+  },
+  {
+    subject: "planering",
+    diff: "grund",
+    title: "Planera ett ämnesövergripande tema",
+    desc: "Bygg upp ett tvärvetenskapligt tema med koppling till flera ämnens kursplaner.",
+    prompt: "Hjälp mig planera ett 3-veckorigt ämnesövergripande tema för åk [7/8/9] om [TEMA]. Involverade ämnen: [ÄMNEN]. Ge mig: övergripande syfte, koppling till Lgr22 per ämne, lektionsöversikt (schema), gemensam slutprodukt/presentation och en gemensam bedömningsmatris för de involverande lärarna."
+  },
+  {
+    subject: "planering",
+    diff: "mellan",
+    title: "Skapa ett lektionsupplägg med varierade metoder",
+    desc: "Designa en lektion med flera undervisningsmetoder för att nå olika typer av elever.",
+    prompt: "Designa en 60-minuterslektion i [ÄMNE] för åk [7/8/9] om [ÄMNESINNEHÅLL]. Variera metoderna: (1) kort föreläsning med visuellt stöd (10 min), (2) aktiv läsning i par (15 min), (3) diskussionsövning (15 min), (4) individuell skrivuppgift (15 min), (5) summering och exit-ticket (5 min). Ange material, lärarinstruktioner och hur lektionen differentieras."
+  },
+  {
+    subject: "planering",
+    diff: "avance",
+    title: "Designa ett problembaserat lärande-förlopp (PBL)",
+    desc: "Strukturera ett längre arbetsförlopp kring ett autentiskt problem som engagerar eleverna.",
+    prompt: "Designa ett 5-veckors PBL-förlopp för åk 9 kring problemet: [VERKLIGT PROBLEM]. Inkludera: problemformulering (trigger), lärandemål, resurser och stödmaterial, handledningsfrågor för läraren, delmålspunkter, presentationsform och bedömning. Koppla tydligt till Lgr22-mål i [ÄMNE/ÄMNEN]."
+  },
+
+  // ── ELEVHÄLSA ──
+  {
+    subject: "elevhälsa",
+    diff: "grund",
+    title: "Formulera en lättläst extra anpassning",
+    desc: "Hjälp till att skriva tydliga och konkreta extra anpassningar för en elevs behov.",
+    prompt: "Jag har en elev i åk [7/8/9] med [BESKRIV SVÅRIGHETEN, t.ex. läs- och skrivsvårigheter, koncentrationssvårigheter]. Formulera 5 konkreta extra anpassningar som är enkla att genomföra i klassrummet, passar in i ordinarie undervisning och inte kräver beslut om särskilt stöd. Skriv dem i ett format som passar en åtgärdsplan."
+  },
+  {
+    subject: "elevhälsa",
+    diff: "grund",
+    title: "Skriv ett samtalsmanus för svårt elevsamtal",
+    desc: "Förbered dig för ett känsligt samtal med elev eller vårdnadshavare med ett strukturerat manus.",
+    prompt: "Hjälp mig förbereda ett samtal med [ELEV/VÅRDNADSHAVARE] om [PROBLEMET, t.ex. frånvaro, beteende, nedåtgående resultat]. Ge mig: en öppningsfras som skapar trygghet, tre nyckelbudskap att förmedla, hur jag hanterar defensivitet eller motstånd, vad jag erbjuder som nästa steg, och hur samtalet avslutas konstruktivt. Anpassa till skolans ansvar enligt Skollagen."
+  },
+  {
+    subject: "elevhälsa",
+    diff: "mellan",
+    title: "Planera en lektionsserie om psykisk hälsa",
+    desc: "Skapa ett hälsofrämjande lektionsförlopp om psykisk hälsa för ungdomar.",
+    prompt: "Planera 4 lektioner om psykisk hälsa för åk [8/9] i ämnet [idrott och hälsa/biologi/mentorskap]. Inkludera: lektionsmål kopplade till Lgr22, aktiviteter som inte triggar känsliga elever, fakta om sömn/stress/sociala medier, elevens egna strategier och en avslutande reflektionsövning. Lägg till tips på externa resurser (UMO, 1177 m.fl.)."
+  },
+  {
+    subject: "elevhälsa",
+    diff: "avance",
+    title: "Skapa en inkluderande klassrumsmiljöplan",
+    desc: "Designa strukturer och rutiner som skapar trygghet och tillhörighet för alla elever.",
+    prompt: "Hjälp mig designa en plan för ett inkluderande klassrumsklimat för åk [7/8/9]. Inkludera: fysiska rutiner (placering, uppstart, avslut), sociala strukturer (par/grupp), kommunikationsregler, hur jag hanterar konflikter snabbt och diskrekt, hur jag synliggör alla elevers styrkor, och hur jag utvärderar klimatet varje månad."
+  },
+
+  // ── IDROTT, BILD, MUSIK, TEKNIK, HEM ──
+  {
+    subject: "idrott",
+    diff: "grund",
+    title: "Planera en idrottslektion med rörelsevariation",
+    desc: "Skapa en lektion som inkluderar elever med olika förmågor och förutsättningar.",
+    prompt: "Designa en 60-minutersidrottslektion för åk [7/8/9] med momentet [RÖRELSEFORM, t.ex. friidrott, bollsport, dans]. Inkludera uppvärmning, övningsprogression på tre nivåer (stöd/standard/utmaning), en samarbetsövning, nedvarvning och reflektion. Anpassa så att elever med rörelsehinder kan delta meningsfullt."
+  },
+  {
+    subject: "bild",
+    diff: "mellan",
+    title: "Bildanalysuppgift med semiotik",
+    desc: "Guida eleverna i bildanalys med verktyg från semiotik och komposition.",
+    prompt: "Skapa en bildanalysuppgift för åk [8/9] i bild. Eleven ska analysera [BILDVERK ELLER TYP AV BILD] med hjälp av: bildspråkets element (linje, form, färg, rum), kompositionsprinciper, denotation och konnotation. Ge mig uppgiftsinstruktioner, ett exempelsvar på C-nivå och bedömningskriterier kopplade till Lgr22 Bild."
+  },
+  {
+    subject: "musik",
+    diff: "grund",
+    title: "Introducera musikteori med populärlåtar",
+    desc: "Gör musikteori engagerande genom att koppla till låtar eleverna känner igen.",
+    prompt: "Skapa en musikteorilektion för åk 7 om [MUSIKTEORIBEGREPP, t.ex. taktart, dur/moll, ackord] med hjälp av välkända låtar från de senaste 5 åren. För varje begrepp: förklaring, ett låtexempel (med låttitel och artist), en enkel lyssnarsuppgift och ett praktiskt musikmoment. Koppla till kunskapskraven i Lgr22 Musik."
+  },
+  {
+    subject: "teknik",
+    diff: "mellan",
+    title: "Konstruktionsuppdrag med design-tänk",
+    desc: "Skapa ett teknikprojekt där eleverna genomför en designprocess från problem till prototyp.",
+    prompt: "Designa ett konstruktionsuppdrag för åk [7/8/9] i teknik med designprocessen: identifiera behov → idégenerering → konstruktion → test → förbättring → presentation. Problemet: [TEKNIKPROBLEM]. Ange material, tidsram, hur eleverna dokumenterar processen, och bedömningskriterier enligt Lgr22 Teknik."
+  },
+  {
+    subject: "hem",
+    diff: "grund",
+    title: "Planera en hem- och konsumentkunskapslektion med budget",
+    desc: "Laga mat på begränsad budget – en praktisk lektion som kopplar till privatekonomi.",
+    prompt: "Planera en praktisk lektion i hem- och konsumentkunskap för åk 8 med temat 'laga mat på 30 kr per person'. Inkludera: recept (max 4 ingredienser), diskussion om matsvinn, koppling till konsumentkunskap (jämföra pris, miljömärkning), enkel kostnadsberäkning och bedömningsaspekter från Lgr22 Hem- och konsumentkunskap."
+  }
+];
+
+// ── RENDER ──
+const grid = document.getElementById('grid');
+const searchInput = document.getElementById('search');
+const showCount = document.getElementById('showCount');
+const ofCount = document.getElementById('ofCount');
+const totalCount = document.getElementById('totalCount');
+
+totalCount.textContent = prompts.length;
+ofCount.textContent = prompts.length;
+
+let activeSubject = 'alla';
+let activeDiff = 'alla';
+
+function subjectClass(s) {
+  const map = {
+    svenska:'subj-svenska', matematik:'subj-matematik', so:'subj-so', no:'subj-no',
+    engelska:'subj-engelska', bedömning:'subj-bedömning', planering:'subj-planering',
+    elevhälsa:'subj-elevhälsa', idrott:'subj-idrott', bild:'subj-bild',
+    musik:'subj-musik', teknik:'subj-teknik', hem:'subj-hem'
+  };
+  return map[s] || 'subj-so';
+}
+function subjectLabel(s) {
+  const map = {
+    svenska:'Svenska', matematik:'Matematik', so:'SO', no:'NO',
+    engelska:'Engelska', bedömning:'Bedömning', planering:'Planering',
+    elevhälsa:'Elevhälsa', idrott:'Idrott & hälsa', bild:'Bild',
+    musik:'Musik', teknik:'Teknik', hem:'Hem & konsument'
+  };
+  return map[s] || s;
+}
+function diffClass(d) { return 'diff-' + d; }
+function diffLabel(d) {
+  return {grund:'Grundnivå', mellan:'Mellannivå', avance:'Avancerad'}[d] || d;
+}
+
+function render() {
+  const q = searchInput.value.toLowerCase().trim();
+  const filtered = prompts.filter(p => {
+    const matchSub = activeSubject === 'alla' || p.subject === activeSubject;
+    const matchDiff = activeDiff === 'alla' || p.diff === activeDiff;
+    const matchQ = !q || p.title.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) || p.subject.includes(q) || p.prompt.toLowerCase().includes(q);
+    return matchSub && matchDiff && matchQ;
+  });
+
+  showCount.textContent = filtered.length;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="no-results">
+      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>Inga prompts matchade din sökning. Prova ett annat ord eller filter.</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((p, i) => `
+    <article class="card">
+      <div class="card-top">
+        <div class="card-tags">
+          <span class="tag tag-subject ${subjectClass(p.subject)}">${subjectLabel(p.subject)}</span>
+          <span class="tag tag-diff ${diffClass(p.diff)}">${diffLabel(p.diff)}</span>
+        </div>
+      </div>
+      <h3>${p.title}</h3>
+      <p class="card-desc">${p.desc}</p>
+      <div class="card-footer">
+        <div class="prompt-preview">${p.prompt}</div>
+        <button class="btn-copy" data-idx="${prompts.indexOf(p)}">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Kopiera prompt
+        </button>
+      </div>
+    </article>
+  `).join('');
+}
+
+// copy handler
+grid.addEventListener('click', e => {
+  const btn = e.target.closest('.btn-copy');
+  if (!btn) return;
+  const p = prompts[+btn.dataset.idx];
+  navigator.clipboard.writeText(p.prompt).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg> Kopierad!`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Kopiera prompt`;
+    }, 2000);
+  });
+});
+
+// filter chips
+document.querySelectorAll('[data-filter]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const type = chip.dataset.filter;
+    document.querySelectorAll(`[data-filter="${type}"]`).forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    if (type === 'subject') activeSubject = chip.dataset.value;
+    else activeDiff = chip.dataset.value;
+    render();
+  });
+});
+
+searchInput.addEventListener('input', render);
+
+render();
+</script>
+</body>
+</html>
