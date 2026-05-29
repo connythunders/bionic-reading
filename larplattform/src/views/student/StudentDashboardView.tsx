@@ -88,57 +88,66 @@ export function StudentDashboardView() {
         <div className="max-w-5xl space-y-6">
 
           {/* Välkomstheader — lila gradient för elev */}
-          <div className="bg-gradient-to-r from-violet-50 to-white dark:from-violet-900/10 dark:to-gray-950 rounded-2xl p-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="bg-gradient-to-br from-violet-600 to-purple-700 dark:from-violet-700 dark:to-purple-800 rounded-2xl p-6 text-white shadow-lg">
+            <h1 className="text-2xl font-bold">
               Hej, {studentUser.name.split(' ')[0]}! 🎒
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-violet-100 mt-1 text-sm">
               {todoCount > 0
                 ? `Du har ${todoCount} uppgift${todoCount !== 1 ? 'er' : ''} att lämna in`
-                : 'Alla uppgifter är inlämnade – bra jobbat!'}
+                : 'Alla uppgifter är inlämnade – bra jobbat! 🎉'}
             </p>
+            <button
+              onClick={() => navigate('/uppgifter')}
+              className="mt-4 inline-flex items-center gap-1.5 bg-white text-purple-700 rounded-xl px-4 py-2 text-sm font-semibold hover:bg-violet-50 transition-colors shadow-sm"
+            >
+              <ClipboardList size={15} aria-hidden="true" /> Mina uppgifter
+            </button>
           </div>
 
           {/* Statistikrad */}
           <div className="grid grid-cols-3 gap-4" role="list" aria-label="Statistiköversikt">
-            <div
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 flex items-center gap-4"
+            <button
+              onClick={() => navigate('/uppgifter')}
+              className="bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition-all text-left"
               role="listitem"
             >
-              <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
-                <BookOpen size={20} className="text-green-700 dark:text-green-400" aria-hidden="true" />
+              <div className="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <BookOpen size={22} className="text-white" aria-hidden="true" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{myGroups.length}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Mina kurser</p>
+                <p className="text-3xl font-bold text-green-700 dark:text-green-300">{myGroups.length}</p>
+                <p className="text-xs text-green-600/70 dark:text-green-400/70 mt-0.5 font-medium">Mina kurser</p>
               </div>
-            </div>
+            </button>
 
-            <div
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 flex items-center gap-4"
+            <button
+              onClick={() => navigate('/uppgifter')}
+              className="bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition-all text-left"
               role="listitem"
             >
-              <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center flex-shrink-0">
-                <ClipboardList size={20} className="text-orange-600 dark:text-orange-400" aria-hidden="true" />
+              <div className="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <ClipboardList size={22} className="text-white" aria-hidden="true" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{todoCount}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Att göra</p>
+                <p className="text-3xl font-bold text-orange-700 dark:text-orange-300">{todoCount}</p>
+                <p className="text-xs text-orange-600/70 dark:text-orange-400/70 mt-0.5 font-medium">Att göra</p>
               </div>
-            </div>
+            </button>
 
-            <div
-              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 flex items-center gap-4"
+            <button
+              onClick={() => navigate('/uppgifter')}
+              className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition-all text-left"
               role="listitem"
             >
-              <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
-                <CheckCircle size={20} className="text-blue-600 dark:text-blue-400" aria-hidden="true" />
+              <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <CheckCircle size={22} className="text-white" aria-hidden="true" />
               </div>
               <div>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{submittedCount}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Inlämnade</p>
+                <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{submittedCount}</p>
+                <p className="text-xs text-blue-600/70 dark:text-blue-400/70 mt-0.5 font-medium">Inlämnade</p>
               </div>
-            </div>
+            </button>
           </div>
 
           {/* Kommande deadlines */}

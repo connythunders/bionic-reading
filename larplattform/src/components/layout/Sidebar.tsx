@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import {
   Home, Bell, Search, BookOpen,
   GraduationCap, Rss, Globe, ExternalLink,
+  ClipboardList, Mail, CalendarDays,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { GroupIcon } from '@/components/shared/GroupIcon'
@@ -53,10 +54,13 @@ export function Sidebar({
     : groups
 
   const navItems = [
-    { to: '/',           icon: Home,     label: 'Min startsida' },
-    { to: '/notiser',    icon: Bell,     label: 'Notiser', badge: user.notificationCount },
-    { to: '/hitta',      icon: Search,   label: 'Hitta' },
-    { to: '/skolbanken', icon: BookOpen, label: 'Skolbanken' },
+    { to: '/',            icon: Home,          label: 'Min startsida' },
+    { to: '/uppgifter',   icon: ClipboardList, label: 'Uppgifter' },
+    { to: '/meddelanden', icon: Mail,          label: 'Meddelanden', badge: user.notificationCount },
+    { to: '/kalender',    icon: CalendarDays,  label: 'Kalender' },
+    { to: '/notiser',     icon: Bell,          label: 'Notiser' },
+    { to: '/hitta',       icon: Search,        label: 'Hitta' },
+    { to: '/skolbanken',  icon: BookOpen,      label: 'Skolbanken' },
   ]
 
   const initials = schoolInitials(user.school)
