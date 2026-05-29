@@ -763,6 +763,95 @@
     ::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 99px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--slate-400); }
 
+    /* ===== WORKFLOW-STEG ===== */
+    .workflow-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 20px;
+    }
+
+    .workflow-step {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 14px 18px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .step-num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--indigo-100);
+      color: var(--indigo-600);
+      font-weight: 800;
+      font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-text strong { display: block; font-size: 13px; color: var(--slate-800); }
+    .step-text span   { font-size: 12px; color: var(--slate-500); }
+
+    /* Agenda-panel kompakt */
+    .agenda-card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    #agenda-input {
+      width: 100%;
+      border: 1px solid var(--slate-200);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--slate-800);
+      background: var(--white);
+      resize: vertical;
+      min-height: 75px;
+      line-height: 1.5;
+    }
+
+    #agenda-input:focus {
+      outline: none;
+      border-color: var(--indigo-600);
+      box-shadow: 0 0 0 2px var(--indigo-100);
+    }
+
+    /* Komprimera mötesinfo */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .info-cell {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 6px;
+      padding: 5px 7px;
+    }
+
+    .info-cell .lbl { font-size: 10px; color: var(--slate-400); display: block; }
+    .info-cell .val { font-size: 12px; font-weight: 700; color: var(--slate-700); }
+
+    /* #transcript-container som flex-kolumn */
+    #transcript-container {
+      display: flex;
+      flex-direction: column;
+    }
+
     /* ===== RESPONSIVITET ===== */
     @media (max-width: 1280px) {
       :root { --sidebar-w: 220px; --ai-w: 300px; }
@@ -803,35 +892,41 @@
   <!-- ===== VÄNSTER SIDEBAR ===== -->
   <aside class="sidebar-left">
 
-    <!-- Mötesinfo -->
+    <!-- Mötestitel -->
     <div>
-      <div class="panel-title">Mötesinfo</div>
+      <div class="panel-title">Möte</div>
       <div class="meeting-info-card">
-        <label for="meeting-title-input">Mötestitel</label>
-        <input type="text" id="meeting-title-input"
-               placeholder="Namnlöst möte"
-               value="">
+        <label for="meeting-title-input">Titel</label>
+        <input type="text" id="meeting-title-input" placeholder="Namnlöst möte" value="">
+        <div class="info-grid">
+          <div class="info-cell">
+            <span class="lbl">Datum</span>
+            <span class="val" id="info-date">–</span>
+          </div>
+          <div class="info-cell">
+            <span class="lbl">Starttid</span>
+            <span class="val" id="info-starttime">–</span>
+          </div>
+          <div class="info-cell">
+            <span class="lbl">Inspelad tid</span>
+            <span class="val" id="info-duration">00:00</span>
+          </div>
+          <div class="info-cell">
+            <span class="lbl">Talare</span>
+            <span class="val" id="info-speakers">0</span>
+          </div>
+        </div>
+        <input type="hidden" id="info-segments" value="0">
+      </div>
+    </div>
 
-        <div class="info-row">
-          <span class="info-label">Datum</span>
-          <span class="info-value" id="info-date">–</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Starttid</span>
-          <span class="info-value" id="info-starttime">–</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Inspelningstid</span>
-          <span class="info-value" id="info-duration">00:00</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Talare identifierade</span>
-          <span class="info-value" id="info-speakers">0</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Segment</span>
-          <span class="info-value" id="info-segments">0</span>
-        </div>
+    <!-- Agenda – SYNLIG DIREKT -->
+    <div>
+      <div class="panel-title">Dagordning / Agenda</div>
+      <div class="agenda-card">
+        <textarea id="agenda-input"
+          placeholder="Skriv in dagordningen här…&#10;1. Uppföljning föregående möte&#10;2. Budget Q3&#10;3. Övriga frågor"
+        ></textarea>
       </div>
     </div>
 
@@ -849,29 +944,15 @@
       </div>
     </div>
 
-    <!-- Talarguide -->
+    <!-- Identifierade talare -->
     <div style="flex:1">
       <div class="panel-title">Identifierade talare</div>
       <div class="speakers-card">
         <div id="speakers-list">
           <div style="font-size:12px;color:var(--slate-400);font-style:italic;">
-            Talare visas här när AI analyserar transkriptionen
+            Visas när AI analyserar transkriptionen
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Agenda -->
-    <div>
-      <div class="panel-title">Agenda</div>
-      <div class="meeting-info-card">
-        <label for="agenda-input">Mötesagenda (valfri)</label>
-        <textarea id="agenda-input"
-          placeholder="1. Genomgång av Q2-resultat&#10;2. Planering inför hösten&#10;3. Övriga frågor"
-          style="width:100%;border:1px solid var(--slate-200);border-radius:6px;
-                 padding:6px 8px;font-size:12px;font-family:inherit;color:var(--slate-800);
-                 background:var(--white);resize:vertical;min-height:90px;line-height:1.5;"
-        ></textarea>
       </div>
     </div>
 
@@ -879,15 +960,9 @@
     <div>
       <div class="panel-title">Exportera</div>
       <div class="export-card">
-        <button class="btn btn-ghost btn-sm" id="btn-export-transcript">
-          📄 Ladda ner transkription (.txt)
-        </button>
-        <button class="btn btn-ghost btn-sm" id="btn-copy-transcript">
-          📋 Kopiera transkription
-        </button>
-        <button class="btn btn-ghost btn-sm" id="btn-export-summary">
-          📝 Ladda ner sammanfattning (.txt)
-        </button>
+        <button class="btn btn-ghost btn-sm" id="btn-export-transcript">📄 Transkription (.txt)</button>
+        <button class="btn btn-ghost btn-sm" id="btn-copy-transcript">📋 Kopiera transkription</button>
+        <button class="btn btn-ghost btn-sm" id="btn-export-summary">📝 Sammanfattning (.txt)</button>
       </div>
     </div>
 
@@ -906,10 +981,39 @@
     </div>
 
     <div id="transcript-container">
-      <!-- Tom state -->
+      <!-- Tomt state med workflow-guide -->
       <div id="empty-state">
-        <div class="empty-icon">🎙</div>
-        <p>Starta en inspelning för att börja transkribera mötet i realtid.</p>
+        <div class="workflow-steps">
+          <div style="font-size:13px;font-weight:700;color:var(--slate-500);margin-bottom:4px;">Så här använder du appen</div>
+          <div class="workflow-step">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              <strong>Ange dagordningen</strong>
+              <span>Skriv in agendan i vänster panel – används för strukturerad sammanfattning</span>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              <strong>Starta inspelning</strong>
+              <span>Klicka "Starta" – mötet transkriberas i realtid och talare identifieras automatiskt</span>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              <strong>Klicka på talarnamn</strong>
+              <span>Byt "Talare 1" mot riktiga namn – ändringen slår igenom globalt i hela transkriptionen</span>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="step-num">4</div>
+            <div class="step-text">
+              <strong>Sammanfatta &amp; exportera</strong>
+              <span>Använd AI-panelen till höger för sammanfattning, frågor och åtgärdspunkter</span>
+            </div>
+          </div>
+        </div>
       </div>
       <!-- Segment läggs till dynamiskt -->
     </div>
@@ -1780,8 +1884,7 @@ function buildTranscriptText() {
 function updateInfoCounts() {
   document.getElementById('info-speakers').textContent =
     Object.keys(speakerMap).length;
-  document.getElementById('info-segments').textContent =
-    confirmedSegments.length;
+  // info-segments är nu hidden input, inget att visa
 }
 
 function scrollToBottom() {
@@ -1923,9 +2026,22 @@ function initApiKeyUI() {
 }
 
 /* =========================================================
+   AGENDA – AUTO-SPARA TILL LOCALSTORAGE
+   ========================================================= */
+function initAgenda() {
+  const el = document.getElementById('agenda-input');
+  const saved = localStorage.getItem('meeting_agenda');
+  if (saved) el.value = saved;
+  el.addEventListener('input', () => {
+    localStorage.setItem('meeting_agenda', el.value);
+  });
+}
+
+/* =========================================================
    STARTA APPEN
    ========================================================= */
 initApiKeyUI();
+initAgenda();
 init();
 </script>
 </body>
