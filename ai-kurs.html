@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-övning: Bygg en transkriberingapp</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f5f7fa;
+      color: #333;
+    }
+    h1 {
+      background: #1a73e8;
+      color: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+    h2 {
+      color: #1a73e8;
+      border-left: 4px solid #1a73e8;
+      padding-left: 0.75rem;
+      margin-top: 2rem;
+    }
+    h3 {
+      color: #444;
+    }
+    .dag {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .dag-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .dag-nummer {
+      background: #1a73e8;
+      color: white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .mal {
+      background: #e8f5e9;
+      border-left: 4px solid #43a047;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+    .uppgift {
+      background: #fff8e1;
+      border-left: 4px solid #ffa000;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+    .reflektion {
+      background: #e8eaf6;
+      border-left: 4px solid #3949ab;
+      padding: 0.75rem 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+    code {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+    pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.9em;
+    }
+    .intro {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    ul, ol {
+      line-height: 2;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-left: 0.5rem;
+    }
+    .badge-install { background: #e3f2fd; color: #1565c0; }
+    .badge-kod { background: #fce4ec; color: #c62828; }
+    .badge-ai { background: #f3e5f5; color: #6a1b9a; }
+    .badge-redovisning { background: #e8f5e9; color: #2e7d32; }
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: #999;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🤖 AI-övning: Bygg en AI-transkriberingapp</h1>
+  <p><strong>Kurs:</strong> Individuellt val – AI 100p &nbsp;|&nbsp; <strong>Tid:</strong> 1 vecka &nbsp;|&nbsp; <strong>Program:</strong> El- och dataprogrammet</p>
+
+  <div class="intro">
+    <h2 style="margin-top:0">📋 Introduktion</h2>
+    <p>I den här övningen ska du installera, konfigurera och förstå en AI-driven applikation som transkriberar möten och identifierar talare automatiskt. Applikationen använder flera AI-modeller och tekniker som du ska lära dig förstå.</p>
+    <p><strong>Applikationen använder:</strong></p>
+    <ul>
+      <li>🎤 <strong>Whisper.cpp</strong> – AI-modell för tal-till-text (Speech-to-Text)</li>
+      <li>👥 <strong>Pyannote</strong> – AI för att identifiera vem som talar</li>
+      <li>🧠 <strong>LLM (språkmodell)</strong> – för att sammanfatta och analysera text</li>
+      <li>🐳 <strong>Docker</strong> – för att köra tjänster i isolerade miljöer</li>
+    </ul>
+    <div class="mal">
+      <strong>✅ Lärandemål:</strong>
+      <ul>
+        <li>Förstå hur AI-modeller används i verkliga applikationer</li>
+        <li>Kunna installera och konfigurera en komplex mjukvarumiljö</li>
+        <li>Förstå begrepp som API, token, backend, frontend och Docker</li>
+        <li>Reflektera kring etik och integritet kopplat till AI-transkribering</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="dag">
+    <div class="dag-header">
+      <div class="dag-nummer">1</div>
+      <h2 style="margin:0; border:none; padding:0">Dag 1 – Förberedelser & installation <span class="badge badge-install">Installation</span></h2>
+    </div>
+    <div class="mal">
+      <strong>Mål:</strong> Förstå vad applikationen gör och installera alla nödvändiga verktyg.
+    </div>
+    <h3>Teori (30 min)</h3>
+    <p>Läs på om följande begrepp och anteckna en kort förklaring av varje:</p>
+    <ul>
+      <li>Vad är <strong>Speech-to-Text</strong> och hur fungerar Whisper?</li>
+      <li>Vad är <strong>Speaker Diarization</strong> (högtalaridentifiering)?</li>
+      <li>Vad är <strong>Docker</strong> och varför används det?</li>
+      <li>Vad är skillnaden mellan <strong>backend</strong> och <strong>frontend</strong>?</li>
+    </ul>
+    <h3>Uppgift – Installera verktygen</h3>
+    <div class="uppgift">
+      <strong>📦 Installera följande i rätt ordning:</strong>
+      <ol>
+        <li>Docker Desktop – <a href="https://docker.com/products/docker-desktop" target="_blank">docker.com/products/docker-desktop</a></li>
+        <li>Python 3.11+ – <a href="https://python.org/downloads" target="_blank">python.org/downloads</a> <em>(kryssa i "Add to PATH"!)</em></li>
+        <li>Node.js LTS – <a href="https://nodejs.org" target="_blank">nodejs.org</a></li>
+        <li>Git – <a href="https://git-scm.com" target="_blank">git-scm.com</a></li>
+        <li>CMake – <a href="https://cmake.org/download" target="_blank">cmake.org/download</a> <em>(välj "Add to PATH")</em></li>
+        <li>Visual Studio 2022 Community – <a href="https://visualstudio.microsoft.com" target="_blank">visualstudio.microsoft.com</a> <em>(välj "Desktop development with C++")</em></li>
+        <li>FFmpeg – <a href="https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" target="_blank">Ladda ner här</a>, packa upp till C:\ffmpeg</li>
+      </ol>
+    </div>
+    <h3>Verifiera installationerna</h3>
+    <p>Öppna PowerShell och kontrollera att följande kommandon fungerar:</p>
+    <pre>python --version
+node --version
+git --version
+cmake --version
+ffmpeg -version
+docker --version</pre>
+    <div class="reflektion">
+      <strong>💭 Reflektion dag 1:</strong> Varför tror du att applikationen kräver så många olika verktyg? Vad tror du varje verktyg används till?
+    </div>
+  </div>
+
+  <div class="dag">
+    <div class="dag-header">
+      <div class="dag-nummer">2</div>
+      <h2 style="margin:0; border:none; padding:0">Dag 2 – Klona & installera appen <span class="badge badge-install">Installation</span></h2>
+    </div>
+    <div class="mal">
+      <strong>Mål:</strong> Hämta källkoden och köra installationsskriptet.
+    </div>
+    <h3>Vad är Git och GitHub?</h3>
+    <p>Git är ett versionshanteringssystem. GitHub är en plattform där kod lagras och delas. Källkoden till appen finns på GitHub.</p>
+    <h3>Uppgift – Klona repot</h3>
+    <div class="uppgift">
+      <strong>📥 Kör i PowerShell:</strong>
+      <pre>cd $env:USERPROFILE
+git clone https://github.com/fltman/transcriber.git
+cd transcriber
+powershell -ExecutionPolicy Bypass -File install.ps1</pre>
+      <p>Installationen tar 10–20 minuter. Vad händer på skärmen? Anteckna de steg du ser.</p>
+    </div>
+    <h3>Hugging Face-token</h3>
+    <p>Pyannote-modellen kräver att du godkänner villkor och skapar en API-token:</p>
+    <ol>
+      <li>Skapa konto på <a href="https://huggingface.co" target="_blank">huggingface.co</a></li>
+      <li>Gå till <a href="https://huggingface.co/pyannote/speaker-diarization-3.1" target="_blank">pyannote/speaker-diarization-3.1</a> och acceptera villkoren</li>
+      <li>Skapa en "Read"-token under Settings → Access Tokens</li>
+      <li>Lägg in token i <code>.env</code>-filen: <code>notepad .env</code></li>
+    </ol>
+    <div class="reflektion">
+      <strong>💭 Reflektion dag 2:</strong> Varför kräver Hugging Face att du accepterar villkor innan du kan använda deras AI-modell? Vad tror du villkoren handlar om?
+    </div>
+  </div>
+
+  <div class="dag">
+    <div class="dag-header">
+      <div class="dag-nummer">3</div>
+      <h2 style="margin:0; border:none; padding:0">Dag 3 – Starta & testa appen <span class="badge badge-kod">Kod</span> <span class="badge badge-ai">AI</span></h2>
+    </div>
+    <div class="mal">
+      <strong>Mål:</strong> Få appen att köra och förstå hur delarna hänger ihop.
+    </div>
+    <h3>Uppgift – Starta backend</h3>
+    <div class="uppgift">
+      <strong>▶️ Terminal 1 – Backend:</strong>
+      <pre>cd $env:USERPROFILE
+cd transcriber
+venv\Scripts\activate
+venv\Scripts\python.exe -m uvicorn main:app --port 8000 --reload</pre>
+    </div>
+    <h3>Uppgift – Starta frontend</h3>
+    <div class="uppgift">
+      <strong>▶️ Terminal 2 – Frontend:</strong>
+      <pre>cd $env:USERPROFILE
+cd transcriber\frontend
+npm run dev</pre>
+      <p>Öppna sedan <strong>http://localhost:5174</strong> i webbläsaren.</p>
+    </div>
+    <h3>Utforska appen</h3>
+    <ul>
+      <li>Spela in ett kort möte (2–3 minuter) med din mikrofon eller ladda upp en ljudfil</li>
+      <li>Låt appen transkribera det</li>
+      <li>Kontrollera om högtalaridentifieringen fungerar korrekt</li>
+    </ul>
+    <div class="reflektion">
+      <strong>💭 Reflektion dag 3:</strong> Hur bra fungerade transkriberingen? Vad gick bra och vad gick dåligt? Vilka faktorer tror du påverkar kvaliteten?
+    </div>
+  </div>
+
+  <div class="dag">
+    <div class="dag-header">
+      <div class="dag-nummer">4</div>
+      <h2 style="margin:0; border:none; padding:0">Dag 4 – Fördjupning & anpassning <span class="badge badge-kod">Kod</span> <span class="badge badge-ai">AI</span></h2>
+    </div>
+    <div class="mal">
+      <strong>Mål:</strong> Förstå koden och göra egna anpassningar.
+    </div>
+    <h3>Utforska koden</h3>
+    <p>Öppna projektmappen i en kodredigerare (t.ex. VS Code) och utforska strukturen:</p>
+    <ul>
+      <li><code>main.py</code> – Vad gör denna fil? Vilka API-endpoints finns?</li>
+      <li><code>config.py</code> – Vilka inställningar finns? Vad betyder de?</li>
+      <li><code>frontend/src</code> – Hur är gränssnittet uppbyggt?</li>
+      <li><code>.env</code> – Vilka miljövariabler används och varför?</li>
+    </ul>
+    <h3>Uppgift – Välj en av dessa utmaningar:</h3>
+    <div class="uppgift">
+      <strong>🔧 Nivå 1 (grundläggande):</strong>
+      <ul>
+        <li>Ändra titeln i webbgränssnittet till ditt eget namn</li>
+        <li>Lägg till en ny färg eller stil i frontend</li>
+      </ul>
+      <strong>🔧 Nivå 2 (medel):</strong>
+      <ul>
+        <li>Undersök API:et på <code>http://localhost:8000/docs</code> – testa ett anrop</li>
+        <li>Byt språkmodell i <code>.env</code> och jämför resultaten</li>
+      </ul>
+      <strong>🔧 Nivå 3 (avancerad):</strong>
+      <ul>
+        <li>Lägg till ett nytt API-endpoint i <code>main.py</code> som returnerar statistik</li>
+        <li>Konfigurera Ollama med en annan modell och jämför kvalitet</li>
+      </ul>
+    </div>
+    <div class="reflektion">
+      <strong>💭 Reflektion dag 4:</strong> Vad förvånade dig mest när du tittade i koden? Vad skulle du vilja förbättra i appen?
+    </div>
+  </div>
+
+  <div class="dag">
+    <div class="dag-header">
+      <div class="dag-nummer">5</div>
+      <h2 style="margin:0; border:none; padding:0">Dag 5 – Etik, reflektion & redovisning <span class="badge badge-redovisning">Redovisning</span></h2>
+    </div>
+    <div class="mal">
+      <strong>Mål:</strong> Reflektera kring etik och integritet, och presentera ditt arbete.
+    </div>
+    <h3>Etikdiskussion</h3>
+    <p>Diskutera i grupp eller skriv individuellt om följande frågor:</p>
+    <ul>
+      <li>🔒 <strong>Integritet:</strong> Är det okej att spela in och transkribera möten utan att informera alla deltagare?</li>
+      <li>💼 <strong>Arbetslivet:</strong> Hur kan AI-transkribering förändra hur möten genomförs?</li>
+      <li>⚠️ <strong>Risker:</strong> Vad kan gå fel om transkriberingen är felaktig?</li>
+      <li>🌍 <strong>Miljö:</strong> Vad kostar det att köra AI-modeller i termer av energi och resurser?</li>
+      <li>🤖 <strong>Framtiden:</strong> Vilka jobb tror du påverkas av den här typen av AI?</li>
+    </ul>
+    <h3>Redovisning</h3>
+    <div class="uppgift">
+      <strong>📊 Presentera för klassen (5–10 min):</strong>
+      <ol>
+        <li>Visa appen igång och demonstrera en transkribering</li>
+        <li>Förklara hur de olika AI-modellerna samarbetar</li>
+        <li>Berätta om ett problem du stötte på och hur du löste det</li>
+        <li>Dela dina tankar om en av etikfrågorna ovan</li>
+      </ol>
+    </div>
+    <div class="reflektion">
+      <strong>💭 Slutreflektion:</strong> Vad är det viktigaste du lärt dig den här veckan? Hur har din syn på AI förändrats?
+    </div>
+  </div>
+
+  <div class="intro">
+    <h2 style="margin-top:0">📝 Bedömningsunderlag</h2>
+    <table style="width:100%; border-collapse:collapse;">
+      <tr style="background:#1a73e8; color:white;">
+        <th style="padding:0.5rem; text-align:left;">Område</th>
+        <th style="padding:0.5rem; text-align:left;">E</th>
+        <th style="padding:0.5rem; text-align:left;">C</th>
+        <th style="padding:0.5rem; text-align:left;">A</th>
+      </tr>
+      <tr style="background:#f5f7fa;">
+        <td style="padding:0.5rem;">Installation</td>
+        <td style="padding:0.5rem;">Appen körs med handledning</td>
+        <td style="padding:0.5rem;">Appen körs självständigt</td>
+        <td style="padding:0.5rem;">Felsöker och löser problem självständigt</td>
+      </tr>
+      <tr>
+        <td style="padding:0.5rem;">Förståelse</td>
+        <td style="padding:0.5rem;">Förklarar vad appen gör</td>
+        <td style="padding:0.5rem;">Förklarar hur delarna hänger ihop</td>
+        <td style="padding:0.5rem;">Förklarar AI-modellernas funktion ingående</td>
+      </tr>
+      <tr style="background:#f5f7fa;">
+        <td style="padding:0.5rem;">Anpassning</td>
+        <td style="padding:0.5rem;">Gör nivå 1-uppgift</td>
+        <td style="padding:0.5rem;">Gör nivå 2-uppgift</td>
+        <td style="padding:0.5rem;">Gör nivå 3-uppgift</td>
+      </tr>
+      <tr>
+        <td style="padding:0.5rem;">Etik</td>
+        <td style="padding:0.5rem;">Nämner någon etisk aspekt</td>
+        <td style="padding:0.5rem;">Diskuterar flera aspekter</td>
+        <td style="padding:0.5rem;">Nyanserad analys med egna slutsatser</td>
+      </tr>
+    </table>
+  </div>
+
+  <footer>
+    <p>AI-kurs – El- och dataprogrammet | Individuellt val AI 100p</p>
+  </footer>
+
+</body>
+</html>
