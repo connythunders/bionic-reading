@@ -46,7 +46,11 @@
     cursor: pointer;
     box-shadow: var(--shadow);
   }
+  .mode-tabs { display: inline-flex; gap: 4px; margin-top: 18px; background: var(--bg-soft); padding: 4px; border-radius: 12px; border: 1px solid var(--border); }
+  .mode-tabs button { border: none; background: transparent; color: var(--text-muted); font-size: 0.95rem; font-weight: 600; padding: 9px 18px; border-radius: 9px; cursor: pointer; }
+  .mode-tabs button.active { background: #fff; color: var(--text); box-shadow: var(--shadow); }
   .lede { margin-top: 14px; font-size: 1.05rem; color: var(--text-muted); max-width: 840px; }
+  .subject-select.hidden { display: none; }
   .source { margin-top: 14px; font-size: 0.92rem; color: var(--text-muted); max-width: 920px; }
   .source a { color: var(--primary); text-decoration: underline; }
 
@@ -135,7 +139,11 @@
       <h1>Skolresultat — Gymnasiet</h1>
       <select id="subjectSelect" class="subject-select" aria-label="Välj ämne"></select>
     </div>
-    <p class="lede">Jämför gymnasieskolornas genomsnittliga resultat på de nationella proven per ämne. Stapeln visar skolans snittresultat (betygspoäng) mot rikssnittet – en positiv avvikelse betyder att skolan ligger över riket.</p>
+    <div class="mode-tabs" id="modeTabs">
+      <button data-mode="amne" class="active">Per ämne — mot riket</button>
+      <button data-mode="betygprov">Betyg vs prov</button>
+    </div>
+    <p class="lede" id="lede"></p>
     <p class="source" id="source">Källa: <a href="https://www.skolverket.se/skolutveckling/statistik" target="_blank" rel="noopener">Skolverket</a>.</p>
   </div>
 </header>
@@ -151,12 +159,7 @@
       <option value="Kommunal">Kommunala</option>
       <option value="Fristående">Fristående</option>
     </select>
-    <select id="sortSelect" class="select-field" aria-label="Sortera">
-      <option value="dev-desc">Störst över riket</option>
-      <option value="dev-asc">Störst under riket</option>
-      <option value="val-desc">Högst resultat</option>
-      <option value="name">Skola (A–Ö)</option>
-    </select>
+    <select id="sortSelect" class="select-field" aria-label="Sortera"></select>
   </div>
 </div>
 
@@ -164,62 +167,75 @@
   <div class="summary" id="summary"></div>
 
   <div class="sort-row">
-    <div class="legend">
-      <span><i class="swatch" style="background:var(--bar-skola)"></i> Skolans snittresultat (betygspoäng)</span>
-      <span><i class="swatch" style="background:var(--bar-riket)"></i> Rikssnitt</span>
-    </div>
+    <div class="legend" id="legend"></div>
   </div>
 
   <div class="results" id="results"><div class="loading">Laddar data…</div></div>
   <div class="pager" id="pager"></div>
 
-  <p class="note"><strong>Om datan:</strong> Värdena är skolornas <em>genomsnittliga provbetyg på nationella prov</em> (betygspoäng, A=20 … E=10, F=0), hämtade direkt från Skolverkets öppna statistik-API. Avvikelsen jämför skolan mot rikssnittet. Skolor med få elever redovisas inte av Skolverket och saknas därför här. En fullständig jämförelse mellan kursbetyg och provbetyg per kurs kräver Skolverkets separata avvikelsetabeller.</p>
+  <p class="note" id="note"></p>
 </div>
 
 <script>
 const $ = id => document.getElementById(id);
 const PAGE_SIZE = 60;
-const state = { subject: null, search: "", huvudman: "", sort: "dev-desc", limit: PAGE_SIZE, data: null };
+const state = { mode: "amne", subject: null, search: "", huvudman: "", sort: "dev-desc", limit: PAGE_SIZE, data: null };
 
-function gradeLetter(p){
-  if (p >= 18.75) return "A"; if (p >= 16.25) return "B"; if (p >= 13.75) return "C";
-  if (p >= 11.25) return "D"; if (p >= 5) return "E"; return "F";
+const LEDE = {
+  amne: "Jämför gymnasieskolornas genomsnittliga resultat på de nationella proven per ämne. Stapeln visar skolans snittresultat (betygspoäng) mot rikssnittet – en positiv avvikelse betyder att skolan ligger över riket.",
+  betygprov: "Jämför skolans genomsnittliga betygspoäng med dess resultat på de nationella proven. Avvikelsen är normaliserad mot riket: hur mycket skolan ligger över/under riket i betyg minus hur mycket den ligger över/under i prov. Positiv avvikelse = högre betyg än provresultaten motiverar jämfört med riksmönstret."
+};
+const NOTE = {
+  amne: "<strong>Om datan:</strong> Värdena är skolornas <em>genomsnittliga provbetyg på nationella prov</em> (betygspoäng, A=20 … E=10, F=0), hämtade direkt från Skolverkets öppna statistik-API. Avvikelsen jämför skolan mot rikssnittet. Skolor med få elever redovisas inte av Skolverket och saknas därför här.",
+  betygprov: "<strong>Om måttet:</strong> Skolverkets öppna API redovisar inte kursbetyg per enskild kurs på skolenhetsnivå, så denna vy jämför skolans <em>genomsnittliga betygspoäng</em> (examen, alla kurser) med dess <em>genomsnittliga provbetyg</em> på de nationella proven. Eftersom skalorna skiljer sig normaliseras båda mot riket innan de jämförs. Måttet indikerar betygssättning i förhållande till provresultat men är inte en exakt kursvis prov–betyg-jämförelse."
+};
+
+function load(){
+  fetch("skolresultat-gy-data.json")
+    .then(res => { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+    .then(d => {
+      state.data = d;
+      state.subject = d.amnen[0].id;
+      $("subjectSelect").innerHTML = d.amnen.map(a => `<option value="${a.id}">${a.label}</option>`).join("");
+      $("source").innerHTML = `Källa: <a href="https://www.skolverket.se/skolutveckling/statistik" target="_blank" rel="noopener">Skolverkets statistik</a> via Utbildningsguidens öppna API. Datafilen omfattar ${d.antalSkolor.toLocaleString("sv")} gymnasieskolor och uppdaterades ${d.uppdaterad}. Kontrollera alltid värden mot källan då fel kan uppstå i bearbetningen.`;
+      bindEvents();
+      applyMode();
+    })
+    .catch(e => { $("results").innerHTML = `<div class="empty">Kunde inte ladda datafilen (skolresultat-gy-data.json).<br><small>${e.message}</small></div>`; });
 }
 
-async function load(){
-  try {
-    const res = await fetch("skolresultat-gy-data.json");
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    state.data = await res.json();
-  } catch (e) {
-    $("results").innerHTML = `<div class="empty">Kunde inte ladda datafilen (skolresultat-gy-data.json).<br><small>${e.message}</small></div>`;
-    return;
-  }
-  const d = state.data;
-  state.subject = d.amnen[0].id;
-  $("subjectSelect").innerHTML = d.amnen.map(a => `<option value="${a.id}">${a.label}</option>`).join("");
-  $("source").innerHTML = `Källa: <a href="https://www.skolverket.se/skolutveckling/statistik" target="_blank" rel="noopener">Skolverkets statistik</a> via Utbildningsguidens öppna API. Datafilen omfattar ${d.antalSkolor.toLocaleString("sv")} gymnasieskolor och uppdaterades ${d.uppdaterad}. Kontrollera alltid värden mot källan då fel kan uppstå i bearbetningen.`;
-  bindEvents();
-  render();
-}
+const SORTS = {
+  amne: [["dev-desc","Störst över riket"],["dev-asc","Störst under riket"],["val-desc","Högst resultat"],["name","Skola (A–Ö)"]],
+  betygprov: [["dev-desc","Störst betyg över prov"],["dev-asc","Störst betyg under prov"],["val-desc","Högst betygspoäng"],["name","Skola (A–Ö)"]]
+};
 
 function bindEvents(){
+  $("modeTabs").querySelectorAll("button").forEach(btn =>
+    btn.addEventListener("click", () => {
+      if (state.mode === btn.dataset.mode) return;
+      state.mode = btn.dataset.mode;
+      $("modeTabs").querySelectorAll("button").forEach(b => b.classList.toggle("active", b === btn));
+      applyMode();
+    }));
   $("subjectSelect").addEventListener("change", e => { state.subject = e.target.value; state.limit = PAGE_SIZE; render(); });
   $("huvudmanSelect").addEventListener("change", e => { state.huvudman = e.target.value; state.limit = PAGE_SIZE; render(); });
   $("sortSelect").addEventListener("change", e => { state.sort = e.target.value; state.limit = PAGE_SIZE; render(); });
   $("search").addEventListener("input", e => { state.search = e.target.value.trim().toLowerCase(); state.limit = PAGE_SIZE; render(); });
 }
 
-function currentRows(){
-  const sub = state.subject;
-  const riket = state.data.riket[sub] ?? null;
-  let rows = state.data.skolor
-    .filter(s => s.amnen[sub])
-    .map(s => {
-      const a = s.amnen[sub];
-      return { namn: s.namn, kommun: s.kommun, huvudman: s.huvudman, betyg: s.betyg, examen: s.examen,
-               v: a.v, course: a.course, period: a.period, dev: riket != null ? +(a.v - riket).toFixed(1) : null };
-    });
+function applyMode(){
+  $("subjectSelect").classList.toggle("hidden", state.mode !== "amne");
+  $("lede").textContent = LEDE[state.mode];
+  $("note").innerHTML = NOTE[state.mode];
+  state.sort = "dev-desc"; state.limit = PAGE_SIZE;
+  $("sortSelect").innerHTML = SORTS[state.mode].map(([v,t]) => `<option value="${v}">${t}</option>`).join("");
+  $("legend").innerHTML = state.mode === "amne"
+    ? `<span><i class="swatch" style="background:var(--bar-skola)"></i> Skolans snittresultat (betygspoäng)</span><span><i class="swatch" style="background:var(--bar-riket)"></i> Rikssnitt</span>`
+    : `<span><i class="swatch" style="background:var(--bar-skola)"></i> Betygspoäng (examen)</span><span><i class="swatch" style="background:var(--bar-riket)"></i> Provbetyg (snitt NP)</span>`;
+  render();
+}
+
+function filterSort(rows){
   if (state.huvudman) rows = rows.filter(r => r.huvudman === state.huvudman);
   if (state.search) rows = rows.filter(r => r.namn.toLowerCase().includes(state.search) || (r.kommun||"").toLowerCase().includes(state.search));
   switch (state.sort){
@@ -231,12 +247,46 @@ function currentRows(){
   return rows;
 }
 
+function currentRows(){
+  if (state.mode === "betygprov"){
+    const rB = state.data.riket.betyg, rP = state.data.riket.provSnitt;
+    let rows = state.data.skolor
+      .filter(s => s.betyg != null && s.provSnitt != null)
+      .map(s => ({ namn: s.namn, kommun: s.kommun, huvudman: s.huvudman, examen: s.examen,
+                   v: s.betyg, prov: s.provSnitt,
+                   dev: +(((s.betyg - rB) - (s.provSnitt - rP))).toFixed(1) }));
+    return filterSort(rows);
+  }
+  const sub = state.subject;
+  const riket = state.data.riket[sub] ?? null;
+  let rows = state.data.skolor
+    .filter(s => s.amnen[sub])
+    .map(s => {
+      const a = s.amnen[sub];
+      return { namn: s.namn, kommun: s.kommun, huvudman: s.huvudman, betyg: s.betyg, examen: s.examen,
+               v: a.v, course: a.course, period: a.period, dev: riket != null ? +(a.v - riket).toFixed(1) : null };
+    });
+  return filterSort(rows);
+}
+
 function renderSummary(rows){
-  const label = state.data.amnen.find(a => a.id === state.subject)?.label || "";
-  const riket = state.data.riket[state.subject];
+  if (!rows.length){ $("summary").innerHTML = ""; return; }
+  const d = state.data;
+  if (state.mode === "betygprov"){
+    const avgB = rows.reduce((s,r)=>s+r.v,0)/rows.length;
+    const avgP = rows.reduce((s,r)=>s+r.prov,0)/rows.length;
+    const over = rows.filter(r=>r.dev>0.05).length;
+    $("summary").innerHTML = `
+      <div class="stat"><span class="num">${rows.length.toLocaleString("sv")}</span><span class="lbl">Skolor</span></div>
+      <div class="stat"><span class="num">${avgB.toFixed(1)}</span><span class="lbl">Snitt betygspoäng</span></div>
+      <div class="stat"><span class="num">${avgP.toFixed(1)}</span><span class="lbl">Snitt provbetyg</span></div>
+      <div class="stat"><span class="num">${Math.round(100*over/rows.length)}%</span><span class="lbl">Betyg över prov (rel. riket)</span></div>`;
+    return;
+  }
+  const label = d.amnen.find(a => a.id === state.subject)?.label || "";
+  const riket = d.riket[state.subject];
   const courses = [...new Set(rows.map(r => r.course).filter(Boolean))];
   const courseTxt = courses.length ? courses.slice(0,3).join(", ") + (courses.length>3?" m.fl.":"") : "–";
-  if (!rows.length){ $("summary").innerHTML = ""; return; }
   const avg = rows.reduce((s,r) => s + r.v, 0) / rows.length;
   $("summary").innerHTML = `
     <div class="stat"><span class="num">${rows.length.toLocaleString("sv")}</span><span class="lbl">Skolor (${label})</span></div>
@@ -258,26 +308,44 @@ function bar(label, val, cls){
     <span class="val">${val.toFixed(1)}</span></div>`;
 }
 
-function renderResults(rows){
-  if (!rows.length){ $("results").innerHTML = `<div class="empty">Inga skolor matchar din sökning för valt ämne.</div>`; $("pager").innerHTML=""; return; }
-  const riket = state.data.riket[state.subject];
-  const shown = rows.slice(0, state.limit);
-  $("results").innerHTML = shown.map(r => `
-    <div class="card">
+function card(r){
+  if (state.mode === "betygprov"){
+    return `<div class="card">
       <div class="card-head">
         <div><h3>${r.namn}</h3><div class="kommun">${r.kommun || ""}</div></div>
         ${devPill(r.dev)}
       </div>
-      ${r.course ? `<span class="course-tag">${r.course}${r.period ? " · " + r.period : ""}</span>` : ""}
       <div class="bars">
-        ${bar("Skolan", r.v, "skola")}
-        ${riket != null ? bar("Riket", riket, "riket") : ""}
+        ${bar("Betyg", r.v, "skola")}
+        ${bar("Prov", r.prov, "riket")}
       </div>
       <div class="card-foot">
         <span><span class="huvudman-badge ${r.huvudman==='Kommunal'?'kom':'fri'}">${r.huvudman}</span></span>
-        <span>${r.betyg != null ? "Betygspoäng " + r.betyg.toFixed(1) : ""}${r.examen != null ? " · Examen " + r.examen.toFixed(0) + "%" : ""}</span>
+        <span>${r.dev>0.05?"Betyg över prov":(r.dev<-0.05?"Betyg under prov":"I nivå")}${r.examen != null ? " · Examen " + r.examen.toFixed(0) + "%" : ""}</span>
       </div>
-    </div>`).join("");
+    </div>`;
+  }
+  const riket = state.data.riket[state.subject];
+  return `<div class="card">
+    <div class="card-head">
+      <div><h3>${r.namn}</h3><div class="kommun">${r.kommun || ""}</div></div>
+      ${devPill(r.dev)}
+    </div>
+    ${r.course ? `<span class="course-tag">${r.course}${r.period ? " · " + r.period : ""}</span>` : ""}
+    <div class="bars">
+      ${bar("Skolan", r.v, "skola")}
+      ${riket != null ? bar("Riket", riket, "riket") : ""}
+    </div>
+    <div class="card-foot">
+      <span><span class="huvudman-badge ${r.huvudman==='Kommunal'?'kom':'fri'}">${r.huvudman}</span></span>
+      <span>${r.betyg != null ? "Betygspoäng " + r.betyg.toFixed(1) : ""}${r.examen != null ? " · Examen " + r.examen.toFixed(0) + "%" : ""}</span>
+    </div>
+  </div>`;
+}
+
+function renderResults(rows){
+  if (!rows.length){ $("results").innerHTML = `<div class="empty">Inga skolor matchar din sökning.</div>`; $("pager").innerHTML=""; return; }
+  $("results").innerHTML = rows.slice(0, state.limit).map(card).join("");
   $("pager").innerHTML = rows.length > state.limit
     ? `<button id="moreBtn">Visa fler (${(rows.length - state.limit).toLocaleString("sv")} kvar)</button>` : "";
   const mb = $("moreBtn"); if (mb) mb.addEventListener("click", () => { state.limit += PAGE_SIZE; renderResults(currentRows()); });

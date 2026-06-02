@@ -161,12 +161,22 @@ async function pool(items, size, worker) {
     });
   });
 
-  // Rikssnitt per ämne (medel av skolornas värden)
+  // Snitt av skolans provbetyg över ämnen (för betyg-vs-prov-vyn)
+  schools.forEach(s => {
+    const vals = SUBJECTS.map(sub => s.amnen[sub.id]?.v).filter(v => v != null);
+    s.provSnitt = vals.length ? +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : null;
+  });
+
+  // Rikssnitt per ämne + samlat betyg/prov (medel av skolornas värden)
   const riket = {};
   SUBJECTS.forEach(sub => {
     const vals = schools.map(s => s.amnen[sub.id]?.v).filter(v => v != null);
     if (vals.length) riket[sub.id] = +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1);
   });
+  const betygVals = schools.map(s => s.betyg).filter(v => v != null);
+  const provVals = schools.map(s => s.provSnitt).filter(v => v != null);
+  riket.betyg = +(betygVals.reduce((a, b) => a + b, 0) / betygVals.length).toFixed(1);
+  riket.provSnitt = +(provVals.reduce((a, b) => a + b, 0) / provVals.length).toFixed(1);
 
   schools.sort((a, b) => a.namn.localeCompare(b.namn, 'sv'));
 
