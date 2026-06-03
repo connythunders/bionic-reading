@@ -287,6 +287,8 @@
               <span><span class="tt">Talaridentifiering</span><br><span class="ts">Dela upp i Talare 1/2 … via pauser</span></span></label>
             <label class="toggle"><input type="checkbox" id="wordTsToggle" checked><span class="switch"></span>
               <span><span class="tt">Ordnivå-tidsstämplar</span><br><span class="ts">Klicka på enskilda ord för att hoppa</span></span></label>
+            <label class="toggle"><input type="checkbox" id="gpuToggle"><span class="switch"></span>
+              <span><span class="tt">Snabbläge (GPU)</span><br><span class="ts">Snabbare men stöds inte av alla datorer. Lämna av om transkriberingen fastnar.</span></span></label>
           </div>
         </div>
 
@@ -471,7 +473,7 @@ const state = {
   editing:false,
 };
 const SPK_COLORS = ['#5b8cff','#34d399','#fbbf24','#f87171','#a78bfa','#22d3ee','#fb923c','#f472b6'];
-let asr=null, loadedModelId=null;
+let asrWorker=null;
 
 /* ===================== HELPERS ===================== */
 const $ = s=>document.querySelector(s);
@@ -548,92 +550,120 @@ async function decodeTo16k(blob){
   return r.getChannelData(0);
 }
 
-/* ===================== TRANSCRIBE ===================== */
-$('#transcribeBtn').addEventListener('click',runTranscription);
+/* ===================== TRANSCRIBE (Web Worker) ===================== */
+$('#transcribeBtn').addEventListener('click',()=>runTranscription(false));
 
-async function runTranscription(){
+/* Modellen körs i en Web Worker så att gränssnittet inte fryser. */
+function getWorker(){
+  if(asrWorker) return asrWorker;
+  const code=`
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.3.3';
+env.allowLocalModels=false;
+let asr=null, loadedKey=null;
+self.onmessage = async (e)=>{
+  const d=e.data; if(d.type!=='run') return;
+  const key=d.modelId+'|'+d.backend.device;
+  try{
+    if(loadedKey!==key||!asr){
+      asr=await pipeline('automatic-speech-recognition', d.modelId, {
+        device:d.backend.device, dtype:d.backend.dtype,
+        progress_callback:p=>self.postMessage({type:'progress',p})
+      });
+      loadedKey=key;
+    }
+    self.postMessage({type:'stage',stage:'transcribing'});
+    let out;
+    try{ out=await asr(d.pcm, d.options); }
+    catch(err){ out=await asr(d.pcm, Object.assign({}, d.options, {return_timestamps:true})); }
+    self.postMessage({type:'result', out});
+  }catch(err){ self.postMessage({type:'error', message:(err&&err.message)||String(err)}); }
+};`;
+  asrWorker=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})),{type:'module'});
+  return asrWorker;
+}
+
+async function pickBackend(){
+  let backend={device:'wasm',dtype:'q8'};
+  if($('#gpuToggle').checked && navigator.gpu){
+    try{
+      const adapter=await navigator.gpu.requestAdapter();
+      if(adapter && adapter.features && adapter.features.has('shader-f16')){
+        backend={device:'webgpu',dtype:{encoder_model:'fp16',decoder_model_merged:'q4'}};
+      }
+    }catch(e){ console.warn('WebGPU-kontroll misslyckades',e); }
+  }
+  return backend;
+}
+
+async function runTranscription(isRetry){
   if(!state.audioBlob){toast('Välj en ljudfil först');return;}
-  const modelId=$('#modelSel').value;
+  const modelId=$('#modelSel').value, short=modelId.split('/')[1];
   $('#progressArea').style.display='block';
   $('#progressBar').style.background='';
   $('#transcribeBtn').disabled=true;
   setProgress(2,'Avkodar ljud…');
   let pcm;
   try{ pcm=await decodeTo16k(state.audioBlob); }
-  catch(e){toast('Kunde inte läsa ljudfilen');$('#transcribeBtn').disabled=false;return;}
+  catch(e){ $('#transcribeBtn').disabled=false; return showLoadError(new Error('Kunde inte läsa ljudfilen')); }
 
-  if(loadedModelId!==modelId||!asr){
-    const short=modelId.split('/')[1];
-    setProgress(6,'Laddar modell ('+short+')…');
-    const pcb=p=>{
-      if(p.status==='progress'&&p.total){
-        const pct=6+Math.round(p.loaded/p.total*44);
-        setProgress(Math.min(50,pct),'Laddar modell… '+Math.round(p.loaded/p.total*100)+'%');
+  const backend=await pickBackend();
+  const wantWords=$('#wordTsToggle').checked;
+  const options={ language:$('#langSel').value, task:$('#taskSel').value, return_timestamps:wantWords?'word':true, chunk_length_s:30, stride_length_s:5 };
+  setProgress(6,'Laddar modell ('+short+')…'+(backend.device==='webgpu'?' [GPU]':''));
+
+  let worker;
+  try{ worker=getWorker(); }
+  catch(e){ $('#transcribeBtn').disabled=false; return showLoadError(new Error('Kunde inte starta bakgrundstråd: '+e.message)); }
+
+  let settled=false, watchdog=null;
+  const clearWatch=()=>{ if(watchdog){clearTimeout(watchdog);watchdog=null;} };
+  // Vakthund endast under inläsning/initiering (inte under själva transkriberingen som kan ta länge).
+  const armWatch=()=>{ clearWatch(); watchdog=setTimeout(()=>onFail(new Error('Tidsgräns: modellen svarade inte'),true), backend.device==='webgpu'?70000:120000); };
+  const cleanup=()=>{ settled=true; clearWatch(); worker.onmessage=null; worker.onerror=null; };
+  const onFail=(err,fromWatch)=>{
+    if(settled)return; cleanup();
+    if(backend.device==='webgpu' && !isRetry){
+      // Grafikläget hängde/fallerade → starta om i CPU-läge automatiskt
+      $('#gpuToggle').checked=false;
+      setProgress(30,'Grafikläget gick inte – försöker med CPU-läge…');
+      try{ asrWorker.terminate(); }catch(_){}
+      asrWorker=null;
+      runTranscription(true);
+    }else{ showLoadError(err); }
+  };
+
+  worker.onerror=(ev)=>onFail(new Error(ev.message||'Fel i bakgrundstråd'),false);
+  worker.onmessage=(e)=>{
+    const m=e.data;
+    if(m.type==='progress'){
+      armWatch();
+      const p=m.p;
+      if(p.status==='progress'){
+        if(p.total){ const pct=6+Math.round(p.loaded/p.total*44); setProgress(Math.min(50,pct),'Laddar modell… '+Math.round(p.loaded/p.total*100)+'%'); }
+        else setProgress(20,'Laddar modell…');
       }else if(p.status==='done'||p.status==='ready'){
         setProgress(52,'Initierar modellen… (första gången kan ta 10–60 s)');
       }
-    };
-    // Välj säkraste backend: WebGPU endast om fp16-shaders stöds, annars CPU/WASM.
-    let backend={device:'wasm',dtype:'q8'};
-    if(navigator.gpu){
-      try{
-        const adapter=await navigator.gpu.requestAdapter();
-        if(adapter && adapter.features && adapter.features.has('shader-f16')){
-          backend={device:'webgpu',dtype:{encoder_model:'fp16',decoder_model_merged:'q4'}};
-        }
-      }catch(e){ console.warn('WebGPU-kontroll misslyckades, använder CPU',e); }
+    }else if(m.type==='stage' && m.stage==='transcribing'){
+      clearWatch(); // inferens kan ta lång tid utan meddelanden
+      setProgress(60,'Transkriberar – detta kan ta en stund…');
+    }else if(m.type==='result'){
+      if(settled)return; cleanup();
+      setProgress(96,'Bearbetar resultat…');
+      buildSegments(m.out,wantWords);
+      if($('#diarToggle').checked) assignSpeakers();
+      setProgress(100,'Klart!');
+      setTimeout(()=>{ $('#setupArea').style.display='none'; $('#resultArea').style.display='block'; renderTranscript(); setupPlayer(); saveToHistory(); },350);
+    }else if(m.type==='error'){
+      onFail(new Error(m.message),false);
     }
-    try{
-      asr=await withTimeout(
-        pipeline('automatic-speech-recognition',modelId,{...backend,progress_callback:pcb}),
-        backend.device==='webgpu'?180000:300000,
-        'Tidsgräns vid modellinitiering – grafikläget svarade inte'
-      );
-      loadedModelId=modelId;
-    }catch(e){
-      console.error('Modellinläsning misslyckades på',backend.device,e);
-      if(backend.device!=='wasm'){
-        // Falla tillbaka till CPU/WASM som fungerar på i stort sett alla enheter
-        setProgress(30,'Grafikläget gick inte – byter till CPU-läge…');
-        try{
-          asr=await pipeline('automatic-speech-recognition',modelId,{device:'wasm',dtype:'q8',progress_callback:pcb});
-          loadedModelId=modelId;
-        }catch(e2){ return showLoadError(e2); }
-      }else{ return showLoadError(e); }
-    }
-  }
+  };
 
-  setProgress(56,'Transkriberar – detta kan ta en stund…');
-  const wantWords=$('#wordTsToggle').checked;
-  let out;
-  try{
-    out=await asr(pcm,{
-      language:$('#langSel').value, task:$('#taskSel').value,
-      return_timestamps:wantWords?'word':true,
-      chunk_length_s:30, stride_length_s:5,
-    });
-  }catch(e){
-    console.error(e);
-    // retry without word timestamps if that failed
-    try{ out=await asr(pcm,{language:$('#langSel').value,task:$('#taskSel').value,return_timestamps:true,chunk_length_s:30,stride_length_s:5}); }
-    catch(e2){toast('Transkriberingen misslyckades');$('#transcribeBtn').disabled=false;return;}
-  }
-  setProgress(96,'Bearbetar resultat…');
-  buildSegments(out,wantWords);
-  if($('#diarToggle').checked) assignSpeakers();
-  setProgress(100,'Klart!');
-  setTimeout(()=>{
-    $('#setupArea').style.display='none';
-    $('#resultArea').style.display='block';
-    renderTranscript(); setupPlayer(); saveToHistory();
-  },350);
+  armWatch();
+  worker.postMessage({type:'run', modelId, backend, pcm, options}, [pcm.buffer]);
 }
 
 function setProgress(p,label){$('#progressBar').style.width=p+'%';$('#progressLabel').textContent=label;}
-function withTimeout(promise,ms,label){
-  let t; const timeout=new Promise((_,rej)=>{t=setTimeout(()=>rej(new Error(label||'Tidsgräns nådd')),ms);});
-  return Promise.race([Promise.resolve(promise).finally(()=>clearTimeout(t)),timeout]);
-}
 function showLoadError(e){
   const msg=(e&&e.message)?e.message:String(e);
   $('#progressBar').style.width='100%';
