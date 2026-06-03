@@ -555,6 +555,7 @@ async function runTranscription(){
   if(!state.audioBlob){toast('Välj en ljudfil först');return;}
   const modelId=$('#modelSel').value;
   $('#progressArea').style.display='block';
+  $('#progressBar').style.background='';
   $('#transcribeBtn').disabled=true;
   setProgress(2,'Avkodar ljud…');
   let pcm;
@@ -562,21 +563,44 @@ async function runTranscription(){
   catch(e){toast('Kunde inte läsa ljudfilen');$('#transcribeBtn').disabled=false;return;}
 
   if(loadedModelId!==modelId||!asr){
-    setProgress(6,'Laddar modell ('+modelId.split('/')[1]+')…');
-    try{
-      const useGpu=!!navigator.gpu;
-      asr=await pipeline('automatic-speech-recognition',modelId,{
-        dtype:useGpu?{encoder_model:'fp16',decoder_model_merged:'q4'}:'q8',
-        device:useGpu?'webgpu':'wasm',
-        progress_callback:p=>{
-          if(p.status==='progress'&&p.total){
-            const pct=6+Math.round(p.loaded/p.total*44);
-            setProgress(pct,'Laddar modell… '+Math.round(p.loaded/p.total*100)+'%');
-          }
+    const short=modelId.split('/')[1];
+    setProgress(6,'Laddar modell ('+short+')…');
+    const pcb=p=>{
+      if(p.status==='progress'&&p.total){
+        const pct=6+Math.round(p.loaded/p.total*44);
+        setProgress(Math.min(50,pct),'Laddar modell… '+Math.round(p.loaded/p.total*100)+'%');
+      }else if(p.status==='done'||p.status==='ready'){
+        setProgress(52,'Initierar modellen… (första gången kan ta 10–60 s)');
+      }
+    };
+    // Välj säkraste backend: WebGPU endast om fp16-shaders stöds, annars CPU/WASM.
+    let backend={device:'wasm',dtype:'q8'};
+    if(navigator.gpu){
+      try{
+        const adapter=await navigator.gpu.requestAdapter();
+        if(adapter && adapter.features && adapter.features.has('shader-f16')){
+          backend={device:'webgpu',dtype:{encoder_model:'fp16',decoder_model_merged:'q4'}};
         }
-      });
+      }catch(e){ console.warn('WebGPU-kontroll misslyckades, använder CPU',e); }
+    }
+    try{
+      asr=await withTimeout(
+        pipeline('automatic-speech-recognition',modelId,{...backend,progress_callback:pcb}),
+        backend.device==='webgpu'?180000:300000,
+        'Tidsgräns vid modellinitiering – grafikläget svarade inte'
+      );
       loadedModelId=modelId;
-    }catch(e){console.error(e);toast('Kunde inte ladda modellen');$('#transcribeBtn').disabled=false;return;}
+    }catch(e){
+      console.error('Modellinläsning misslyckades på',backend.device,e);
+      if(backend.device!=='wasm'){
+        // Falla tillbaka till CPU/WASM som fungerar på i stort sett alla enheter
+        setProgress(30,'Grafikläget gick inte – byter till CPU-läge…');
+        try{
+          asr=await pipeline('automatic-speech-recognition',modelId,{device:'wasm',dtype:'q8',progress_callback:pcb});
+          loadedModelId=modelId;
+        }catch(e2){ return showLoadError(e2); }
+      }else{ return showLoadError(e); }
+    }
   }
 
   setProgress(56,'Transkriberar – detta kan ta en stund…');
@@ -606,6 +630,17 @@ async function runTranscription(){
 }
 
 function setProgress(p,label){$('#progressBar').style.width=p+'%';$('#progressLabel').textContent=label;}
+function withTimeout(promise,ms,label){
+  let t; const timeout=new Promise((_,rej)=>{t=setTimeout(()=>rej(new Error(label||'Tidsgräns nådd')),ms);});
+  return Promise.race([Promise.resolve(promise).finally(()=>clearTimeout(t)),timeout]);
+}
+function showLoadError(e){
+  const msg=(e&&e.message)?e.message:String(e);
+  $('#progressBar').style.width='100%';
+  $('#progressBar').style.background='var(--red)';
+  $('#progressLabel').innerHTML='<span style="color:var(--red)">⚠️ Modellen kunde inte laddas: '+esc(msg)+'</span><br><span class="hint">Prova en mindre modell (Tiny), uppdatera sidan (Ctrl/Cmd+Shift+R), eller använd Chrome/Edge. Kontrollera även att du har internet vid första körningen.</span>';
+  $('#transcribeBtn').disabled=false;
+}
 
 function buildSegments(out,wantWords){
   state.segments=[]; state.speakers={};
