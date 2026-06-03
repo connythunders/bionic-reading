@@ -259,11 +259,11 @@
             <h3>2 · Inställningar</h3>
             <p class="hint">Större modell = högre kvalitet men långsammare.</p>
             <div style="margin-bottom:12px">
-              <label class="field">Modell (Whisper)</label>
+              <label class="field">Modell (KB-Whisper – svensk)</label>
               <select id="modelSel">
-                <option value="onnx-community/whisper-tiny">Tiny – snabbast</option>
-                <option value="onnx-community/whisper-base" selected>Base – balanserad</option>
-                <option value="onnx-community/whisper-small">Small – bäst kvalitet</option>
+                <option value="onnx-community/kb-whisper-tiny-ONNX">KB-Whisper Tiny – snabbast</option>
+                <option value="onnx-community/kb-whisper-base-ONNX" selected>KB-Whisper Base – balanserad</option>
+                <option value="onnx-community/kb-whisper-small-ONNX">KB-Whisper Small – bäst kvalitet</option>
               </select>
             </div>
             <div style="margin-bottom:12px">
@@ -357,10 +357,13 @@
           <label class="field">Egen ordlista (kommaseparerad – t.ex. projektnamn, kodnamn)</label>
           <input type="text" id="customTerms" placeholder="t.ex. Projekt Nordstjärnan, Klient A">
         </div>
+        <label class="toggle" style="margin-top:8px"><input type="checkbox" id="nerToggle" checked><span class="switch"></span>
+          <span><span class="tt">Använd AI-modell (NER)</span><br><span class="ts">Svensk namnigenkänning i webbläsaren – hittar namn, platser, organisationer och tider</span></span></label>
         <div class="row" style="margin-top:16px">
           <button class="btn" id="scanBtn">🔍 Sök personuppgifter</button>
           <button class="btn ghost" id="maskAllBtn" disabled>🛡️ Maskera alla godkända</button>
         </div>
+        <div class="statusline" id="nerStatus" style="display:none"><span class="spin"></span><span id="nerLabel">Laddar NER-modell…</span></div>
       </div>
 
       <div class="card" id="matchCard" style="display:none">
@@ -433,10 +436,10 @@
       <div class="grid2">
         <div class="card">
           <h3>Så fungerar det</h3>
-          <div class="kv"><span>Taligenkänning</span><span>Whisper (ONNX) via transformers.js</span></div>
+          <div class="kv"><span>Taligenkänning</span><span>KB-Whisper (KBLab) via transformers.js</span></div>
           <div class="kv"><span>Körning</span><span>WebGPU med WASM-fallback</span></div>
           <div class="kv"><span>Talare</span><span>Pausbaserad segmentering</span></div>
-          <div class="kv"><span>Avidentifiering</span><span>Mönsterregler + egen ordlista</span></div>
+          <div class="kv"><span>Avidentifiering</span><span>Svensk NER (BERT) + mönsterregler</span></div>
           <div class="kv"><span>Lagring</span><span>localStorage i din webbläsare</span></div>
           <div class="kv" style="border:none"><span>Dataöverföring</span><span style="color:var(--green)">Ingen – allt är lokalt</span></div>
         </div>
@@ -561,9 +564,10 @@ async function runTranscription(){
   if(loadedModelId!==modelId||!asr){
     setProgress(6,'Laddar modell ('+modelId.split('/')[1]+')…');
     try{
+      const useGpu=!!navigator.gpu;
       asr=await pipeline('automatic-speech-recognition',modelId,{
-        dtype:'q8',
-        device:(navigator.gpu?'webgpu':'wasm'),
+        dtype:useGpu?{encoder_model:'fp16',decoder_model_merged:'q4'}:'q8',
+        device:useGpu?'webgpu':'wasm',
         progress_callback:p=>{
           if(p.status==='progress'&&p.total){
             const pct=6+Math.round(p.loaded/p.total*44);
@@ -753,10 +757,13 @@ const CATS=[
   {id:'Telefon',on:true,re:/\b(?:\+46|0)[\s-]?7[\s-]?\d(?:[\s-]?\d){7}\b|\b0\d{1,3}[-\s]?\d{5,8}\b/g},
   {id:'E-post',on:true,re:/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g},
   {id:'IP-adress',on:false,re:/\b(?:\d{1,3}\.){3}\d{1,3}\b/g},
-  {id:'Person',on:true,re:null}, // name heuristic
-  {id:'Plats',on:false,re:null},
+  {id:'Person',on:true,re:null},        // NER (PER) + namnlista
+  {id:'Plats',on:true,re:null},         // NER (LOC)
+  {id:'Organisation',on:true,re:null},  // NER (ORG)
+  {id:'Tid',on:false,re:null},          // NER (DATE)
   {id:'Belopp',on:false,re:/\b\d[\d\s]*(?:kr|kronor|SEK|:-)\b/gi},
 ];
+const NER_MAP={'PER':'Person','LOC':'Plats','ORG':'Organisation','DATE':'Tid'};
 const COMMON_FIRST=['anna','erik','maria','lars','karin','johan','eva','per','anders','sara','emma','oskar','olof','nils','gunnar','ingrid','astrid','björn','sven','hans','margareta','elisabeth','kristina','linnéa','mohammed','ali','fatima','ahmed'];
 function renderDeidCats(){
   const wrap=$('#deidCats'); wrap.innerHTML='';
@@ -767,31 +774,80 @@ function renderDeidCats(){
     wrap.appendChild(chip);
   });
 }
+let ner=null;
 $('#scanBtn').addEventListener('click',scanDeid);
 function fullText(){return state.segments.map(s=>s.text).join(' ');}
-function scanDeid(){
+
+async function loadNer(){
+  if(ner)return ner;
+  $('#nerStatus').style.display='flex';
+  ner=await pipeline('token-classification','Xenova/bert-base-multilingual-cased-ner-hrl',{
+    dtype:'q8', device:(navigator.gpu?'webgpu':'wasm'),
+    progress_callback:p=>{ if(p.status==='progress'&&p.total){ $('#nerLabel').textContent='Laddar NER-modell… '+Math.round(p.loaded/p.total*100)+'%'; } }
+  });
+  return ner;
+}
+/* aggregate BERT wordpiece tokens (B-/I-, ## subwords) into entity spans */
+function aggregateNer(tokens){
+  const ents=[]; let cur=null;
+  const flush=()=>{ if(cur){ents.push(cur);cur=null;} };
+  for(const tk of tokens){
+    const ent=tk.entity||'O';
+    if(ent==='O'){flush();continue;}
+    const tag=ent.slice(0,1), type=ent.slice(2);
+    let word=tk.word||'';
+    const isSub=word.startsWith('##');
+    word=word.replace(/^##/,'');
+    if(tag==='B'||!cur||cur.type!==type){ flush(); cur={type,text:word}; }
+    else { cur.text+= isSub?word:(' '+word); }
+  }
+  flush();
+  return ents.map(e=>({type:e.type,text:e.text.replace(/\s+([.,:;!?])/g,'$1').trim()})).filter(e=>e.text.length>1);
+}
+
+async function scanDeid(){
   if(!state.segments.length){toast('Transkribera först');return;}
   const text=fullText(); const found=[]; const seen=new Set();
   const add=(t,cat)=>{const k=cat+'|'+t.toLowerCase();if(seen.has(k)||!t.trim())return;seen.add(k);
     const idx=text.toLowerCase().indexOf(t.toLowerCase());
     const ctx=idx>=0?('…'+text.slice(Math.max(0,idx-22),idx+t.length+22).trim()+'…'):'';
     found.push({text:t.trim(),cat,context:ctx,approved:true});};
+
+  // 1. pattern rules (personnummer, telefon, e-post, IP, belopp)
   CATS.filter(c=>c.on&&c.re).forEach(c=>{let m;const re=new RegExp(c.re.source,c.re.flags);while((m=re.exec(text)))add(m[0],c.id);});
-  if(CATS.find(c=>c.id==='Person').on){
-    // capitalized words preceded by name-ish context or in common-name list
-    const re=/\b([A-ZÅÄÖ][a-zåäö]+)(?:\s+([A-ZÅÄÖ][a-zåäö]+))?\b/g; let m;
-    while((m=re.exec(text))){
-      const first=m[1].toLowerCase();
-      if(COMMON_FIRST.includes(first)) add(m[2]?m[1]+' '+m[2]:m[1],'Person');
-    }
+
+  // 2. egen ordlista
+  $('#customTerms').value.split(',').map(s=>s.trim()).filter(Boolean).forEach(t=>add(t,'Egen ordlista'));
+
+  // 3. NER-modell (eller enkel namnlista som fallback)
+  const useNer=$('#nerToggle').checked;
+  const nerCats=['Person','Plats','Organisation','Tid'].filter(c=>CATS.find(x=>x.id===c)?.on);
+  if(useNer && nerCats.length){
+    $('#scanBtn').disabled=true;
+    try{
+      const model=await loadNer();
+      $('#nerLabel').textContent='Analyserar text…';
+      // chunk long text to stay within model limits (~512 tokens)
+      const parts=text.match(/[\s\S]{1,1200}(?:\s|$)/g)||[text];
+      for(const part of parts){
+        const out=await model(part);
+        aggregateNer(out).forEach(e=>{ const cat=NER_MAP[e.type]; if(cat&&nerCats.includes(cat)) add(e.text,cat); });
+      }
+    }catch(err){ console.error(err); toast('NER-modellen kunde inte köras – använder namnlista'); fallbackNames(text,add); }
+    $('#scanBtn').disabled=false; $('#nerStatus').style.display='none';
+  }else if(nerCats.includes('Person')){
+    fallbackNames(text,add);
   }
-  const custom=$('#customTerms').value.split(',').map(s=>s.trim()).filter(Boolean);
-  custom.forEach(t=>add(t,'Egen ordlista'));
+
   state.matches=found;
   renderMatches();
   $('#deidEmpty').style.display=found.length?'none':'block';
   $('#deidEmpty').innerHTML='<div class="big">✅</div>Inga personuppgifter hittades med valda kategorier.';
   toast(found.length?found.length+' möjliga träffar':'Inga träffar hittades');
+}
+function fallbackNames(text,add){
+  const re=/\b([A-ZÅÄÖ][a-zåäö]+)(?:\s+([A-ZÅÄÖ][a-zåäö]+))?\b/g; let m;
+  while((m=re.exec(text))){ const first=m[1].toLowerCase(); if(COMMON_FIRST.includes(first)) add(m[2]?m[1]+' '+m[2]:m[1],'Person'); }
 }
 function renderMatches(){
   $('#matchCard').style.display=state.matches.length?'block':'none';
