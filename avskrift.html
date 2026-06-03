@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avskrift – Transkribering, talare & avidentifiering (lokalt)</title>
+<meta name="description" content="Transkribera svenskt tal till text, identifiera talare och avidentifiera personuppgifter – allt körs lokalt i din webbläsare. Inget ljud lämnar maskinen.">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0b1220; --panel:#0f172a; --panel-2:#111c33; --card:#152138;
+    --border:#1f2d49; --border-2:#27375a;
+    --text:#e6edf7; --muted:#93a3bd; --muted-2:#6b7c98;
+    --accent:#5b8cff; --accent-2:#7aa2ff; --accent-soft:rgba(91,140,255,.14);
+    --green:#34d399; --green-soft:rgba(52,211,153,.14);
+    --red:#f87171; --red-soft:rgba(248,113,113,.14);
+    --amber:#fbbf24; --amber-soft:rgba(251,191,36,.14);
+    --header-h:58px; --sidebar-w:248px;
+    --radius:12px; --radius-sm:8px;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  a{color:var(--accent-2);text-decoration:none}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#22324f;border-radius:8px}
+  ::-webkit-scrollbar-thumb:hover{background:#2c3f63}
+
+  /* ===== HEADER ===== */
+  header{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:var(--panel);
+    border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;padding:0 18px;z-index:50}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:.2px}
+  .brand .mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8b5cff);
+    display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 4px 14px rgba(91,140,255,.35)}
+  .brand small{display:block;font-weight:500;font-size:11px;color:var(--muted);letter-spacing:0}
+  .spacer{flex:1}
+  .pill{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--green);
+    background:var(--green-soft);border:1px solid rgba(52,211,153,.25);padding:6px 11px;border-radius:999px}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(52,211,153,.18)}
+  .hbtn{background:var(--card);border:1px solid var(--border-2);color:var(--text);padding:7px 12px;border-radius:8px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:7px}
+  .hbtn:hover{border-color:var(--accent);background:var(--panel-2)}
+
+  /* ===== LAYOUT ===== */
+  .app{display:flex;min-height:100vh;padding-top:var(--header-h)}
+  .sidebar{width:var(--sidebar-w);flex:0 0 var(--sidebar-w);background:var(--panel);border-right:1px solid var(--border);
+    position:fixed;top:var(--header-h);bottom:0;left:0;display:flex;flex-direction:column;overflow-y:auto}
+  .nav{padding:14px 12px;display:flex;flex-direction:column;gap:4px}
+  .nav .label{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted-2);padding:10px 10px 4px;font-weight:700}
+  .nav button{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:transparent;border:none;
+    color:var(--muted);padding:9px 11px;border-radius:9px;font-size:13.5px;font-weight:600}
+  .nav button .ico{width:18px;text-align:center;font-size:15px}
+  .nav button:hover{background:var(--panel-2);color:var(--text)}
+  .nav button.active{background:var(--accent-soft);color:var(--accent-2)}
+  .nav button .badge{margin-left:auto;font-size:11px;background:var(--card);color:var(--muted);border-radius:999px;padding:1px 8px;font-weight:700}
+  .sidebar-foot{margin-top:auto;padding:14px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted-2);line-height:1.6}
+
+  .main{flex:1;margin-left:var(--sidebar-w);padding:24px 28px 80px;max-width:1180px}
+  .view{display:none;animation:fade .25s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  h1.title{font-size:21px;font-weight:700;margin-bottom:4px}
+  .sub{color:var(--muted);font-size:13.5px;margin-bottom:22px;max-width:680px}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+  .card + .card{margin-top:16px}
+  .card h3{font-size:14px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+  .card .hint{color:var(--muted);font-size:12.5px;margin-bottom:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:880px){.grid2{grid-template-columns:1fr}}
+
+  label.field{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+  select,input[type=text],textarea{width:100%;background:var(--panel);border:1px solid var(--border-2);color:var(--text);
+    padding:9px 11px;border-radius:var(--radius-sm);font-size:13.5px;font-family:inherit}
+  select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .row > *{flex:1;min-width:160px}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:#fff;border:none;
+    padding:11px 18px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;transition:.15s}
+  .btn:hover{background:var(--accent-2)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn.ghost{background:transparent;border:1px solid var(--border-2);color:var(--text)}
+  .btn.ghost:hover{border-color:var(--accent);background:var(--panel-2)}
+  .btn.danger{background:var(--red)}
+  .btn.rec{background:var(--red)}
+  .btn.sm{padding:7px 13px;font-size:13px}
+
+  .dropzone{border:2px dashed var(--border-2);border-radius:var(--radius);padding:34px 20px;text-align:center;
+    transition:.2s;cursor:pointer;background:var(--panel)}
+  .dropzone:hover,.dropzone.drag{border-color:var(--accent);background:var(--accent-soft)}
+  .dropzone .big{font-size:34px;margin-bottom:8px}
+  .dropzone .t{font-weight:700;font-size:15px}
+  .dropzone .s{color:var(--muted);font-size:12.5px;margin-top:4px}
+
+  .toggle{display:flex;align-items:center;gap:10px;padding:9px 0;cursor:pointer;user-select:none}
+  .toggle input{display:none}
+  .switch{width:40px;height:22px;border-radius:999px;background:#2a3a5c;position:relative;transition:.2s;flex:0 0 auto}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s}
+  .toggle input:checked + .switch{background:var(--accent)}
+  .toggle input:checked + .switch::after{transform:translateX(18px)}
+  .toggle .tt{font-size:13.5px}
+  .toggle .ts{font-size:12px;color:var(--muted)}
+
+  /* progress */
+  .progress{height:8px;background:var(--panel);border-radius:999px;overflow:hidden;border:1px solid var(--border-2)}
+  .progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#8b5cff);width:0;transition:width .3s}
+  .statusline{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin:12px 0}
+  .spin{width:15px;height:15px;border:2px solid var(--border-2);border-top-color:var(--accent);border-radius:50%;animation:sp 0.8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* audio player */
+  .player{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--border-2);border-radius:var(--radius);padding:12px 16px;position:sticky;top:calc(var(--header-h) - 0px);z-index:20;margin-bottom:16px}
+  .pbtn{width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .pbtn:hover{background:var(--accent-2)}
+  .seek{flex:1;height:6px;background:#22324f;border-radius:999px;position:relative;cursor:pointer}
+  .seek > span{position:absolute;top:0;left:0;height:100%;background:var(--accent);border-radius:999px;width:0}
+  .ptime{font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--muted);min-width:96px;text-align:right}
+  .pspeed{background:var(--card);border:1px solid var(--border-2);color:var(--text);border-radius:7px;padding:5px 8px;font-size:12px}
+
+  /* transcript */
+  .transcript{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:6px}
+  .seg{display:flex;gap:12px;padding:11px 12px;border-radius:9px;transition:background .15s}
+  .seg:hover{background:var(--panel-2)}
+  .seg.playing{background:var(--accent-soft)}
+  .seg .meta{flex:0 0 130px;display:flex;flex-direction:column;gap:3px}
+  .seg .spk{font-weight:700;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;width:max-content;border-radius:6px;padding:1px 4px}
+  .seg .spk:hover{background:var(--card)}
+  .seg .spk .swatch{width:9px;height:9px;border-radius:50%}
+  .seg .tstamp{font-size:11px;color:var(--muted-2);font-variant-numeric:tabular-nums;cursor:pointer}
+  .seg .tstamp:hover{color:var(--accent-2)}
+  .seg .txt{flex:1;font-size:14.5px;line-height:1.65}
+  .seg .txt[contenteditable]:focus{outline:1px solid var(--accent);border-radius:6px;padding:2px 4px;margin:-2px -4px;background:var(--panel)}
+  .word{cursor:pointer;border-radius:4px;padding:0 1px}
+  .word:hover{background:var(--accent-soft)}
+  .word.active{background:var(--amber-soft);color:var(--amber);font-weight:600}
+  mark.redact{background:var(--red-soft);color:var(--red);border-radius:4px;padding:0 4px;font-weight:600;border:1px solid rgba(248,113,113,.3)}
+  mark.redact.masked{background:#1f2d49;color:var(--muted);border-color:var(--border-2)}
+
+  .empty{text-align:center;padding:54px 20px;color:var(--muted)}
+  .empty .big{font-size:42px;opacity:.5;margin-bottom:12px}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--border-2);
+    border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;user-select:none}
+  .chip .cb{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--muted-2);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+  .chip.on{border-color:var(--accent);color:var(--accent-2);background:var(--accent-soft)}
+  .chip.on .cb{background:var(--accent);border-color:var(--accent)}
+
+  table.matches{width:100%;border-collapse:collapse;font-size:13px}
+  table.matches th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted-2);padding:8px 10px;border-bottom:1px solid var(--border)}
+  table.matches td{padding:9px 10px;border-bottom:1px solid var(--border)}
+  table.matches tr:hover td{background:var(--panel-2)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent-2)}
+  .codepill{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:var(--panel);padding:2px 7px;border-radius:6px;border:1px solid var(--border-2)}
+
+  .menu{position:relative;display:inline-block}
+  .menu-list{position:absolute;right:0;top:calc(100% + 6px);background:var(--panel);border:1px solid var(--border-2);
+    border-radius:10px;padding:6px;min-width:220px;box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:30;display:none}
+  .menu-list.open{display:block}
+  .menu-list button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:none;
+    color:var(--text);padding:9px 10px;border-radius:8px;font-size:13px;font-weight:600}
+  .menu-list button:hover{background:var(--panel-2)}
+  .menu-list .div{height:1px;background:var(--border);margin:5px 4px}
+
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .toolbar .grow{flex:1}
+  .count{font-size:12.5px;color:var(--muted)}
+
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel);
+    border:1px solid var(--border-2);color:var(--text);padding:12px 18px;border-radius:10px;font-size:13.5px;font-weight:600;
+    box-shadow:0 12px 30px rgba(0,0,0,.5);opacity:0;transition:.25s;z-index:200;pointer-events:none;display:flex;align-items:center;gap:9px}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .hist-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--card)}
+  .hist-item:hover{border-color:var(--border-2)}
+  .hist-item .hmeta{flex:1}
+  .hist-item .hname{font-weight:700;font-size:13.5px}
+  .hist-item .hsub{font-size:12px;color:var(--muted)}
+
+  .kv{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--border)}
+  .kv span:first-child{color:var(--muted)}
+  .banner{background:var(--amber-soft);border:1px solid rgba(251,191,36,.3);color:var(--amber);border-radius:10px;padding:11px 14px;font-size:12.5px;display:flex;gap:9px;align-items:flex-start;margin-bottom:16px}
+
+  .mobile-toggle{display:none}
+  @media(max-width:820px){
+    :root{--sidebar-w:0px}
+    .sidebar{transform:translateX(-100%);transition:.25s;width:240px;flex-basis:240px;z-index:60}
+    .sidebar.open{transform:none}
+    .main{margin-left:0;padding:18px 14px 80px}
+    .mobile-toggle{display:inline-flex}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <button class="hbtn mobile-toggle" id="menuToggle" aria-label="Meny">☰</button>
+  <div class="brand">
+    <span class="mark">📝</span>
+    <span>Avskrift<small>Lokal taligenkänning</small></span>
+  </div>
+  <div class="spacer"></div>
+  <span class="pill"><span class="dot"></span>Allt körs lokalt</span>
+  <button class="hbtn" id="newProjectBtn">＋ Nytt</button>
+</header>
+
+<div class="app">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <nav class="nav">
+      <span class="label">Arbetsflöde</span>
+      <button data-view="transcribe" class="active"><span class="ico">🎙️</span> Transkribera</button>
+      <button data-view="deid"><span class="ico">🛡️</span> Avidentifiera <span class="badge" id="deidBadge">0</span></button>
+      <button data-view="summary"><span class="ico">📋</span> Sammanfatta</button>
+      <span class="label">Bibliotek</span>
+      <button data-view="history"><span class="ico">🗂️</span> Historik <span class="badge" id="histBadge">0</span></button>
+      <button data-view="about"><span class="ico">ℹ️</span> Om Avskrift</button>
+    </nav>
+    <div class="sidebar-foot">
+      <strong style="color:var(--text)">Integritet först.</strong><br>
+      Ljud och text bearbetas i din webbläsare och skickas aldrig till någon server.
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ============ TRANSKRIBERA ============ -->
+    <section class="view active" id="view-transcribe">
+      <h1 class="title">Transkribera</h1>
+      <p class="sub">Spela in direkt eller ladda upp en ljudfil. Talet omvandlas till text med tidsstämplar – helt lokalt i webbläsaren med KB-/Whisper-modellen.</p>
+
+      <div id="setupArea">
+        <div class="grid2">
+          <div class="card">
+            <h3>1 · Källa</h3>
+            <p class="hint">Mikrofoninspelning eller befintlig fil (mp3, wav, m4a, ogg, webm).</p>
+            <div class="dropzone" id="dropzone">
+              <div class="big">⬆️</div>
+              <div class="t">Släpp ljudfil här eller klicka för att välja</div>
+              <div class="s">Filen lämnar aldrig din dator</div>
+              <input type="file" id="fileInput" accept="audio/*,video/*" hidden>
+            </div>
+            <div class="row" style="margin-top:14px">
+              <button class="btn rec" id="recBtn">⏺ Spela in</button>
+              <button class="btn ghost" id="stopRecBtn" disabled>⏹ Stoppa</button>
+            </div>
+            <div class="statusline" id="recStatus" style="display:none">
+              <span class="dot" style="width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px var(--red-soft);animation:sp 1.4s linear infinite"></span>
+              <span id="recTimer">00:00</span> · spelar in…
+            </div>
+            <div id="fileChosen" style="display:none;margin-top:12px" class="statusline">
+              <span>📎</span><span id="fileName"></span>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>2 · Inställningar</h3>
+            <p class="hint">Större modell = högre kvalitet men långsammare.</p>
+            <div style="margin-bottom:12px">
+              <label class="field">Modell (Whisper)</label>
+              <select id="modelSel">
+                <option value="onnx-community/whisper-tiny">Tiny – snabbast</option>
+                <option value="onnx-community/whisper-base" selected>Base – balanserad</option>
+                <option value="onnx-community/whisper-small">Small – bäst kvalitet</option>
+              </select>
+            </div>
+            <div style="margin-bottom:12px">
+              <label class="field">Språk</label>
+              <select id="langSel">
+                <option value="sv" selected>Svenska</option>
+                <option value="en">Engelska</option>
+                <option value="no">Norska</option>
+                <option value="da">Danska</option>
+                <option value="fi">Finska</option>
+              </select>
+            </div>
+            <div style="margin-bottom:6px">
+              <label class="field">Läge</label>
+              <select id="taskSel">
+                <option value="transcribe" selected>Transkribera (tal → samma språk)</option>
+                <option value="translate">Översätt (tal → engelska)</option>
+              </select>
+            </div>
+            <label class="toggle"><input type="checkbox" id="diarToggle" checked><span class="switch"></span>
+              <span><span class="tt">Talaridentifiering</span><br><span class="ts">Dela upp i Talare 1/2 … via pauser</span></span></label>
+            <label class="toggle"><input type="checkbox" id="wordTsToggle" checked><span class="switch"></span>
+              <span><span class="tt">Ordnivå-tidsstämplar</span><br><span class="ts">Klicka på enskilda ord för att hoppa</span></span></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <button class="btn" id="transcribeBtn" disabled>✨ Starta transkribering</button>
+            <button class="btn ghost" id="loadProjectBtn">📂 Öppna .avskrift-projekt</button>
+          </div>
+          <input type="file" id="projectInput" accept=".avskrift,.json" hidden>
+          <div id="progressArea" style="display:none;margin-top:18px">
+            <div class="statusline"><span class="spin"></span><span id="progressLabel">Förbereder…</span></div>
+            <div class="progress"><span id="progressBar"></span></div>
+            <p class="hint" style="margin-top:8px">Första gången laddas modellen ned i webbläsaren (cachas sedan). Det kan ta en stund.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- result -->
+      <div id="resultArea" style="display:none">
+        <div class="player" id="player">
+          <button class="pbtn" id="playPause">▶</button>
+          <div class="seek" id="seek"><span id="seekFill"></span></div>
+          <span class="ptime"><span id="curTime">0:00</span> / <span id="durTime">0:00</span></span>
+          <select class="pspeed" id="speedSel">
+            <option value="0.75">0.75×</option><option value="1" selected>1×</option>
+            <option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option>
+          </select>
+        </div>
+
+        <div class="toolbar">
+          <strong style="font-size:15px">Transkript</strong>
+          <span class="count" id="segCount"></span>
+          <span class="grow"></span>
+          <button class="btn ghost sm" id="editToggle">✏️ Redigera</button>
+          <button class="btn ghost sm" id="speakersBtn">👥 Talare</button>
+          <div class="menu">
+            <button class="btn sm" id="exportBtn">⬇️ Exportera ▾</button>
+            <div class="menu-list" id="exportMenu">
+              <button data-exp="txt">📄 Text (.txt)</button>
+              <button data-exp="txt-ts">🕑 Text med tidsstämplar</button>
+              <button data-exp="docx">📝 Word (.doc)</button>
+              <button data-exp="srt">🎬 Undertext (.srt)</button>
+              <button data-exp="vtt">🌐 Undertext (.vtt)</button>
+              <div class="div"></div>
+              <button data-exp="project">💾 Spara projekt (.avskrift)</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="banner" id="deidNotice" style="display:none">
+          <span>🛡️</span><span>Avidentifiering aktiv – <span id="maskedCount">0</span> markeringar dolda. Hantera under <a href="#" data-goto="deid">Avidentifiera</a>.</span>
+        </div>
+
+        <div class="transcript" id="transcript"></div>
+      </div>
+    </section>
+
+    <!-- ============ AVIDENTIFIERA ============ -->
+    <section class="view" id="view-deid">
+      <h1 class="title">Avidentifiera</h1>
+      <p class="sub">Hitta och maskera känsliga personuppgifter innan export. Mönsterregler körs direkt; granska och godkänn varje träff manuellt.</p>
+
+      <div class="card">
+        <h3>Kategorier att söka efter</h3>
+        <p class="hint">Välj vilka typer av uppgifter som ska upptäckas.</p>
+        <div class="chips" id="deidCats"></div>
+        <div style="margin-top:16px">
+          <label class="field">Egen ordlista (kommaseparerad – t.ex. projektnamn, kodnamn)</label>
+          <input type="text" id="customTerms" placeholder="t.ex. Projekt Nordstjärnan, Klient A">
+        </div>
+        <div class="row" style="margin-top:16px">
+          <button class="btn" id="scanBtn">🔍 Sök personuppgifter</button>
+          <button class="btn ghost" id="maskAllBtn" disabled>🛡️ Maskera alla godkända</button>
+        </div>
+      </div>
+
+      <div class="card" id="matchCard" style="display:none">
+        <h3>Granskning <span class="tag" id="matchCount">0 träffar</span></h3>
+        <p class="hint">Bocka ur det som inte ska maskeras. Maskerade uppgifter ersätts med <span class="codepill">[KATEGORI]</span> vid export.</p>
+        <div style="overflow-x:auto">
+          <table class="matches">
+            <thead><tr><th style="width:36px"></th><th>Träff</th><th>Kategori</th><th>Sammanhang</th><th>Ersätts med</th></tr></thead>
+            <tbody id="matchBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="empty" id="deidEmpty"><div class="big">🛡️</div>Transkribera först, sök sedan efter personuppgifter här.</div>
+    </section>
+
+    <!-- ============ SAMMANFATTA ============ -->
+    <section class="view" id="view-summary">
+      <h1 class="title">Sammanfatta</h1>
+      <p class="sub">Skapa ett strukturerat mötesprotokoll utifrån transkriptet. Utkastet genereras lokalt och ska alltid granskas.</p>
+
+      <div class="banner"><span>⚠️</span><span>Automatiskt genererat utkast. Kontrollera alltid innehållet mot inspelningen innan det används.</span></div>
+
+      <div class="grid2">
+        <div class="card">
+          <h3>Mall</h3>
+          <p class="hint">Välj struktur för protokollet.</p>
+          <label class="field">Protokolltyp</label>
+          <select id="tmplSel">
+            <option value="meeting">Mötesprotokoll</option>
+            <option value="decisions">Beslut & åtgärder</option>
+            <option value="interview">Intervjusammanfattning</option>
+            <option value="plain">Enkel sammanfattning</option>
+          </select>
+          <div style="margin-top:14px">
+            <label class="field">Rubriker (en per rad)</label>
+            <textarea id="headings" rows="5"></textarea>
+          </div>
+          <label class="toggle" style="margin-top:6px"><input type="checkbox" id="useDeidSummary"><span class="switch"></span>
+            <span><span class="tt">Använd avidentifierad text</span></span></label>
+          <button class="btn" id="genSummaryBtn" style="margin-top:14px;width:100%">📋 Generera utkast</button>
+        </div>
+        <div class="card">
+          <h3>Utkast</h3>
+          <p class="hint">Redigerbart. Exportera när du är nöjd.</p>
+          <textarea id="summaryOut" rows="16" placeholder="Utkastet visas här…"></textarea>
+          <div class="row" style="margin-top:12px">
+            <button class="btn ghost sm" id="copySummaryBtn">📋 Kopiera</button>
+            <button class="btn ghost sm" id="dlSummaryTxt">📄 .txt</button>
+            <button class="btn ghost sm" id="dlSummaryDoc">📝 Word</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HISTORIK ============ -->
+    <section class="view" id="view-history">
+      <h1 class="title">Historik</h1>
+      <p class="sub">Tidigare transkript sparas lokalt i webbläsaren (localStorage). Inget laddas upp någonstans.</p>
+      <div class="toolbar">
+        <button class="btn ghost sm" id="clearHistBtn">🗑️ Rensa allt</button>
+      </div>
+      <div id="histList"></div>
+      <div class="empty" id="histEmpty"><div class="big">🗂️</div>Inga sparade transkript ännu.</div>
+    </section>
+
+    <!-- ============ OM ============ -->
+    <section class="view" id="view-about">
+      <h1 class="title">Om Avskrift</h1>
+      <p class="sub">En webbklon av desktop-appen Avskrift – transkribering, talaridentifiering och avidentifiering, helt lokalt.</p>
+      <div class="grid2">
+        <div class="card">
+          <h3>Så fungerar det</h3>
+          <div class="kv"><span>Taligenkänning</span><span>Whisper (ONNX) via transformers.js</span></div>
+          <div class="kv"><span>Körning</span><span>WebGPU med WASM-fallback</span></div>
+          <div class="kv"><span>Talare</span><span>Pausbaserad segmentering</span></div>
+          <div class="kv"><span>Avidentifiering</span><span>Mönsterregler + egen ordlista</span></div>
+          <div class="kv"><span>Lagring</span><span>localStorage i din webbläsare</span></div>
+          <div class="kv" style="border:none"><span>Dataöverföring</span><span style="color:var(--green)">Ingen – allt är lokalt</span></div>
+        </div>
+        <div class="card">
+          <h3>Bra att veta</h3>
+          <p class="hint" style="margin-bottom:10px">Modellerna laddas ned från ett CDN första gången och cachas sedan av webbläsaren. Därefter fungerar transkriberingen offline.</p>
+          <p class="hint" style="margin-bottom:10px">Talaridentifiering här är en förenklad pausbaserad metod, inte full akustisk diarisering. Justera talare manuellt vid behov.</p>
+          <p class="hint">Inspirerad av <a href="https://github.com/Pluggentipsar/avskrift/" target="_blank" rel="noopener">Avskrift</a> av Pluggentipsar (KB-Whisper, sherpa-onnx, KB-BERT, Qwen2.5).</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<audio id="audioEl"></audio>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.3.3';
+env.allowLocalModels = false;
+
+/* ===================== STATE ===================== */
+const state = {
+  audioBlob:null, audioUrl:null, audioBuffer:null, fileName:'inspelning',
+  segments:[],            // {start,end,text,speaker,words:[{text,start,end}]}
+  speakers:{},            // id -> {name,color}
+  matches:[],             // de-id matches
+  editing:false,
+};
+const SPK_COLORS = ['#5b8cff','#34d399','#fbbf24','#f87171','#a78bfa','#22d3ee','#fb923c','#f472b6'];
+let asr=null, loadedModelId=null;
+
+/* ===================== HELPERS ===================== */
+const $ = s=>document.querySelector(s);
+const $$ = s=>[...document.querySelectorAll(s)];
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+function fmt(s){s=Math.max(0,s||0);const m=Math.floor(s/60),x=Math.floor(s%60);return `${m}:${String(x).padStart(2,'0')}`;}
+function fmtSrt(s){const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=Math.floor(s%60),ms=Math.round((s-Math.floor(s))*1000);return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')},${String(ms).padStart(3,'0')}`;}
+function fmtVtt(s){return fmtSrt(s).replace(',','.');}
+function speakerName(id){return state.speakers[id]?.name||('Talare '+(id+1));}
+function speakerColor(id){return state.speakers[id]?.color||SPK_COLORS[id%SPK_COLORS.length];}
+
+/* ===================== NAV ===================== */
+function showView(v){
+  $$('.view').forEach(x=>x.classList.remove('active'));
+  $('#view-'+v).classList.add('active');
+  $$('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  $('#sidebar').classList.remove('open');
+  if(v==='history') renderHistory();
+}
+$$('.nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+$('#menuToggle').addEventListener('click',()=>$('#sidebar').classList.toggle('open'));
+document.addEventListener('click',e=>{const g=e.target.closest('[data-goto]');if(g){e.preventDefault();showView(g.dataset.goto);}});
+
+/* ===================== FILE / RECORD ===================== */
+const dropzone=$('#dropzone'), fileInput=$('#fileInput');
+dropzone.addEventListener('click',()=>fileInput.click());
+['dragover','dragenter'].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>dropzone.addEventListener(ev,e=>{e.preventDefault();dropzone.classList.remove('drag');}));
+dropzone.addEventListener('drop',e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+fileInput.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+
+async function handleFile(file){
+  state.audioBlob=file; state.fileName=file.name.replace(/\.[^.]+$/,'');
+  if(state.audioUrl)URL.revokeObjectURL(state.audioUrl);
+  state.audioUrl=URL.createObjectURL(file);
+  $('#fileChosen').style.display='flex'; $('#fileName').textContent=file.name;
+  $('#transcribeBtn').disabled=false;
+  toast('Fil vald: '+file.name);
+}
+
+let mediaRec=null, recChunks=[], recTimer=null, recStart=0;
+$('#recBtn').addEventListener('click',async()=>{
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    mediaRec=new MediaRecorder(stream); recChunks=[];
+    mediaRec.ondataavailable=e=>e.data.size&&recChunks.push(e.data);
+    mediaRec.onstop=()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      const blob=new Blob(recChunks,{type:recChunks[0]?.type||'audio/webm'});
+      handleFile(new File([blob],'inspelning.webm',{type:blob.type}));
+    };
+    mediaRec.start();
+    recStart=Date.now();
+    $('#recBtn').disabled=true; $('#stopRecBtn').disabled=false; $('#recStatus').style.display='flex';
+    recTimer=setInterval(()=>{const s=(Date.now()-recStart)/1000;$('#recTimer').textContent=fmt(s);},250);
+  }catch(err){toast('Kunde inte starta mikrofonen');console.error(err);}
+});
+$('#stopRecBtn').addEventListener('click',()=>{
+  if(mediaRec&&mediaRec.state!=='inactive')mediaRec.stop();
+  clearInterval(recTimer);
+  $('#recBtn').disabled=false; $('#stopRecBtn').disabled=true; $('#recStatus').style.display='none';
+});
+
+/* ===================== AUDIO DECODE / RESAMPLE ===================== */
+async function decodeTo16k(blob){
+  const ab=await blob.arrayBuffer();
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const decoded=await ctx.decodeAudioData(ab);
+  state.audioDuration=decoded.duration;
+  const off=new OfflineAudioContext(1,Math.ceil(decoded.duration*16000),16000);
+  const src=off.createBufferSource(); src.buffer=decoded; src.connect(off.destination); src.start();
+  const r=await off.startRendering();
+  ctx.close();
+  return r.getChannelData(0);
+}
+
+/* ===================== TRANSCRIBE ===================== */
+$('#transcribeBtn').addEventListener('click',runTranscription);
+
+async function runTranscription(){
+  if(!state.audioBlob){toast('Välj en ljudfil först');return;}
+  const modelId=$('#modelSel').value;
+  $('#progressArea').style.display='block';
+  $('#transcribeBtn').disabled=true;
+  setProgress(2,'Avkodar ljud…');
+  let pcm;
+  try{ pcm=await decodeTo16k(state.audioBlob); }
+  catch(e){toast('Kunde inte läsa ljudfilen');$('#transcribeBtn').disabled=false;return;}
+
+  if(loadedModelId!==modelId||!asr){
+    setProgress(6,'Laddar modell ('+modelId.split('/')[1]+')…');
+    try{
+      asr=await pipeline('automatic-speech-recognition',modelId,{
+        dtype:'q8',
+        device:(navigator.gpu?'webgpu':'wasm'),
+        progress_callback:p=>{
+          if(p.status==='progress'&&p.total){
+            const pct=6+Math.round(p.loaded/p.total*44);
+            setProgress(pct,'Laddar modell… '+Math.round(p.loaded/p.total*100)+'%');
+          }
+        }
+      });
+      loadedModelId=modelId;
+    }catch(e){console.error(e);toast('Kunde inte ladda modellen');$('#transcribeBtn').disabled=false;return;}
+  }
+
+  setProgress(56,'Transkriberar – detta kan ta en stund…');
+  const wantWords=$('#wordTsToggle').checked;
+  let out;
+  try{
+    out=await asr(pcm,{
+      language:$('#langSel').value, task:$('#taskSel').value,
+      return_timestamps:wantWords?'word':true,
+      chunk_length_s:30, stride_length_s:5,
+    });
+  }catch(e){
+    console.error(e);
+    // retry without word timestamps if that failed
+    try{ out=await asr(pcm,{language:$('#langSel').value,task:$('#taskSel').value,return_timestamps:true,chunk_length_s:30,stride_length_s:5}); }
+    catch(e2){toast('Transkriberingen misslyckades');$('#transcribeBtn').disabled=false;return;}
+  }
+  setProgress(96,'Bearbetar resultat…');
+  buildSegments(out,wantWords);
+  if($('#diarToggle').checked) assignSpeakers();
+  setProgress(100,'Klart!');
+  setTimeout(()=>{
+    $('#setupArea').style.display='none';
+    $('#resultArea').style.display='block';
+    renderTranscript(); setupPlayer(); saveToHistory();
+  },350);
+}
+
+function setProgress(p,label){$('#progressBar').style.width=p+'%';$('#progressLabel').textContent=label;}
+
+function buildSegments(out,wantWords){
+  state.segments=[]; state.speakers={};
+  const chunks=out.chunks||[];
+  if(wantWords && chunks.length){
+    // group words into sentence-ish segments on punctuation or long gaps
+    let cur=null;
+    chunks.forEach(c=>{
+      const [s,e]=c.timestamp||[0,0];
+      const w={text:c.text,start:s??0,end:e??s??0};
+      if(!cur){cur={start:w.start,end:w.end,text:'',words:[],speaker:0};}
+      cur.words.push(w); cur.text+=w.text; cur.end=w.end;
+      const endsSentence=/[.!?…:]\s*$/.test(w.text);
+      const gap=false;
+      if(endsSentence || cur.text.length>220){state.segments.push(finalizeSeg(cur));cur=null;}
+    });
+    if(cur)state.segments.push(finalizeSeg(cur));
+  }else if(chunks.length){
+    chunks.forEach(c=>{const[s,e]=c.timestamp||[0,0];state.segments.push({start:s??0,end:e??0,text:c.text.trim(),words:null,speaker:0});});
+  }else{
+    state.segments.push({start:0,end:state.audioDuration||0,text:(out.text||'').trim(),words:null,speaker:0});
+  }
+  state.segments=state.segments.filter(s=>s.text.trim());
+}
+function finalizeSeg(seg){seg.text=seg.text.trim();return seg;}
+
+/* pause-based pseudo-diarization: new speaker after a long silence gap */
+function assignSpeakers(){
+  let spk=0, prevEnd=null;
+  const GAP=1.1;
+  state.segments.forEach((s,i)=>{
+    if(prevEnd!==null && (s.start-prevEnd)>GAP){ spk=spk===0?1:0; }
+    s.speaker=spk; prevEnd=s.end;
+  });
+  const ids=[...new Set(state.segments.map(s=>s.speaker))];
+  ids.forEach(id=>{ if(!state.speakers[id]) state.speakers[id]={name:'Talare '+(id+1),color:SPK_COLORS[id%SPK_COLORS.length]}; });
+}
+
+/* ===================== RENDER TRANSCRIPT ===================== */
+function renderTranscript(){
+  const masked=new Set(state.matches.filter(m=>m.approved).map(m=>m.text.toLowerCase()));
+  const wrap=$('#transcript'); wrap.innerHTML='';
+  let lastSpk=null;
+  state.segments.forEach((seg,i)=>{
+    const row=document.createElement('div'); row.className='seg'; row.dataset.idx=i;
+    const showSpk=seg.speaker!==lastSpk; lastSpk=seg.speaker;
+    const meta=document.createElement('div'); meta.className='meta';
+    if(showSpk){
+      const spk=document.createElement('span'); spk.className='spk';
+      spk.innerHTML=`<span class="swatch" style="background:${speakerColor(seg.speaker)}"></span>${speakerName(seg.speaker)}`;
+      spk.title='Klicka för att byta namn';
+      spk.addEventListener('click',()=>renameSpeaker(seg.speaker));
+      meta.appendChild(spk);
+    }
+    const ts=document.createElement('span'); ts.className='tstamp'; ts.textContent=fmt(seg.start);
+    ts.addEventListener('click',()=>seekTo(seg.start));
+    meta.appendChild(ts);
+    const txt=document.createElement('div'); txt.className='txt';
+    if(seg.words&&!state.editing){
+      seg.words.forEach(w=>{
+        const sp=document.createElement('span'); sp.className='word';
+        sp.textContent=w.text; sp.dataset.start=w.start;
+        sp.addEventListener('click',()=>seekTo(w.start));
+        txt.appendChild(sp);
+      });
+      applyRedaction(txt,masked);
+    }else{
+      txt.textContent=seg.text;
+      if(state.editing){txt.contentEditable=true; txt.addEventListener('input',()=>{seg.text=txt.textContent;});}
+      else applyRedactionPlain(txt,seg.text,masked);
+    }
+    row.appendChild(meta); row.appendChild(txt); wrap.appendChild(row);
+  });
+  $('#segCount').textContent=state.segments.length+' segment · '+[...new Set(state.segments.map(s=>s.speaker))].length+' talare';
+  const mc=state.matches.filter(m=>m.approved).length;
+  $('#deidNotice').style.display=mc?'flex':'none'; $('#maskedCount').textContent=mc;
+  $('#deidBadge').textContent=state.matches.length;
+}
+function applyRedaction(container,masked){
+  if(!masked.size)return;
+  container.querySelectorAll('.word').forEach(w=>{
+    const clean=w.textContent.trim().toLowerCase().replace(/[.,!?:;]/g,'');
+    if(masked.has(clean)){w.innerHTML=`<mark class="redact masked">[dold]</mark>`;}
+  });
+}
+function applyRedactionPlain(el,text,masked){
+  if(!masked.size){el.textContent=text;return;}
+  let html=text;
+  state.matches.filter(m=>m.approved).forEach(m=>{
+    const re=new RegExp('\\b'+m.text.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','g');
+    html=html.replace(re,`<mark class="redact masked">[${m.cat}]</mark>`);
+  });
+  el.innerHTML=html;
+}
+function renameSpeaker(id){
+  const name=prompt('Namn på talare:',speakerName(id));
+  if(name&&name.trim()){state.speakers[id]={name:name.trim(),color:speakerColor(id)};renderTranscript();saveToHistory();}
+}
+
+$('#editToggle').addEventListener('click',()=>{
+  state.editing=!state.editing;
+  $('#editToggle').classList.toggle('btn');$('#editToggle').classList.toggle('ghost');
+  $('#editToggle').innerHTML=state.editing?'✅ Klar':'✏️ Redigera';
+  renderTranscript(); if(!state.editing)saveToHistory();
+});
+$('#speakersBtn').addEventListener('click',()=>{
+  const ids=[...new Set(state.segments.map(s=>s.speaker))];
+  if(!ids.length)return;
+  renameSpeaker(ids[0]);
+});
+
+/* ===================== PLAYER ===================== */
+const audio=$('#audioEl');
+function setupPlayer(){
+  audio.src=state.audioUrl; audio.playbackRate=parseFloat($('#speedSel').value);
+  audio.onloadedmetadata=()=>{$('#durTime').textContent=fmt(audio.duration);};
+  audio.ontimeupdate=onTime;
+  audio.onplay=()=>$('#playPause').textContent='⏸';
+  audio.onpause=()=>$('#playPause').textContent='▶';
+}
+$('#playPause').addEventListener('click',()=>{audio.paused?audio.play():audio.pause();});
+$('#speedSel').addEventListener('change',e=>audio.playbackRate=parseFloat(e.target.value));
+$('#seek').addEventListener('click',e=>{const r=e.currentTarget.getBoundingClientRect();seekTo((e.clientX-r.left)/r.width*audio.duration);});
+function seekTo(t){audio.currentTime=t;if(audio.paused)audio.play();}
+function onTime(){
+  const t=audio.currentTime;
+  $('#curTime').textContent=fmt(t);
+  $('#seekFill').style.width=(t/audio.duration*100||0)+'%';
+  // highlight current segment + word
+  let activeRow=null;
+  $$('#transcript .seg').forEach(row=>{
+    const seg=state.segments[+row.dataset.idx];
+    const on=t>=seg.start&&t<=seg.end;
+    row.classList.toggle('playing',on);
+    if(on)activeRow=row;
+  });
+  $$('#transcript .word.active').forEach(w=>w.classList.remove('active'));
+  if(activeRow){
+    const words=[...activeRow.querySelectorAll('.word')];
+    let best=null;
+    words.forEach(w=>{if(+w.dataset.start<=t)best=w;});
+    if(best){best.classList.add('active'); if(audio._scroll!==activeRow){activeRow.scrollIntoView({block:'center',behavior:'smooth'});audio._scroll=activeRow;}}
+  }
+}
+
+/* ===================== DE-IDENTIFICATION ===================== */
+const CATS=[
+  {id:'Personnummer',on:true,re:/\b(19|20)?\d{6}[-+]?\d{4}\b/g},
+  {id:'Telefon',on:true,re:/\b(?:\+46|0)[\s-]?7[\s-]?\d(?:[\s-]?\d){7}\b|\b0\d{1,3}[-\s]?\d{5,8}\b/g},
+  {id:'E-post',on:true,re:/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g},
+  {id:'IP-adress',on:false,re:/\b(?:\d{1,3}\.){3}\d{1,3}\b/g},
+  {id:'Person',on:true,re:null}, // name heuristic
+  {id:'Plats',on:false,re:null},
+  {id:'Belopp',on:false,re:/\b\d[\d\s]*(?:kr|kronor|SEK|:-)\b/gi},
+];
+const COMMON_FIRST=['anna','erik','maria','lars','karin','johan','eva','per','anders','sara','emma','oskar','olof','nils','gunnar','ingrid','astrid','björn','sven','hans','margareta','elisabeth','kristina','linnéa','mohammed','ali','fatima','ahmed'];
+function renderDeidCats(){
+  const wrap=$('#deidCats'); wrap.innerHTML='';
+  CATS.forEach(c=>{
+    const chip=document.createElement('span'); chip.className='chip'+(c.on?' on':'');
+    chip.innerHTML=`<span class="cb">${c.on?'✓':''}</span>${c.id}`;
+    chip.addEventListener('click',()=>{c.on=!c.on;chip.classList.toggle('on',c.on);chip.querySelector('.cb').textContent=c.on?'✓':'';});
+    wrap.appendChild(chip);
+  });
+}
+$('#scanBtn').addEventListener('click',scanDeid);
+function fullText(){return state.segments.map(s=>s.text).join(' ');}
+function scanDeid(){
+  if(!state.segments.length){toast('Transkribera först');return;}
+  const text=fullText(); const found=[]; const seen=new Set();
+  const add=(t,cat)=>{const k=cat+'|'+t.toLowerCase();if(seen.has(k)||!t.trim())return;seen.add(k);
+    const idx=text.toLowerCase().indexOf(t.toLowerCase());
+    const ctx=idx>=0?('…'+text.slice(Math.max(0,idx-22),idx+t.length+22).trim()+'…'):'';
+    found.push({text:t.trim(),cat,context:ctx,approved:true});};
+  CATS.filter(c=>c.on&&c.re).forEach(c=>{let m;const re=new RegExp(c.re.source,c.re.flags);while((m=re.exec(text)))add(m[0],c.id);});
+  if(CATS.find(c=>c.id==='Person').on){
+    // capitalized words preceded by name-ish context or in common-name list
+    const re=/\b([A-ZÅÄÖ][a-zåäö]+)(?:\s+([A-ZÅÄÖ][a-zåäö]+))?\b/g; let m;
+    while((m=re.exec(text))){
+      const first=m[1].toLowerCase();
+      if(COMMON_FIRST.includes(first)) add(m[2]?m[1]+' '+m[2]:m[1],'Person');
+    }
+  }
+  const custom=$('#customTerms').value.split(',').map(s=>s.trim()).filter(Boolean);
+  custom.forEach(t=>add(t,'Egen ordlista'));
+  state.matches=found;
+  renderMatches();
+  $('#deidEmpty').style.display=found.length?'none':'block';
+  $('#deidEmpty').innerHTML='<div class="big">✅</div>Inga personuppgifter hittades med valda kategorier.';
+  toast(found.length?found.length+' möjliga träffar':'Inga träffar hittades');
+}
+function renderMatches(){
+  $('#matchCard').style.display=state.matches.length?'block':'none';
+  $('#deidEmpty').style.display=state.matches.length?'none':'block';
+  $('#matchCount').textContent=state.matches.length+' träffar';
+  $('#maskAllBtn').disabled=!state.matches.length;
+  const body=$('#matchBody'); body.innerHTML='';
+  state.matches.forEach((m,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input type="checkbox" ${m.approved?'checked':''} data-i="${i}"></td>
+      <td><strong>${esc(m.text)}</strong></td>
+      <td><span class="tag">${m.cat}</span></td>
+      <td style="color:var(--muted)">${esc(m.context)}</td>
+      <td><span class="codepill">[${m.cat}]</span></td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('input').forEach(cb=>cb.addEventListener('change',e=>{state.matches[+e.target.dataset.i].approved=e.target.checked;}));
+  $('#deidBadge').textContent=state.matches.length;
+}
+function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+$('#maskAllBtn').addEventListener('click',()=>{renderTranscript();showView('transcribe');toast('Avidentifiering tillämpad i transkriptet');});
+
+/* ===================== SUMMARY ===================== */
+const TEMPLATES={
+  meeting:['Närvarande','Dagordning','Diskussion','Beslut','Åtgärder','Nästa möte'],
+  decisions:['Beslut','Ansvarig','Åtgärder','Deadline'],
+  interview:['Bakgrund','Huvudpunkter','Citat','Slutsats'],
+  plain:['Sammanfattning','Nyckelpunkter'],
+};
+function loadTemplate(){$('#headings').value=TEMPLATES[$('#tmplSel').value].join('\n');}
+$('#tmplSel').addEventListener('change',loadTemplate);
+$('#genSummaryBtn').addEventListener('click',()=>{
+  if(!state.segments.length){toast('Transkribera först');return;}
+  const headings=$('#headings').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const useDeid=$('#useDeidSummary').checked;
+  let text=useDeid?deidText():fullText();
+  const sentences=text.split(/(?<=[.!?])\s+/).filter(s=>s.trim().length>20);
+  // simple extractive key points: longest informative sentences
+  const ranked=[...sentences].sort((a,b)=>scoreSentence(b)-scoreSentence(a)).slice(0,Math.min(6,sentences.length));
+  const keypoints=ranked.map(s=>'• '+s.trim());
+  let out=`PROTOKOLL / SAMMANFATTNING\nDatum: ${new Date().toLocaleDateString('sv-SE')}\nKälla: ${state.fileName}\nTalare: ${[...new Set(state.segments.map(s=>speakerName(s.speaker)))].join(', ')}\n\n`;
+  headings.forEach(h=>{
+    out+=`## ${h}\n`;
+    if(/sammanfattning|huvudpunkter|nyckelpunkter|diskussion/i.test(h)) out+=keypoints.slice(0,4).join('\n')+'\n\n';
+    else if(/åtgärd|beslut/i.test(h)) out+='[ ] …\n[ ] …\n\n';
+    else out+='\n\n';
+  });
+  out+='---\n(Automatiskt utkast – granska mot inspelningen.)';
+  $('#summaryOut').value=out;
+  toast('Utkast genererat');
+});
+function scoreSentence(s){let sc=Math.min(s.length,160)/160;if(/\b(beslut|ska|måste|ansvarig|deadline|viktigt|kom överens|enades)\b/i.test(s))sc+=0.5;return sc;}
+function deidText(){let t=fullText();state.matches.filter(m=>m.approved).forEach(m=>{t=t.replace(new RegExp(m.text.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'),`[${m.cat}]`);});return t;}
+$('#copySummaryBtn').addEventListener('click',()=>{navigator.clipboard.writeText($('#summaryOut').value);toast('Kopierat');});
+$('#dlSummaryTxt').addEventListener('click',()=>dl(state.fileName+'-protokoll.txt',$('#summaryOut').value,'text/plain'));
+$('#dlSummaryDoc').addEventListener('click',()=>dlDoc(state.fileName+'-protokoll',$('#summaryOut').value));
+
+/* ===================== EXPORT ===================== */
+$('#exportBtn').addEventListener('click',e=>{e.stopPropagation();$('#exportMenu').classList.toggle('open');});
+document.addEventListener('click',()=>$('#exportMenu').classList.remove('open'));
+$('#exportMenu').addEventListener('click',e=>{const b=e.target.closest('[data-exp]');if(b)doExport(b.dataset.exp);});
+function exportText(withTs){
+  return state.segments.map(s=>{
+    const spk=speakerName(s.speaker);
+    let line=s.text;
+    state.matches.filter(m=>m.approved).forEach(m=>{line=line.replace(new RegExp(m.text.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g'),`[${m.cat}]`);});
+    return (withTs?`[${fmt(s.start)}] `:'')+`${spk}: ${line}`;
+  }).join('\n\n');
+}
+function doExport(kind){
+  $('#exportMenu').classList.remove('open');
+  const base=state.fileName||'avskrift';
+  if(kind==='txt')dl(base+'.txt',exportText(false),'text/plain');
+  else if(kind==='txt-ts')dl(base+'-tidsstamplar.txt',exportText(true),'text/plain');
+  else if(kind==='docx')dlDoc(base,exportText(true));
+  else if(kind==='srt')dl(base+'.srt',toSrt(false),'text/plain');
+  else if(kind==='vtt')dl(base+'.vtt',toSrt(true),'text/vtt');
+  else if(kind==='project')dl(base+'.avskrift',JSON.stringify({v:1,fileName:state.fileName,segments:state.segments,speakers:state.speakers,matches:state.matches}),'application/json');
+  toast('Export klar');
+}
+function toSrt(vtt){
+  let out=vtt?'WEBVTT\n\n':'';
+  state.segments.forEach((s,i)=>{
+    const a=vtt?fmtVtt(s.start):fmtSrt(s.start), b=vtt?fmtVtt(s.end):fmtSrt(s.end);
+    out+=(vtt?'':(i+1)+'\n')+`${a} --> ${b}\n${speakerName(s.speaker)}: ${s.text}\n\n`;
+  });
+  return out;
+}
+function dl(name,content,type){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+function dlDoc(base,text){
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Calibri,Arial,sans-serif;font-size:11pt;white-space:pre-wrap">${esc(text)}</body></html>`;
+  dl(base+'.doc',html,'application/msword');
+}
+
+/* ===================== PROJECT LOAD ===================== */
+$('#loadProjectBtn').addEventListener('click',()=>$('#projectInput').click());
+$('#projectInput').addEventListener('change',async e=>{
+  const f=e.target.files[0]; if(!f)return;
+  try{
+    const data=JSON.parse(await f.text());
+    state.segments=data.segments||[]; state.speakers=data.speakers||{}; state.matches=data.matches||[];
+    state.fileName=data.fileName||'projekt'; state.audioUrl=null;
+    $('#setupArea').style.display='none'; $('#resultArea').style.display='block';
+    $('#player').style.display='none';
+    renderTranscript(); renderMatches();
+    toast('Projekt öppnat');
+  }catch(err){toast('Kunde inte läsa projektfilen');}
+});
+
+/* ===================== HISTORY (localStorage) ===================== */
+const HKEY='avskrift_history_v1';
+function getHistory(){try{return JSON.parse(localStorage.getItem(HKEY)||'[]');}catch{return[];}}
+function saveToHistory(){
+  if(!state.segments.length)return;
+  const hist=getHistory();
+  const entry={id:state._histId||('h'+Date.now()),fileName:state.fileName,date:new Date().toISOString(),
+    segCount:state.segments.length,segments:state.segments,speakers:state.speakers,matches:state.matches};
+  state._histId=entry.id;
+  const idx=hist.findIndex(h=>h.id===entry.id);
+  if(idx>=0)hist[idx]=entry; else hist.unshift(entry);
+  localStorage.setItem(HKEY,JSON.stringify(hist.slice(0,30)));
+  $('#histBadge').textContent=hist.length;
+}
+function renderHistory(){
+  const hist=getHistory(); const list=$('#histList');
+  $('#histBadge').textContent=hist.length;
+  $('#histEmpty').style.display=hist.length?'none':'block';
+  list.innerHTML='';
+  hist.forEach(h=>{
+    const div=document.createElement('div'); div.className='hist-item';
+    div.innerHTML=`<span style="font-size:22px">🗂️</span>
+      <div class="hmeta"><div class="hname">${esc(h.fileName)}</div>
+      <div class="hsub">${new Date(h.date).toLocaleString('sv-SE')} · ${h.segCount} segment</div></div>
+      <button class="btn ghost sm" data-open="${h.id}">Öppna</button>
+      <button class="btn ghost sm" data-del="${h.id}">🗑️</button>`;
+    list.appendChild(div);
+  });
+  list.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>openHistory(b.dataset.open)));
+  list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{
+    localStorage.setItem(HKEY,JSON.stringify(getHistory().filter(h=>h.id!==b.dataset.del)));renderHistory();
+  }));
+}
+function openHistory(id){
+  const h=getHistory().find(x=>x.id===id); if(!h)return;
+  state.segments=h.segments; state.speakers=h.speakers||{}; state.matches=h.matches||[]; state.fileName=h.fileName; state._histId=h.id; state.audioUrl=null;
+  $('#setupArea').style.display='none'; $('#resultArea').style.display='block'; $('#player').style.display='none';
+  renderTranscript(); renderMatches(); showView('transcribe');
+}
+$('#clearHistBtn').addEventListener('click',()=>{if(confirm('Rensa all historik?')){localStorage.removeItem(HKEY);renderHistory();}});
+
+/* ===================== NEW / RESET ===================== */
+$('#newProjectBtn').addEventListener('click',()=>{
+  if(state.segments.length&&!confirm('Börja om? Osparat transkript ligger kvar i historiken.'))return;
+  Object.assign(state,{audioBlob:null,audioUrl:null,segments:[],speakers:{},matches:[],editing:false,_histId:null});
+  $('#setupArea').style.display='block'; $('#resultArea').style.display='none';
+  $('#fileChosen').style.display='none'; $('#transcribeBtn').disabled=true; $('#progressArea').style.display='none';
+  $('#player').style.display='flex';
+  renderMatches(); showView('transcribe');
+});
+
+/* ===================== INIT ===================== */
+renderDeidCats(); loadTemplate();
+$('#histBadge').textContent=getHistory().length;
+if(!navigator.gpu){/* still fine on wasm */}
+</script>
+</body>
+</html>
