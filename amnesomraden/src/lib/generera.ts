@@ -35,7 +35,7 @@ Returnera ett JSON-objekt med exakt denna form:
   ]
 }
 
-Generera 3–4 arbetsområden i "arbetsomraden".`;
+Generera exakt 3 arbetsområden i "arbetsomraden". Håll varje textfält kort och konkret: 1–2 meningar per fält, inga punktlistor. Det är viktigt att svaret är komplett och giltig JSON.`;
 
 function byggUnderlag(
   ankaramneKod: string,
@@ -85,7 +85,7 @@ function byggUnderlag(
   }
 
   rader.push(
-    "Utifrån detta underlag: skapa 3–4 ämnesövergripande arbetsområden som binder ihop ankarämnet och temat med de valda programmens karaktärsämnen och yrkeskontext. Varje arbetsområde ska tydligt visa vilka ämnen/kurser det binder ihop och vila på det centrala innehållet ovan. Svara endast med JSON.",
+    "Utifrån detta underlag: skapa exakt 3 ämnesövergripande arbetsområden som binder ihop ankarämnet och temat med de valda programmens karaktärsämnen och yrkeskontext. Varje arbetsområde ska tydligt visa vilka ämnen/kurser det binder ihop och vila på det centrala innehållet ovan. Håll fälten korta (1–2 meningar). Svara endast med komplett, giltig JSON.",
   );
 
   return rader.join("\n");
@@ -119,7 +119,48 @@ export function parseArbetsomraden(text: string): Arbetsomrade[] {
       /* prova nästa kandidat */
     }
   }
+
+  // Räddningsförsök vid trunkerat svar (t.ex. om max_tokens nåddes): plocka ut
+  // alla kompletta objekt i "arbetsomraden"-arrayen via balanserade klamrar.
+  const raddade = salvageObjekt(t);
+  if (raddade.length) return raddade.map(normaliseraArbetsomrade);
+
   throw new Error("Kunde inte tolka modellens svar som JSON.");
+}
+
+/** Extraherar alla kompletta, balanserade {…}-objekt ur en (ev. trunkerad) text. */
+function salvageObjekt(text: string): unknown[] {
+  const objekt: unknown[] = [];
+  let djup = 0;
+  let start = -1;
+  let iStrang = false;
+  let escaped = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (iStrang) {
+      if (escaped) escaped = false;
+      else if (c === "\\") escaped = true;
+      else if (c === '"') iStrang = false;
+      continue;
+    }
+    if (c === '"') iStrang = true;
+    else if (c === "{") {
+      if (djup === 0) start = i;
+      djup++;
+    } else if (c === "}") {
+      djup--;
+      if (djup === 0 && start >= 0) {
+        try {
+          const o = JSON.parse(text.slice(start, i + 1));
+          if (o && typeof o === "object" && "titel" in o) objekt.push(o);
+        } catch {
+          /* hoppa över ofullständigt objekt */
+        }
+        start = -1;
+      }
+    }
+  }
+  return objekt;
 }
 
 function strOf(v: unknown): string {
