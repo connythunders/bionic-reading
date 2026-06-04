@@ -4,8 +4,12 @@ import { ankaramneByKod, programById } from "./program";
 import { byggGrundning } from "./skolverket";
 import type { Arbetsomrade, Grundning } from "./types";
 
-const MODELL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
-const MAX_TOKENS = 3500;
+// Standardmodell: Haiku är snabb nog att hinna generera inom Vercels
+// funktionsgräns (60s på Hobby-planen). Vill man ha Sonnet (högre kvalitet)
+// sätts ANTHROPIC_MODEL – men då kan generering ibland slå i 60s-taket om man
+// inte har en plan med längre maxDuration.
+const MODELL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001";
+const MAX_TOKENS = 3000;
 
 const SYSTEMPROMPT = `Du är en erfaren svensk gymnasielärare och läroplansexpert på Stiernhööksgymnasiet i Rättvik. Din uppgift är att föreslå ämnesövergripande arbetsområden som binder ihop ett ankarämne (oftast Historia eller Svenska) med karaktärsämnena på skolans yrkes- och högskoleförberedande program.
 
@@ -171,9 +175,10 @@ export async function generera(
   const grundning = await byggGrundning(ankaramneKod, programIds);
   const underlag = byggUnderlag(ankaramneKod, tema, programIds, grundning);
 
-  // Timeout strax under funktionens maxDuration (60s) så vi får ett tydligt
-  // fel i stället för att plattformen dödar anropet (ger "Connection error").
-  const client = new Anthropic({ apiKey, timeout: 50_000, maxRetries: 1 });
+  // Inga retries (en retry kan dubbla tiden och slå i funktionsgränsen) och
+  // timeout strax under maxDuration (60s) så vi får ett tydligt fel i stället
+  // för en plattforms-timeout (504).
+  const client = new Anthropic({ apiKey, timeout: 57_000, maxRetries: 0 });
   const svar = await client.messages.create({
     model: MODELL,
     max_tokens: MAX_TOKENS,
