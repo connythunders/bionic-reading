@@ -54,9 +54,20 @@ export async function POST(request: Request) {
   } catch (err) {
     const meddelande =
       err instanceof Error ? err.message : "Okänt fel vid generering.";
-    // Plocka ut ev. HTTP-status/namn från Anthropic-SDK:t för felsökning.
-    const e = err as { status?: number; name?: string };
-    const detalj = [e.name, e.status ? `status ${e.status}` : null, meddelande]
+    // Plocka ut ev. HTTP-status/namn/underliggande orsak för felsökning.
+    const e = err as { status?: number; name?: string; cause?: unknown };
+    const orsak =
+      e.cause instanceof Error
+        ? e.cause.message
+        : e.cause
+          ? String(e.cause)
+          : null;
+    const detalj = [
+      e.name,
+      e.status ? `status ${e.status}` : null,
+      meddelande,
+      orsak ? `orsak: ${orsak}` : null,
+    ]
       .filter(Boolean)
       .join(" – ");
     console.error("[/api/generera] fel:", detalj, err);
