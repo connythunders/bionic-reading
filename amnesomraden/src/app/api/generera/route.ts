@@ -54,9 +54,15 @@ export async function POST(request: Request) {
   } catch (err) {
     const meddelande =
       err instanceof Error ? err.message : "Okänt fel vid generering.";
+    // Plocka ut ev. HTTP-status/namn från Anthropic-SDK:t för felsökning.
+    const e = err as { status?: number; name?: string };
+    const detalj = [e.name, e.status ? `status ${e.status}` : null, meddelande]
+      .filter(Boolean)
+      .join(" – ");
+    console.error("[/api/generera] fel:", detalj, err);
     const status = meddelande.includes("ANTHROPIC_API_KEY") ? 500 : 502;
     return NextResponse.json(
-      { error: "Kunde inte generera arbetsområden.", detalj: meddelande },
+      { error: "Kunde inte generera arbetsområden.", detalj },
       { status },
     );
   }

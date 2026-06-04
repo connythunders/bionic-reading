@@ -28,7 +28,7 @@ import type {
  */
 
 const BAS = "https://api.skolverket.se/syllabus";
-const TIMEOUT_MS = 8000;
+const TIMEOUT_MS = 6000;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 1 vecka
 const LIVE = process.env.SKOLVERKET_LIVE !== "0";
 
@@ -234,8 +234,23 @@ function franSample(subjectCode: string): AmnesGrundning | null {
 }
 
 /**
- * Hämtar ett ämne. Försöker Gy25 först, faller tillbaka på Gy11, och till
- * sist på medföljande exempeldata. Returnerar null om inget finns.
+ * Param-kombinationer som provas i tur och ordning för ett ämne. Gy25 först,
+ * sedan Gy11. Eftersom Gy11-ämnen ofta är "canceled" (utgår i.o.m. Gy25) tar
+ * vi även med EXPIRED-varianter så att t.ex. Historia hittas. Första
+ * kombinationen som ger tolkbart innehåll vinner.
+ */
+const PARAM_FORSOK = [
+  "timespan=CURRENT&reform=Gy25",
+  "timespan=CURRENT&reform=Gy11",
+  "timespan=CURRENT",
+  "reform=Gy11",
+  "timespan=EXPIRED&reform=Gy11",
+];
+
+/**
+ * Hämtar ett ämne. Försöker flera param-kombinationer (Gy25 → Gy11 → utgångna)
+ * och faller till sist tillbaka på medföljande exempeldata. Returnerar null om
+ * inget finns.
  */
 export async function hamtaAmne(
   subjectCode: string | undefined,
@@ -247,14 +262,12 @@ export async function hamtaAmne(
   if (cachad) return cachad;
 
   if (LIVE) {
-    for (const reform of ["Gy25", "Gy11"] as const) {
+    for (const params of PARAM_FORSOK) {
       const url =
-        `${BAS}/v1/subjects/${encodeURIComponent(subjectCode)}` +
-        `?timespan=CURRENT&reform=${reform}`;
+        `${BAS}/v1/subjects/${encodeURIComponent(subjectCode)}?${params}`;
       const raw = await hamtaJson(url);
       const norm = normalisera(raw, subjectCode);
       if (norm) {
-        norm.reform = norm.reform === "okand" ? reform : norm.reform;
         await cacheSkriv(cacheNyckel, norm);
         return norm;
       }
@@ -283,25 +296,36 @@ export async function byggGrundning(
 ): Promise<Grundning> {
   const kallor = new Set<string>();
 
-  const ankarAmne = ankaramneByKod(ankaramneKod);
-  const ankaramne = await hamtaAmne(ankarAmne?.kod ?? ankaramneKod);
-  if (ankaramne) kallor.add(kallaText(ankaramne.kalla));
-
   const program = programIds
     .map((id) => programById(id))
     .filter((p): p is SkolProgram => Boolean(p));
 
+  // Samla unika ämneskoder från valda programs karaktärsämnen.
+  const programKoder: string[] = [];
   const sedda = new Set<string>();
-  const programAmnen: AmnesGrundning[] = [];
   for (const p of program) {
     for (const ks of valdaKaraktarsamnen(p)) {
       if (!ks.subjectCode || sedda.has(ks.subjectCode)) continue;
       sedda.add(ks.subjectCode);
-      const amne = await hamtaAmne(ks.subjectCode);
-      if (amne) {
-        programAmnen.push(amne);
-        kallor.add(kallaText(amne.kalla));
-      }
+      programKoder.push(ks.subjectCode);
+    }
+  }
+
+  // Hämta ankarämne + alla programämnen parallellt (snabbare, undviker
+  // timeout på serverless-funktionen vid kall cache).
+  const ankarKod = ankaramneByKod(ankaramneKod)?.kod ?? ankaramneKod;
+  const [ankaramne, ...programResultat] = await Promise.all([
+    hamtaAmne(ankarKod),
+    ...programKoder.map((kod) => hamtaAmne(kod)),
+  ]);
+
+  if (ankaramne) kallor.add(kallaText(ankaramne.kalla));
+
+  const programAmnen: AmnesGrundning[] = [];
+  for (const amne of programResultat) {
+    if (amne) {
+      programAmnen.push(amne);
+      kallor.add(kallaText(amne.kalla));
     }
   }
 
