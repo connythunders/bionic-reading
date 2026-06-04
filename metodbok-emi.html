@@ -852,6 +852,14 @@ function fallbackCopy(text,msg){
 }
 
 /* ---------- Fråga metodboken (AI) ---------- */
+// ── Server-proxy (rekommenderat för skarp drift) ───────────────────────────
+// Sätt API_PROXY till din Vercel-endpoint (t.ex. "https://metodbok-api.vercel.app/api/chat")
+// så använder ALLA AI:n utan att klistra in någon egen nyckel. Nyckeln ligger då
+// bara som miljövariabel på servern – aldrig i den här koden.
+// Lämnas den tom faller verktyget tillbaka på att varje användare anger sin egen nyckel.
+const API_PROXY = "";
+const useProxy = () => !!API_PROXY;
+
 let apiKey = localStorage.getItem('emi_api_key') || '';
 let convo = []; // {role, content}
 let asking = false; // single-flight-spärr så samtalshistoriken inte kan hamna i fel ordning
@@ -886,8 +894,8 @@ function openDrawer(){
   const d=byId('drawer');
   d.removeAttribute('inert');d.classList.add('open');d.setAttribute('aria-hidden','false');
   byId('scrim').classList.add('open');
-  if(!apiKey) byId('keyBar').open=true;
-  setTimeout(()=>byId(apiKey?'q':'apiKeyInput').focus(),120);
+  if(!useProxy() && !apiKey) byId('keyBar').open=true;
+  setTimeout(()=>byId((useProxy()||apiKey)?'q':'apiKeyInput').focus(),120);
 }
 function closeDrawer(){
   if(!drawerOpen()) return;
@@ -941,7 +949,7 @@ async function ask(){
   const ta=byId('q');
   const question=ta.value.trim();
   if(!question) return;
-  if(!apiKey){
+  if(!useProxy() && !apiKey){
     byId('keyBar').open=true;byId('apiKeyInput').focus();
     showToast('Ange en Claude API-nyckel först');
     return;
@@ -958,21 +966,24 @@ async function ask(){
   chat.appendChild(think);chat.scrollTop=chat.scrollHeight;
 
   try{
-    const res=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "x-api-key":apiKey,
-        "anthropic-version":"2023-06-01",
-        "anthropic-dangerous-direct-browser-access":"true"
-      },
-      body:JSON.stringify({
-        model:MODEL,
-        max_tokens:1000,
-        system:SYSTEM_BLOCKS,
-        messages:convo.slice(-10)
-      })
-    });
+    const payload={ model:MODEL, max_tokens:1000, system:SYSTEM_BLOCKS, messages:convo.slice(-10) };
+    // Proxyläge: anropa skolans server (nyckeln ligger där). Annars direkt mot Anthropic med användarens nyckel.
+    const res = useProxy()
+      ? await fetch(API_PROXY, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body:JSON.stringify(payload)
+        })
+      : await fetch("https://api.anthropic.com/v1/messages", {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+            "x-api-key":apiKey,
+            "anthropic-version":"2023-06-01",
+            "anthropic-dangerous-direct-browser-access":"true"
+          },
+          body:JSON.stringify(payload)
+        });
     if(!res.ok){
       const err=await res.json().catch(()=>({}));
       throw new Error((err.error&&err.error.message)||('API-fel '+res.status));
@@ -990,7 +1001,10 @@ async function ask(){
   }catch(err){
     think.remove();
     convo.pop();
-    addMsg('bot','⚠️ '+err.message+'\n\nKontrollera att API-nyckeln är giltig. Nyckeln lagras bara lokalt i din webbläsare.');
+    const hint = useProxy()
+      ? '\n\nKunde inte nå AI-tjänsten just nu. Försök igen om en stund.'
+      : '\n\nKontrollera att API-nyckeln är giltig. Nyckeln lagras bara lokalt i din webbläsare.';
+    addMsg('bot','⚠️ '+err.message+hint);
   }finally{
     asking=false;
     byId('send').disabled=false;
@@ -1017,6 +1031,8 @@ window.addEventListener('popstate',()=>{
   applyTheme(localStorage.getItem('emi_theme') || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
   syncBionicBtn();
   updateKeyStatus();
+  // I proxyläge behövs ingen användarnyckel – göm nyckelraden helt.
+  if(useProxy()) byId('keyBar').style.display='none';
   const hash=location.hash.slice(1);
   const last=localStorage.getItem('emi_last');
   activeId = (hash&&SECTIONS.find(s=>s.id===hash&&!s.soon)) ? hash
