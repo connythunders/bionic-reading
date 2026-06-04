@@ -62,15 +62,21 @@ export async function POST(request: Request) {
         : e.cause
           ? String(e.cause)
           : null;
-    const detalj = [
-      e.name,
-      e.status ? `status ${e.status}` : null,
-      meddelande,
-      orsak ? `orsak: ${orsak}` : null,
-    ]
-      .filter(Boolean)
-      .join(" – ");
-    console.error("[/api/generera] fel:", detalj, err);
+    // Maskera ev. API-nyckel innan felet loggas eller returneras, så att en
+    // felaktigt inklistrad nyckel aldrig läcker via svaret.
+    const redacta = (s: string) =>
+      s.replace(/sk-ant-[A-Za-z0-9_-]+/g, "sk-ant-***MASKERAD***");
+    const detalj = redacta(
+      [
+        e.name,
+        e.status ? `status ${e.status}` : null,
+        meddelande,
+        orsak ? `orsak: ${orsak}` : null,
+      ]
+        .filter(Boolean)
+        .join(" – "),
+    );
+    console.error("[/api/generera] fel:", detalj);
     const status = meddelande.includes("ANTHROPIC_API_KEY") ? 500 : 502;
     return NextResponse.json(
       { error: "Kunde inte generera arbetsområden.", detalj },
