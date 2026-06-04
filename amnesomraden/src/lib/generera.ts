@@ -37,6 +37,43 @@ Returnera ett JSON-objekt med exakt denna form:
 
 Generera exakt 3 arbetsområden i "arbetsomraden". Håll varje textfält kort och konkret: 1–2 meningar per fält, inga punktlistor. Det är viktigt att svaret är komplett och giltig JSON.`;
 
+// Verktyg som tvingar fram strukturerad, garanterat giltig JSON-output.
+const ARBETSOMRADEN_TOOL: Anthropic.Tool = {
+  name: "lamna_arbetsomraden",
+  description:
+    "Returnera de genererade ämnesövergripande arbetsområdena som strukturerad data.",
+  input_schema: {
+    type: "object",
+    properties: {
+      arbetsomraden: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            titel: { type: "string" },
+            kort_beskrivning: { type: "string" },
+            amnen_kurser: { type: "array", items: { type: "string" } },
+            koppling_centralt_innehall: { type: "string" },
+            varfor_passar_eleverna: { type: "string" },
+            elevuppgift: { type: "string" },
+            bedomningside: { type: "string" },
+          },
+          required: [
+            "titel",
+            "kort_beskrivning",
+            "amnen_kurser",
+            "koppling_centralt_innehall",
+            "varfor_passar_eleverna",
+            "elevuppgift",
+            "bedomningside",
+          ],
+        },
+      },
+    },
+    required: ["arbetsomraden"],
+  },
+};
+
 function byggUnderlag(
   ankaramneKod: string,
   tema: string,
@@ -225,13 +262,31 @@ export async function generera(
     max_tokens: MAX_TOKENS,
     system: SYSTEMPROMPT,
     messages: [{ role: "user", content: underlag }],
+    // Tvinga strukturerad output via "tool use" → modellen returnerar ett
+    // redan parsat objekt, vilket eliminerar bräcklig JSON-textparsning.
+    tools: [ARBETSOMRADEN_TOOL],
+    tool_choice: { type: "tool", name: ARBETSOMRADEN_TOOL.name },
   });
 
+  // Läs i första hand det strukturerade tool-svaret.
+  const toolBlock = svar.content.find(
+    (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+  );
+  if (toolBlock) {
+    const input = toolBlock.input as { arbetsomraden?: unknown };
+    if (Array.isArray(input?.arbetsomraden) && input.arbetsomraden.length) {
+      return {
+        arbetsomraden: input.arbetsomraden.map(normaliseraArbetsomrade),
+        kallor: grundning.kallor,
+      };
+    }
+  }
+
+  // Fallback: ev. textsvar (om modellen mot förmodan svarar i text).
   const text = svar.content
     .filter((b): b is Anthropic.TextBlock => b.type === "text")
     .map((b) => b.text)
     .join("\n");
-
   const arbetsomraden = parseArbetsomraden(text);
   return { arbetsomraden, kallor: grundning.kallor };
 }
