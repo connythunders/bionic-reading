@@ -150,10 +150,21 @@ export async function generera(
   tema: string,
   programIds: string[],
 ): Promise<GenereraResultat> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
+  const rawKey = process.env.ANTHROPIC_API_KEY;
+  if (!rawKey || !rawKey.trim()) {
     throw new Error(
       "ANTHROPIC_API_KEY saknas. Lägg in den som server-side miljövariabel.",
+    );
+  }
+  const apiKey = rawKey.trim();
+  // Vanligt misstag: hela curl-exemplet från dokumentationen klistras in i
+  // stället för enbart nyckeln. Då innehåller värdet blanksteg/radbrytningar
+  // som gör att HTTP-headern blir ogiltig. Fånga det med ett tydligt fel –
+  // och eka ALDRIG tillbaka själva värdet (det kan innehålla nyckeln).
+  if (/\s/.test(apiKey) || !apiKey.startsWith("sk-")) {
+    throw new Error(
+      "ANTHROPIC_API_KEY ser felaktig ut: värdet ska vara ENBART nyckeln " +
+        "(börjar med sk-ant-…), utan extra text, citattecken eller radbrytningar.",
     );
   }
 
