@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metodbok EMI – elevhälsans medicinska insats</title>
+<meta name="description" content="Digital metodbok för elevhälsans medicinska insats (EMI). Sök, läs och fråga – med stöd för bionisk läsning, delbara länkar och utskrift.">
+<meta name="color-scheme" content="light dark">
+<!-- Open Graph (delning) -->
+<meta property="og:title" content="Metodbok EMI">
+<meta property="og:description" content="Digital metodbok för elevhälsans medicinska insats – sök, läs och fråga.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232f6b5e'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23fffdf8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f4ee;
+    --paper:#fffdf8;
+    --ink:#1f2a26;
+    --ink-soft:#4a554f;
+    --line:#e3ddd1;
+    --pine:#2f6b5e;
+    --pine-deep:#244f46;
+    --sage:#e8efe9;
+    --amber:#a5631f;
+    --shadow:0 1px 2px rgba(31,42,38,.06),0 8px 24px rgba(31,42,38,.06);
+    --serif:'Newsreader',Georgia,serif;
+    --sans:'Hanken Grotesk',system-ui,sans-serif;
+    --mark:#fbe6c4;
+  }
+  [data-theme="dark"]{
+    --bg:#141a18;
+    --paper:#1b2320;
+    --ink:#e8ece9;
+    --ink-soft:#9fb0a9;
+    --line:#2c3733;
+    --pine:#5fb3a0;
+    --pine-deep:#7cc7b6;
+    --sage:#243029;
+    --amber:#d99a52;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
+    --mark:#5a4a1e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  html,body{height:100%}
+  body{
+    font-family:var(--sans);background:var(--bg);color:var(--ink);
+    font-size:15.5px;line-height:1.6;
+    background-image:radial-gradient(circle at 100% 0,rgba(47,107,94,.05),transparent 38%);
+  }
+  b.br{font-weight:700}
+  /* ---- Tillgänglighet ---- */
+  :focus-visible{outline:2px solid var(--pine);outline-offset:2px;border-radius:4px}
+  .search-wrap input:focus-visible,.key-row input:focus-visible,.composer textarea:focus-visible{outline:2px solid var(--pine);outline-offset:1px}
+  .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .skip-link{position:fixed;top:8px;left:8px;z-index:80;background:var(--pine);color:#fff;font-weight:600;font-size:14px;
+    padding:9px 14px;border-radius:9px;transform:translateY(-150%);transition:.18s;text-decoration:none}
+  .skip-link:focus{transform:translateY(0)}
+  [inert]{cursor:default}
+  /* ---- Header ---- */
+  header.top{
+    display:flex;align-items:center;gap:14px;
+    padding:14px 22px;border-bottom:1px solid var(--line);
+    background:var(--paper);position:sticky;top:0;z-index:30;
+  }
+  .mark{font-family:var(--serif);font-weight:600;font-size:21px;letter-spacing:-.01em;display:flex;align-items:baseline;gap:10px}
+  .mark .dot{width:10px;height:10px;border-radius:50%;background:var(--pine);display:inline-block;transform:translateY(-1px)}
+  .badge{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pine);
+    border:1px solid var(--pine);border-radius:999px;padding:3px 9px}
+  .spacer{flex:1}
+  .icon-btn{
+    display:flex;align-items:center;justify-content:center;width:40px;height:40px;
+    border:1px solid var(--line);background:var(--bg);border-radius:9px;cursor:pointer;color:var(--ink);padding:0;transition:.16s;
+  }
+  .icon-btn:hover{background:var(--sage);border-color:var(--pine)}
+  .icon-btn svg{width:19px;height:19px}
+  .icon-btn.on{background:var(--pine);border-color:var(--pine);color:#fff}
+  .ask-btn{
+    font-family:var(--sans);font-weight:600;font-size:14px;cursor:pointer;
+    background:var(--pine);color:#fff;border:none;border-radius:10px;padding:10px 18px;
+    display:flex;align-items:center;gap:9px;transition:.18s;
+  }
+  .ask-btn:hover{background:var(--pine-deep);transform:translateY(-1px)}
+  .ask-btn svg{width:17px;height:17px}
+  .menu-btn{display:none}
+  .nav-scrim{position:fixed;inset:64px 0 0 0;background:rgba(31,42,38,.34);opacity:0;pointer-events:none;transition:.25s;z-index:44}
+  .nav-scrim.open{opacity:1;pointer-events:auto}
+
+  /* ---- Layout ---- */
+  .shell{display:grid;grid-template-columns:312px 1fr;min-height:calc(100vh - 64px)}
+  nav.side{border-right:1px solid var(--line);background:var(--paper);padding:20px 16px 60px;overflow-y:auto;height:calc(100vh - 64px);position:sticky;top:64px}
+  .search-wrap{position:relative;margin-bottom:8px}
+  .search-wrap input{
+    width:100%;font-family:var(--sans);font-size:14px;padding:11px 13px 11px 36px;
+    border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);
+  }
+  .search-wrap input:focus{outline:none;border-color:var(--pine);background:var(--paper)}
+  .search-wrap svg{position:absolute;left:11px;top:11px;width:16px;height:16px;color:var(--ink-soft)}
+  .search-kbd{position:absolute;right:9px;top:9px;font-size:11px;color:var(--ink-soft);border:1px solid var(--line);border-radius:5px;padding:1px 6px;background:var(--paper)}
+  .progress-note{font-size:11.5px;color:var(--ink-soft);margin:4px 6px 10px}
+  .grp{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);
+    margin:18px 8px 7px}
+  .nav-item{
+    display:block;width:100%;text-align:left;background:none;border:none;cursor:pointer;
+    font-family:var(--sans);font-size:14.5px;color:var(--ink);padding:8px 11px;border-radius:8px;line-height:1.35;
+  }
+  .nav-item:hover{background:var(--sage)}
+  .nav-item.active{background:var(--pine);color:#fff}
+  .nav-item.soon{color:var(--ink-soft);opacity:.7;cursor:default}
+  .nav-item.soon:hover{background:none}
+  .nav-item .tag{font-size:10px;color:var(--ink-soft);float:right;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+  .nav-item.active .tag{color:#cfe4dc}
+  .nav-item mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
+  .no-hits{font-size:13px;color:var(--ink-soft);padding:10px;font-style:italic}
+
+  /* ---- Content ---- */
+  main{padding:38px clamp(22px,5vw,72px) 90px;max-width:900px}
+  .crumb{font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--pine);font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .toolbar{display:flex;gap:8px;margin:0 0 22px;flex-wrap:wrap}
+  .tool{font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--pine-deep);background:var(--paper);
+    border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.16s}
+  .tool:hover{border-color:var(--pine);background:var(--sage)}
+  .tool svg{width:14px;height:14px}
+  h1.title{font-family:var(--serif);font-weight:500;font-size:clamp(30px,4.5vw,42px);line-height:1.08;letter-spacing:-.02em;margin-bottom:8px}
+  .lead{font-size:17.5px;color:var(--ink-soft);font-family:var(--serif);font-style:italic;margin-bottom:26px;max-width:62ch}
+  .source-note{font-size:13px;background:#fbf6ec;border:1px solid #ecdfc6;border-left:3px solid var(--amber);
+    border-radius:8px;padding:12px 15px;color:#6b5836;margin-bottom:32px;line-height:1.5}
+  [data-theme="dark"] .source-note{background:#2a2417;border-color:#4a3f22;color:#d6c39a}
+  .source-note b{color:#5a4727}
+  [data-theme="dark"] .source-note b{color:#e7d4a8}
+
+  .matrix{margin-top:10px}
+  .persp{margin-bottom:34px}
+  .persp h2{font-family:var(--serif);font-weight:600;font-size:23px;letter-spacing:-.01em;margin-bottom:4px;
+    padding-bottom:8px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .persp h2 .pill{font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    background:var(--sage);color:var(--pine-deep);padding:3px 9px;border-radius:999px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:17px 19px;margin-top:12px;box-shadow:var(--shadow)}
+  .card h3{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+  .card h3.f{color:var(--pine)}
+  .card h3.fo{color:#3f7393}
+  [data-theme="dark"] .card h3.fo{color:#7fb0cc}
+  .card h3.a{color:var(--amber)}
+  .card p{font-size:15px;color:var(--ink)}
+  .plain{font-size:15.5px}
+  .plain p{margin-bottom:14px}
+  .plain h2{font-family:var(--serif);font-weight:600;font-size:22px;margin:26px 0 6px;letter-spacing:-.01em}
+  .plain ul{margin:0 0 16px 2px;list-style:none}
+  .plain li{position:relative;padding:4px 0 4px 22px}
+  .plain li::before{content:"";position:absolute;left:3px;top:13px;width:7px;height:7px;border-radius:50%;background:var(--pine)}
+
+  .chapnav{display:flex;gap:12px;margin-top:46px;padding-top:26px;border-top:1px solid var(--line)}
+  .chapnav button{flex:1;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:12px;
+    padding:14px 17px;cursor:pointer;font-family:var(--sans);color:var(--ink);transition:.16s;box-shadow:var(--shadow)}
+  .chapnav button:hover{border-color:var(--pine);transform:translateY(-2px)}
+  .chapnav button .dir{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--pine);margin-bottom:4px}
+  .chapnav button .nm{font-family:var(--serif);font-size:17px;font-weight:500;line-height:1.2}
+  .chapnav button.next{text-align:right}
+  .chapnav button.empty{visibility:hidden}
+
+  .updated{margin-top:30px;font-size:12.5px;color:var(--ink-soft)}
+
+  /* ---- Drawer (Fråga metodboken) ---- */
+  .scrim{position:fixed;inset:0;background:rgba(31,42,38,.34);opacity:0;pointer-events:none;transition:.25s;z-index:40}
+  .scrim.open{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:min(460px,100%);background:var(--paper);
+    box-shadow:-12px 0 40px rgba(31,42,38,.18);transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+    z-index:50;display:flex;flex-direction:column}
+  .drawer.open{transform:translateX(0)}
+  .drawer-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .drawer-head .mark{font-size:17px}
+  .drawer-head .x{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--ink-soft);font-size:24px;line-height:1;width:40px;height:40px;border-radius:8px;display:grid;place-items:center}
+  .drawer-head .x:hover{background:var(--sage)}
+  .key-bar{padding:11px 20px;border-bottom:1px solid var(--line);background:var(--bg)}
+  .key-bar summary{font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;list-style:none;display:flex;align-items:center;gap:7px}
+  .key-bar summary::-webkit-details-marker{display:none}
+  .key-bar summary .st{margin-left:auto;font-size:11.5px;font-weight:600}
+  .key-bar summary .st.ok{color:var(--pine)}
+  .key-bar summary .st.missing{color:var(--amber)}
+  .key-row{display:flex;gap:7px;margin-top:10px}
+  .key-row input{flex:1;font-family:var(--sans);font-size:13px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--paper);color:var(--ink)}
+  .key-row input:focus{outline:none;border-color:var(--pine)}
+  .key-row button{font-family:var(--sans);font-size:13px;font-weight:600;border:none;border-radius:9px;padding:0 14px;cursor:pointer;background:var(--pine);color:#fff}
+  .key-row button.ghost{background:var(--sage);color:var(--pine-deep);min-width:40px}
+  .key-help{font-size:11.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5}
+  .key-help a{color:var(--pine)}
+  .chat{flex:1;overflow-y:auto;padding:20px 20px;display:flex;flex-direction:column;gap:14px}
+  .disclaimer{font-size:12.5px;color:#6b5836;background:#fbf6ec;border:1px solid #ecdfc6;border-radius:9px;padding:11px 13px;line-height:1.5}
+  [data-theme="dark"] .disclaimer{background:#2a2417;border-color:#4a3f22;color:#d6c39a}
+  .msg{max-width:92%;font-size:14.5px;line-height:1.55;border-radius:13px;padding:11px 14px;white-space:pre-wrap;word-wrap:break-word}
+  .msg.user{align-self:flex-end;background:var(--pine);color:#fff;border-bottom-right-radius:4px}
+  .msg.bot{align-self:flex-start;background:var(--sage);color:var(--ink);border-bottom-left-radius:4px}
+  .msg.bot .ref{display:block;margin-top:9px;font-size:12px;color:var(--pine-deep);font-weight:600}
+  .thinking{align-self:flex-start;color:var(--ink-soft);font-size:14px;font-style:italic;display:flex;gap:6px;align-items:center}
+  .thinking .d{width:6px;height:6px;background:var(--pine);border-radius:50%;animation:bob 1s infinite}
+  .thinking .d:nth-child(2){animation-delay:.15s}.thinking .d:nth-child(3){animation-delay:.3s}
+  @keyframes bob{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-4px)}}
+  .composer{border-top:1px solid var(--line);padding:13px 16px;display:flex;gap:9px;align-items:flex-end}
+  .composer textarea{flex:1;resize:none;font-family:var(--sans);font-size:14.5px;border:1px solid var(--line);
+    border-radius:11px;padding:11px 13px;max-height:120px;background:var(--bg);color:var(--ink)}
+  .composer textarea:focus{outline:none;border-color:var(--pine);background:var(--paper)}
+  .composer button{background:var(--pine);border:none;border-radius:11px;width:44px;height:44px;cursor:pointer;color:#fff;flex:none;display:grid;place-items:center}
+  .composer button:hover{background:var(--pine-deep)}
+  .composer button:disabled{opacity:.4;cursor:default}
+  .suggest{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+  .suggest button{font-family:var(--sans);font-size:12.5px;color:var(--pine-deep);background:var(--sage);border:1px solid #d3e1d6;border-radius:999px;padding:6px 11px;cursor:pointer;text-align:left}
+  [data-theme="dark"] .suggest button{border-color:var(--line)}
+  .suggest button:hover{background:#dceadd}
+  [data-theme="dark"] .suggest button:hover{background:#2c3a31}
+
+  /* ---- Toast ---- */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);
+    font-size:13.5px;font-weight:500;padding:11px 18px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.25);
+    opacity:0;pointer-events:none;transition:.25s;z-index:60}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:820px){
+    .shell{grid-template-columns:1fr}
+    .menu-btn{display:flex}
+    .ask-label{display:none}
+    .ask-btn{padding:10px 14px}
+    .search-kbd{display:none}
+    nav.side{
+      display:block;position:fixed;top:64px;left:0;bottom:0;width:min(310px,84vw);
+      z-index:45;transform:translateX(-105%);transition:transform .28s cubic-bezier(.4,0,.2,1);
+      box-shadow:12px 0 40px rgba(31,42,38,.18);height:auto;
+    }
+    nav.side.open{transform:translateX(0)}
+  }
+
+  /* ---- Print ---- */
+  @media print{
+    header.top,nav.side,.toolbar,.chapnav,.nav-scrim,.scrim,.drawer,.toast,.menu-btn{display:none!important}
+    .shell{display:block}
+    main{max-width:100%;padding:0}
+    body{background:#fff;font-size:11pt}
+    .card,.source-note{box-shadow:none;break-inside:avoid}
+    a[href]:after{content:""}
+  }
+</style>
+</head>
+<body>
+<a href="#content" class="skip-link" onclick="document.getElementById('content').focus()">Hoppa till innehållet</a>
+<header class="top">
+  <button class="icon-btn menu-btn" id="menuBtn" onclick="toggleNav()" aria-label="Visa kapitel" aria-controls="sideNav" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <div class="mark"><span class="dot"></span>Metodbok&nbsp;EMI</div>
+  <span class="badge">Pilot</span>
+  <div class="spacer"></div>
+  <button class="icon-btn" id="bionicBtn" onclick="toggleBionic()" title="Bionisk läsning (NPF-stöd)" aria-label="Bionisk läsning" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+  </button>
+  <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Ljust/mörkt läge" aria-label="Växla tema">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>
+  </button>
+  <button class="ask-btn" onclick="openDrawer()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="ask-label">Fråga metodboken</span>
+  </button>
+</header>
+
+<div class="shell">
+  <nav class="side" id="sideNav" aria-label="Kapitel">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+      <input id="search" type="text" placeholder="Sök i metodboken…" oninput="renderNav(this.value)" onkeydown="searchKey(event)" aria-label="Sök i metodboken">
+      <span class="search-kbd">/</span>
+    </div>
+    <div class="progress-note" id="progressNote" aria-live="polite"></div>
+    <div id="navList"></div>
+  </nav>
+
+  <main id="content" tabindex="-1"></main>
+</div>
+<div class="nav-scrim" id="navScrim" onclick="closeNav()"></div>
+
+<!-- Fråga-metodboken drawer -->
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" aria-hidden="true" inert>
+  <div class="drawer-head">
+    <div class="mark" id="drawerTitle"><span class="dot"></span>Fråga metodboken</div>
+    <button class="x" onclick="closeDrawer()" aria-label="Stäng">&times;</button>
+  </div>
+  <details class="key-bar" id="keyBar">
+    <summary>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3"/></svg>
+      Claude API-nyckel
+      <span class="st missing" id="keyStatus">saknas</span>
+    </summary>
+    <div class="key-row">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+      <button onclick="saveKey()">Spara</button>
+      <button class="ghost" onclick="clearKey()" title="Ta bort nyckel">✕</button>
+    </div>
+    <div class="key-help">
+      Nyckeln lagras <b>endast lokalt</b> i din webbläsare och skickas direkt till Anthropic. Skapa en nyckel på
+      <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.
+      I en organisationsbred version ersätts detta med en proxy så att eleverna/personalen inte behöver egen nyckel.
+    </div>
+  </details>
+  <div class="chat" id="chat">
+    <div class="disclaimer">
+      Svaren bygger <b>enbart</b> på texterna i denna metodbok och ersätter inte klinisk bedömning.
+      Saknas svaret i underlaget säger verktyget det. Kontrollera alltid mot källavsnittet.
+    </div>
+    <div class="msg bot">Hej! Jag svarar utifrån innehållet i metodboken. Vad vill du veta?
+      <div class="suggest">
+        <button onclick="quick(this)">Hur många hälsobesök ska erbjudas?</button>
+        <button onclick="quick(this)">Vad menas med främjande arbete?</button>
+        <button onclick="quick(this)">När ska en orosanmälan göras?</button>
+      </div>
+    </div>
+  </div>
+  <div class="composer">
+    <textarea id="q" rows="1" placeholder="Skriv din fråga…" onkeydown="keyAsk(event)" oninput="grow(this)" aria-label="Din fråga"></textarea>
+    <button id="send" onclick="ask()" aria-label="Skicka">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+    </button>
+  </div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   METODBOK EMI – fristående applikation
+   ------------------------------------------------------------
+   Strukturen följer det nationella Metodstöd för elevhälsan
+   (metodstod.se): ämne -> perspektiv (individ/grupp/organisation)
+   x inriktning (främjande/förebyggande/åtgärdande).
+
+   VIKTIGT: Texterna nedan är förkortade DEMO-exempel. De ska
+   ersättas med EMI:s egna av verksamhetschef/MLA godkända
+   rutiner och riktlinjer innan boken används skarpt.
+   ============================================================ */
+const SECTIONS = [
+  {
+    id:"om", group:"Om metodboken", title:"Om metodboken",
+    lead:"Vad metodboken är, vem den vänder sig till och hur den ska användas.",
+    type:"plain",
+    body:[
+      "Metodboken är det samlade stöd- och styrdokumentet för elevhälsans medicinska insats (EMI). Den ska bidra till en likvärdig och rättssäker hälso- och sjukvård oavsett vilken skola eleven går på.",
+      "EMI är hälso- och sjukvård enligt hälso- och sjukvårdslagen och ska bedrivas inom ett ledningssystem för kvalitet (SOSFS 2011:9). Metodboken är en central del i det systemet.",
+      "Så här använder du boken: använd menyn till vänster för att bläddra bland avsnitt, sökrutan (kortkommando /) för att hitta ett begrepp, och knappen \"Fråga metodboken\" för att ställa frågor om innehållet. Varje avsnitt går att dela med en egen länk och skriva ut.",
+      "Innehållet ägs och godkänns av verksamhetschef för EMI tillsammans med medicinskt ledningsansvarig (MLA). Detta verktyg är skalet – innehållet förvaltas av EMI."
+    ]
+  },
+  {
+    id:"def", group:"Om metodboken", title:"Definitioner",
+    lead:"Centrala begrepp: de tre inriktningarna och de tre perspektiven.",
+    type:"plain",
+    body:[
+      "Arbetet inom EMI beskrivs längs två axlar: tre inriktningar och tre perspektiv. Tillsammans bildar de den matris som strukturerar de flesta avsnitten i boken.",
+      "## Tre inriktningar",
+      "FRÄMJANDE arbete syftar till att stärka och bibehålla hälsa och välbefinnande. Det riktar sig till alla elever, oavsett risk.",
+      "FÖREBYGGANDE arbete syftar till att förhindra att ohälsa eller problem uppstår eller återkommer, genom att minska riskfaktorer och stärka skyddsfaktorer.",
+      "ÅTGÄRDANDE arbete riktar sig till elever där ett behov redan identifierats och handlar om att utreda, stödja och följa upp.",
+      "## Tre perspektiv",
+      "INDIVID – den enskilda eleven.",
+      "GRUPP – klassen och samspelet mellan elever.",
+      "ORGANISATION – skolan som verksamhet, hur den styrs och fungerar."
+    ]
+  },
+  {
+    id:"uppdrag", group:"Om metodboken", title:"EMI:s uppdrag och ansvar",
+    lead:"Det medicinska uppdraget, ansvarsroller och avgränsningar mot övrig elevhälsa.",
+    type:"plain",
+    body:[
+      "Elevhälsans medicinska insats ska främst arbeta hälsofrämjande och förebyggande och stödja elevernas utveckling mot utbildningens mål. Insatsen omfattar bland annat hälsobesök, vaccinationer, enklare sjukvårdsinsatser och medicinsk bedömning.",
+      "## Ansvarsroller",
+      "Verksamhetschef enligt HSL ansvarar för att verksamheten tillgodoser hög patientsäkerhet och god kvalitet.",
+      "Medicinskt ledningsansvarig (MLA) ansvarar för medicinsk kvalitet och för att rutiner och riktlinjer är aktuella och evidensbaserade.",
+      "Skolsköterska och skolläkare ansvarar för sina respektive hälso- och sjukvårdsåtgärder inom ramen för sin legitimation och sina ordinationer.",
+      "## Avgränsning",
+      "EMI är en del av den samlade elevhälsan tillsammans med psykologisk, psykosocial och specialpedagogisk kompetens. EMI ansvarar för de medicinska insatserna; samverkan sker i elevhälsoteamet under rektors ledning. Behov som överstiger skolans uppdrag hänvisas till regionens hälso- och sjukvård.",
+      "(Demo – ersätt med EMI:s egen beskrivning av uppdrag, roller och delegationer.)"
+    ]
+  },
+  {
+    id:"sekretess", group:"Om metodboken", title:"Sekretess och dokumentation",
+    lead:"Journalföring, sekretess mellan verksamheter och hantering av samtycke.",
+    type:"plain",
+    body:[
+      "EMI för patientjournal enligt patientdatalagen. Dokumentationen ska vara saklig och tillräcklig för en god och säker vård och föras i EMI:s journalsystem.",
+      "Inom EMI råder hälso- och sjukvårdssekretess. Sekretess gäller även mellan EMI och den övriga elevhälsan och skolans pedagogiska verksamhet; uppgifter lämnas som regel endast med vårdnadshavarens eller den unges samtycke, eller med stöd av en sekretessbrytande bestämmelse.",
+      "Anmälningsskyldigheten vid misstanke om att ett barn far illa bryter sekretessen (se avsnittet Orosanmälan till socialtjänst).",
+      "Rutiner för samtycke, utlämnande av journal och bevarande/gallring beskrivs här. (Demo – ersätt med EMI:s rutin och hänvisning till journalsystem.)"
+    ]
+  },
+  {
+    id:"def-halsobesok", group:"Allmänt", title:"Hälsobesök och screening",
+    lead:"Hälsobesök erbjuds alla elever. Innehåll och undersökningar varierar med elevens ålder.",
+    type:"matrix",
+    perspectives:{
+      individ:{
+        framjande:"Hälsosamtalet stärker elevens egna resurser och hälsosamma levnadsvanor. Eleven görs delaktig och får återkoppling på sin hälsa och utveckling.",
+        forebyggande:"Undersökningar av längd, vikt, syn och hörsel följer elevens utveckling och fångar tidigt avvikelser som kan behöva utredas. Vaccinationstäckning bevakas.",
+        atgardande:"Vid identifierade behov hänvisas eleven vidare, skolläkaren kopplas in och uppföljning planeras tillsammans med eleven och vårdnadshavare."
+      },
+      grupp:{
+        framjande:"Sammanställd, avidentifierad hälsodata används för att stärka hälsofrämjande insatser i klassen och på stadiet.",
+        forebyggande:"Mönster i hälsobesöken (t.ex. sömn, stress, fysisk aktivitet) ger underlag för förebyggande arbete på gruppnivå tillsammans med lärare.",
+        atgardande:"Återkommande behov i en grupp aktualiseras i elevhälsoteamet för gemensamma åtgärder."
+      },
+      organisation:{
+        framjande:"Basprogrammet beskriver vilka hälsobesök som erbjuds och i vilka årskurser, vilket ger en likvärdig grund för hela huvudmannen.",
+        forebyggande:"Avvikelser i täckningsgrad och genomförande följs upp i det systematiska kvalitetsarbetet.",
+        atgardande:"Rutiner finns för hur uteblivna besök och bristande täckning hanteras och rapporteras."
+      }
+    }
+  },
+  {
+    id:"basprogram", group:"Allmänt", title:"Basprogram – översikt",
+    lead:"Sammanställning av de hälsobesök och insatser som erbjuds genom skolåren.",
+    type:"plain",
+    body:[
+      "Basprogrammet beskriver vilka hälsobesök, undersökningar och vaccinationer som erbjuds i respektive årskurs. Det ger en likvärdig grund för hela huvudmannen och utgör stommen i EMI:s förebyggande arbete.",
+      "## Exempel på basprogram (demo)",
+      "Förskoleklass: hälsobesök med hälsosamtal, längd, vikt, syn och hörsel.",
+      "Årskurs 2: längd och vikt, uppföljning vid behov.",
+      "Årskurs 4: hälsobesök med hälsosamtal, längd, vikt och rygg.",
+      "Årskurs 7 eller 8: hälsobesök med hälsosamtal, längd och vikt.",
+      "Gymnasiet år 1: hälsobesök med hälsosamtal.",
+      "Vaccinationer erbjuds enligt det allmänna vaccinationsprogrammet (se avsnittet Vaccinationer).",
+      "(Demo – ersätt med EMI:s fastställda basprogram och årskursindelning.)"
+    ]
+  },
+  {
+    id:"lakemedel", group:"Allmänt", title:"Läkemedelshantering",
+    lead:"Rutiner för ordination, förvaring, administrering och dokumentation av läkemedel inom EMI.",
+    type:"plain",
+    body:[
+      "Läkemedelshantering inom EMI omfattar ordination, iordningställande, administrering och dokumentation och ska ske i enlighet med gällande föreskrifter.",
+      "Avsnittet skiljer på egenvård och hälso- och sjukvårdsåtgärd: när en elevs läkemedel hanteras som egenvård och när det är en åtgärd som kräver ordination och eventuell delegering.",
+      "Läkemedel förvaras säkert och oåtkomligt för obehöriga. Avvikelser i läkemedelshanteringen rapporteras enligt EMI:s avvikelserutin.",
+      "(Demo – ersätt med EMI:s rutin för läkemedelshantering, förvaring och delegering.)"
+    ]
+  },
+  {
+    id:"vaccination", group:"Hälsa (kroppslig)", title:"Vaccinationer",
+    lead:"Vaccinationer erbjuds enligt det allmänna vaccinationsprogrammet och Folkhälsomyndighetens riktlinjer.",
+    type:"plain",
+    body:[
+      "Alla elever erbjuds vaccinationer i skolan enligt det allmänna vaccinationsprogrammet för barn.",
+      "Skolsköterskan bevakar elevernas vaccinationstäckning så att kompletterande vaccinationer kan erbjudas upp till 18 års ålder.",
+      "Rutiner för ordination, hantering, dokumentation och uppföljning av vaccinationer beskrivs i detta avsnitt.",
+      "(Demo – ersätt med EMI:s vaccinationsrutin och aktuellt program från Folkhälsomyndigheten.)"
+    ]
+  },
+  {
+    id:"tillvaxt", group:"Hälsa (kroppslig)", title:"Tillväxt – längd och vikt",
+    lead:"Främjande, förebyggande och åtgärdande arbete kring elevers tillväxt.",
+    type:"matrix",
+    perspectives:{
+      individ:{
+        framjande:"Samtal om mat, rörelse och sömn stärker elevens förutsättningar för en sund utveckling, utan fokus på utseende eller siffror.",
+        forebyggande:"Längd och vikt mäts enligt basprogrammet och plottas i tillväxtkurva. Avvikande tillväxtmönster fångas tidigt.",
+        atgardande:"Vid avvikande kurva görs förnyad bedömning, skolläkaren kopplas in och eleven hänvisas vid behov vidare, i samråd med vårdnadshavare."
+      },
+      grupp:{
+        framjande:"Hälsosamma vanor främjas i klassen i samverkan med lärare, t.ex. kring skolmåltider och rörelse.",
+        forebyggande:"Avidentifierade mönster kan ge underlag för insatser på gruppnivå.",
+        atgardande:"Återkommande behov tas upp i elevhälsoteamet."
+      },
+      organisation:{
+        framjande:"Skolans måltids- och rörelsemiljö beaktas ur ett hälsoperspektiv.",
+        forebyggande:"Rutiner finns för enhetlig mätmetod och dokumentation i tillväxtkurva.",
+        atgardande:"Rutiner finns för remiss och samverkan med barnhälsovård/region vid behov."
+      }
+    }
+  },
+  {
+    id:"syn-horsel", group:"Hälsa (kroppslig)", title:"Syn och hörsel",
+    lead:"Kontroll av syn och hörsel inom hälsobesöken samt uppföljning av avvikelser.",
+    type:"plain",
+    body:[
+      "Syn och hörsel kontrolleras enligt basprogrammet eftersom nedsatt syn eller hörsel kan påverka elevens lärande och delaktighet.",
+      "Vid avvikande resultat görs en förnyad kontroll. Vid kvarstående avvikelse hänvisas eleven vidare (t.ex. till optiker, ögonmottagning eller hörselvård) i samråd med vårdnadshavare, och uppföljning dokumenteras.",
+      "(Demo – ersätt med EMI:s rutin för syn- och hörselundersökning samt remissvägar.)"
+    ]
+  },
+  {
+    id:"huvudvark", group:"Hälsa (kroppslig)", title:"Huvudvärk",
+    lead:"Främjande, förebyggande och åtgärdande arbete kring återkommande huvudvärk.",
+    type:"matrix",
+    perspectives:{
+      individ:{
+        framjande:"Samtal om sömn, måltider, vätska, skärmtid och pauser stärker elevens förmåga att förebygga huvudvärk.",
+        forebyggande:"Återkommande huvudvärk uppmärksammas i hälsosamtal; utlösande faktorer som stress, sömnbrist eller synproblem kartläggs.",
+        atgardande:"Vid täta eller funktionsnedsättande besvär görs en bedömning, eventuell synkontroll och hänvisning, med uppföljning tillsammans med eleven och vårdnadshavare."
+      },
+      grupp:{
+        framjande:"Kunskap om sömn, pauser och skärmvanor förmedlas i klassen i samverkan med lärare.",
+        forebyggande:"Mönster (t.ex. huvudvärk kopplad till provperioder) tas upp med lärarlaget.",
+        atgardande:"Gemensamma insatser planeras i elevhälsoteamet vid behov."
+      },
+      organisation:{
+        framjande:"Skolans inomhusmiljö, belysning och luft beaktas ur ett hälsoperspektiv.",
+        forebyggande:"Återkommande signaler vägs in i det systematiska kvalitetsarbetet.",
+        atgardande:"Rutiner finns för samverkan med externa aktörer när behoven överstiger skolans uppdrag."
+      }
+    }
+  },
+  {
+    id:"stress", group:"Hälsa (psykisk)", title:"Stress",
+    lead:"Främjande, förebyggande och åtgärdande arbete kring stress hos elever.",
+    type:"matrix",
+    perspectives:{
+      individ:{
+        framjande:"Samtal om återhämtning, sömn och balans mellan krav och resurser stärker elevens egen förmåga att hantera påfrestningar.",
+        forebyggande:"Tidiga tecken på stressrelaterad ohälsa uppmärksammas i hälsosamtal och vid kontakt med eleven.",
+        atgardande:"Vid uttalad stress görs en bedömning, eventuell hänvisning och uppföljning i samverkan med eleven och vårdnadshavare."
+      },
+      grupp:{
+        framjande:"Kunskap om stress och återhämtning förmedlas i klassen i samverkan med lärare.",
+        forebyggande:"Stressande mönster i en grupp (t.ex. provtryck) uppmärksammas och tas upp med lärarlaget.",
+        atgardande:"Insatser på gruppnivå planeras i elevhälsoteamet vid behov."
+      },
+      organisation:{
+        framjande:"Skolans organisation av t.ex. prov och scheman beaktas ur ett hälsoperspektiv.",
+        forebyggande:"Återkommande signaler om stress vägs in i skolans systematiska kvalitetsarbete.",
+        atgardande:"Rutiner finns för samverkan med externa aktörer när behoven överstiger skolans uppdrag."
+      }
+    }
+  },
+  {
+    id:"somn", group:"Hälsa (psykisk)", title:"Sömn och trötthet",
+    lead:"Främjande, förebyggande och åtgärdande arbete kring sömn och trötthet hos elever.",
+    type:"matrix",
+    perspectives:{
+      individ:{
+        framjande:"Samtal i hälsobesöket om sömnvanor, dygnsrytm och skärmtid stärker elevens kunskap om sömnens betydelse för lärande och mående.",
+        forebyggande:"Tidiga tecken på sömnbrist och trötthet uppmärksammas vid hälsosamtal och kontakter, och eleven får råd om sömnhygien.",
+        atgardande:"Vid ihållande sömnproblem görs en bedömning, eventuell hänvisning (t.ex. vårdcentral eller BUP) och uppföljning tillsammans med eleven och vårdnadshavare."
+      },
+      grupp:{
+        framjande:"Kunskap om sömn och återhämtning förmedlas i klassen i samverkan med lärare.",
+        forebyggande:"Mönster av trötthet i en grupp – t.ex. sena tider eller hög skärmanvändning – tas upp med lärarlaget.",
+        atgardande:"Gemensamma insatser på gruppnivå planeras i elevhälsoteamet vid återkommande behov."
+      },
+      organisation:{
+        framjande:"Skolans start- och sluttider samt schemaläggning beaktas ur ett sömnperspektiv.",
+        forebyggande:"Signaler om utbredd trötthet vägs in i skolans systematiska kvalitetsarbete.",
+        atgardande:"Rutiner finns för samverkan med externa aktörer när behoven överstiger skolans uppdrag."
+      }
+    }
+  },
+  {
+    id:"nedstamdhet", group:"Hälsa (psykisk)", title:"Nedstämdhet",
+    lead:"Främjande, förebyggande och åtgärdande arbete kring nedstämdhet och psykisk ohälsa.",
+    type:"matrix",
+    perspectives:{
+      individ:{
+        framjande:"Samtal om relationer, sammanhang och meningsfullhet stärker elevens psykiska hälsa och skyddsfaktorer.",
+        forebyggande:"Tidiga tecken på nedstämdhet uppmärksammas i hälsosamtal och i kontakt med eleven; oro följs upp.",
+        atgardande:"Vid tecken på nedstämdhet eller psykisk ohälsa görs en bedömning, eleven hänvisas vid behov (t.ex. vårdcentral, ungdomsmottagning eller BUP) och uppföljning planeras. Vid akut risk följs rutin för suicidprevention."
+      },
+      grupp:{
+        framjande:"Ett tryggt och inkluderande klimat i klassen främjas i samverkan med lärare.",
+        forebyggande:"Tecken på utanförskap eller ohälsa i en grupp tas upp med lärarlaget.",
+        atgardande:"Gemensamma insatser planeras i elevhälsoteamet vid behov."
+      },
+      organisation:{
+        framjande:"Ett skolövergripande främjande arbete för psykisk hälsa understöds.",
+        forebyggande:"Signaler om psykisk ohälsa vägs in i det systematiska kvalitetsarbetet.",
+        atgardande:"Rutiner finns för samverkan med region och socialtjänst när behoven överstiger skolans uppdrag."
+      }
+    }
+  },
+  {
+    id:"kvalitet", group:"Organisationsfrågor", title:"Kvalitetssäkring och utvecklingsarbete",
+    lead:"Systematiskt förbättringsarbete, riskanalys och avvikelsehantering inom EMI.",
+    type:"plain",
+    body:[
+      "EMI ska bedriva ett systematiskt förbättringsarbete fortlöpande, med särskild vikt vid förebyggande åtgärder (SOSFS 2011:9).",
+      "Vårdgivaren ska göra riskanalyser för att bedöma om händelser kan inträffa som skulle kunna leda till vårdskador.",
+      "Rutiner för avvikelsehantering och hantering av klagomål och synpunkter beskrivs här. Ett ledningssystem blir aldrig färdigt utan utvecklas och säkras ständigt.",
+      "(Demo – ersätt med EMI:s rutiner för avvikelser, riskanalys och egenkontroll.)"
+    ]
+  },
+  {
+    id:"orosanmalan", group:"Organisationsfrågor", title:"Orosanmälan till socialtjänst",
+    lead:"Anmälningsskyldighet vid misstanke om att ett barn far illa, och hur en anmälan görs.",
+    type:"plain",
+    body:[
+      "Personal inom EMI har anmälningsskyldighet enligt 14 kap. 1 § socialtjänstlagen vid misstanke om att ett barn far illa.",
+      "Anmälan ska göras genast och grundas på misstanke. Det är inte EMI:s uppgift att först utreda om misstanken stämmer.",
+      "Avsnittet beskriver hur anmälan görs, dokumenteras och följs upp, samt samverkan med övrig elevhälsa och rektor. Vid akut fara kontaktas socialtjänst eller polis omgående.",
+      "(Demo – ersätt med EMI:s rutin, blanketter och lokala kontaktuppgifter till socialtjänsten.)"
+    ]
+  },
+  {
+    id:"samverkan", group:"Organisationsfrågor", title:"Samverkan och remissvägar",
+    lead:"Samverkan inom elevhälsan och med externa aktörer, samt vägar för hänvisning.",
+    type:"plain",
+    body:[
+      "EMI samverkar internt i elevhälsoteamet under rektors ledning och externt med bland annat barnhälsovård, vårdcentral, ungdomsmottagning, BUP, tandvård och socialtjänst.",
+      "Hänvisning och remiss ska ske på ett enhetligt och dokumenterat sätt, med samtycke från vårdnadshavare eller den unge när det krävs.",
+      "Avsnittet beskriver kontaktvägar, ansvarsfördelning vid samverkan och hur återkoppling hanteras.",
+      "(Demo – ersätt med EMI:s lokala samverkansrutiner och kontaktuppgifter.)"
+    ]
+  },
+  // Visar bredd – kommande avsnitt (ej ifyllda i piloten)
+  {id:"s-tobak", group:"Hälsa (kroppslig)", title:"Tobak, alkohol och droger", soon:true},
+  {id:"s-fysisk", group:"Hälsa (kroppslig)", title:"Fysisk aktivitet", soon:true},
+  {id:"s-mat", group:"Hälsa (kroppslig)", title:"Mat och måltider", soon:true},
+  {id:"s-oro", group:"Hälsa (psykisk)", title:"Oro och ångest", soon:true},
+  {id:"s-krankning", group:"Hälsa (psykisk)", title:"Kränkande behandling och mobbning", soon:true},
+  {id:"s-franvaro", group:"Organisationsfrågor", title:"Frånvaro och skolnärvaro", soon:true}
+];
+
+const GROUP_ORDER = ["Om metodboken","Allmänt","Hälsa (kroppslig)","Hälsa (psykisk)","Organisationsfrågor"];
+const PLABEL = {individ:'Individnivå',grupp:'Gruppnivå',organisation:'Organisationsnivå'};
+// En enda källa för läsbara avsnitt i menyns ordning (används av nav, kapitelnav och AI-kontext).
+const ORDERED = GROUP_ORDER.flatMap(g => SECTIONS.filter(s => s.group===g && !s.soon));
+const READABLE = ORDERED;
+let activeId = "om";
+let bionicOn = localStorage.getItem('emi_bionic') === '1';
+
+/* ---------- Utils ---------- */
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function byId(id){return document.getElementById(id);}
+function showToast(msg){
+  const t=byId('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(showToast._t);showToast._t=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ---------- Bionisk läsning (NPF-stöd) ---------- */
+// Fetar de första ~bokstäverna i varje ord för att underlätta läsning.
+function bionicWord(w){
+  if(w.length<=1) return w;
+  const n = w.length<=3 ? 1 : Math.ceil(w.length*0.42);
+  return '<b class="br">'+esc(w.slice(0,n))+'</b>'+esc(w.slice(n));
+}
+function bionifyText(text){
+  return text.split(/(\s+)/).map(tok=>/\s/.test(tok)?tok:bionicWord(tok)).join('');
+}
+// Går igenom textnoder i container och applicerar bionisk formatering.
+function applyBionic(container){
+  if(!bionicOn) return;
+  const walker=document.createTreeWalker(container,NodeFilter.SHOW_TEXT,{
+    acceptNode(node){
+      if(!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      const p=node.parentNode;
+      // Bionifiera endast brödtext – hoppa över rubriker, lead, etiketter och navigation.
+      if(p.closest('h1,h2,h3,.crumb,.lead,.toolbar,.pill,.source-note,.updated,.chapnav')) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const nodes=[];let n;while(n=walker.nextNode())nodes.push(n);
+  for(const node of nodes){
+    const span=document.createElement('span');
+    span.innerHTML=bionifyText(node.nodeValue);
+    node.parentNode.replaceChild(span,node);
+  }
+}
+function toggleBionic(){
+  bionicOn=!bionicOn;
+  localStorage.setItem('emi_bionic',bionicOn?'1':'0');
+  syncBionicBtn();
+  renderContent();
+  showToast(bionicOn?'Bionisk läsning på':'Bionisk läsning av');
+}
+function syncBionicBtn(){
+  const b=byId('bionicBtn');
+  b.classList.toggle('on',bionicOn);
+  b.setAttribute('aria-pressed',bionicOn?'true':'false');
+}
+
+/* ---------- Tema ---------- */
+function applyTheme(t){
+  if(t==='dark') document.documentElement.setAttribute('data-theme','dark');
+  else document.documentElement.removeAttribute('data-theme');
+  const b=byId('themeBtn');
+  if(b){const lbl=t==='dark'?'Byt till ljust läge':'Byt till mörkt läge';b.setAttribute('aria-label',lbl);b.title=lbl;}
+}
+function toggleTheme(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  const next=dark?'light':'dark';
+  localStorage.setItem('emi_theme',next);
+  applyTheme(next);
+}
+
+/* ---------- Navigation ---------- */
+function renderNav(filter=""){
+  const q = filter.trim().toLowerCase();
+  const list = byId('navList');
+  list.innerHTML = "";
+  let any = false;
+  for(const g of GROUP_ORDER){
+    const items = SECTIONS.filter(s=>s.group===g && (!q || sectionText(s).toLowerCase().includes(q)));
+    if(!items.length) continue;
+    any = true;
+    const h = document.createElement('div'); h.className='grp'; h.textContent=g; list.appendChild(h);
+    for(const s of items){
+      const b = document.createElement('button');
+      b.className = 'nav-item' + (s.soon?' soon':'') + (s.id===activeId?' active':'');
+      b.innerHTML = highlight(s.title,q) + (s.soon?'<span class="tag">snart</span><span class="sr-only"> (kommer snart)</span>':'');
+      if(s.soon){ b.disabled=true; }
+      else { b.onclick = ()=>goTo(s.id, filter); if(s.id===activeId) b.setAttribute('aria-current','true'); }
+      list.appendChild(b);
+    }
+  }
+  if(!any) list.innerHTML = '<div class="no-hits">Inga träffar.</div>';
+  byId('progressNote').textContent = READABLE.length + ' avsnitt klara · ' + SECTIONS.filter(s=>s.soon).length + ' på gång';
+}
+function highlight(text,q){
+  if(!q) return esc(text);
+  const i = text.toLowerCase().indexOf(q);
+  if(i<0) return esc(text);
+  return esc(text.slice(0,i))+'<mark>'+esc(text.slice(i,i+q.length))+'</mark>'+esc(text.slice(i+q.length));
+}
+function sectionText(s){
+  let t = s.title+' '+(s.group||'')+' '+(s.lead||'');
+  if(s.body) t += ' '+s.body.join(' ');
+  if(s.perspectives) for(const p of Object.values(s.perspectives)) t += ' '+Object.values(p).join(' ');
+  return t;
+}
+function searchKey(e){
+  if(e.key==='Enter'){
+    const first=document.querySelector('.nav-item:not(.soon)');
+    if(first) first.click();
+  } else if(e.key==='Escape'){
+    e.target.value='';renderNav('');e.target.blur();
+  }
+}
+
+/* ---------- Navigering mellan kapitel ---------- */
+function orderedSections(){ return ORDERED; }
+function goTo(id, filter=byId('search').value, push=true){
+  if(!SECTIONS.find(s=>s.id===id && !s.soon)) id='om';
+  activeId=id;
+  localStorage.setItem('emi_last',id);
+  if(push && location.hash.slice(1)!==id){ history.pushState({id},'', '#'+id); }
+  renderNav(filter);
+  renderContent();
+  closeNav();
+  // Flytta fokus till innehållet så att skärmläsare läser upp det nya avsnittet.
+  if(!drawerOpen()) byId('content').focus({preventScroll:true});
+}
+const isMobile=()=>matchMedia('(max-width:820px)').matches;
+function toggleNav(){
+  const open=byId('sideNav').classList.toggle('open');
+  byId('navScrim').classList.toggle('open', open);
+  byId('menuBtn').setAttribute('aria-expanded', open?'true':'false');
+  syncNavInert();
+  if(open) setTimeout(()=>byId('search').focus(),120);
+}
+function closeNav(){
+  byId('sideNav').classList.remove('open');
+  byId('navScrim').classList.remove('open');
+  byId('menuBtn').setAttribute('aria-expanded','false');
+  syncNavInert();
+}
+// På mobil ligger menyn utanför skärmen men kvar i DOM:en – gör den inert när den är stängd
+// så att tangentbordsfokus inte hamnar i osynligt innehåll. På desktop är menyn alltid aktiv.
+function syncNavInert(){
+  const nav=byId('sideNav');
+  if(isMobile() && !nav.classList.contains('open')) nav.setAttribute('inert','');
+  else nav.removeAttribute('inert');
+}
+
+/* ---------- Content ---------- */
+function renderPlainBody(body){
+  let html='';let inList=false;
+  const flush=()=>{if(inList){html+='</ul>';inList=false;}};
+  for(const p of body){
+    if(p.startsWith('## ')){flush();html+='<h2>'+esc(p.slice(3))+'</h2>';}
+    else if(p.startsWith('- ')){if(!inList){html+='<ul>';inList=true;}html+='<li>'+esc(p.slice(2))+'</li>';}
+    else {flush();html+='<p>'+esc(p)+'</p>';}
+  }
+  flush();return html;
+}
+function renderContent(){
+  const s = SECTIONS.find(x=>x.id===activeId) || SECTIONS[0];
+  const c = byId('content');
+  let html = `<div class="crumb"><span>${esc(s.group)}</span></div><h1 class="title">${esc(s.title)}</h1>`;
+  if(s.lead) html += `<p class="lead">${esc(s.lead)}</p>`;
+  html += `<div class="toolbar">
+    <button class="tool" onclick="shareSection()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Dela avsnitt</button>
+    <button class="tool" onclick="copySection()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Kopiera text</button>
+    <button class="tool" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Skriv ut / PDF</button>
+  </div>`;
+  html += `<div class="source-note"><b>Demo-innehåll.</b> Strukturen följer det nationella Metodstöd för elevhälsan (metodstod.se). Texterna här är förkortade exempel – ersätt med EMI:s egna godkända rutiner och riktlinjer.</div>`;
+  if(s.type==='plain'){
+    html += '<div class="plain">'+renderPlainBody(s.body)+'</div>';
+  } else if(s.type==='matrix'){
+    html += '<div class="matrix">';
+    for(const [key,p] of Object.entries(s.perspectives)){
+      html += `<div class="persp"><h2>${PLABEL[key]}<span class="pill" aria-hidden="true">${PLABEL[key]}</span></h2>
+        <div class="card"><h3 class="f">Främjande</h3><p>${esc(p.framjande)}</p></div>
+        <div class="card"><h3 class="fo">Förebyggande</h3><p>${esc(p.forebyggande)}</p></div>
+        <div class="card"><h3 class="a">Åtgärdande</h3><p>${esc(p.atgardande)}</p></div></div>`;
+    }
+    html += '</div>';
+  }
+  // Föregående / Nästa kapitel
+  const ord = orderedSections();
+  const idx = ord.findIndex(x=>x.id===activeId);
+  const prev = ord[idx-1], next = ord[idx+1];
+  html += '<div class="chapnav">';
+  html += prev
+    ? `<button onclick="goTo('${prev.id}')"><span class="dir">‹ Föregående</span><span class="nm">${esc(prev.title)}</span></button>`
+    : `<button class="empty"></button>`;
+  html += next
+    ? `<button class="next" onclick="goTo('${next.id}')"><span class="dir">Nästa ›</span><span class="nm">${esc(next.title)}</span></button>`
+    : `<button class="next empty"></button>`;
+  html += '</div>';
+
+  c.innerHTML = html;
+  applyBionic(c);
+  document.title = s.title + ' – Metodbok EMI';
+  window.scrollTo({top:0});
+}
+
+/* ---------- Dela / kopiera ---------- */
+function sectionUrl(){
+  return location.origin+location.pathname+'#'+activeId;
+}
+async function shareSection(){
+  const s=SECTIONS.find(x=>x.id===activeId);
+  const url=sectionUrl();
+  if(navigator.share){
+    try{ await navigator.share({title:'Metodbok EMI – '+s.title, url}); return; }catch(e){ if(e.name==='AbortError') return; }
+  }
+  copyToClipboard(url,'Länk till avsnittet kopierad');
+}
+function copySection(){
+  const s=SECTIONS.find(x=>x.id===activeId);
+  let txt=s.title+'\n\n';
+  if(s.lead) txt+=s.lead+'\n\n';
+  if(s.type==='plain') txt+=s.body.map(p=>p.replace(/^## /,'')).join('\n\n');
+  else for(const [k,p] of Object.entries(s.perspectives))
+    txt+=PLABEL[k]+'\n  Främjande: '+p.framjande+'\n  Förebyggande: '+p.forebyggande+'\n  Åtgärdande: '+p.atgardande+'\n\n';
+  txt+='\nKälla: '+sectionUrl();
+  copyToClipboard(txt,'Avsnittets text kopierad');
+}
+function copyToClipboard(text,msg){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>showToast(msg)).catch(()=>fallbackCopy(text,msg));
+  } else fallbackCopy(text,msg);
+}
+function fallbackCopy(text,msg){
+  const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');showToast(msg);}catch(e){showToast('Kunde inte kopiera');}
+  document.body.removeChild(ta);
+}
+
+/* ---------- Fråga metodboken (AI) ---------- */
+let apiKey = localStorage.getItem('emi_api_key') || '';
+let convo = []; // {role, content}
+let asking = false; // single-flight-spärr så samtalshistoriken inte kan hamna i fel ordning
+const MODEL = 'claude-sonnet-4-6';
+
+function buildContext(){
+  return READABLE.map(s=>{
+    let t = `### AVSNITT: ${s.title} (kategori: ${s.group})\n`;
+    if(s.lead) t += s.lead+'\n';
+    if(s.body) t += s.body.map(p=>p.replace(/^## /,'')).join('\n');
+    if(s.perspectives) for(const [k,p] of Object.entries(s.perspectives))
+      t += `\n[${PLABEL[k]}] Främjande: ${p.framjande} Förebyggande: ${p.forebyggande} Åtgärdande: ${p.atgardande}`;
+    return t;
+  }).join('\n\n');
+}
+const SYSTEM_PROMPT = `Du är ett uppslagsstöd för en metodbok inom elevhälsans medicinska insats (EMI).
+Svara ENBART utifrån avsnitten nedan. Hitta inte på fakta och ge inga egna kliniska eller medicinska råd utöver vad texten säger.
+Om svaret inte finns i avsnitten: säg tydligt "Det här täcks inte av metodboken" och föreslå vem användaren kan fråga (t.ex. MLA eller verksamhetschef).
+Avsluta alltid med en rad som börjar med "Källa:" och anger vilket eller vilka avsnitt svaret bygger på.
+Svara på svenska, kort och sakligt.
+
+METODBOKENS INNEHÅLL:
+`;
+// Hela korpusen är statisk – bygg systemprompten en gång och cacha den hos Anthropic
+// (cache_control) så att upprepade frågor i samma samtal blir snabbare och billigare.
+const SYSTEM_BLOCKS = [{ type:'text', text: SYSTEM_PROMPT + buildContext(), cache_control:{ type:'ephemeral' } }];
+
+let drawerOpener=null;
+function drawerOpen(){return byId('drawer').classList.contains('open');}
+function openDrawer(){
+  drawerOpener=document.activeElement;
+  const d=byId('drawer');
+  d.removeAttribute('inert');d.classList.add('open');d.setAttribute('aria-hidden','false');
+  byId('scrim').classList.add('open');
+  if(!apiKey) byId('keyBar').open=true;
+  setTimeout(()=>byId(apiKey?'q':'apiKeyInput').focus(),120);
+}
+function closeDrawer(){
+  if(!drawerOpen()) return;
+  const d=byId('drawer');
+  // Flytta fokus ut innan drawern görs inert/dold, annars stannar fokus på dolt innehåll.
+  if(d.contains(document.activeElement)){
+    (drawerOpener && drawerOpener.focus) ? drawerOpener.focus() : document.activeElement.blur();
+  }
+  d.classList.remove('open');d.setAttribute('aria-hidden','true');d.setAttribute('inert','');
+  byId('scrim').classList.remove('open');
+}
+// Enkel fokusfälla: håll Tab inom drawern medan den är öppen.
+function trapDrawer(e){
+  if(e.key!=='Tab'||!drawerOpen()) return;
+  const f=byId('drawer').querySelectorAll('button, [href], input, textarea, summary, [tabindex]:not([tabindex="-1"])');
+  const items=[...f].filter(el=>el.offsetParent!==null||el===document.activeElement);
+  if(!items.length) return;
+  const first=items[0], last=items[items.length-1];
+  if(e.shiftKey && document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first.focus();}
+}
+function grow(t){t.style.height='auto';t.style.height=Math.min(t.scrollHeight,120)+'px';}
+function keyAsk(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask();}}
+function quick(b){byId('q').value=b.textContent;ask();}
+
+function saveKey(){
+  const val=byId('apiKeyInput').value.trim();
+  if(!val){showToast('Klistra in en API-nyckel');return;}
+  apiKey=val;localStorage.setItem('emi_api_key',val);
+  byId('apiKeyInput').value='';updateKeyStatus();byId('keyBar').open=false;
+  showToast('API-nyckel sparad ✓');byId('q').focus();
+}
+function clearKey(){
+  apiKey='';localStorage.removeItem('emi_api_key');byId('apiKeyInput').value='';updateKeyStatus();
+  showToast('API-nyckel borttagen');
+}
+function updateKeyStatus(){
+  const el=byId('keyStatus');
+  if(apiKey){el.textContent='sparad ✓';el.className='st ok';}
+  else{el.textContent='saknas';el.className='st missing';}
+}
+
+function addMsg(role,text){
+  const chat=byId('chat');
+  const d=document.createElement('div');d.className='msg '+role;d.textContent=text;
+  chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return d;
+}
+
+async function ask(){
+  if(asking) return; // ignorera dubbelklick/Enter medan ett svar är på väg
+  const ta=byId('q');
+  const question=ta.value.trim();
+  if(!question) return;
+  if(!apiKey){
+    byId('keyBar').open=true;byId('apiKeyInput').focus();
+    showToast('Ange en Claude API-nyckel först');
+    return;
+  }
+  asking=true;
+  ta.value='';ta.style.height='auto';
+  byId('send').disabled=true;
+  addMsg('user',question);
+  convo.push({role:'user',content:question});
+
+  const chat=byId('chat');
+  const think=document.createElement('div');think.className='thinking';
+  think.innerHTML='<span class="d"></span><span class="d"></span><span class="d"></span> Söker i metodboken…';
+  chat.appendChild(think);chat.scrollTop=chat.scrollHeight;
+
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-api-key":apiKey,
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body:JSON.stringify({
+        model:MODEL,
+        max_tokens:1000,
+        system:SYSTEM_BLOCKS,
+        messages:convo.slice(-10)
+      })
+    });
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      throw new Error((err.error&&err.error.message)||('API-fel '+res.status));
+    }
+    const data=await res.json();
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim()
+      || "Jag kunde tyvärr inte ta fram ett svar just nu.";
+    convo.push({role:'assistant',content:text});
+    think.remove();
+    const m=text.match(/^([\s\S]*?)\n*Källa:\s*(.+)$/i);
+    const bot=document.createElement('div');bot.className='msg bot';
+    if(m){bot.textContent=m[1].trim();const r=document.createElement('span');r.className='ref';r.textContent='Källa: '+m[2].trim();bot.appendChild(r);}
+    else bot.textContent=text;
+    chat.appendChild(bot);chat.scrollTop=chat.scrollHeight;
+  }catch(err){
+    think.remove();
+    convo.pop();
+    addMsg('bot','⚠️ '+err.message+'\n\nKontrollera att API-nyckeln är giltig. Nyckeln lagras bara lokalt i din webbläsare.');
+  }finally{
+    asking=false;
+    byId('send').disabled=false;
+  }
+}
+
+/* ---------- Globala kortkommandon ---------- */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Tab') trapDrawer(e);
+  if(e.key==='Escape'){ if(drawerOpen()) closeDrawer(); closeNav(); return; }
+  const tag=(document.activeElement&&document.activeElement.tagName)||'';
+  if(e.key==='/' && !/INPUT|TEXTAREA/.test(tag) && !drawerOpen()){
+    e.preventDefault();byId('search').focus();
+  }
+});
+window.addEventListener('resize',syncNavInert);
+window.addEventListener('popstate',()=>{
+  const id=location.hash.slice(1);
+  goTo(id&&SECTIONS.find(s=>s.id===id&&!s.soon)?id:'om', byId('search').value, false);
+});
+
+/* ---------- Init ---------- */
+(function init(){
+  applyTheme(localStorage.getItem('emi_theme') || (matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+  syncBionicBtn();
+  updateKeyStatus();
+  const hash=location.hash.slice(1);
+  const last=localStorage.getItem('emi_last');
+  activeId = (hash&&SECTIONS.find(s=>s.id===hash&&!s.soon)) ? hash
+           : (last&&SECTIONS.find(s=>s.id===last&&!s.soon)) ? last : 'om';
+  // Synka alltid URL och history.state med det avsnitt som faktiskt visas (även vid ogiltig/tom hash).
+  history.replaceState({id:activeId},'','#'+activeId);
+  renderNav();
+  renderContent();
+  syncNavInert();
+})();
+</script>
+</body>
+</html>
