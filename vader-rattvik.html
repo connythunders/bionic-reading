@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Väder – Stiernhööksgymnasiet, Rättvik</title>
+<meta name="description" content="Väderprognos för Stiernhööksgymnasiet i Rättvik. Sammanväger SMHI och Open-Meteo. Med lantbruksdata och frostvarning.">
+<style>
+:root{
+  --bg:#0f1c2e;
+  --bg-2:#15263d;
+  --card:#1c3252;
+  --card-2:#223c61;
+  --line:#34507a;
+  --text:#f3f7fd;
+  --muted:#b9c9e0;
+  --accent:#5cc8ff;
+  --accent-strong:#1565c0;
+  --good:#4caf50;
+  --warn:#ffb300;
+  --frost:#7fd4ff;
+  --frostrisk:#ffd166;
+  --danger:#ff6b6b;
+  --radius:16px;
+  --tap:48px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;
+  background:linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);
+  background-attachment:fixed;
+  color:var(--text);
+  line-height:1.5;
+  font-size:17px;
+  min-height:100vh;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+a{color:var(--accent)}
+
+/* Header */
+header{margin-bottom:8px}
+.school{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.school h1{font-size:1.45rem;line-height:1.2}
+.school .loc{color:var(--muted);font-size:1rem;font-weight:500}
+.meta{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  margin-top:10px;font-size:.95rem;color:var(--muted)
+}
+.updated{font-weight:600;color:var(--text)}
+.auto-note{font-size:.85rem}
+button{font-family:inherit}
+.btn{
+  min-height:var(--tap);min-width:var(--tap);
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;
+  background:var(--accent-strong);color:#fff;border:2px solid transparent;
+  border-radius:12px;padding:10px 16px;font-size:1rem;font-weight:600;cursor:pointer;
+}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{transform:translateY(1px)}
+.btn .spin{display:inline-block}
+.btn.loading .spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Status / notices */
+.notice{
+  border-radius:12px;padding:10px 14px;margin:10px 0;font-size:.95rem;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.notice.warn{background:#4a3b12;border:1px solid var(--warn);color:#ffe6a8}
+.notice.err{background:#4a1d1d;border:1px solid var(--danger);color:#ffc9c9}
+.notice .ico{font-size:1.2rem;line-height:1.3}
+.hidden{display:none!important}
+
+/* Tabs */
+nav.tabs{
+  display:flex;gap:8px;overflow-x:auto;margin:14px 0;padding-bottom:4px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:thin;
+}
+.tab{
+  min-height:var(--tap);white-space:nowrap;
+  background:var(--card);color:var(--muted);border:2px solid var(--line);
+  border-radius:999px;padding:10px 18px;font-size:1rem;font-weight:600;cursor:pointer;
+}
+.tab[aria-selected="true"]{background:var(--accent);color:#08233a;border-color:var(--accent)}
+.tab:hover{border-color:var(--accent)}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px}
+.card h2{font-size:1.15rem;margin-bottom:4px}
+.card .sub{color:var(--muted);font-size:.9rem;margin-bottom:12px}
+
+/* Now view */
+.now-main{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.now-temp{font-size:4rem;font-weight:700;line-height:1}
+.now-icon svg{width:88px;height:88px}
+.now-text{font-size:1.2rem;font-weight:600}
+.now-feels{color:var(--muted);font-size:1rem}
+.now-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;margin-top:18px;
+}
+.stat{background:var(--card-2);border-radius:12px;padding:12px 14px}
+.stat .lbl{color:var(--muted);font-size:.82rem;text-transform:uppercase;letter-spacing:.04em}
+.stat .val{font-size:1.35rem;font-weight:700;margin-top:2px}
+.stat .val small{font-size:.8rem;font-weight:500;color:var(--muted)}
+
+/* Hourly */
+.hours{display:flex;gap:10px;overflow-x:auto;padding:6px 2px 12px;-webkit-overflow-scrolling:touch}
+.hour{
+  flex:0 0 auto;width:92px;text-align:center;background:var(--card-2);
+  border-radius:12px;padding:12px 8px;border:1px solid var(--line)
+}
+.hour .h{font-weight:700;font-size:.95rem}
+.hour svg{width:40px;height:40px;margin:6px 0}
+.hour .t{font-size:1.2rem;font-weight:700}
+.hour .p{color:var(--accent);font-size:.85rem;font-weight:600}
+.hour .w{color:var(--muted);font-size:.8rem}
+
+/* Day cards */
+.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.day{background:var(--card-2);border:1px solid var(--line);border-radius:14px;padding:14px;position:relative;overflow:hidden}
+.day.frost{border-color:var(--frost)}
+.day.frostrisk{border-color:var(--frostrisk)}
+.day .date{font-weight:700;font-size:1.05rem;text-transform:capitalize}
+.day .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.day svg{width:48px;height:48px}
+.day .temps{font-size:1.3rem;font-weight:700}
+.day .temps .min{color:var(--muted);font-weight:600}
+.day .desc{color:var(--muted);font-size:.92rem;min-height:1.2em}
+.day dl{display:grid;grid-template-columns:1fr auto;gap:4px 10px;margin-top:8px;font-size:.9rem}
+.day dt{color:var(--muted)}
+.day dd{text-align:right;font-weight:600}
+.badge{display:inline-block;border-radius:8px;padding:3px 9px;font-size:.82rem;font-weight:700;margin-top:8px}
+.badge.frost{background:var(--frost);color:#06283a}
+.badge.frostrisk{background:var(--frostrisk);color:#3a2d06}
+
+/* Agro */
+.agro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+
+/* Compare table */
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.95rem;min-width:520px}
+th,td{padding:10px 8px;text-align:center;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:.85rem}
+td.day-name{text-align:left;font-weight:700;text-transform:capitalize;white-space:nowrap}
+.agree{font-weight:700}
+.agree.yes{color:var(--good)}
+.agree.no{color:var(--warn)}
+.src-smhi{color:#9ad}
+.src-om{color:#fb9}
+
+/* Footer */
+footer{margin-top:24px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem}
+footer a{color:var(--accent)}
+
+.view{display:none}
+.view.active{display:block}
+
+.skel{color:var(--muted);padding:30px 0;text-align:center;font-size:1.05rem}
+
+@media (max-width:600px){
+  body{font-size:16px}
+  .school h1{font-size:1.2rem}
+  .now-temp{font-size:3.2rem}
+  .now-icon svg{width:72px;height:72px}
+}
+
+/* Accessibility */
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:0.001ms!important;animation-iteration-count:1!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="school">
+    <h1>Stiernhööksgymnasiet</h1>
+    <span class="loc">Rättvik · Naturbruk &amp; lantbruk</span>
+  </div>
+  <div class="meta">
+    <span class="updated" id="updated" aria-live="polite">Senast uppdaterad: –</span>
+    <button class="btn" id="refresh" type="button" aria-label="Uppdatera väderdata nu">
+      <span class="spin" aria-hidden="true">↻</span> Uppdatera
+    </button>
+    <span class="auto-note">Uppdateras automatiskt varje timme</span>
+  </div>
+</header>
+
+<div id="status" role="status" aria-live="polite"></div>
+
+<nav class="tabs" role="tablist" aria-label="Välj vy">
+  <button class="tab" role="tab" aria-selected="true"  id="tab-nu"      data-view="nu">Nu</button>
+  <button class="tab" role="tab" aria-selected="false" id="tab-1d"      data-view="d1">1 dygn</button>
+  <button class="tab" role="tab" aria-selected="false" id="tab-3d"      data-view="d3">3 dygn</button>
+  <button class="tab" role="tab" aria-selected="false" id="tab-5d"      data-view="d5">5 dygn</button>
+  <button class="tab" role="tab" aria-selected="false" id="tab-agro"    data-view="agro">Lantbruk</button>
+  <button class="tab" role="tab" aria-selected="false" id="tab-cmp"     data-view="cmp">Modelljämförelse</button>
+</nav>
+
+<main>
+  <section class="view active" id="view-nu"   role="tabpanel" aria-labelledby="tab-nu"><div class="skel">Hämtar väder…</div></section>
+  <section class="view" id="view-d1"   role="tabpanel" aria-labelledby="tab-1d"></section>
+  <section class="view" id="view-d3"   role="tabpanel" aria-labelledby="tab-3d"></section>
+  <section class="view" id="view-d5"   role="tabpanel" aria-labelledby="tab-5d"></section>
+  <section class="view" id="view-agro" role="tabpanel" aria-labelledby="tab-agro"></section>
+  <section class="view" id="view-cmp"  role="tabpanel" aria-labelledby="tab-cmp"></section>
+</main>
+
+<footer>
+  <p><strong>Källor:</strong> Väderdata från
+  <a href="https://opendata.smhi.se/" target="_blank" rel="noopener">SMHI Open Data</a> och
+  <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>.
+  Licens <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.
+  Prognoserna vägs samman; ingen garanti lämnas.</p>
+  <p style="margin-top:6px">Plats: Masvägen 15, Rättvik (lat 60,884 · lon 15,115). Tider i svensk lokaltid.</p>
+</footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   Väderprognos – Stiernhööksgymnasiet, Rättvik
+   En enda fil. Inga externa beroenden utöver de två väder-API:erna.
+   Datakontrakt: båda källorna normaliseras till samma interna modell:
+     { source, fetchedAt, current{}, hourly[], daily[] }
+   ============================================================ */
+
+const LAT = 60.884, LON = 15.115;
+const SE_TZ = "Europe/Stockholm";
+const REFRESH_MS = 60 * 60 * 1000;            // 1 timme
+const CACHE_KEY = "vader-rattvik-cache-v1";
+
+const SMHI_URL =
+  `https://opendata-download-metfcst.smhi.se/api/category/snow1g/version/1/geotype/point/lon/${LON}/lat/${LAT}/data.json`;
+const OM_URL =
+  "https://api.open-meteo.com/v1/forecast" +
+  `?latitude=${LAT}&longitude=${LON}` +
+  "&timezone=Europe%2FStockholm&forecast_days=7&wind_speed_unit=ms" +
+  "&current=temperature_2m,apparent_temperature,relative_humidity_2m,is_day,precipitation,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,wind_direction_10m,surface_pressure" +
+  "&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m,soil_temperature_0cm,soil_moisture_0_to_1cm" +
+  "&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,uv_index_max,et0_fao_evapotranspiration";
+
+/* -------------------- Tidshjälpare (svensk lokaltid) -------------------- */
+// Plocka ut svenska lokaltidsdelar ur ett Date-objekt (hanterar UTC->Europe/Stockholm).
+function sePartsFromDate(date){
+  const fmt = new Intl.DateTimeFormat("sv-SE",{
+    timeZone:SE_TZ, year:"numeric", month:"2-digit", day:"2-digit",
+    hour:"2-digit", minute:"2-digit", hour12:false
+  });
+  const p = {};
+  for(const part of fmt.formatToParts(date)) p[part.type] = part.value;
+  let hour = p.hour === "24" ? "00" : p.hour;          // vissa motorer ger "24"
+  return {
+    ymd: `${p.year}-${p.month}-${p.day}`,
+    hour: parseInt(hour,10),
+    hhmm: `${hour}:${p.minute}`
+  };
+}
+// "08:15" från ett Date i svensk tid
+function seClock(date){ return sePartsFromDate(date).hhmm; }
+// Open-Meteo-strängar ("2026-06-04T08:00") ÄR redan svensk lokaltid -> parsa delar direkt.
+function omParts(str){
+  // str: YYYY-MM-DDTHH:MM
+  const [d,t] = str.split("T");
+  return { ymd:d, hour:parseInt((t||"00:00").slice(0,2),10), hhmm:(t||"00:00").slice(0,5) };
+}
+// Snygg svensk dagrubrik från "YYYY-MM-DD" (stabil, oberoende av webbläsarens tidszon).
+function svDayLabel(ymd){
+  const [y,m,d] = ymd.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m-1, d, 12));
+  const today = sePartsFromDate(new Date()).ymd;
+  const tomorrow = (()=>{ const n=new Date(); n.setUTCDate(n.getUTCDate()+1); return sePartsFromDate(n).ymd; })();
+  const wd = new Intl.DateTimeFormat("sv-SE",{timeZone:"UTC",weekday:"long"}).format(dt);
+  const dm = new Intl.DateTimeFormat("sv-SE",{timeZone:"UTC",day:"numeric",month:"long"}).format(dt);
+  let prefix = "";
+  if(ymd === today) prefix = "Idag · ";
+  else if(ymd === tomorrow) prefix = "Imorgon · ";
+  return prefix + wd + " " + dm;
+}
+
+/* -------------------- Internt vädersymbolset + ikoner -------------------- */
+// Gemensamt internt set som båda källor mappas till.
+const COND = {
+  clear:        {label:"Klart",                icon:"sun"},
+  mostlyclear:  {label:"Mest klart",           icon:"sun-cloud"},
+  partly:       {label:"Växlande molnighet",   icon:"sun-cloud"},
+  cloudy:       {label:"Molnigt",              icon:"cloud"},
+  overcast:     {label:"Mulet",                icon:"cloud"},
+  fog:          {label:"Dimma",                icon:"fog"},
+  drizzle:      {label:"Duggregn",             icon:"rain"},
+  rainlight:    {label:"Lätt regn",            icon:"rain"},
+  rain:         {label:"Regn",                 icon:"rain"},
+  rainheavy:    {label:"Kraftigt regn",        icon:"rain"},
+  rainshowers:  {label:"Regnskurar",           icon:"rain"},
+  freezing:     {label:"Underkylt regn",       icon:"sleet"},
+  sleet:        {label:"Snöblandat regn",      icon:"sleet"},
+  snowlight:    {label:"Lätt snöfall",         icon:"snow"},
+  snow:         {label:"Snöfall",              icon:"snow"},
+  snowheavy:    {label:"Kraftigt snöfall",     icon:"snow"},
+  snowshowers:  {label:"Snöbyar",              icon:"snow"},
+  thunder:      {label:"Åska",                 icon:"thunder"}
+};
+
+// SMHI Wsymb2 (heltal 1–27, bekräftat som int mot live snow1g) -> internt
+const SMHI_MAP = {
+  1:"clear",2:"mostlyclear",3:"partly",4:"partly",5:"cloudy",6:"overcast",7:"fog",
+  8:"rainshowers",9:"rainshowers",10:"rainshowers",11:"thunder",
+  12:"sleet",13:"sleet",14:"sleet",15:"snowshowers",16:"snowshowers",17:"snowshowers",
+  18:"rainlight",19:"rain",20:"rainheavy",21:"thunder",
+  22:"sleet",23:"sleet",24:"sleet",25:"snowlight",26:"snow",27:"snowheavy"
+};
+// Open-Meteo WMO weather_code -> internt
+function wmoToCond(c){
+  if(c===0) return "clear";
+  if(c===1) return "mostlyclear";
+  if(c===2) return "partly";
+  if(c===3) return "overcast";
+  if(c===45||c===48) return "fog";
+  if(c===51||c===53||c===55) return "drizzle";
+  if(c===56||c===57) return "freezing";
+  if(c===61) return "rainlight";
+  if(c===63) return "rain";
+  if(c===65) return "rainheavy";
+  if(c===66||c===67) return "freezing";
+  if(c===71||c===77) return "snowlight";
+  if(c===73) return "snow";
+  if(c===75) return "snowheavy";
+  if(c===80||c===81||c===82) return "rainshowers";
+  if(c===85||c===86) return "snowshowers";
+  if(c===95) return "thunder";
+  if(c===96||c===99) return "thunder";
+  return "cloudy";
+}
+
+// Inline-SVG-ikoner (inga externa filer). night=true ger måne istället för sol.
+function icon(condKey, night){
+  const t = (COND[condKey]||COND.cloudy).icon;
+  const sun = night
+    ? `<circle cx="22" cy="20" r="11" fill="#cdd9ee"/><circle cx="27" cy="16" r="9" fill="${t==='sun'?'#0f1c2e':'#1c3252'}"/>`
+    : `<circle cx="22" cy="20" r="11" fill="#ffd34d"/>${rays()}`;
+  const cloud = `<path d="M14 40 a10 10 0 0 1 0-20 a13 13 0 0 1 25 3 a9 9 0 0 1 3 17 z" fill="#c9d6ec"/>`;
+  const darkcloud = `<path d="M14 38 a10 10 0 0 1 0-20 a13 13 0 0 1 25 3 a9 9 0 0 1 3 17 z" fill="#9fb1cf"/>`;
+  function rays(){let r="";for(let i=0;i<8;i++){const a=i*Math.PI/4;const x1=22+Math.cos(a)*15,y1=20+Math.sin(a)*15,x2=22+Math.cos(a)*19,y2=20+Math.sin(a)*19;r+=`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#ffd34d" stroke-width="2.5" stroke-linecap="round"/>`;}return r;}
+  const drops = `<line x1="20" y1="44" x2="17" y2="52" stroke="#5cc8ff" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="44" x2="27" y2="52" stroke="#5cc8ff" stroke-width="3" stroke-linecap="round"/><line x1="40" y1="44" x2="37" y2="52" stroke="#5cc8ff" stroke-width="3" stroke-linecap="round"/>`;
+  const flakes = `<text x="17" y="52" font-size="11" fill="#dff2ff">❄</text><text x="32" y="54" font-size="11" fill="#dff2ff">❄</text>`;
+  let inner;
+  switch(t){
+    case "sun": inner = sun; break;
+    case "sun-cloud": inner = sun + cloud; break;
+    case "cloud": inner = darkcloud; break;
+    case "fog": inner = darkcloud + `<line x1="10" y1="46" x2="46" y2="46" stroke="#c9d6ec" stroke-width="3" stroke-linecap="round"/><line x1="14" y1="52" x2="42" y2="52" stroke="#c9d6ec" stroke-width="3" stroke-linecap="round"/>`; break;
+    case "rain": inner = darkcloud + drops; break;
+    case "sleet": inner = darkcloud + `<line x1="18" y1="44" x2="15" y2="52" stroke="#5cc8ff" stroke-width="3" stroke-linecap="round"/>` + `<text x="30" y="54" font-size="11" fill="#dff2ff">❄</text>`; break;
+    case "snow": inner = darkcloud + flakes; break;
+    case "thunder": inner = darkcloud + `<polygon points="26,42 22,54 28,52 24,62 34,48 28,50 32,42" fill="#ffd34d"/>`; break;
+    default: inner = cloud;
+  }
+  return `<svg viewBox="0 0 56 64" role="img" aria-hidden="true" focusable="false">${inner}</svg>`;
+}
+
+/* -------------------- Hämtning -------------------- */
+async function fetchJSON(url){
+  const res = await fetch(url, {cache:"no-store"});
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  return res.json();
+}
+
+/* -------------------- Normalisering: SMHI -------------------- */
+function normSMHI(raw){
+  const series = raw.timeSeries.map(e=>{
+    const d = e.data;
+    const date = new Date(e.time);           // UTC -> Date
+    const p = sePartsFromDate(date);
+    return {
+      date, ymd:p.ymd, hour:p.hour, hhmm:p.hhmm,
+      temp:d.air_temperature,
+      windSpeed:d.wind_speed,                 // m/s (SMHI)
+      windGust:d.wind_speed_of_gust,
+      windDir:d.wind_from_direction,
+      humidity:d.relative_humidity,
+      pressure:d.air_pressure_at_mean_sea_level,
+      precip:d.precipitation_amount_mean,
+      precipProb:d.probability_of_precipitation,
+      cond:SMHI_MAP[d.symbol_code] || "cloudy"
+    };
+  });
+  const first = series[0];
+  const current = {
+    temp:first.temp, apparentTemp:null, cond:first.cond, isDay:1,
+    windSpeed:first.windSpeed, windGust:first.windGust, windDir:first.windDir,
+    humidity:first.humidity, pressure:first.pressure, precip:first.precip
+  };
+  // Aggregera per svenskt lokaldygn
+  const byDay = {};
+  for(const s of series){
+    const g = byDay[s.ymd] || (byDay[s.ymd]={temps:[],precip:0,winds:[],noon:null,noonDiff:99});
+    g.temps.push(s.temp); g.winds.push(s.windSpeed);
+    if(typeof s.precip==="number") g.precip += s.precip;
+    const diff = Math.abs(s.hour-12);
+    if(diff < g.noonDiff){ g.noonDiff=diff; g.noon=s.cond; }
+  }
+  const daily = Object.keys(byDay).sort().map(ymd=>{
+    const g = byDay[ymd];
+    return {
+      ymd, tmin:Math.min(...g.temps), tmax:Math.max(...g.temps),
+      precipSum:Math.round(g.precip*10)/10, precipProb:null,
+      windMax:Math.max(...g.winds), cond:g.noon||"cloudy",
+      sunrise:null, sunset:null
+    };
+  });
+  return {source:"smhi", fetchedAt:new Date().toISOString(), current, hourly:series, daily};
+}
+
+/* -------------------- Normalisering: Open-Meteo -------------------- */
+function normOM(raw){
+  const c = raw.current;
+  const current = {
+    temp:c.temperature_2m, apparentTemp:c.apparent_temperature, cond:wmoToCond(c.weather_code),
+    isDay:c.is_day, windSpeed:c.wind_speed_10m, windGust:c.wind_gusts_10m, windDir:c.wind_direction_10m,
+    humidity:c.relative_humidity_2m, pressure:c.surface_pressure, precip:c.precipitation
+  };
+  const H = raw.hourly;
+  const hourly = H.time.map((t,i)=>{
+    const p = omParts(t);
+    return {
+      ymd:p.ymd, hour:p.hour, hhmm:p.hhmm, timeStr:t,
+      temp:H.temperature_2m[i],
+      precip:H.precipitation[i],
+      precipProb:H.precipitation_probability[i],
+      windSpeed:H.wind_speed_10m[i],
+      cond:wmoToCond(H.weather_code[i]),
+      soilTemp:H.soil_temperature_0cm[i],
+      soilMoist:H.soil_moisture_0_to_1cm[i]
+    };
+  });
+  const D = raw.daily;
+  const daily = D.time.map((ymd,i)=>({
+    ymd,
+    tmin:D.temperature_2m_min[i], tmax:D.temperature_2m_max[i],
+    precipSum:D.precipitation_sum[i], precipProb:D.precipitation_probability_max[i],
+    windMax:D.wind_speed_10m_max[i], windGustMax:D.wind_gusts_10m_max[i],
+    cond:wmoToCond(D.weather_code[i]),
+    sunrise:omParts(D.sunrise[i]).hhmm, sunset:omParts(D.sunset[i]).hhmm,
+    uv:D.uv_index_max[i], et0:D.et0_fao_evapotranspiration[i]
+  }));
+  return {source:"openmeteo", fetchedAt:new Date().toISOString(), current, hourly, daily};
+}
+
+/* -------------------- Sammanvägning -------------------- */
+const avg = (a,b)=> (typeof a==="number" && typeof b==="number") ? (a+b)/2 : (typeof a==="number"?a:b);
+
+function blend(smhi, om){
+  // current: medelvärde där båda finns; symbol/is_day från OM (har dag/natt + känns-som)
+  let current=null;
+  if(smhi && om){
+    current = {
+      temp:avg(smhi.current.temp,om.current.temp),
+      apparentTemp:om.current.apparentTemp,
+      cond:om.current.cond, isDay:om.current.isDay,
+      windSpeed:avg(smhi.current.windSpeed,om.current.windSpeed),
+      windGust:avg(smhi.current.windGust,om.current.windGust),
+      windDir:om.current.windDir,
+      humidity:avg(smhi.current.humidity,om.current.humidity),
+      pressure:avg(smhi.current.pressure,om.current.pressure),
+      precip:avg(smhi.current.precip,om.current.precip)
+    };
+  } else current = (om||smhi).current;
+
+  // daily: slå ihop per datum
+  const map = {};
+  (om?om.daily:[]).forEach(d=>{ map[d.ymd] = {...d, _om:d}; });
+  (smhi?smhi.daily:[]).forEach(d=>{
+    if(map[d.ymd]){
+      const o = map[d.ymd];
+      map[d.ymd] = {
+        ...o, _smhi:d,
+        tmin:avg(o.tmin,d.tmin), tmax:avg(o.tmax,d.tmax),
+        precipSum:avg(o.precipSum,d.precipSum),
+        windMax:avg(o.windMax,d.windMax),
+        precipProb:o.precipProb, cond:o.cond,           // behåll OM:s representativa
+        sunrise:o.sunrise, sunset:o.sunset, uv:o.uv, et0:o.et0
+      };
+    } else {
+      map[d.ymd] = {...d, _smhi:d};
+    }
+  });
+  const daily = Object.keys(map).sort().map(k=>map[k]);
+
+  // hourly: OM (timupplöst, lokala tider, har lantbruksfält); fallback SMHI
+  const hourly = (om?om.hourly:smhi.hourly);
+  return {current, daily, hourly, omDaily:om?om.daily:[], smhiDaily:smhi?smhi.daily:[]};
+}
+
+/* -------------------- Frostlogik -------------------- */
+// Lägsta marktemp per dygn (från OM timdata) för att väga in i frostbedömningen.
+function soilMinByDay(hourly){
+  const m={};
+  for(const h of hourly){
+    if(typeof h.soilTemp!=="number") continue;
+    if(!(h.ymd in m) || h.soilTemp<m[h.ymd]) m[h.ymd]=h.soilTemp;
+  }
+  return m;
+}
+function frostLevel(tmin, soilMin){
+  // luft <=0 => Frost; <=3 => Frostrisk. Marktemp <=0 förstärker till Frost.
+  if(tmin<=0 || (typeof soilMin==="number" && soilMin<=0)) return "frost";
+  if(tmin<=3) return "frostrisk";
+  return null;
+}
+
+/* -------------------- Renderare -------------------- */
+const $ = s=>document.querySelector(s);
+const dir16 = ["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSV","SV","VSV","V","VNV","NV","NNV"];
+function compass(deg){ return dir16[Math.round(((deg%360)/22.5))%16]; }
+const r1 = x => (typeof x==="number" && isFinite(x)) ? Math.round(x*10)/10 : "–";
+const r0 = x => (typeof x==="number" && isFinite(x)) ? Math.round(x) : "–";
+
+function condLabel(k){ return (COND[k]||COND.cloudy).label; }
+
+function renderNow(b){
+  const c = b.current;
+  const today = b.daily[0]||{};
+  const feels = (typeof c.apparentTemp==="number") ? `Känns som ${r0(c.apparentTemp)}°` : "";
+  $("#view-nu").innerHTML = `
+  <div class="card">
+    <h2>Just nu</h2>
+    <div class="sub">Sammanvägt SMHI + Open-Meteo</div>
+    <div class="now-main">
+      <div class="now-icon">${icon(c.cond, c.isDay===0)}</div>
+      <div>
+        <div class="now-temp">${r0(c.temp)}°<span class="sr-only"> Celsius</span></div>
+        <div class="now-text">${condLabel(c.cond)}</div>
+        <div class="now-feels">${feels}</div>
+      </div>
+    </div>
+    <div class="now-grid">
+      <div class="stat"><div class="lbl">Vind</div><div class="val">${r1(c.windSpeed)} <small>m/s ${compass(c.windDir)}</small></div></div>
+      <div class="stat"><div class="lbl">Byvind</div><div class="val">${r1(c.windGust)} <small>m/s</small></div></div>
+      <div class="stat"><div class="lbl">Luftfuktighet</div><div class="val">${r0(c.humidity)} <small>%</small></div></div>
+      <div class="stat"><div class="lbl">Lufttryck</div><div class="val">${r0(c.pressure)} <small>hPa</small></div></div>
+      <div class="stat"><div class="lbl">Nederbörd nu</div><div class="val">${r1(c.precip)} <small>mm/h</small></div></div>
+      <div class="stat"><div class="lbl">Soluppgång</div><div class="val">${today.sunrise||"–"}</div></div>
+      <div class="stat"><div class="lbl">Solnedgång</div><div class="val">${today.sunset||"–"}</div></div>
+    </div>
+  </div>`;
+}
+
+function renderHourly(b){
+  const now = new Date();
+  const nowYmd = sePartsFromDate(now).ymd, nowHour = sePartsFromDate(now).hour;
+  // ta de kommande 24 timmarna
+  const future = b.hourly.filter(h=>{
+    return (h.ymd>nowYmd) || (h.ymd===nowYmd && h.hour>=nowHour);
+  }).slice(0,24);
+  const cells = future.map(h=>`
+    <div class="hour">
+      <div class="h">${h.hhmm}</div>
+      ${icon(h.cond, h.hour<4||h.hour>=22)}
+      <div class="t">${r0(h.temp)}°</div>
+      <div class="p" title="Nederbördssannolikhet">${r0(h.precipProb)}%</div>
+      <div class="w">${r1(h.windSpeed)} m/s</div>
+    </div>`).join("");
+  $("#view-d1").innerHTML = `
+    <div class="card">
+      <h2>Kommande 24 timmar</h2>
+      <div class="sub">Timme för timme · temperatur, nederbördssannolikhet och vind. Svep i sidled.</div>
+      <div class="hours" role="list" aria-label="Timprognos">${cells||'<div class="skel">Ingen timdata.</div>'}</div>
+    </div>`;
+}
+
+function dayCard(d, soilMin){
+  const lvl = frostLevel(d.tmin, soilMin);
+  const badge = lvl==="frost" ? `<span class="badge frost">❄ Frost</span>`
+              : lvl==="frostrisk" ? `<span class="badge frostrisk">❄ Frostrisk</span>` : "";
+  const probRow = (typeof d.precipProb==="number") ? `<dt>Regnrisk</dt><dd>${r0(d.precipProb)} %</dd>` : "";
+  const sun = d.sunrise ? `<dt>Sol upp/ner</dt><dd>${d.sunrise} / ${d.sunset}</dd>` : "";
+  return `
+  <div class="day ${lvl||""}">
+    <div class="date">${svDayLabel(d.ymd)}</div>
+    <div class="row">
+      ${icon(d.cond, false)}
+      <div class="temps">${r0(d.tmax)}° <span class="min">/ ${r0(d.tmin)}°</span></div>
+    </div>
+    <div class="desc">${condLabel(d.cond)}</div>
+    <dl>
+      <dt>Nederbörd</dt><dd>${r1(d.precipSum)} mm</dd>
+      ${probRow}
+      <dt>Max vind</dt><dd>${r1(d.windMax)} m/s</dd>
+      ${sun}
+    </dl>
+    ${badge}
+  </div>`;
+}
+
+function renderDays(b, n, viewId, title){
+  const soilMin = soilMinByDay(b.hourly);
+  const days = b.daily.slice(0,n).map(d=>dayCard(d, soilMin[d.ymd])).join("");
+  const frostDays = b.daily.slice(0,n).filter(d=>frostLevel(d.tmin,soilMin[d.ymd]));
+  const warn = frostDays.length
+    ? `<div class="notice warn"><span class="ico" aria-hidden="true">❄</span><div>Frost eller frostrisk under perioden. Tänk på känsliga grödor och plantor.</div></div>`
+    : "";
+  $(viewId).innerHTML = `
+    <div class="card">
+      <h2>${title}</h2>
+      <div class="sub">Min/max-temperatur, väder, nederbörd och vind per dygn.</div>
+      ${warn}
+      <div class="days">${days}</div>
+    </div>`;
+}
+
+function renderAgro(b){
+  const soilMin = soilMinByDay(b.hourly);
+  // aktuell marktemp/markfukt: närmaste timme nu
+  const now = new Date(); const nowYmd=sePartsFromDate(now).ymd, nowHour=sePartsFromDate(now).hour;
+  const nowH = b.hourly.find(h=>h.ymd===nowYmd && h.hour===nowHour) || b.hourly.find(h=>typeof h.soilTemp==="number");
+  const soilTempNow = nowH ? nowH.soilTemp : null;
+  const soilMoistNow = nowH ? nowH.soilMoist : null;
+
+  const rows = b.daily.slice(0,7).map(d=>{
+    const lvl = frostLevel(d.tmin, soilMin[d.ymd]);
+    const frostTxt = lvl==="frost" ? `<span class="agree no">Frost</span>`
+                   : lvl==="frostrisk" ? `<span class="agree no">Frostrisk</span>`
+                   : `<span class="agree yes">Nej</span>`;
+    return `<tr>
+      <td class="day-name">${svDayLabel(d.ymd)}</td>
+      <td>${typeof soilMin[d.ymd]==="number"?r1(soilMin[d.ymd])+"°":"–"}</td>
+      <td>${typeof d.et0==="number"?r1(d.et0)+" mm":"–"}</td>
+      <td>${typeof d.uv==="number"?r1(d.uv):"–"}</td>
+      <td>${typeof d.precipProb==="number"?r0(d.precipProb)+" %":"–"}</td>
+      <td>${frostTxt}</td>
+    </tr>`;
+  }).join("");
+
+  const moistPct = (typeof soilMoistNow==="number") ? r0(soilMoistNow*100)+" %" : "–";
+  $("#view-agro").innerHTML = `
+    <div class="card">
+      <h2>Lantbruk &amp; odling</h2>
+      <div class="sub">Markförhållanden, avdunstning och frost – relevant för naturbruk. Data från Open-Meteo.</div>
+      <div class="agro-grid">
+        <div class="stat"><div class="lbl">Marktemp (0 cm) nu</div><div class="val">${typeof soilTempNow==="number"?r1(soilTempNow)+"°":"–"}</div></div>
+        <div class="stat"><div class="lbl">Markfukt (0–1 cm)</div><div class="val">${moistPct}</div></div>
+        <div class="stat"><div class="lbl">Avdunstning idag</div><div class="val">${typeof b.daily[0]?.et0==="number"?r1(b.daily[0].et0)+" mm":"–"}</div></div>
+        <div class="stat"><div class="lbl">UV-index idag</div><div class="val">${typeof b.daily[0]?.uv==="number"?r1(b.daily[0].uv):"–"}</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Dygnsöversikt – odlingsväder</h2>
+      <div class="sub">Marktemp = lägsta för dygnet. Avdunstning (ET₀) indikerar bevattningsbehov.</div>
+      <div class="table-scroll">
+      <table>
+        <caption class="sr-only">Lantbruksdata per dygn</caption>
+        <thead><tr><th scope="col">Dygn</th><th scope="col">Marktemp min</th><th scope="col">Avdunstning</th><th scope="col">UV</th><th scope="col">Regnrisk</th><th scope="col">Frost</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div>
+    </div>`;
+}
+
+function renderCompare(b){
+  // matcha SMHI- och OM-dygn på datum
+  const omMap={}; b.omDaily.forEach(d=>omMap[d.ymd]=d);
+  const smMap={}; b.smhiDaily.forEach(d=>smMap[d.ymd]=d);
+  const dates = [...new Set([...Object.keys(omMap),...Object.keys(smMap)])].sort().slice(0,5);
+  const rows = dates.map(ymd=>{
+    const o=omMap[ymd], s=smMap[ymd];
+    const agree = (o&&s) ? (Math.abs(o.tmax-s.tmax)<2 && Math.abs(o.tmin-s.tmin)<2) : null;
+    const agreeTxt = agree===null ? "–" : agree
+      ? `<span class="agree yes">Samstämmiga</span>` : `<span class="agree no">Spretar</span>`;
+    return `<tr>
+      <td class="day-name">${svDayLabel(ymd)}</td>
+      <td class="src-smhi">${s?`${r0(s.tmax)}° / ${r0(s.tmin)}°`:"–"}</td>
+      <td class="src-om">${o?`${r0(o.tmax)}° / ${r0(o.tmin)}°`:"–"}</td>
+      <td class="src-smhi">${s?r1(s.precipSum)+" mm":"–"}</td>
+      <td class="src-om">${o?r1(o.precipSum)+" mm":"–"}</td>
+      <td>${agreeTxt}</td>
+    </tr>`;
+  }).join("");
+  $("#view-cmp").innerHTML = `
+    <div class="card">
+      <h2>Modelljämförelse: SMHI vs Open-Meteo</h2>
+      <div class="sub">När två oberoende prognosmodeller är överens är osäkerheten liten. Spretar de mycket är prognosen mer osäker – det säger något i sig.</div>
+      <div class="table-scroll">
+      <table>
+        <caption class="sr-only">Jämförelse SMHI och Open-Meteo per dygn</caption>
+        <thead><tr>
+          <th scope="col">Dygn</th>
+          <th scope="col" class="src-smhi">SMHI max/min</th>
+          <th scope="col" class="src-om">Open-Meteo max/min</th>
+          <th scope="col" class="src-smhi">SMHI nederb.</th>
+          <th scope="col" class="src-om">Open-Meteo nederb.</th>
+          <th scope="col">Samstämmighet</th>
+        </tr></thead>
+        <tbody>${rows||'<tr><td colspan="6">Ingen jämförelsedata.</td></tr>'}</tbody>
+      </table>
+      </div>
+    </div>`;
+}
+
+/* -------------------- Tillstånd & orkestrering -------------------- */
+let STATE = { blended:null };
+
+function renderAll(b){
+  STATE.blended = b;
+  renderNow(b);
+  renderHourly(b);
+  renderDays(b,3,"#view-d3","3 dygn");
+  renderDays(b,5,"#view-d5","5 dygn");
+  renderAgro(b);
+  renderCompare(b);
+}
+
+function setStatus(html){ $("#status").innerHTML = html || ""; }
+function setUpdated(iso){
+  const d = iso ? new Date(iso) : new Date();
+  $("#updated").textContent = "Senast uppdaterad: " + seClock(d);
+}
+
+function saveCache(smhi, om){
+  try{ localStorage.setItem(CACHE_KEY, JSON.stringify({smhi, om, savedAt:new Date().toISOString()})); }catch(e){}
+}
+function loadCache(){
+  try{ return JSON.parse(localStorage.getItem(CACHE_KEY)||"null"); }catch(e){ return null; }
+}
+
+let busy=false;
+async function update(){
+  if(busy) return; busy=true;
+  const btn=$("#refresh"); btn.classList.add("loading"); btn.disabled=true;
+
+  // Hämta båda parallellt, oberoende av varandra
+  const [smRes, omRes] = await Promise.allSettled([ fetchJSON(SMHI_URL), fetchJSON(OM_URL) ]);
+  let smhi=null, om=null;
+  if(smRes.status==="fulfilled"){ try{ smhi=normSMHI(smRes.value); }catch(e){ smhi=null; } }
+  if(omRes.status==="fulfilled"){ try{ om=normOM(omRes.value); }catch(e){ om=null; } }
+
+  if(smhi || om){
+    saveCache(smhi?smRes.value:loadCache()?.smhi, om?omRes.value:loadCache()?.om);
+    const b = blend(smhi, om);
+    renderAll(b);
+    setUpdated(new Date().toISOString());
+    if(smhi && om){
+      setStatus("");
+    } else if(om && !smhi){
+      setStatus(`<div class="notice warn"><span class="ico" aria-hidden="true">ⓘ</span><div>SMHI kunde inte nås just nu. Visar Open-Meteo (som täcker allt, inkl. MET Norway-modellen).</div></div>`);
+    } else if(smhi && !om){
+      setStatus(`<div class="notice warn"><span class="ico" aria-hidden="true">ⓘ</span><div>Open-Meteo kunde inte nås just nu. Visar SMHI. Lantbruksvyn kan vara begränsad.</div></div>`);
+    }
+  } else {
+    // Båda föll – försök med cache
+    const cache = loadCache();
+    if(cache && (cache.smhi || cache.om)){
+      let cs=null, co=null;
+      try{ if(cache.smhi) cs=normSMHI(cache.smhi); }catch(e){}
+      try{ if(cache.om) co=normOM(cache.om); }catch(e){}
+      if(cs||co){
+        renderAll(blend(cs,co));
+        setUpdated(cache.savedAt);
+      }
+      setStatus(`<div class="notice err"><span class="ico" aria-hidden="true">⚠</span><div><strong>Kunde inte uppdatera.</strong> Båda källorna är otillgängliga – visar senast sparade data${cache.savedAt?` (från kl ${seClock(new Date(cache.savedAt))})`:""}.</div></div>`);
+    } else {
+      setStatus(`<div class="notice err"><span class="ico" aria-hidden="true">⚠</span><div><strong>Kunde inte hämta väderdata</strong> och ingen sparad data finns. Kontrollera internetanslutningen och försök igen.</div></div>`);
+    }
+  }
+  btn.classList.remove("loading"); btn.disabled=false; busy=false;
+}
+
+/* -------------------- Vyväxling (tangentbord + mus) -------------------- */
+function activateTab(view){
+  document.querySelectorAll(".tab").forEach(t=>{
+    const on = t.dataset.view===view;
+    t.setAttribute("aria-selected", on?"true":"false");
+    t.tabIndex = on?0:-1;
+  });
+  const map={nu:"#view-nu",d1:"#view-d1",d3:"#view-d3",d5:"#view-d5",agro:"#view-agro",cmp:"#view-cmp"};
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  $(map[view]).classList.add("active");
+}
+const tabsEl = document.querySelectorAll(".tab");
+tabsEl.forEach((t,i)=>{
+  t.addEventListener("click", ()=>activateTab(t.dataset.view));
+  t.addEventListener("keydown", e=>{
+    let ni=null;
+    if(e.key==="ArrowRight") ni=(i+1)%tabsEl.length;
+    else if(e.key==="ArrowLeft") ni=(i-1+tabsEl.length)%tabsEl.length;
+    else if(e.key==="Home") ni=0;
+    else if(e.key==="End") ni=tabsEl.length-1;
+    if(ni!==null){ e.preventDefault(); tabsEl[ni].focus(); activateTab(tabsEl[ni].dataset.view); }
+  });
+});
+tabsEl.forEach((t,i)=> t.tabIndex = i===0?0:-1);
+
+/* -------------------- Auto-uppdatering -------------------- */
+$("#refresh").addEventListener("click", update);
+setInterval(update, REFRESH_MS);                 // varje timme
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) update(); });
+
+// Test-krok: lägg ?test=1 i URL:en för uppdatering var 10:e sekund (QA).
+if(new URLSearchParams(location.search).get("test")==="1"){
+  setInterval(update, 10000);
+}
+
+// Initial hämtning
+update();
+</script>
+</body>
+</html>
