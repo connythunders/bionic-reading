@@ -160,7 +160,9 @@ export async function generera(
   const grundning = await byggGrundning(ankaramneKod, programIds);
   const underlag = byggUnderlag(ankaramneKod, tema, programIds, grundning);
 
-  const client = new Anthropic({ apiKey });
+  // Timeout strax under funktionens maxDuration (60s) så vi får ett tydligt
+  // fel i stället för att plattformen dödar anropet (ger "Connection error").
+  const client = new Anthropic({ apiKey, timeout: 50_000, maxRetries: 1 });
   const svar = await client.messages.create({
     model: MODELL,
     max_tokens: MAX_TOKENS,
