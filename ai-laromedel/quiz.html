@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="sv" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avslutande quiz – AI-läromedel</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-title">AI<span>Läromedel</span></a>
+    <nav class="a11y-toolbar" aria-label="Tillgänglighetsverktyg">
+      <button class="a11y-btn" id="bionic-toggle">👁 Bionic</button>
+      <div class="font-size-controls">
+        <button class="a11y-btn" id="fs-down">A−</button>
+        <span>A</span>
+        <button class="a11y-btn" id="fs-up">A+</button>
+      </div>
+      <button class="a11y-btn" id="lh-up">↕ Radavstånd</button>
+      <button class="a11y-btn" id="font-toggle">Aa Font</button>
+      <button class="a11y-btn" id="dark-toggle">🌙 Mörkt</button>
+    </nav>
+  </div>
+</header>
+
+<main class="page-wrapper">
+  <nav class="breadcrumb">
+    <a href="index.html">Startsida</a> <span>›</span> <span>Quiz</span>
+  </nav>
+
+  <div class="chapter-hero">
+    <div class="chapter-number">Avslutande quiz</div>
+    <h1>Testa dina AI-kunskaper</h1>
+    <p class="lead">20 frågor från alla fem kapitel – slumpad ordning, direkt återkoppling och poängsumma efteråt.</p>
+  </div>
+
+  <div class="quiz-wrapper">
+
+    <!-- QUIZ MAIN -->
+    <div id="quiz-main">
+      <div class="quiz-progress">
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-fill" id="quiz-progress-fill" style="width:0%"></div>
+        </div>
+        <span class="quiz-counter" id="quiz-counter">Fråga 1 av 20</span>
+      </div>
+
+      <div class="quiz-card" id="quiz-card">
+        <!-- fylls dynamiskt av JS -->
+      </div>
+
+      <button class="quiz-next-btn" id="quiz-next" onclick="nextQuestion()">Nästa fråga →</button>
+    </div>
+
+    <!-- QUIZ RESULT -->
+    <div class="quiz-result" id="quiz-result">
+      <div class="result-score" id="result-score">–</div>
+      <div class="result-label" id="result-label">–</div>
+      <div class="result-feedback" id="result-feedback"></div>
+
+      <div class="result-breakdown">
+        <div class="result-stat">
+          <span class="stat-value green stat-correct" id="result-correct">–</span>
+          <span class="stat-label">Rätt</span>
+        </div>
+        <div class="result-stat">
+          <span class="stat-value red stat-wrong" id="result-wrong">–</span>
+          <span class="stat-label">Fel</span>
+        </div>
+      </div>
+
+      <button class="quiz-restart-btn" onclick="startQuiz()">🔄 Gör om quizet</button>
+      <button class="quiz-restart-btn" onclick="showReview()" style="background:var(--color-accent)">📋 Visa genomgång</button>
+      <a href="index.html" class="quiz-restart-btn" style="display:inline-block;text-decoration:none;background:var(--color-text-muted)">🏠 Till startsidan</a>
+
+      <div class="quiz-review" id="quiz-review"></div>
+    </div>
+
+  </div>
+</main>
+
+<script src="script.js"></script>
+<script>
+// ─── QUIZ DATA ─────────────────────────────────────────────────────────────
+const QUESTIONS = [
+  // KAPITEL 1
+  {
+    chapter: '1 – Introduktion till AI',
+    question: 'Vad är syftet med Turingtestet?',
+    options: [
+      'Mäta en dators beräkningshastighet',
+      'Avgöra om en maskin uppvisar människolikt intelligent beteende i en dialog',
+      'Testa om en robot kan röra sig som en människa',
+      'Kontrollera om en AI kan lösa matematiska problem'
+    ],
+    correctIndex: 1,
+    explanation: 'Turingtestet mäter om en människa kan skilja maskinens svar från en annan människas i en dialog – det säger ingenting om maskinen verkligen tänker.'
+  },
+  {
+    chapter: '1 – Introduktion till AI',
+    question: 'Vad är ett exempel på smal AI (narrow AI)?',
+    options: [
+      'En AI som kan resonera fritt om alla ämnen precis som en människa',
+      'En framtida AI med generell intelligens (AGI)',
+      'Ett spamfilter som sorterar bort oönskade e-postmeddelanden',
+      'En AI som har egna mål och värderingar'
+    ],
+    correctIndex: 2,
+    explanation: 'Smal AI är specialiserad på en enda uppgift. Ett spamfilter är tränat just för att känna igen skräppost och kan ingenting annat – ett typexempel på smal AI.'
+  },
+  {
+    chapter: '1 – Introduktion till AI',
+    question: 'Vad vill tankeexperimentet "Det kinesiska rummet" illustrera?',
+    options: [
+      'Att datorer inte kan lära sig kinesiska',
+      'Att en maskin kan följa regler och verka förstående utan att faktiskt förstå',
+      'Att intelligens kräver ett fysiskt rum för att fungera',
+      'Att Turingtestet alltid kan luras av en människa'
+    ],
+    correctIndex: 1,
+    explanation: 'Searle visade att ett system kan producera korrekta svar utan att förstå innebörden. En dator kan bete sig intelligent utan att vara medveten.'
+  },
+  {
+    chapter: '1 – Introduktion till AI',
+    question: 'Varför har AI inga egna värderingar eller mål?',
+    options: [
+      'För att AI är för ointelligent för att ha åsikter',
+      'Eftersom AI styrs enbart av mänskliga instruktioner och den data den tränas på',
+      'Eftersom AI-system alltid stängs av när de försöker fatta egna beslut',
+      'Därför att lagar förbjuder AI att ha egna mål'
+    ],
+    correctIndex: 1,
+    explanation: 'AI är matematiska konstruktioner som tränas av människor. Det finns ingen inneboende vilja – systemet gör det det programmerats och tränats att göra.'
+  },
+  // KAPITEL 2
+  {
+    chapter: '2 – AI i samhället',
+    question: 'Vilka fem etiska dimensioner lyfts fram för ansvarsfull AI-användning?',
+    options: [
+      'Hastighet, kostnad, design, säkerhet och effektivitet',
+      'Integritet, desinformation, förklarbarhet, partiskhet/rättvisa och plagiering',
+      'Autonomi, kreativitet, intelligens, medvetande och språk',
+      'Programmering, data, träning, test och utvärdering'
+    ],
+    correctIndex: 1,
+    explanation: 'De fem dimensionerna ger ett ramverk för att kritiskt granska hur AI används – från integritetsskydd till rättvisa beslut och upphovsrätt.'
+  },
+  {
+    chapter: '2 – AI i samhället',
+    question: 'Vad är ett deepfake?',
+    options: [
+      'En AI-modell som lär sig av falsk träningsdata',
+      'AI-genererat eller AI-manipulerat material (bild, ljud, video) som ser verkligt ut men är påhittat',
+      'En sorts spam-mejl skapat av en bot',
+      'En fejkad användaridentitet i ett socialt medium'
+    ],
+    correctIndex: 1,
+    explanation: 'Deepfakes är realistiskt fabricerat material skapat med AI. Det används för att sprida falsk information och underminera förtroendet för äkta material.'
+  },
+  {
+    chapter: '2 – AI i samhället',
+    question: 'Vad innebär transparens (förklarbarhet) som etisk dimension hos ett AI-system?',
+    options: [
+      'Att systemet alltid ger korrekta svar',
+      'Att man kan förstå och förklara hur systemet fattar sina beslut',
+      'Att systemet är gratis att använda',
+      'Att systemet inte samlar in några personuppgifter'
+    ],
+    correctIndex: 1,
+    explanation: 'Transparens handlar om att kunna förstå och förklara ett AI-systems resonemang. Utan transparens är det omöjligt att granska eller korrigera beteendet.'
+  },
+  {
+    chapter: '2 – AI i samhället',
+    question: 'Vilket syfte har EU:s AI-förordning (AI Act)?',
+    options: [
+      'Att förbjuda all användning av AI i Europa',
+      'Att reglera AI-system utifrån riskklasser och skydda grundläggande rättigheter',
+      'Att ge EU-företag monopol på AI-utveckling',
+      'Att påskynda militär AI-forskning i Europa'
+    ],
+    correctIndex: 1,
+    explanation: 'AI Act delar in AI-system i riskklasser och ställer krav på transparens, säkerhet och mänsklig tillsyn för att skydda medborgares grundläggande rättigheter.'
+  },
+  // KAPITEL 3
+  {
+    chapter: '3 – Programmering',
+    question: 'Varför används Python ofta inom AI-utveckling?',
+    options: [
+      'Det är det snabbaste programmeringsspråket som finns',
+      'Python är lättläst och har tillgång till kraftfulla specialbibliotek som TensorFlow och Pandas',
+      'Python är det enda språk som kan köras på molntjänster',
+      'Eftersom Python uppfanns specifikt för att bygga AI'
+    ],
+    correctIndex: 1,
+    explanation: 'Python är populärt för sin läsbarhet och det rika ekosystemet av bibliotek för datahantering, statistik och neurala nätverk.'
+  },
+  {
+    chapter: '3 – Programmering',
+    question: 'Vad är ett kodbibliotek i Python?',
+    options: [
+      'En digital bok om programmering',
+      'En samling färdigskriven kod som man kan importera och använda i egna program',
+      'En typ av loopar som sparar tid vid upprepning',
+      'En lokal kopia av all Pythonkod på din dator'
+    ],
+    correctIndex: 1,
+    explanation: 'Bibliotek (t.ex. NumPy, Matplotlib) innehåller kod som andra skrivit och testat. Genom import slipper du skriva allt från grunden.'
+  },
+  {
+    chapter: '3 – Programmering',
+    question: 'Vad gör en loop i programmering?',
+    options: [
+      'Den lagrar ett värde i datorns minne',
+      'Den upprepar ett kodblock ett visst antal gånger eller så länge ett villkor är sant',
+      'Den testar om ett påstående är sant eller falskt och väljer väg',
+      'Den definierar ett nytt programmeringsspråk'
+    ],
+    correctIndex: 1,
+    explanation: 'En for- eller while-loop kör ett kodblock upprepade gånger – ett grundläggande verktyg för att hantera repetitioner effektivt.'
+  },
+  {
+    chapter: '3 – Programmering',
+    question: 'Vad är skillnaden mellan ett villkor (if-sats) och en funktion i Python?',
+    options: [
+      'Det finns ingen skillnad, båda används för upprepningar',
+      'En if-sats väljer vilken kod som körs beroende på ett villkor; en funktion är ett återanvändbart kodblock med ett namn',
+      'En funktion är bara ett annat ord för en variabel',
+      'En if-sats kan bara användas en gång, en funktion kan användas hur många gånger som helst'
+    ],
+    correctIndex: 1,
+    explanation: 'If-satsen styr flödet baserat på sant/falskt. En funktion definieras en gång och kan anropas upprepade gånger för att undvika kodupprepning.'
+  },
+  // KAPITEL 4
+  {
+    chapter: '4 – Maskininlärning',
+    question: 'Vad innebär det att en maskininlärningsmodell "generaliserar"?',
+    options: [
+      'Att modellen lär sig alla detaljer i träningsdatan utantill',
+      'Att modellen kan göra korrekta förutsägelser på ny data som den inte sett under träningen',
+      'Att modellen kan översätta mellan olika programmeringsspråk',
+      'Att modellen förenklar all data till ett enda medelvärde'
+    ],
+    correctIndex: 1,
+    explanation: 'Generalisering är målet med maskininlärning: modellen ska förstå underliggande mönster och klara ny, okänd data – inte bara memorera träningsexemplen.'
+  },
+  {
+    chapter: '4 – Maskininlärning',
+    question: 'Vad är bias i ett dataset?',
+    options: [
+      'Ett fel i programkoden som gör att modellen kraschar',
+      'Att datan är skevt sammansatt så att vissa grupper eller kategorier är kraftigt över- eller underrepresenterade',
+      'En metod för att balansera träningsdata med testdata',
+      'När modellen gissar för högt på alla datapunkter'
+    ],
+    correctIndex: 1,
+    explanation: 'Bias i data gör att modellen lär sig en sned bild av verkligheten, vilket kan leda till orättvisa beslut – t.ex. sämre prestanda för underrepresenterade grupper.'
+  },
+  {
+    chapter: '4 – Maskininlärning',
+    question: 'Vad är skillnaden mellan regression och klassificering inom övervakad inlärning?',
+    options: [
+      'Regression används för bilder, klassificering för text',
+      'Regression förutsäger ett numeriskt värde (t.ex. pris); klassificering avgör vilken kategori något tillhör (t.ex. spam/inte spam)',
+      'Klassificering kräver mer data än regression',
+      'Det finns ingen skillnad, begreppen är synonymer'
+    ],
+    correctIndex: 1,
+    explanation: 'Regression: kontinuerliga tal (pris, temperatur). Klassificering: diskreta kategorier (katt/hund, spam/inte spam). Båda är former av övervakad inlärning.'
+  },
+  {
+    chapter: '4 – Maskininlärning',
+    question: 'Varför delar man upp data i träningsdata, valideringsdata och testdata?',
+    options: [
+      'För att minska den totala mängden data som behövs',
+      'Så att man kan träna snabbare på en vanlig dator',
+      'För att rättvist utvärdera om modellen lärt sig generella mönster och inte bara memorerat träningsdatan',
+      'Eftersom maskininlärningsalgoritmer kräver minst tre datamängder för att fungera'
+    ],
+    correctIndex: 2,
+    explanation: 'Testdata används bara en gång i slutet för ett ärligt prestanda-mått. Utan uppdelning riskerar man att modellen memorerar snarare än lär sig mönster.'
+  },
+  // KAPITEL 5
+  {
+    chapter: '5 – Projektarbeten',
+    question: 'Vilket av följande är ett exempel på Projekt 2: Praktisk tillämpning av AI?',
+    options: [
+      'Skriva en analys av hur AI framställs i filmen Ex Machina',
+      'Träna en modell som känner igen handskrivna siffror med MNIST-datasetet i Google Colab',
+      'Skriva en policy brief om AI och demokrati',
+      'Granska ChatGPT:s affärsmodell och etiska risker'
+    ],
+    correctIndex: 1,
+    explanation: 'Projekt 2 handlar om att praktiskt bygga och träna en AI-modell. MNIST i Google Colab är ett av de föreslagna projekten. De övriga alternativen tillhör projekt 1, 3 och 4.'
+  },
+  {
+    chapter: '5 – Projektarbeten',
+    question: 'Vad är syftet med Projekt 3: AI och samhälle?',
+    options: [
+      'Att lära sig programmera neurala nätverk',
+      'Att analysera en specifik AI-modells tekniska prestanda',
+      'Att analysera hur AI påverkar demokrati, ekonomi, maktbalans och andra samhällsaspekter',
+      'Att skriva en roman om en AI-robot'
+    ],
+    correctIndex: 2,
+    explanation: 'Projekt 3 fokuserar på AI som samhällsfenomen – demokrati, arbetsmarknad, miljö och makt – med modellen nuläge → konsekvenser → lösningar.'
+  },
+  {
+    chapter: '5 – Projektarbeten',
+    question: 'Vilka fyra delar ska en AI-verktygsgranskning (Projekt 4) innehålla?',
+    options: [
+      'Bakgrund, hypotes, experiment och slutsats',
+      'Verktyget och företaget, hur verktyget fungerar, risker/etik/miljö och samhällspåverkan',
+      'Datainsamling, modellval, träning och utvärdering',
+      'Kreativitet, intelligens, autonomi och adaptivitet'
+    ],
+    correctIndex: 1,
+    explanation: 'Projekt 4 är uppdelat i Del A (verktyget och företaget), Del B (teknisk funktion), Del C (risker/etik/miljö) och Del D (samhällspåverkan).'
+  },
+  {
+    chapter: '5 – Projektarbeten',
+    question: 'Vilket projekt handlar om att analysera ett kulturverk (film, serie, konst) ur ett AI-perspektiv?',
+    options: [
+      'Projekt 1: AI i kultur och media',
+      'Projekt 2: Praktisk tillämpning av AI',
+      'Projekt 3: AI och samhälle',
+      'Projekt 4: Granska ett AI-verktyg'
+    ],
+    correctIndex: 0,
+    explanation: 'Projekt 1 handlar om att välja ett kulturverk och analysera hur AI framställs – rädslor, drömmar, medvetande och samhällspåverkan.'
+  }
+];
+
+// Wire up result display to use correct element IDs
+const _origShowResult = showResult;
+// Override to map our element IDs
+function showResult() {
+  const total = quizOrder.length;
+  const pct = Math.round(quizScore / total * 100);
+
+  const quizMain = document.getElementById('quiz-main');
+  if (quizMain) quizMain.style.display = 'none';
+
+  const result = document.getElementById('quiz-result');
+  if (!result) return;
+  result.classList.add('visible');
+
+  document.getElementById('result-score').textContent = pct + '%';
+  document.getElementById('result-label').textContent = quizScore + ' av ' + total + ' rätt';
+  document.getElementById('result-correct').textContent = quizScore;
+  document.getElementById('result-wrong').textContent = total - quizScore;
+
+  let feedback = '';
+  if (pct >= 90) feedback = '🏆 Utmärkt! Du behärskar AI-kunskapen på en hög nivå.';
+  else if (pct >= 70) feedback = '👍 Bra jobbat! Du har ett solitt grepp om ämnet.';
+  else if (pct >= 50) feedback = '📖 Halvvägs! Repetera kapitlen och försök igen.';
+  else feedback = '💪 Fortsätt läsa! Läromedlet hjälper dig att komma upp i fart.';
+  document.getElementById('result-feedback').textContent = feedback;
+
+  const reviewEl = document.getElementById('quiz-review');
+  if (reviewEl) {
+    reviewEl.innerHTML = '<h3 style="margin-bottom:1rem;font-size:1.1rem">Genomgång av alla frågor</h3>' +
+      quizAnswers.map(a => {
+        const q = quizQuestions[a.qi];
+        const correctOpt = q.options[q.correctIndex];
+        return '<div class="review-item ' + (a.correct ? 'correct' : 'wrong') + '">' +
+          '<div class="review-q">' + q.question + '</div>' +
+          '<div class="review-a">' +
+          (a.correct ? '✅' : '❌') + ' Du svarade: ' + a.userText + '<br>' +
+          (!a.correct ? '✅ Rätt svar: ' + correctOpt + '<br>' : '') +
+          '<em>' + q.explanation + '</em>' +
+          '</div></div>';
+      }).join('');
+  }
+}
+
+// Initialize quiz on page load
+document.addEventListener('DOMContentLoaded', () => {
+  initQuiz(QUESTIONS);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="sv" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kapitel 4: Tekniken bakom AI – Inlärning – AI-läromedel</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-title">AI<span>Läromedel</span></a>
+    <nav class="a11y-toolbar" aria-label="Tillgänglighetsverktyg">
+      <button class="a11y-btn" id="bionic-toggle">👁 Bionic</button>
+      <div class="font-size-controls">
+        <button class="a11y-btn" id="fs-down">A−</button>
+        <span>A</span>
+        <button class="a11y-btn" id="fs-up">A+</button>
+      </div>
+      <button class="a11y-btn" id="lh-up">↕ Radavstånd</button>
+      <button class="a11y-btn" id="font-toggle">Aa Font</button>
+      <button class="a11y-btn" id="dark-toggle">🌙 Mörkt</button>
+    </nav>
+  </div>
+</header>
+
+<div class="progress-bar"><div class="progress-fill"></div></div>
+
+<main class="page-wrapper">
+  <nav class="breadcrumb">
+    <a href="index.html">Startsida</a> <span>›</span> <span>Kapitel 4</span>
+  </nav>
+
+  <div class="chapter-hero">
+    <div class="chapter-number">Kapitel 4</div>
+    <h1>Tekniken bakom AI: Inlärning</h1>
+    <p class="lead">Maskininlärning, neurala nätverk, övervakad och oövervakad inlärning – hur AI lär sig av data och vad som kan gå fel.</p>
+  </div>
+
+  <article class="content">
+
+    <h2>Vad är maskininlärning?</h2>
+
+    <p><strong>Maskininlärning</strong> innebär att en AI-modell tränas på stora datamängder för att själv hitta mönster, i stället för att programmeras med fasta regler. Genom att förstå sambanden i ett dataset kan modellen göra förutsägelser och generalisera till nya situationer.</p>
+
+    <h3>Maskininlärning vs. vanlig programmering</h3>
+
+    <p>I <strong>vanlig programmering</strong> skriver du reglerna själv:</p>
+    <pre><code># Du definierar reglerna
+if ålder > 18 and inkomst > 25000:
+    bevilja_lån = True</code></pre>
+
+    <p>I <strong>maskininlärning</strong> är det tvärtom – du ger data och rätt svar, och modellen hittar reglerna:</p>
+    <pre><code># Du ger exempel (data + svar), modellen hittar mönstret
+träningsdata = [(ålder, inkomst, beviljad), ...]
+modell.träna(träningsdata)
+modell.förutsäg(ny_ansökan)</code></pre>
+
+    <div class="fact-box">
+      <strong>Tre faktorer bakom AI-boomen</strong>
+      <ul>
+        <li><strong>Data</strong> – internet och digitalisering har skapat enorma mängder träningsdata.</li>
+        <li><strong>Hårdvara</strong> – GPU:er gör det möjligt att träna stora modeller snabbt.</li>
+        <li><strong>Algoritmer</strong> – nya metoder, särskilt djupinlärning, har dramatiskt förbättrat prestandan.</li>
+      </ul>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <h2>Data för maskininlärning</h2>
+
+    <p>Data är bränslet i maskininlärning. Kvaliteten och sammansättningen av data avgör hur bra modellen blir.</p>
+
+    <h3>Typer av data</h3>
+    <ul>
+      <li><strong>Strukturerad data</strong> – tabeller med tydliga kolumner och rader (t.ex. kalkylblad).</li>
+      <li><strong>Ostrukturerad data</strong> – text, bilder, ljud och video utan fast format.</li>
+      <li><strong>Tidsseriedata</strong> – mätningar ordnade i tid (t.ex. börskurser, vädermätningar).</li>
+    </ul>
+
+    <h3>Uppdelning av data</h3>
+
+    <p>Data delas upp i tre grupper:</p>
+    <ul>
+      <li><strong>Träningsdata</strong> – modellen lär sig mönster från denna data (oftast ~70–80 %).</li>
+      <li><strong>Valideringsdata</strong> – används under träningen för att justera inställningar (~10–15 %).</li>
+      <li><strong>Testdata</strong> – används bara en gång i slutet för att ge ett rättvist prestanda-mått (~10–15 %).</li>
+    </ul>
+
+    <div class="info-box">
+      <strong>Varför tre datamängder?</strong>
+      <p>Om man tränar och testar på samma data riskerar modellen att "memorera" exemplen utan att förstå det underliggande mönstret. Testdata används bara en gång för att ge ett ärligt mått på hur bra modellen är på <em>ny, okänd</em> data.</p>
+    </div>
+
+    <h3>Vanliga problem med data</h3>
+
+    <p>Tre vanliga problem i dataset är:</p>
+    <ol>
+      <li><strong>Bias (snedvridning)</strong> – vissa grupper eller kategorier är kraftigt över- eller underrepresenterade.</li>
+      <li><strong>Brus</strong> – data innehåller fel, mätvariationer eller irrelevant information.</li>
+      <li><strong>Saknade värden</strong> – delar av datan fattas, vilket kan snedvrida modellen.</li>
+    </ol>
+
+    <p>Det är viktigt att identifiera och hantera dessa problem <em>innan</em> träningen börjar.</p>
+
+    <div class="section-divider"></div>
+
+    <h2>Typer av maskininlärning</h2>
+
+    <h3>Övervakad inlärning</h3>
+
+    <p>I <strong>övervakad inlärning</strong> tränas modellen på märkt data – varje exempel har ett känt svar (etikett). Modellen lär sig att mappa indata till rätt svar.</p>
+
+    <ul>
+      <li><strong>Regression</strong> – förutsäger ett numeriskt värde som kan variera kontinuerligt, t.ex. bostadspris eller temperatur.</li>
+      <li><strong>Klassificering</strong> – sorterar indata i kategorier, t.ex. spam/inte spam, eller katt/hund/fågel.</li>
+    </ul>
+
+    <div class="fact-box">
+      <strong>Regression vs. klassificering</strong>
+      <p><strong>Regression:</strong> "Vad är det förväntade priset på denna lägenhet?" → ett tal (t.ex. 3 200 000 kr)<br>
+      <strong>Klassificering:</strong> "Är detta mejl spam?" → en kategori (spam / inte spam)</p>
+    </div>
+
+    <h3>Oövervakad inlärning</h3>
+
+    <p>I <strong>oövervakad inlärning</strong> finns inga etiketter. Modellen hittar själv mönster och strukturer i datan.</p>
+
+    <ul>
+      <li><strong>Klustring</strong> – grupperar liknande datapunkter utan fördefinierade kategorier (t.ex. k-means).</li>
+      <li><strong>Dimensionsreduktion</strong> – komprimerar data till färre dimensioner för att hitta väsentliga mönster.</li>
+    </ul>
+
+    <h3>Förstärkningsinlärning</h3>
+
+    <p>I <strong>förstärkningsinlärning</strong> lär sig en agent genom att utforska en miljö och få belöningar för bra handlingar och straff för dåliga. Metoden används för att träna spelande AI (t.ex. AlphaGo) och robotar.</p>
+
+    <div class="section-divider"></div>
+
+    <h2>Neurala nätverk och djupinlärning</h2>
+
+    <p>Inspirerade av hjärnans neuroner består <strong>neurala nätverk</strong> av lager med artificiella noder (neuroner). Information flödar framåt genom nätverket, transformeras i varje lager och producerar slutligen ett svar.</p>
+
+    <h3>Nätverkets struktur</h3>
+    <ul>
+      <li><strong>Indatalager</strong> – tar emot rådata (t.ex. pixlar i en bild).</li>
+      <li><strong>Dolda lager</strong> – lär sig abstrakta representationer. Djupare nätverk lär sig mer komplexa mönster.</li>
+      <li><strong>Utdatalager</strong> – ger nätverkets svar (t.ex. "katt" eller "hund").</li>
+    </ul>
+
+    <p><strong>Djupinlärning</strong> (deep learning) är neurala nätverk med många dolda lager. Det är tekniken bakom modern bildigenkänning, taligenkänning och generativ AI.</p>
+
+    <h3>Aktivitetsfunktioner</h3>
+
+    <p>Varje neuron använder en <strong>aktivitetsfunktion</strong> för att avgöra om och hur starkt den ska "skicka vidare" en signal. Utan aktivitetsfunktioner vore nätverket bara en linjär beräkning, oförmöget att lära sig komplexa mönster. Vanliga aktivitetsfunktioner är ReLU och sigmoid.</p>
+
+    <h3>Bakåtpropagering och träning</h3>
+
+    <p>Under träningen beräknar nätverket felet mellan sitt svar och rätt svar. Sedan propageras <strong>gradienter</strong> bakåt genom nätverket och vikterna justeras i riktning som minskar felet. Denna process kallas <strong>bakåtpropagering</strong> (backpropagation) och upprepas tusentals gånger.</p>
+
+    <div class="section-divider"></div>
+
+    <h2>Stora språkmodeller (LLM)</h2>
+
+    <p><strong>Stora språkmodeller</strong> (Large Language Models, LLM) är djupa neurala nätverk tränade på enorma mängder text. De lär sig sannolikheten för att ord följer på varandra och kan generera sammanhängande text, besvara frågor och skriva kod.</p>
+
+    <p>Grunden för moderna LLM är <strong>transformer-arkitekturen</strong> (2017), som använder <em>attention-mekanismen</em> för att väga vikten av olika ord i sitt sammanhang. GPT-modellerna (bakom ChatGPT) och Google Gemini bygger på denna arkitektur.</p>
+
+    <div class="info-box">
+      <strong>Hallucination</strong>
+      <p>LLM:er kan producera felaktig information med hög säkerhet – ett fenomen som kallas <em>hallucination</em>. Det uppstår för att modellen genererar text som statistiskt verkar rimlig, utan en intern kontroll mot faktadatabaser. Källkritik är därför viktigt även vid AI-användning.</p>
+    </div>
+
+    <h2>AI-pipelinen</h2>
+
+    <p>En typisk maskininlärningspipeline består av dessa steg:</p>
+    <ol>
+      <li><strong>Problembild och mål</strong> – definiera vad modellen ska lösa.</li>
+      <li><strong>Datainsamling</strong> – samla in eller skapa relevant, representativ data.</li>
+      <li><strong>Dataförberedelse</strong> – rensa, normalisera och dela upp data.</li>
+      <li><strong>Val av modell</strong> – välj lämplig algoritmtyp (regression, neuralt nätverk, osv.).</li>
+      <li><strong>Träning</strong> – träna modellen på träningsdata.</li>
+      <li><strong>Utvärdering</strong> – mät prestanda på testdata; justera vid behov.</li>
+      <li><strong>Driftsättning</strong> – sätt modellen i produktion och övervaka löpande.</li>
+    </ol>
+
+    <div class="summary-box">
+      <h3>Sammanfattning</h3>
+      <ul>
+        <li>Maskininlärning lär modellen mönster från data i stället för att programmeras med explicita regler.</li>
+        <li>Övervakad inlärning (regression och klassificering) kräver märkt data; oövervakad inlärning hittar mönster utan etiketter.</li>
+        <li>Neurala nätverk och djupinlärning är grunden för modern AI – från bildigenkänning till chattbotar.</li>
+        <li>LLM:er (stora språkmodeller) genererar text baserat på statistiska mönster i träningsdata, vilket kan ge hallucination.</li>
+        <li>Bias i träningsdata leder till skevhet i modellen – datakvalitet är avgörande.</li>
+      </ul>
+    </div>
+
+    <div class="key-concepts">
+      <h3>Nyckelbegrepp</h3>
+      <div class="concepts-grid">
+        <div class="concept-item"><strong>Maskininlärning</strong><p>AI-träning på data för att hitta mönster, utan handskrivna regler.</p></div>
+        <div class="concept-item"><strong>Övervakad inlärning</strong><p>Träning på märkt data med kända svar.</p></div>
+        <div class="concept-item"><strong>Regression</strong><p>Förutsägelse av ett numeriskt värde (t.ex. pris).</p></div>
+        <div class="concept-item"><strong>Klassificering</strong><p>Sortering i kategorier (t.ex. spam/inte spam).</p></div>
+        <div class="concept-item"><strong>Djupinlärning</strong><p>Neurala nätverk med många dolda lager.</p></div>
+        <div class="concept-item"><strong>LLM</strong><p>Stor språkmodell tränad på text för att generera och förstå språk.</p></div>
+        <div class="concept-item"><strong>Hallucination</strong><p>Fel som LLM:er producerar med falskt hög säkerhet.</p></div>
+        <div class="concept-item"><strong>Bias</strong><p>Skevhet i data som leder till orättvisa modellbeslut.</p></div>
+      </div>
+    </div>
+
+  </article>
+
+  <!-- SJÄLVTEST -->
+  <section class="self-test" aria-label="Självtest kapitel 4">
+    <h3>Självtest – Kapitel 4</h3>
+
+    <div class="question-item">
+      <div class="question-text">1. Vad innebär det att en maskininlärningsmodell "generaliserar"?</div>
+      <ul class="options-list">
+        <li><button class="option-btn" data-correct="false">Att modellen lär sig alla detaljer i träningsdatan utantill</button></li>
+        <li><button class="option-btn" data-correct="true">Att modellen kan göra korrekta förutsägelser på ny data som den inte sett under träningen</button></li>
+        <li><button class="option-btn" data-correct="false">Att modellen kan översätta mellan olika programmeringsspråk</button></li>
+        <li><button class="option-btn" data-correct="false">Att modellen förenklar all data till ett enda medelvärde</button></li>
+      </ul>
+      <div class="facit">✅ Rätt! Generalisering är målet: modellen ska förstå underliggande mönster, inte memorera enskilda exempel.</div>
+    </div>
+
+    <div class="question-item">
+      <div class="question-text">2. Vad är bias i ett dataset?</div>
+      <ul class="options-list">
+        <li><button class="option-btn" data-correct="false">Ett fel i programkoden som gör att modellen kraschar</button></li>
+        <li><button class="option-btn" data-correct="true">Att datan är skevt sammansatt så att vissa grupper eller kategorier är kraftigt över- eller underrepresenterade</button></li>
+        <li><button class="option-btn" data-correct="false">En metod för att balansera träningsdata med testdata</button></li>
+        <li><button class="option-btn" data-correct="false">När modellen gissar för högt på alla datapunkter</button></li>
+      </ul>
+      <div class="facit">✅ Rätt! Bias i data gör att modellen lär sig en sned bild av verkligheten, vilket kan leda till orättvisa beslut.</div>
+    </div>
+
+    <div class="question-item">
+      <div class="question-text">3. Vad är skillnaden mellan regression och klassificering?</div>
+      <ul class="options-list">
+        <li><button class="option-btn" data-correct="false">Regression används för bilder, klassificering för text</button></li>
+        <li><button class="option-btn" data-correct="true">Regression förutsäger ett numeriskt värde (t.ex. pris); klassificering avgör vilken kategori något tillhör (t.ex. spam/inte spam)</button></li>
+        <li><button class="option-btn" data-correct="false">Klassificering kräver mer data än regression</button></li>
+        <li><button class="option-btn" data-correct="false">Det finns ingen skillnad, begreppen är synonymer</button></li>
+      </ul>
+      <div class="facit">✅ Rätt! Regression: kontinuerliga tal (pris, temperatur). Klassificering: diskreta kategorier (katt/hund, spam/inte spam).</div>
+    </div>
+
+    <div class="question-item">
+      <div class="question-text">4. Varför delar man upp data i tränings-, validerings- och testdata?</div>
+      <ul class="options-list">
+        <li><button class="option-btn" data-correct="false">För att minska den totala mängden data som behövs</button></li>
+        <li><button class="option-btn" data-correct="false">Så att man kan träna snabbare på en vanlig dator</button></li>
+        <li><button class="option-btn" data-correct="true">För att rättvist utvärdera om modellen lärt sig generella mönster och inte bara memorerat träningsdatan</button></li>
+        <li><button class="option-btn" data-correct="false">Eftersom maskininlärningsalgoritmer kräver minst tre datamängder för att fungera</button></li>
+      </ul>
+      <div class="facit">✅ Rätt! Testdata används bara en gång i slutet för att ge ett ärligt mått på modellens verkliga prestanda på okänd data.</div>
+    </div>
+  </section>
+
+  <nav class="chapter-nav">
+    <a href="kapitel-03.html" class="nav-btn">← Kapitel 3</a>
+    <a href="index.html" class="nav-btn home">🏠 Startsidan</a>
+    <a href="kapitel-05.html" class="nav-btn next">Kapitel 5 →</a>
+  </nav>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
