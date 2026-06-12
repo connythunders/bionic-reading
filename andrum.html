@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Andrum – fem minuter som är dina</title>
+<meta name="description" content="En lugn sida för läraren mellan lektionerna. Andas, släpp taget, räkna ner till lovet och spara dina små segrar.">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+        --sky-top: #1a1f3d;
+        --sky-mid: #3d3460;
+        --sky-glow: #b06a8f;
+        --sky-horizon: #e8927c;
+        --card-bg: rgba(255, 255, 255, 0.07);
+        --card-border: rgba(255, 255, 255, 0.13);
+        --text: #f2eee9;
+        --text-dim: #b8b0c4;
+        --gold: #f0c674;
+        --green: #8fd4a8;
+    }
+
+    body {
+        font-family: 'Georgia', 'Times New Roman', serif;
+        color: var(--text);
+        background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-glow) 80%, var(--sky-horizon) 100%);
+        background-attachment: fixed;
+        min-height: 100vh;
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
+
+    .stars {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+    }
+    .star {
+        position: absolute;
+        background: #fff;
+        border-radius: 50%;
+        animation: twinkle 4s ease-in-out infinite;
+    }
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.2; }
+        50% { opacity: 0.9; }
+    }
+
+    /* Siljan-silhuett längst ner */
+    .horizon {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 18vh;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.55;
+    }
+    .horizon svg { width: 100%; height: 100%; display: block; }
+
+    main {
+        position: relative;
+        z-index: 1;
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 3rem 1.25rem 22vh;
+    }
+
+    .intro { text-align: center; margin-bottom: 2.5rem; }
+    .intro h1 {
+        font-size: 2.6rem;
+        font-weight: normal;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+        text-shadow: 0 0 30px rgba(240, 198, 116, 0.3);
+    }
+    .intro .greeting {
+        font-size: 1.2rem;
+        color: var(--text-dim);
+        font-style: italic;
+    }
+    .intro .clock {
+        font-size: 0.95rem;
+        color: var(--text-dim);
+        margin-top: 0.4rem;
+        letter-spacing: 0.1em;
+    }
+
+    .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        padding: 1.75rem;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+    .card h2 {
+        font-size: 0.85rem;
+        font-weight: normal;
+        text-transform: uppercase;
+        letter-spacing: 0.25em;
+        color: var(--gold);
+        margin-bottom: 1rem;
+    }
+
+    /* ---- Nedräkning ---- */
+    .countdown-big {
+        font-size: 3.2rem;
+        line-height: 1.1;
+        text-align: center;
+    }
+    .countdown-big small {
+        display: block;
+        font-size: 1.05rem;
+        color: var(--text-dim);
+        margin-top: 0.35rem;
+        font-style: italic;
+    }
+    .progress-track {
+        height: 6px;
+        background: rgba(255,255,255,0.12);
+        border-radius: 3px;
+        margin-top: 1.25rem;
+        overflow: hidden;
+    }
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold), var(--sky-horizon));
+        border-radius: 3px;
+        transition: width 1s ease;
+    }
+    .progress-label {
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        text-align: right;
+        margin-top: 0.4rem;
+    }
+
+    /* ---- Andning ---- */
+    .breath-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.25rem;
+    }
+    .breath-circle {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(240,198,116,0.35) 0%, rgba(176,106,143,0.25) 70%);
+        border: 2px solid rgba(240, 198, 116, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.05rem;
+        letter-spacing: 0.08em;
+        transition: transform 4s ease-in-out;
+        transform: scale(0.7);
+        text-align: center;
+        padding: 1rem;
+    }
+    .breath-circle.in { transform: scale(1.15); }
+    .breath-circle.hold { transition-duration: 0.3s; }
+    .breath-circle.out { transform: scale(0.7); }
+
+    button {
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 0.7rem 1.8rem;
+        border-radius: 30px;
+        border: 1px solid var(--card-border);
+        background: rgba(255,255,255,0.1);
+        color: var(--text);
+        cursor: pointer;
+        letter-spacing: 0.05em;
+        transition: background 0.3s, transform 0.2s;
+    }
+    button:hover { background: rgba(255,255,255,0.2); transform: translateY(-1px); }
+    button.primary {
+        background: linear-gradient(135deg, rgba(240,198,116,0.85), rgba(232,146,124,0.85));
+        color: #2a2138;
+        border: none;
+        font-weight: bold;
+    }
+
+    /* ---- Brevlådan till ingen ---- */
+    textarea {
+        width: 100%;
+        min-height: 110px;
+        background: rgba(0,0,0,0.25);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 1rem;
+        resize: vertical;
+        line-height: 1.6;
+    }
+    textarea:focus { outline: 1px solid var(--gold); }
+    .vent-note {
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        font-style: italic;
+        margin-top: 0.6rem;
+    }
+    .vent-actions { margin-top: 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .vent-confirm {
+        color: var(--green);
+        font-style: italic;
+        opacity: 0;
+        transition: opacity 0.6s;
+    }
+    .vent-confirm.show { opacity: 1; }
+
+    .ash {
+        position: fixed;
+        pointer-events: none;
+        font-size: 0.9rem;
+        color: var(--text-dim);
+        animation: drift 2.4s ease-out forwards;
+        z-index: 50;
+    }
+    @keyframes drift {
+        to {
+            transform: translate(var(--dx), -130px) rotate(var(--rot));
+            opacity: 0;
+        }
+    }
+
+    /* ---- Segerburken ---- */
+    .jar-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .jar-row input {
+        flex: 1;
+        min-width: 200px;
+        background: rgba(0,0,0,0.25);
+        border: 1px solid var(--card-border);
+        border-radius: 30px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 0.7rem 1.2rem;
+    }
+    .jar-row input:focus { outline: 1px solid var(--gold); }
+    .jar-status {
+        margin-top: 1.1rem;
+        font-size: 0.95rem;
+        color: var(--text-dim);
+    }
+    .jar-status strong { color: var(--gold); font-size: 1.1rem; }
+    .jar-memory {
+        margin-top: 0.9rem;
+        padding: 1rem 1.2rem;
+        border-left: 3px solid var(--gold);
+        background: rgba(240,198,116,0.08);
+        border-radius: 0 12px 12px 0;
+        font-style: italic;
+        display: none;
+    }
+    .jar-memory.show { display: block; animation: fadein 0.8s; }
+    .jar-memory .when { font-size: 0.8rem; color: var(--text-dim); font-style: normal; margin-top: 0.3rem; }
+    @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+
+    /* ---- Tanken ---- */
+    .thought {
+        text-align: center;
+        font-style: italic;
+        font-size: 1.1rem;
+        color: var(--text);
+        padding: 0 1rem;
+    }
+    .thought-source { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem; font-style: normal; }
+
+    footer {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        font-size: 0.85rem;
+        color: rgba(242,238,233,0.65);
+        padding-bottom: 2rem;
+        font-style: italic;
+    }
+
+    @media (max-width: 540px) {
+        .intro h1 { font-size: 1.9rem; letter-spacing: 0.25em; }
+        .countdown-big { font-size: 2.4rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .star, .breath-circle { animation: none; transition: none; }
+    }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="horizon">
+    <svg viewBox="0 0 1200 180" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0,110 Q150,70 300,95 T600,80 Q750,60 900,90 T1200,75 L1200,180 L0,180 Z" fill="#14122b"/>
+        <path d="M0,140 Q200,115 400,130 T800,125 Q1000,115 1200,135 L1200,180 L0,180 Z" fill="#0d0c1e"/>
+    </svg>
+</div>
+
+<main>
+    <div class="intro">
+        <h1>Andrum</h1>
+        <p class="greeting" id="greeting"></p>
+        <p class="clock" id="clock"></p>
+    </div>
+
+    <section class="card" aria-labelledby="lov-rubrik">
+        <h2 id="lov-rubrik">Nästa lov</h2>
+        <div class="countdown-big" id="countdown"></div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel"></div>
+    </section>
+
+    <section class="card" aria-labelledby="andas-rubrik">
+        <h2 id="andas-rubrik">Två minuter andning</h2>
+        <div class="breath-wrap">
+            <div class="breath-circle" id="breathCircle">Redo?</div>
+            <button class="primary" id="breathBtn">Börja andas</button>
+        </div>
+    </section>
+
+    <section class="card" aria-labelledby="brev-rubrik">
+        <h2 id="brev-rubrik">Brevlådan till ingen</h2>
+        <textarea id="ventText" placeholder="Skriv av dig. Lektionen som sket sig, mejlet som irriterade, mötet som kunde varit ett mejl…"></textarea>
+        <p class="vent-note">Det du skriver här sparas aldrig. Ingen läser det. Inte ens den här sidan minns det.</p>
+        <div class="vent-actions">
+            <button class="primary" id="ventBtn">Släpp taget</button>
+            <span class="vent-confirm" id="ventConfirm">Borta. Som om det aldrig skrivits.</span>
+        </div>
+    </section>
+
+    <section class="card" aria-labelledby="seger-rubrik">
+        <h2 id="seger-rubrik">Burken med små segrar</h2>
+        <div class="jar-row">
+            <input type="text" id="winInput" maxlength="200" placeholder="Något litet som gick bra idag…">
+            <button class="primary" id="winBtn">Lägg i burken</button>
+        </div>
+        <p class="jar-status" id="jarStatus"></p>
+        <div class="jar-memory" id="jarMemory"></div>
+        <div class="vent-actions" style="margin-top: 0.9rem;">
+            <button id="memoryBtn">Påminn mig om en seger</button>
+        </div>
+    </section>
+
+    <section class="card" aria-labelledby="tanke-rubrik">
+        <h2 id="tanke-rubrik">En tanke på vägen</h2>
+        <p class="thought" id="thought"></p>
+        <p class="thought-source thought" id="thoughtNote"></p>
+    </section>
+</main>
+
+<footer>
+    Den här sidan är inte för eleverna. Inte för kollegiet. Bara för dig.
+</footer>
+
+<script>
+(function () {
+    'use strict';
+
+    /* ---------- Stjärnor ---------- */
+    var starsEl = document.getElementById('stars');
+    for (var i = 0; i < 60; i++) {
+        var s = document.createElement('div');
+        s.className = 'star';
+        var size = Math.random() * 2 + 1;
+        s.style.width = size + 'px';
+        s.style.height = size + 'px';
+        s.style.left = Math.random() * 100 + '%';
+        s.style.top = Math.random() * 55 + '%';
+        s.style.animationDelay = (Math.random() * 4) + 's';
+        starsEl.appendChild(s);
+    }
+
+    /* ---------- Hälsning & klocka ---------- */
+    var greetEl = document.getElementById('greeting');
+    var clockEl = document.getElementById('clock');
+    var days = ['söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag'];
+
+    function greeting() {
+        var now = new Date();
+        var h = now.getHours();
+        var d = now.getDay();
+        var base;
+        if (h < 5)       base = 'Du borde nog sova. Men välkommen.';
+        else if (h < 9)  base = 'God morgon. Kaffet först, allt annat sen.';
+        else if (h < 12) base = 'Förmiddag. Du är mitt i det nu.';
+        else if (h < 14) base = 'Lunchtid. Sätt dig ner. På riktigt.';
+        else if (h < 17) base = 'Eftermiddag. Snart är dagen din igen.';
+        else if (h < 21) base = 'Kväll. Jobbet kan vänta till imorgon.';
+        else             base = 'Sen kväll. Rättningen flyr inte. Vila.';
+        if (d === 5 && h >= 12) base = 'Fredag eftermiddag. Du klarade veckan.';
+        if (d === 0 && h >= 17) base = 'Söndagskväll. Andas. Måndagen är inte här än.';
+        greetEl.textContent = base;
+    }
+
+    function tick() {
+        var now = new Date();
+        var hh = String(now.getHours()).padStart(2, '0');
+        var mm = String(now.getMinutes()).padStart(2, '0');
+        clockEl.textContent = days[now.getDay()] + ' ' + hh + ':' + mm + ' · Rättvik';
+    }
+    greeting();
+    tick();
+    setInterval(tick, 15000);
+
+    /* ---------- Lov-nedräkning (ungefärliga datum, Dalarna) ---------- */
+    var lov = [
+        { name: 'Sommarlovet',  start: '2026-06-13', end: '2026-08-16' },
+        { name: 'Höstlovet',    start: '2026-10-26', end: '2026-11-01' },
+        { name: 'Jullovet',     start: '2026-12-22', end: '2027-01-10' },
+        { name: 'Sportlovet',   start: '2027-03-01', end: '2027-03-07' },
+        { name: 'Påsklovet',    start: '2027-03-26', end: '2027-04-05' },
+        { name: 'Sommarlovet',  start: '2027-06-12', end: '2027-08-15' }
+    ];
+
+    function dayDiff(a, b) { return Math.ceil((b - a) / 86400000); }
+
+    function updateCountdown() {
+        var now = new Date();
+        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var cdEl = document.getElementById('countdown');
+        var fillEl = document.getElementById('progressFill');
+        var labelEl = document.getElementById('progressLabel');
+
+        var current = null, next = null, prevEnd = null;
+        for (var i = 0; i < lov.length; i++) {
+            var st = new Date(lov[i].start + 'T00:00:00');
+            var en = new Date(lov[i].end + 'T23:59:59');
+            if (today >= st && today <= en) { current = lov[i]; break; }
+            if (st > today) { next = lov[i]; prevEnd = i > 0 ? new Date(lov[i - 1].end + 'T00:00:00') : null; break; }
+        }
+
+        if (current) {
+            var leftDays = dayDiff(today, new Date(current.end + 'T00:00:00'));
+            cdEl.innerHTML = '🎉 Det är ' + current.name.toLowerCase() + '!' +
+                '<small>' + (leftDays > 0 ? leftDays + ' dagar kvar att njuta av. Stäng den här fliken och gå ut.' : 'Sista dagen – gör något fint av den.') + '</small>';
+            fillEl.style.width = '100%';
+            labelEl.textContent = 'Du är framme.';
+            return;
+        }
+        if (!next) {
+            cdEl.innerHTML = 'Lov-datumen behöver uppdateras<small>Listan i sidans kod tog slut – fyll på med nästa läsår.</small>';
+            return;
+        }
+        var daysLeft = dayDiff(today, new Date(next.start + 'T00:00:00'));
+        var weeks = Math.floor(daysLeft / 7);
+        var sub = weeks >= 2 ? 'ungefär ' + weeks + ' veckor – och varje fredag räknas' : 'du är nästan där';
+        cdEl.innerHTML = daysLeft + ' ' + (daysLeft === 1 ? 'dag' : 'dagar') +
+            '<small>till ' + next.name.toLowerCase() + ' · ' + sub + '</small>';
+
+        if (prevEnd) {
+            var total = dayDiff(prevEnd, new Date(next.start + 'T00:00:00'));
+            var done = total - daysLeft;
+            var pct = Math.max(2, Math.min(100, Math.round(done / total * 100)));
+            fillEl.style.width = pct + '%';
+            labelEl.textContent = pct + ' % av vägen sedan förra lovet';
+        } else {
+            fillEl.style.width = '50%';
+            labelEl.textContent = '';
+        }
+    }
+    updateCountdown();
+
+    /* ---------- Andningsövning: fyrkantsandning 4-4-4-4, ca 2 min ---------- */
+    var breathCircle = document.getElementById('breathCircle');
+    var breathBtn = document.getElementById('breathBtn');
+    var breathing = false;
+    var breathTimers = [];
+
+    var phases = [
+        { label: 'Andas in…', cls: 'in',  secs: 4 },
+        { label: 'Håll…',     cls: 'hold in', secs: 4 },
+        { label: 'Andas ut…', cls: 'out', secs: 4 },
+        { label: 'Vila…',     cls: 'hold out', secs: 4 }
+    ];
+
+    function stopBreathing(message) {
+        breathing = false;
+        breathTimers.forEach(clearTimeout);
+        breathTimers = [];
+        breathCircle.className = 'breath-circle';
+        breathCircle.textContent = message || 'Redo?';
+        breathBtn.textContent = 'Börja andas';
+    }
+
+    breathBtn.addEventListener('click', function () {
+        if (breathing) { stopBreathing(); return; }
+        breathing = true;
+        breathBtn.textContent = 'Avbryt';
+        var rounds = 7; // 7 varv à 16 s ≈ 2 minuter
+        var t = 0;
+        for (var r = 0; r < rounds; r++) {
+            phases.forEach(function (p) {
+                breathTimers.push(setTimeout(function () {
+                    breathCircle.className = 'breath-circle ' + p.cls;
+                    breathCircle.textContent = p.label;
+                }, t * 1000));
+                t += p.secs;
+            });
+        }
+        breathTimers.push(setTimeout(function () {
+            stopBreathing('Bra. Tillbaka till världen.');
+        }, t * 1000));
+    });
+
+    /* ---------- Brevlådan till ingen ---------- */
+    var ventText = document.getElementById('ventText');
+    var ventBtn = document.getElementById('ventBtn');
+    var ventConfirm = document.getElementById('ventConfirm');
+
+    ventBtn.addEventListener('click', function () {
+        var txt = ventText.value.trim();
+        if (!txt) { ventText.focus(); return; }
+
+        var rect = ventText.getBoundingClientRect();
+        var pieces = txt.split(/\s+/).slice(0, 18);
+        pieces.forEach(function (word, idx) {
+            var ash = document.createElement('span');
+            ash.className = 'ash';
+            ash.textContent = word;
+            ash.style.left = (rect.left + Math.random() * rect.width) + 'px';
+            ash.style.top = (rect.top + Math.random() * rect.height) + 'px';
+            ash.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+            ash.style.setProperty('--rot', (Math.random() * 60 - 30) + 'deg');
+            ash.style.animationDelay = (idx * 0.05) + 's';
+            document.body.appendChild(ash);
+            setTimeout(function () { ash.remove(); }, 3500);
+        });
+
+        ventText.value = '';
+        ventConfirm.classList.add('show');
+        setTimeout(function () { ventConfirm.classList.remove('show'); }, 4000);
+    });
+
+    /* ---------- Burken med små segrar ---------- */
+    var KEY = 'andrum-segrar';
+    var winInput = document.getElementById('winInput');
+    var winBtn = document.getElementById('winBtn');
+    var jarStatus = document.getElementById('jarStatus');
+    var jarMemory = document.getElementById('jarMemory');
+    var memoryBtn = document.getElementById('memoryBtn');
+
+    function loadWins() {
+        try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+        catch (e) { return []; }
+    }
+    function saveWins(w) { localStorage.setItem(KEY, JSON.stringify(w)); }
+
+    function renderStatus() {
+        var wins = loadWins();
+        if (wins.length === 0) {
+            jarStatus.innerHTML = 'Burken är tom än. Den minsta segern räknas – "ingen somnade på genomgången" duger fint.';
+        } else {
+            jarStatus.innerHTML = '<strong>' + wins.length + '</strong> ' +
+                (wins.length === 1 ? 'seger' : 'segrar') + ' i burken. De finns kvar även de dagar du glömmer dem.';
+        }
+    }
+
+    winBtn.addEventListener('click', addWin);
+    winInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') addWin(); });
+
+    function addWin() {
+        var txt = winInput.value.trim();
+        if (!txt) { winInput.focus(); return; }
+        var wins = loadWins();
+        wins.push({ text: txt, date: new Date().toISOString().slice(0, 10) });
+        saveWins(wins);
+        winInput.value = '';
+        renderStatus();
+        jarMemory.classList.remove('show');
+    }
+
+    memoryBtn.addEventListener('click', function () {
+        var wins = loadWins();
+        if (wins.length === 0) {
+            jarMemory.innerHTML = 'Inget här än – men dagen är inte slut.';
+        } else {
+            var w = wins[Math.floor(Math.random() * wins.length)];
+            jarMemory.innerHTML = '"' + w.text.replace(/</g, '&lt;') + '"<div class="when">' + w.date + '</div>';
+        }
+        jarMemory.classList.remove('show');
+        void jarMemory.offsetWidth; /* starta om animationen */
+        jarMemory.classList.add('show');
+    });
+
+    renderStatus();
+
+    /* ---------- En tanke på vägen ---------- */
+    var thoughts = [
+        ['Du rättade inte alla prov ikväll. Bra. De blir inte bättre av att du blir sämre.', ''],
+        ['Eleven som var jobbigast idag är ofta den som behöver dig mest imorgon.', ''],
+        ['Ingen minns en perfekt lektion. Alla minns en lärare som brydde sig.', ''],
+        ['Även Arsenal släpper in mål ibland. Det viktiga är nästa match.', 'Hälsningar, en som vet att du följer dem'],
+        ['Siljan har legat där i 377 miljoner år. Din inkorg kan vänta till imorgon.', ''],
+        ['Du har förklarat samma sak fyra gånger idag. Femte gången är den som fastnar.', ''],
+        ['Ett möte som kunde varit ett mejl är fortfarande en stund då ingen kräver något av dig. Andas.', ''],
+        ['Det du gör syns inte i betygskatalogen: lugnet du sprider, skratten i korridoren, eleven som vågade räcka upp handen.', ''],
+        ['Världsreligionerna har överlevt i tusentals år. De överlever att din genomgång flyttas till torsdag.', ''],
+        ['Tre saker som är sanna: du gör skillnad, du behöver vila, och kaffe löser inte allt – men nästan.', '']
+    ];
+    var dayIndex = Math.floor(Date.now() / 86400000) % thoughts.length;
+    document.getElementById('thought').textContent = thoughts[dayIndex][0];
+    document.getElementById('thoughtNote').textContent = thoughts[dayIndex][1];
+}());
+</script>
+</body>
+</html>
