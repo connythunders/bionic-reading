@@ -2479,7 +2479,39 @@ function scoreSection(s,terms){
   // framför korta, träffsäkra avsnitt.
   return score * 40000/(40000+h.body.length);
 }
-const MAX_AI_SECTIONS=5, MAX_AI_CONTEXT_CHARS=18000;
+const MAX_AI_SECTIONS=5, MAX_AI_CONTEXT_CHARS=18000, MAX_SECTION_CHARS=9000;
+// Renderar ett avsnitts brödtext för AI-kontexten (underrubriker och punkter i läsbar form).
+function renderBody(paras){
+  return paras.map(p=>p.startsWith('## ')?'\n['+p.slice(3)+']':p.startsWith('- ')?'• '+p.slice(2):p).join('\n');
+}
+// För överstora avsnitt: ta bara med de delar (underrubrik + efterföljande stycken)
+// som träffar sökorden, i ursprunglig ordning, upp till MAX_SECTION_CHARS.
+function excerptBody(s,terms){
+  const chunks=[];let cur={head:null,paras:[]};
+  for(const p of s.body){
+    if(p.startsWith('## ')){ if(cur.head||cur.paras.length) chunks.push(cur); cur={head:p,paras:[]}; }
+    else cur.paras.push(p);
+  }
+  if(cur.head||cur.paras.length) chunks.push(cur);
+  const scored=chunks.map((c,i)=>{
+    const head=(c.head||'').toLowerCase(), text=c.paras.join(' ').toLowerCase();
+    let sc=0;
+    for(const t of terms) for(const v of stems(t)){
+      const hit=countHits(head,v)*6+Math.min(countHits(text,v),5);
+      if(hit){sc+=hit;break;}
+    }
+    return {c,i,sc};
+  }).filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc);
+  const keep=[];let chars=0;
+  for(const x of scored){
+    const len=x.c.paras.join(' ').length+(x.c.head||'').length;
+    if(keep.length && chars+len>MAX_SECTION_CHARS) continue;
+    keep.push(x);chars+=len;
+  }
+  if(!keep.length) return null;
+  keep.sort((a,b)=>a.i-b.i); // tillbaka till dokumentordning
+  return renderBody(keep.flatMap(x=>(x.c.head?[x.c.head]:[]).concat(x.c.paras)));
+}
 let lastSelection=[]; // återanvänds för följdfrågor utan egna sökord ("berätta mer")
 function selectSections(question,prevQuestion){
   let terms=normTerms(question);
@@ -2487,17 +2519,28 @@ function selectSections(question,prevQuestion){
   const ranked=READABLE.map(s=>({s,score:scoreSection(s,terms)}))
     .filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
   const picked=[];let chars=0;
+  const prepare=(s)=>{
+    let text=renderBody(s.body), excerpt=false;
+    if(text.length>MAX_SECTION_CHARS){
+      const ex=excerptBody(s,terms);
+      if(ex){text=ex;excerpt=true;}
+      else {text=text.slice(0,MAX_SECTION_CHARS);excerpt=true;}
+    }
+    return {s,text,excerpt};
+  };
   for(const {s} of ranked){
-    const len=sectionText(s).length;
-    if(picked.length && chars+len>MAX_AI_CONTEXT_CHARS) continue;
-    picked.push(s);chars+=len;
+    const item=prepare(s);
+    if(picked.length && chars+item.text.length>MAX_AI_CONTEXT_CHARS) continue;
+    picked.push(item);chars+=item.text.length;
     if(picked.length>=MAX_AI_SECTIONS) break;
   }
   if(!picked.length){
-    for(const id of lastSelection){const s=READABLE.find(z=>z.id===id);if(s)picked.push(s);}
-    if(!picked.length){const cur=READABLE.find(z=>z.id===activeId);picked.push(cur||READABLE[0]);}
+    // Inga träffar: vid följdfråga återanvänds förra urvalet, annars avsnittet
+    // användaren läser – modellen hänvisar vidare via innehållsförteckningen.
+    for(const id of lastSelection){const s=READABLE.find(z=>z.id===id);if(s)picked.push(prepare(s));}
+    if(!picked.length){const cur=READABLE.find(z=>z.id===activeId);picked.push(prepare(cur||READABLE[0]));}
   }
-  lastSelection=picked.map(s=>s.id);
+  lastSelection=picked.map(x=>x.s.id);
   return picked;
 }
 
@@ -2522,12 +2565,11 @@ INNEHÅLLSFÖRTECKNING:
   }
   return SYSTEM_STATIC_BLOCK;
 }
-function buildSystem(sections){
-  const sel=sections.map(s=>{
-    let t=`### AVSNITT: ${s.title} (kategori: ${s.group})\n`;
+function buildSystem(selected){
+  const sel=selected.map(({s,text,excerpt})=>{
+    let t=`### AVSNITT: ${s.title} (kategori: ${s.group})`+(excerpt?' [utdrag – endast de delar som rör frågan]':'')+'\n';
     if(s.lead) t+=s.lead+'\n';
-    if(s.body) t+=s.body.map(p=>p.replace(/^## /,'').replace(/^- /,'• ')).join('\n');
-    return t;
+    return t+text;
   }).join('\n\n');
   return [getSystemStaticBlock(),{type:'text',text:'\nUTVALDA AVSNITT:\n'+sel}];
 }
