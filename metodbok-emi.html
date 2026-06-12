@@ -2421,30 +2421,157 @@ let convo = []; // {role, content}
 let asking = false; // single-flight-spärr så samtalshistoriken inte kan hamna i fel ordning
 const MODEL = 'claude-sonnet-4-6';
 
-function buildContext(){
-  return READABLE.map(s=>{
-    let t = `### AVSNITT: ${s.title} (kategori: ${s.group})\n`;
-    if(s.lead) t += s.lead+'\n';
-    if(s.body) t += s.body.map(p=>p.replace(/^## /,'')).join('\n');
-    if(s.perspectives) for(const [k,p] of Object.entries(s.perspectives))
-      t += `\n[${PLABEL[k]}] Främjande: ${p.framjande} Förebyggande: ${p.forebyggande} Åtgärdande: ${p.atgardande}`;
-    return t;
-  }).join('\n\n');
+/* ---- Lokal relevanssökning ----
+   I stället för att skicka hela metodboken (~290 kB ≈ 86k tokens) till API:et
+   väljer vi lokalt ut de 3–5 mest relevanta avsnitten för frågan (~5k tokens).
+   Det gör varje fråga ~10–15x billigare och snabbare, utan API-anrop för sökningen.
+   Modellen får dessutom hela innehållsförteckningen så att den kan hänvisa
+   användaren rätt även när svaret inte finns i de utvalda avsnitten. */
+const STOPWORDS = new Set(('och att det som en ett är för på med av om i till den de vad hur när var vem vems vilka vilken vilket '+
+  'ska skall kan man har hade inte eller vid från så sig sin sitt sina jag du vi ni mig dig oss min mitt mina din ditt dina '+
+  'er ert era dom dess denna detta dessa där här då nu men utan också även bara mer mest mycket alla allt annan andra '+
+  'finns blir bli blev varit vara göra görs gör få får fick behöver behövs måste bör genom under över efter innan sedan '+
+  'mellan inom utanför hos mot per samt tex gäller betyder menas något några ofta alltid aldrig').split(' '));
+
+function normTerms(text){
+  const words=(text||'').toLowerCase().replace(/[^a-zåäö0-9]+/g,' ').split(/\s+/)
+    .filter(w=>(w.length>=3 || /\d/.test(w)) && !STOPWORDS.has(w)); // siffror behålls ("årskurs 7")
+  return [...new Set(words)];
 }
-const SYSTEM_PROMPT = `Du är ett uppslagsstöd för en metodbok inom elevhälsans medicinska insats (EMI).
-Svara ENBART utifrån avsnitten nedan. Hitta inte på fakta och ge inga egna kliniska eller medicinska råd utöver vad texten säger.
-Om svaret inte finns i avsnitten: säg tydligt "Det här täcks inte av metodboken" och föreslå vem användaren kan fråga (t.ex. MLA eller verksamhetschef).
+// Enkel "stamning": testa även ordet med vanliga svenska ändelser avskalade,
+// så att t.ex. "vaccinationer" matchar "vaccination".
+function stems(w){
+  const out=[w];
+  for(const suf of ['ningarna','ningar','ningen','ning','arna','erna','orna','andet','ande','ende','heten','het','aren','are','ade','at','en','et','er','ar','or','na','n','s']){
+    if(w.length-suf.length>=4 && w.endsWith(suf)){ out.push(w.slice(0,-suf.length)); break; }
+  }
+  return out;
+}
+function countHits(hay,needle){
+  let n=0,i=0;
+  while((i=hay.indexOf(needle,i))!==-1){ n++; i+=needle.length; if(n>=6) break; }
+  return n;
+}
+function sectionHaystacks(s){
+  return s._hs || (s._hs = {
+    title: s.title.toLowerCase(),
+    lead: (s.lead||'').toLowerCase(),
+    heads: (s.body||[]).filter(p=>p.startsWith('## ')).join(' ').toLowerCase(), // underrubriker
+    body: (s.body||[]).join(' ').toLowerCase()
+  });
+}
+function scoreSection(s,terms){
+  const h=sectionHaystacks(s);
+  let score=0,matched=0;
+  for(const t of terms){
+    let best=0;
+    for(const v of stems(t)){
+      const hit=countHits(h.title,v)*8 + countHits(h.heads,v)*5 + countHits(h.lead,v)*3 + Math.min(countHits(h.body,v),5);
+      if(hit>best) best=hit;
+    }
+    if(best>0) matched++;
+    score+=best;
+  }
+  if(matched===0) return 0;
+  if(terms.length>1 && matched===terms.length) score+=5; // alla sökord träffade
+  if(s.id===activeId) score+=4; // avsnittet användaren läser just nu är ofta relevant
+  // Längdnormalisering: annars vinner mycket långa avsnitt på ren textmassa
+  // framför korta, träffsäkra avsnitt.
+  return score * 40000/(40000+h.body.length);
+}
+const MAX_AI_SECTIONS=5, MAX_AI_CONTEXT_CHARS=18000, MAX_SECTION_CHARS=9000;
+// Renderar ett avsnitts brödtext för AI-kontexten (underrubriker och punkter i läsbar form).
+function renderBody(paras){
+  return paras.map(p=>p.startsWith('## ')?'\n['+p.slice(3)+']':p.startsWith('- ')?'• '+p.slice(2):p).join('\n');
+}
+// För överstora avsnitt: ta bara med de delar (underrubrik + efterföljande stycken)
+// som träffar sökorden, i ursprunglig ordning, upp till MAX_SECTION_CHARS.
+function excerptBody(s,terms){
+  const chunks=[];let cur={head:null,paras:[]};
+  for(const p of s.body){
+    if(p.startsWith('## ')){ if(cur.head||cur.paras.length) chunks.push(cur); cur={head:p,paras:[]}; }
+    else cur.paras.push(p);
+  }
+  if(cur.head||cur.paras.length) chunks.push(cur);
+  const scored=chunks.map((c,i)=>{
+    const head=(c.head||'').toLowerCase(), text=c.paras.join(' ').toLowerCase();
+    let sc=0;
+    for(const t of terms) for(const v of stems(t)){
+      const hit=countHits(head,v)*6+Math.min(countHits(text,v),5);
+      if(hit){sc+=hit;break;}
+    }
+    return {c,i,sc};
+  }).filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc);
+  const keep=[];let chars=0;
+  for(const x of scored){
+    const len=x.c.paras.join(' ').length+(x.c.head||'').length;
+    if(keep.length && chars+len>MAX_SECTION_CHARS) continue;
+    keep.push(x);chars+=len;
+  }
+  if(!keep.length) return null;
+  keep.sort((a,b)=>a.i-b.i); // tillbaka till dokumentordning
+  return renderBody(keep.flatMap(x=>(x.c.head?[x.c.head]:[]).concat(x.c.paras)));
+}
+let lastSelection=[]; // återanvänds för följdfrågor utan egna sökord ("berätta mer")
+function selectSections(question,prevQuestion){
+  let terms=normTerms(question);
+  if(prevQuestion) terms=[...new Set([...terms,...normTerms(prevQuestion)])];
+  const ranked=READABLE.map(s=>({s,score:scoreSection(s,terms)}))
+    .filter(x=>x.score>0).sort((a,b)=>b.score-a.score);
+  const picked=[];let chars=0;
+  const prepare=(s)=>{
+    let text=renderBody(s.body), excerpt=false;
+    if(text.length>MAX_SECTION_CHARS){
+      const ex=excerptBody(s,terms);
+      if(ex){text=ex;excerpt=true;}
+      else {text=text.slice(0,MAX_SECTION_CHARS);excerpt=true;}
+    }
+    return {s,text,excerpt};
+  };
+  for(const {s} of ranked){
+    const item=prepare(s);
+    if(picked.length && chars+item.text.length>MAX_AI_CONTEXT_CHARS) continue;
+    picked.push(item);chars+=item.text.length;
+    if(picked.length>=MAX_AI_SECTIONS) break;
+  }
+  if(!picked.length){
+    // Inga träffar: vid följdfråga återanvänds förra urvalet, annars avsnittet
+    // användaren läser – modellen hänvisar vidare via innehållsförteckningen.
+    for(const id of lastSelection){const s=READABLE.find(z=>z.id===id);if(s)picked.push(prepare(s));}
+    if(!picked.length){const cur=READABLE.find(z=>z.id===activeId);picked.push(prepare(cur||READABLE[0]));}
+  }
+  lastSelection=picked.map(x=>x.s.id);
+  return picked;
+}
+
+function buildToc(){
+  return GROUP_ORDER.map(g=>g+': '+READABLE.filter(s=>s.group===g).map(s=>s.title).join('; ')).join('\n');
+}
+// Instruktioner + innehållsförteckning är statiska – byggs lazy en gång och
+// cachas hos Anthropic (cache_control) som stabilt prefix; de utvalda avsnitten
+// varierar per fråga och ligger därför i ett eget block efter brytpunkten.
+let SYSTEM_STATIC_BLOCK=null;
+function getSystemStaticBlock(){
+  if(!SYSTEM_STATIC_BLOCK){
+    SYSTEM_STATIC_BLOCK={type:'text',text:`Du är ett uppslagsstöd för en metodbok inom elevhälsans medicinska insats (EMI).
+Du får metodbokens fullständiga innehållsförteckning samt de avsnitt som bedömts mest relevanta för frågan (under rubriken UTVALDA AVSNITT).
+Svara ENBART utifrån de utvalda avsnitten. Hitta inte på fakta och ge inga egna kliniska eller medicinska råd utöver vad texten säger.
+Om svaret inte finns i de utvalda avsnitten: säg tydligt att det inte täcks av de avsnitt du fått, och föreslå utifrån innehållsförteckningen vilket avsnitt användaren kan läsa i stället, eller vem hen kan fråga (t.ex. MLA eller verksamhetschef).
 Avsluta alltid med en rad som börjar med "Källa:" och anger vilket eller vilka avsnitt svaret bygger på.
 Svara på svenska, kort och sakligt.
 
-METODBOKENS INNEHÅLL:
-`;
-// Hela korpusen är statisk – bygg systemprompten lazy vid första frågan (den är ~290 kB
-// och ska inte byggas vid varje sidladdning) och cacha den hos Anthropic (cache_control)
-// så att upprepade frågor i samma samtal blir snabbare och billigare.
-let SYSTEM_BLOCKS = null;
-function getSystemBlocks(){
-  return SYSTEM_BLOCKS || (SYSTEM_BLOCKS = [{ type:'text', text: SYSTEM_PROMPT + buildContext(), cache_control:{ type:'ephemeral' } }]);
+INNEHÅLLSFÖRTECKNING:
+`+buildToc(),cache_control:{type:'ephemeral'}};
+  }
+  return SYSTEM_STATIC_BLOCK;
+}
+function buildSystem(selected){
+  const sel=selected.map(({s,text,excerpt})=>{
+    let t=`### AVSNITT: ${s.title} (kategori: ${s.group})`+(excerpt?' [utdrag – endast de delar som rör frågan]':'')+'\n';
+    if(s.lead) t+=s.lead+'\n';
+    return t+text;
+  }).join('\n\n');
+  return [getSystemStaticBlock(),{type:'text',text:'\nUTVALDA AVSNITT:\n'+sel}];
 }
 
 let drawerOpener=null;
@@ -2518,7 +2645,10 @@ async function ask(){
   ta.value='';ta.style.height='auto';
   byId('send').disabled=true;
   addMsg('user',question);
+  // Föregående användarfråga ger kontext åt sökningen vid följdfrågor ("och hur dokumenteras det?").
+  const prevQuestion=[...convo].reverse().find(m=>m.role==='user');
   convo.push({role:'user',content:question});
+  const selected=selectSections(question, prevQuestion && prevQuestion.content);
 
   const chat=byId('chat');
   const think=document.createElement('div');think.className='thinking';
@@ -2537,7 +2667,7 @@ async function ask(){
       body:JSON.stringify({
         model:MODEL,
         max_tokens:1000,
-        system:getSystemBlocks(),
+        system:buildSystem(selected),
         messages:convo.slice(-10)
       })
     });
