@@ -34,6 +34,7 @@ app.locals.pool = pool;
 
 // Import routes
 const quizRoutes = require('./routes/quiz');
+const chatRoutes = require('./routes/chat');
 
 // Routes
 app.get('/api/health', (req, res) => {
@@ -42,6 +43,9 @@ app.get('/api/health', (req, res) => {
 
 // AI Quiz routes
 app.use('/api/quiz', quizRoutes);
+
+// Sajt-chattbott
+app.use('/api/chat', chatRoutes);
 
 // Hämta alla quiz-resultat
 app.get('/api/results', async (req, res) => {
