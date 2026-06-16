@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presentationsgenerator – Rättviks kommun</title>
+<meta name="description" content="Skapa automatiskt PowerPoint-presentationer i Rättviks kommuns grafiska profil med hjälp av AI.">
+<!-- Externa bibliotek -->
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<style>
+  :root{
+    --r-primar:#1565c0;      /* Siljanblå */
+    --r-primar-mork:#0d3f7a;
+    --r-gron:#2e7d32;
+    --r-bg:#f4f6f9;
+    --r-yta:#ffffff;
+    --r-text:#1d2733;
+    --r-text-svag:#5b6b7b;
+    --r-kant:#dde4ec;
+    --r-skugga:0 2px 8px rgba(13,63,122,.07), 0 8px 30px rgba(13,63,122,.06);
+    --radie:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--r-bg);color:var(--r-text);line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--r-primar)}
+
+  /* === Topp === */
+  header.topp{
+    background:linear-gradient(120deg,var(--r-primar-mork),var(--r-primar));
+    color:#fff;padding:22px 20px;
+  }
+  .topp-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .logo{
+    display:flex;align-items:center;gap:12px;font-weight:800;font-size:1.15rem;letter-spacing:.2px;
+  }
+  .logo .marke{
+    width:42px;height:42px;border-radius:9px;background:#fff;color:var(--r-primar);
+    display:grid;place-items:center;font-weight:900;font-size:1.25rem;flex-shrink:0;
+  }
+  .logo small{display:block;font-weight:500;font-size:.72rem;opacity:.85;letter-spacing:.5px;text-transform:uppercase}
+  .beta-flagga{
+    margin-left:auto;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+    padding:4px 12px;border-radius:999px;font-size:.78rem;font-weight:600
+  }
+
+  /* === Layout === */
+  main{max-width:980px;margin:0 auto;padding:24px 20px 80px}
+  .ingress{margin:10px 0 26px}
+  .ingress h1{font-size:1.7rem;line-height:1.2;margin-bottom:8px}
+  .ingress p{color:var(--r-text-svag);max-width:680px}
+
+  /* === Stegindikator === */
+  .steg-rad{display:flex;gap:6px;margin:0 0 8px;flex-wrap:wrap}
+  .steg{
+    flex:1;min-width:120px;display:flex;align-items:center;gap:8px;
+    padding:10px 12px;background:var(--r-yta);border:1px solid var(--r-kant);border-radius:10px;
+    font-size:.82rem;color:var(--r-text-svag);transition:.2s
+  }
+  .steg .num{
+    width:24px;height:24px;border-radius:50%;background:var(--r-kant);color:var(--r-text-svag);
+    display:grid;place-items:center;font-weight:700;font-size:.8rem;flex-shrink:0
+  }
+  .steg.aktiv{border-color:var(--r-primar);color:var(--r-primar);font-weight:600}
+  .steg.aktiv .num{background:var(--r-primar);color:#fff}
+  .steg.klar .num{background:var(--r-gron);color:#fff}
+  .steg.klar{color:var(--r-gron)}
+
+  .progress-spar{height:8px;background:var(--r-kant);border-radius:999px;overflow:hidden;margin:14px 0 26px}
+  .progress-fyll{height:100%;width:0;background:linear-gradient(90deg,var(--r-primar),var(--r-gron));transition:width .5s ease}
+
+  /* === Kort === */
+  .kort{
+    background:var(--r-yta);border:1px solid var(--r-kant);border-radius:var(--radie);
+    box-shadow:var(--r-skugga);padding:22px;margin-bottom:20px
+  }
+  .kort h2{font-size:1.12rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .kort .hjalp{color:var(--r-text-svag);font-size:.88rem;margin-bottom:16px}
+
+  label.falt{display:block;font-weight:600;font-size:.9rem;margin:14px 0 6px}
+  textarea,input[type=text],input[type=number],input[type=password],select{
+    width:100%;padding:11px 13px;border:1px solid var(--r-kant);border-radius:10px;
+    font:inherit;color:var(--r-text);background:#fbfcfe;transition:.15s
+  }
+  textarea:focus,input:focus,select:focus{outline:none;border-color:var(--r-primar);box-shadow:0 0 0 3px rgba(21,101,192,.13);background:#fff}
+  textarea{min-height:130px;resize:vertical}
+  .rakn{text-align:right;font-size:.78rem;color:var(--r-text-svag);margin-top:4px}
+
+  /* Filuppladdning */
+  .drop{
+    border:2px dashed var(--r-kant);border-radius:12px;padding:20px;text-align:center;
+    color:var(--r-text-svag);cursor:pointer;transition:.15s;background:#fbfcfe
+  }
+  .drop:hover,.drop.dra{border-color:var(--r-primar);background:#f0f6ff;color:var(--r-primar)}
+  .drop strong{color:var(--r-text)}
+  .fil-lista{margin-top:10px;font-size:.85rem}
+  .fil-rad{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#eef3fa;border-radius:8px;margin-top:6px}
+  .fil-rad button{margin-left:auto;border:none;background:none;color:#b03030;cursor:pointer;font-weight:700}
+
+  /* Färgpalett */
+  .palett{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:6px}
+  .farg{
+    cursor:pointer;border:2px solid var(--r-kant);border-radius:10px;padding:8px;text-align:center;
+    background:var(--r-yta);transition:.15s;font-size:.8rem
+  }
+  .farg:hover{border-color:var(--r-primar)}
+  .farg.vald{border-color:var(--r-primar);box-shadow:0 0 0 3px rgba(21,101,192,.15)}
+  .farg .prov{height:34px;border-radius:7px;margin-bottom:6px;border:1px solid rgba(0,0,0,.08)}
+  .farg .namn{font-weight:600;display:block}
+  .farg .hex{color:var(--r-text-svag);font-size:.72rem}
+
+  /* Stilval */
+  .stil-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:6px}
+  .stil{cursor:pointer;border:2px solid var(--r-kant);border-radius:10px;padding:14px;text-align:center;transition:.15s;background:var(--r-yta)}
+  .stil:hover{border-color:var(--r-primar)}
+  .stil.vald{border-color:var(--r-primar);box-shadow:0 0 0 3px rgba(21,101,192,.15)}
+  .stil .ikon{font-size:1.8rem;display:block;margin-bottom:6px}
+  .stil .titel{font-weight:600;font-size:.88rem}
+
+  .rad{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
+  .rad > div{flex:1;min-width:160px}
+
+  /* Kryssrutor */
+  .kryss{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:.9rem}
+  .kryss input{margin-top:3px;width:18px;height:18px;flex-shrink:0;accent-color:var(--r-primar)}
+  .kryss label{font-weight:500;color:var(--r-text)}
+  .kryss .liten{color:var(--r-text-svag);font-size:.82rem}
+
+  /* Knappar */
+  .knapp{
+    display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;
+    background:var(--r-primar);color:#fff;font:inherit;font-weight:700;
+    padding:13px 22px;border-radius:11px;transition:.15s
+  }
+  .knapp:hover{background:var(--r-primar-mork)}
+  .knapp:disabled{opacity:.5;cursor:not-allowed}
+  .knapp.sekundar{background:#eef3fa;color:var(--r-primar)}
+  .knapp.sekundar:hover{background:#e0eafa}
+  .knapp.gron{background:var(--r-gron)}
+  .knapp.gron:hover{background:#1b5e20}
+  .knapp-rad{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+
+  /* API-nyckel */
+  .nyckel-kort{border-left:4px solid var(--r-primar)}
+  .nyckel-status{font-size:.82rem;margin-top:8px}
+  .ok{color:var(--r-gron);font-weight:600}
+
+  /* Förslag / redigerbart */
+  #forslagYta{display:none}
+  .slide-kort{
+    border:1px solid var(--r-kant);border-radius:12px;margin-bottom:14px;overflow:hidden;background:var(--r-yta)
+  }
+  .slide-huvud{
+    display:flex;align-items:center;gap:10px;padding:10px 14px;background:#eef3fa;font-size:.82rem;font-weight:700;color:var(--r-primar-mork)
+  }
+  .slide-huvud .typ{margin-left:auto;font-weight:500;color:var(--r-text-svag)}
+  .slide-kropp{padding:14px}
+  .slide-kropp .et{font-size:.74rem;font-weight:700;color:var(--r-text-svag);text-transform:uppercase;letter-spacing:.5px;margin:6px 0 4px}
+  .slide-kropp [contenteditable]{
+    border:1px dashed transparent;border-radius:6px;padding:4px 6px;transition:.15s
+  }
+  .slide-kropp [contenteditable]:hover{border-color:var(--r-kant);background:#fbfcfe}
+  .slide-kropp [contenteditable]:focus{outline:none;border-color:var(--r-primar);background:#fff}
+  .slide-titel-ed{font-size:1.05rem;font-weight:700}
+  .punkt{display:flex;gap:8px;align-items:flex-start;margin:4px 0}
+  .punkt::before{content:"•";color:var(--r-primar);font-weight:900;margin-top:2px}
+  .punkt span{flex:1}
+
+  /* Status/meddelanden */
+  .ruta-info,.ruta-fel,.ruta-ok{padding:12px 14px;border-radius:10px;font-size:.88rem;margin-top:14px}
+  .ruta-info{background:#eef6ff;border:1px solid #cfe3fb;color:#0d3f7a}
+  .ruta-fel{background:#fdecec;border:1px solid #f5c2c2;color:#9b2222}
+  .ruta-ok{background:#eafaef;border:1px solid #bfe8cb;color:#1b5e20}
+
+  .laddar{display:none;align-items:center;gap:10px;color:var(--r-primar);font-weight:600;margin-top:14px}
+  .laddar.synlig{display:flex}
+  .spinner{width:20px;height:20px;border:3px solid #cfe0f5;border-top-color:var(--r-primar);border-radius:50%;animation:snurr .8s linear infinite}
+  @keyframes snurr{to{transform:rotate(360deg)}}
+
+  footer{max-width:980px;margin:0 auto;padding:24px 20px;color:var(--r-text-svag);font-size:.82rem;text-align:center}
+  .gomd{display:none !important}
+  @media(max-width:600px){.ingress h1{font-size:1.4rem}.steg{min-width:0;font-size:0}.steg .num{margin:0 auto}}
+</style>
+</head>
+<body>
+
+<header class="topp">
+  <div class="topp-inner">
+    <div class="logo">
+      <span class="marke">R</span>
+      <span>Rättviks kommun
+        <small>Presentationsgenerator</small>
+      </span>
+    </div>
+    <span class="beta-flagga">BETA</span>
+  </div>
+</header>
+
+<main>
+  <div class="ingress">
+    <h1>Skapa en presentation i Rättviks profil</h1>
+    <p>Beskriv ditt ämne, välj färg och stil och låt AI:n skapa ett färdigt förslag på en PowerPoint-presentation i kommunens grafiska profil. Du kan granska och redigera innehållet innan du laddar ner filen.</p>
+  </div>
+
+  <!-- Stegindikator -->
+  <div class="steg-rad" id="stegRad">
+    <div class="steg aktiv" data-steg="1"><span class="num">1</span> Faktainsamling</div>
+    <div class="steg" data-steg="2"><span class="num">2</span> Innehåll</div>
+    <div class="steg" data-steg="3"><span class="num">3</span> Bildval</div>
+    <div class="steg" data-steg="4"><span class="num">4</span> Bygg PowerPoint</div>
+    <div class="steg" data-steg="5"><span class="num">5</span> Ladda ner</div>
+  </div>
+  <div class="progress-spar"><div class="progress-fyll" id="progressFyll"></div></div>
+
+  <!-- API-nyckel -->
+  <section class="kort nyckel-kort">
+    <h2>🔑 AI-nyckel (Google Gemini)</h2>
+    <p class="hjalp">Verktyget använder Google Gemini för att skapa innehållet. Klistra in din egen API-nyckel – den sparas endast lokalt i din webbläsare och skickas aldrig till någon annan server än Google. Hämta en gratis nyckel på <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com</a>.</p>
+    <input type="password" id="apiNyckel" placeholder="Klistra in din Gemini API-nyckel här…" autocomplete="off">
+    <div class="knapp-rad">
+      <button class="knapp sekundar" id="sparaNyckel">Spara nyckel</button>
+      <button class="knapp sekundar" id="rensaNyckel">Rensa</button>
+    </div>
+    <div class="nyckel-status" id="nyckelStatus"></div>
+  </section>
+
+  <!-- STEG 1: Faktainsamling -->
+  <section class="kort">
+    <h2>1. Vad ska presentationen handla om?</h2>
+    <p class="hjalp">Beskriv ämnet, syftet och målgruppen. Ju mer du skriver, desto mer träffsäkert blir resultatet.</p>
+
+    <label class="falt" for="amne">Ämne och beskrivning</label>
+    <textarea id="amne" maxlength="1600" placeholder="Exempel: En presentation till kommunfullmäktige om Rättviks arbete med hållbar besöksnäring runt Siljan. Ta upp nuläge, mål, åtgärder och förväntade effekter."></textarea>
+    <div class="rakn"><span id="amneRakn">0</span> / 1600 tecken</div>
+
+    <label class="falt">Källmaterial (valfritt)</label>
+    <p class="hjalp" style="margin-bottom:8px">Ladda upp PDF, Word (.docx) eller textfil så använder AI:n innehållet som underlag.</p>
+    <div class="drop" id="drop">
+      <div style="font-size:1.6rem">📎</div>
+      <div><strong>Klicka för att välja fil</strong> eller dra hit en fil</div>
+      <div style="font-size:.8rem;margin-top:4px">PDF · DOCX · TXT (max ~10 MB)</div>
+    </div>
+    <input type="file" id="filInput" accept=".pdf,.docx,.txt" multiple class="gomd">
+    <div class="fil-lista" id="filLista"></div>
+  </section>
+
+  <!-- STEG 2+3: Innehåll och utseende -->
+  <section class="kort">
+    <h2>2. Utseende och omfattning</h2>
+    <p class="hjalp">Välj profilfärg, antal sidor och visuell stil enligt kommunens grafiska riktlinjer.</p>
+
+    <label class="falt">Profilfärg</label>
+    <div class="palett" id="palett"></div>
+
+    <div class="rad" style="margin-top:18px">
+      <div>
+        <label class="falt" for="antalSlides">Antal sidor</label>
+        <input type="number" id="antalSlides" min="3" max="20" value="8">
+      </div>
+      <div>
+        <label class="falt" for="tonInput">Tonläge</label>
+        <select id="tonInput">
+          <option value="saklig och professionell">Saklig &amp; professionell</option>
+          <option value="inspirerande och engagerande">Inspirerande &amp; engagerande</option>
+          <option value="pedagogisk och förklarande">Pedagogisk &amp; förklarande</option>
+          <option value="kortfattad och rakt på sak">Kortfattad &amp; rakt på sak</option>
+        </select>
+      </div>
+    </div>
+
+    <label class="falt" style="margin-top:18px">Visuell stil</label>
+    <div class="stil-grid" id="stilGrid">
+      <div class="stil vald" data-stil="illustration"><span class="ikon">🎨</span><span class="titel">Kommunillustrationer</span></div>
+      <div class="stil" data-stil="akvarell"><span class="ikon">🖌️</span><span class="titel">Akvarell</span></div>
+      <div class="stil" data-stil="foto"><span class="ikon">📷</span><span class="titel">Fotorealism</span></div>
+      <div class="stil" data-stil="text"><span class="ikon">📝</span><span class="titel">Endast text</span></div>
+    </div>
+
+    <div class="kryss">
+      <input type="checkbox" id="klarsprak">
+      <label for="klarsprak">Anpassa texten till <strong>klarspråk</strong><br><span class="liten">Enklare ord och kortare meningar enligt språklagen.</span></label>
+    </div>
+  </section>
+
+  <!-- GDPR + generera -->
+  <section class="kort">
+    <div class="kryss">
+      <input type="checkbox" id="gdpr">
+      <label for="gdpr">Jag är medveten om att jag inte ska mata in personuppgifter eller sekretessbelagd information, och att innehållet bearbetas av en extern AI-tjänst (Google Gemini). <span class="liten">Granska alltid det genererade innehållet innan användning.</span></label>
+    </div>
+
+    <div class="knapp-rad">
+      <button class="knapp" id="generera">✨ Skapa förslag</button>
+    </div>
+
+    <div class="laddar" id="laddar"><span class="spinner"></span><span id="laddarText">Samlar fakta och skapar innehåll…</span></div>
+    <div id="meddelande"></div>
+  </section>
+
+  <!-- STEG 4+5: Redigerbart förslag -->
+  <section class="kort" id="forslagYta">
+    <h2>3. Redigerbart förslag</h2>
+    <p class="hjalp">Klicka i texten för att ändra rubriker och punkter. När du är nöjd skapar du PowerPoint-filen.</p>
+    <div id="slidesContainer"></div>
+
+    <div class="knapp-rad">
+      <button class="knapp gron" id="byggPptx">⬇️ Skapa &amp; ladda ner PowerPoint</button>
+      <button class="knapp sekundar" id="omgenerera">🔄 Skapa nytt förslag</button>
+    </div>
+    <div id="byggStatus"></div>
+  </section>
+</main>
+
+<footer>
+  Presentationsgenerator för Rättviks kommun · Ett AI-baserat hjälpmedel – kontrollera alltid fakta och språk innan publicering.
+</footer>
+
+<script>
+/* ====== Konfiguration ====== */
+const PALETT = [
+  {namn:"Siljanblå",  hex:"1565C0", text:"FFFFFF"},
+  {namn:"Granskog",   hex:"2E7D32", text:"FFFFFF"},
+  {namn:"Falu röd",   hex:"7B2D26", text:"FFFFFF"},
+  {namn:"Dalagul",    hex:"E8A317", text:"1D2733"},
+  {namn:"Kurbits",    hex:"6AA84F", text:"FFFFFF"},
+  {namn:"Sjöblå ljus",hex:"5CC8FF", text:"0D3F7A"},
+  {namn:"Kalksten",   hex:"B8AE9C", text:"1D2733"},
+  {namn:"Gråsvart",   hex:"2B2F36", text:"FFFFFF"},
+];
+let valdFarg = PALETT[0];
+let valdStil = "illustration";
+let uppladdadText = "";
+let uppladdadeFiler = [];
+let genereradePunkter = null; // {titel, undertitel, slides:[{rubrik, punkter[], not}]}
+
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+}
+
+/* ====== API-nyckel ====== */
+const nyckelInput = document.getElementById('apiNyckel');
+const nyckelStatus = document.getElementById('nyckelStatus');
+let apiNyckel = localStorage.getItem('gemini_api_key') || '';
+function visaNyckelStatus(){
+  if(apiNyckel){
+    nyckelInput.value = apiNyckel;
+    nyckelStatus.innerHTML = '<span class="ok">✓ Nyckel sparad i din webbläsare</span>';
+  } else {
+    nyckelStatus.innerHTML = 'Ingen nyckel sparad ännu.';
+  }
+}
+document.getElementById('sparaNyckel').onclick = ()=>{
+  const v = nyckelInput.value.trim();
+  if(!v){ nyckelStatus.innerHTML = '<span style="color:#9b2222">Klistra in en nyckel först.</span>'; return; }
+  apiNyckel = v; localStorage.setItem('gemini_api_key', v); visaNyckelStatus();
+};
+document.getElementById('rensaNyckel').onclick = ()=>{
+  apiNyckel=''; localStorage.removeItem('gemini_api_key'); nyckelInput.value=''; visaNyckelStatus();
+};
+visaNyckelStatus();
+
+/* ====== Teckenräknare ====== */
+const amne = document.getElementById('amne');
+amne.addEventListener('input', ()=>{ document.getElementById('amneRakn').textContent = amne.value.length; });
+
+/* ====== Palett ====== */
+const palettEl = document.getElementById('palett');
+PALETT.forEach((f,i)=>{
+  const d = document.createElement('div');
+  d.className = 'farg' + (i===0?' vald':'');
+  d.innerHTML = `<div class="prov" style="background:#${f.hex}"></div><span class="namn">${f.namn}</span><span class="hex">#${f.hex}</span>`;
+  d.onclick = ()=>{
+    document.querySelectorAll('.farg').forEach(x=>x.classList.remove('vald'));
+    d.classList.add('vald'); valdFarg = f;
+  };
+  palettEl.appendChild(d);
+});
+
+/* ====== Stilval ====== */
+document.querySelectorAll('.stil').forEach(s=>{
+  s.onclick = ()=>{
+    document.querySelectorAll('.stil').forEach(x=>x.classList.remove('vald'));
+    s.classList.add('vald'); valdStil = s.dataset.stil;
+  };
+});
+
+/* ====== Filuppladdning ====== */
+const drop = document.getElementById('drop');
+const filInput = document.getElementById('filInput');
+const filLista = document.getElementById('filLista');
+drop.onclick = ()=>filInput.click();
+drop.addEventListener('dragover', e=>{e.preventDefault();drop.classList.add('dra')});
+drop.addEventListener('dragleave', ()=>drop.classList.remove('dra'));
+drop.addEventListener('drop', e=>{e.preventDefault();drop.classList.remove('dra'); hanteraFiler(e.dataTransfer.files);});
+filInput.addEventListener('change', ()=>hanteraFiler(filInput.files));
+
+async function hanteraFiler(filer){
+  for(const fil of filer){
+    if(fil.size > 10*1024*1024){ alert(`${fil.name} är för stor (max 10 MB).`); continue; }
+    const post = {namn:fil.name, text:''};
+    uppladdadeFiler.push(post);
+    ritaFilLista();
+    try{
+      post.text = await lasFil(fil);
+    }catch(err){
+      post.text = '';
+      console.error(err);
+      alert(`Kunde inte läsa ${fil.name}: ${err.message}`);
+    }
+    ritaFilLista();
+  }
+}
+
+function lasFil(fil){
+  const namn = fil.name.toLowerCase();
+  if(namn.endsWith('.txt')) return fil.text();
+  if(namn.endsWith('.docx')) return fil.arrayBuffer().then(buf=>mammoth.extractRawText({arrayBuffer:buf}).then(r=>r.value));
+  if(namn.endsWith('.pdf')) return fil.arrayBuffer().then(lasPdf);
+  return Promise.reject(new Error('filtypen stöds inte'));
+}
+async function lasPdf(buf){
+  const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+  let txt='';
+  for(let i=1;i<=pdf.numPages;i++){
+    const sida = await pdf.getPage(i);
+    const inneh = await sida.getTextContent();
+    txt += inneh.items.map(x=>x.str).join(' ') + '\n';
+  }
+  return txt;
+}
+function ritaFilLista(){
+  filLista.innerHTML='';
+  uppladdadeFiler.forEach((p,i)=>{
+    const klar = p.text!=='' ? '✓' : '…';
+    const d = document.createElement('div');
+    d.className='fil-rad';
+    d.innerHTML = `<span>${klar} 📄 ${p.namn}</span><button data-i="${i}">✕</button>`;
+    d.querySelector('button').onclick = ()=>{ uppladdadeFiler.splice(i,1); ritaFilLista(); };
+    filLista.appendChild(d);
+  });
+  uppladdadText = uppladdadeFiler.map(p=>p.text).join('\n\n').slice(0, 12000);
+}
+
+/* ====== Stegindikator ====== */
+function settSteg(n){
+  document.querySelectorAll('.steg').forEach(s=>{
+    const i = +s.dataset.steg;
+    s.classList.toggle('aktiv', i===n);
+    s.classList.toggle('klar', i<n);
+  });
+  document.getElementById('progressFyll').style.width = ((n-1)/4*100) + '%';
+}
+
+/* ====== Meddelanden ====== */
+const meddelande = document.getElementById('meddelande');
+function visaFel(t){ meddelande.innerHTML = `<div class="ruta-fel">⚠️ ${t}</div>`; }
+function visaInfo(t){ meddelande.innerHTML = `<div class="ruta-info">${t}</div>`; }
+function rensaMeddelande(){ meddelande.innerHTML=''; }
+const laddar = document.getElementById('laddar');
+const laddarText = document.getElementById('laddarText');
+function settLaddar(synlig, text){ laddar.classList.toggle('synlig', synlig); if(text) laddarText.textContent=text; }
+
+/* ====== Generera innehåll via Gemini ====== */
+document.getElementById('generera').onclick = generera;
+document.getElementById('omgenerera').onclick = ()=>{ document.getElementById('forslagYta').style.display='none'; window.scrollTo({top:0,behavior:'smooth'}); generera(); };
+
+async function generera(){
+  rensaMeddelande();
+  if(!apiNyckel){ visaFel('Spara först din Gemini API-nyckel högst upp på sidan.'); return; }
+  if(!amne.value.trim()){ visaFel('Beskriv vad presentationen ska handla om.'); return; }
+  if(!document.getElementById('gdpr').checked){ visaFel('Du måste bekräfta GDPR-villkoret innan du kan skapa förslaget.'); return; }
+
+  const antal = Math.max(3, Math.min(20, +document.getElementById('antalSlides').value||8));
+  const ton = document.getElementById('tonInput').value;
+  const klarsprak = document.getElementById('klarsprak').checked;
+
+  settSteg(2);
+  settLaddar(true, 'Samlar fakta och skapar innehåll…');
+  document.getElementById('generera').disabled = true;
+
+  const prompt = byggPrompt(antal, ton, klarsprak);
+
+  try{
+    const data = await anropaGemini(prompt);
+    genereradePunkter = tolkaSvar(data);
+    if(!genereradePunkter || !genereradePunkter.slides?.length) throw new Error('Tomt svar från AI:n.');
+    settSteg(3);
+    ritaForslag();
+    settLaddar(false);
+    document.getElementById('forslagYta').style.display='block';
+    document.getElementById('forslagYta').scrollIntoView({behavior:'smooth'});
+  }catch(err){
+    console.error(err);
+    settLaddar(false);
+    visaFel('Kunde inte skapa förslaget: ' + err.message);
+    settSteg(1);
+  }finally{
+    document.getElementById('generera').disabled = false;
+  }
+}
+
+function byggPrompt(antal, ton, klarsprak){
+  let p = `Du är en kommunikatör på Rättviks kommun i Dalarna. Skapa innehåll till en PowerPoint-presentation.
+
+Ämne och syfte:
+"""${amne.value.trim()}"""
+`;
+  if(uppladdadText.trim()){
+    p += `\nAnvänd även följande källmaterial som underlag:\n"""${uppladdadText.trim()}"""\n`;
+  }
+  p += `
+Krav:
+- Skapa exakt ${antal} sidor (slides), inklusive en försättssida och en avslutande sida.
+- Tonläge: ${ton}.
+- Skriv på svenska.
+${klarsprak ? '- Använd KLARSPRÅK: korta meningar, vanliga ord, undvik facktermer och förkortningar.\n' : ''}- Varje innehållssida ska ha 2–5 korta, koncisa punkter (max ~14 ord per punkt).
+- Försättssidan ska ha en kort, slagkraftig undertitel istället för punkter.
+- Lägg till en kort talarnot per sida (1–2 meningar) som stöd för den som presenterar.
+
+Svara ENBART med giltig JSON enligt detta schema, utan förklarande text och utan markdown-kodblock:
+{
+  "titel": "Presentationens huvudtitel",
+  "undertitel": "Kort undertitel för försättssidan",
+  "slides": [
+    { "rubrik": "Sidans rubrik", "punkter": ["punkt 1", "punkt 2"], "not": "talarnot" }
+  ]
+}`;
+  return p;
+}
+
+async function anropaGemini(prompt){
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiNyckel}`;
+  const res = await fetch(url, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      contents:[{parts:[{text:prompt}]}],
+      generationConfig:{temperature:0.7, maxOutputTokens:4096, responseMimeType:"application/json"}
+    })
+  });
+  if(!res.ok){
+    let m='Okänt fel';
+    try{ m=(await res.json()).error?.message || m; }catch(e){}
+    throw new Error(m);
+  }
+  const data = await res.json();
+  const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if(!txt) throw new Error('Inget innehåll mottogs.');
+  return txt;
+}
+
+function tolkaSvar(txt){
+  let rent = txt.trim().replace(/^```(json)?/i,'').replace(/```$/,'').trim();
+  const start = rent.indexOf('{'), slut = rent.lastIndexOf('}');
+  if(start>=0 && slut>start) rent = rent.slice(start, slut+1);
+  const obj = JSON.parse(rent);
+  obj.slides = (obj.slides||[]).map(s=>({
+    rubrik: s.rubrik || s.title || '',
+    punkter: Array.isArray(s.punkter) ? s.punkter : (Array.isArray(s.bullets) ? s.bullets : []),
+    not: s.not || s.notes || ''
+  }));
+  return obj;
+}
+
+/* ====== Rita redigerbart förslag ====== */
+function ritaForslag(){
+  const c = document.getElementById('slidesContainer');
+  c.innerHTML='';
+  const g = genereradePunkter;
+
+  // Försättssida
+  c.appendChild(slideKort(0, 'Försättssida', `
+    <div class="et">Titel</div>
+    <div class="slide-titel-ed" contenteditable data-falt="titel">${esc(g.titel||'')}</div>
+    <div class="et">Undertitel</div>
+    <div contenteditable data-falt="undertitel">${esc(g.undertitel||'')}</div>
+  `));
+
+  g.slides.forEach((s,i)=>{
+    const punkterHtml = (s.punkter||[]).map((p,j)=>
+      `<div class="punkt"><span contenteditable data-slide="${i}" data-punkt="${j}">${esc(p)}</span></div>`
+    ).join('');
+    c.appendChild(slideKort(i+1, 'Innehåll', `
+      <div class="et">Rubrik</div>
+      <div class="slide-titel-ed" contenteditable data-slide="${i}" data-falt="rubrik">${esc(s.rubrik)}</div>
+      <div class="et">Punkter</div>
+      <div data-punktlista="${i}">${punkterHtml}</div>
+      <div class="et">Talarnot</div>
+      <div contenteditable data-slide="${i}" data-falt="not" style="color:var(--r-text-svag);font-size:.88rem">${esc(s.not||'')}</div>
+    `));
+  });
+
+  // Synka redigeringar tillbaka till datamodellen
+  c.querySelectorAll('[contenteditable]').forEach(el=>{
+    el.addEventListener('input', ()=>{
+      const t = el.textContent;
+      if(el.dataset.falt==='titel') g.titel=t;
+      else if(el.dataset.falt==='undertitel') g.undertitel=t;
+      else if(el.dataset.slide!=null && el.dataset.falt) g.slides[+el.dataset.slide][el.dataset.falt]=t;
+      else if(el.dataset.punkt!=null) g.slides[+el.dataset.slide].punkter[+el.dataset.punkt]=t;
+    });
+  });
+}
+function slideKort(nr, typ, inneh){
+  const d = document.createElement('div');
+  d.className='slide-kort';
+  d.innerHTML = `<div class="slide-huvud">Sida ${nr+1}<span class="typ">${typ}</span></div><div class="slide-kropp">${inneh}</div>`;
+  return d;
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ====== Bygg PowerPoint ====== */
+document.getElementById('byggPptx').onclick = byggPowerPoint;
+
+function byggPowerPoint(){
+  const statusEl = document.getElementById('byggStatus');
+  if(!genereradePunkter){ return; }
+  settSteg(4);
+  statusEl.innerHTML = '<div class="ruta-info">Bygger PowerPoint-filen…</div>';
+
+  try{
+    const g = genereradePunkter;
+    const primar = valdFarg.hex;
+    const textFarg = valdFarg.text;
+    const morkText = "1D2733";
+    const gra = "5B6B7B";
+
+    const pptx = new PptxGenJS();
+    pptx.defineLayout({name:'RK', width:13.333, height:7.5});
+    pptx.layout='RK';
+    pptx.author='Rättviks kommun';
+    pptx.company='Rättviks kommun';
+    pptx.title = g.titel || 'Presentation';
+
+    const dekor = (slide, mork)=>{
+      // Sidoaccent + sidfot enligt vald profilfärg och stil
+      slide.addShape(pptx.ShapeType.rect, {x:0, y:0, w:0.28, h:7.5, fill:{color:primar}});
+      if(valdStil!=='text'){
+        const a = valdStil==='akvarell'?40 : valdStil==='foto'?18 : 100;
+        slide.addShape(pptx.ShapeType.ellipse, {x:11.4, y:5.0, w:3.6, h:3.6, fill:{color:primar, transparency:valdStil==='illustration'?88:80}, line:{type:'none'}});
+        slide.addShape(pptx.ShapeType.ellipse, {x:12.4, y:6.0, w:2.0, h:2.0, fill:{color:primar, transparency:70}, line:{type:'none'}});
+      }
+      slide.addText('Rättviks kommun', {x:0.5, y:7.0, w:6, h:0.35, fontSize:9, color:gra, fontFace:'Arial'});
+    };
+
+    // Försättssida
+    const f = pptx.addSlide();
+    f.background = {color:'FFFFFF'};
+    f.addShape(pptx.ShapeType.rect, {x:0, y:0, w:13.333, h:2.6, fill:{color:primar}});
+    f.addShape(pptx.ShapeType.rect, {x:0, y:2.6, w:13.333, h:0.12, fill:{color:'2E7D32'}});
+    f.addText('RÄTTVIKS KOMMUN', {x:0.7, y:0.5, w:8, h:0.4, fontSize:13, color:textFarg, bold:true, charSpacing:2, fontFace:'Arial'});
+    f.addText(g.titel||'Presentation', {x:0.7, y:1.0, w:11.9, h:1.3, fontSize:34, color:textFarg, bold:true, fontFace:'Arial', valign:'middle'});
+    f.addText(g.undertitel||'', {x:0.7, y:3.1, w:11.9, h:1.2, fontSize:18, color:morkText, fontFace:'Arial'});
+    f.addText(new Date().toLocaleDateString('sv-SE'), {x:0.7, y:6.7, w:6, h:0.4, fontSize:11, color:gra, fontFace:'Arial'});
+    if(g.slides[0]?.not) f.addNotes(g.slides[0].not);
+
+    // Innehållssidor
+    g.slides.forEach((s)=>{
+      const sl = pptx.addSlide();
+      sl.background = {color:'FFFFFF'};
+      dekor(sl);
+      sl.addText(s.rubrik||'', {x:0.6, y:0.5, w:12, h:0.9, fontSize:26, bold:true, color:primar, fontFace:'Arial'});
+      sl.addShape(pptx.ShapeType.line, {x:0.6, y:1.45, w:3.5, h:0, line:{color:'2E7D32', width:3}});
+      const punkter = (s.punkter||[]).map(p=>({text:p, options:{bullet:{indent:18}, color:morkText, fontSize:18, paraSpaceAfter:10}}));
+      if(punkter.length){
+        sl.addText(punkter, {x:0.7, y:1.9, w:valdStil==='text'?12:10.6, h:4.8, fontFace:'Arial', valign:'top'});
+      }
+      if(s.not) sl.addNotes(s.not);
+    });
+
+    const filnamn = (g.titel||'presentation').replace(/[^\wåäöÅÄÖ -]/g,'').trim().replace(/\s+/g,'-').toLowerCase() || 'presentation';
+    pptx.writeFile({fileName:`rattvik-${filnamn}.pptx`}).then(()=>{
+      settSteg(5);
+      statusEl.innerHTML = '<div class="ruta-ok">✓ Klart! PowerPoint-filen har laddats ner. Du kan öppna och redigera den vidare i PowerPoint, Keynote eller Google Slides.</div>';
+    }).catch(err=>{
+      statusEl.innerHTML = '<div class="ruta-fel">⚠️ Kunde inte skapa filen: '+err.message+'</div>';
+    });
+  }catch(err){
+    console.error(err);
+    statusEl.innerHTML = '<div class="ruta-fel">⚠️ Kunde inte bygga presentationen: '+err.message+'</div>';
+  }
+}
+</script>
+</body>
+</html>
