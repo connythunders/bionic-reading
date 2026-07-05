@@ -636,7 +636,7 @@
                 <div class="output-section">
                     <div class="section-label">
                         Resultat
-                        <span class="char-count"></span>
+                        <span class="char-count"><span id="output-char-count">0</span> tecken</span>
                     </div>
                     <div id="output-text" class="output-box"></div>
                 </div>
@@ -694,6 +694,7 @@
         const copyBtn = document.getElementById('copy-btn');
         const clearBtn = document.getElementById('clear-btn');
         const charCount = document.getElementById('char-count');
+        const outputCharCount = document.getElementById('output-char-count');
         const focusLevel = document.getElementById('focus-level');
         const fontSize = document.getElementById('font-size');
         const lineSpacing = document.getElementById('line-spacing');
@@ -752,6 +753,7 @@
             const text = inputText.value;
             if (!text.trim()) {
                 outputText.innerHTML = '<p style="color: var(--text-light); font-style: italic;">Vänligen skriv in eller klistra in text att konvertera.</p>';
+                outputCharCount.textContent = '0';
                 return;
             }
 
@@ -763,6 +765,7 @@
             const lineSpacingValue = lineSpacing.value;
 
             outputText.innerHTML = `<div class="bionic-text" style="font-size: ${fontSizeValue}; line-height: ${lineSpacingValue};">${bionicText}</div>`;
+            outputCharCount.textContent = text.length;
         }
 
         // Convert button click
@@ -797,6 +800,7 @@
             inputText.value = '';
             outputText.innerHTML = '';
             charCount.textContent = '0';
+            outputCharCount.textContent = '0';
         });
 
         // Auto-convert on load with default text
