@@ -713,6 +713,17 @@
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
+        // Decode XML entities left over from raw PPTX slide XML text
+        function decodeXmlEntities(str) {
+            return str
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .replace(/&apos;/g, "'")
+                .replace(/&#39;/g, "'")
+                .replace(/&amp;/g, '&');
+        }
+
         // Convert text to bionic reading format
         function convertToBionic(text, level = 'medium') {
             const words = text.split(/(\s+)/);
@@ -776,6 +787,8 @@
         });
 
         // Copy HTML to clipboard
+        const copyBtnDefaultLabel = copyBtn.innerHTML;
+        let copyBtnResetTimer = null;
         copyBtn.addEventListener('click', async () => {
             const html = outputText.innerHTML;
             if (!html || html.includes('Justera inställningarna')) {
@@ -785,10 +798,10 @@
 
             try {
                 await navigator.clipboard.writeText(html);
-                const originalText = copyBtn.innerHTML;
+                clearTimeout(copyBtnResetTimer);
                 copyBtn.innerHTML = '✅ Kopierat!';
-                setTimeout(() => {
-                    copyBtn.innerHTML = originalText;
+                copyBtnResetTimer = setTimeout(() => {
+                    copyBtn.innerHTML = copyBtnDefaultLabel;
                 }, 2000);
             } catch (err) {
                 alert('Kunde inte kopiera till urklipp. Försök igen.');
@@ -864,7 +877,7 @@
                         const xml = await slide.entry.async('text');
                         const matches = xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g);
                         if (matches) {
-                            const slideText = matches.map(m => m.replace(/<[^>]+>/g, '')).filter(t => t.trim()).join(' ');
+                            const slideText = matches.map(m => decodeXmlEntities(m.replace(/<[^>]+>/g, ''))).filter(t => t.trim()).join(' ');
                             if (slideText.trim()) text += slideText.trim() + '\n\n';
                         }
                     }
