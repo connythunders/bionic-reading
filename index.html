@@ -706,11 +706,19 @@
         // Initialize character count
         charCount.textContent = inputText.value.length;
 
+        // Escape HTML special characters so pasted/uploaded text can't
+        // inject markup or scripts into the page
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
         // Convert text to bionic reading format
         function convertToBionic(text, level = 'medium') {
             const words = text.split(/(\s+)/);
             const bionicWords = words.map(word => {
-                if (word.trim().length === 0) return word;
+                // Preserve line breaks visually instead of letting the
+                // browser collapse them into a single space
+                if (word.trim().length === 0) return escapeHtml(word).replace(/\n/g, '<br>');
 
                 let boldLength;
                 const wordLength = word.length;
@@ -730,8 +738,8 @@
                 // Handle minimum and maximum
                 boldLength = Math.max(1, Math.min(boldLength, wordLength));
 
-                const boldPart = word.substring(0, boldLength);
-                const normalPart = word.substring(boldLength);
+                const boldPart = escapeHtml(word.substring(0, boldLength));
+                const normalPart = escapeHtml(word.substring(boldLength));
 
                 return `<strong>${boldPart}</strong>${normalPart}`;
             });
