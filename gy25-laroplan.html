@@ -971,6 +971,12 @@
 </footer>
 
 <script>
+// Escape HTML special characters so user-entered text (exam questions)
+// can't inject markup or scripts when rendered via innerHTML
+function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 // ============================================================
 // KNOWLEDGE BASE - GY25 data
 // ============================================================
@@ -1734,7 +1740,7 @@ async function analyzeQuestions() {
         maxScore += analysis.maxScore;
 
         html += `<div style="border-left:4px solid ${analysis.color}; padding:0.75rem 1rem; margin:1rem 0; background:#fafafa; border-radius:0 8px 8px 0;">`;
-        html += `<p style="font-weight:600; margin-bottom:0.5rem;">Fraga ${i + 1}: "${fraga.substring(0, 80)}${fraga.length > 80 ? '...' : ''}"</p>`;
+        html += `<p style="font-weight:600; margin-bottom:0.5rem;">Fraga ${i + 1}: "${escapeHtml(fraga.substring(0, 80))}${fraga.length > 80 ? '...' : ''}"</p>`;
         html += `<ul class="checklist">`;
 
         for (const check of analysis.checks) {
@@ -1960,7 +1966,7 @@ function buildExampleAnswers(amneCode, fraga, subjectDetail) {
     let html = '';
 
     const displayName = subjectDetail ? subjectDetail.name : (amneCode || '');
-    html += `<h3>Exempelsvar for: "${fraga.length > 80 ? fraga.substring(0, 77) + '...' : fraga}"</h3>`;
+    html += `<h3>Exempelsvar for: "${escapeHtml(fraga.length > 80 ? fraga.substring(0, 77) + '...' : fraga)}"</h3>`;
 
     if (displayName) {
         html += `<p style="margin-bottom:1rem;"><span class="badge badge-info">${displayName}</span> <span class="badge badge-success">GY25</span></p>`;
@@ -1987,7 +1993,7 @@ function buildExampleAnswers(amneCode, fraga, subjectDetail) {
         } else {
             // Use generic template
             const tmpl = GENERIC_TEMPLATES[g.level];
-            const topic = extractTopic(fraga);
+            const topic = escapeHtml(extractTopic(fraga));
 
             html += `<div style="background:white; border-radius:8px; padding:1rem; margin-bottom:0.75rem; color:${g.textColor};">`;
             html += `<p style="font-weight:600; margin-bottom:0.5rem;">Svarsstruktur: ${tmpl.structure}</p>`;
@@ -2114,6 +2120,11 @@ async function loadAPIData() {
 
     } catch (err) {
         console.error('API load failed:', err);
+        const errorOption = '<option value="">Kunde inte ansluta till Skolverkets API</option>';
+        for (const id of ['pf-amne', 'ex-amne', 'jamfor-program-select']) {
+            const sel = document.getElementById(id);
+            if (sel) sel.innerHTML = errorOption;
+        }
     }
 }
 
