@@ -739,8 +739,8 @@
             return bionicWords.join('');
         }
 
-        // Convert button click
-        convertBtn.addEventListener('click', () => {
+        // Run the conversion and update the result box
+        function runConversion() {
             const text = inputText.value;
             if (!text.trim()) {
                 outputText.innerHTML = '<p style="color: var(--text-light); font-style: italic;">Vänligen skriv in eller klistra in text att konvertera.</p>';
@@ -755,7 +755,11 @@
             const lineSpacingValue = lineSpacing.value;
 
             outputText.innerHTML = `<div class="bionic-text" style="font-size: ${fontSizeValue}; line-height: ${lineSpacingValue};">${bionicText}</div>`;
+        }
 
+        // Convert button click
+        convertBtn.addEventListener('click', () => {
+            runConversion();
             // Smooth scroll to results
             outputText.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
@@ -789,25 +793,25 @@
 
         // Auto-convert on load with default text
         window.addEventListener('load', () => {
-            convertBtn.click();
+            runConversion();
         });
 
         // Real-time update on setting changes
         focusLevel.addEventListener('change', () => {
             if (inputText.value.trim()) {
-                convertBtn.click();
+                runConversion();
             }
         });
 
         fontSize.addEventListener('change', () => {
             if (inputText.value.trim()) {
-                convertBtn.click();
+                runConversion();
             }
         });
 
         lineSpacing.addEventListener('change', () => {
             if (inputText.value.trim()) {
-                convertBtn.click();
+                runConversion();
             }
         });
 
