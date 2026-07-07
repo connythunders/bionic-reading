@@ -362,10 +362,172 @@ function showReview() {
   if (review) review.classList.toggle('visible');
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ÖVNINGSMOTOR – interaktiva övningar på kapitelsidorna
+// Alla övningar byggs med data-attribut i HTML, ingen extra JS per kapitel.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── 1. FLASHCARDS (begreppskort) ────────────────────────────────────────────
+// HTML: <div class="flashcard" tabindex="0">
+//         <div class="flashcard-inner">
+//           <div class="flashcard-front">Begrepp</div>
+//           <div class="flashcard-back">Förklaring</div>
+//         </div></div>
+function initFlashcards() {
+  document.querySelectorAll('.flashcard').forEach(card => {
+    const flip = () => card.classList.toggle('flipped');
+    card.addEventListener('click', flip);
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); }
+    });
+  });
+}
+
+// ─── 2. PARA IHOP (matching) ─────────────────────────────────────────────────
+// HTML: <div class="match-game" data-match-id="unik">
+//         <button class="match-item" data-pair="1">Begrepp</button>
+//         <button class="match-item" data-pair="1">Definition</button> ...
+// Items blandas vid sidladdning. Klicka två med samma data-pair = grönt par.
+function initMatchGames() {
+  document.querySelectorAll('.match-game').forEach(game => {
+    // Slumpa ordningen på korten
+    const items = Array.from(game.querySelectorAll('.match-item'));
+    items.sort(() => Math.random() - 0.5).forEach(i => game.appendChild(i));
+
+    let selected = null;
+    let solved = 0;
+    const total = items.length / 2;
+    const status = game.parentElement.querySelector('.match-status');
+
+    game.addEventListener('click', e => {
+      const btn = e.target.closest('.match-item');
+      if (!btn || btn.classList.contains('matched')) return;
+
+      if (!selected) {
+        selected = btn;
+        btn.classList.add('selected');
+      } else if (btn === selected) {
+        btn.classList.remove('selected');
+        selected = null;
+      } else {
+        if (btn.dataset.pair === selected.dataset.pair) {
+          btn.classList.add('matched');
+          selected.classList.add('matched');
+          solved++;
+          if (status) status.textContent = solved === total
+            ? '🎉 Alla par klara!' : `${solved} av ${total} par`;
+        } else {
+          btn.classList.add('wrong-flash');
+          selected.classList.add('wrong-flash');
+          const a = btn, b = selected;
+          setTimeout(() => { a.classList.remove('wrong-flash'); b.classList.remove('wrong-flash'); }, 600);
+        }
+        selected.classList.remove('selected');
+        selected = null;
+      }
+    });
+  });
+}
+
+// ─── 3. LUCKTEXT (fill in the blank) ─────────────────────────────────────────
+// HTML: <span class="cloze" data-answer="Turingtestet">______</span>
+//       + knapp <button class="cloze-check">Rätta</button> i samma .cloze-exercise
+function initCloze() {
+  document.querySelectorAll('.cloze-exercise').forEach(ex => {
+    ex.querySelectorAll('.cloze').forEach(span => {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'cloze-input';
+      input.setAttribute('aria-label', 'Fyll i det saknade ordet');
+      input.size = Math.max(6, span.dataset.answer.length);
+      span.replaceChildren(input);
+    });
+    const btn = ex.querySelector('.cloze-check');
+    if (btn) btn.addEventListener('click', () => {
+      let right = 0, total = 0;
+      ex.querySelectorAll('.cloze').forEach(span => {
+        total++;
+        const input = span.querySelector('.cloze-input');
+        const ok = input.value.trim().toLowerCase() === span.dataset.answer.toLowerCase();
+        input.classList.toggle('correct', ok);
+        input.classList.toggle('wrong', !ok);
+        if (ok) { right++; input.disabled = true; }
+        else { input.title = 'Rätt svar: ' + span.dataset.answer; }
+      });
+      const res = ex.querySelector('.cloze-result');
+      if (res) {
+        res.textContent = right === total
+          ? '🎉 Alla rätt!' : `${right} av ${total} rätt – fel markeras rött. Håll muspekaren över för facit, eller försök igen!`;
+      }
+    });
+  });
+}
+
+// ─── 4. SANT/FALSKT ──────────────────────────────────────────────────────────
+// HTML: <div class="tf-item" data-answer="true">
+//         <span class="tf-statement">Påstående...</span>
+//         <button class="tf-btn" data-val="true">Sant</button>
+//         <button class="tf-btn" data-val="false">Falskt</button>
+//         <div class="tf-explain">Förklaring...</div></div>
+function initTrueFalse() {
+  document.querySelectorAll('.tf-item').forEach(item => {
+    item.querySelectorAll('.tf-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (item.dataset.done) return;
+        item.dataset.done = '1';
+        const correct = btn.dataset.val === item.dataset.answer;
+        btn.classList.add(correct ? 'correct' : 'wrong');
+        item.querySelectorAll('.tf-btn').forEach(b => {
+          b.disabled = true;
+          if (b.dataset.val === item.dataset.answer) b.classList.add('correct');
+        });
+        const ex = item.querySelector('.tf-explain');
+        if (ex) ex.classList.add('visible');
+      });
+    });
+  });
+}
+
+// ─── 5. SORTERA I ORDNING ────────────────────────────────────────────────────
+// HTML: <div class="order-game"><button class="order-item" data-order="1">Steg…</button>…</div>
+// Klicka i rätt ordning. Rätt klick låses grönt, fel blinkar rött.
+function initOrderGames() {
+  document.querySelectorAll('.order-game').forEach(game => {
+    const items = Array.from(game.querySelectorAll('.order-item'));
+    items.sort(() => Math.random() - 0.5).forEach(i => game.appendChild(i));
+    let next = 1;
+    game.addEventListener('click', e => {
+      const btn = e.target.closest('.order-item');
+      if (!btn || btn.classList.contains('matched')) return;
+      if (parseInt(btn.dataset.order, 10) === next) {
+        btn.classList.add('matched');
+        btn.insertAdjacentHTML('afterbegin', `<span class="order-num">${next}</span> `);
+        next++;
+        if (next > items.length) {
+          const status = game.parentElement.querySelector('.order-status');
+          if (status) status.textContent = '🎉 Rätt ordning!';
+        }
+      } else {
+        btn.classList.add('wrong-flash');
+        setTimeout(() => btn.classList.remove('wrong-flash'), 600);
+      }
+    });
+  });
+}
+
+// ─── 6. UTFÄLLBARA REFLEKTIONSKORT ───────────────────────────────────────────
+// HTML: <details class="think-box"><summary>Fundera: …</summary><p>uppföljning</p></details>
+// Ren HTML – ingen JS behövs, men vi animerar öppning via CSS-klassen.
+
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initA11yToolbar();
   initProgressBar();
   initSelfTest();
+  initFlashcards();
+  initMatchGames();
+  initCloze();
+  initTrueFalse();
+  initOrderGames();
   if (state.bionic) activateBionic();
 });

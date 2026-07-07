@@ -1089,3 +1089,437 @@ a:hover { color: var(--color-primary-dark); }
   .page-wrapper { max-width: none; padding: 0; }
 }
 
+
+/* ═══════════════════════════════════════════════════════════════
+   ÖVNINGSMOTOR – stilar för interaktiva övningar
+   ═══════════════════════════════════════════════════════════════ */
+
+/* === ÖVNINGSSEKTION (ram runt varje övning) === */
+.exercise {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.exercise-label {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: white;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  margin-bottom: 0.75rem;
+}
+
+.exercise h4 {
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem !important;
+}
+
+.exercise .instruction {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+}
+
+/* === FLASHCARDS === */
+.flashcard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.9rem;
+  margin: 1rem 0;
+}
+
+.flashcard {
+  perspective: 800px;
+  cursor: pointer;
+  height: 130px;
+  outline-offset: 3px;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+}
+
+.flashcard.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front, .flashcard-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.flashcard-front {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.flashcard-back {
+  background: var(--color-accent-light);
+  color: var(--color-text);
+  transform: rotateY(180deg);
+  border: 1px solid var(--color-border);
+  overflow-y: auto;
+}
+
+/* === PARA IHOP === */
+.match-game {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+
+.match-item {
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 0.6rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--color-text);
+  transition: all var(--transition);
+  min-height: 60px;
+}
+
+.match-item:hover:not(.matched) {
+  border-color: var(--color-primary);
+}
+
+.match-item.selected {
+  border-color: var(--color-accent);
+  background: var(--color-accent-light);
+  transform: scale(1.03);
+}
+
+.match-item.matched {
+  background: #d1fae5;
+  border-color: var(--color-success);
+  color: #065f46;
+  cursor: default;
+}
+
+[data-theme="dark"] .match-item.matched {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+
+.match-status, .order-status {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  min-height: 1.2em;
+}
+
+.wrong-flash {
+  animation: wrongshake 0.4s;
+  border-color: var(--color-error) !important;
+}
+
+@keyframes wrongshake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* === LUCKTEXT === */
+.cloze-input {
+  border: 2px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.95em;
+  font-family: inherit;
+  background: var(--color-bg);
+  color: var(--color-text);
+  margin: 0 2px;
+}
+
+.cloze-input.correct {
+  border-color: var(--color-success);
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.cloze-input.wrong {
+  border-color: var(--color-error);
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+[data-theme="dark"] .cloze-input.correct { background:#064e3b; color:#a7f3d0; }
+[data-theme="dark"] .cloze-input.wrong { background:#7f1d1d; color:#fecaca; }
+
+.cloze-check {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  font-family: inherit;
+}
+
+.cloze-check:hover { background: var(--color-primary-dark); }
+
+.cloze-result {
+  margin-top: 0.6rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* === SANT/FALSKT === */
+.tf-item {
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tf-item:last-child { border-bottom: none; }
+
+.tf-statement {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.tf-btn {
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 1.1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--color-text);
+  margin-right: 0.5rem;
+  transition: all var(--transition);
+}
+
+.tf-btn:hover:not(:disabled) { border-color: var(--color-primary); }
+.tf-btn.correct { background: #d1fae5; border-color: var(--color-success); color: #065f46; }
+.tf-btn.wrong { background: #fee2e2; border-color: var(--color-error); color: #7f1d1d; }
+[data-theme="dark"] .tf-btn.correct { background:#064e3b; color:#a7f3d0; }
+[data-theme="dark"] .tf-btn.wrong { background:#7f1d1d; color:#fecaca; }
+
+.tf-explain {
+  display: none;
+  margin-top: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--color-highlight);
+  border-radius: var(--radius-sm);
+  font-size: 0.83rem;
+}
+
+.tf-explain.visible { display: block; }
+
+/* === SORTERA I ORDNING === */
+.order-game {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.order-item {
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1rem;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--color-text);
+  transition: all var(--transition);
+}
+
+.order-item:hover:not(.matched) { border-color: var(--color-primary); }
+
+.order-item.matched {
+  background: #d1fae5;
+  border-color: var(--color-success);
+  color: #065f46;
+  cursor: default;
+}
+
+[data-theme="dark"] .order-item.matched { background:#064e3b; color:#a7f3d0; }
+
+.order-num {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  background: var(--color-success);
+  color: white;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 0.3rem;
+}
+
+/* === REFLEKTIONSKORT (details) === */
+.think-box {
+  background: linear-gradient(135deg, #fff7ed, #fef3c7);
+  border: 1px solid #fcd34d;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .think-box {
+  background: linear-gradient(135deg, #2a2000, #3a2e00);
+  border-color: #6b5900;
+}
+
+.think-box summary {
+  cursor: pointer;
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  list-style: none;
+  position: relative;
+}
+
+.think-box summary::before {
+  content: '💭 ';
+}
+
+.think-box summary::marker { display: none; }
+
+.think-box[open] summary {
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.think-box > *:not(summary) {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* === TIMELINE (för historiska översikter) === */
+.timeline {
+  position: relative;
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background: linear-gradient(180deg, var(--color-primary), var(--color-accent));
+  border-radius: 2px;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 1.25rem;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -1.68rem;
+  top: 5px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 3px solid var(--color-primary);
+}
+
+.timeline-year {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 0.9rem;
+}
+
+.timeline-item p {
+  margin: 0.2rem 0 0 !important;
+  font-size: 0.9rem;
+}
+
+/* === JÄMFÖRELSETABELL === */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.compare-table th {
+  background: var(--color-nav-bg);
+  color: white;
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.compare-table td {
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.compare-table tr:nth-child(even) td {
+  background: var(--color-bg);
+}
+
+.table-scroll { overflow-x: auto; }
+
+/* === LÄRANDEMÅL-RUTA === */
+.goals-box {
+  background: var(--color-surface);
+  border: 2px dashed var(--color-primary);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin: 0 0 2rem;
+}
+
+.goals-box h3 {
+  font-size: 0.85rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+  margin: 0 0 0.6rem !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.goals-box ul { margin: 0 0 0 1.25rem; }
+.goals-box li { font-size: 0.9rem; margin-bottom: 0.3rem; }
