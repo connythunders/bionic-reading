@@ -41,11 +41,26 @@
     <p class="lead">Maskininlärning, neurala nätverk, övervakad och oövervakad inlärning – hur AI lär sig av data och vad som kan gå fel.</p>
   </div>
 
+  <div class="goals-box">
+    <h3>Efter det här kapitlet kan du…</h3>
+    <ul>
+      <li>förklara hur maskininlärning skiljer sig från vanlig programmering</li>
+      <li>beskriva varför data delas upp i tränings-, validerings- och testdata</li>
+      <li>känna igen dataproblem som brus, saknade värden och bias – och metoder för att förbättra data</li>
+      <li>jämföra övervakad inlärning, oövervakad inlärning och förstärkningsinlärning</li>
+      <li>beskriva AI-pipelinens alla steg, från problembild till användning och uppföljning</li>
+      <li>förklara hur en artificiell neuron räknar och hur ett neuralt nätverk tränas med bakåtpropagering</li>
+      <li>resonera om överanpassning, underanpassning och varför språkmodeller kan hallucinera</li>
+    </ul>
+  </div>
+
   <article class="content">
 
     <h2>Vad är maskininlärning?</h2>
 
-    <p><strong>Maskininlärning</strong> innebär att en AI-modell tränas på stora datamängder för att själv hitta mönster, i stället för att programmeras med fasta regler. Genom att förstå sambanden i ett dataset kan modellen göra förutsägelser och generalisera till nya situationer.</p>
+    <p><strong>Maskininlärning</strong> innebär att en AI-modell tränas på stora datamängder för att själv hitta mönster, i stället för att programmeras med fasta regler. Man visar modellen exempel och låter den lista ut sambanden. Genom att förstå sambanden i ett dataset kan modellen göra förutsägelser och <strong>generalisera</strong> till nya situationer.</p>
+
+    <p>Ett klassiskt exempel är e-postfilter mot skräppost. Modellen får se många mejl märkta som "skräp" eller "inte skräp". Den lär sig känna igen typiska drag: misstänkta avsändare, länkar eller ord. När ett nytt mejl kommer kan modellen förutsäga om det är skräppost – baserat på vad den lärt sig.</p>
 
     <h3>Maskininlärning vs. vanlig programmering</h3>
 
@@ -60,11 +75,13 @@ träningsdata = [(ålder, inkomst, beviljad), ...]
 modell.träna(träningsdata)
 modell.förutsäg(ny_ansökan)</code></pre>
 
+    <p>Vill du att en modell ska känna igen katter behöver du alltså inte beskriva vad en katt är. Du visar tusentals kattbilder, och modellen lär sig mönstren själv.</p>
+
     <div class="fact-box">
       <strong>Tre faktorer bakom AI-boomen</strong>
       <ul>
-        <li><strong>Data</strong> – internet och digitalisering har skapat enorma mängder träningsdata.</li>
-        <li><strong>Hårdvara</strong> – GPU:er gör det möjligt att träna stora modeller snabbt.</li>
+        <li><strong>Data</strong> – internet och digitalisering har skapat enorma mängder träningsdata ("big data").</li>
+        <li><strong>Hårdvara</strong> – GPU:er klarar de tunga beräkningar som träning kräver.</li>
         <li><strong>Algoritmer</strong> – nya metoder, särskilt djupinlärning, har dramatiskt förbättrat prestandan.</li>
       </ul>
     </div>
@@ -73,7 +90,9 @@ modell.förutsäg(ny_ansökan)</code></pre>
 
     <h2>Data för maskininlärning</h2>
 
-    <p>Data är bränslet i maskininlärning. Kvaliteten och sammansättningen av data avgör hur bra modellen blir.</p>
+    <p>Data är bränslet i maskininlärning. Utan data finns inget att lära från. En <strong>datamängd</strong> (ett dataset) är en samling exempel som modellen tränas på. Varje exempel består av ingångsdata (det modellen ser) och ofta ett rätt svar (det modellen ska förutsäga).</p>
+
+    <p>Två viktiga begrepp är <strong>egenskap</strong> (feature) och <strong>etikett</strong> (label). Egenskaperna är mätbara delar av datan, till exempel färg, antal ord eller temperatur. Etiketten är det korrekta svaret som modellen försöker förutsäga.</p>
 
     <h3>Typer av data</h3>
     <ul>
@@ -82,30 +101,88 @@ modell.förutsäg(ny_ansökan)</code></pre>
       <li><strong>Tidsseriedata</strong> – mätningar ordnade i tid (t.ex. börskurser, vädermätningar).</li>
     </ul>
 
+    <p>Vill du utforska riktiga dataset finns öppna plattformar som <strong>Kaggle</strong>. Där delar forskare, utvecklare och studenter data och kodexempel. Verklig data är ofta rörig, ofullständig och full av överraskningar – att titta på den är lärorikt i sig.</p>
+
     <h3>Uppdelning av data</h3>
 
-    <p>Data delas upp i tre grupper:</p>
+    <p>Målet är inte att modellen ska bli bra på just träningsexemplen, utan att den ska fungera i verkligheten. För att kontrollera det delas data upp i tre grupper:</p>
     <ul>
       <li><strong>Träningsdata</strong> – modellen lär sig mönster från denna data (oftast ~70–80 %).</li>
-      <li><strong>Valideringsdata</strong> – används under träningen för att justera inställningar (~10–15 %).</li>
-      <li><strong>Testdata</strong> – används bara en gång i slutet för att ge ett rättvist prestanda-mått (~10–15 %).</li>
+      <li><strong>Valideringsdata</strong> – används under träningen för att kontrollera resultatet och justera inställningar (~10–15 %).</li>
+      <li><strong>Testdata</strong> – används bara en gång i slutet för att ge ett rättvist prestandamått (~10–15 %).</li>
     </ul>
 
     <div class="info-box">
       <strong>Varför tre datamängder?</strong>
-      <p>Om man tränar och testar på samma data riskerar modellen att "memorera" exemplen utan att förstå det underliggande mönstret. Testdata används bara en gång för att ge ett ärligt mått på hur bra modellen är på <em>ny, okänd</em> data.</p>
+      <p>Om man tränar och testar på samma data riskerar modellen att "memorera" exemplen utan att förstå det underliggande mönstret. Det är som att plugga på vissa uppgifter och sedan skriva ett prov med andra. Klarar man provet har man troligen förstått – inte bara memorerat.</p>
     </div>
 
     <h3>Vanliga problem med data</h3>
 
-    <p>Tre vanliga problem i dataset är:</p>
+    <p>En AI-modell kan bara bli så bra som materialet den tränas på. Tre vanliga problem i dataset är:</p>
     <ol>
-      <li><strong>Bias (snedvridning)</strong> – vissa grupper eller kategorier är kraftigt över- eller underrepresenterade.</li>
-      <li><strong>Brus</strong> – data innehåller fel, mätvariationer eller irrelevant information.</li>
-      <li><strong>Saknade värden</strong> – delar av datan fattas, vilket kan snedvrida modellen.</li>
+      <li><strong>Brus</strong> – felaktiga eller orimliga värden, till exempel inmatningsmisstag eller mätfel. Brus gör det svårare för modellen att hitta äkta mönster.</li>
+      <li><strong>Saknade värden</strong> – information fattas i celler, kolumner eller rader. Vissa algoritmer klarar inte tomma celler alls; andra ger osäkrare resultat.</li>
+      <li><strong>Bias (snedvridning)</strong> – vissa grupper eller kategorier är kraftigt över- eller underrepresenterade. Modellen lär sig då en sned bild av verkligheten.</li>
     </ol>
 
-    <p>Det är viktigt att identifiera och hantera dessa problem <em>innan</em> träningen börjar.</p>
+    <p>Bias är särskilt allvarligt. En modell som mest tränats på data från en viss grupp människor kan fatta beslut som fungerar för just den gruppen – men inte för andra. Det kan få stora etiska och samhälleliga konsekvenser. Problemen bör identifieras och hanteras <em>innan</em> träningen börjar.</p>
+
+    <h3>Dataförbättring</h3>
+
+    <p>Det finns flera metoder för att förbättra kvaliteten i ett dataset:</p>
+    <ul>
+      <li><strong>Imputation</strong> – saknade värden ersätts med uppskattningar, till exempel medelvärde, median eller en vanlig kategori. Man behåller fler rader, men man gissar. För mycket imputation ger en falsk bild av variationen i datan.</li>
+      <li><strong>Borttagning</strong> – rader eller kolumner med för många problem tas bort. Datan blir renare, men information går förlorad. Tar man bort alla rader från en viss grupp kan man råka skapa ny bias.</li>
+      <li><strong>Balansering</strong> – vid obalanserad data kan man minska antalet exempel i stora klasser eller öka antalet i små. Målet är att modellen ska behandla alla klasser mer rättvist. Även här finns risker: borttagning kastar information, och duplicering kan ge överanpassning.</li>
+    </ul>
+
+    <div class="section-divider"></div>
+
+    <h2>AI-pipelinen – från problem till färdig modell</h2>
+
+    <p>När vi använder AI för att lösa ett problem följer vi nästan alltid samma grundprocess: <strong>AI-pipelinen</strong>. Kärnan är stegen data, modell, träning och test samt utvärdering – oavsett metod.</p>
+
+    <h3>Steg 0: Problembild och mål</h3>
+    <p>Innan vi bygger något måste vi definiera uppgiften. Vilket problem ska lösas – att förutsäga en hyra eller avgöra om ett mejl är spam? Vilken typ av AI-problem är det: regression, klassificering, klustring eller spelagent? Vad är målet – maximal noggrannhet, eller en modell som är lätt att förklara? Steget handlar lika mycket om lag och etik som teknik: Får vi samla in datan? Vem påverkas? Vilka risker finns?</p>
+
+    <h3>Steg 1: Datainsamling</h3>
+    <p>Här samlar vi in data – från färdiga datamängder, egna undersökningar eller sensorer och loggar. Vi värderar datans kvalitet och etik: Är den representativ? Innehåller den skevheter? Har personuppgifter hanterats lagligt? Sedan förbereds datan: felaktiga rader rensas, saknade värden hanteras, etiketter skapas och tal skalas om vid behov.</p>
+
+    <h3>Steg 2: Val av modell</h3>
+    <p>Modellen är systemets "hjärna", och olika problem kräver olika modeller:</p>
+    <ul>
+      <li><strong>Regression</strong> – linjär kurvanpassning för att förutspå pris eller temperatur.</li>
+      <li><strong>Klassificering</strong> – beslutsträd eller k-nearest neighbour för att avgöra kategori.</li>
+      <li><strong>Klustring</strong> – k-means för att hitta grupper utan färdiga etiketter.</li>
+      <li><strong>Förstärkningsinlärning</strong> – agenter som lär sig genom belöning.</li>
+      <li><strong>Neuralt nätverk</strong> – för komplexa mönster i bilder, text och ljud.</li>
+    </ul>
+    <p>Här väljs också inställningar (antal kluster, träddjup, inlärningshastighet). Ofta väger man förklarbarhet mot träffsäkerhet: ett beslutsträd är lätt att förklara, ett djupt nätverk kan vara träffsäkrare men svårare att genomskåda.</p>
+
+    <h3>Steg 3: Träning och test</h3>
+    <p>Datan delas upp i träningsdata och testdata. Modellen matas med träningsdata och justerar sina parametrar för att minska felet, till exempel med gradient descent. Sedan testas den på testdata som den aldrig sett. Det visar om modellen memorerat träningen eller faktiskt lärt sig generella mönster.</p>
+
+    <h3>Steg 4: Utvärdering och förbättring</h3>
+    <p>Det räcker inte att modellen "funkar" – vi måste veta hur träffsäker och lämplig den är. För regression tittar man på genomsnittligt fel, för klassificering på träffsäkerhet, precision och förväxlingsmatris, för klustring på om grupperna verkar rimliga, och för en spelagent på hur ofta den vinner. Vi frågar också: Är modellen rättvis? Är den tillräckligt transparent? Är resurspåverkan rimlig? Sedan förbättrar vi – mer eller bättre data, annan modell, justerade parametrar – eller avslutar.</p>
+
+    <h3>Steg 5: Användning och uppföljning</h3>
+    <p>Till sist tas modellen i bruk – i en app, som beslutsstöd eller i ett större system. Modellen dokumenteras: vilken data, vilken metod, vilka begränsningar? Mänsklig kontroll ska finnas där det behövs, till exempel i skola, vård och rättssystem. Modellen följs upp löpande: fungerar den lika bra på ny data, eller uppstår oväntade effekter?</p>
+
+    <section class="exercise">
+      <span class="exercise-label">Övning</span>
+      <h4>AI-pipelinen i rätt ordning</h4>
+      <p class="instruction">Klicka på stegen i den ordning de kommer i AI-pipelinen.</p>
+      <div class="order-game">
+        <button class="order-item" data-order="1">Definiera problembild och mål</button>
+        <button class="order-item" data-order="2">Samla in och förbered data</button>
+        <button class="order-item" data-order="3">Välj modelltyp</button>
+        <button class="order-item" data-order="4">Träna och testa modellen</button>
+        <button class="order-item" data-order="5">Utvärdera och förbättra</button>
+        <button class="order-item" data-order="6">Använd och följ upp modellen</button>
+      </div>
+      <p class="order-status" aria-live="polite"></p>
+    </section>
 
     <div class="section-divider"></div>
 
@@ -113,7 +190,7 @@ modell.förutsäg(ny_ansökan)</code></pre>
 
     <h3>Övervakad inlärning</h3>
 
-    <p>I <strong>övervakad inlärning</strong> tränas modellen på märkt data – varje exempel har ett känt svar (etikett). Modellen lär sig att mappa indata till rätt svar.</p>
+    <p>I <strong>övervakad inlärning</strong> tränas modellen på märkt data – varje exempel har ett känt svar (etikett). Modellen lär sig att mappa indata till rätt svar och kan sedan förutsäga svar på nya, liknande situationer.</p>
 
     <ul>
       <li><strong>Regression</strong> – förutsäger ett numeriskt värde som kan variera kontinuerligt, t.ex. bostadspris eller temperatur.</li>
@@ -126,24 +203,93 @@ modell.förutsäg(ny_ansökan)</code></pre>
       <strong>Klassificering:</strong> "Är detta mejl spam?" → en kategori (spam / inte spam)</p>
     </div>
 
+    <h4>Så tränas en regressionsmodell</h4>
+
+    <p>En regressionsmodell försöker hitta en linje som följer mönstret i datan. En linjär modell skrivs <em>y = kx + m</em>, där k är lutningen och m startvärdet. Skillnaden mellan ett verkligt värde och modellens förutsägelse kallas <strong>residual</strong>. Små residualer betyder att modellen passar datan bra.</p>
+
+    <p>Värdena k och m är modellens <strong>parametrar</strong> – "reglage" som kan justeras för att ändra modellens beteende. Träningen går ut på att hitta de parametervärden som ger minst fel. Felet mäts med en <strong>kostnadsfunktion</strong>, till exempel medelkvadratfel (MSE). En vanlig metod för att minimera kostnaden är <strong>gradient descent</strong>: man startar med slumpmässiga parametrar och justerar dem stegvis i den riktning som minskar kostnaden. Hur stora steg som tas styrs av inlärningshastigheten (learning rate). Varje varv genom träningsdatan kallas en <strong>epok</strong>.</p>
+
+    <p>En chattbots språkmodell är förstås mycket mer komplex än en rät linje – men även den har parametrar som justeras under träningen, i storleksordningen hundratals miljarder. Principen är densamma: skruva på reglagen tills felet minskar.</p>
+
+    <h4>Klassificering och kNN</h4>
+
+    <p>Vid klassificering lär sig modellen en <strong>beslutsgräns</strong> som skiljer klasserna åt – som ett osynligt staket i ett diagram. En enkel och tydlig algoritm är <strong>kNN</strong> (k-nearest neighbour): för en ny punkt tittar modellen på de k närmaste punkterna i träningsdatan. Är de flesta grannarna äpplen gissar den "äpple"; är de flesta päron gissar den "päron". Närhet mäts oftast med euklidiskt avstånd – som fågelvägen på en karta.</p>
+
+    <h4>Överanpassning och underanpassning</h4>
+
+    <p>Valet av k visar en central utmaning i all maskininlärning. Med k = 1 avgör en enda granne svaret. Beslutsgränsen blir spretig, och modellen påverkas för mycket av brus. Den riskerar <strong>överanpassning</strong> (overfitting): den lär sig detaljer i träningsdatan i stället för helheten. Med ett mycket stort k blir gränsen i stället för slät. Modellen missar viktiga skillnader och riskerar <strong>underanpassning</strong> (underfitting): den förenklar så mycket att relevanta mönster tappas bort. Målet är en lagom modell – varken för känslig eller för grov.</p>
+
+    <h4>Hur bra är klassificeringen?</h4>
+
+    <p>En <strong>förväxlingsmatris</strong> (confusion matrix) visar inte bara hur många rätt modellen har, utan vilken typ av fel den gör: sanna positiva (TP), sanna negativa (TN), falska positiva (FP, "falskt alarm") och falska negativa (FN, "missat fall"). Ur matrisen beräknas tre mått:</p>
+    <ul>
+      <li><strong>Träffsäkerhet</strong> (accuracy) – andelen rätta gissningar av alla. Fungerar bäst när klasserna är ungefär lika vanliga.</li>
+      <li><strong>Precision</strong> – andelen positiva gissningar som verkligen var positiva. Viktig när falska alarm är kostsamma, som i ett spamfilter.</li>
+      <li><strong>Fångstandel</strong> (recall) – andelen verkligt positiva fall som modellen hittar. Viktig när missar är kostsamma, som i sjukvård eller brandlarm.</li>
+    </ul>
+
     <h3>Oövervakad inlärning</h3>
 
-    <p>I <strong>oövervakad inlärning</strong> finns inga etiketter. Modellen hittar själv mönster och strukturer i datan.</p>
+    <p>I <strong>oövervakad inlärning</strong> finns inga etiketter – bara data. Modellen hittar själv mönster och strukturer. Metoden används till exempel av streamingtjänster för att gruppera användare med liknande smak, eller av butiker för att hitta kundtyper med liknande köpmönster.</p>
 
     <ul>
-      <li><strong>Klustring</strong> – grupperar liknande datapunkter utan fördefinierade kategorier (t.ex. k-means).</li>
+      <li><strong>Klustring</strong> – grupperar liknande datapunkter utan fördefinierade kategorier.</li>
       <li><strong>Dimensionsreduktion</strong> – komprimerar data till färre dimensioner för att hitta väsentliga mönster.</li>
     </ul>
 
+    <h4>k-means clustering</h4>
+
+    <p>En vanlig klustringsalgoritm är <strong>k-means</strong>. K står för antalet grupper, som du väljer själv. Algoritmen arbetar stegvis: den placerar ut k centrumpunkter slumpmässigt, tilldelar varje datapunkt det närmaste centrumet, flyttar sedan centrumpunkterna till mitten av sina grupper – och upprepar tills grupperna slutar förändras. Det liknar hur du intuitivt sorterar en låda blandade knappar i högar, utan att någon gett dig kategorierna i förväg.</p>
+
+    <p>Valet av k påverkar resultatet. Är k för litet pressas punkter ihop som inte hör ihop. Är k för stort delas datan upp i omotiverat många grupper.</p>
+
     <h3>Förstärkningsinlärning</h3>
 
-    <p>I <strong>förstärkningsinlärning</strong> lär sig en agent genom att utforska en miljö och få belöningar för bra handlingar och straff för dåliga. Metoden används för att träna spelande AI (t.ex. AlphaGo) och robotar.</p>
+    <p>I <strong>förstärkningsinlärning</strong> (reinforcement learning) lär sig en <strong>AI-agent</strong> genom att pröva handlingar i en miljö och få återkoppling. Metoden har tre huvuddelar: agent, miljö och belöning. Agenten befinner sig i ett <strong>tillstånd</strong>, väljer en <strong>handling</strong>, hamnar i ett nytt tillstånd och får en <strong>belöning</strong> – ett tal som säger om handlingen var bra eller dålig. Målet är att över tid maximera den totala belöningen.</p>
+
+    <p>Efter många försök bygger agenten upp en strategi, en <strong>regelbok</strong> (policy): "i det här tillståndet gör jag den här handlingen". En viktig balans är den mellan <strong>utforskande</strong> (testa nya handlingar) och <strong>utnyttjande</strong> (göra det som hittills fungerat bäst). Bara utforska – då blir agenten aldrig bra. Bara utnyttja – då kan den fastna i en strategi som inte är optimal.</p>
+
+    <p>En klassisk metod är <strong>Q-inlärning</strong>, där agenten bygger upp en Q-tabell med värden för varje handling i varje tillstånd. Efter varje steg uppdateras värdet utifrån belöningen och den bästa möjliga fortsättningen. Metoden fungerar bra när beslut tas i kedjor där varje steg påverkar nästa – som i spel, robotstyrning och självkörande bilar. AlphaGo är ett känt exempel på spelande AI tränad med förstärkningsinlärning.</p>
+
+    <div class="table-scroll">
+      <table class="compare-table">
+        <thead>
+          <tr><th></th><th>Övervakad inlärning</th><th>Oövervakad inlärning</th><th>Förstärkningsinlärning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Data</strong></td><td>Märkt data med kända svar (etiketter)</td><td>Omärkt data utan facit</td><td>Ingen färdig data – agenten samlar erfarenhet</td></tr>
+          <tr><td><strong>Modellen lär sig</strong></td><td>Sambandet mellan indata och rätt svar</td><td>Mönster och grupper i datan</td><td>En strategi som maximerar belöning</td></tr>
+          <tr><td><strong>Återkoppling</strong></td><td>Facit för varje exempel</td><td>Ingen</td><td>Belöning eller straff efter varje handling</td></tr>
+          <tr><td><strong>Typiska metoder</strong></td><td>Regression, kNN, beslutsträd</td><td>k-means, dimensionsreduktion</td><td>Q-inlärning</td></tr>
+          <tr><td><strong>Exempel</strong></td><td>Spamfilter, bostadspriser</td><td>Kundsegmentering, rekommendationer</td><td>Spel-AI, robotar</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <section class="exercise">
+      <span class="exercise-label">Övning</span>
+      <h4>Para ihop metod med exempel</h4>
+      <p class="instruction">Klicka på två kort som hör ihop: en metod och ett passande exempel.</p>
+      <div class="match-game">
+        <button class="match-item" data-pair="1">Regression</button>
+        <button class="match-item" data-pair="1">Förutsäga priset på en bostad</button>
+        <button class="match-item" data-pair="2">Klassificering</button>
+        <button class="match-item" data-pair="2">Avgöra om ett mejl är spam</button>
+        <button class="match-item" data-pair="3">Klustring (k-means)</button>
+        <button class="match-item" data-pair="3">Gruppera kunder efter köpmönster utan etiketter</button>
+        <button class="match-item" data-pair="4">Förstärkningsinlärning</button>
+        <button class="match-item" data-pair="4">Spelagent som lär sig genom belöning och straff</button>
+        <button class="match-item" data-pair="5">kNN</button>
+        <button class="match-item" data-pair="5">Ny punkt får samma klass som sina närmaste grannar</button>
+      </div>
+      <p class="match-status" aria-live="polite"></p>
+    </section>
 
     <div class="section-divider"></div>
 
     <h2>Neurala nätverk och djupinlärning</h2>
 
-    <p>Inspirerade av hjärnans neuroner består <strong>neurala nätverk</strong> av lager med artificiella noder (neuroner). Information flödar framåt genom nätverket, transformeras i varje lager och producerar slutligen ett svar.</p>
+    <p>Inspirerade av hjärnans nervceller består <strong>neurala nätverk</strong> av lager med artificiella noder (neuroner). Namnet låter biologiskt, men ett neuralt nätverk är en helt matematisk konstruktion. Information flödar framåt genom nätverket, transformeras i varje lager och producerar slutligen ett svar.</p>
 
     <h3>Nätverkets struktur</h3>
     <ul>
@@ -152,21 +298,88 @@ modell.förutsäg(ny_ansökan)</code></pre>
       <li><strong>Utdatalager</strong> – ger nätverkets svar (t.ex. "katt" eller "hund").</li>
     </ul>
 
-    <p><strong>Djupinlärning</strong> (deep learning) är neurala nätverk med många dolda lager. Det är tekniken bakom modern bildigenkänning, taligenkänning och generativ AI.</p>
+    <p><strong>Djupinlärning</strong> (deep learning) är neurala nätverk med många dolda lager. Vid bildigenkänning upptäcker de första lagren enkla mönster som streck och kanter. Nästa lager kombinerar dem till former. I djupare lager uppstår begrepp som ögon, hjul eller bokstäver. Sista lagret avgör vad bilden föreställer. Djupa nätverk ligger bakom de flesta stora AI-genombrotten under 2010- och 2020-talen.</p>
 
-    <h3>Aktivitetsfunktioner</h3>
+    <h3>Så räknar en neuron</h3>
 
-    <p>Varje neuron använder en <strong>aktivitetsfunktion</strong> för att avgöra om och hur starkt den ska "skicka vidare" en signal. Utan aktivitetsfunktioner vore nätverket bara en linjär beräkning, oförmöget att lära sig komplexa mönster. Vanliga aktivitetsfunktioner är ReLU och sigmoid.</p>
+    <p>Varje neuron gör en enkel beräkning. Den tar emot invärden (x), multiplicerar varje värde med en <strong>vikt</strong> (w), summerar och lägger till en <strong>biasterm</strong> (b):</p>
+    <pre><code>z = x1·w1 + x2·w2 + x3·w3 + b</code></pre>
+    <p>Resultatet skickas genom en aktiveringsfunktion och vidare till nästa lager. Hela idén är: <em>multiplicera → summera → aktivera → skicka vidare</em>. Kraften ligger i att detta görs väldigt många gånger, i miljontals neuroner.</p>
+
+    <h3>Aktiveringsfunktioner</h3>
+
+    <p>Varje neuron använder en <strong>aktiveringsfunktion</strong> för att avgöra om och hur starkt den ska skicka vidare sin signal. Utan aktiveringsfunktioner vore nätverket bara en linjär beräkning – oförmöget att lära sig komplexa mönster, oavsett hur stort det är. Vanliga funktioner:</p>
+    <ul>
+      <li><strong>ReLU</strong> – "negativt stoppas, positivt släpps igenom": ReLU(z) = max(0, z). Enkel, snabb och stabil i djupa nätverk.</li>
+      <li><strong>Sigmoid</strong> – pressar värden till intervallet 0–1, lämpligt för sannolikheter.</li>
+      <li><strong>Tanh</strong> – liknande, men ger värden mellan −1 och 1.</li>
+    </ul>
 
     <h3>Bakåtpropagering och träning</h3>
 
-    <p>Under träningen beräknar nätverket felet mellan sitt svar och rätt svar. Sedan propageras <strong>gradienter</strong> bakåt genom nätverket och vikterna justeras i riktning som minskar felet. Denna process kallas <strong>bakåtpropagering</strong> (backpropagation) och upprepas tusentals gånger.</p>
+    <p>Ett nätverk startar med slumpmässiga vikter. Träningen följer en loop:</p>
+    <ol>
+      <li>Nätverket får ett exempel (t.ex. en bild på en hund).</li>
+      <li>Nätverket gissar (t.ex. "katt").</li>
+      <li>Felet mellan gissning och rätt svar beräknas med en kostnadsfunktion.</li>
+      <li>Utifrån felet beräknas <strong>gradienter</strong> – mått på hur varje vikt påverkar felet. Gradienterna propageras bakåt genom lagren, och vikterna justeras i den riktning som minskar felet.</li>
+    </ol>
+
+    <p>Steg 4 kallas <strong>bakåtpropagering</strong> (backpropagation). Observera att det är gradienterna som propageras bakåt – inte felet självt. Processen upprepas tusentals eller miljontals gånger tills nätverket blir bra på sin uppgift.</p>
+
+    <h3>Begränsningar</h3>
+
+    <p>Neurala nätverk kräver ofta stora mängder data och kan lära sig fel mönster, särskilt om träningsdatan innehåller bias. Det kan också vara svårt att förstå varför ett nätverk fattar ett visst beslut – resultatet bygger på enormt många samverkande beräkningar. Och nätverken saknar förståelse, känslor och medvetande. De manipulerar bara siffror, även när resultatet ser "intelligent" ut.</p>
+
+    <section class="exercise">
+      <span class="exercise-label">Övning</span>
+      <h4>Flashcards: nyckelbegrepp</h4>
+      <p class="instruction">Klicka på ett kort för att vända det. Testa dig själv på begreppen.</p>
+      <div class="flashcard-grid">
+        <div class="flashcard" tabindex="0" role="button" aria-label="Begreppskort">
+          <div class="flashcard-inner">
+            <div class="flashcard-front">Generalisering</div>
+            <div class="flashcard-back">Modellens förmåga att göra korrekta förutsägelser på ny data den inte sett under träningen.</div>
+          </div>
+        </div>
+        <div class="flashcard" tabindex="0" role="button" aria-label="Begreppskort">
+          <div class="flashcard-inner">
+            <div class="flashcard-front">Bias</div>
+            <div class="flashcard-back">Skevhet i datans sammansättning – vissa grupper är över- eller underrepresenterade.</div>
+          </div>
+        </div>
+        <div class="flashcard" tabindex="0" role="button" aria-label="Begreppskort">
+          <div class="flashcard-inner">
+            <div class="flashcard-front">Överanpassning</div>
+            <div class="flashcard-back">Modellen lär sig detaljer och brus i träningsdatan i stället för det generella mönstret.</div>
+          </div>
+        </div>
+        <div class="flashcard" tabindex="0" role="button" aria-label="Begreppskort">
+          <div class="flashcard-inner">
+            <div class="flashcard-front">Bakåtpropagering</div>
+            <div class="flashcard-back">Träningsmetod där gradienter propageras bakåt genom nätverket så att vikterna kan justeras.</div>
+          </div>
+        </div>
+        <div class="flashcard" tabindex="0" role="button" aria-label="Begreppskort">
+          <div class="flashcard-inner">
+            <div class="flashcard-front">LLM</div>
+            <div class="flashcard-back">Stor språkmodell – djupt neuralt nätverk tränat på enorma mängder text för att generera språk.</div>
+          </div>
+        </div>
+        <div class="flashcard" tabindex="0" role="button" aria-label="Begreppskort">
+          <div class="flashcard-inner">
+            <div class="flashcard-front">Hallucination</div>
+            <div class="flashcard-back">När en språkmodell producerar felaktig information med hög säkerhet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <div class="section-divider"></div>
 
     <h2>Stora språkmodeller (LLM)</h2>
 
-    <p><strong>Stora språkmodeller</strong> (Large Language Models, LLM) är djupa neurala nätverk tränade på enorma mängder text. De lär sig sannolikheten för att ord följer på varandra och kan generera sammanhängande text, besvara frågor och skriva kod.</p>
+    <p><strong>Stora språkmodeller</strong> (Large Language Models, LLM) är djupa neurala nätverk tränade på enorma mängder text. De lär sig sannolikheten för att ord följer på varandra och kan generera sammanhängande text, besvara frågor och skriva kod. Modellerna har mycket stora antal parametrar – samma slags "reglage" som k och m i en regressionsmodell, fast i storleksordningen hundratals miljarder.</p>
 
     <p>Grunden för moderna LLM är <strong>transformer-arkitekturen</strong> (2017), som använder <em>attention-mekanismen</em> för att väga vikten av olika ord i sitt sammanhang. GPT-modellerna (bakom ChatGPT) och Google Gemini bygger på denna arkitektur.</p>
 
@@ -175,27 +388,53 @@ modell.förutsäg(ny_ansökan)</code></pre>
       <p>LLM:er kan producera felaktig information med hög säkerhet – ett fenomen som kallas <em>hallucination</em>. Det uppstår för att modellen genererar text som statistiskt verkar rimlig, utan en intern kontroll mot faktadatabaser. Källkritik är därför viktigt även vid AI-användning.</p>
     </div>
 
-    <h2>AI-pipelinen</h2>
-
-    <p>En typisk maskininlärningspipeline består av dessa steg:</p>
-    <ol>
-      <li><strong>Problembild och mål</strong> – definiera vad modellen ska lösa.</li>
-      <li><strong>Datainsamling</strong> – samla in eller skapa relevant, representativ data.</li>
-      <li><strong>Dataförberedelse</strong> – rensa, normalisera och dela upp data.</li>
-      <li><strong>Val av modell</strong> – välj lämplig algoritmtyp (regression, neuralt nätverk, osv.).</li>
-      <li><strong>Träning</strong> – träna modellen på träningsdata.</li>
-      <li><strong>Utvärdering</strong> – mät prestanda på testdata; justera vid behov.</li>
-      <li><strong>Driftsättning</strong> – sätt modellen i produktion och övervaka löpande.</li>
-    </ol>
+    <section class="exercise">
+      <span class="exercise-label">Övning</span>
+      <h4>Sant eller falskt? Myter om maskininlärning</h4>
+      <p class="instruction">Ta ställning till varje påstående. Klicka på Sant eller Falskt.</p>
+      <div class="tf-item" data-answer="false">
+        <span class="tf-statement">En modell som är perfekt på träningsdatan är alltid bra i verkligheten.</span>
+        <button class="tf-btn" data-val="true">Sant</button>
+        <button class="tf-btn" data-val="false">Falskt</button>
+        <div class="tf-explain">Falskt – perfekt resultat på träningsdatan kan tyda på överanpassning. Det viktiga är hur modellen presterar på ny, okänd data.</div>
+      </div>
+      <div class="tf-item" data-answer="false">
+        <span class="tf-statement">Vid bakåtpropagering skickas själva felet bakåt genom nätverket.</span>
+        <button class="tf-btn" data-val="true">Sant</button>
+        <button class="tf-btn" data-val="false">Falskt</button>
+        <div class="tf-explain">Falskt – det är gradienter som propageras bakåt: mått på hur varje vikt påverkar felet. Vikterna justeras sedan i den riktning som minskar felet.</div>
+      </div>
+      <div class="tf-item" data-answer="false">
+        <span class="tf-statement">Mer data löser alltid problemet med bias i en modell.</span>
+        <button class="tf-btn" data-val="true">Sant</button>
+        <button class="tf-btn" data-val="false">Falskt</button>
+        <div class="tf-explain">Falskt – om den nya datan har samma skevheter förstärks problemet. Datan måste vara representativ, inte bara stor.</div>
+      </div>
+      <div class="tf-item" data-answer="false">
+        <span class="tf-statement">Neurala nätverk förstår innehållet i det de bearbetar, ungefär som människor.</span>
+        <button class="tf-btn" data-val="true">Sant</button>
+        <button class="tf-btn" data-val="false">Falskt</button>
+        <div class="tf-explain">Falskt – nätverken manipulerar siffror och saknar förståelse, känslor och medvetande, även när resultatet ser intelligent ut.</div>
+      </div>
+      <div class="tf-item" data-answer="true">
+        <span class="tf-statement">En språkmodell kan ge ett felaktigt svar med mycket självsäker ton.</span>
+        <button class="tf-btn" data-val="true">Sant</button>
+        <button class="tf-btn" data-val="false">Falskt</button>
+        <div class="tf-explain">Sant – detta kallas hallucination. Modellen genererar text som verkar statistiskt rimlig, utan kontroll mot fakta. Var källkritisk.</div>
+      </div>
+    </section>
 
     <div class="summary-box">
       <h3>Sammanfattning</h3>
       <ul>
         <li>Maskininlärning lär modellen mönster från data i stället för att programmeras med explicita regler.</li>
-        <li>Övervakad inlärning (regression och klassificering) kräver märkt data; oövervakad inlärning hittar mönster utan etiketter.</li>
-        <li>Neurala nätverk och djupinlärning är grunden för modern AI – från bildigenkänning till chattbotar.</li>
-        <li>LLM:er (stora språkmodeller) genererar text baserat på statistiska mönster i träningsdata, vilket kan ge hallucination.</li>
-        <li>Bias i träningsdata leder till skevhet i modellen – datakvalitet är avgörande.</li>
+        <li>Data delas upp i tränings-, validerings- och testdata för att kunna mäta om modellen generaliserar.</li>
+        <li>Brus, saknade värden och bias är vanliga dataproblem som hanteras med imputation, borttagning och balansering.</li>
+        <li>AI-pipelinen går från problembild via datainsamling, modellval, träning/test och utvärdering till användning och uppföljning.</li>
+        <li>Övervakad inlärning (regression och klassificering) kräver märkt data; oövervakad inlärning (t.ex. k-means) hittar mönster utan etiketter; förstärkningsinlärning tränar agenter med belöningar.</li>
+        <li>En bra modell är lagom: överanpassning fastnar i detaljer, underanpassning missar viktiga mönster.</li>
+        <li>Neurala nätverk bygger på enkla neuronberäkningar i många lager och tränas genom att gradienter propageras bakåt (bakåtpropagering).</li>
+        <li>LLM:er genererar text baserat på statistiska mönster i träningsdata, vilket kan ge hallucination.</li>
       </ul>
     </div>
 
@@ -203,13 +442,19 @@ modell.förutsäg(ny_ansökan)</code></pre>
       <h3>Nyckelbegrepp</h3>
       <div class="concepts-grid">
         <div class="concept-item"><strong>Maskininlärning</strong><p>AI-träning på data för att hitta mönster, utan handskrivna regler.</p></div>
+        <div class="concept-item"><strong>Generalisering</strong><p>Förmågan att göra korrekta förutsägelser på ny, okänd data.</p></div>
         <div class="concept-item"><strong>Övervakad inlärning</strong><p>Träning på märkt data med kända svar.</p></div>
         <div class="concept-item"><strong>Regression</strong><p>Förutsägelse av ett numeriskt värde (t.ex. pris).</p></div>
         <div class="concept-item"><strong>Klassificering</strong><p>Sortering i kategorier (t.ex. spam/inte spam).</p></div>
+        <div class="concept-item"><strong>Klustring</strong><p>Oövervakad gruppering av liknande datapunkter, t.ex. med k-means.</p></div>
+        <div class="concept-item"><strong>Förstärkningsinlärning</strong><p>En agent lär sig en strategi genom belöningar och straff.</p></div>
+        <div class="concept-item"><strong>Överanpassning</strong><p>Modellen memorerar detaljer i träningsdatan i stället för mönstret.</p></div>
         <div class="concept-item"><strong>Djupinlärning</strong><p>Neurala nätverk med många dolda lager.</p></div>
+        <div class="concept-item"><strong>Bakåtpropagering</strong><p>Träning där gradienter propageras bakåt och vikterna justeras.</p></div>
         <div class="concept-item"><strong>LLM</strong><p>Stor språkmodell tränad på text för att generera och förstå språk.</p></div>
         <div class="concept-item"><strong>Hallucination</strong><p>Fel som LLM:er producerar med falskt hög säkerhet.</p></div>
         <div class="concept-item"><strong>Bias</strong><p>Skevhet i data som leder till orättvisa modellbeslut.</p></div>
+        <div class="concept-item"><strong>Förväxlingsmatris</strong><p>Tabell som visar en klassificerares rätta och felaktiga gissningar.</p></div>
       </div>
     </div>
 
