@@ -41,6 +41,19 @@
     <p class="lead">Grunderna i programmeringslogik med Python – variabler, villkor, loopar, funktioner och algoritmer. Byggstenarna för att förstå och bygga AI-system.</p>
   </div>
 
+  <div class="goals-box">
+    <h3>Efter det här kapitlet kan du…</h3>
+    <ul>
+      <li>förklara varför Python dominerar inom AI-utveckling</li>
+      <li>använda variabler, villkor, loopar och funktioner i enkel Python-kod</li>
+      <li>beskriva vad en algoritm är och vilka egenskaper en bra algoritm har</li>
+      <li>jämföra hur människor och AI-system löser problem</li>
+      <li>förklara sökmetoderna BFS, DFS, girig sökning, A* och Minimax</li>
+      <li>känna igen vanliga programmeringsfel i Python</li>
+      <li>komma igång med Google Colab och AI-assisterad kodning.</li>
+    </ul>
+  </div>
+
   <article class="content">
 
     <h2>Programspråket Python</h2>
@@ -69,24 +82,60 @@
       <p>Ett bibliotek innehåller kod som andra redan skrivit och testat. Du slipper uppfinna hjulet igen.</p>
     </div>
 
+    <p>När du programmerar i Python skriver du kod som datorn utför rad för rad. Python är känsligt för indrag (mellanslag och tabbar). Om du missar ett indrag kan programmet krascha eller göra något annat än du tänkt.</p>
+
+    <p>Vänj dig därför vid en ren kodstil: korta rader, tydliga variabelnamn och kommentarer som förklarar vad koden gör. En tydlig och väldokumenterad kod är dessutom mycket lättare för någon annan att förstå.</p>
+
     <div class="section-divider"></div>
 
     <h2>Grunderna i programmering</h2>
+
+    <p>Att programmera handlar om att ge datorn exakta instruktioner. De viktigaste byggstenarna i de flesta programspråk är <strong>variabler</strong>, <strong>villkor</strong>, <strong>loopar</strong> och <strong>funktioner</strong>. Dessa delar kan kombineras till algoritmer som utför specifika uppgifter.</p>
 
     <h3>Variabler</h3>
 
     <p>Variabler är som namngivna lådor där värden sparas. De har ett namn och ett värde, och värdet kan ändras under programkörningen.</p>
 
-    <pre><code>namn = "Karin"       # sträng (text)
-alder = 17           # heltal (integer)
+    <pre><code>namn = "Karin"       # sträng (str)
+alder = 17           # heltal (int)
 langd = 1.72         # decimaltal (float)
-ar_student = True    # boolesk (sant/falskt)</code></pre>
+ar_student = True    # boolesk (bool)</code></pre>
 
-    <p>Det finns flera datatyper: <code>str</code> (text), <code>int</code> (heltal), <code>float</code> (decimaltal) och <code>bool</code> (sant/falskt).</p>
+    <p>Det finns flera datatyper: <code>str</code> (text), <code>int</code> (heltal), <code>float</code> (decimaltal) och <code>bool</code> (sant/falskt). Kommandon används för att utföra operationer, som <code>print()</code> för att skriva ut något på skärmen.</p>
+
+    <pre><code>print("Hej", namn)        # → Hej Karin
+print(alder + 1)          # → 18</code></pre>
+
+    <h3>Listor</h3>
+
+    <p>En <strong>lista</strong> lagrar flera värden i en och samma variabel. Det första elementet har alltid index 0, inte 1.</p>
+
+    <pre><code>tal = [10, 20, 30]    # en lista med tre tal
+print(tal[0])         # → 10 (första elementet)
+print(len(tal))       # → 3 (antal element)</code></pre>
+
+    <section class="exercise">
+      <span class="exercise-label">Övning</span>
+      <h4>Para ihop värde och datatyp</h4>
+      <p class="instruction">Klicka på ett värde och sedan på den datatyp som värdet har i Python. Tänk på citattecknen!</p>
+      <div class="match-game">
+        <button class="match-item" data-pair="1">17</button>
+        <button class="match-item" data-pair="1">int (heltal)</button>
+        <button class="match-item" data-pair="2">"17"</button>
+        <button class="match-item" data-pair="2">str (sträng)</button>
+        <button class="match-item" data-pair="3">3.14</button>
+        <button class="match-item" data-pair="3">float (decimaltal)</button>
+        <button class="match-item" data-pair="4">True</button>
+        <button class="match-item" data-pair="4">bool (sant/falskt)</button>
+        <button class="match-item" data-pair="5">[10, 20, 30]</button>
+        <button class="match-item" data-pair="5">lista</button>
+      </div>
+      <p class="match-status" aria-live="polite"></p>
+    </section>
 
     <h3>Villkor (if-satser)</h3>
 
-    <p>Med villkor kan programmet ta olika vägar beroende på om ett påstående är sant eller falskt.</p>
+    <p>Med villkor kan programmet ta olika vägar beroende på om ett påstående är sant eller falskt. Till exempel: om åldern är minst 18 ska en sak hända, annars något annat.</p>
 
     <pre><code>poang = 75
 
@@ -99,12 +148,16 @@ else:
 
     <h3>Loopar</h3>
 
-    <p>En loop upprepar ett kodblock ett bestämt antal gånger eller så länge ett villkor är sant. Det är ett grundverktyg för att hantera repetitioner effektivt.</p>
+    <p>En loop upprepar ett kodblock ett bestämt antal gånger eller så länge ett villkor är sant. Det är praktiskt när du vill gå igenom all data i en lista eller testa många möjligheter.</p>
 
     <pre><code># for-loop: upprepar för varje element i en lista
 frukter = ["äpple", "banan", "päron"]
 for frukt in frukter:
     print(frukt)
+
+# for-loop med range: upprepar 10 gånger
+for i in range(10):
+    print(i)          # i går från 0 till 9
 
 # while-loop: upprepar tills villkoret är falskt
 x = 0
@@ -112,9 +165,11 @@ while x < 5:
     print(x)
     x += 1</code></pre>
 
+    <p>Observera att <code>range(10)</code> ger talen 0 till 9 – inte 1 till 10. Räknaren <code>i</code> börjar alltså på noll.</p>
+
     <h3>Funktioner</h3>
 
-    <p>En funktion är ett namngivet, återanvändbart kodblock. Du definierar den en gång och anropar den hur många gånger som helst.</p>
+    <p>En funktion är ett namngivet, återanvändbart kodblock. Du definierar den en gång och anropar den hur många gånger som helst. Funktioner tar emot ett invärde, gör en beräkning och lämnar ifrån sig ett utvärde.</p>
 
     <pre><code>def hälsa(namn):
     return "Hej, " + namn + "!"
@@ -122,28 +177,56 @@ while x < 5:
 print(hälsa("Karin"))   # → "Hej, Karin!"
 print(hälsa("Ahmad"))   # → "Hej, Ahmad!"</code></pre>
 
+    <p>Funktioner är viktiga när du vill göra samma sak på många ställen, till exempel räkna ut ett felmått, normalisera data eller testa en modell.</p>
+
     <div class="info-box">
       <strong>Skillnad: villkor vs. funktion</strong>
       <p>En <strong>if-sats</strong> väljer vilken kod som körs baserat på ett villkor. En <strong>funktion</strong> är ett namngivet kodblock man definierar en gång och sedan kan anropa upprepade gånger för att slippa skriva samma kod igen.</p>
     </div>
 
+    <section class="exercise">
+      <span class="exercise-label">Övning</span>
+      <h4>Lucktext: Pythons byggstenar</h4>
+      <p class="instruction">Fyll i rätt begrepp i luckorna. Rätta med knappen när du är klar.</p>
+      <div class="cloze-exercise">
+        <p>En <span class="cloze" data-answer="variabel">___</span> är som en namngiven låda där ett värde sparas.
+        En <span class="cloze" data-answer="loop">___</span> upprepar ett kodblock flera gånger, till exempel med <code>for i in range(10)</code>.
+        En <span class="cloze" data-answer="funktion">___</span> definieras med <code>def</code> och kan anropas hur många gånger som helst.
+        Ett värde som <code>3.14</code> har datatypen <span class="cloze" data-answer="float">___</span>.</p>
+        <button class="cloze-check">Rätta</button>
+        <p class="cloze-result" aria-live="polite"></p>
+      </div>
+    </section>
+
     <div class="section-divider"></div>
 
     <h2>Algoritmer</h2>
 
-    <p>En <strong>algoritm</strong> är en väldefinierad, steg-för-steg-instruktion för att lösa ett problem. Tänk på ett recept: exakta steg, i rätt ordning, som ger ett förutsägbart resultat.</p>
+    <p>En <strong>algoritm</strong> är en detaljerad beskrivning av hur ett problem ska lösas steg för steg. Tänk på ett recept i matlagning: följer du stegen i rätt ordning får du ett förutsägbart resultat. Skillnaden är att en algoritm måste vara ännu tydligare än ett recept. En dator kan inte gissa vad du menar – den gör exakt det du säger.</p>
+
+    <p>Tekniskt sett omvandlar en algoritm ett invärde (input) till ett utvärde (output). Input kan vara en lista med tal, en bild eller en text. Output kan vara en sorterad lista, ett beslut eller en förutsägelse. I ett AI-system är algoritmen själva metoden som talar om hur modellen ska lära sig eller fatta beslut.</p>
 
     <p>En bra algoritm har tre viktiga egenskaper:</p>
     <ul>
-      <li><strong>Korrekthet</strong> – den löser rätt problem och ger rätt svar.</li>
-      <li><strong>Effektivitet</strong> – den använder rimliga mängder tid och minne.</li>
-      <li><strong>Tydlighet</strong> – den går att förstå, testa och modifiera.</li>
+      <li><strong>Tydlighet</strong> – varje steg får bara kunna tolkas på ett sätt. ”Sortera listan” är för otydligt. ”Jämför två tal i taget och byt plats om det vänstra är större” är tydligt.</li>
+      <li><strong>Systematik</strong> – den ska alltid fungera för samma typ av problem, oavsett om listan har 3 tal eller 3 000 tal.</li>
+      <li><strong>Ett slut</strong> – algoritmen får inte fastna i en oändlig loop.</li>
     </ul>
 
-    <h3>Exempel: algoritm för att hitta det största talet</h3>
+    <h3>Pseudokod</h3>
+
+    <p>Algoritmer kan skrivas på vanlig svenska. Man kan också använda <strong>pseudokod</strong> – en slags ”låtsasprogrammering”. Man skriver instruktioner med ett programmeringslikt språk utan att låsa sig till ett visst programspråk. Så här kan en algoritm som hittar det största talet i en lista se ut som pseudokod:</p>
+
+    <pre><code>störst = första talet
+för varje tal i listan:
+    om tal &gt; störst:
+        störst = tal
+skriv ut störst</code></pre>
+
+    <h3>Samma algoritm i Python</h3>
 
     <pre><code>def hitta_storst(lista):
-    storst = lista[0]          # börja med första elementet
+    storst = lista[0]          # anta att första talet är störst
     for tal in lista:
         if tal > storst:
             storst = tal       # uppdatera om vi hittar något större
@@ -151,50 +234,247 @@ print(hälsa("Ahmad"))   # → "Hej, Ahmad!"</code></pre>
 
 print(hitta_storst([3, 7, 2, 9, 4]))   # → 9</code></pre>
 
+    <p>Detta är en algoritm eftersom den är tydlig, fungerar för alla listor och definitivt tar slut. AI-algoritmer kan vara mycket mer avancerade, men bygger alltid på samma grundidé: ett tydligt recept för att lösa ett problem.</p>
+
+    <section class="exercise">
+      <span class="exercise-label">Övning</span>
+      <h4>Sortera algoritmens steg</h4>
+      <p class="instruction">Klicka stegen i rätt ordning för algoritmen ”hitta största talet i en lista”.</p>
+      <div class="order-game">
+        <button class="order-item" data-order="1">Anta att det första talet är störst</button>
+        <button class="order-item" data-order="2">Gå igenom resten av talen ett i taget</button>
+        <button class="order-item" data-order="3">Hittar du ett större tal – kom ihåg det nya talet i stället</button>
+        <button class="order-item" data-order="4">När listan är slut: skriv ut det största talet</button>
+      </div>
+      <p class="order-status" aria-live="polite"></p>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <h2>Hur löser människor och AI problem?</h2>
+
+    <h3>Människans problemlösning</h3>
+
+    <p>När vi människor löser problem följer vi sällan en strikt steg-för-steg-metod. I stället bygger vår problemlösning på tre förmågor:</p>
+    <ul>
+      <li><strong>Mönsterigenkänning</strong> – vi ser snabbt likheter med situationer vi mött tidigare. Studier av schackspelare visar att experter inte har bättre minne än andra, men är bättre på att känna igen mönster.</li>
+      <li><strong>Hantera begränsad information</strong> – vi fattar beslut även när pusselbitar saknas. Forskare kallar detta <em>begränsad rationalitet</em>: vi gör det bästa valet utifrån begränsad tid och information, ofta med mentala genvägar (heuristiker).</li>
+      <li><strong>Intuition och erfarenhet</strong> – ”magkänslan” bygger på lagrade erfarenheter. Brandmän, piloter och kirurger känner ofta igen rätt beslut innan de hunnit analysera situationen fullt ut.</li>
+    </ul>
+
+    <h3>AI:s problemlösning</h3>
+
+    <p>Ett AI-system har ingen intuition, inga känslor och inga erfarenheter i mänsklig mening. All problemlösning bygger på algoritmer. Där människor gissar eller improviserar följer AI sin förutbestämda beslutsprocess. AI förstår inte problemet – den analyserar det.</p>
+
+    <p>Det finns flera sätt att skapa intelligenta system:</p>
+    <ul>
+      <li><strong>Algoritmisk AI (klassisk AI)</strong> – följer tydliga regler som människor programmerat. Förutsägbar och exakt, men helt beroende av sina instruktioner.</li>
+      <li><strong>Kunskapsbaserad AI</strong> – bygger på mänsklig expertkunskap, till exempel medicinska rekommendationer som matchar fakta mot regler.</li>
+      <li><strong>Inlärningsbaserad AI (maskininlärning)</strong> – lär sig själv genom att hitta mönster i stora mängder data. Denna form dominerar i dag.</li>
+    </ul>
+
+    <div class="info-box">
+      <strong>Regelbaserad eller datadriven?</strong>
+      <p>I <strong>regelbaserade</strong> system beskriver människan reglerna och datorn ger ett svar. Pålitligt men begränsat. I <strong>datadrivna</strong> system ger vi data och rätt svar – AI-systemet skapar reglerna självt. Kraftfullt, men kräver stora mängder data av hög kvalitet.</p>
+    </div>
+
+    <p>Just därför blir människor och AI tillsammans ofta starkare än var och en för sig. Människan bidrar med kreativitet, omdöme och etik. AI erbjuder snabbhet, precision och förmåga att upptäcka komplexa mönster.</p>
+
+    <h3>Slutledning – tre sätt att dra slutsatser</h3>
+
+    <p>Att dra slutsatser handlar om att utifrån tillgänglig information lista ut något nytt. AI kan basera slutledning på tre principer:</p>
+
+    <p><strong>Logisk slutsats.</strong> En slutsats som måste vara sann om premisserna är sanna: <em>Alla människor är dödliga. Sokrates är en människa. Alltså är Sokrates dödlig.</em></p>
+
+    <p><strong>Statistisk slutsats.</strong> En sannolik gissning baserad på observationer: <em>Om det regnar 90 procent av gångerna när himlen är grå, är det troligt att det regnar nu.</em> Ju fler observationer, desto pålitligare sannolikhet. Statistiska slutsatser är bästa gissningar – aldrig garantier.</p>
+
+    <p><strong>Villkorslösning.</strong> Att hitta en lösning som uppfyller givna regler. Sudoku är ett typiskt exempel: systemet testar alternativ, backar när något blir fel och fortsätter tills alla villkor är uppfyllda. Samma idé används i schemaläggning och ruttplanering.</p>
+
+    <div class="fact-box">
+      <strong>Mycin – ett tidigt expertsystem</strong>
+      <p>Mycin utvecklades vid Stanford University på 1970-talet. Det var ett av de första framgångsrika expertsystemen: ett program som efterliknade läkares expertis om infektionssjukdomar med regler som ”patienten har feber och positiv bakterieodling → föreslå antibiotika”. Sådana system använder deduktiv logik: en kunskapsbas plus en slutsatsmotor som härleder ny kunskap.</p>
+    </div>
+
     <div class="section-divider"></div>
 
     <h2>Sökning och spelteori</h2>
 
-    <p>Sökning handlar om att hitta en lösning i ett stort rum av möjligheter. Det är grunden för många AI-tillämpningar, från schackprogram till GPS-navigering.</p>
+    <p>Vissa problem går ut på att hitta ett specifikt objekt bland många, eller en väg genom en miljö. Sådana problem löses genom <strong>sökning</strong>. Det är grunden för många AI-tillämpningar, från schackprogram till GPS-navigering. I det här avsnittet möter du fem sökmetoder:</p>
 
-    <h3>Breddenförstsökning (BFS) och djupetförstsökning (DFS)</h3>
+    <ul>
+      <li><strong>Bredden först (BFS)</strong> – undersöker allt på samma nivå innan nästa</li>
+      <li><strong>Djupet först (DFS)</strong> – följer en väg så långt det går, backar sedan</li>
+      <li><strong>Girig sökning</strong> – väljer alltid det som ser bäst ut för stunden</li>
+      <li><strong>A*-sökning</strong> – väger ihop avverkad sträcka och uppskattad återstående sträcka</li>
+      <li><strong>Minimax</strong> – sökning med motstånd, för spel mot en motspelare.</li>
+    </ul>
 
-    <p><strong>BFS</strong> (Breadth-First Search) utforskar alla grannar på en given nivå innan den går djupare. Den hittar alltid den kortaste vägen men kan använda mycket minne.</p>
+    <h3>Problemdomän, träd och grafer</h3>
 
-    <p><strong>DFS</strong> (Depth-First Search) följer en gren så djupt som möjligt innan den backar. Den är minneseffektiv men garanterar inte kortaste vägen.</p>
+    <p>Innan sökningen kan börja måste vi beskriva världen som problemet finns i – dess <strong>problemdomän</strong>. För en kartapp är domänen kartan med alla platser och vägar. För en dammsugarrobot är den rummet och alla positioner roboten kan stå på. Problemdomänen kan beskrivas matematiskt med träd eller grafer.</p>
+
+    <p>Ett <strong>träd</strong> består av noder (punkter) och kanter (förbindelser) utan slutna ringar. Överst finns en rotnod. Varje nod kan ha barnnoder, och en nod utan barn kallas blad. Träd passar för hierarkier: en katalogstruktur (mapp → undermapp → fil), ett beslutsträd eller ett spelträd där rotnoden är startbrädet och bladen är slutställningar.</p>
+
+    <p>En <strong>graf</strong> består också av noder och kanter, men kan innehålla cykler. Noderna är tillstånd (”roboten står i rum A”), kanterna är övergångar (”flytta åt höger”). Kanter kan vara <em>viktade</em> (med en kostnad som tid eller avstånd), <em>riktade</em> (enkelriktade) eller <em>oriktade</em>. I en karta kan noderna vara städer, kanterna vägar och vikterna avstånd.</p>
+
+    <div class="fact-box">
+      <strong>Hur stort är ett spelträd?</strong>
+      <p>Tre i rad har ett spelträd med 362 880 dragsekvenser (9 · 8 · 7 · … · 1), eller 5 478 distinkta tillstånd. Det är litet nog att söka igenom helt. Jämför med schack, som har omkring 10<sup>40</sup> distinkta tillstånd – ett ofattbart stort tal. Där går det inte att testa allt.</p>
+    </div>
+
+    <h3>Beslutsträd</h3>
+
+    <p>Ett <strong>beslutsträd</strong> visar hur ett system fattar beslut steg för steg. Varje nod är en fråga, varje gren ett möjligt svar. Tänk dig en AI som föreslår lunch: ”Är du vegetarian?” → ja/nej → ”Varm eller kall mat?” → till slut hamnar du i ett blad, till exempel ”Tofu pad thai”. I maskininlärning används beslutsträd för att klassificera data, som att avgöra om ett mejl är spam.</p>
+
+    <h3>Bredden först (BFS)</h3>
+
+    <p>BFS undersöker allt som ligger lika långt från startpunkten innan den söker längre bort. Tänk dig att du står vid skolans entré och letar efter matsalen. Med BFS kollar du först alla salar på våning ett. Hittar du inte matsalen går du vidare till våning två, sedan våning tre.</p>
+
+    <p>BFS hittar garanterat den kortaste vägen så länge alla steg kostar lika mycket. Nackdelen är minnet: metoden måste spara alla möjligheter på varje nivå – som att hålla alla skolans korridorer i huvudet samtidigt.</p>
+
+    <h3>Djupet först (DFS)</h3>
+
+    <p>DFS går i stället så djupt den kan. Tänk dig en elev som kliver in i första bästa korridor och följer den så långt det går. Vid en låst dörr går eleven tillbaka till senaste korsningen och testar nästa väg.</p>
+
+    <p>DFS är mycket minnessnål – den håller bara reda på den väg den just undersöker. Men den kan fastna i långa sidospår och hittar inte alltid den kortaste vägen.</p>
+
+    <h3>Heuristisk sökning</h3>
+
+    <p>I små världar som Tre i rad har vi råd att testa alla vägar. Men i en hel stadskarta eller stor spelvärld blir mängden val enorm. Då är både BFS och DFS för långsamma. Algoritmen behöver en gissning om vilka vägar som verkar lovande.</p>
+
+    <p>En <strong>heuristik</strong> är en enkel tumregel som uppskattar hur nära målet ett tillstånd verkar vara – datorns motsvarighet till ”magkänsla”. Ett klassiskt exempel är fågelvägen: du vet inte exakt vilka gator du ska ta, men du vet åt vilket håll målet ligger. Ett kortare fågelvägsavstånd betyder att en sökning i den riktningen är mest lovande.</p>
+
+    <div class="info-box">
+      <strong>Manhattanavstånd</strong>
+      <p>I ett rutnät av gator kan du bara röra dig horisontellt och vertikalt. Avståndet räknas då som summan av sträckorna i sidled och höjdled, utan diagonaler. Namnet kommer från gatunätet på Manhattan i New York, som är ordnat i ett regelbundet rutmönster.</p>
+    </div>
+
+    <p>Även i sudoku används heuristik: börja med de rutor som har flest begränsningar, alltså där flest siffror redan finns i samma rad, kolumn eller box. Det minskar sökträdets storlek kraftigt.</p>
+
+    <h3>Girig sökning</h3>
+
+    <p><strong>Girig sökning</strong> (Greedy Best-First Search) väljer alltid det alternativ som verkar ligga närmast målet just nu – som att i varje ögonblick gå åt det håll matsalen ”borde ligga” fågelvägen. Metoden är snabb och ofta effektiv i öppna miljöer. Men den kan leda rakt mot målet och fastna vid en vägg, som när man följer mobilens pil i ett köpcentrum utan att se hindren.</p>
 
     <h3>A* – informerad sökning</h3>
 
-    <p><strong>A*</strong> (A-stjärna) kombinerar faktisk kostnad med en uppskattning av resterande kostnad (en <em>heuristik</em>). Det gör den effektivare än blind sökning. A* används i GPS-navigering, spel och robotplanering.</p>
+    <p><strong>A*</strong> (uttalas ”A-stjärna”) förbättrar girig sökning genom att kombinera två mått vid varje vägval:</p>
+    <ul>
+      <li><strong>g(n)</strong> – den faktiska kostnaden hittills, alltså hur lång väg som redan passerats</li>
+      <li><strong>h(n)</strong> – en heuristisk uppskattning av återstående väg, till exempel fågelvägen.</li>
+    </ul>
+    <p>Summan <strong>f(n) = g(n) + h(n)</strong> avgör vilket alternativ som ser mest lovande ut. Algoritmen utforskar alltid noden med lägst f-värde.</p>
 
-    <h3>Minimax i spel</h3>
+    <p>Exempel: du står vid en korsning i skolan och ska till matsalen. Korridor A ligger 30 meter bort och därifrån är det cirka 25 meter fågelvägen kvar: f(A) = 30 + 25 = 55. Korridor B ligger bara 10 meter bort, men vägen därifrån slingrar sig – ungefär 60 meter kvar: f(B) = 10 + 60 = 70. A* väljer korridor A, trots att B känns närmare just nu. Så undviks girig sökningens fälla med återvändsgränder.</p>
 
-    <p><strong>Minimax</strong> är en algoritm för tvåspelarspel. Den antar att motståndaren alltid väljer det bästa draget för sig och väljer det drag som maximerar din minimala vinst. Med <strong>alfa-beta-beskärning</strong> kan man skippa grenar som aldrig kan bli bättre än redan hittade alternativ – vilket gör sökningen mycket snabbare.</p>
+    <p>A* används i nästan alla system som navigerar runt hinder: GPS-appar, robotar, självkörande dammsugare och spelkaraktärer. Den hittar vanligen den kortaste vägen utan att behöva testa alla alternativ.</p>
+
+    <h3>Sökning med motstånd: Minimax</h3>
+
+    <p>I spel mot en motståndare räcker det inte att hitta en bra väg – du måste också förutse motståndarens drag. <strong>Minimax</strong> resonerar så här: ”Motståndaren kommer att göra drag som är dåliga för mig. Därför väljer jag det drag som är bäst även i värsta fall.”</p>
+
+    <p>I Tre i rad kallas din spelare <strong>MAX</strong> (vill maximera värdet) och motståndaren <strong>MIN</strong> (vill minimera det). Varje slutställning får ett värde: +1 för vinst för MAX, −1 för vinst för MIN och 0 för oavgjort. Algoritmen söker igenom spelträdet nedifrån och upp. På MAX nivåer väljs det högsta värdet, på MIN:s nivåer det lägsta.</p>
+
+    <p>Exempel: MAX har två drag att välja mellan. Drag A låter MIN vinna direkt, så värde(A) = −1. Drag B tvingar MIN att blockera och leder till oavgjort, så värde(B) = 0. Minimax väljer B. Hade det funnits ett drag C med värdet +1 hade det valts i stället.</p>
+
+    <p>Om båda spelarna spelar optimalt i Tre i rad blir resultatet alltid oavgjort – det kan räknas ut redan innan spelet börjar. En Minimax-spelare kan därför aldrig förlora mot någon som också spelar optimalt. Värdena behöver inte vara −1, 0 och +1: i Othello kan de variera mellan −64 och +64.</p>
+
+    <p>Minimax kräver fullständig kunskap om alla spelmöjligheter. Det fungerar i små spel som Tre i rad. I stora spel som schack blir trädet enormt, och därför används varianter med avklippning – man skippar grenar som inte kan påverka valet – för att spara tid.</p>
+
+    <div class="table-scroll">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Typ av sökning</th><th>Princip</th><th>Fördel</th><th>Nackdel</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Bredden först</td><td>Testar alla vägar på samma nivå innan nästa nivå.</td><td>Hittar alltid kortaste vägen.</td><td>Tar lång tid, kräver stort minne.</td></tr>
+          <tr><td>Djupet först</td><td>Följer en väg tills den tar slut.</td><td>Snabb och enkel.</td><td>Kan missa bästa lösningen.</td></tr>
+          <tr><td>Girig sökning</td><td>Väljer vägen som ser bäst ut för tillfället.</td><td>Snabb.</td><td>Riskerar att fastna.</td></tr>
+          <tr><td>A*-sökning</td><td>Kombinerar aktuell kostnad med uppskattad återstående kostnad.</td><td>Effektiv och ofta optimal.</td><td>Kräver bra heuristik.</td></tr>
+          <tr><td>Sökning med motstånd</td><td>Tar hänsyn till motståndarens drag.</td><td>Används i spel med motståndare.</td><td>Många beräkningar.</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="section-divider"></div>
 
     <h2>Programmeringsfel och felsökning</h2>
 
-    <p>Fel i kod kallas <strong>buggar</strong>. Det finns tre typer:</p>
+    <p>När man programmerar blir det ofta fel. Datorn gör alltid exakt som du skriver – inte det du menade. Fel i kod kallas <strong>buggar</strong>. Det finns tre typer:</p>
     <ul>
       <li><strong>Syntaxfel</strong> – koden bryter mot språkets regler och kan inte ens köras.</li>
       <li><strong>Körtidsfel</strong> – koden körs men kraschar under körning (t.ex. division med noll).</li>
       <li><strong>Logikfel</strong> – koden körs utan fel men ger fel svar.</li>
     </ul>
 
+    <p>Programmering är mycket ”trial and error”: skriv ett kodstycke, testa, få fel, hitta orsaken och korrigera. Med tiden lär man sig att tänka systematiskt, dela upp problemet i mindre delar och bygga lösningen steg för steg.</p>
+
     <div class="info-box">
       <strong>Vanliga fallgropar i Python</strong>
       <ul>
         <li>Listor är nollindexerade: det första elementet har index <code>0</code>, inte <code>1</code>.</li>
-        <li>Python skiljer på stora och små bokstäver: <code>Namn</code> och <code>namn</code> är olika variabler.</li>
-        <li>Indragningar (indentering) är obligatoriska – de definierar kodblock.</li>
-        <li>Glöm inte kolonet efter <code>if</code>, <code>for</code>, <code>def</code>, m.m.</li>
+        <li><code>range(3)</code> ger talen 0, 1, 2 – inte 1, 2, 3.</li>
+        <li><code>=</code> tilldelar ett värde, <code>==</code> jämför två värden.</li>
+        <li>Text och tal är olika datatyper: <code>x = "3"</code> är en sträng. Konvertera med <code>x = int(x)</code> innan du räknar.</li>
+        <li>Python skiljer på stora och små bokstäver: <code>data</code> och <code>Data</code> är olika variabler.</li>
+        <li>Indrag (indentering) är obligatoriska – de definierar kodblock.</li>
+        <li>Funktioner kräver parenteser: <code>print("hej")</code> fungerar, bara <code>print</code> skriver inte ut något.</li>
+        <li>Glöm inte kolonet efter <code>if</code>, <code>for</code>, <code>def</code> m.m.</li>
       </ul>
     </div>
 
+    <pre><code>x = "3"          # en sträng, går inte att räkna med
+x = int(x)       # nu är x heltalet 3
+print(x + 1)     # → 4
+
+tal = [10, 20, 30]
+print(tal[0])    # → 10, listor börjar på index 0
+
+for i in range(3):
+    print(i)     # skriver ut 0, 1, 2</code></pre>
+
+    <section class="exercise">
+      <span class="exercise-label">Övning</span>
+      <h4>Sant eller falskt om Python-fallgropar</h4>
+      <p class="instruction">Avgör om påståendena är sanna eller falska. Läs förklaringen efter varje svar.</p>
+      <div class="tf-item" data-answer="false">
+        <span class="tf-statement">Det första elementet i listan <code>tal = [10, 20, 30]</code> hämtas med <code>tal[1]</code>.</span>
+        <button class="tf-btn" data-val="true">Sant</button>
+        <button class="tf-btn" data-val="false">Falskt</button>
+        <div class="tf-explain">Falskt – listor är nollindexerade. <code>tal[0]</code> ger 10, medan <code>tal[1]</code> ger 20.</div>
+      </div>
+      <div class="tf-item" data-answer="true">
+        <span class="tf-statement"><code>range(3)</code> ger talen 0, 1 och 2.</span>
+        <button class="tf-btn" data-val="true">Sant</button>
+        <button class="tf-btn" data-val="false">Falskt</button>
+        <div class="tf-explain">Sant – <code>range(n)</code> ger talen 0 till n−1, inte 1 till n.</div>
+      </div>
+      <div class="tf-item" data-answer="false">
+        <span class="tf-statement">I Python kan man direkt räkna <code>"3" + 1</code>, eftersom Python förstår att "3" är ett tal.</span>
+        <button class="tf-btn" data-val="true">Sant</button>
+        <button class="tf-btn" data-val="false">Falskt</button>
+        <div class="tf-explain">Falskt – <code>"3"</code> är en sträng. Du måste först konvertera med <code>int("3")</code> för att kunna räkna.</div>
+      </div>
+      <div class="tf-item" data-answer="false">
+        <span class="tf-statement"><code>x = 5</code> och <code>x == 5</code> betyder samma sak.</span>
+        <button class="tf-btn" data-val="true">Sant</button>
+        <button class="tf-btn" data-val="false">Falskt</button>
+        <div class="tf-explain">Falskt – <code>=</code> tilldelar variabeln värdet 5, medan <code>==</code> jämför om x är lika med 5.</div>
+      </div>
+      <div class="tf-item" data-answer="true">
+        <span class="tf-statement"><code>data</code> och <code>Data</code> är två olika variabler i Python.</span>
+        <button class="tf-btn" data-val="true">Sant</button>
+        <button class="tf-btn" data-val="false">Falskt</button>
+        <div class="tf-explain">Sant – Python skiljer på stora och små bokstäver i variabelnamn.</div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
     <h2>Google Colab</h2>
 
-    <p><strong>Google Colab</strong> är ett kostnadsfritt onlineverktyg för AI-programmering. Det kräver ingen installation – du kör Python direkt i webbläsaren. Colab är standard för AI-kurser och forskning, och ger tillgång till kraftfull datorhårdvara (GPU/TPU) i molnet.</p>
+    <p><strong>Google Colab</strong> (kort för Collaboratory) är ett kostnadsfritt onlineverktyg för AI-programmering. Det kräver ingen installation – du skriver, kör och delar Python-kod direkt i webbläsaren. Colab kombinerar text, kod och resultat i samma dokument och används ofta i utbildning och forskning.</p>
+
+    <p>Eftersom allt körs i molnet behöver du ingen kraftfull dator. I Colab kan du köra program, ladda upp och analysera datafiler, visualisera resultat och träna enklare AI-modeller.</p>
 
     <p>Så här kommer du igång:</p>
     <ol>
@@ -205,14 +485,44 @@ print(hitta_storst([3, 7, 2, 9, 4]))   # → 9</code></pre>
       <li>Kör kodceller med ▶-knappen eller <kbd>Shift+Enter</kbd></li>
     </ol>
 
+    <p>Ett Colab-dokument består av <strong>kodceller</strong> och <strong>textceller</strong>. Med ”Kör alla” i menyn körs alla kodceller i tur och ordning. Om du ändrar i en kodcell måste du köra cellen igen med Play-knappen för att ändringen ska slå igenom. Nya celler skapas med knapparna ”+ Kod” och ”+ Text”.</p>
+
+    <h2>AI-assisterad kodning</h2>
+
+    <p>Med AI-assisterad kodning kan numera vem som helst programmera, utan djupa förkunskaper. I en kodcell i Colab kan du skriva kod manuellt eller ta hjälp av chattboten Gemini för att generera kod. Du beskriver med ord vad du vill att koden ska göra.</p>
+
+    <p>Ett bra sätt att lära sig AI är att göra egna laborationer och lära sig genom att testa, så kallad <em>tinkering</em>. Du behöver inte börja med ett tomt dokument. Be i stället AI:n skapa ett första utkast, till exempel:</p>
+
+    <div class="fact-box">
+      <strong>Exempel på Colab-prompt</strong>
+      <p><em>”Skapa en laboration om klassificering med ett påhittat dataset om ungdomars mobilanvändande och studieresultat. Jag vill att labben ska fungera i Colab, att koden förklaras pedagogiskt och att det finns frågor som passar nybörjare i AI.”</em></p>
+      <p>Med en sådan prompt ber du inte bara om kod, utan om en hel laboration med tydliga steg och frågor.</p>
+    </div>
+
+    <p>När laborationen är klar kan du köra den direkt i Colab. Är något för svårt? Be AI:n förenkla, skriva fler kommentarer eller förklara varje steg. Du kan också be om extra uppgifter: ändra en variabel, byta modell eller använda fler datapunkter. Så kan du börja enkelt och utveckla labben stegvis.</p>
+
+    <p>Det viktiga är att använda AI:n som en hjälpreda, inte som en genväg. Målet är att du ska förstå vad koden gör. Läs igenom varje kodförslag, kör det steg för steg och fråga dig själv: ”Varför gör vi det här?” Då blir varje laboration ett träningspass i både AI-promptning och programmering.</p>
+
+    <section class="exercise">
+      <span class="exercise-label">Övning</span>
+      <h4>Reflektera över AI-assisterad kodning</h4>
+      <p class="instruction">Fundera själv eller diskutera i par.</p>
+      <details class="think-box">
+        <summary>Fundera: Lär man sig programmera om AI:n skriver koden åt en?</summary>
+        <p>Vad är skillnaden mellan att använda AI som hjälpreda och som genväg? Hur kan du kontrollera att du faktiskt förstår koden som AI:n genererat? Prova idén: be en AI förklara en kodrad du inte förstår – hjälpte förklaringen dig, eller hade du lärt dig mer av att felsöka själv?</p>
+      </details>
+    </section>
+
     <div class="summary-box">
       <h3>Sammanfattning</h3>
       <ul>
         <li>Python är det dominerande språket för AI – lättläst och med kraftfulla bibliotek som NumPy, Pandas och TensorFlow.</li>
         <li>Variabler lagrar data, villkor styr flödet, loopar upprepar kod och funktioner gör koden återanvändbar.</li>
-        <li>En algoritm är en steg-för-steg-instruktion med tre krav: korrekthet, effektivitet och tydlighet.</li>
-        <li>Sökalgoritmer (BFS, DFS, A*, Minimax) är grunden för planering och spelande AI.</li>
-        <li>Google Colab låter dig köra Python i webbläsaren utan installation.</li>
+        <li>En algoritm är ett tydligt, systematiskt recept steg för steg – och den måste alltid ta slut.</li>
+        <li>Människor löser problem med mönsterigenkänning och intuition; AI förlitar sig helt på algoritmer och logik. Tillsammans kompletterar de varandra.</li>
+        <li>Sökalgoritmer (BFS, DFS, girig sökning, A*, Minimax) navigerar i problemdomäner beskrivna som träd eller grafer.</li>
+        <li>Heuristik är datorns ”magkänsla” – tumregler som gör stora sökproblem hanterbara.</li>
+        <li>Google Colab låter dig köra Python i webbläsaren, och med AI-assistans kan du skapa egna laborationer utan djupa förkunskaper.</li>
       </ul>
     </div>
 
@@ -224,7 +534,11 @@ print(hitta_storst([3, 7, 2, 9, 4]))   # → 9</code></pre>
         <div class="concept-item"><strong>Loop</strong><p>En kodstruktur som upprepar ett block ett antal gånger eller tills ett villkor är falskt.</p></div>
         <div class="concept-item"><strong>Funktion</strong><p>Namngivet, återanvändbart kodblock som kan anropas med olika argument.</p></div>
         <div class="concept-item"><strong>Bibliotek</strong><p>Samling färdigskriven och testad kod som kan importeras i egna program.</p></div>
-        <div class="concept-item"><strong>A*</strong><p>Effektiv sökalgoritm som kombinerar faktisk kostnad med en heuristisk uppskattning.</p></div>
+        <div class="concept-item"><strong>Pseudokod</strong><p>Programmeringslikt språk för att beskriva en algoritm utan att låsa sig till ett programspråk.</p></div>
+        <div class="concept-item"><strong>Problemdomän</strong><p>Den formellt beskrivna värld ett sökproblem existerar i, ofta som träd eller graf.</p></div>
+        <div class="concept-item"><strong>Heuristik</strong><p>Tumregel som uppskattar hur nära målet ett tillstånd verkar vara.</p></div>
+        <div class="concept-item"><strong>A*</strong><p>Effektiv sökalgoritm som kombinerar faktisk kostnad med en heuristisk uppskattning: f(n) = g(n) + h(n).</p></div>
+        <div class="concept-item"><strong>Minimax</strong><p>Spelalgoritm som väljer bästa drag under antagandet att motståndaren spelar optimalt.</p></div>
       </div>
     </div>
 
