@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Yatzy – Poängräknare</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --card: #ffffff;
+    --ink: #2b2b2b;
+    --accent: #c0392b;
+    --accent-dark: #96281b;
+    --green: #27ae60;
+    --gold: #f1c40f;
+    --grid: #d8d2c4;
+    --section: #efe9dc;
+    --muted: #8a8577;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding-bottom: 90px;
+  }
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  }
+  header h1 { font-size: 1.25rem; letter-spacing: .5px; }
+  header h1 .dice { font-size: 1.3rem; margin-right: 4px; }
+  .header-btns { display: flex; gap: 8px; }
+  .hbtn {
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.4);
+    color: #fff;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .hbtn:active { background: rgba(255,255,255,.35); }
+
+  .players-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--card);
+    border-bottom: 1px solid var(--grid);
+    font-size: .9rem;
+  }
+  .players-bar .count { font-weight: 700; min-width: 70px; text-align: center; }
+  .pbtn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 700;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .pbtn:disabled { background: var(--grid); color: var(--muted); }
+  .players-bar .hint { color: var(--muted); font-size: .78rem; margin-left: auto; text-align: right; }
+
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 320px;
+    background: var(--card);
+  }
+  th, td {
+    border: 1px solid var(--grid);
+    text-align: center;
+    font-size: .85rem;
+  }
+  th.cat, td.cat {
+    position: sticky;
+    left: 0;
+    background: var(--section);
+    text-align: left;
+    padding: 8px 8px;
+    font-weight: 600;
+    min-width: 108px;
+    max-width: 128px;
+    z-index: 10;
+    font-size: .8rem;
+    line-height: 1.15;
+  }
+  td.cat small { display: block; color: var(--muted); font-weight: 400; font-size: .66rem; }
+  thead th {
+    background: var(--accent);
+    color: #fff;
+    padding: 6px 4px;
+    z-index: 20;
+  }
+  thead th.cat { background: var(--accent-dark); color: #fff; z-index: 25; }
+  thead input {
+    width: 100%;
+    min-width: 62px;
+    border: none;
+    background: rgba(255,255,255,.15);
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    font-size: .85rem;
+    padding: 6px 2px;
+  }
+  thead input::placeholder { color: rgba(255,255,255,.7); }
+  thead input:focus { outline: 2px solid var(--gold); background: rgba(255,255,255,.25); }
+
+  td.cell { padding: 0; min-width: 64px; }
+  td.cell select {
+    width: 100%;
+    height: 42px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    text-align-last: center;
+    font-size: .95rem;
+    font-weight: 600;
+    color: var(--ink);
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+  td.cell select:focus { outline: 2px solid var(--accent); }
+  td.cell select.filled { background: #eef7ef; color: #1e7a45; }
+  td.cell select.crossed { background: #f7eeee; color: var(--accent); }
+
+  tr.sumrow td, tr.sumrow th { background: var(--section); font-weight: 700; padding: 8px 4px; }
+  tr.bonusrow td.ok { color: var(--green); font-weight: 800; }
+  tr.bonusrow td.miss { color: var(--muted); }
+  tr.totalrow td, tr.totalrow th.cat {
+    background: var(--ink);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+    padding: 10px 4px;
+  }
+  tr.totalrow td.leader { background: var(--green); }
+
+  .winner-banner {
+    display: none;
+    margin: 14px 12px;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--gold), #e67e22);
+    border-radius: 14px;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #5b3a00;
+    box-shadow: 0 4px 14px rgba(0,0,0,.15);
+    animation: pop .4s ease;
+  }
+  .winner-banner.show { display: block; }
+  .winner-banner .big { font-size: 1.6rem; display: block; margin-bottom: 4px; }
+  @keyframes pop { from { transform: scale(.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .progress {
+    margin: 10px 16px;
+    font-size: .8rem;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--grid);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    display: flex;
+    gap: 10px;
+    z-index: 30;
+  }
+  .fbtn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: .95rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .fbtn.reset { background: #fdecea; color: var(--accent); }
+  .fbtn.reset:active { background: #f9d2cd; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span class="dice">🎲</span>Yatzy</h1>
+  <div class="header-btns">
+    <button class="hbtn" id="btnNew">Ny omgång</button>
+  </div>
+</header>
+
+<div class="players-bar">
+  <button class="pbtn" id="btnMinus">−</button>
+  <div class="count"><span id="playerCount">2</span> spelare</div>
+  <button class="pbtn" id="btnPlus">+</button>
+  <div class="hint">Tryck på ett namn<br>för att ändra det</div>
+</div>
+
+<div class="winner-banner" id="winnerBanner"></div>
+<div class="progress" id="progress"></div>
+
+<div class="table-wrap">
+  <table id="scoreTable">
+    <thead><tr id="headRow"><th class="cat">Spelare</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<footer>
+  <button class="fbtn reset" id="btnReset">Nollställ poäng</button>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var MAXP = 6, MINP = 1;
+  var STORAGE_KEY = 'yatzy6-v1';
+
+  function range(mult, from, to) {
+    var a = [];
+    for (var i = from; i <= to; i++) a.push(i * mult);
+    return a;
+  }
+  function twoPairValues() {
+    var s = {};
+    for (var a = 1; a <= 6; a++)
+      for (var b = a + 1; b <= 6; b++)
+        s[2 * a + 2 * b] = true;
+    return Object.keys(s).map(Number).sort(function (x, y) { return x - y; });
+  }
+  function fullHouseValues() {
+    var s = {};
+    for (var a = 1; a <= 6; a++)
+      for (var b = 1; b <= 6; b++)
+        if (a !== b) s[3 * a + 2 * b] = true;
+    return Object.keys(s).map(Number).sort(function (x, y) { return x - y; });
+  }
+
+  // Kategorier i svensk yatzy
+  var UPPER = [
+    { id: 'ettor',  name: 'Ettor',  hint: 'Summa av alla 1:or', values: range(1, 1, 5) },
+    { id: 'tvaor',  name: 'Tvåor',  hint: 'Summa av alla 2:or', values: range(2, 1, 5) },
+    { id: 'treor',  name: 'Treor',  hint: 'Summa av alla 3:or', values: range(3, 1, 5) },
+    { id: 'fyror',  name: 'Fyror',  hint: 'Summa av alla 4:or', values: range(4, 1, 5) },
+    { id: 'femmor', name: 'Femmor', hint: 'Summa av alla 5:or', values: range(5, 1, 5) },
+    { id: 'sexor',  name: 'Sexor',  hint: 'Summa av alla 6:or', values: range(6, 1, 5) }
+  ];
+  var LOWER = [
+    { id: 'par',        name: 'Ett par',      hint: 'Två lika',            values: range(2, 1, 6) },
+    { id: 'tvapar',     name: 'Två par',      hint: 'Två olika par',       values: twoPairValues() },
+    { id: 'triss',      name: 'Triss',        hint: 'Tre lika',            values: range(3, 1, 6) },
+    { id: 'fyrtal',     name: 'Fyrtal',       hint: 'Fyra lika',           values: range(4, 1, 6) },
+    { id: 'litenstege', name: 'Liten stege',  hint: '1-2-3-4-5 = 15 p',    values: [15] },
+    { id: 'storstege',  name: 'Stor stege',   hint: '2-3-4-5-6 = 20 p',    values: [20] },
+    { id: 'kak',        name: 'Kåk',          hint: 'Triss + par',         values: fullHouseValues() },
+    { id: 'chans',      name: 'Chans',        hint: 'Summa av alla tärningar', values: range(1, 5, 30) },
+    { id: 'yatzy',      name: 'YATZY',        hint: 'Fem lika = 50 p',     values: [50] }
+  ];
+  var ALL = UPPER.concat(LOWER);
+  var BONUS_LIMIT = 63, BONUS = 50;
+
+  // state.scores[p][catId] = null (tomt) | -1 (struket) | poäng
+  var state = load() || freshState(2);
+
+  function freshState(n) {
+    var s = { players: [], scores: [] };
+    for (var i = 0; i < n; i++) {
+      s.players.push('');
+      s.scores.push(emptyScore());
+    }
+    return s;
+  }
+  function emptyScore() {
+    var o = {};
+    ALL.forEach(function (c) { o[c.id] = null; });
+    return o;
+  }
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      var s = JSON.parse(raw);
+      if (!s || !Array.isArray(s.players) || !Array.isArray(s.scores) || s.players.length < 1) return null;
+      return s;
+    } catch (e) { return null; }
+  }
+
+  function playerName(i) {
+    return state.players[i] && state.players[i].trim() ? state.players[i].trim() : 'Spelare ' + (i + 1);
+  }
+  function upperSum(p) {
+    var sum = 0;
+    UPPER.forEach(function (c) {
+      var v = state.scores[p][c.id];
+      if (v !== null && v > 0) sum += v;
+    });
+    return sum;
+  }
+  function bonus(p) { return upperSum(p) >= BONUS_LIMIT ? BONUS : 0; }
+  function total(p) {
+    var sum = upperSum(p) + bonus(p);
+    LOWER.forEach(function (c) {
+      var v = state.scores[p][c.id];
+      if (v !== null && v > 0) sum += v;
+    });
+    return sum;
+  }
+  function filledCount(p) {
+    var n = 0;
+    ALL.forEach(function (c) { if (state.scores[p][c.id] !== null) n++; });
+    return n;
+  }
+  function allDone() {
+    for (var p = 0; p < state.players.length; p++)
+      if (filledCount(p) < ALL.length) return false;
+    return true;
+  }
+
+  // ---------- Bygg tabellen ----------
+  function build() {
+    var n = state.players.length;
+    document.getElementById('playerCount').textContent = n;
+    document.getElementById('btnMinus').disabled = n <= MINP;
+    document.getElementById('btnPlus').disabled = n >= MAXP;
+
+    var head = document.getElementById('headRow');
+    head.innerHTML = '<th class="cat">Spelare</th>';
+    for (var p = 0; p < n; p++) {
+      var th = document.createElement('th');
+      var inp = document.createElement('input');
+      inp.type = 'text';
+      inp.maxLength = 12;
+      inp.placeholder = 'Spelare ' + (p + 1);
+      inp.value = state.players[p];
+      inp.dataset.p = p;
+      inp.addEventListener('input', function () {
+        state.players[+this.dataset.p] = this.value;
+        save(); updateComputed();
+      });
+      th.appendChild(inp);
+      head.appendChild(th);
+    }
+
+    var tbody = document.getElementById('tbody');
+    tbody.innerHTML = '';
+
+    UPPER.forEach(function (c) { tbody.appendChild(catRow(c, n)); });
+    tbody.appendChild(computedRow('sumrow', 'sumUpper', 'Summa', 'Ettor–Sexor', n));
+    tbody.appendChild(computedRow('sumrow bonusrow', 'bonusCell', 'Bonus', 'Minst 63 p ger +50', n));
+    LOWER.forEach(function (c) { tbody.appendChild(catRow(c, n)); });
+    tbody.appendChild(computedRow('totalrow', 'totalCell', 'TOTALT', '', n));
+
+    updateComputed();
+  }
+
+  function catRow(c, n) {
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.className = 'cat';
+    td.innerHTML = c.name + (c.hint ? '<small>' + c.hint + '</small>' : '');
+    tr.appendChild(td);
+    for (var p = 0; p < n; p++) tr.appendChild(cellTd(c, p));
+    return tr;
+  }
+
+  function cellTd(c, p) {
+    var td = document.createElement('td');
+    td.className = 'cell';
+    var sel = document.createElement('select');
+    sel.dataset.p = p;
+    sel.dataset.cat = c.id;
+
+    var opt = document.createElement('option');
+    opt.value = ''; opt.textContent = '·';
+    sel.appendChild(opt);
+
+    opt = document.createElement('option');
+    opt.value = '-1'; opt.textContent = '— (stryk)';
+    sel.appendChild(opt);
+
+    c.values.forEach(function (v) {
+      var o = document.createElement('option');
+      o.value = v; o.textContent = v;
+      sel.appendChild(o);
+    });
+
+    var cur = state.scores[p][c.id];
+    if (cur !== null) sel.value = String(cur === 0 ? -1 : cur);
+    styleSelect(sel);
+
+    sel.addEventListener('change', function () {
+      var pp = +this.dataset.p, cid = this.dataset.cat;
+      if (this.value === '') state.scores[pp][cid] = null;
+      else if (this.value === '-1') state.scores[pp][cid] = 0;
+      else state.scores[pp][cid] = +this.value;
+      styleSelect(this);
+      save(); updateComputed();
+    });
+
+    td.appendChild(sel);
+    return td;
+  }
+
+  function styleSelect(sel) {
+    sel.classList.remove('filled', 'crossed');
+    if (sel.value === '-1') sel.classList.add('crossed');
+    else if (sel.value !== '') sel.classList.add('filled');
+    if (sel.value === '-1') {
+      // visa bara strecket i cellen när det är valt
+      sel.options[1].textContent = '—';
+    } else {
+      sel.options[1].textContent = '— (stryk)';
+    }
+  }
+
+  function computedRow(cls, cellCls, label, hint, n) {
+    var tr = document.createElement('tr');
+    tr.className = cls;
+    var th = document.createElement(cls.indexOf('totalrow') >= 0 ? 'th' : 'td');
+    th.className = 'cat';
+    th.innerHTML = label + (hint ? '<small>' + hint + '</small>' : '');
+    tr.appendChild(th);
+    for (var p = 0; p < n; p++) {
+      var td = document.createElement('td');
+      td.className = cellCls;
+      td.dataset.p = p;
+      tr.appendChild(td);
+    }
+    return tr;
+  }
+
+  // ---------- Uppdatera uträkningar ----------
+  function updateComputed() {
+    var n = state.players.length;
+    var totals = [];
+    for (var p = 0; p < n; p++) totals.push(total(p));
+    var max = Math.max.apply(null, totals);
+
+    document.querySelectorAll('.sumUpper').forEach(function (td) {
+      var p = +td.dataset.p;
+      var s = upperSum(p);
+      td.textContent = s + ' / ' + BONUS_LIMIT;
+    });
+    document.querySelectorAll('.bonusCell').forEach(function (td) {
+      var p = +td.dataset.p;
+      var b = bonus(p);
+      td.textContent = b > 0 ? '+50 ✓' : '0';
+      td.className = 'bonusCell ' + (b > 0 ? 'ok' : 'miss');
+      td.dataset.p = p;
+    });
+    document.querySelectorAll('.totalCell').forEach(function (td) {
+      var p = +td.dataset.p;
+      td.textContent = totals[p];
+      td.classList.toggle('leader', totals[p] === max && totals[p] > 0 && n > 1);
+    });
+
+    // Progress
+    var filled = 0;
+    for (p = 0; p < n; p++) filled += filledCount(p);
+    var totalCells = n * ALL.length;
+    document.getElementById('progress').textContent =
+      filled + ' av ' + totalCells + ' rutor ifyllda';
+
+    // Vinnare
+    var banner = document.getElementById('winnerBanner');
+    if (allDone()) {
+      var winners = [];
+      for (p = 0; p < n; p++) if (totals[p] === max) winners.push(playerName(p));
+      if (n === 1) {
+        banner.innerHTML = '<span class="big">🏁 Klart!</span>' + playerName(0) + ' fick ' + max + ' poäng';
+      } else if (winners.length === 1) {
+        banner.innerHTML = '<span class="big">🏆 ' + esc(winners[0]) + ' vinner!</span>' + max + ' poäng';
+      } else {
+        banner.innerHTML = '<span class="big">🤝 Oavgjort!</span>' + esc(winners.join(' & ')) + ' – ' + max + ' poäng var';
+      }
+      banner.classList.add('show');
+    } else {
+      banner.classList.remove('show');
+    }
+  }
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // ---------- Knappar ----------
+  document.getElementById('btnPlus').addEventListener('click', function () {
+    if (state.players.length >= MAXP) return;
+    state.players.push('');
+    state.scores.push(emptyScore());
+    save(); build();
+  });
+  document.getElementById('btnMinus').addEventListener('click', function () {
+    if (state.players.length <= MINP) return;
+    var i = state.players.length - 1;
+    if (filledCount(i) > 0 || state.players[i].trim()) {
+      if (!confirm('Ta bort ' + playerName(i) + '? Spelarens poäng försvinner.')) return;
+    }
+    state.players.pop();
+    state.scores.pop();
+    save(); build();
+  });
+  document.getElementById('btnReset').addEventListener('click', function () {
+    if (!confirm('Nollställa alla poäng? Namnen behålls.')) return;
+    state.scores = state.players.map(emptyScore);
+    save(); build();
+  });
+  document.getElementById('btnNew').addEventListener('click', function () {
+    if (!confirm('Starta ny omgång? Alla namn och poäng rensas.')) return;
+    state = freshState(2);
+    save(); build();
+  });
+
+  build();
+})();
+</script>
+</body>
+</html>
