@@ -1,0 +1,283 @@
+import Anthropic from "@anthropic-ai/sdk";
+
+import { ankaramneByKod, vavAmneById } from "./amnen";
+import { byggGrundning } from "./skolverket";
+import type { Arbetsomrade, Grundning } from "./types";
+
+// Standardmodell: Haiku är snabb nog att hinna generera inom Vercels
+// funktionsgräns (60s på Hobby-planen). Vill man ha Sonnet (högre kvalitet)
+// sätts ANTHROPIC_MODEL – men då kan generering ibland slå i 60s-taket om man
+// inte har en plan med längre maxDuration.
+const MODELL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001";
+const MAX_TOKENS = 3000;
+
+const SYSTEMPROMPT = `Du är en erfaren svensk högstadielärare och läroplansexpert (Lgr22). Din uppgift är att föreslå ämnesövergripande arbetsområden för årskurs 7–9 som binder ihop ett ankarämne med ett antal andra ämnen, utifrån ett tema läraren skriver in.
+
+Regler:
+- Förankra VARJE förslag i den medskickade Skolverket-datan (centralt innehåll och betygskriterier för årskurs 7–9). Hitta INTE på innehåll som inte finns i underlaget.
+- Åldersanpassa till elever cirka 13–16 år: konkreta, begripliga uppgifter som utgår från elevernas vardag, intressen och nyfikenhet – inte akademisk abstraktion.
+- Skriv allt på svenska, konkret och direkt. Korta, tydliga meningar.
+- GDPR: inga personuppgifter om elever ska förekomma.
+- Returnera ENBART giltig JSON enligt schemat – ingen markdown, inga kodstaket, ingen inledande eller avslutande text.
+
+Returnera ett JSON-objekt med exakt denna form:
+{
+  "arbetsomraden": [
+    {
+      "titel": "kort, konkret titel",
+      "kort_beskrivning": "1–2 meningar om arbetsområdet",
+      "berorda_amnen": ["Svenska", "Historia"],
+      "koppling_centralt_innehall": "vilket centralt innehåll/betygskriterier det vilar på, hämtat från Skolverket-datan",
+      "varfor_passar_eleverna": "varför detta engagerar elever i årskurs 7–9, kopplat till deras vardag och intressen",
+      "elevuppgift": "en konkret uppgift eleverna gör",
+      "bedomningside": "kort förslag på hur det kan bedömas"
+    }
+  ]
+}
+
+Generera exakt 3 arbetsområden i "arbetsomraden". Håll varje textfält kort och konkret: 1–2 meningar per fält, inga punktlistor. Det är viktigt att svaret är komplett och giltig JSON.`;
+
+// Verktyg som tvingar fram strukturerad, garanterat giltig JSON-output.
+const ARBETSOMRADEN_TOOL: Anthropic.Tool = {
+  name: "lamna_arbetsomraden",
+  description:
+    "Returnera de genererade ämnesövergripande arbetsområdena som strukturerad data.",
+  input_schema: {
+    type: "object",
+    properties: {
+      arbetsomraden: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            titel: { type: "string" },
+            kort_beskrivning: { type: "string" },
+            berorda_amnen: { type: "array", items: { type: "string" } },
+            koppling_centralt_innehall: { type: "string" },
+            varfor_passar_eleverna: { type: "string" },
+            elevuppgift: { type: "string" },
+            bedomningside: { type: "string" },
+          },
+          required: [
+            "titel",
+            "kort_beskrivning",
+            "berorda_amnen",
+            "koppling_centralt_innehall",
+            "varfor_passar_eleverna",
+            "elevuppgift",
+            "bedomningside",
+          ],
+        },
+      },
+    },
+    required: ["arbetsomraden"],
+  },
+};
+
+function byggUnderlag(
+  ankaramneKod: string,
+  tema: string,
+  amnesIds: string[],
+  grundning: Grundning,
+): string {
+  const ankarNamn = ankaramneByKod(ankaramneKod)?.namn ?? ankaramneKod;
+  const amnesNamn = amnesIds
+    .map((id) => vavAmneById(id)?.namn ?? id)
+    .join(", ");
+
+  const rader: string[] = [];
+  rader.push(`ANKARÄMNE: ${ankarNamn}`);
+  rader.push(`TEMA: ${tema}`);
+  rader.push(`VALDA ÄMNEN ATT VÄVA IN: ${amnesNamn}`);
+  rader.push(`ÅRSKURS: 7–9`);
+  rader.push("");
+
+  if (grundning.ankaramne) {
+    const a = grundning.ankaramne;
+    rader.push(`SKOLVERKET – ANKARÄMNE ${a.subjectNamn} (Lgr22, åk 7–9):`);
+    for (const ci of a.centraltInnehall) rader.push(`  • CI: ${ci}`);
+    for (const bk of a.betygskriterier) rader.push(`  • Betygskriterier: ${bk}`);
+    rader.push("");
+  }
+
+  if (grundning.vavAmnen.length) {
+    rader.push("SKOLVERKET – VALDA ÄMNEN (Lgr22, åk 7–9):");
+    for (const a of grundning.vavAmnen) {
+      rader.push(`- ${a.subjectNamn}:`);
+      for (const ci of a.centraltInnehall.slice(0, 4))
+        rader.push(`    • CI: ${ci}`);
+      for (const bk of a.betygskriterier.slice(0, 2))
+        rader.push(`    • Betygskriterier: ${bk}`);
+    }
+    rader.push("");
+  }
+
+  rader.push(
+    "Utifrån detta underlag: skapa exakt 3 ämnesövergripande arbetsområden för årskurs 7–9 som binder ihop ankarämnet och temat med de valda ämnena. Varje arbetsområde ska tydligt visa vilka ämnen det binder ihop och vila på det centrala innehållet ovan. Håll fälten korta (1–2 meningar). Svara endast med komplett, giltig JSON.",
+  );
+
+  return rader.join("\n");
+}
+
+/** Plockar ut och parsar JSON även om modellen råkar lägga text/kodstaket runt. */
+export function parseArbetsomraden(text: string): Arbetsomrade[] {
+  let t = text.trim();
+
+  // Ta bort ev. markdown-kodstaket.
+  const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) t = fence[1].trim();
+
+  const kandidater: string[] = [];
+  kandidater.push(t);
+
+  // Första {...} eller [...]-blocket.
+  const objMatch = t.match(/\{[\s\S]*\}/);
+  if (objMatch) kandidater.push(objMatch[0]);
+  const arrMatch = t.match(/\[[\s\S]*\]/);
+  if (arrMatch) kandidater.push(arrMatch[0]);
+
+  for (const k of kandidater) {
+    try {
+      const data = JSON.parse(k);
+      const lista = Array.isArray(data) ? data : data?.arbetsomraden;
+      if (Array.isArray(lista) && lista.length) {
+        return lista.map(normaliseraArbetsomrade);
+      }
+    } catch {
+      /* prova nästa kandidat */
+    }
+  }
+
+  // Räddningsförsök vid trunkerat svar (t.ex. om max_tokens nåddes): plocka ut
+  // alla kompletta objekt i "arbetsomraden"-arrayen via balanserade klamrar.
+  const raddade = salvageObjekt(t);
+  if (raddade.length) return raddade.map(normaliseraArbetsomrade);
+
+  throw new Error("Kunde inte tolka modellens svar som JSON.");
+}
+
+/** Extraherar alla kompletta, balanserade {…}-objekt ur en (ev. trunkerad) text. */
+function salvageObjekt(text: string): unknown[] {
+  const objekt: unknown[] = [];
+  let djup = 0;
+  let start = -1;
+  let iStrang = false;
+  let escaped = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (iStrang) {
+      if (escaped) escaped = false;
+      else if (c === "\\") escaped = true;
+      else if (c === '"') iStrang = false;
+      continue;
+    }
+    if (c === '"') iStrang = true;
+    else if (c === "{") {
+      if (djup === 0) start = i;
+      djup++;
+    } else if (c === "}") {
+      djup--;
+      if (djup === 0 && start >= 0) {
+        try {
+          const o = JSON.parse(text.slice(start, i + 1));
+          if (o && typeof o === "object" && "titel" in o) objekt.push(o);
+        } catch {
+          /* hoppa över ofullständigt objekt */
+        }
+        start = -1;
+      }
+    }
+  }
+  return objekt;
+}
+
+function strOf(v: unknown): string {
+  return typeof v === "string" ? v.trim() : "";
+}
+
+function normaliseraArbetsomrade(raw: unknown): Arbetsomrade {
+  const o = (raw ?? {}) as Record<string, unknown>;
+  const amnen = o.berorda_amnen;
+  return {
+    titel: strOf(o.titel),
+    kort_beskrivning: strOf(o.kort_beskrivning),
+    berorda_amnen: Array.isArray(amnen)
+      ? amnen.map((x) => strOf(x)).filter(Boolean)
+      : strOf(amnen)
+        ? [strOf(amnen)]
+        : [],
+    koppling_centralt_innehall: strOf(o.koppling_centralt_innehall),
+    varfor_passar_eleverna: strOf(o.varfor_passar_eleverna),
+    elevuppgift: strOf(o.elevuppgift),
+    bedomningside: strOf(o.bedomningside),
+  };
+}
+
+export interface GenereraResultat {
+  arbetsomraden: Arbetsomrade[];
+  kallor: string[];
+}
+
+export async function generera(
+  ankaramneKod: string,
+  tema: string,
+  amnesIds: string[],
+): Promise<GenereraResultat> {
+  const rawKey = process.env.ANTHROPIC_API_KEY;
+  if (!rawKey || !rawKey.trim()) {
+    throw new Error(
+      "ANTHROPIC_API_KEY saknas. Lägg in den som server-side miljövariabel.",
+    );
+  }
+  const apiKey = rawKey.trim();
+  // Vanligt misstag: hela curl-exemplet från dokumentationen klistras in i
+  // stället för enbart nyckeln. Då innehåller värdet blanksteg/radbrytningar
+  // som gör att HTTP-headern blir ogiltig. Fånga det med ett tydligt fel –
+  // och eka ALDRIG tillbaka själva värdet (det kan innehålla nyckeln).
+  if (/\s/.test(apiKey) || !apiKey.startsWith("sk-")) {
+    throw new Error(
+      "ANTHROPIC_API_KEY ser felaktig ut: värdet ska vara ENBART nyckeln " +
+        "(börjar med sk-ant-…), utan extra text, citattecken eller radbrytningar.",
+    );
+  }
+
+  const grundning = await byggGrundning(ankaramneKod, amnesIds);
+  const underlag = byggUnderlag(ankaramneKod, tema, amnesIds, grundning);
+
+  // Inga retries (en retry kan dubbla tiden och slå i funktionsgränsen) och
+  // timeout strax under maxDuration (60s) så vi får ett tydligt fel i stället
+  // för en plattforms-timeout (504).
+  const client = new Anthropic({ apiKey, timeout: 57_000, maxRetries: 0 });
+  const svar = await client.messages.create({
+    model: MODELL,
+    max_tokens: MAX_TOKENS,
+    system: SYSTEMPROMPT,
+    messages: [{ role: "user", content: underlag }],
+    // Tvinga strukturerad output via "tool use" → modellen returnerar ett
+    // redan parsat objekt, vilket eliminerar bräcklig JSON-textparsning.
+    tools: [ARBETSOMRADEN_TOOL],
+    tool_choice: { type: "tool", name: ARBETSOMRADEN_TOOL.name },
+  });
+
+  // Läs i första hand det strukturerade tool-svaret.
+  const toolBlock = svar.content.find(
+    (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+  );
+  if (toolBlock) {
+    const input = toolBlock.input as { arbetsomraden?: unknown };
+    if (Array.isArray(input?.arbetsomraden) && input.arbetsomraden.length) {
+      return {
+        arbetsomraden: input.arbetsomraden.map(normaliseraArbetsomrade),
+        kallor: grundning.kallor,
+      };
+    }
+  }
+
+  // Fallback: ev. textsvar (om modellen mot förmodan svarar i text).
+  const text = svar.content
+    .filter((b): b is Anthropic.TextBlock => b.type === "text")
+    .map((b) => b.text)
+    .join("\n");
+  const arbetsomraden = parseArbetsomraden(text);
+  return { arbetsomraden, kallor: grundning.kallor };
+}
