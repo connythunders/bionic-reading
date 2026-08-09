@@ -68,10 +68,36 @@ npm run dev                  # http://localhost:3000
 1. Skapa ett nytt Vercel-projekt med **Root Directory** satt till
    `amnesomraden-grundskola`.
 2. Lägg in `ANTHROPIC_API_KEY` under **Settings → Environment Variables**.
+   Klicka **Encrypt**/**Sensitive** när du sparar värdet (se nedan).
 3. Deploya. Ramverket (Next.js) detekteras automatiskt.
 
 `ANTHROPIC_API_KEY` ligger endast server-side och exponeras aldrig i
-klientkoden.
+klientkoden – den skickas aldrig till webbläsaren, oavsett vem som
+använder appen.
+
+### Dölj nyckeln för kollegor
+
+Kollegor som bara får **länken till den driftsatta appen** ser aldrig
+nyckeln – den finns bara i Vercels servermiljö, inte i sidan de öppnar i
+webbläsaren. Det som återstår är att se till att kollegor med tillgång
+till **Vercel-projektet eller GitHub-repot** inte heller kan läsa den:
+
+- **I Vercel:** när du skapar variabeln `ANTHROPIC_API_KEY` under
+  **Settings → Environment Variables**, klicka på låsikonen och välj
+  **Sensitive** (visas ibland som **Encrypt**) innan du sparar. Då krypteras
+  värdet och kan aldrig visas igen i dashboarden eller CLI:t av någon –
+  inte ens en projektägare – bara skrivas över. Går inte att slå på i
+  efterhand, så ta bort en redan sparad variabel och lägg in den på nytt
+  med Sensitive ikryssat om du redan hunnit spara den utan.
+- **Begränsa vilka som är Member/Owner** i Vercel-teamet till dem som
+  faktiskt behöver komma åt projektinställningarna. Alla andra kan bara
+  besöka appens URL.
+- **I git:** nyckeln ska aldrig committas. `.env.local` (där du lägger den
+  lokalt) är redan listad i `.gitignore` och ligger bara på din egen dator.
+  Endast `.env.example` (utan riktigt värde) checkas in.
+
+Med detta ser kollegor bara den färdiga appen – ingen av dem behöver eller
+kan se själva API-nyckeln.
 
 ## Tillgänglighet (NPF-vänligt)
 
