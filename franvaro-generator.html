@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frånvaro-generator – Vikariematerial på minuter</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --font-size: 16px;
+    --line-height: 1.6;
+    --bg: #ffffff;
+    --surface: #f8f9fa;
+    --border: #dee2e6;
+    --text: #212529;
+    --text-muted: #6c757d;
+    --accent: #0d6efd;
+    --accent-hover: #0b5ed7;
+    --success: #198754;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --radius: 8px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --transition: 0.2s ease;
+    --font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  body {
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 1rem; }
+
+  .app-header { background: var(--accent); color: white; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; border-radius: var(--radius); }
+  .app-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .app-header p { opacity: 0.88; font-size: 0.9rem; }
+
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; }
+  .section-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+  .api-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .api-row input { flex: 1; min-width: 200px; font-family: monospace; font-size: 0.9rem; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: white; color: var(--text); }
+  .api-row input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .api-status { font-size: 0.82rem; color: var(--text-muted); font-family: monospace; padding: 0.4rem 0.6rem; background: white; border: 1px solid var(--border); border-radius: var(--radius); white-space: nowrap; }
+
+  .form-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .form-group { display: flex; flex-direction: column; gap: 0.35rem; flex: 1; min-width: 200px; }
+  .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+
+  input[type="text"], select { padding: 0.55rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: white; color: var(--text); font-size: 0.95rem; font-family: inherit; }
+  select { cursor: pointer; }
+  input[type="text"]:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  textarea { width: 100%; min-height: 90px; padding: 0.7rem 0.85rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.95rem; font-family: inherit; resize: vertical; background: white; color: var(--text); line-height: var(--line-height); }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+  .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; border: none; border-radius: var(--radius); font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: var(--transition); text-align: center; white-space: nowrap; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+  .btn-secondary { background: white; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.82rem; }
+  .btn-block { width: 100%; justify-content: center; }
+
+  .loading { display: none; text-align: center; padding: 2rem; }
+  .loading.visible { display: block; }
+  .spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  .spinner-sm { width: 22px; height: 22px; border-width: 3px; margin: 0; display: inline-block; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { color: var(--text-muted); font-size: 0.95rem; }
+
+  .error-box { display: none; background: #fff5f5; border: 1px solid #fed7d7; border-radius: var(--radius); padding: 1rem 1.25rem; color: #c53030; margin-bottom: 1rem; }
+  .error-box.visible { display: block; }
+  .error-box strong { display: block; margin-bottom: 0.25rem; }
+
+  .hidden { display: none !important; }
+
+  /* ===== SYLLABUS MATCHING ===== */
+  .match-banner { background: #eef7ee; border: 1px solid #b7dfb7; border-radius: var(--radius); padding: 0.85rem 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
+  .match-banner .match-info strong { color: #1e5c1e; }
+  .match-banner .match-info span { display: block; font-size: 0.82rem; color: #3a6b3a; margin-top: 0.15rem; }
+
+  .nomatch-banner { background: #fff8e6; border: 1px solid #f0d78c; border-radius: var(--radius); padding: 0.85rem 1rem; margin-bottom: 1rem; color: #7a5b00; font-size: 0.9rem; }
+
+  .candidate-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0; }
+  .candidate-btn { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem 0.9rem; cursor: pointer; font-size: 0.88rem; text-align: left; }
+  .candidate-btn:hover { border-color: var(--accent); background: #eef4ff; }
+  .candidate-btn small { display: block; color: var(--text-muted); font-size: 0.78rem; margin-top: 0.1rem; }
+
+  .toolbar-mini { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.6rem 0 0.85rem; }
+
+  .checklist { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .checklist-heading { font-size: 0.85rem; font-weight: 700; color: var(--text); margin: 1rem 0 0.4rem; }
+  .checklist-heading:first-child { margin-top: 0; }
+  .check-item { display: flex; gap: 0.65rem; align-items: flex-start; background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 0.6rem 0.8rem; font-size: 0.9rem; cursor: pointer; }
+  .check-item:hover { border-color: var(--accent); }
+  .check-item input[type="checkbox"] { margin-top: 0.2rem; width: 17px; height: 17px; flex-shrink: 0; cursor: pointer; }
+  .check-item .item-text { flex: 1; }
+  .grade-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; padding: 0.08rem 0.42rem; border-radius: 4px; background: var(--accent); color: white; margin-right: 0.45rem; vertical-align: middle; }
+
+  /* ===== TABS / RESULTS ===== */
+  .tabs { display: flex; gap: 0.2rem; border-bottom: 2px solid var(--border); margin-bottom: 1rem; flex-wrap: wrap; }
+  .tab-btn { padding: 0.6rem 1rem; border: none; background: none; cursor: pointer; font-weight: 600; color: var(--text-muted); border-bottom: 3px solid transparent; margin-bottom: -2px; font-size: 0.88rem; }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .kk-chip { display: inline-block; font-size: 0.7rem; font-weight: 700; background: #e8f0fe; color: var(--accent); border: 1px solid #c6dafc; border-radius: 10px; padding: 0.05rem 0.55rem; margin: 0 0.3rem 0.3rem 0; cursor: help; }
+
+  .task-item, .facit-item { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 0.85rem 1rem; margin-bottom: 0.75rem; }
+  .task-item .item-num, .facit-item .item-num { font-weight: 700; color: var(--accent); margin-right: 0.3rem; }
+
+  .legend { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px dashed var(--border); font-size: 0.83rem; color: var(--text-muted); }
+  .legend-title { font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+  .legend-item { margin-bottom: 0.3rem; }
+  .legend-item b { color: var(--accent); }
+
+  .result-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 1rem 0; }
+  .result-header { margin-bottom: 1rem; }
+  .result-header h2 { font-size: 1.3rem; margin-bottom: 0.3rem; }
+  .result-header .grounding-note { font-size: 0.85rem; color: var(--text-muted); }
+
+  @media (max-width: 600px) {
+    .app-header h1 { font-size: 1.25rem; }
+  }
+
+  @media print {
+    .no-print { display: none !important; }
+    body { background: white; }
+    .container { max-width: 100%; padding: 0; }
+    .section { border: none; box-shadow: none; padding: 0; margin-bottom: 1rem; }
+    .app-header { background: white !important; color: black !important; }
+    .tab-panel { display: block !important; }
+    .tabs { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="app-header no-print">
+    <h1>Frånvaro-generator</h1>
+    <p>Skapa vikariematerial på minuter – kopplat till Skolverkets kunskapskrav</p>
+  </header>
+
+  <div class="error-box no-print" id="error-box" role="alert" aria-live="polite"></div>
+
+  <!-- API KEY -->
+  <section class="section no-print" id="api-section">
+    <div class="section-title">API-nyckel (Anthropic)</div>
+    <div class="api-row">
+      <input type="password" id="api-key-input" placeholder="Klistra in din Anthropic API-nyckel (sk-ant-...)" autocomplete="off" aria-label="API-nyckel">
+      <button class="btn btn-secondary btn-sm" id="api-save-btn" onclick="saveApiKey()">Spara</button>
+      <button class="btn btn-secondary btn-sm" id="api-clear-btn" onclick="clearApiKey()" style="display:none">Rensa</button>
+      <span class="api-status" id="api-status" style="display:none"></span>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.5rem;">Nyckeln sparas bara i din webbläsare (localStorage). Ingen data skickas till någon annan server än Anthropic och Skolverkets öppna API.</p>
+  </section>
+
+  <!-- STEP 1: LESSON INFO -->
+  <section class="section no-print" id="lesson-section">
+    <div class="section-title">1. Om lektionen</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="subject-input">Ämne eller kurs</label>
+        <input type="text" id="subject-input" placeholder="T.ex. Geografi 1, Svenska, Matematik 2b, SO...">
+      </div>
+      <div class="form-group">
+        <label for="stadium-select">Skolform / stadium</label>
+        <select id="stadium-select">
+          <option value="7-9">Grundskola, åk 7–9</option>
+          <option value="4-6">Grundskola, åk 4–6</option>
+          <option value="1-3">Grundskola, åk 1–3</option>
+          <option value="gymnasiet">Gymnasiet</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="duration-select">Lektionens längd</label>
+        <select id="duration-select">
+          <option value="40">40 minuter</option>
+          <option value="60" selected>60 minuter</option>
+          <option value="80">80 minuter</option>
+          <option value="120">120 minuter</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:0.75rem;">
+      <label for="context-input">Vad jobbar klassen med just nu? (valfritt, men rekommenderas)</label>
+      <textarea id="context-input" placeholder="T.ex. Vi har precis börjat med ett arbetsområde om Norden och läser om klimat och naturresurser."></textarea>
+    </div>
+    <div class="form-group" style="margin-bottom:1rem;">
+      <label for="extra-input">Extra instruktioner till vikarien (valfritt)</label>
+      <textarea id="extra-input" style="min-height:60px;" placeholder="T.ex. Klassen sitter i grupper om fyra. Projektorn styrs med fjärrkontrollen på katedern."></textarea>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-primary" id="search-btn" onclick="searchSyllabus()">Sök kunskapskrav</button>
+      <button class="btn btn-secondary" onclick="proceedWithoutSyllabus()">Hoppa över – generera utan kunskapskrav</button>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-muted);">Steget ovan hämtar centralt innehåll och kunskapskrav från Skolverkets öppna Syllabus-API, så att uppgiften tydligt kan kopplas till kursplanen. Helt valfritt.</p>
+  </section>
+
+  <!-- STEP 2: SYLLABUS RESULT -->
+  <section class="section no-print hidden" id="syllabus-section">
+    <div class="section-title">2. Kunskapskrav från Skolverket</div>
+    <div id="syllabus-searching" class="hidden" style="text-align:center;padding:1rem;">
+      <div class="spinner spinner-sm"></div>
+      <span style="margin-left:0.5rem;color:var(--text-muted);">Söker i Skolverkets kursplaner...</span>
+    </div>
+    <div id="syllabus-content"></div>
+    <div class="result-actions">
+      <button class="btn btn-primary" id="generate-btn" onclick="continueToGeneration()">Generera material</button>
+    </div>
+  </section>
+
+  <!-- GENERATING -->
+  <section class="section no-print loading" id="generating-section">
+    <div class="spinner"></div>
+    <p id="generating-text">AI:n skapar vikariematerial...</p>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="section hidden" id="results-section">
+    <div class="result-header">
+      <h2 id="result-title">Vikariematerial</h2>
+      <p class="grounding-note" id="grounding-note"></p>
+    </div>
+
+    <div class="tabs no-print">
+      <button class="tab-btn active" data-tab="tab-instruktioner" onclick="switchTab('tab-instruktioner')">Instruktioner till vikarien</button>
+      <button class="tab-btn" data-tab="tab-elevuppgift" onclick="switchTab('tab-elevuppgift')">Elevuppgift</button>
+      <button class="tab-btn" data-tab="tab-facit" onclick="switchTab('tab-facit')">Facit</button>
+      <button class="tab-btn" data-tab="tab-buffert" onclick="switchTab('tab-buffert')">Buffertaktivitet</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-instruktioner"></div>
+    <div class="tab-panel" id="tab-elevuppgift"></div>
+    <div class="tab-panel" id="tab-facit"></div>
+    <div class="tab-panel" id="tab-buffert"></div>
+
+    <div class="result-actions no-print">
+      <button class="btn btn-secondary" onclick="window.print()">Skriv ut</button>
+      <button class="btn btn-secondary" onclick="copyAllText()">Kopiera allt som text</button>
+      <button class="btn btn-secondary" onclick="restartApp()">Skapa nytt material</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// ===================================================
+// CONFIG
+// ===================================================
+const MODEL = 'claude-opus-5'; // byt till t.ex. 'claude-sonnet-5' för lägre kostnad
+const SKOLVERKET_BASE = 'https://api.skolverket.se/syllabus';
+const CACHE_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 1 vecka
+
+const STADIUM_MAP = {
+  '1-3': { contentYear: '1-3', krYear: '3', grades: [] },
+  '4-6': { contentYear: '4-6', krYear: '6', grades: ['E', 'A'] },
+  '7-9': { contentYear: '7-9', krYear: '9', grades: ['E', 'A'] },
+};
+
+const STADIUM_LABELS = {
+  '1-3': 'Grundskola, åk 1–3',
+  '4-6': 'Grundskola, åk 4–6',
+  '7-9': 'Grundskola, åk 7–9',
+  'gymnasiet': 'Gymnasiet',
+};
+
+const ABBREV = {
+  'sve': 'svenska', 'sva': 'svenska som andraspråk', 'eng': 'engelska',
+  'ma': 'matematik', 'matte': 'matematik',
+  'idh': 'idrott och hälsa', 'idrott': 'idrott och hälsa', 'gympa': 'idrott och hälsa',
+  'ge': 'geografi', 'geo': 'geografi', 'hi': 'historia',
+  'sh': 'samhällskunskap', 'samhälle': 'samhällskunskap',
+  're': 'religionskunskap', 'religion': 'religionskunskap',
+  'bi': 'biologi', 'fy': 'fysik', 'ke': 'kemi', 'tk': 'teknik',
+  'mu': 'musik', 'sl': 'slöjd',
+  'hkk': 'hem- och konsumentkunskap',
+  'mod': 'moderna språk',
+};
+
+const STOPWORDS = new Set(['och','att','för','med','som','det','den','de','är','på','av','till','om','har','kan','ska','vi','du','han','hon','man','en','ett','så','men','inte','var','vara','sig','sin','sina','sitt','eller','från','hur','vad','när','där','här','nu','ska','vill','vad','also','the']);
+
+// ===================================================
+// STATE
+// ===================================================
+let currentApiKey = '';
+let currentStadium = '7-9';
+let currentMatch = null;      // {code, name, kind: 'gy'|'gr', centralContent:[], kunskapskrav:[{grade,text}]}
+let generatedData = null;
+let groundingLegend = [];     // [{id:'CI1', text:'...'}]
+
+// ===================================================
+// INIT
+// ===================================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadApiKey();
+});
+
+// ===================================================
+// API KEY
+// ===================================================
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('sk-')) {
+    showError('API-nyckeln verkar inte vara korrekt. Den ska börja med "sk-".');
+    return;
+  }
+  currentApiKey = val;
+  localStorage.setItem('fg_apikey', val);
+  document.getElementById('api-key-input').value = '';
+  updateApiDisplay();
+  hideError();
+}
+
+function clearApiKey() {
+  currentApiKey = '';
+  localStorage.removeItem('fg_apikey');
+  updateApiDisplay();
+}
+
+function loadApiKey() {
+  const stored = localStorage.getItem('fg_apikey');
+  if (stored) {
+    currentApiKey = stored;
+    updateApiDisplay();
+  }
+}
+
+function updateApiDisplay() {
+  const status = document.getElementById('api-status');
+  const saveBtn = document.getElementById('api-save-btn');
+  const clearBtn = document.getElementById('api-clear-btn');
+  const input = document.getElementById('api-key-input');
+
+  if (currentApiKey) {
+    status.textContent = currentApiKey.slice(0, 5) + '...' + currentApiKey.slice(-4);
+    status.style.display = 'inline-block';
+    saveBtn.style.display = 'none';
+    clearBtn.style.display = 'inline-flex';
+    input.style.display = 'none';
+  } else {
+    status.style.display = 'none';
+    saveBtn.style.display = 'inline-flex';
+    clearBtn.style.display = 'none';
+    input.style.display = 'block';
+  }
+}
+
+// ===================================================
+// UI HELPERS
+// ===================================================
+function showError(msg) {
+  const box = document.getElementById('error-box');
+  box.innerHTML = '<strong>Fel</strong>' + escapeHtml(msg);
+  box.classList.add('visible');
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function hideError() {
+  document.getElementById('error-box').classList.remove('visible');
+}
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ===================================================
+// SKOLVERKET: CACHE + FETCH
+// ===================================================
+async function fetchJson(url) {
+  const res = await fetch(url, { headers: { Accept: 'application/json' } });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+async function fetchWithCache(cacheKey, url) {
+  try {
+    const raw = localStorage.getItem(cacheKey);
+    if (raw) {
+      const cached = JSON.parse(raw);
+      if (cached && Date.now() - cached.ts < CACHE_TTL_MS && cached.data) {
+        return cached.data;
+      }
+    }
+  } catch (e) { /* korrupt cache, ignorera */ }
+
+  const json = await fetchJson(url);
+  const data = json.courses || json.subjects || [];
+  try {
+    localStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data }));
+  } catch (e) { /* localStorage fullt, strunta i cache */ }
+  return data;
+}
+
+function getGyCourses() {
+  return fetchWithCache('fg_gy_courses_v1', SKOLVERKET_BASE + '/v1/courses?schooltype=GY&timespan=LATEST');
+}
+function getGrSubjects() {
+  return fetchWithCache('fg_gr_subjects_v1', SKOLVERKET_BASE + '/v1/subjects?schooltype=GR');
+}
+
+// ===================================================
+// SKOLVERKET: TEXT EXTRACTION
+// ===================================================
+function stripHtml(s) {
+  return s.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+}
+function liPunkter(html) {
+  if (!html) return [];
+  const matches = html.match(/<li>([\s\S]*?)<\/li>/g);
+  if (!matches || matches.length === 0) {
+    const t = stripHtml(html);
+    return t ? [t] : [];
+  }
+  return matches.map(li => stripHtml(li.replace(/<\/?li>/g, ''))).filter(Boolean);
+}
+function pPunkter(html) {
+  if (!html) return [];
+  const matches = html.match(/<p>([\s\S]*?)<\/p>/g);
+  if (!matches || matches.length === 0) {
+    const t = stripHtml(html);
+    return t ? [t] : [];
+  }
+  return matches.map(p => stripHtml(p.replace(/<\/?p>/g, ''))).filter(Boolean);
+}
+function dedupe(arr) {
+  return Array.from(new Set(arr.filter(Boolean)));
+}
+
+function extractGyCourseContent(raw) {
+  const course = raw.course || raw;
+  const ci = dedupe(liPunkter(course.centralContent && course.centralContent.text)).slice(0, 10);
+  const kk = [];
+  (course.knowledgeRequirements || []).forEach(k => {
+    if (k.gradeStep === 'E' || k.gradeStep === 'A') {
+      pPunkter(k.text).forEach(t => kk.push({ grade: k.gradeStep, text: t }));
+    }
+  });
+  return { name: course.name || '', points: course.points || '', centralContent: ci, kunskapskrav: kk.slice(0, 10) };
+}
+
+function extractGrSubjectContent(raw, stadiumConf) {
+  const subject = raw.subject || raw;
+  const ci = [];
+  (subject.centralContents || []).forEach(block => {
+    if (block.year === stadiumConf.contentYear) {
+      liPunkter(block.text).forEach(t => ci.push(t));
+    }
+  });
+  const kk = [];
+  (subject.knowledgeRequirements || []).forEach(k => {
+    if (k.year === stadiumConf.krYear) {
+      if (stadiumConf.grades.length === 0 || stadiumConf.grades.includes(k.gradeStep)) {
+        pPunkter(k.text).forEach(t => kk.push({ grade: k.gradeStep || null, text: t }));
+      }
+    }
+  });
+  return { name: subject.name || '', points: '', centralContent: dedupe(ci).slice(0, 10), kunskapskrav: kk.slice(0, 10) };
+}
+
+// ===================================================
+// MATCHING
+// ===================================================
+function normalize(s) {
+  return (s || '').toLowerCase().replace(/[.,;:!?()]/g, '').replace(/\s+/g, ' ').trim();
+}
+function parseBaseLevel(nameNorm) {
+  const m = nameNorm.match(/^(.*?)\s*([0-9]+[a-c]?)$/);
+  if (m && m[1].trim()) return { base: m[1].trim(), level: m[2] };
+  return { base: nameNorm, level: null };
+}
+function tokenSet(s) {
+  return new Set(s.split(' ').filter(w => w.length >= 3));
+}
+function jaccard(a, b) {
+  const sa = tokenSet(a), sb = tokenSet(b);
+  if (sa.size === 0 || sb.size === 0) return 0;
+  let inter = 0;
+  sa.forEach(t => { if (sb.has(t)) inter++; });
+  const union = new Set([...sa, ...sb]).size;
+  return union === 0 ? 0 : inter / union;
+}
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+    }
+  }
+  return dp[m][n];
+}
+function levenshteinRatio(a, b) {
+  const maxLen = Math.max(a.length, b.length);
+  if (maxLen === 0) return 1;
+  return 1 - levenshtein(a, b) / maxLen;
+}
+
+function scoreMatch(inputNorm, inputCodeGuess, candNameNorm, candCode) {
+  if (candCode && inputCodeGuess === candCode.toUpperCase()) return 100;
+  if (inputNorm === candNameNorm) return 100;
+
+  const inParsed = parseBaseLevel(inputNorm);
+  const candParsed = parseBaseLevel(candNameNorm);
+  const mappedBase = ABBREV[inParsed.base] || inParsed.base;
+
+  let best = 0;
+  if (mappedBase === candParsed.base) {
+    if (inParsed.level && candParsed.level && inParsed.level === candParsed.level) best = Math.max(best, 95);
+    else if (!inParsed.level && !candParsed.level) best = Math.max(best, 92);
+    else if (!inParsed.level && candParsed.level) best = Math.max(best, 55);
+    else best = Math.max(best, 40);
+  }
+  const jac = jaccard(mappedBase, candParsed.base);
+  best = Math.max(best, jac * 55);
+  const ratio = levenshteinRatio(mappedBase, candParsed.base);
+  best = Math.max(best, ratio * 45);
+  return Math.round(best);
+}
+
+async function findCandidates(inputText, stadium) {
+  const inputNorm = normalize(inputText);
+  const inputCodeGuess = inputText.trim().toUpperCase().replace(/\s+/g, '');
+
+  if (stadium === 'gymnasiet') {
+    const courses = await getGyCourses();
+    return courses.map(c => ({
+      code: c.courseCode,
+      name: c.courseName,
+      subtitle: (c.subjectParent && c.subjectParent.subjectName) ? c.subjectParent.subjectName + (c.coursePoints ? ' · ' + c.coursePoints + 'p' : '') : '',
+      score: scoreMatch(inputNorm, inputCodeGuess, normalize(c.courseName), c.courseCode),
+    })).sort((a, b) => b.score - a.score);
+  } else {
+    const subjects = await getGrSubjects();
+    return subjects.map(s => ({
+      code: s.code,
+      name: s.name,
+      subtitle: 'Grundskolan',
+      score: scoreMatch(inputNorm, inputCodeGuess, normalize(s.name), s.code),
+    })).sort((a, b) => b.score - a.score);
+  }
+}
+
+// ===================================================
+// SYLLABUS SEARCH FLOW
+// ===================================================
+async function searchSyllabus() {
+  hideError();
+  const subjectInput = document.getElementById('subject-input').value.trim();
+  currentStadium = document.getElementById('stadium-select').value;
+
+  if (!subjectInput) {
+    showError('Skriv in ett ämne eller en kurs innan du söker.');
+    return;
+  }
+
+  document.getElementById('syllabus-section').classList.remove('hidden');
+  document.getElementById('syllabus-content').innerHTML = '';
+  document.getElementById('syllabus-searching').classList.remove('hidden');
+  document.getElementById('syllabus-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  let candidates = [];
+  try {
+    candidates = await findCandidates(subjectInput, currentStadium);
+  } catch (e) {
+    console.warn('Skolverket-sökning misslyckades:', e);
+    candidates = [];
+  }
+
+  document.getElementById('syllabus-searching').classList.add('hidden');
+
+  const STRONG = 85, WEAK = 40;
+  const top = candidates.slice(0, 6);
+
+  if (top.length > 0 && top[0].score >= STRONG && (top.length === 1 || top[0].score - top[1].score >= 15)) {
+    await selectCandidate(top[0]);
+  } else if (top.length > 0 && top[0].score >= WEAK) {
+    renderCandidatePicker(top.filter(c => c.score >= WEAK).slice(0, 5), subjectInput);
+  } else {
+    renderNoMatch(subjectInput);
+  }
+}
+
+function renderCandidatePicker(candidates, subjectInput) {
+  let html = '<div class="nomatch-banner">Osäker träff för <strong>' + escapeHtml(subjectInput) + '</strong>. Menade du någon av dessa?</div>';
+  html += '<div class="candidate-list">';
+  candidates.forEach((c, i) => {
+    html += '<button class="candidate-btn" onclick="pickCandidateByIndex(' + i + ')">' + escapeHtml(c.name) +
+      (c.subtitle ? '<small>' + escapeHtml(c.subtitle) + '</small>' : '') + '</button>';
+  });
+  html += '</div>';
+  html += '<button class="btn btn-secondary btn-sm" onclick="renderNoMatch(' + JSON.stringify(subjectInput) + ')">Ingen av dessa – fortsätt utan kunskapskrav</button>';
+  document.getElementById('syllabus-content').innerHTML = html;
+  window._fgCandidates = candidates;
+}
+function pickCandidateByIndex(i) {
+  const c = (window._fgCandidates || [])[i];
+  if (c) selectCandidate(c);
+}
+
+async function selectCandidate(candidate) {
+  document.getElementById('syllabus-content').innerHTML = '<div style="text-align:center;padding:1rem;"><div class="spinner spinner-sm"></div><span style="margin-left:0.5rem;color:var(--text-muted);">Hämtar kursplan för ' + escapeHtml(candidate.name) + '...</span></div>';
+
+  try {
+    let parsed;
+    if (currentStadium === 'gymnasiet') {
+      const raw = await fetchJson(SKOLVERKET_BASE + '/v1/courses/' + encodeURIComponent(candidate.code));
+      parsed = extractGyCourseContent(raw);
+    } else {
+      const raw = await fetchJson(SKOLVERKET_BASE + '/v1/subjects/' + encodeURIComponent(candidate.code) + '?schooltype=GR');
+      parsed = extractGrSubjectContent(raw, STADIUM_MAP[currentStadium]);
+    }
+
+    if (!parsed || (parsed.centralContent.length === 0 && parsed.kunskapskrav.length === 0)) {
+      renderNoMatch(candidate.name);
+      return;
+    }
+
+    currentMatch = { code: candidate.code, name: parsed.name || candidate.name, points: parsed.points,
+      kind: currentStadium === 'gymnasiet' ? 'gy' : 'gr',
+      centralContent: parsed.centralContent, kunskapskrav: parsed.kunskapskrav };
+    renderMatched(currentMatch);
+  } catch (e) {
+    console.warn('Kunde inte hämta kursplan:', e);
+    renderNoMatch(candidate.name);
+  }
+}
+
+function renderMatched(match) {
+  let html = '<div class="match-banner"><div class="match-info"><strong>Hittade: ' + escapeHtml(match.name) +
+    '</strong><span>' + escapeHtml(STADIUM_LABELS[currentStadium]) + (match.points ? ' · ' + escapeHtml(String(match.points)) + ' poäng' : '') + ' · Skolverkets Syllabus API</span></div>' +
+    '<button class="btn btn-secondary btn-sm" onclick="document.getElementById(\'syllabus-content\').innerHTML=\'\';currentMatch=null;searchSyllabus();">Sök igen</button></div>';
+
+  html += '<div class="toolbar-mini">' +
+    '<button class="btn btn-secondary btn-sm" onclick="setAllChecks(true)">Välj alla</button>' +
+    '<button class="btn btn-secondary btn-sm" onclick="setAllChecks(false)">Välj inga</button>' +
+    '<button class="btn btn-secondary btn-sm" onclick="autoSelectRelevant()">Välj mest relevanta automatiskt</button>' +
+    '</div>';
+
+  if (match.centralContent.length) {
+    html += '<div class="checklist-heading">Centralt innehåll</div><div class="checklist" id="ci-list">';
+    match.centralContent.forEach((t, i) => {
+      html += '<label class="check-item"><input type="checkbox" id="ci-' + i + '" checked><span class="item-text">' + escapeHtml(t) + '</span></label>';
+    });
+    html += '</div>';
+  }
+  if (match.kunskapskrav.length) {
+    html += '<div class="checklist-heading">Kunskapskrav</div><div class="checklist" id="kk-list">';
+    match.kunskapskrav.forEach((k, i) => {
+      const chip = k.grade ? '<span class="grade-chip">' + escapeHtml(k.grade) + '</span>' : '';
+      html += '<label class="check-item"><input type="checkbox" id="kk-' + i + '"><span class="item-text">' + chip + escapeHtml(k.text) + '</span></label>';
+    });
+    html += '</div>';
+  }
+
+  document.getElementById('syllabus-content').innerHTML = html;
+  autoSelectRelevant();
+}
+
+function renderNoMatch(subjectInput) {
+  currentMatch = null;
+  let html = '<div class="nomatch-banner">Kunde inte hitta en matchande kurs i Skolverkets öppna data för <strong>' +
+    escapeHtml(subjectInput) + '</strong> (vanligt t.ex. för vissa yrkeskurser). Du kan fortsätta ändå, eller söka igen.</div>';
+  html += '<div class="form-group">' +
+    '<label for="manual-kk-input">Klistra in kunskapskrav/centralt innehåll själv (valfritt)</label>' +
+    '<textarea id="manual-kk-input" placeholder="Klistra in text från kursplanen om du vill koppla materialet till specifika kunskapskrav."></textarea>' +
+    '</div>';
+  document.getElementById('syllabus-content').innerHTML = html;
+}
+
+function setAllChecks(checked) {
+  document.querySelectorAll('#ci-list input[type="checkbox"], #kk-list input[type="checkbox"]').forEach(cb => cb.checked = checked);
+}
+
+function tokenizeContext(text) {
+  return (text || '').toLowerCase().replace(/[^\wåäöÅÄÖ\s]/g, ' ').split(/\s+/)
+    .filter(w => w.length >= 4 && !STOPWORDS.has(w));
+}
+
+function autoSelectRelevant() {
+  const contextText = document.getElementById('context-input').value;
+  const tokens = tokenizeContext(contextText);
+  if (!currentMatch) return;
+
+  const ciBoxes = Array.from(document.querySelectorAll('#ci-list input[type="checkbox"]'));
+  const kkBoxes = Array.from(document.querySelectorAll('#kk-list input[type="checkbox"]'));
+
+  if (tokens.length === 0) {
+    ciBoxes.forEach(cb => cb.checked = true);
+    kkBoxes.forEach((cb, i) => cb.checked = i < 2);
+    return;
+  }
+
+  function scoreText(text) {
+    const low = text.toLowerCase();
+    let score = 0;
+    tokens.forEach(t => { if (low.includes(t)) score++; });
+    return score;
+  }
+
+  const ciScored = currentMatch.centralContent.map((t, i) => ({ i, score: scoreText(t) }));
+  const kkScored = currentMatch.kunskapskrav.map((k, i) => ({ i, score: scoreText(k.text) }));
+
+  const ciHasSignal = ciScored.some(x => x.score > 0);
+  const kkHasSignal = kkScored.some(x => x.score > 0);
+
+  ciBoxes.forEach((cb, i) => {
+    const s = ciScored[i] ? ciScored[i].score : 0;
+    cb.checked = ciHasSignal ? s > 0 : true;
+  });
+  kkBoxes.forEach((cb, i) => {
+    const s = kkScored[i] ? kkScored[i].score : 0;
+    cb.checked = kkHasSignal ? s > 0 : (i < 2);
+  });
+}
+
+// ===================================================
+// PROCEED TO GENERATION
+// ===================================================
+function proceedWithoutSyllabus() {
+  currentMatch = null;
+  currentStadium = document.getElementById('stadium-select').value;
+  const subjectInput = document.getElementById('subject-input').value.trim();
+  if (!subjectInput) {
+    showError('Skriv in ett ämne eller en kurs innan du genererar material.');
+    return;
+  }
+  generateMaterial(null);
+}
+
+function continueToGeneration() {
+  const subjectInput = document.getElementById('subject-input').value.trim();
+  if (!subjectInput) {
+    showError('Skriv in ett ämne eller en kurs.');
+    return;
+  }
+
+  let grounding = null;
+
+  if (currentMatch) {
+    const legend = [];
+    let n = 1;
+    document.querySelectorAll('#ci-list input[type="checkbox"]').forEach((cb, i) => {
+      if (cb.checked) { legend.push({ id: 'CI' + n, text: currentMatch.centralContent[i] }); n++; }
+    });
+    let m = 1;
+    document.querySelectorAll('#kk-list input[type="checkbox"]').forEach((cb, i) => {
+      if (cb.checked) {
+        const k = currentMatch.kunskapskrav[i];
+        legend.push({ id: 'KK' + m, text: (k.grade ? '[' + k.grade + '-nivå] ' : '') + k.text });
+        m++;
+      }
+    });
+    if (legend.length > 0) {
+      grounding = { mode: 'structured', legend, courseName: currentMatch.name };
+    }
+  } else {
+    const manualEl = document.getElementById('manual-kk-input');
+    const manualText = manualEl ? manualEl.value.trim() : '';
+    if (manualText) {
+      grounding = { mode: 'manual', text: manualText };
+    }
+  }
+
+  generateMaterial(grounding);
+}
+
+// ===================================================
+// GENERATE MATERIAL (ANTHROPIC API)
+// ===================================================
+async function generateMaterial(grounding) {
+  if (!currentApiKey) {
+    showError('Du måste ange en Anthropic API-nyckel innan du kan generera material.');
+    document.getElementById('api-section').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  hideError();
+  groundingLegend = (grounding && grounding.mode === 'structured') ? grounding.legend : [];
+
+  document.getElementById('lesson-section').classList.add('hidden');
+  document.getElementById('syllabus-section').classList.add('hidden');
+  document.getElementById('results-section').classList.add('hidden');
+  document.getElementById('generating-section').classList.add('visible');
+  document.getElementById('generating-text').textContent = 'AI:n skapar vikariematerial...';
+
+  const formData = {
+    subject: document.getElementById('subject-input').value.trim(),
+    stadiumLabel: STADIUM_LABELS[currentStadium] || currentStadium,
+    duration: document.getElementById('duration-select').value,
+    context: document.getElementById('context-input').value.trim(),
+    extra: document.getElementById('extra-input').value.trim(),
+  };
+
+  const systemPrompt = buildSystemPrompt(formData, grounding);
+  const userPrompt = buildUserPrompt(formData, grounding);
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': currentApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 12000,
+        thinking: { type: 'adaptive' },
+        output_config: { effort: 'high' },
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
+      }),
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      const errMsg = (errData.error && errData.error.message) || ('HTTP ' + response.status);
+      if (response.status === 401) throw new Error('Ogiltig API-nyckel. Kontrollera att du kopierat hela nyckeln korrekt.');
+      if (response.status === 429) throw new Error('För många förfrågningar. Vänta en stund och försök igen.');
+      if (response.status === 400) throw new Error('Förfrågan avvisades: ' + errMsg);
+      throw new Error('API-fel: ' + errMsg);
+    }
+
+    const data = await response.json();
+
+    if (data.stop_reason === 'refusal') {
+      throw new Error('AI:n kunde inte generera materialet just nu (innehållet flaggades av säkerhetsfilter). Prova att omformulera fältet "Vad jobbar klassen med".');
+    }
+
+    const textBlock = (data.content || []).find(b => b.type === 'text');
+    if (!textBlock) throw new Error('AI:n returnerade inget textsvar. Försök igen.');
+
+    parseAndRender(textBlock.text, formData, grounding);
+  } catch (err) {
+    document.getElementById('generating-section').classList.remove('visible');
+    document.getElementById('lesson-section').classList.remove('hidden');
+    if (currentMatch || (grounding && grounding.mode === 'manual')) {
+      document.getElementById('syllabus-section').classList.remove('hidden');
+    }
+    showError(err.message || 'Något gick fel. Kontrollera din internetanslutning och försök igen.');
+  }
+}
+
+function buildSystemPrompt(formData, grounding) {
+  let prompt = 'Du är en erfaren svensk lärare och pedagog som hjälper ordinarie lärare att skapa material till vikarier ' +
+    '("frånvaro-material"). Materialet ska vara självinstruerande så att en vikarie utan ämneskunskap kan hålla i lektionen, ' +
+    'och begripligt för elever i ' + formData.stadiumLabel.toLowerCase() + ' som arbetar med ämnet/kursen "' + formData.subject + '".\n\n' +
+    'Lektionen är ' + formData.duration + ' minuter lång.\n\n';
+
+  if (grounding && grounding.mode === 'structured' && grounding.legend.length > 0) {
+    prompt += 'KOPPLADE KUNSKAPSKRAV OCH CENTRALT INNEHÅLL (hämtade från Skolverkets Syllabus API för "' + grounding.courseName + '"):\n';
+    grounding.legend.forEach(item => { prompt += '- [' + item.id + '] ' + item.text + '\n'; });
+    prompt += '\nVIKTIGT: Elevuppgiften och facit SKA uttryckligen kopplas till ett eller flera av ovanstående punkter. ' +
+      'Varje deluppgift i elevuppgiften och varje svar i facit ska ha ett fält "kopplingar" som listar vilka ID:n (t.ex. "CI1", "KK2") ' +
+      'som deluppgiften tränar eller bedömer. Hitta INTE på egna kunskapskrav – använd bara de som listas ovan. ' +
+      'Om en deluppgift inte tydligt kopplar till något av dem, lämna "kopplingar" som en tom lista.\n\n';
+  } else if (grounding && grounding.mode === 'manual' && grounding.text) {
+    prompt += 'LÄRAREN HAR SJÄLV KLISTRAT IN FÖLJANDE UNDERLAG FRÅN KURSPLANEN, VÄV IN DET I MATERIALET:\n' + grounding.text + '\n\n' +
+      'Koppla elevuppgiften och facit till detta underlag där det är relevant, men hitta inte på exakta ID-referenser – ' +
+      'skriv istället en kort fras i fältet "kopplingar" per deluppgift (eller en tom lista om inget passar).\n\n';
+  } else {
+    prompt += 'Inga specifika kunskapskrav har hämtats för denna lektion. Skapa ändå ett ämnesrelevant och pedagogiskt väl avvägt ' +
+      'material för stadiet. Lämna fältet "kopplingar" som en tom lista överallt.\n\n';
+  }
+
+  prompt += 'Svara ALLTID med ett enda giltigt JSON-objekt, utan omgivande text, kommentarer eller markdown-kodblock. ' +
+    'Strukturen ska vara exakt:\n\n' +
+    '{\n' +
+    '  "titel": "Kort titel för lektionen",\n' +
+    '  "instruktioner_till_vikarien": {\n' +
+    '    "oversikt": "2-3 meningar om lektionens upplägg",\n' +
+    '    "material_som_behovs": ["punkt", "punkt"],\n' +
+    '    "tidsplan": [{"tid": "0-10 min", "aktivitet": "..."}],\n' +
+    '    "tips": ["praktiskt tips för vikarien", "..."]\n' +
+    '  },\n' +
+    '  "elevuppgift": {\n' +
+    '    "introduktion": "Text som läses upp/visas för eleverna",\n' +
+    '    "uppgifter": [{"nummer": 1, "text": "...", "kopplingar": ["CI1"]}]\n' +
+    '  },\n' +
+    '  "facit": {\n' +
+    '    "svar": [{"nummer": 1, "facit": "...", "kopplingar": ["CI1"]}],\n' +
+    '    "bedomningsanteckning": "Kort anteckning till ordinarie lärare om vad som visar godtagbara kunskaper, eller null"\n' +
+    '  },\n' +
+    '  "buffertaktivitet": {\n' +
+    '    "titel": "...",\n' +
+    '    "beskrivning": "En extra aktivitet ifall klassen blir klar i förtid",\n' +
+    '    "tidsat": "ca X minuter"\n' +
+    '  }\n' +
+    '}\n\n' +
+    'Skriv på tydlig, korrekt svenska anpassad till åldersgruppen. Elevuppgiften ska innehålla minst 4-6 konkreta deluppgifter ' +
+    'eleverna kan arbeta med självständigt utan vikariens ämneskunskap.';
+
+  return prompt;
+}
+
+function buildUserPrompt(formData, grounding) {
+  let p = 'Skapa vikariematerial enligt instruktionerna i systemprompten.\n\n' +
+    'Ämne/kurs: ' + formData.subject + '\n' +
+    'Skolform/stadium: ' + formData.stadiumLabel + '\n' +
+    'Lektionslängd: ' + formData.duration + ' minuter\n' +
+    'Vad klassen jobbar med just nu: ' + (formData.context || 'Inte angivet – gör rimliga antaganden för ämnet och stadiet.') + '\n' +
+    'Extra instruktioner till vikarien: ' + (formData.extra || 'Inga.') + '\n\n' +
+    'Svara ENDAST med giltig JSON enligt det format som beskrivs i systemprompten.';
+  return p;
+}
+
+// ===================================================
+// PARSE & RENDER RESULT
+// ===================================================
+function parseAndRender(rawText, formData, grounding) {
+  let jsonText = rawText.trim();
+  const fenced = jsonText.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenced) jsonText = fenced[1].trim();
+  const objMatch = jsonText.match(/\{[\s\S]*\}/);
+  if (objMatch) jsonText = objMatch[0];
+
+  function repair(s) {
+    try { return JSON.parse(s); } catch (e) {}
+    let t = s.replace(/,\s*$/, '').replace(/,\s*\{[^{}]*$/, '');
+    const opens = (t.match(/\[/g) || []).length - (t.match(/\]/g) || []).length;
+    const openB = (t.match(/\{/g) || []).length - (t.match(/\}/g) || []).length;
+    t += ']'.repeat(Math.max(0, opens)) + '}'.repeat(Math.max(0, openB));
+    try { return JSON.parse(t); } catch (e) { return null; }
+  }
+
+  const data = repair(jsonText);
+  document.getElementById('generating-section').classList.remove('visible');
+
+  if (!data) {
+    document.getElementById('lesson-section').classList.remove('hidden');
+    if (currentMatch || (grounding && grounding.mode === 'manual')) {
+      document.getElementById('syllabus-section').classList.remove('hidden');
+    }
+    showError('AI:n returnerade ett oväntat format. Försök igen, eller korta ner texten i "Vad jobbar klassen med".');
+    return;
+  }
+
+  generatedData = data;
+  renderResults(data, formData, grounding);
+}
+
+function kkChips(ids) {
+  if (!ids || ids.length === 0) return '';
+  return ids.map(id => {
+    const entry = groundingLegend.find(g => g.id === id);
+    const title = entry ? entry.text.replace(/"/g, '&quot;') : id;
+    return '<span class="kk-chip" title="' + title + '">' + escapeHtml(id) + '</span>';
+  }).join('');
+}
+
+function renderLegendHtml() {
+  if (groundingLegend.length === 0) return '';
+  let html = '<div class="legend"><div class="legend-title">Kopplade kunskapskrav / centralt innehåll</div>';
+  groundingLegend.forEach(item => {
+    html += '<div class="legend-item"><b>' + escapeHtml(item.id) + '</b>: ' + escapeHtml(item.text) + '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderResults(data, formData, grounding) {
+  document.getElementById('result-title').textContent = data.titel || ('Material: ' + formData.subject);
+
+  const note = document.getElementById('grounding-note');
+  if (grounding && grounding.mode === 'structured') {
+    note.textContent = 'Kopplat till Skolverkets kursplan för ' + grounding.courseName + '.';
+  } else if (grounding && grounding.mode === 'manual') {
+    note.textContent = 'Kopplat till kunskapskrav du själv klistrade in.';
+  } else {
+    note.textContent = 'Genererat utan koppling till specifika kunskapskrav.';
+  }
+
+  const instr = data.instruktioner_till_vikarien || {};
+  let instrHtml = '<p style="margin-bottom:1rem;">' + escapeHtml(instr.oversikt || '') + '</p>';
+  if (instr.material_som_behovs && instr.material_som_behovs.length) {
+    instrHtml += '<h4 style="margin-bottom:0.4rem;">Material som behövs</h4><ul style="margin:0 0 1rem 1.2rem;">';
+    instr.material_som_behovs.forEach(m => instrHtml += '<li>' + escapeHtml(m) + '</li>');
+    instrHtml += '</ul>';
+  }
+  if (instr.tidsplan && instr.tidsplan.length) {
+    instrHtml += '<h4 style="margin-bottom:0.4rem;">Tidsplan</h4><ul style="margin:0 0 1rem 1.2rem;">';
+    instr.tidsplan.forEach(t => instrHtml += '<li><strong>' + escapeHtml(t.tid || '') + ':</strong> ' + escapeHtml(t.aktivitet || '') + '</li>');
+    instrHtml += '</ul>';
+  }
+  if (instr.tips && instr.tips.length) {
+    instrHtml += '<h4 style="margin-bottom:0.4rem;">Tips till vikarien</h4><ul style="margin:0 0 0 1.2rem;">';
+    instr.tips.forEach(t => instrHtml += '<li>' + escapeHtml(t) + '</li>');
+    instrHtml += '</ul>';
+  }
+  document.getElementById('tab-instruktioner').innerHTML = instrHtml;
+
+  const uppg = data.elevuppgift || {};
+  let uppgHtml = '<p style="margin-bottom:1rem;">' + escapeHtml(uppg.introduktion || '') + '</p>';
+  (uppg.uppgifter || []).forEach(u => {
+    uppgHtml += '<div class="task-item"><span class="item-num">' + escapeHtml(String(u.nummer || '')) + '.</span>' +
+      escapeHtml(u.text || '') + '<div style="margin-top:0.4rem;">' + kkChips(u.kopplingar) + '</div></div>';
+  });
+  uppgHtml += renderLegendHtml();
+  document.getElementById('tab-elevuppgift').innerHTML = uppgHtml;
+
+  const facit = data.facit || {};
+  let facitHtml = '';
+  (facit.svar || []).forEach(s => {
+    facitHtml += '<div class="facit-item"><span class="item-num">' + escapeHtml(String(s.nummer || '')) + '.</span>' +
+      escapeHtml(s.facit || '') + '<div style="margin-top:0.4rem;">' + kkChips(s.kopplingar) + '</div></div>';
+  });
+  if (facit.bedomningsanteckning) {
+    facitHtml += '<div class="facit-item" style="background:#f8f9fa;"><strong>Bedömningsanteckning:</strong> ' + escapeHtml(facit.bedomningsanteckning) + '</div>';
+  }
+  facitHtml += renderLegendHtml();
+  document.getElementById('tab-facit').innerHTML = facitHtml;
+
+  const buff = data.buffertaktivitet || {};
+  let buffHtml = '<h3 style="margin-bottom:0.5rem;">' + escapeHtml(buff.titel || '') + '</h3>' +
+    '<p style="margin-bottom:0.5rem;">' + escapeHtml(buff.beskrivning || '') + '</p>' +
+    (buff.tidsat ? '<p style="color:var(--text-muted);font-size:0.9rem;">' + escapeHtml(buff.tidsat) + '</p>' : '');
+  document.getElementById('tab-buffert').innerHTML = buffHtml;
+
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="tab-instruktioner"]').classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-instruktioner').classList.add('active');
+
+  document.getElementById('results-section').classList.remove('hidden');
+  document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === tabId));
+}
+
+// ===================================================
+// COPY / RESTART
+// ===================================================
+function copyAllText() {
+  if (!generatedData) return;
+  const d = generatedData;
+  let out = (d.titel || '') + '\n\n';
+  out += '=== INSTRUKTIONER TILL VIKARIEN ===\n';
+  const instr = d.instruktioner_till_vikarien || {};
+  out += (instr.oversikt || '') + '\n\n';
+  (instr.material_som_behovs || []).forEach(m => out += '- ' + m + '\n');
+  out += '\n';
+  (instr.tidsplan || []).forEach(t => out += (t.tid || '') + ': ' + (t.aktivitet || '') + '\n');
+  out += '\n';
+  (instr.tips || []).forEach(t => out += 'Tips: ' + t + '\n');
+
+  out += '\n=== ELEVUPPGIFT ===\n';
+  const uppg = d.elevuppgift || {};
+  out += (uppg.introduktion || '') + '\n\n';
+  (uppg.uppgifter || []).forEach(u => out += (u.nummer || '') + '. ' + (u.text || '') + '\n');
+
+  out += '\n=== FACIT ===\n';
+  const facit = d.facit || {};
+  (facit.svar || []).forEach(s => out += (s.nummer || '') + '. ' + (s.facit || '') + '\n');
+  if (facit.bedomningsanteckning) out += '\nBedömningsanteckning: ' + facit.bedomningsanteckning + '\n';
+
+  out += '\n=== BUFFERTAKTIVITET ===\n';
+  const buff = d.buffertaktivitet || {};
+  out += (buff.titel || '') + '\n' + (buff.beskrivning || '') + '\n' + (buff.tidsat || '') + '\n';
+
+  if (groundingLegend.length) {
+    out += '\n=== KOPPLADE KUNSKAPSKRAV ===\n';
+    groundingLegend.forEach(item => out += item.id + ': ' + item.text + '\n');
+  }
+
+  navigator.clipboard.writeText(out).then(() => {
+    alert('Materialet har kopierats som text.');
+  }).catch(() => {
+    alert('Kunde inte kopiera automatiskt. Markera och kopiera texten manuellt istället.');
+  });
+}
+
+function restartApp() {
+  document.getElementById('results-section').classList.add('hidden');
+  document.getElementById('syllabus-section').classList.add('hidden');
+  document.getElementById('syllabus-content').innerHTML = '';
+  document.getElementById('lesson-section').classList.remove('hidden');
+  document.getElementById('context-input').value = '';
+  document.getElementById('extra-input').value = '';
+  currentMatch = null;
+  generatedData = null;
+  groundingLegend = [];
+  hideError();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
