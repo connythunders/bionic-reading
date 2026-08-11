@@ -19,7 +19,7 @@ Sajten ligger på GitHub Pages (`bionicreading.se`) och går live direkt vid pus
 
 - Committa bara det som hör till den här ändringen. Använd `git add <fil>`, aldrig `git add -A` utan att ha gått igenom listan.
 - Commit-meddelande på svenska, en rad som säger vad ändringen gör: `Lägg till buddhism-quiz med 20 frågor`, inte `uppdatering`.
-- Rör inte de automatiska nyhetsuppdateringarna (`Auto: Partierna-nyheter`, `Auto: Arsenal-nyheter`) — de sköts av GitHub Actions.
+- Rör inte de automatiska nyhetsuppdateringarna (`Auto: Partierna-nyheter`) — de sköts av GitHub Actions.
 
 ## 3. Pusha
 

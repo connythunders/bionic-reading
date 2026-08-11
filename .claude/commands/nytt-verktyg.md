@@ -18,7 +18,7 @@ Titta på 1–2 befintliga verktyg i samma genre som förebild innan du skriver 
 - En enda fristående `.html`-fil i projektroten. Kebab-case-namn på svenska, t.ex. `religion-prov.html`.
 - All CSS i `<style>` och all JS i `<script>` inne i filen. Ingen byggkedja, inga npm-paket, inga ramverk.
 - Inga CDN-beroenden. Verktyget ska fungera när man dubbelklickar på filen utan internet (undantag: verktyg som anropar ett API).
-- Data som är för stor för filen läggs i en `.json` bredvid (se `so-quiz-data.json`, `arsenal-data.json`) eller i `js/`.
+- Data som är för stor för filen läggs i en `.json` bredvid (se `so-quiz-data.json`, `partierna-data.json`) eller i `js/`.
 
 **HTML/UI**
 - `<html lang="sv">`, `<meta name="viewport" content="width=device-width, initial-scale=1.0">`, svensk text i hela gränssnittet.
