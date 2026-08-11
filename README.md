@@ -1,74 +1,80 @@
-# Quiz om Första Världskriget 🌈
+# Läromedelsportal – bionicreading.se
 
-Ett interaktivt quiz om första världskriget med 15 frågor och en vacker regnbågsfärgad bakgrund.
+Samling av interaktiva läromedel och lärarverktyg, byggd av och för lärare. Sajten ligger på [bionicreading.se](https://bionicreading.se) och driftsätts via GitHub Pages – en push till `Main` går live direkt.
 
-## Funktioner
+Innehållet spänner över SO, svenska, engelska och matematik för åk 7–9 och gymnasiet, plus verktyg för lärarens eget arbete: läroplanskoll, provträning, vikariematerial och klassrumsstöd.
 
-- 15 frågor om första världskriget
-- Animerad regnbågsfärgad bakgrund
-- Visuell feedback för rätta och felaktiga svar
-- Framstegsindikator
-- Resultatsammanfattning med betyg
-- Responsiv design som fungerar på mobil och desktop
+## Kom igång
 
-## Hur man använder
+Verktygen är fristående HTML-filer utan byggkedja. Öppna vilken `.html`-fil som helst direkt i webbläsaren, eller starta en lokal server från projektroten:
 
-1. Öppna `index.html` i en webbläsare
-2. Läs frågan och klicka på det svar du tror är rätt
-3. När du svarar får du omedelbar feedback om svaret var rätt eller fel
-4. Klicka på "Nästa fråga" för att fortsätta
-5. Efter alla 15 frågor ser du ditt resultat med en procentandel och feedback
-
-## Projektstruktur
-
-```
-super-broccoli/
-├── index.html          # Huvudsidan
-├── css/
-│   └── styles.css      # Stilar med regnbågsbakgrund
-├── js/
-│   └── quiz.js         # Quiz-logik och frågor
-└── README.md           # Dokumentation
+```bash
+python3 -m http.server 8080
+# öppna http://localhost:8080/start.html
 ```
 
-## Quizfrågor
+`start.html` är portalen som listar alla verktyg. `index.html` är verktyget för bionisk läsning som gett sajten dess namn.
 
-Quizet innehåller frågor om:
-- Datum och viktiga händelser under första världskriget
-- Allianser och länder som deltog
-- Skyttegravskrig och nya vapen
-- Fredsfördraget och krigets efterspel
-- Betydelsefulla slag och händelser
+## Så är projektet byggt
 
-## Anpassning
+**Ett verktyg = en fil.** Varje verktyg är en fristående `.html` i projektroten med all CSS och JS inbakad. Ingen byggkedja, inga ramverk, inga CDN-beroenden. Det gör att verktygen fungerar även utan internet, överlever år av bitrot och kan öppnas direkt från en USB-sticka i ett klassrum.
 
-För att ändra frågorna, redigera `quizData` arrayen i `js/quiz.js`:
+Större datamängder ligger bredvid som JSON (`so-quiz-data.json`, `partierna-data.json`, `skolresultat-gy-data.json`) eller som delade skript i `js/`.
 
-```javascript
-const quizData = [
-    {
-        question: "Din fråga här?",
-        options: ["Alternativ 1", "Alternativ 2", "Alternativ 3", "Alternativ 4"],
-        correct: 0  // Index för rätt svar (0-3)
-    },
-    // Lägg till fler frågor här
-];
+**Målgruppen styr utformningen.** Materialet används av elever med dyslexi, ADHD och autism. Korta meningar, tydlig struktur, visuella pauser och mobilanpassning är krav, inte finish. Granskningsdokumenten i roten (`granskning-tillganglighet.md`, `granskning-sprak.md`, `granskning-pedagogik.md`, `granskning-fakta.md`) visar nivån som gäller.
+
+**AI-verktygen använder din egen nyckel.** De verktyg som anropar Claude gör det direkt från webbläsaren mot `api.anthropic.com`. Användaren matar in sin egen API-nyckel som sparas i `localStorage` – inga nycklar i koden, ingen server emellan.
+
+## Struktur
+
+```
+├── start.html              Portalen med alla verktyg
+├── index.html              Bionic Reading
+├── *.html                  Ett fristående verktyg per fil
+├── *.json                  Datafiler till verktygen
+├── css/, js/               Delade resurser
+├── scripts/                Python/Node-skript för datauppdatering
+├── backend/                Node + PostgreSQL för AI Quiz Generator
+├── ai-laromedel/           AI-läromedel i kapitelform
+├── quiz-games/             Spelunderlag som JSON
+├── larplattform/           Lärplattform (Vite, byggs och driftsätts separat)
+├── np-engelska/            NP Engelska (Next.js, driftsätts på Vercel)
+├── workshop-app/           Workshop-app (Next.js)
+├── amnesomraden-grundskola/, franvaro-generator/, riksdag-skola/
+└── .claude/                Slash commands och subagenter för Claude Code
 ```
 
-## Teknologi
+Undermapparna med `package.json` är egna projekt med egen byggkedja – de är undantagen från regeln om fristående filer.
 
-- HTML5
-- CSS3 (med animerad regnbågsgradient)
-- Vanilla JavaScript (inga externa bibliotek krävs)
+## Automatik
 
-## Kompatibilitet
+Två GitHub Actions sköter sig själva:
 
-Fungerar i alla moderna webbläsare:
-- Chrome
-- Firefox
-- Safari
-- Edge
+| Workflow | Vad den gör |
+|---|---|
+| `partierna-nyheter.yml` | Uppdaterar `partierna-data.json` varje timme |
+| `deploy-larplattform.yml` | Bygger och driftsätter lärplattformen |
+
+Commits märkta `Auto:` kommer härifrån – låt dem vara.
+
+## Bidra
+
+Nya verktyg läggs i projektroten och registreras med ett kort på `start.html`. Följ mönstret i en befintlig fil i samma genre.
+
+För Claude Code finns färdiga kommandon i `.claude/commands/`:
+
+| Kommando | Vad det gör |
+|---|---|
+| `/nytt-verktyg` | Skapar ett nytt verktyg enligt konventionerna ovan |
+| `/startsidan` | Lägger till verktygskort på `start.html` |
+| `/granska` | Granskar tillgänglighet, språk, pedagogik och fakta |
+| `/lgr22` | Kontrollerar material mot kursplanen |
+| `/quiz` | Genererar quizfrågor i projektets format |
+| `/testa` | Kör ett verktyg lokalt och letar fel |
+| `/publicera` | Kontrollerar, committar och pushar |
+
+I `.claude/agents/` finns dessutom tre subagenter: `content-writer`, `curriculum-expert` och `quiz-designer`.
 
 ## Licens
 
-Detta projekt är skapat för utbildningsändamål.
+Skapat för utbildningsändamål.
