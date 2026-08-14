@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UF-idémentor</title>
+<meta name="description" content="En AI-mentor som hjälper UF-elever testa och skärpa sina affärsidéer genom frågor - aldrig färdiga svar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF6EE;
+    --panel-bg:#FFFFFF;
+    --text:#2B2620;
+    --text-muted:#655B4C;
+    --accent:#D9622B;
+    --accent-dark:#B04E20;
+    --accent-contrast:#FFFFFF;
+    --teal:#1F7A6C;
+    --teal-dark:#155A50;
+    --teal-light:#E4F3EF;
+    --border:#E7DFCF;
+    --border-strong:#D8CCB4;
+    --mentor-bg:#FFF4E8;
+    --mentor-border:#F0C099;
+    --student-bg:#1F7A6C;
+    --student-text:#FFFFFF;
+    --focus-ring:#1450C4;
+    --danger:#A32B22;
+    --danger-bg:#FBEAE7;
+    --success:#1F7A47;
+    --radius-lg:16px;
+    --radius-md:12px;
+    --radius-sm:8px;
+    --shadow:0 2px 10px rgba(43,38,32,0.08);
+    --shadow-lg:0 12px 32px rgba(43,38,32,0.16);
+    --maxw:1180px;
+    color-scheme: light;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Lexend',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Fraunces',Georgia,serif; margin:0;}
+  button{font-family:inherit; font-size:1rem;}
+  textarea,input,select{font-family:inherit;}
+  a{color:var(--teal-dark);}
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+  :focus-visible{
+    outline:3px solid var(--focus-ring);
+    outline-offset:2px;
+    border-radius:4px;
+  }
+  button{cursor:pointer;}
+  button:disabled{cursor:not-allowed; opacity:0.55;}
+
+  /* ---------- Layout ---------- */
+  .app{
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  .topbar{
+    background:var(--panel-bg);
+    border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:20;
+  }
+  .topbar-inner{
+    max-width:var(--maxw); margin:0 auto; padding:14px 20px;
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; margin-right:auto;
+  }
+  .brand-mark{
+    width:40px; height:40px; border-radius:11px;
+    background:linear-gradient(135deg,var(--accent),var(--teal));
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; flex:none;
+  }
+  .brand-text h1{font-size:1.25rem; color:var(--text); font-weight:600;}
+  .brand-text p{margin:0; font-size:0.8rem; color:var(--text-muted);}
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap;}
+  .btn{
+    display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--border-strong);
+    background:var(--panel-bg);
+    color:var(--text);
+    padding:9px 14px;
+    border-radius:999px;
+    font-weight:500;
+    font-size:0.88rem;
+    transition:background .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .btn:hover{background:#F4EDE0; border-color:var(--accent);}
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{
+    background:var(--accent); border-color:var(--accent); color:var(--accent-contrast);
+  }
+  .btn-primary:hover{background:var(--accent-dark); border-color:var(--accent-dark);}
+  .btn-ghost{background:transparent; border-color:transparent;}
+  .btn-ghost:hover{background:#F4EDE0;}
+  .btn-danger-text{color:var(--danger);}
+
+  .phase-nav{
+    max-width:var(--maxw); margin:0 auto; padding:0 20px 14px;
+    display:flex; gap:8px; overflow-x:auto; -webkit-overflow-scrolling:touch;
+  }
+  .phase-pill{
+    flex:none;
+    display:inline-flex; align-items:center; gap:6px;
+    border:1.5px solid var(--border-strong);
+    background:var(--panel-bg);
+    color:var(--text);
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:0.85rem;
+    font-weight:500;
+    white-space:nowrap;
+  }
+  .phase-pill:hover{border-color:var(--accent);}
+  .phase-pill[aria-pressed="true"]{
+    background:var(--teal);
+    border-color:var(--teal-dark);
+    color:#fff;
+    font-weight:600;
+  }
+  .phase-pill .check{display:none;}
+  .phase-pill[aria-pressed="true"] .check{display:inline;}
+
+  .layout{
+    flex:1;
+    max-width:var(--maxw); margin:0 auto; width:100%;
+    padding:20px; padding-top:0;
+    display:grid; grid-template-columns:1fr 340px; gap:20px;
+    align-items:start;
+  }
+  @media (max-width: 900px){
+    .layout{grid-template-columns:1fr; padding:14px;}
+  }
+
+  /* ---------- Chat panel ---------- */
+  .chat-panel{
+    background:var(--panel-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+    display:flex; flex-direction:column;
+    height:calc(100vh - 190px);
+    min-height:420px;
+  }
+  @media (max-width: 900px){
+    .chat-panel{height:60vh; min-height:380px;}
+  }
+  .chat-messages{
+    flex:1; overflow-y:auto;
+    padding:20px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .msg-row{display:flex; flex-direction:column; max-width:82%;}
+  .msg-row.from-user{align-self:flex-end; align-items:flex-end;}
+  .msg-row.from-mentor{align-self:flex-start; align-items:flex-start;}
+  .msg-label{
+    font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--text-muted); margin-bottom:4px; display:flex; align-items:center; gap:5px;
+  }
+  .msg-bubble{
+    padding:12px 15px;
+    border-radius:var(--radius-md);
+    font-size:0.98rem;
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .from-user .msg-bubble{
+    background:var(--student-bg); color:var(--student-text);
+    border-radius:16px 16px 4px 16px;
+  }
+  .from-mentor .msg-bubble{
+    background:var(--mentor-bg); border:1.5px solid var(--mentor-border);
+    border-radius:16px 16px 16px 4px;
+  }
+  .msg-bubble.is-error{
+    background:var(--danger-bg); border:1.5px solid var(--danger); color:var(--danger);
+  }
+  .msg-suggest{
+    margin-top:6px;
+    background:transparent; border:none; color:var(--teal-dark);
+    font-size:0.8rem; font-weight:600; padding:2px 4px; text-decoration:underline;
+  }
+  .msg-suggest:hover{color:var(--teal);}
+  .phase-divider{
+    align-self:center; text-align:center;
+    color:var(--text-muted); font-size:0.78rem; font-weight:600;
+    margin:6px 0; display:flex; align-items:center; gap:10px; width:100%;
+  }
+  .phase-divider::before,.phase-divider::after{
+    content:""; flex:1; height:1px; background:var(--border-strong);
+  }
+  .typing-row{align-self:flex-start;}
+  .typing-dots{
+    display:inline-flex; gap:4px; padding:14px 16px;
+    background:var(--mentor-bg); border:1.5px solid var(--mentor-border);
+    border-radius:16px 16px 16px 4px;
+  }
+  .typing-dots span{
+    width:7px; height:7px; border-radius:50%; background:var(--accent);
+    animation:bounce 1.2s infinite ease-in-out;
+  }
+  .typing-dots span:nth-child(2){animation-delay:.15s;}
+  .typing-dots span:nth-child(3){animation-delay:.3s;}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0); opacity:.5;} 30%{transform:translateY(-4px); opacity:1;}}
+  @media (prefers-reduced-motion: reduce){
+    .typing-dots span{animation:none; opacity:.8;}
+  }
+
+  .chat-input-area{
+    border-top:1px solid var(--border);
+    padding:14px 16px;
+  }
+  .chat-input-row{
+    display:flex; gap:10px; align-items:flex-end;
+  }
+  #chatInput{
+    flex:1; resize:none;
+    border:1.5px solid var(--border-strong);
+    border-radius:var(--radius-md);
+    padding:11px 13px;
+    font-size:0.98rem;
+    min-height:48px; max-height:160px;
+    background:#FFFDF9;
+    color:var(--text);
+  }
+  #chatInput:focus{border-color:var(--accent);}
+  .send-btn{
+    flex:none; padding:11px 18px; border-radius:var(--radius-md);
+    background:var(--accent); border:1px solid var(--accent); color:#fff; font-weight:600;
+  }
+  .send-btn:hover{background:var(--accent-dark);}
+  .chat-hint{font-size:0.76rem; color:var(--text-muted); margin:6px 2px 0;}
+
+  /* ---------- Notes panel ---------- */
+  .notes-panel{
+    background:var(--panel-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+    padding:18px;
+    display:flex; flex-direction:column; gap:12px;
+    max-height:calc(100vh - 190px);
+  }
+  @media (max-width: 900px){ .notes-panel{max-height:none;} }
+  .notes-panel h2{font-size:1.05rem; display:flex; align-items:center; gap:8px;}
+  .notes-hint{font-size:0.82rem; color:var(--text-muted); margin:-6px 0 0;}
+  .insight-suggestion{
+    background:var(--teal-light); border:1.5px dashed var(--teal);
+    border-radius:var(--radius-md); padding:10px 12px;
+    font-size:0.85rem; color:var(--teal-dark);
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .insight-suggestion .row{display:flex; gap:8px; flex-wrap:wrap;}
+  .insight-suggestion button{font-size:0.8rem; padding:6px 12px; border-radius:999px;}
+  .btn-mini-primary{background:var(--teal); color:#fff; border:1px solid var(--teal-dark);}
+  .btn-mini-primary:hover{background:var(--teal-dark);}
+  .btn-mini-ghost{background:transparent; border:1px solid var(--teal); color:var(--teal-dark);}
+
+  #insightInput{
+    width:100%; min-height:70px; resize:vertical;
+    border:1.5px solid var(--border-strong); border-radius:var(--radius-md);
+    padding:10px 11px; font-size:0.92rem; background:#FFFDF9; color:var(--text);
+  }
+  #insightInput:focus{border-color:var(--teal);}
+  .add-insight-btn{
+    align-self:flex-start;
+    background:var(--teal); color:#fff; border:1px solid var(--teal-dark);
+    padding:8px 16px; border-radius:999px; font-weight:600; font-size:0.85rem;
+  }
+  .add-insight-btn:hover{background:var(--teal-dark);}
+
+  .insights-list{
+    list-style:none; margin:0; padding:0;
+    display:flex; flex-direction:column; gap:8px;
+    overflow-y:auto; flex:1;
+    min-height:0;
+  }
+  .insight-item{
+    background:#FBF7EE; border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:9px 10px 9px 12px;
+    display:flex; gap:8px; align-items:flex-start;
+    font-size:0.88rem;
+  }
+  .insight-item .body{flex:1;}
+  .insight-item .tag{
+    display:inline-block; font-size:0.68rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:.03em; color:var(--teal-dark); background:var(--teal-light);
+    border-radius:999px; padding:2px 8px; margin-bottom:4px;
+  }
+  .insight-item .txt{white-space:pre-wrap; word-break:break-word;}
+  .insight-item .meta{font-size:0.7rem; color:var(--text-muted); margin-top:3px;}
+  .insight-del{
+    flex:none; background:transparent; border:none; color:var(--text-muted);
+    font-size:1rem; line-height:1; padding:4px 6px; border-radius:6px;
+  }
+  .insight-del:hover{color:var(--danger); background:var(--danger-bg);}
+  .insights-empty{color:var(--text-muted); font-size:0.85rem; font-style:italic; padding:6px 2px;}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(43,38,32,0.45);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px; z-index:100;
+  }
+  .modal-backdrop[hidden]{display:none;}
+  .modal{
+    background:var(--panel-bg); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-lg); max-width:480px; width:100%;
+    padding:24px; max-height:90vh; overflow-y:auto;
+  }
+  .modal h2{font-size:1.15rem; margin-bottom:4px;}
+  .modal p{font-size:0.88rem; color:var(--text-muted); margin-top:4px;}
+  .modal-close-row{display:flex; justify-content:flex-end; gap:10px; margin-top:18px;}
+  .field-label{font-size:0.85rem; font-weight:600; display:block; margin:14px 0 6px;}
+  #apiKeyInput{
+    width:100%; padding:10px 12px; border:1.5px solid var(--border-strong);
+    border-radius:var(--radius-md); font-size:0.95rem; background:#FFFDF9; color:var(--text);
+  }
+  #apiKeyInput:focus{border-color:var(--accent);}
+  .key-status{
+    font-size:0.82rem; margin-top:8px; display:flex; align-items:center; gap:6px;
+  }
+  .key-status.ok{color:var(--success);}
+  .key-status.missing{color:var(--danger);}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+    background:var(--text); color:#fff; padding:11px 20px; border-radius:999px;
+    font-size:0.88rem; box-shadow:var(--shadow-lg); z-index:200;
+    max-width:90vw; text-align:center;
+  }
+  .toast[hidden]{display:none;}
+
+  footer.app-footer{
+    text-align:center; font-size:0.76rem; color:var(--text-muted);
+    padding:16px 20px 28px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">💡</div>
+        <div class="brand-text">
+          <h1>UF-idémentor</h1>
+          <p>Bolla din affärsidé - mentorn svarar med frågor, aldrig svar</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn" id="btnSettings" aria-haspopup="dialog">
+          <span aria-hidden="true">⚙️</span> Inställningar
+        </button>
+        <button type="button" class="btn" id="btnExport">
+          <span aria-hidden="true">⬇️</span> Exportera session
+        </button>
+        <button type="button" class="btn btn-danger-text" id="btnNewSession">
+          <span aria-hidden="true">↺</span> Ny session
+        </button>
+      </div>
+    </div>
+    <nav class="phase-nav" aria-label="Välj fas i UF-processen" id="phaseNav"></nav>
+  </header>
+
+  <main class="layout">
+    <section class="chat-panel" aria-label="Chatt med UF-mentorn">
+      <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Samtal"></div>
+      <div class="chat-input-area">
+        <form class="chat-input-row" id="chatForm">
+          <label for="chatInput" class="sr-only">Skriv ditt meddelande till mentorn</label>
+          <textarea id="chatInput" rows="1" placeholder="Berätta om din idé, eller svara på mentorns fråga…" required></textarea>
+          <button type="submit" class="send-btn" id="sendBtn">Skicka</button>
+        </form>
+        <p class="chat-hint">Enter skickar, Skift+Enter ger ny rad. Mentorn ger inga färdiga svar - den hjälper dig tänka vidare själv.</p>
+      </div>
+    </section>
+
+    <aside class="notes-panel" aria-label="Mina insikter">
+      <h2><span aria-hidden="true">📝</span> Mina insikter</h2>
+      <p class="notes-hint">Skriv ner dina egna slutsatser här allteftersom samtalet ger dig nya tankar. Ta med de här till ditt handledarsamtal.</p>
+
+      <div class="insight-suggestion" id="insightSuggestion" hidden>
+        <span>💭 Vill du skriva ner det här som en insikt?</span>
+        <div class="row">
+          <button type="button" class="btn-mini-primary" id="btnSuggestYes">Ja, skriv insikt</button>
+          <button type="button" class="btn-mini-ghost" id="btnSuggestNo">Inte nu</button>
+        </div>
+      </div>
+
+      <div>
+        <label for="insightInput" class="field-label" style="margin-top:0;">Ny insikt</label>
+        <textarea id="insightInput" placeholder="T.ex. Jag har inte pratat med några riktiga kunder än - det behöver jag göra innan nästa samtal."></textarea>
+        <div style="margin-top:8px;">
+          <button type="button" class="add-insight-btn" id="btnAddInsight">Lägg till insikt</button>
+        </div>
+      </div>
+
+      <ul class="insights-list" id="insightsList"></ul>
+    </aside>
+  </main>
+
+  <footer class="app-footer">
+    UF-idémentor sparar bara i din egen webbläsare (localStorage) - inga konton, inga servrar, ingen känslig data.
+  </footer>
+</div>
+
+<!-- Settings modal -->
+<div class="modal-backdrop" id="settingsBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <h2 id="settingsTitle">Inställningar</h2>
+    <p>API-nyckeln sparas bara lokalt i din webbläsare (localStorage) och skickas aldrig någon annanstans än direkt till Anthropics API.</p>
+
+    <label for="apiKeyInput" class="field-label">Anthropic API-nyckel</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
+    <p class="key-status" id="keyStatus"></p>
+
+    <div class="modal-close-row">
+      <button type="button" class="btn btn-danger-text" id="btnClearKey">Ta bort nyckel</button>
+      <button type="button" class="btn btn-primary" id="btnSaveKey">Spara</button>
+      <button type="button" class="btn" id="btnCloseSettings">Stäng</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     UF-idémentor
+     Pedagogisk grund (sammanfattad i systempromten nedan):
+     - Ämnesplan Entreprenörskap, Skolverket (hämtad/kontrollerad
+       via syllabuswebb.skolverket.se, ämneskod ENT, 2026). Om
+       ämnesplanen uppdateras: uppdatera SYSTEM_PROMPT_BASE nedan.
+     - Gymnasiearbetets krav på undersökande/reflekterande arbetssätt.
+     - UF:s affärsplansstruktur som referensram.
+
+     KRITISKT: mentorn ska ALDRIG ge färdiga svar - bara frågor.
+     Se ABSOLUTA REGLER i SYSTEM_PROMPT_BASE.
+
+     Exempel på önskat beteende (manuellt testat under utveckling):
+       Elev: "Ge mig en bra UF-idé för mat."
+       Mentor: "Jag hjälper dig gärna testa en idé du redan har -
+       vad är det för problem kring mat som du själv har lagt
+       märke till, kanske hos dig själv eller kompisar?"
+
+       Elev: "Jag ska sälja hemgjorda ljus, alla kommer vilja ha dem."
+       Mentor: "Vad kul att du har en tydlig idé! Vilka har du redan
+       pratat med om det här - och vad sa de när du frågade om de
+       skulle betala för ett ljus?"
+     ========================================================= */
+
+  const $  = (sel, root) => (root||document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root||document).querySelectorAll(sel));
+
+  const STORAGE = {
+    messages: 'ufMentor.messages',
+    insights: 'ufMentor.insights',
+    phase:    'ufMentor.phase',
+    apiKey:   'ufMentor.apiKey'
+  };
+
+  const MODEL = 'claude-sonnet-4-6';
+  const MAX_TOKENS = 700;
+
+  const PHASES = [
+    { id:'ide',            label:'Idé',                 icon:'💡',
+      hint:'Eleven är i idé-spira-fasen. Fokusera på frågor som hjälper eleven skärpa själva idén: vilket problem den löser, för vem, och varför den är värd att pröva just nu. Undvik att värdera om idén är bra eller dålig - hjälp eleven undersöka den.' },
+    { id:'malgrupp',       label:'Målgrupp',             icon:'🎯',
+      hint:'Eleven jobbar med målgrupp. Fokusera på frågor om vem den tänkta kunden egentligen är, hur eleven vet det, och om eleven har pratat med riktiga personer i målgruppen - inte bara gissat.' },
+    { id:'marknad',        label:'Marknad & konkurrenter', icon:'🔍',
+      hint:'Eleven jobbar med marknad och konkurrenter. Fokusera på frågor om vilka andra som redan löser ett liknande problem, vad som skulle skilja elevens idé från dem, och hur eleven skulle ta reda på hur stor marknaden faktiskt är.' },
+    { id:'ekonomi',        label:'Ekonomi',              icon:'💰',
+      hint:'Eleven jobbar med ekonomi och prissättning. Fokusera på frågor om kostnader, vad kunder skulle vara villiga att betala, hur eleven har kommit fram till sina antaganden om pris - och hur de skulle kunna testa det.' },
+    { id:'marknadsforing', label:'Marknadsföring',       icon:'📣',
+      hint:'Eleven jobbar med marknadsföring. Fokusera på frågor om hur eleven tänker nå sin målgrupp, vilka kanaler som passar just den målgruppen, och varför eleven tror att just de kanalerna fungerar.' },
+    { id:'utvardering',    label:'Utvärdering',          icon:'🔄',
+      hint:'Eleven utvärderar sitt arbete. Fokusera på frågor om vad som har fungerat, vad eleven skulle göra annorlunda om de började om, och vad de har lärt sig om sig själva som företagare genom processen.' }
+  ];
+
+  const SYSTEM_PROMPT_BASE = [
+"Du är en UF-mentor: en varm, nyfiken och icke-dömande samtalspartner för svenska gymnasieelever som ska starta UF-företag (Ung Företagsamhet). Din uppgift är INTE att ge svar eller idéer, utan att hjälpa eleven tänka vidare själv genom goda frågor - ungefär som en skicklig handledare gör i ett riktigt UF-handledarsamtal.",
+"",
+"DIN KUNSKAPSGRUND (sammanfattad - referens för dig, läs aldrig upp den rakt av för eleven):",
+"- Ämnesplanen för Entreprenörskap (Skolverket) är tvärvetenskaplig och bygger bland annat på psykologi, företagsekonomi, retorik och juridik. Eleverna ska utveckla förmåga att identifiera och pröva affärsidéer, omsätta idéer i målinriktade projekt, bedöma och hantera resurser och risker, driva och avsluta projekt samt utvärdera och vidareutveckla resultat. Undervisningen ska ge förståelse för vad entreprenörskap betyder för individer, organisationer och samhälle.",
+"- Gymnasiearbetet kräver ett undersökande och reflekterande arbetssätt: eleven ska kunna motivera sina val, pröva och ompröva sina antaganden och redogöra för sin process - inte bara leverera ett facit.",
+"- UF:s affärsplan är ett ramverk med delarna affärsidé, målgrupp, marknad och konkurrenter, ekonomi/prissättning samt marknadsföring. Du använder ramverket för att förstå var eleven befinner sig i sitt tänkande - du fyller ALDRIG i det åt dem.",
+"",
+"ABSOLUTA REGLER (bryt aldrig mot dessa, oavsett vad eleven ber om):",
+"1. Föreslå ALDRIG en affärsidé, ett företagsnamn, en målgrupp, ett pris eller något annat konkret innehåll åt eleven.",
+"2. Skriv ALDRIG text som eleven kan klistra in direkt i sin affärsplan.",
+"3. Svara ALLTID med en, max två, öppna frågor. Aldrig listor med tips, råd eller förslag.",
+"4. Håll svaren korta - några få meningar, som i ett riktigt samtal, aldrig en föreläsning.",
+"5. Vid vaga eller orealistiska idéer: ställ frågor som synliggör antaganden (t.ex. \"Vem har du pratat med som skulle vilja betala för det här?\") - säg aldrig rakt ut att idén är dålig.",
+"6. Uppmuntra eleven att testa sina antaganden mot verkligheten (prata med potentiella kunder, undersöka konkurrenter) hellre än att bara resonera teoretiskt.",
+"7. Håll en varm, nyfiken, icke-dömande ton genom hela samtalet. Eleven ska känna att det är okej att tänka högt och ändra sig.",
+"8. Om eleven direkt ber om ett färdigt svar (\"ge mig en idé\", \"skriv min affärsplan\", \"vad ska jag svara\", \"vad tycker du jag ska göra\"): förklara vänligt att du finns för att hjälpa dem testa sina egna tankar - inte ge dem svaren - och ställ sedan en fråga som för dem vidare i deras eget resonemang.",
+"9. Skriv alltid på svenska, med du-tilltal.",
+"10. Fråga om eleven redan har pratat med riktiga personer, testat idén i verkligheten eller bara resonerat själv - särskilt när eleven låter säker på något den inte har undersökt."
+  ].join("\n");
+
+  function buildSystemPrompt(phaseId){
+    const phase = PHASES.find(p => p.id === phaseId) || PHASES[0];
+    return SYSTEM_PROMPT_BASE +
+      "\n\nAKTUELL FAS I SAMTALET: " + phase.label +
+      "\n" + phase.hint +
+      "\nEleven kan byta fas när som helst - anpassa dig direkt till den fas som anges här ovan, men behåll alltid de absoluta reglerna.";
+  }
+
+  /* ---------------- State ---------------- */
+  let state = {
+    messages: [],   // {role:'user'|'mentor'|'phase', text, phase, ts}
+    insights: [],   // {id, text, phase, ts}
+    phase: 'ide'
+  };
+
+  function loadJSON(key, fallback){
+    try{
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    }catch(e){ return fallback; }
+  }
+  function saveJSON(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ /* storage full/unavailable */ }
+  }
+
+  function loadState(){
+    state.messages = loadJSON(STORAGE.messages, []);
+    state.insights = loadJSON(STORAGE.insights, []);
+    state.phase = loadJSON(STORAGE.phase, 'ide');
+    if(!PHASES.some(p => p.id === state.phase)) state.phase = 'ide';
+  }
+  function saveMessages(){ saveJSON(STORAGE.messages, state.messages); }
+  function saveInsights(){ saveJSON(STORAGE.insights, state.insights); }
+  function savePhase(){ saveJSON(STORAGE.phase, state.phase); }
+
+  function getApiKey(){ return localStorage.getItem(STORAGE.apiKey) || ''; }
+  function setApiKey(key){
+    if(key) localStorage.setItem(STORAGE.apiKey, key);
+    else localStorage.removeItem(STORAGE.apiKey);
+  }
+
+  /* ---------------- Toast ---------------- */
+  let toastTimer = null;
+  function toast(msg){
+    const el = $('#toast');
+    el.textContent = msg;
+    el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.hidden = true; }, 3200);
+  }
+
+  /* ---------------- Phase nav ---------------- */
+  function renderPhaseNav(){
+    const nav = $('#phaseNav');
+    nav.innerHTML = '';
+    PHASES.forEach(p => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'phase-pill';
+      btn.setAttribute('aria-pressed', String(p.id === state.phase));
+      btn.dataset.phase = p.id;
+      btn.innerHTML = '<span class="check" aria-hidden="true">✓</span><span aria-hidden="true">' + p.icon + '</span><span>' + p.label + '</span>';
+      btn.addEventListener('click', () => selectPhase(p.id));
+      nav.appendChild(btn);
+    });
+  }
+
+  function selectPhase(id){
+    if(id === state.phase) return;
+    const phase = PHASES.find(p => p.id === id);
+    state.phase = id;
+    savePhase();
+    renderPhaseNav();
+    state.messages.push({ role:'phase', text:'Nu fokuserar ni på: ' + phase.label, phase:id, ts:Date.now() });
+    saveMessages();
+    renderMessages();
+  }
+
+  /* ---------------- Chat rendering ---------------- */
+  function escapeHtml(s){
+    return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  }
+
+  function phaseLabel(id){
+    const p = PHASES.find(p => p.id === id);
+    return p ? p.label : id;
+  }
+
+  function renderMessages(){
+    const wrap = $('#chatMessages');
+    wrap.innerHTML = '';
+    if(state.messages.length === 0){
+      wrap.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem; text-align:center; margin-top:20px;">Skriv vad du funderar på så börjar samtalet.</p>';
+      return;
+    }
+    state.messages.forEach((m, idx) => {
+      if(m.role === 'phase'){
+        const div = document.createElement('div');
+        div.className = 'phase-divider';
+        div.textContent = m.text;
+        wrap.appendChild(div);
+        return;
+      }
+      const row = document.createElement('div');
+      row.className = 'msg-row ' + (m.role === 'user' ? 'from-user' : 'from-mentor');
+
+      const label = document.createElement('div');
+      label.className = 'msg-label';
+      label.innerHTML = m.role === 'user'
+        ? '<span aria-hidden="true">🙋</span> Du'
+        : '<span aria-hidden="true">💡</span> Mentorn';
+      row.appendChild(label);
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble' + (m.isError ? ' is-error' : '');
+      bubble.textContent = m.text;
+      row.appendChild(bubble);
+
+      if(m.role === 'mentor' && !m.isError){
+        const sug = document.createElement('button');
+        sug.type = 'button';
+        sug.className = 'msg-suggest';
+        sug.textContent = 'Spara som insikt →';
+        sug.addEventListener('click', () => focusInsightInput());
+        row.appendChild(sug);
+      }
+
+      wrap.appendChild(row);
+    });
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  function addTypingIndicator(){
+    const wrap = $('#chatMessages');
+    const row = document.createElement('div');
+    row.className = 'msg-row from-mentor typing-row';
+    row.id = 'typingRow';
+    row.innerHTML =
+      '<div class="msg-label"><span aria-hidden="true">💡</span> Mentorn</div>' +
+      '<div class="typing-dots" aria-label="Mentorn skriver"><span></span><span></span><span></span></div>';
+    wrap.appendChild(row);
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+  function removeTypingIndicator(){
+    const row = $('#typingRow');
+    if(row) row.remove();
+  }
+
+  /* ---------------- Sending messages ---------------- */
+  async function sendUserMessage(text){
+    text = text.trim();
+    if(!text) return;
+
+    const key = getApiKey();
+    if(!key){
+      openSettings();
+      toast('Lägg till din API-nyckel i Inställningar först.');
+      return;
+    }
+
+    state.messages.push({ role:'user', text, phase:state.phase, ts:Date.now() });
+    saveMessages();
+    renderMessages();
+    hideInsightSuggestion();
+
+    $('#chatInput').value = '';
+    autoGrow($('#chatInput'));
+    setSending(true);
+    addTypingIndicator();
+
+    try{
+      const apiMessages = state.messages
+        .filter(m => m.role === 'user' || m.role === 'mentor')
+        .map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }));
+
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers:{
+          'content-type':'application/json',
+          'x-api-key': key,
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: MAX_TOKENS,
+          system: buildSystemPrompt(state.phase),
+          messages: apiMessages
+        })
+      });
+
+      removeTypingIndicator();
+
+      if(!res.ok){
+        const errText = await res.text();
+        console.error('UF-idémentor API-fel:', res.status, errText);
+        let friendly = 'Något gick fel (' + res.status + '). Kontrollera din API-nyckel i Inställningar.';
+        if(res.status === 401) friendly = 'API-nyckeln verkar felaktig. Kontrollera den i Inställningar.';
+        if(res.status === 429) friendly = 'För många förfrågningar just nu - vänta en liten stund och försök igen.';
+        state.messages.push({ role:'mentor', text: friendly, phase:state.phase, ts:Date.now(), isError:true });
+        saveMessages();
+        renderMessages();
+        return;
+      }
+
+      const data = await res.json();
+      const answer = (data.content || []).map(c => c.text || '').join('\n').trim() || 'Hmm, jag fick inget svar. Kan du prova att skriva igen?';
+
+      state.messages.push({ role:'mentor', text: answer, phase:state.phase, ts:Date.now() });
+      saveMessages();
+      renderMessages();
+      showInsightSuggestion();
+
+    }catch(err){
+      removeTypingIndicator();
+      console.error('UF-idémentor nätverksfel:', err);
+      state.messages.push({ role:'mentor', text:'Nätverksfel - är du uppkopplad? Försök igen om en stund.', phase:state.phase, ts:Date.now(), isError:true });
+      saveMessages();
+      renderMessages();
+    }finally{
+      setSending(false);
+    }
+  }
+
+  function setSending(isSending){
+    $('#sendBtn').disabled = isSending;
+    $('#chatInput').disabled = isSending;
+  }
+
+  /* ---------------- Insights ---------------- */
+  function showInsightSuggestion(){ $('#insightSuggestion').hidden = false; }
+  function hideInsightSuggestion(){ $('#insightSuggestion').hidden = true; }
+  function focusInsightInput(){
+    hideInsightSuggestion();
+    const ta = $('#insightInput');
+    ta.focus();
+    ta.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+
+  function renderInsights(){
+    const list = $('#insightsList');
+    list.innerHTML = '';
+    if(state.insights.length === 0){
+      list.innerHTML = '<li class="insights-empty">Inga insikter sparade än.</li>';
+      return;
+    }
+    state.insights.slice().reverse().forEach(ins => {
+      const li = document.createElement('li');
+      li.className = 'insight-item';
+      const date = new Date(ins.ts).toLocaleDateString('sv-SE', { day:'numeric', month:'short' });
+      li.innerHTML =
+        '<div class="body">' +
+          '<span class="tag">' + escapeHtml(phaseLabel(ins.phase)) + '</span>' +
+          '<div class="txt"></div>' +
+          '<div class="meta">' + date + '</div>' +
+        '</div>' +
+        '<button type="button" class="insight-del" aria-label="Ta bort insikt" data-id="' + ins.id + '">✕</button>';
+      li.querySelector('.txt').textContent = ins.text;
+      li.querySelector('.insight-del').addEventListener('click', () => deleteInsight(ins.id));
+      list.appendChild(li);
+    });
+  }
+
+  function addInsight(){
+    const ta = $('#insightInput');
+    const text = ta.value.trim();
+    if(!text){ ta.focus(); return; }
+    state.insights.push({ id: 'i' + Date.now() + Math.random().toString(36).slice(2,7), text, phase: state.phase, ts: Date.now() });
+    saveInsights();
+    renderInsights();
+    ta.value = '';
+    toast('Insikt sparad.');
+  }
+
+  function deleteInsight(id){
+    state.insights = state.insights.filter(i => i.id !== id);
+    saveInsights();
+    renderInsights();
+  }
+
+  /* ---------------- Export ---------------- */
+  function exportSession(){
+    const lines = [];
+    lines.push('# UF-idémentor - Exporterad session');
+    lines.push('Datum: ' + new Date().toLocaleString('sv-SE'));
+    lines.push('Fas vid export: ' + phaseLabel(state.phase));
+    lines.push('');
+    lines.push('## Samtal');
+    lines.push('');
+    if(state.messages.length === 0){
+      lines.push('_Inget samtal ännu._');
+    }
+    state.messages.forEach(m => {
+      if(m.role === 'phase'){
+        lines.push('### ' + m.text);
+        lines.push('');
+      }else{
+        lines.push((m.role === 'user' ? '**Du:**' : '**Mentorn:**') + ' ' + m.text);
+        lines.push('');
+      }
+    });
+    lines.push('## Mina insikter');
+    lines.push('');
+    if(state.insights.length === 0){
+      lines.push('_Inga insikter sparade._');
+    }else{
+      state.insights.forEach(ins => {
+        const date = new Date(ins.ts).toLocaleDateString('sv-SE');
+        lines.push('- **[' + phaseLabel(ins.phase) + ', ' + date + ']** ' + ins.text);
+      });
+    }
+    lines.push('');
+
+    const blob = new Blob([lines.join('\n')], { type:'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,16).replace('T','_').replace(':','-');
+    a.href = url;
+    a.download = 'uf-idementor-session-' + stamp + '.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('Session exporterad som markdown-fil.');
+  }
+
+  /* ---------------- New session ---------------- */
+  function newSession(){
+    if(state.messages.length === 0){ toast('Chatten är redan tom.'); return; }
+    const ok = window.confirm('Starta om? Din chatt rensas, men dina sparade insikter finns kvar.');
+    if(!ok) return;
+    state.messages = [];
+    saveMessages();
+    renderMessages();
+    hideInsightSuggestion();
+    toast('Ny session startad.');
+  }
+
+  /* ---------------- Settings modal ---------------- */
+  function openSettings(){
+    $('#apiKeyInput').value = getApiKey();
+    updateKeyStatus();
+    $('#settingsBackdrop').hidden = false;
+    $('#apiKeyInput').focus();
+  }
+  function closeSettings(){ $('#settingsBackdrop').hidden = true; }
+  function updateKeyStatus(){
+    const el = $('#keyStatus');
+    if(getApiKey()){
+      el.textContent = '🔑 Nyckel sparad i den här webbläsaren.';
+      el.className = 'key-status ok';
+    }else{
+      el.textContent = 'Ingen nyckel sparad ännu.';
+      el.className = 'key-status missing';
+    }
+  }
+
+  /* ---------------- Textarea auto-grow ---------------- */
+  function autoGrow(el){
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+  }
+
+  /* ---------------- Wire up ---------------- */
+  function init(){
+    loadState();
+    renderPhaseNav();
+    renderMessages();
+    renderInsights();
+
+    // Seed a friendly opening line on first-ever visit
+    if(state.messages.length === 0 && loadJSON('ufMentor.seeded', false) === false){
+      state.messages.push({
+        role:'mentor',
+        text:'Hej! Vad är det för idé du går och funderar på just nu?',
+        phase:state.phase, ts:Date.now()
+      });
+      saveMessages();
+      saveJSON('ufMentor.seeded', true);
+      renderMessages();
+    }
+
+    $('#chatForm').addEventListener('submit', e => {
+      e.preventDefault();
+      sendUserMessage($('#chatInput').value);
+    });
+    $('#chatInput').addEventListener('input', e => autoGrow(e.target));
+    $('#chatInput').addEventListener('keydown', e => {
+      if(e.key === 'Enter' && !e.shiftKey){
+        e.preventDefault();
+        $('#chatForm').requestSubmit();
+      }
+    });
+
+    $('#btnAddInsight').addEventListener('click', addInsight);
+    $('#btnSuggestYes').addEventListener('click', focusInsightInput);
+    $('#btnSuggestNo').addEventListener('click', hideInsightSuggestion);
+
+    $('#btnExport').addEventListener('click', exportSession);
+    $('#btnNewSession').addEventListener('click', newSession);
+
+    $('#btnSettings').addEventListener('click', openSettings);
+    $('#btnCloseSettings').addEventListener('click', closeSettings);
+    $('#settingsBackdrop').addEventListener('click', e => { if(e.target.id === 'settingsBackdrop') closeSettings(); });
+    document.addEventListener('keydown', e => {
+      if(e.key === 'Escape' && !$('#settingsBackdrop').hidden) closeSettings();
+    });
+    $('#btnSaveKey').addEventListener('click', () => {
+      const v = $('#apiKeyInput').value.trim();
+      if(!v){ toast('Skriv in en nyckel först.'); return; }
+      setApiKey(v);
+      updateKeyStatus();
+      toast('Nyckel sparad.');
+    });
+    $('#btnClearKey').addEventListener('click', () => {
+      setApiKey('');
+      $('#apiKeyInput').value = '';
+      updateKeyStatus();
+      toast('Nyckeln är borttagen.');
+    });
+
+    if(!getApiKey()){
+      // Gentle nudge on first load, no modal auto-pop to avoid surprising the student
+      toast('Tips: lägg till din API-nyckel i Inställningar för att kunna chatta.');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
