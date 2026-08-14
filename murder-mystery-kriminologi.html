@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Utredningsrummet – Murder Mystery för Kriminologi 100p</title>
+<meta name="description" content="Ett forensiskt murder mystery för gymnasiekursen Kriminologi 100 poäng. Spårsäkring, labbanalyser, bevisvärdering, kriminologisk teori och åtalsbeslut.">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root{
+  --bg:#0e1420;
+  --bg-2:#141d2e;
+  --surface:#1b2740;
+  --surface-2:#22314e;
+  --line:rgba(122,169,214,.22);
+  --amber:#f0b429;
+  --teal:#2ec4b6;
+  --red:#e5484d;
+  --green:#3fb950;
+  --blue:#4f9cf9;
+  --purple:#a56eff;
+  --text:#e8eef7;
+  --muted:#93a4bd;
+  --warm:#f6ead4;
+  --shadow:0 10px 34px rgba(0,0,0,.45);
+  --radius:14px;
+}
+
+body{
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  background:
+    radial-gradient(1100px 600px at 15% -10%, rgba(46,196,182,.10), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(240,180,41,.08), transparent 55%),
+    var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  line-height:1.65;
+}
+
+h1,h2,h3,h4,h5{ line-height:1.3; }
+
+::selection{ background:rgba(240,180,41,.3); }
+
+a{ color:var(--teal); }
+
+/* ============ HEADER ============ */
+.app-header{
+  background:linear-gradient(135deg,#16223a 0%,#0e1420 100%);
+  border-bottom:1px solid var(--line);
+  padding:.85rem 1.5rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:1rem;
+  position:sticky;
+  top:0;
+  z-index:200;
+  flex-wrap:wrap;
+}
+.brand{ display:flex; align-items:center; gap:.7rem; }
+.brand-mark{
+  width:38px; height:38px; border-radius:10px;
+  background:linear-gradient(135deg,var(--teal),var(--blue));
+  display:grid; place-items:center; font-size:1.2rem;
+  box-shadow:0 4px 14px rgba(46,196,182,.35);
+  flex-shrink:0;
+}
+.brand h1{ font-size:1.05rem; letter-spacing:.4px; color:var(--text); }
+.brand span{ display:block; font-size:.75rem; color:var(--muted); font-weight:400; letter-spacing:.5px; }
+.header-actions{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+
+/* ============ BUTTONS ============ */
+.btn{
+  padding:.6rem 1.1rem;
+  border:none;
+  border-radius:10px;
+  font-size:.92rem;
+  font-weight:600;
+  font-family:inherit;
+  cursor:pointer;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+}
+.btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+.btn-primary{ background:linear-gradient(135deg,var(--teal),#25a99d); color:#06231f; }
+.btn-primary:hover:not(:disabled){ transform:translateY(-2px); box-shadow:0 6px 18px rgba(46,196,182,.4); }
+.btn-amber{ background:linear-gradient(135deg,var(--amber),#dd9b12); color:#2a1d00; }
+.btn-amber:hover:not(:disabled){ transform:translateY(-2px); box-shadow:0 6px 18px rgba(240,180,41,.4); }
+.btn-ghost{ background:transparent; color:var(--teal); border:1.5px solid rgba(46,196,182,.5); }
+.btn-ghost:hover:not(:disabled){ background:rgba(46,196,182,.1); border-color:var(--teal); }
+.btn-danger{ background:var(--red); color:#fff; }
+.btn-danger:hover:not(:disabled){ background:#f0575c; transform:translateY(-2px); }
+.btn-sm{ padding:.4rem .8rem; font-size:.82rem; }
+.btn:disabled{ opacity:.4; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
+
+/* ============ SCREENS ============ */
+.screen{ display:none; }
+.screen.active{ display:block; }
+.wrap{ max-width:1180px; margin:0 auto; padding:2rem 1.5rem 4rem; }
+
+/* ============ START ============ */
+.hero{ text-align:center; padding:2.5rem 0 2rem; }
+.hero .eyebrow{
+  display:inline-block;
+  background:rgba(46,196,182,.14);
+  border:1px solid rgba(46,196,182,.4);
+  color:var(--teal);
+  padding:.35rem .9rem;
+  border-radius:100px;
+  font-size:.8rem;
+  font-weight:700;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  margin-bottom:1rem;
+}
+.hero h2{ font-size:2.6rem; color:var(--warm); margin-bottom:.6rem; letter-spacing:-.5px; }
+.hero p{ color:var(--muted); max-width:660px; margin:0 auto; font-size:1.05rem; }
+
+.section-title{
+  font-size:1.15rem;
+  color:var(--amber);
+  margin:2.5rem 0 1rem;
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  letter-spacing:.3px;
+}
+.section-title::after{ content:''; flex:1; height:1px; background:var(--line); }
+
+.case-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:1.4rem; }
+.case-card{
+  background:linear-gradient(180deg,var(--surface) 0%,var(--bg-2) 100%);
+  border:1.5px solid var(--line);
+  border-radius:var(--radius);
+  padding:1.6rem;
+  cursor:pointer;
+  transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  position:relative;
+  overflow:hidden;
+  text-align:left;
+  width:100%;
+  color:inherit;
+  font-family:inherit;
+}
+.case-card::before{
+  content:''; position:absolute; inset:0 0 auto 0; height:3px;
+  background:linear-gradient(90deg,var(--teal),var(--amber));
+  opacity:0; transition:opacity .2s;
+}
+.case-card:hover{ transform:translateY(-4px); border-color:rgba(46,196,182,.55); box-shadow:var(--shadow); }
+.case-card:hover::before, .case-card.selected::before{ opacity:1; }
+.case-card.selected{ border-color:var(--teal); box-shadow:0 0 0 3px rgba(46,196,182,.18); }
+.case-card:focus-visible{ outline:3px solid var(--amber); outline-offset:3px; }
+.case-icon{ font-size:2.2rem; margin-bottom:.6rem; display:block; }
+.case-card h3{ color:var(--warm); font-size:1.25rem; margin-bottom:.2rem; }
+.case-card .case-sub{ color:var(--teal); font-size:.85rem; font-weight:600; margin-bottom:.8rem; }
+.case-card p{ color:var(--muted); font-size:.92rem; }
+.case-meta{ display:flex; flex-wrap:wrap; gap:.4rem; margin-top:1rem; }
+.pill{
+  font-size:.73rem; padding:.25rem .65rem; border-radius:100px;
+  background:rgba(79,156,249,.14); color:var(--blue);
+  border:1px solid rgba(79,156,249,.3); font-weight:600;
+}
+.pill.amber{ background:rgba(240,180,41,.13); color:var(--amber); border-color:rgba(240,180,41,.32); }
+.pill.purple{ background:rgba(165,110,255,.13); color:var(--purple); border-color:rgba(165,110,255,.32); }
+.pill.green{ background:rgba(63,185,80,.13); color:var(--green); border-color:rgba(63,185,80,.32); }
+.pill.red{ background:rgba(229,72,77,.13); color:var(--red); border-color:rgba(229,72,77,.32); }
+
+.mode-row{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; }
+.mode-btn{
+  background:var(--surface); border:1.5px solid var(--line);
+  border-radius:12px; padding:1.2rem; cursor:pointer;
+  transition:all .2s; text-align:left; color:inherit; font-family:inherit; width:100%;
+}
+.mode-btn:hover{ border-color:rgba(240,180,41,.5); }
+.mode-btn.selected{ border-color:var(--amber); background:rgba(240,180,41,.09); }
+.mode-btn:focus-visible{ outline:3px solid var(--amber); outline-offset:3px; }
+.mode-btn strong{ display:block; color:var(--warm); margin-bottom:.25rem; font-size:1rem; }
+.mode-btn span{ color:var(--muted); font-size:.86rem; }
+
+.start-cta{ text-align:center; margin-top:2.5rem; }
+.start-cta .btn{ font-size:1.05rem; padding:.9rem 2.2rem; }
+.start-hint{ color:var(--muted); font-size:.86rem; margin-top:.8rem; }
+
+/* ============ PROGRESS ============ */
+.progress-rail{
+  display:flex; gap:.4rem; flex-wrap:wrap;
+  background:var(--bg-2); border:1px solid var(--line);
+  border-radius:12px; padding:.6rem; margin-bottom:1.8rem;
+}
+.progress-step{
+  flex:1 1 130px; text-align:center; padding:.5rem .4rem;
+  border-radius:8px; font-size:.8rem; font-weight:600;
+  color:var(--muted); background:transparent;
+  border:1px solid transparent; cursor:default;
+  transition:all .2s; font-family:inherit;
+}
+.progress-step.done{ color:var(--green); background:rgba(63,185,80,.09); cursor:pointer; border-color:rgba(63,185,80,.25); }
+.progress-step.done:hover{ background:rgba(63,185,80,.18); }
+.progress-step.current{ color:#06231f; background:linear-gradient(135deg,var(--teal),#25a99d); cursor:pointer; }
+.progress-step.locked{ opacity:.45; }
+.progress-step:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+/* ============ PANELS ============ */
+.panel{ display:none; }
+.panel.active{ display:block; animation:fade .35s ease; }
+@keyframes fade{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:none;} }
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:1.6rem;
+  margin-bottom:1.4rem;
+}
+.card h3{ color:var(--amber); font-size:1.2rem; margin-bottom:.8rem; }
+.card h4{ color:var(--teal); font-size:1rem; margin:1.2rem 0 .5rem; }
+.card p{ margin-bottom:.8rem; }
+.card p:last-child{ margin-bottom:0; }
+
+.panel-head{ margin-bottom:1.2rem; }
+.panel-head h2{ color:var(--warm); font-size:1.7rem; margin-bottom:.3rem; }
+.panel-head p{ color:var(--muted); }
+
+.case-file{
+  background:linear-gradient(180deg,rgba(240,180,41,.07),transparent);
+  border:1px solid rgba(240,180,41,.3);
+  border-left:4px solid var(--amber);
+  border-radius:10px; padding:1.2rem; margin:1.2rem 0;
+}
+.case-file h4{ color:var(--amber); margin:0 0 .5rem; font-size:.95rem; text-transform:uppercase; letter-spacing:1px; }
+
+.factline{ display:flex; gap:.8rem; padding:.55rem 0; border-bottom:1px solid var(--line); font-size:.94rem; flex-wrap:wrap; }
+.factline:last-child{ border-bottom:none; }
+.factline dt{ color:var(--muted); min-width:170px; font-weight:600; }
+.factline dd{ flex:1; min-width:200px; }
+
+/* ============ CLUES ============ */
+.grid-2{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1rem; }
+.clue-card{
+  background:var(--bg-2); border:1px solid var(--line);
+  border-radius:12px; padding:1.1rem; cursor:pointer;
+  transition:all .2s; position:relative; text-align:left;
+  font-family:inherit; color:inherit; width:100%;
+}
+.clue-card:hover{ border-color:rgba(46,196,182,.5); transform:translateY(-2px); }
+.clue-card:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+.clue-card.locked .clue-body{ filter:blur(5px); user-select:none; opacity:.55; }
+.clue-card.open{ border-color:rgba(46,196,182,.45); background:var(--surface); cursor:default; }
+.clue-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:.6rem; margin-bottom:.5rem; }
+.clue-title{ font-weight:700; color:var(--warm); font-size:1rem; }
+.clue-tag{
+  font-size:.68rem; padding:.2rem .55rem; border-radius:6px; white-space:nowrap;
+  background:rgba(79,156,249,.15); color:var(--blue); border:1px solid rgba(79,156,249,.3); font-weight:700;
+  letter-spacing:.4px; text-transform:uppercase;
+}
+.clue-tag.bio{ background:rgba(63,185,80,.15); color:var(--green); border-color:rgba(63,185,80,.3); }
+.clue-tag.dig{ background:rgba(165,110,255,.15); color:var(--purple); border-color:rgba(165,110,255,.3); }
+.clue-tag.fys{ background:rgba(240,180,41,.15); color:var(--amber); border-color:rgba(240,180,41,.32); }
+.clue-tag.dok{ background:rgba(229,72,77,.13); color:var(--red); border-color:rgba(229,72,77,.3); }
+.clue-body{ font-size:.93rem; color:var(--text); }
+.clue-note{
+  margin-top:.7rem; padding-top:.7rem; border-top:1px dashed var(--line);
+  font-size:.85rem; color:var(--muted);
+}
+.clue-note strong{ color:var(--teal); }
+.hint{ margin-top:.6rem; font-size:.8rem; color:var(--teal); font-weight:600; }
+
+.split-banner{
+  background:rgba(165,110,255,.1); border:1px solid rgba(165,110,255,.35);
+  border-radius:10px; padding:.9rem 1.1rem; margin-bottom:1.2rem;
+  display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;
+}
+.split-banner strong{ color:var(--purple); }
+.split-banner p{ font-size:.87rem; color:var(--muted); margin:.2rem 0 0; }
+
+/* ============ LAB ============ */
+.budget-bar{
+  background:var(--bg-2); border:1px solid var(--line); border-radius:12px;
+  padding:1rem 1.2rem; margin-bottom:1.2rem;
+  display:flex; align-items:center; gap:1.2rem; flex-wrap:wrap;
+}
+.budget-bar .label{ font-weight:700; color:var(--warm); }
+.budget-dots{ display:flex; gap:.35rem; }
+.dot{ width:16px; height:16px; border-radius:50%; background:var(--surface-2); border:1.5px solid var(--line); }
+.dot.used{ background:var(--amber); border-color:var(--amber); }
+.budget-bar .note{ color:var(--muted); font-size:.86rem; flex:1; min-width:200px; }
+
+.analysis-card{
+  background:var(--bg-2); border:1px solid var(--line);
+  border-radius:12px; padding:1.1rem; transition:all .2s;
+}
+.analysis-card.done{ border-color:rgba(63,185,80,.4); background:var(--surface); }
+.analysis-card h4{ color:var(--warm); font-size:1rem; margin:0 0 .3rem; }
+.analysis-meta{ font-size:.8rem; color:var(--muted); margin-bottom:.7rem; }
+.analysis-meta em{ color:var(--teal); font-style:normal; font-weight:600; }
+.report{
+  background:rgba(63,185,80,.06); border:1px solid rgba(63,185,80,.28);
+  border-radius:9px; padding:.9rem; margin-top:.8rem; font-size:.9rem;
+}
+.report .rep-label{ font-size:.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--green); font-weight:700; display:block; margin-bottom:.3rem; }
+.report .interp{ margin-top:.6rem; padding-top:.6rem; border-top:1px solid rgba(63,185,80,.2); }
+.report .interp strong{ color:var(--teal); }
+.report .caveat{
+  margin-top:.6rem; padding:.6rem .7rem; border-radius:7px;
+  background:rgba(240,180,41,.09); border-left:3px solid var(--amber);
+  font-size:.85rem; color:var(--warm);
+}
+.report .caveat strong{ color:var(--amber); }
+
+/* ============ SUSPECTS ============ */
+.suspect-card{
+  background:var(--bg-2); border:1px solid var(--line);
+  border-radius:12px; padding:1.2rem;
+}
+.suspect-head{ display:flex; gap:.9rem; align-items:center; margin-bottom:.8rem; }
+.avatar{
+  width:48px; height:48px; border-radius:12px; flex-shrink:0;
+  display:grid; place-items:center; font-weight:800; font-size:1rem; letter-spacing:.5px;
+}
+.suspect-head h4{ font-size:1.05rem; margin:0; }
+.suspect-role{ font-size:.84rem; color:var(--muted); }
+.suspect-bg{ font-size:.9rem; margin-bottom:.6rem; }
+.suspect-motive{ font-size:.86rem; color:var(--muted); margin-bottom:.8rem; }
+.suspect-motive strong{ color:var(--amber); }
+.alibi{
+  display:inline-block; font-size:.75rem; font-weight:700; padding:.25rem .6rem;
+  border-radius:6px; margin-bottom:.8rem;
+}
+.alibi.stark{ background:rgba(63,185,80,.15); color:var(--green); border:1px solid rgba(63,185,80,.35); }
+.alibi.svag{ background:rgba(240,180,41,.13); color:var(--amber); border:1px solid rgba(240,180,41,.35); }
+.alibi.inget{ background:rgba(229,72,77,.13); color:var(--red); border:1px solid rgba(229,72,77,.35); }
+.quote{
+  background:var(--surface-2); border-left:3px solid var(--teal);
+  border-radius:0 9px 9px 0; padding:.85rem 1rem; margin:.7rem 0; font-size:.92rem;
+}
+.quote h5{ font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:var(--teal); margin-bottom:.35rem; }
+.quote.follow{ border-left-color:var(--purple); }
+.quote.follow h5{ color:var(--purple); }
+
+/* ============ BEVISVÄRDERING ============ */
+.assess-item{
+  background:var(--bg-2); border:1px solid var(--line);
+  border-radius:12px; padding:1.2rem; margin-bottom:1rem;
+}
+.assess-text{ font-size:.96rem; margin-bottom:.9rem; }
+.assess-text strong{ color:var(--warm); }
+.choice-row{ margin-bottom:.8rem; }
+.choice-row .q{ font-size:.8rem; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.7px; margin-bottom:.4rem; }
+.chips{ display:flex; gap:.5rem; flex-wrap:wrap; }
+.chip{
+  padding:.45rem .9rem; border-radius:100px; font-size:.85rem; font-weight:600;
+  background:var(--surface-2); border:1.5px solid var(--line); color:var(--text);
+  cursor:pointer; transition:all .18s; font-family:inherit;
+}
+.chip:hover{ border-color:rgba(46,196,182,.5); }
+.chip.on{ background:rgba(46,196,182,.18); border-color:var(--teal); color:var(--teal); }
+.chip:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+.chip.correct{ background:rgba(63,185,80,.2); border-color:var(--green); color:var(--green); }
+.chip.wrong{ background:rgba(229,72,77,.18); border-color:var(--red); color:var(--red); }
+.chip:disabled{ cursor:default; }
+.feedback{
+  margin-top:.8rem; padding:.85rem 1rem; border-radius:9px; font-size:.9rem;
+  border-left:3px solid var(--teal); background:rgba(46,196,182,.08);
+}
+.feedback.miss{ border-left-color:var(--amber); background:rgba(240,180,41,.08); }
+.feedback strong{ color:var(--warm); }
+
+.score-box{
+  background:linear-gradient(135deg,rgba(46,196,182,.12),rgba(79,156,249,.08));
+  border:1px solid rgba(46,196,182,.35); border-radius:12px;
+  padding:1.2rem; margin:1.2rem 0; text-align:center;
+}
+.score-box .big{ font-size:2rem; font-weight:800; color:var(--teal); display:block; }
+.score-box p{ color:var(--muted); font-size:.9rem; margin:.3rem 0 0; }
+
+/* ============ TEORI ============ */
+.theory-card{
+  background:var(--bg-2); border:1.5px solid var(--line); border-radius:12px;
+  padding:1.1rem; cursor:pointer; transition:all .2s; text-align:left;
+  font-family:inherit; color:inherit; width:100%;
+}
+.theory-card:hover{ border-color:rgba(165,110,255,.5); transform:translateY(-2px); }
+.theory-card.on{ border-color:var(--purple); background:rgba(165,110,255,.1); }
+.theory-card:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+.theory-card.hit{ border-color:var(--green); background:rgba(63,185,80,.1); }
+.theory-card.miss{ border-color:var(--red); background:rgba(229,72,77,.08); }
+.theory-card h4{ margin:0 0 .3rem; font-size:1rem; color:var(--warm); }
+.theory-card .lvl{ font-size:.72rem; color:var(--purple); font-weight:700; text-transform:uppercase; letter-spacing:.6px; }
+.theory-card p{ font-size:.88rem; color:var(--muted); margin:.4rem 0 0; }
+.theory-card .verdict-note{ display:none; font-size:.86rem; margin-top:.6rem; padding-top:.6rem; border-top:1px dashed var(--line); color:var(--text); }
+.theory-card.revealed .verdict-note{ display:block; }
+
+/* ============ ÅTAL ============ */
+.suspect-pick-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.9rem; margin:1.2rem 0; }
+.pick-btn{
+  background:var(--bg-2); border:1.5px solid var(--line); border-radius:12px;
+  padding:1.1rem .8rem; cursor:pointer; transition:all .2s; text-align:center;
+  font-family:inherit; color:inherit;
+}
+.pick-btn:hover{ border-color:rgba(229,72,77,.55); background:rgba(229,72,77,.07); }
+.pick-btn.on{ border-color:var(--red); background:rgba(229,72,77,.15); box-shadow:0 0 0 3px rgba(229,72,77,.14); }
+.pick-btn:focus-visible{ outline:3px solid var(--amber); outline-offset:2px; }
+.pick-btn .pk-av{ width:42px; height:42px; margin:0 auto .5rem; border-radius:11px; display:grid; place-items:center; font-weight:800; }
+.pick-btn .pk-name{ font-weight:700; font-size:.95rem; }
+.pick-btn .pk-role{ font-size:.78rem; color:var(--muted); }
+
+.evidence-pick{
+  background:var(--bg-2); border:1.5px solid var(--line); border-radius:10px;
+  padding:.85rem 1rem; margin-bottom:.6rem; cursor:pointer; transition:all .18s;
+  display:flex; gap:.8rem; align-items:flex-start; text-align:left;
+  font-family:inherit; color:inherit; width:100%; font-size:.92rem;
+}
+.evidence-pick:hover{ border-color:rgba(46,196,182,.5); }
+.evidence-pick.on{ border-color:var(--teal); background:rgba(46,196,182,.1); }
+.evidence-pick:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+.evidence-pick .box{
+  width:20px; height:20px; border-radius:5px; border:1.5px solid var(--line);
+  flex-shrink:0; display:grid; place-items:center; font-size:.75rem; margin-top:.15rem;
+}
+.evidence-pick.on .box{ background:var(--teal); border-color:var(--teal); color:#06231f; }
+
+.notepad textarea, .field textarea, .field input{
+  width:100%; background:var(--bg-2); border:1px solid var(--line);
+  border-radius:10px; color:var(--text); padding:.9rem 1rem;
+  font-family:inherit; font-size:.94rem; resize:vertical;
+}
+.notepad textarea:focus, .field textarea:focus{ outline:none; border-color:var(--teal); }
+.field{ margin:1.2rem 0; }
+.field label{ display:block; font-weight:700; color:var(--amber); margin-bottom:.4rem; font-size:.92rem; }
+.field .sub{ font-size:.84rem; color:var(--muted); margin-bottom:.5rem; }
+.notepad{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:1.3rem; margin-top:1.8rem; }
+.notepad h3{ color:var(--amber); font-size:1rem; margin-bottom:.6rem; }
+.notepad .saved{ font-size:.78rem; color:var(--green); margin-top:.4rem; height:1rem; }
+
+/* ============ DOMSLUT ============ */
+.verdict-banner{ border-radius:var(--radius); padding:2rem 1.5rem; text-align:center; margin-bottom:1.5rem; }
+.verdict-banner.right{ background:linear-gradient(135deg,rgba(63,185,80,.18),rgba(46,196,182,.1)); border:1.5px solid var(--green); }
+.verdict-banner.wrong{ background:linear-gradient(135deg,rgba(229,72,77,.18),rgba(240,180,41,.08)); border:1.5px solid var(--red); }
+.verdict-banner .vicon{ font-size:3rem; display:block; margin-bottom:.5rem; }
+.verdict-banner h3{ font-size:1.7rem; margin-bottom:.5rem; color:var(--warm); }
+.verdict-banner p{ font-size:1.02rem; color:var(--text); max-width:640px; margin:0 auto; }
+
+.chain-list{ list-style:none; }
+.chain-list li{
+  padding:.7rem 0 .7rem 1.6rem; position:relative; border-bottom:1px solid var(--line); font-size:.94rem;
+}
+.chain-list li:last-child{ border-bottom:none; }
+.chain-list li::before{ content:'▸'; position:absolute; left:0; color:var(--teal); font-weight:700; }
+
+.herring-list{ list-style:none; }
+.herring-list li{
+  padding:.7rem 0 .7rem 1.6rem; position:relative; border-bottom:1px solid var(--line); font-size:.94rem;
+}
+.herring-list li:last-child{ border-bottom:none; }
+.herring-list li::before{ content:'✕'; position:absolute; left:0; color:var(--red); font-weight:700; }
+
+.lesson-box{
+  background:rgba(165,110,255,.08); border:1px solid rgba(165,110,255,.3);
+  border-left:4px solid var(--purple); border-radius:10px; padding:1.1rem; margin:1rem 0;
+}
+.lesson-box h4{ color:var(--purple); margin:0 0 .5rem; }
+
+.nav-row{ display:flex; justify-content:space-between; gap:1rem; margin-top:2rem; flex-wrap:wrap; }
+
+/* ============ MODAL ============ */
+.modal{
+  display:none; position:fixed; inset:0; z-index:500;
+  background:rgba(6,10,18,.82); padding:2rem 1rem; overflow-y:auto;
+}
+.modal.open{ display:block; }
+.modal-box{
+  background:var(--bg-2); border:1px solid var(--line); border-radius:var(--radius);
+  max-width:860px; margin:0 auto; padding:2rem; box-shadow:var(--shadow);
+}
+.modal-box h2{ color:var(--amber); margin-bottom:1rem; font-size:1.4rem; }
+.modal-close{ position:sticky; top:0; float:right; }
+.modal-box h3{ color:var(--teal); font-size:1.05rem; margin:1.5rem 0 .5rem; }
+.modal-box h4{ color:var(--warm); font-size:.98rem; margin:1rem 0 .3rem; }
+.modal-box p, .modal-box li{ font-size:.93rem; }
+.modal-box ul, .modal-box ol{ margin:.5rem 0 .5rem 1.3rem; }
+.modal-box li{ margin-bottom:.35rem; }
+
+.tabs{ display:flex; gap:.4rem; flex-wrap:wrap; border-bottom:1px solid var(--line); margin-bottom:1.2rem; padding-bottom:.6rem; }
+.tab{
+  padding:.45rem .9rem; border-radius:8px; font-size:.86rem; font-weight:600;
+  background:transparent; border:1px solid transparent; color:var(--muted);
+  cursor:pointer; font-family:inherit;
+}
+.tab:hover{ color:var(--text); background:var(--surface); }
+.tab.on{ background:rgba(46,196,182,.15); color:var(--teal); border-color:rgba(46,196,182,.35); }
+.tab-panel{ display:none; }
+.tab-panel.on{ display:block; }
+
+.term{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:.9rem 1.1rem; margin-bottom:.7rem; }
+.term h4{ margin:0 0 .3rem; color:var(--teal); font-size:.98rem; }
+.term p{ margin:0; font-size:.9rem; }
+.term .myth{
+  margin-top:.5rem; padding-top:.5rem; border-top:1px dashed var(--line);
+  font-size:.85rem; color:var(--warm);
+}
+.term .myth strong{ color:var(--amber); }
+
+table.tbl{ width:100%; border-collapse:collapse; margin:.8rem 0; font-size:.88rem; }
+table.tbl th, table.tbl td{ text-align:left; padding:.55rem .6rem; border-bottom:1px solid var(--line); vertical-align:top; }
+table.tbl th{ color:var(--amber); font-size:.8rem; text-transform:uppercase; letter-spacing:.6px; }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:720px){
+  .wrap{ padding:1.5rem 1rem 3rem; }
+  .hero h2{ font-size:1.9rem; }
+  .app-header{ padding:.7rem 1rem; }
+  .brand h1{ font-size:.95rem; }
+  .progress-step{ flex:1 1 100px; font-size:.72rem; }
+  .factline dt{ min-width:100%; }
+  .modal-box{ padding:1.3rem; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{ animation:none !important; transition:none !important; }
+  .btn:hover, .case-card:hover, .clue-card:hover, .theory-card:hover{ transform:none !important; }
+}
+
+@media print{
+  body{ background:#fff; color:#000; }
+  .app-header, .progress-rail, .nav-row, .btn, .modal{ display:none !important; }
+  .card, .clue-card, .analysis-card, .suspect-card{ border:1px solid #999; background:#fff; color:#000; break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-mark">🔬</div>
+    <div>
+      <h1>Utredningsrummet</h1>
+      <span>Murder Mystery · Kriminologi 100 p</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost btn-sm" onclick="openModal('factModal')">📚 Faktabank</button>
+    <button class="btn btn-ghost btn-sm" onclick="openModal('teacherModal')">🎓 Lärarhandledning</button>
+    <button class="btn btn-ghost btn-sm" id="rulesBtn" onclick="openModal('rulesModal')" style="display:none;">📋 Regler</button>
+    <button class="btn btn-danger btn-sm" id="restartBtn" onclick="restartGame()" style="display:none;">↺ Nytt fall</button>
+  </div>
+</header>
+
+<!-- ============ STARTSKÄRM ============ -->
+<section class="screen active" id="startScreen">
+<div class="wrap">
+  <div class="hero">
+    <span class="eyebrow">Forensisk fallstudie</span>
+    <h2>Tre fall. Ett laboratorium. Begränsat med tid.</h2>
+    <p>Ni är utredare vid en polisregions grova brottssektion. Ni säkrar spår, beställer forensiska analyser
+       med begränsad budget, förhör misstänkta, värderar bevisningen – och fattar beslut om åtal.
+       Sedan förklarar ni brottet med kriminologisk teori.</p>
+  </div>
+
+  <h3 class="section-title">1. Välj fall</h3>
+  <div class="case-grid" id="caseGrid"></div>
+
+  <h3 class="section-title">2. Välj arbetsform</h3>
+  <div class="mode-row">
+    <button class="mode-btn" id="mode-solo" onclick="selectMode('solo')">
+      <strong>🕵️ Enskild utredare</strong>
+      <span>Du får tillgång till alla spår och alla förhör. Bra som hemuppgift eller repetition.</span>
+    </button>
+    <button class="mode-btn" id="mode-pair" onclick="selectMode('pair')">
+      <strong>👥 Utredarpar (A + B)</strong>
+      <span>Ni får olika spår och olika förhör. Ni måste berätta för varandra – ingen kan lösa fallet ensam.</span>
+    </button>
+    <button class="mode-btn" id="mode-group" onclick="selectMode('group')">
+      <strong>🏛️ Utredningsgrupp (4–5)</strong>
+      <span>Alla spår är öppna, men gruppen måste komma överens innan åtalsbeslutet. Rollkort finns i lärarhandledningen.</span>
+    </button>
+  </div>
+
+  <div class="start-cta">
+    <button class="btn btn-primary" id="startBtn" onclick="startGame()" disabled>Öppna förundersökningen →</button>
+    <p class="start-hint" id="startHint">Välj ett fall och en arbetsform för att börja.</p>
+  </div>
+</div>
+</section>
+
+<!-- ============ SPELSKÄRM ============ -->
+<section class="screen" id="gameScreen">
+<div class="wrap">
+  <div class="progress-rail" id="progressRail"></div>
+
+  <!-- FAS 1: UPPDRAG -->
+  <div class="panel" id="panel-brief">
+    <div class="panel-head">
+      <h2>📁 Förundersökningen inleds</h2>
+      <p>Läs igenom fallakten innan ni går ut på brottsplatsen.</p>
+    </div>
+    <div id="briefContent"></div>
+    <div class="nav-row">
+      <span></span>
+      <button class="btn btn-primary" onclick="goTo('scene')">Till brottsplatsen →</button>
+    </div>
+  </div>
+
+  <!-- FAS 2: BROTTSPLATS -->
+  <div class="panel" id="panel-scene">
+    <div class="panel-head">
+      <h2>🚨 Brottsplatsundersökning</h2>
+      <p>Klicka på varje fynd för att dokumentera det. Notera <em>spårtypen</em> – den avgör vilken analys som är möjlig.</p>
+    </div>
+    <div id="sceneBanner"></div>
+    <div class="grid-2" id="sceneGrid"></div>
+    <div class="notepad">
+      <h3>🗒️ Utredarens anteckningar</h3>
+      <textarea id="note-scene" rows="4" placeholder="Vad sticker ut? Vilka spår vill ni skicka till NFC?"></textarea>
+      <div class="saved" id="saved-scene"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goTo('brief')">← Fallakten</button>
+      <button class="btn btn-primary" onclick="goTo('lab')">Till laboratoriet →</button>
+    </div>
+  </div>
+
+  <!-- FAS 3: LABB -->
+  <div class="panel" id="panel-lab">
+    <div class="panel-head">
+      <h2>🔬 Forensiska analyser</h2>
+      <p>Ni kan inte analysera allt. Prioritera – varje beställning kostar utredningstid.</p>
+    </div>
+    <div class="budget-bar">
+      <span class="label">Analysbudget</span>
+      <div class="budget-dots" id="budgetDots"></div>
+      <span class="note" id="budgetNote"></span>
+    </div>
+    <div class="grid-2" id="labGrid"></div>
+    <div class="notepad">
+      <h3>🗒️ Anteckningar från labbet</h3>
+      <textarea id="note-lab" rows="4" placeholder="Vad stärker misstanken? Vilka felkällor finns i resultaten?"></textarea>
+      <div class="saved" id="saved-lab"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goTo('scene')">← Brottsplatsen</button>
+      <button class="btn btn-primary" onclick="goTo('interviews')">Till förhören →</button>
+    </div>
+  </div>
+
+  <!-- FAS 4: FÖRHÖR -->
+  <div class="panel" id="panel-interviews">
+    <div class="panel-head">
+      <h2>🎙️ Förhör</h2>
+      <p>Håll isär vad en person <em>vet</em>, vad hen <em>tror</em> och vad hen har intresse av att säga.</p>
+    </div>
+    <div id="interviewBanner"></div>
+    <div class="grid-2" id="suspectGrid"></div>
+    <div class="notepad">
+      <h3>🗒️ Förhörsanteckningar</h3>
+      <textarea id="note-int" rows="4" placeholder="Vem ändrar sin berättelse? Vilka alibin går att kontrollera?"></textarea>
+      <div class="saved" id="saved-int"></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goTo('lab')">← Laboratoriet</button>
+      <button class="btn btn-primary" onclick="goTo('assess')">Till bevisvärderingen →</button>
+    </div>
+  </div>
+
+  <!-- FAS 5: BEVISVÄRDERING -->
+  <div class="panel" id="panel-assess">
+    <div class="panel-head">
+      <h2>⚖️ Bevisvärdering</h2>
+      <p>Bestäm för varje uppgift vilken <em>typ</em> av bevisning det är och hur <em>starkt</em> bevisvärdet är.
+         Åklagaren har bevisbördan – skulden ska vara ställd utom rimligt tvivel.</p>
+    </div>
+    <div id="assessList"></div>
+    <div style="text-align:center;">
+      <button class="btn btn-amber" id="assessCheckBtn" onclick="checkAssessment()">Lämna in bevisvärderingen</button>
+    </div>
+    <div id="assessScore"></div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goTo('interviews')">← Förhören</button>
+      <button class="btn btn-primary" onclick="goTo('charge')">Till åtalsbeslutet →</button>
+    </div>
+  </div>
+
+  <!-- FAS 6: ÅTAL -->
+  <div class="panel" id="panel-charge">
+    <div class="panel-head">
+      <h2>👨‍⚖️ Åtalsbeslut</h2>
+      <p>Peka ut en gärningsperson och välj de <strong>tre</strong> bevis ni bygger åtalet på.</p>
+    </div>
+    <div class="card">
+      <h3>Vem åtalas?</h3>
+      <div class="suspect-pick-grid" id="pickGrid"></div>
+    </div>
+    <div class="card">
+      <h3>Vilka tre bevis är bärande?</h3>
+      <p style="color:var(--muted); font-size:.9rem;">Ett åtal håller inte på indicier ensamt. Välj de tre uppgifter som binder just den här personen till gärningen.</p>
+      <div id="evidencePickList"></div>
+      <p style="font-size:.85rem; color:var(--teal); font-weight:600;" id="pickCount">0 av 3 valda</p>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label for="chargeMotive">Gärningsbeskrivning och motivering</label>
+        <p class="sub">Skriv som en åklagare: vad hände, när, var, hur – och varför bevisningen räcker.</p>
+        <textarea id="chargeMotive" rows="6" placeholder="Den misstänkte har den ... på platsen ... uppsåtligen berövat ... livet genom att ..."></textarea>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <button class="btn btn-danger" id="chargeBtn" onclick="submitCharge()" disabled>Väck åtal ⚖️</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goTo('assess')">← Bevisvärdering</button>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- FAS 7: TEORI -->
+  <div class="panel" id="panel-theory">
+    <div class="panel-head">
+      <h2>🧠 Kriminologisk analys</h2>
+      <p>Att veta <em>vem</em> räcker inte i kriminologin. Nu ska ni förklara <em>varför</em>.</p>
+    </div>
+    <div id="theoryIntro"></div>
+    <div class="card">
+      <h3>Vilka förklaringsmodeller passar bäst på det här brottet?</h3>
+      <p style="color:var(--muted); font-size:.9rem;">Välj de teorier som faktiskt hjälper er förklara gärningen. Fler är inte bättre – motivera hellre färre.</p>
+      <div class="grid-2" id="theoryGrid" style="margin-top:1rem;"></div>
+    </div>
+    <div class="card" id="neutralCard">
+      <h3>Vilken neutraliseringsteknik använder gärningspersonen i förhöret?</h3>
+      <p style="color:var(--muted); font-size:.9rem;">Sykes &amp; Matza: sätt att rättfärdiga brott för sig själv, före eller efter gärningen.</p>
+      <div class="chips" id="neutralChips" style="margin-top:.8rem;"></div>
+    </div>
+    <div style="text-align:center;">
+      <button class="btn btn-amber" id="theoryCheckBtn" onclick="checkTheory()">Lämna in analysen</button>
+    </div>
+    <div id="theoryScore"></div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goTo('charge')">← Åtalsbeslut</button>
+      <button class="btn btn-primary" onclick="goTo('verdict')">Till domslutet →</button>
+    </div>
+  </div>
+
+  <!-- FAS 8: DOMSLUT -->
+  <div class="panel" id="panel-verdict">
+    <div class="panel-head">
+      <h2>🏛️ Domslut och genomgång</h2>
+    </div>
+    <div id="verdictContent"></div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goTo('theory')">← Kriminologisk analys</button>
+      <div style="display:flex; gap:.6rem; flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="window.print()">🖨️ Skriv ut protokoll</button>
+        <button class="btn btn-primary" onclick="restartGame()">Nytt fall →</button>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============ FAKTABANK ============ -->
+<div class="modal" id="factModal">
+  <div class="modal-box">
+    <button class="btn btn-ghost btn-sm modal-close" onclick="closeModal('factModal')">✕ Stäng</button>
+    <h2>📚 Faktabank</h2>
+    <p style="color:var(--muted); font-size:.9rem;">Uppslagsdel för eleverna. Använd den under spelets gång – särskilt i bevisvärderingen och den kriminologiska analysen.</p>
+
+    <div class="tabs" role="tablist">
+      <button class="tab on" onclick="showTab('tab-forensik',this)">🔬 Forensik</button>
+      <button class="tab" onclick="showTab('tab-teori',this)">🧠 Teorier</button>
+      <button class="tab" onclick="showTab('tab-bevis',this)">⚖️ Bevisrätt</button>
+      <button class="tab" onclick="showTab('tab-stat',this)">📊 Statistik &amp; brottsoffer</button>
+    </div>
+
+    <!-- FORENSIK -->
+    <div class="tab-panel on" id="tab-forensik">
+      <p style="font-size:.88rem; color:var(--muted);"><strong>Vem gör vad i Sverige:</strong> Polisens <em>kriminaltekniker</em> säkrar spår på brottsplatsen. Analyserna görs oftast vid <em>NFC (Nationellt forensiskt centrum)</em> i Linköping, en avdelning inom Polismyndigheten. <em>Rättsmedicinalverket (RMV)</em> är en egen myndighet som ansvarar för rättsmedicinska obduktioner, rättskemi och rättsgenetik. <em>Åklagaren</em> leder förundersökningen och beslutar vad som ska analyseras.</p>
+
+      <div class="term">
+        <h4>NFC:s utlåtandeskala</h4>
+        <p>NFC skriver aldrig "matchning". I stället anges ett resultatvärde på en niogradig skala: +1 "talar i någon mån för", +2 "talar för", +3 "talar starkt för", +4 "talar extremt starkt för" – med spegelvända negativa grader och 0 i mitten. Ett utlåtande handlar om hur mycket mer sannolika resultaten är under den ena hypotesen än den andra.</p>
+        <div class="myth"><strong>Missuppfattning:</strong> "Labbet svarar ja eller nej." Nej – labbet anger styrkan i stödet för en hypotes, aldrig skuld.</div>
+      </div>
+
+      <div class="term">
+        <h4>Locards utbytesprincip</h4>
+        <p>Formulerad av Edmond Locard i början av 1900-talet: <em>varje kontakt lämnar ett spår</em>. När två objekt möts sker ett utbyte av material – gärningspersonen tar med sig något från platsen och lämnar något efter sig: fibrer, hår, jord, glassplitter, DNA eller fingeravtryck. Principen är den teoretiska grunden för hela brottsplatsundersökningen.</p>
+        <div class="myth"><strong>Missuppfattning:</strong> "Locard betyder att det alltid finns bevis att hitta." Nej – spår kan vara för små, förstörda, bortstädade eller omöjliga att skilja från bakgrundsspår.</div>
+      </div>
+
+      <div class="term">
+        <h4>DNA-analys</h4>
+        <p>DNA renas fram ur provet, kopieras upp med PCR, och man mäter längden på ett antal utvalda STR-markörer. Resultatet blir en sifferprofil – inte hela arvsmassan, och den säger inget om utseende eller sjukdomar. Sverige har tre register enligt lagen (2018:1693): <em>spårregistret</em> (okända profiler från brottsplatser), <em>utredningsregistret</em> (skäligen misstänkta) och <em>dna-registret</em> (dömda till annan påföljd än böter). Profiler kan sökas mot andra EU-länder via Prümsamarbetet.</p>
+        <div class="myth"><strong>Missuppfattning:</strong> "DNA på platsen = mördaren." DNA visar vems cellerna sannolikt är – inte hur, när eller varför de hamnade där. Ett starkt DNA-resultat besvarar källfrågan, inte handlingsfrågan.</div>
+      </div>
+
+      <div class="term">
+        <h4>Blandbild, touch DNA och sekundär överföring</h4>
+        <p>En <em>blandbild</em> uppstår när provet innehåller DNA från flera personer – vanligt på handtag, kläder och verktyg. Ju fler bidragsgivare och ju mindre DNA, desto svårare tolkning och svagare statistik. <em>Touch DNA</em> är de få celler som lämnas vid beröring; mängden varierar enormt mellan individer. <em>Sekundär överföring</em> är när DNA flyttas via ett mellanled: A skakar hand med B, B rör ett vapen – A:s DNA hamnar på vapnet utan att A varit där.</p>
+        <div class="myth"><strong>Verkligt fall:</strong> Lukis Anderson (Kalifornien 2013) häktades sedan hans DNA hittats på ett mordoffer – samtidigt låg han medvetslös på sjukhus. DNA:t hade förts med av ambulanspersonalen.</div>
+      </div>
+
+      <div class="term">
+        <h4>Daktyloskopi – fingeravtryck</h4>
+        <p><em>Synliga spår</em> syns direkt (i blod, färg, damm). <em>Latenta spår</em> är osynliga svettavlagringar som framkallas med pulver, ninhydrin, cyanoakrylat eller alternativa ljuskällor. Jämförelsen bygger på <em>minutiae</em> – punkter där papillarlinjerna slutar, delar sig eller bildar öar. Sökning sker i AFIS, som ger en rangordnad kandidatlista; det slutliga beslutet fattas alltid av en människa. Det finns ingen fastställd internationell miniminivå för antal minutiae, och bedömningen har ett subjektivt inslag som forskningen kritiserat.</p>
+        <div class="myth"><strong>Missuppfattning:</strong> "Datorn hittar personen automatiskt." AFIS föreslår kandidater – en daktyloskopiexpert gör jämförelsen, och delvisa eller smetiga avtryck kan vara omöjliga att använda.</div>
+      </div>
+
+      <div class="term">
+        <h4>Rättsmedicin och dödstidsbestämning</h4>
+        <p><em>Likstelhet (rigor mortis)</em> börjar typiskt efter 2–4 timmar, är fullt utvecklad efter cirka 6–12 timmar och löses upp inom ungefär 24–48 timmar. <em>Likfläckar (livores)</em> är blod som sjunker nedåt i kroppen; de syns efter ca 30 minuter till 2 timmar och fixeras efter cirka 8–12 timmar – deras placering kan avslöja om kroppen flyttats. <em>Kroppstemperatur (algor mortis)</em> sjunker efter en platåfas med grovt 0,5–1,5 °C per timme och beräknas med nomogram som väger in kroppsvikt, kläder och underlag. Magsäcksinnehåll ger bara en mycket grov uppskattning.</p>
+        <div class="myth"><strong>Missuppfattning:</strong> "Rättsläkaren kan säga att döden inträffade 21:47." Det går inte. Dödstid anges alltid som ett <em>intervall</em> – en exakt tidpunkt i ett rättsintyg är ett varningstecken, inte ett kvalitetstecken.</div>
+      </div>
+
+      <div class="term">
+        <h4>Blodspårsanalys</h4>
+        <p><em>Passiva spår</em> bildas av gravitationen (droppar, pölar, rinnmärken). <em>Kaststänk</em> uppstår när blod slungas iväg med kraft, t.ex. från ett vapen i rörelse. <em>Kontaktspår</em> uppstår när ett blodigt föremål vidrör en yta. <em>Tomrum (void)</em> är ett område utan blod inom ett stänkmönster – något eller någon har stått där och sedan flyttats.</p>
+        <div class="myth"><strong>Omdiskuterad metod:</strong> Den amerikanska vetenskapsakademins rapport (2009) slog fast att osäkerheterna kring blodspårsanalys är enorma och att analytikernas slutsatser är "mer subjektiva än vetenskapliga". Enkla iakttagelser (att blod finns, var, i vilken riktning) är betydligt säkrare än rekonstruktioner av hela händelseförlopp.</div>
+      </div>
+
+      <div class="term">
+        <h4>Rättskemi och toxikologi</h4>
+        <p>RMV:s rättskemiska laboratorium analyserar i princip alla rättsmedicinska obduktionsfall. Screening görs med immunkemiska tester eller masspektrometri, och positiva fynd bekräftas med LC-MS/MS eller GC-MS. Vanliga provmaterial: blod (helst lårblod), urin, glaskroppsvätska, galla, lever, hår och maginnehåll. <em>Postmortal omfördelning</em> gör att halten av vissa läkemedel förändras efter döden – koncentrationen i kroppen kan inte översättas rakt av till dosen personen fick i sig.</p>
+        <div class="myth"><strong>Missuppfattning:</strong> "Labbet testar för alla gifter." Nej – man letar efter det man frågar efter. Ovanliga eller snabbt nedbrutna substanser (t.ex. insulin, vissa växtgifter, GHB) kan missas helt utan riktad analys.</div>
+      </div>
+
+      <div class="term">
+        <h4>Digital forensik</h4>
+        <p>Ur en mobiltelefon kan säkras samtalslistor, meddelanden, appdata, platshistorik, hälsodata och raderade filer. <em>Masttömning</em> innebär att operatören lämnar ut vilka telefoner som varit uppkopplade mot en viss basstation; i Sverige krävs domstolsbeslut på åklagarens begäran. Precisionen är grov: i tät stadsmiljö några hundra meter, på landsbygden flera mil – och telefonen kopplar inte alltid upp mot närmaste mast. <em>Metadata</em> i bilder (EXIF) kan innehålla tid, kameramodell och ibland GPS – men tidsstämplar följer enhetens klocka och kan vara felställda eller manipulerade.</p>
+        <div class="myth"><strong>Missuppfattning:</strong> "Mobilen placerar personen på brottsplatsen." Masttömning placerar en <em>telefon</em> i ett <em>område</em> – inte en person på en adress. Telefoner kan lånas ut, lämnas kvar eller stängas av.</div>
+      </div>
+
+      <div class="term">
+        <h4>Spårsäkring och obruten spårkedja</h4>
+        <p>Brottsplatsen avspärras och en enda in- och utgångsväg används. Kriminalteknikerna bär skyddsdräkt, hårskydd, munskydd, handskar och skoskydd – både för att skydda sig och för att inte lämna eget DNA. Personal som varit i kontakt med den misstänkte ska inte hantera brottsplatsspår. Allt dokumenteras: foto och skiss före flyttning, spårnummer, förseglade påsar, och en <em>obruten spårkedja (chain of custody)</em> som visar vem som haft varje spår i sin hand, när och var.</p>
+        <div class="myth"><strong>Missuppfattning:</strong> "Om DNA:t stämmer spelar hanteringen ingen roll." Tvärtom – ett tekniskt perfekt resultat från ett kontaminerat eller odokumenterat prov kan bli värdelöst i domstol.</div>
+      </div>
+
+      <div class="term">
+        <h4>Felkällor: tunnelseende och vittnesutpekanden</h4>
+        <p><em>Tunnelseende/bekräftelsebias</em> innebär att utredare låser sig vid en teori tidigt och tolkar nya uppgifter som stöd för den, medan motstridiga uppgifter tonas ned. <em>Forensisk bekräftelsebias</em> är samma sak i labbet: en analytiker som vet att den misstänkte erkänt tolkar tvetydiga spår mer belastande. Motmedlet är kontextinformationshantering – analytikern ska bara få veta det som behövs. <em>Felaktiga ögonvittnesutpekanden</em> är den enskilt vanligaste faktorn bakom kända justitiemord; i Innocence Projects DNA-friande fall förekom de i ungefär två tredjedelar.</p>
+        <div class="myth"><strong>Missuppfattning:</strong> "Ett vittne som är helt säkert har rätt." Säkerhet och korrekthet hänger bara löst ihop – särskilt efter att vittnet fått veta att det pekat ut "rätt" person. <em>CSI-effekten</em> (att tv-serier gör domstolar överkravfyllda) är ofta påstådd men har svagt empiriskt stöd.</div>
+      </div>
+    </div>
+
+    <!-- TEORIER -->
+    <div class="tab-panel" id="tab-teori">
+      <p style="font-size:.88rem; color:var(--muted);">Varje teori anges med upphovsperson, kärna, exempel, kritik och förklaringsnivå (individ / grupp-relation / samhälle).</p>
+
+      <div class="term">
+        <h4>1. Rutinaktivitetsteorin – Routine Activity Theory</h4>
+        <p><strong>Cohen &amp; Felson (1979). Nivå: samhälle/situation.</strong> Brott uppstår när tre saker möts i tid och rum: en motiverad gärningsperson, ett lämpligt mål och avsaknad av kapabel väktare. Teorin bryr sig inte om <em>varför</em> någon vill begå brott, utan om vilka <em>tillfällen</em> som uppstår. Förändras människors vardagsrutiner förändras också brottsligheten.<br>
+        <em>Exempel:</em> En obevakad mobil på ett kafébord och någon som ser tillfället.<br>
+        <em>Kritik:</em> Förklarar inte motivationen, och passar dåligt på impulsiva eller relationella brott.</p>
+      </div>
+
+      <div class="term">
+        <h4>2. Rationella valteorin – Rational Choice</h4>
+        <p><strong>Cornish &amp; Clarke (1986), rötter hos Beccaria. Nivå: individ.</strong> Gärningspersonen gör en enkel kalkyl: vinst, upptäcktsrisk, straff. Valet är "begränsat rationellt" – snabbt, med bristfällig information, ofta under stress.<br>
+        <em>Exempel:</em> Någon snattar i butiken utan kameror men avstår där det finns vakt.<br>
+        <em>Kritik:</em> Många brott begås i affekt, rus eller av vana – då sker ingen kalkyl alls.</p>
+      </div>
+
+      <div class="term">
+        <h4>3. Strainteorin / anomiteorin</h4>
+        <p><strong>Merton (1938); Agnew (general strain theory, 1992). Nivå: samhälle resp. individ/relation.</strong> Samhället sätter gemensamma mål – framgång, pengar, status – men alla har inte lagliga medel att nå dem. Spänningen kan leda till olagliga genvägar. Merton beskrev anpassningarna konformitet, innovation (brott), ritualism, reträtt och uppror. Agnew vidgade: även mobbning, förlust och kränkning skapar press.<br>
+        <em>Kritik:</em> De flesta pressade begår inte brott, och teorin förklarar dåligt ekonomisk brottslighet bland välbeställda.</p>
+      </div>
+
+      <div class="term">
+        <h4>4. Sociala bandteorin / kontrollteori</h4>
+        <p><strong>Hirschi (1969). Nivå: grupp/relation.</strong> Frågan vänds upp och ned: varför <em>låter</em> de flesta bli att begå brott? Svaret är fyra sociala band – anknytning, åtagande, engagemang och övertygelse. Är banden svaga finns lite att förlora.<br>
+        <em>Kritik:</em> Bortser från att starka band till kriminella miljöer kan öka brottsligheten.</p>
+      </div>
+
+      <div class="term">
+        <h4>5. Differentiella associationer – inlärningsteori</h4>
+        <p><strong>Sutherland (1939). Nivå: grupp/relation.</strong> Kriminellt beteende lärs in i samspel med andra, precis som allt annat beteende – både tekniker och motiv, ursäkter och attityder. Man blir kriminell när man möter fler budskap som stödjer lagbrott än som stödjer laglydnad. Nära relationer väger tyngre än medier.<br>
+        <em>Kritik:</em> Svår att mäta; förklarar inte varför vissa i samma miljö aldrig påverkas.</p>
+      </div>
+
+      <div class="term">
+        <h4>6. Stämplingsteorin – Labeling Theory</h4>
+        <p><strong>Becker (1963); Lemert. Nivå: samhälle och grupp.</strong> Ingen handling är kriminell i sig – den blir det när samhället definierar den så och reagerar. Lemert skiljer på <em>primär avvikelse</em> (första överträdelsen) och <em>sekundär avvikelse</em> (att man börjar leva upp till stämpeln efter omgivningens reaktion).<br>
+        <em>Kritik:</em> Förklarar inte den första brottsliga handlingen och riskerar att göra gärningspersonen till enbart offer för samhällets reaktion.</p>
+      </div>
+
+      <div class="term">
+        <h4>7. Social desorganisation</h4>
+        <p><strong>Shaw &amp; McKay (1942), Chicagoskolan. Nivå: samhälle/grannskap.</strong> Brottslighet hänger mer ihop med <em>platsen</em> än med de människor som råkar bo där. Fattigdom, hög omflyttning och svaga gemensamma normer ger svag informell social kontroll. Brottsnivån kan därför vara hög i ett område i decennier trots att befolkningen byts ut.<br>
+        <em>Kritik:</em> Riskerar att stämpla hela bostadsområden och förväxlar ibland orsak och verkan.</p>
+      </div>
+
+      <div class="term">
+        <h4>8. Neutraliseringstekniker</h4>
+        <p><strong>Sykes &amp; Matza (1957). Nivå: individ.</strong> De flesta som begår brott delar samhällets värderingar och vet att handlingen är fel. Tankeknep kopplar bort moralen tillfälligt – ofta <em>före</em> brottet, vilket gör det möjligt:</p>
+        <ol>
+          <li><strong>Förnekande av ansvar</strong> – "Jag kunde inte rå för det, jag hade druckit."</li>
+          <li><strong>Förnekande av skada</strong> – "Ingen blir lidande, de har försäkring."</li>
+          <li><strong>Förnekande av offer</strong> – "Hen förtjänade det, hen började."</li>
+          <li><strong>Fördömande av fördömarna</strong> – "Polisen är korrupt, vem är de att döma?"</li>
+          <li><strong>Hänvisning till högre lojaliteter</strong> – "Jag gjorde det för min familj."</li>
+        </ol>
+        <div class="myth"><strong>Kritik:</strong> Oklart om teknikerna verkligen kommer före brottet eller om de är efterhandsförklaringar i förhör.</div>
+      </div>
+
+      <div class="term">
+        <h4>9. Biologiska och psykologiska förklaringar</h4>
+        <p><strong>Lombroso (historisk), senare Eysenck, Raine, Moffitt m.fl. Nivå: individ.</strong> Förklaringen söks inne i personen: ärftlighet, hjärnfunktion, låg impulskontroll, ADHD, skallskador, personlighetsdrag. Moderna forskare talar sällan om biologi <em>istället för</em> miljö, utan om samspel. Lombrosos idé att brottslingar känns igen på utseendet är sedan länge motbevisad.<br>
+        <strong>Om psykopati:</strong> mäts i forskning med PCL-R (Hare) och beskriver drag som bristande empati, ytlig charm, manipulativitet. Populärkulturen överdriver: de allra flesta brott begås av vanliga människor i pressade situationer, ofta med alkohol inblandad. Personer med allvarlig psykisk ohälsa är dessutom oftare <em>offer</em> än gärningspersoner.<br>
+        <em>Kritik:</em> Riskerar att förklara bort sociala orsaker och har historiskt missbrukats.</p>
+      </div>
+
+      <div class="term">
+        <h4>10. Situationell brottsprevention och brottstriangeln</h4>
+        <p><strong>Clarke; bygger vidare på Cohen &amp; Felson. Nivå: situation/samhälle.</strong> I stället för att förändra människor förändrar man situationen: göra brottet svårare, mer riskfyllt och mindre lönsamt, ta bort ursäkter och minska frestelser. Brottstriangelns tre element är <em>gärningsperson, mål/offer och plats</em> – i den utvidgade modellen har varje sida en kontrollerande aktör: hanterare, väktare och platsansvarig. Tas ett element bort uteblir brottet.<br>
+        <em>Kritik:</em> Kan leda till <em>överflyttning</em> – brottet flyttar till annan plats eller annat mål – och löser inte bakomliggande sociala orsaker.</p>
+      </div>
+    </div>
+
+    <!-- BEVISRÄTT -->
+    <div class="tab-panel" id="tab-bevis">
+      <div class="term">
+        <h4>Fri bevisföring och fri bevisvärdering</h4>
+        <p>Enligt 35 kap. 1 § rättegångsbalken får i princip all bevisning läggas fram, och domstolen värderar den fritt. Det finns inga fasta poäng och ingen regel om att ett visst bevis alltid väger tyngre än ett annat.</p>
+      </div>
+      <div class="term">
+        <h4>Tre sorters bevisning</h4>
+        <table class="tbl">
+          <tr><th>Typ</th><th>Vad det är</th><th>Typisk styrka</th></tr>
+          <tr><td><strong>Teknisk bevisning</strong></td><td>DNA, fingeravtryck, rättsintyg, rättskemi, verktygsspår, digitala loggar</td><td>Ofta hög om spårkedjan är obruten – men besvarar källfrågan, inte handlingsfrågan</td></tr>
+          <tr><td><strong>Vittnesbevisning</strong></td><td>Muntliga berättelser från vittnen, målsägande eller misstänkta</td><td>Varierar kraftigt; påverkas av minne, stress, mörker, alkohol och ledande frågor</td></tr>
+          <tr><td><strong>Indicier</strong></td><td>Omständigheter som inte direkt visar gärningen: motiv, tillfälle, beteende efteråt</td><td>Var för sig svaga – men en sammanhängande kedja kan räcka för fällande dom</td></tr>
+        </table>
+      </div>
+      <div class="term">
+        <h4>Ställt utom rimligt tvivel</h4>
+        <p>Åklagaren har hela bevisbördan. Beviskravet är att skulden ska vara <em>ställd utom rimligt tvivel</em> – alla rimliga alternativa förklaringar ska kunna uteslutas. Kravet står inte i lagtext utan har vuxit fram i praxis, och Högsta domstolen har i senare avgöranden betonat en strukturerad prövning av alternativa hypoteser. Den tilltalade behöver inte bevisa sin oskuld, men kan lämna en invändning som åklagaren då måste motbevisa.</p>
+        <div class="myth"><strong>Missuppfattning:</strong> "En DNA-träff räcker för fällande dom." Ett starkt forensiskt resultat är ett bevis bland flera. Domstolen måste pröva om det finns rimliga alternativa förklaringar till att spåret finns där – och det är åklagaren som ska stänga den dörren.</div>
+      </div>
+      <div class="term">
+        <h4>Från brott till dom – rättskedjan</h4>
+        <p>Anmälan → förundersökning (leds av polis eller åklagare) → eventuell häktning → åtalsbeslut → huvudförhandling i tingsrätt → dom → eventuell överklagan till hovrätt → i undantagsfall prövningstillstånd i HD. Åklagaren ska väcka åtal bara om hen på objektiva grunder kan förvänta sig en fällande dom.</p>
+      </div>
+      <div class="term">
+        <h4>Preskription</h4>
+        <p>Sedan en lagändring 2010 preskriberas inte mord och dråp – gärningar som ännu inte hunnit preskriberas när lagen ändrades omfattas. Det är därför cold case-grupper kan återuppta gamla mordutredningar decennier senare, ofta när DNA-tekniken har blivit känsligare än den var vid tiden för brottet.</p>
+      </div>
+    </div>
+
+    <!-- STATISTIK -->
+    <div class="tab-panel" id="tab-stat">
+      <div class="term">
+        <h4>Anmälda brott, mörkertal och NTU</h4>
+        <p><strong>Brå</strong> (Brottsförebyggande rådet) tar fram Sveriges officiella kriminalstatistik. <em>Anmälda brott</em> är alla händelser som registrerats som brott – oavsett om de senare visar sig vara brott. Statistiken påverkas därför av anmälningsbenägenhet, lagändringar och polisens arbetssätt: att anmälningarna ökar behöver alltså inte betyda att brotten ökat. <em>Mörkertalet</em> är alla brott som aldrig anmäls; det är särskilt stort vid sexualbrott, våld i nära relation och brott där offret känner gärningspersonen eller skäms.</p>
+        <p><strong>NTU</strong> (Nationella trygghetsundersökningen) är Brås årliga enkät till ett urval på över 200 000 personer 16–84 år, och fångar en del av mörkertalet. Enligt NTU 2025 (mäter utsatthet under 2024) uppgav 20,0 % utsatthet för brott mot enskild person, hot 7,5 %, sexualbrott 3,8 %, och 11,4 % av hushållen utsattes för egendomsbrott. Även NTU har svagheter: den som avlidit, sitter i anstalt eller inte svarar syns inte.</p>
+      </div>
+      <div class="term">
+        <h4>Dödligt våld i Sverige</h4>
+        <p>Enligt Brås statistik över konstaterade fall av dödligt våld <strong>2025</strong> (publicerad 2026-03-31): 84 fall, 8 färre än 2024. Offren var 59 män/pojkar och 25 kvinnor/flickor; 95 % var 18 år eller äldre. Metod: skjutvapen 42 fall (50 %), kniv 27 fall (32 %), övriga metoder 15 fall (18 %). 13 fall (15 %) gällde offer och gärningsperson i en pågående eller tidigare parrelation – av dessa hade 11 ett kvinnligt offer, vilket motsvarar 44 % av alla kvinnliga offer mot 3 % av de manliga. Ytterligare 3 fall gällde närstående genom släktskap. Över tioårsperioden 2016–2025 har antalet varierat mellan 84 och 124 fall per år.</p>
+        <div class="myth"><strong>Källkritisk not:</strong> Någon officiell samlad andel för "offret kände gärningspersonen på något sätt" (inklusive bekanta och kriminella nätverk) finns inte i den statistik som redovisas ovan. Uppge därför ingen sådan procentsiffra utan att kontrollera Brås fördjupningsrapporter. Källa för siffrorna: bra.se.</div>
+      </div>
+      <div class="term">
+        <h4>Viktimologi – brottsofferperspektivet</h4>
+        <p>Viktimologi är läran om brottsoffer: vem som drabbas, vilka konsekvenser brottet får och hur samhället bemöter offret. <em>Upprepad utsatthet</em> innebär att en liten grupp drabbas av en stor andel av alla brott – den som utsatts en gång löper klart högre risk att utsättas igen, vilket gör riktade insatser effektiva.</p>
+        <p><strong>"Det ideala offret"</strong> är den norske kriminologen Nils Christies begrepp (1986). Vissa offer får lättare samhällets sympati: den svaga, den som gjorde något respektabelt, som inte kan klandras, som drabbades av en stor okänd gärningsperson – och som är stark nog att göra sin röst hörd. Den som inte passar mallen, som en berusad ung man utanför en krog eller någon som utsätts av sin partner, får ofta mindre stöd och möts av misstro. Begreppet är användbart för att granska både medierapportering och rättsväsendets bemötande.</p>
+      </div>
+      <div class="term">
+        <h4>Varför känner offret ofta gärningspersonen?</h4>
+        <p>Dödligt våld uppstår sällan mellan främlingar, utan i relationer där det finns konflikt, svartsjuka, beroende, skulder eller långvariga spänningar – ofta med alkohol inblandat. Rutinaktivitetsteorin förklarar det med att vi tillbringar mest tid med dem vi känner: tillfället och tillgången finns där. För kvinnliga offer är parrelationen det tydligaste mönstret i statistiken.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LÄRARHANDLEDNING ============ -->
+<div class="modal" id="teacherModal">
+  <div class="modal-box">
+    <button class="btn btn-ghost btn-sm modal-close" onclick="closeModal('teacherModal')">✕ Stäng</button>
+    <h2>🎓 Lärarhandledning</h2>
+
+    <h3>Syfte och upplägg</h3>
+    <p>Materialet är ett forensiskt murder mystery i åtta faser för elever som läser kriminologi på gymnasiet. Eleverna arbetar som utredare: de säkrar spår, prioriterar labbanalyser inom en begränsad budget, förhör misstänkta, klassificerar och värderar bevisningen, fattar åtalsbeslut och förklarar sedan brottet med kriminologisk teori. Poängen är inte att gissa rätt mördare, utan att <em>kunna motivera</em> varför bevisningen räcker eller inte räcker.</p>
+
+    <div class="lesson-box">
+      <h4>⚠️ Viktigt om kursplanen</h4>
+      <p>Skolverket har <strong>inget nationellt ämne som heter Kriminologi</strong>. När gymnasieskolor erbjuder "Kriminologi 100 p" ges kursen i praktiken inom ämnet <strong>Humanistisk och samhällsvetenskaplig specialisering</strong> – HUMN1000X (100 p) i Gy25, tidigare HUMHUM00S i Gy11 – där skolan själv väljer kunskapsområde och lokalt kursnamn. Kriminologi nämns uttryckligen i ämnesplanen som exempel på möjligt kunskapsområde. Det <em>kriminologiska sakinnehållet</em> bestäms alltså lokalt av dig som lärare, medan förmågorna kommer från ämnesplanen. Kontrollera aktuell lydelse på skolverket.se innan du citerar ämnesplanen ordagrant.</p>
+    </div>
+
+    <h3>Koppling till ämnesplanen (HUMN, Gy25)</h3>
+    <table class="tbl">
+      <tr><th>Förmåga i ämnesplanen</th><th>Var i spelet den tränas</th></tr>
+      <tr><td>Kunskaper om ett valt område inom humaniora eller samhällsvetenskap</td><td>Faktabanken, den kriminologiska analysen (fas 7) och genomgången (fas 8)</td></tr>
+      <tr><td>Förmåga att analysera och diskutera området ur olika perspektiv med relevanta begrepp och metoder</td><td>Bevisvärderingen (fas 5) och teorivalet (fas 7): eleverna använder begrepp som indicium, bevisbörda, neutralisering, rutinaktivitet</td></tr>
+      <tr><td>Förmåga att söka, kritiskt granska och tolka olika typer av material och källor</td><td>Labbrapporterna (fas 3) med inbyggda felkällor, förhören (fas 4) där utsagor motsäger varandra, och de röda sillarna</td></tr>
+    </table>
+    <p style="font-size:.88rem; color:var(--muted);">I Gy25 är syfte och betygskriterier gemensamma för hela ämnet – det är det centrala innehållet som skiljer nivåerna åt. Progressionen i betygskriterierna går på hur eleven analyserar (enkelt → utvecklat → välutvecklat) och med vilken säkerhet begrepp, metoder och källhantering används.</p>
+
+    <h3>Tidsåtgång</h3>
+    <ul>
+      <li><strong>Ett pass (80 min):</strong> fas 1–4 i par, gemensam avstämning, sedan fas 5–8 i helklass.</li>
+      <li><strong>Två pass:</strong> pass 1 = fas 1–4 (utredningen), pass 2 = fas 5–8 (bevisvärdering, åtal, teori, domslut) med efterföljande seminarium.</li>
+      <li><strong>Examinerande variant:</strong> eleverna skriver en individuell utredningspromemoria efter fas 6, innan de får se domslutet. Då bedöms resonemanget, inte gissningen.</li>
+    </ul>
+
+    <h3>Rollkort för utredningsgrupp (4–5 elever)</h3>
+    <ul>
+      <li><strong>Förundersökningsledare</strong> – håller ihop tidslinjen, ser till att alla hypoteser prövas, äger frågan "vad talar emot vår teori?"</li>
+      <li><strong>Kriminaltekniker</strong> – ansvarar för spåren och spårkedjan, argumenterar för vilka analyser som ska beställas.</li>
+      <li><strong>Förhörsledare</strong> – ansvarar för utsagorna, noterar när någon ändrar sin berättelse.</li>
+      <li><strong>Åklagare</strong> – skriver gärningsbeskrivningen och avgör om beviskravet är uppfyllt.</li>
+      <li><strong>Försvarare (djävulens advokat)</strong> – ska aktivt leta alternativa förklaringar till varje bevis. Denna roll är den pedagogiskt viktigaste.</li>
+    </ul>
+
+    <h3>Bedömningsstöd</h3>
+    <table class="tbl">
+      <tr><th>Aspekt</th><th>E-nivå</th><th>C-nivå</th><th>A-nivå</th></tr>
+      <tr><td>Bevisvärdering</td><td>Skiljer teknisk bevisning från vittnesuppgift och indicium</td><td>Motiverar bevisvärdet och ser minst en felkälla</td><td>Prövar systematiskt alternativa hypoteser och väger bevisen mot beviskravet</td></tr>
+      <tr><td>Källkritik</td><td>Noterar att en uppgift är osäker</td><td>Förklarar <em>varför</em> den är osäker (t.ex. masttömningens precision)</td><td>Resonerar om hur osäkerheten påverkar hela slutsatsen</td></tr>
+      <tr><td>Kriminologisk analys</td><td>Namnger en relevant teori</td><td>Tillämpar teorin på fallets omständigheter</td><td>Jämför förklaringsnivåer och diskuterar teoriernas begränsningar</td></tr>
+      <tr><td>Åtalsbeslut</td><td>Pekar ut en person</td><td>Bygger åtalet på bärande bevisning</td><td>Skriver en gärningsbeskrivning som håller mot invändningar</td></tr>
+    </table>
+
+    <h3>Diskussionsfrågor efter domslutet</h3>
+    <ol>
+      <li>Vilket bevis övertygade er först – och hur påverkade det hur ni läste alla följande uppgifter? (tunnelseende)</li>
+      <li>Fanns det någon ni misstänkte på grund av tidigare brottslighet, utseende eller livsstil snarare än på grund av bevisning?</li>
+      <li>Hade åtalet hållit i tingsrätten? Vilken alternativ förklaring hade en försvarare lyft?</li>
+      <li>Vad skulle situationell brottsprevention ha kunnat ändra i det här fallet – och vad hade det kostat i frihet eller integritet?</li>
+      <li>Hur skulle det här brottet ha rapporterats i medier? Passar offret in i Christies "ideala offer"?</li>
+    </ol>
+
+    <h3>Etiska riktlinjer</h3>
+    <ul>
+      <li>Alla fall och personer är påhittade. Undvik att koppla dem till verkliga, pågående fall – särskilt inte till namngivna personer.</li>
+      <li>Våldet beskrivs sakligt och utan detaljerad grafisk skildring. Förvarna elever som kan ha egen erfarenhet av våldsbrott eller förlust, och erbjud en alternativ uppgift.</li>
+      <li>Diskutera true crime-genrens etik: verkliga brottsoffer och deras anhöriga har sällan valt att bli underhållning.</li>
+      <li>Var uppmärksam på att uppgiften inte glider över i att bekräfta fördomar om grupper. Fall 1 har en inbyggd sådan fälla – använd den medvetet.</li>
+    </ul>
+
+    <h3>Facit i korthet</h3>
+    <p style="font-size:.88rem; color:var(--muted);">Gärningsperson i respektive fall: <strong>Bruket</strong> – Sanna Wikner (fastighetsägaren). <strong>Nattpasset</strong> – Marianne Ohlin (dottern). <strong>Kallt fall Vindeln</strong> – Mikael Rehn (taxichauffören som förhördes som vittne 2009). Fullständig motivering, röda sillar och lärdomar visas i fas 8.</p>
+  </div>
+</div>
+
+<!-- ============ REGLER ============ -->
+<div class="modal" id="rulesModal">
+  <div class="modal-box">
+    <button class="btn btn-ghost btn-sm modal-close" onclick="closeModal('rulesModal')">✕ Stäng</button>
+    <h2>📋 Så fungerar utredningen</h2>
+    <ol>
+      <li><strong>Fallakten</strong> – läs bakgrund, offer, dödstid och misstänkta. Notera att dödstiden alltid är ett intervall.</li>
+      <li><strong>Brottsplatsen</strong> – klicka fram varje fynd. Spårtypen (biologiskt, fysiskt, digitalt, dokument) avgör vilken analys som är möjlig.</li>
+      <li><strong>Laboratoriet</strong> – ni har begränsad analysbudget. Varje rapport innehåller ett resultat, en tolkning och en felkälla. Läs felkällan.</li>
+      <li><strong>Förhören</strong> – varje person ger först en berättelse, sedan ett svar på en uppföljningsfråga. Alibistatusen visar om uppgiften går att kontrollera.</li>
+      <li><strong>Bevisvärderingen</strong> – klassificera varje uppgift som teknisk bevisning, vittnesuppgift eller indicium, och sätt bevisvärde. Ni får poäng och förklaring.</li>
+      <li><strong>Åtalsbeslutet</strong> – peka ut en person och välj de tre bevis åtalet vilar på. Skriv gärningsbeskrivningen.</li>
+      <li><strong>Kriminologisk analys</strong> – välj de förklaringsmodeller som faktiskt passar, samt gärningspersonens neutraliseringsteknik.</li>
+      <li><strong>Domslutet</strong> – ni får veta om åtalet höll, vilka spår som var röda sillar och vad fallet lär ut.</li>
+    </ol>
+    <h3>Parläge</h3>
+    <p>I parläget får utredare A och utredare B <em>olika</em> spår och <em>olika</em> förhör. Ni måste berätta för varandra – men visa inte skärmen. Ingen kan lösa fallet ensam. Växla vem som är A och B med knappen högst upp i respektive fas.</p>
+    <h3>Poäng</h3>
+    <p>Ni får poäng för korrekt bevisvärdering, för att åtalet vilar på bärande bevisning, för rätt gärningsperson och för den kriminologiska analysen. Ett åtal mot rätt person som bygger på svaga indicier ger färre poäng än ett väl underbyggt resonemang.</p>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   UTREDNINGSRUMMET – falldata
+   Samtliga fall, personer och företeelser är påhittade.
+   ===================================================================== */
+
+const NEUTRAL_OPTIONS = [
+  { id:'ansvar',   label:'Förnekande av ansvar' },
+  { id:'skada',    label:'Förnekande av skada' },
+  { id:'offer',    label:'Förnekande av offer' },
+  { id:'fordoma',  label:'Fördömande av fördömarna' },
+  { id:'lojalitet',label:'Hänvisning till högre lojaliteter' }
+];
+
+const CASES = {
+
+/* ================== FALL 1: BRUKET ================== */
+bruket: {
+  icon:'🏭',
+  title:'Bruket',
+  subtitle:'Dödligt våld efter en illegal fest',
+  difficulty:'Medelsvår',
+  tags:['Trubbigt våld','DNA & blandbild','Digital forensik','Tunnelseende'],
+  blurb:'En 24-årig festarrangör hittas död på en lastkaj i ett nedlagt industriområde. Fem personer hade skäl att vara arga på honom – och en av dem har suttit i fängelse förut. Fallet handlar lika mycket om era egna fördomar som om spåren.',
+  place:'Nedlagda pappersbruket, industriområdet i utkanten av staden',
+  date:'Natten mot lördag den 12 oktober',
+  brief:{
+    background:'I den gamla pappersbruksbyggnaden arrangerades under natten en olaglig fest med runt 250 besökare. Fastigheten ägs av Wikner Fastigheter AB. Festen saknade tillstånd, brandskydd och utrymningsvägar. Polis larmades klockan 04:22 av en ordningsvakt.',
+    crime:'Robin Sahlin, 24 år, arrangör av festen, hittades liggande på lastkajen på byggnadens baksida. Han hade två separata skador efter trubbigt våld mot bakhuvudet. Plånbok, mobil och 6 400 kronor i kontanter fanns kvar på kroppen – rån framstår därför inte som motiv.',
+    timeOfDeath:'Rättsläkarens preliminära bedömning: mellan cirka 02:00 och 03:30. Intervallet är brett eftersom natten var kall (+4 °C) och kroppen legat utomhus på betong.',
+    lastSeen:'Robin sågs senast omkring 01:50 när han gick ut genom lastportens sidodörr, enligt två festdeltagare.',
+    note:'Platsen är svår: 250 berusade personer har rört sig i och kring byggnaden, och de första poliserna på plats gick fram till kroppen innan avspärrningen var klar. Räkna med kontaminationsrisk.'
+  },
+  victim:{ name:'Robin Sahlin', age:24, role:'Arrangör, festarrangemang utan tillstånd',
+    desc:'Drev sedan tre år tillbaka festarrangemang i tomma industrilokaler. Omtyckt av många men beskrivs också som hetsig i pengafrågor. Hade 1,4 promille alkohol i blodet vid dödsfallet.' },
+  suspects:[
+    { id:'melvin', name:'Melvin Åkerlund', age:26, role:'Medarrangör', color:'#4f9cf9', initials:'MÅ',
+      bg:'Robins kompanjon sedan två år. Skötte ekonomin i kvällens arrangemang och stod i baren.',
+      motive:'Robin höll inne 40 000 kronor av intäkterna från förra festen.',
+      alibi:'svag', alibiText:'Uppger att han stod i baren hela natten – men kassasystemet visar en lucka på 40 minuter.',
+      statement:'Jag stod i baren, hela natten. Robin och jag hade en diskussion om pengar men det var inget konstigt, sånt löser man. Han var min kompanjon. Vem tror ni tar mest skada av att han är död?',
+      followUp:'Okej. Luckan i kassan… Jag var inte i baren mellan halv tre och kvart i tre. Jag stod i trapphuset och sålde tabletter. Det är ett brott, jag vet, men det är inte det brottet ni utreder. Jag har två köpare som kan intyga det, och jag ger er deras namn hellre än att sitta här som mordmisstänkt.' },
+    { id:'nadia', name:'Nadia Persson', age:23, role:'DJ', color:'#a56eff', initials:'NP',
+      bg:'Bokad DJ för natten. Robin hade tidigare spridit uppgifter om henne som fick henne avbokad från tre klubbar.',
+      motive:'Robin hade skadat hennes rykte och inkomst.',
+      alibi:'stark', alibiText:'Spelade set 01:30–03:00. Mixerbordets loggfil och över fyrtio publikfilmer med tidsstämplar.',
+      statement:'Ja, jag hatade honom. Det tänker jag inte låtsas om något annat. Han förstörde ett halvår av mitt liv med skitsnack. Men jag stod bakom bordet och spelade när det hände, och det finns ungefär fyrtio filmer på det.',
+      followUp:'Ni får min mixer och min telefon, ta allt. Jag såg Robin gå ut vid tvåtiden och jag såg Sanna Wikner inne i byggnaden långt senare än hon påstår. Hon stod i korridoren mot förrådet. Jag tänkte inte på det då.' },
+    { id:'kevin', name:'Kevin Roos', age:19, role:'Tidigare dömd, utkastad från festen', color:'#e5484d', initials:'KR',
+      bg:'Kastades ut av Robin klockan 00:30 efter att ha sålt narkotika inne i lokalen. Dömd 2024 för misshandel.',
+      motive:'Blev utkastad och förlorade kvällens försäljning. Har en tidigare våldsdom.',
+      alibi:'inget', alibiText:'Har ingen som kan styrka var han var mellan 02:00 och 03:30. Greps 03:50 utanför byggnaden med blod på jackan.',
+      statement:'Jag vet precis hur det här ser ut. Jag har en dom, jag blev utkastad, jag har blod på jackan och jag har inget alibi. Ni har redan bestämt er. Men jag rörde honom inte.',
+      followUp:'Blodet är mitt eget. Jag åkte på en smäll i ansiktet av två killar vid parkeringen runt ett, det blödde näsblod hela natten. Fråga vakten, han bröt upp bråket. Testa blodet, bara. Jag ber er testa det.' },
+    { id:'sanna', name:'Sanna Wikner', age:27, role:'Fastighetsägarens dotter, driftansvarig', color:'#f0b429', initials:'SW',
+      bg:'Ansvarar för driften av familjens fastigheter, däribland bruket. Hade hyrt ut lokalen svart till Robin mot kontant betalning.',
+      motive:'Riskerade åtal och miljonbelopp i viten om den olagliga uthyrningen kom fram.',
+      alibi:'svag', alibiText:'Uppger att hon lämnade området vid 23:00 – motsägs av flera uppgifter.',
+      statement:'Jag var på plats tidigt på kvällen för att kontrollera att inget skulle gå sönder i byggnaden, sedan åkte jag hem vid elvatiden. Att festen var olaglig är en sak mellan mig och min pappa. Jag har inget med Robins död att göra.',
+      followUp:'Jag kan ha varit kvar längre än jag sa. Jag var stressad, jag mindes fel. Och ja, han skickade det där meddelandet. Han utpressade mig. Han hade själv dragit in mig i alltihop och sedan skulle jag betala för det? Han fick skylla sig själv för att folk blev arga på honom.' },
+    { id:'douglas', name:'Douglas Hage', age:31, role:'Ordningsvakt (svart anställd)', color:'#2ec4b6', initials:'DH',
+      bg:'Anlitad kontant som vakt. Saknar giltigt vaktförordnande. Hittade kroppen och larmade polis.',
+      motive:'Robin hade sagt att han inte tänkte betala ut vaktarvodet på 5 000 kronor.',
+      alibi:'svag', alibiText:'Rörde sig ensam runt byggnaden. Ingen kan styrka var han var 02:00–03:30.',
+      statement:'Jag gick ronder. Vid tjugo i halv fem gick jag runt hörnet och då låg han där. Jag ringde 112 direkt, ni kan höra samtalet. Att jag jobbar svart, ja. Men jag springer inte omkring och slår ihjäl folk för fem tusen.',
+      followUp:'Jag bröt upp ett bråk vid parkeringen vid ettiden. Den där killen Kevin fick näsblod, det rann rejält. Han satt och höll sig för ansiktet en bra stund. Jag skrev inte upp det någonstans, jag är ju inte riktig vakt.' }
+  ],
+  scene:{
+    solo:['s1','s2','s3','s4','s5','s6','s7','s8','s9','s10'],
+    A:['s1','s2','s3','s5','s9'],
+    B:['s4','s6','s7','s8','s10']
+  },
+  clues:{
+    s1:{ label:'Kroppen och skadorna', type:'fys', text:'Robin ligger på rygg på lastkajen. Två separata skador efter trubbigt våld mot bakre delen av huvudet. Inga skador på händer eller underarmar.', note:'Avsaknad av avvärjningsskador talar för att slagen kom bakifrån och oväntat.' },
+    s2:{ label:'Blodbilden på lastkajen', type:'bio', text:'En blodpöl kring huvudet med passiva droppar runt om. Mitt i pölen finns ett tomrum (void) på ungefär 40 × 25 cm.', note:'Ett tomrum betyder att något eller någon stod där när blodet hamnade på marken – och sedan flyttades.' },
+    s3:{ label:'Rörbit i containern', type:'fys', text:'I en container 25 meter från lastkajen ligger en 60 cm lång kraftig rörbit med intorkat blod i ena änden.', note:'Kapsnittet i röret är maskinellt och färskt.' },
+    s4:{ label:'Arbetshandske', type:'bio', text:'I samma container ligger en gummerad arbetshandske för höger hand. Utsidan har mörka fläckar, insidan är fortfarande fuktig.', note:'Insidan av en handske är ett av de bästa underlagen för DNA från bäraren.' },
+    s5:{ label:'Skoavtryck i lera', type:'fys', text:'Två tydliga skoavtryck i leran nedanför lastkajen, storlek 38. I hälpartiet syns en skåra tvärs över mönstret.', note:'Storlek och mönster är klassbestämning. En skada i sulan kan däremot vara individuell.' },
+    s6:{ label:'Blod på Kevin Roos jacka', type:'bio', text:'Kevin Roos grips 03:50 utanför byggnaden. På höger ärm och bröst finns intorkat blod. Han är dömd för misshandel 2024.', note:'Notera vad ni antar när ni läser den här meningen – och pröva det sedan mot analysen.' },
+    s7:{ label:'Kassasystemets logg', type:'dig', text:'Barens kassasystem, som Melvin Åkerlund ansvarade för, visar inga transaktioner alls mellan 02:10 och 02:50. Före och efter luckan sker registreringar var tredje minut.', note:'En lucka i en logg visar att något avvek från rutinen – inte vad.' },
+    s8:{ label:'Passerlogg och wifi', type:'dig', text:'Fastighetens system: nyckelbricka SW-02, utfärdad till Sanna Wikner, öppnar verktygsförrådet klockan 01:58. En mobiltelefon ansluter till fastighetens wifi 02:34 med en enhetsidentitet som återfinns i Sanna Wikners telefon.', note:'En passerlogg registrerar en bricka, inte en person. Brickor kan lånas ut och stjälas.' },
+    s9:{ label:'Meddelande i Robins telefon', type:'dok', text:'Skickat från Robin tre dagar före dödsfallet: "Om jag åker dit så åker du med. 40 000 innan fredag, annars ringer jag själv till kommunen." Mottagare: Sanna Wikner.', note:'Meddelandet visar en konflikt och ett möjligt motiv – inte en gärning.' },
+    s10:{ label:'Vittnesuppgift från festdeltagare', type:'dok', text:'En 22-årig festdeltagare uppger att hon "typ halv tre" såg "en kvinna i ljus jacka" gå mot lastkajen. Avstånd cirka 30 meter, ingen belysning, vittnet uppger själv att hon druckit "sex, sju öl".', note:'Mörker, avstånd, alkohol och en obestämd tidsangivelse. Väg in allt detta.' }
+  },
+  labBudget:5,
+  lab:[
+    { id:'l1', name:'DNA – insidan av arbetshandsken', sample:'Spår 12, handske', method:'STR-analys, jämförelse mot frivilligt lämnade referensprov', days:6,
+      result:'En huvudprofil erhålls från handskens insida. Vid jämförelse med referensprov anges resultatvärde +4: resultaten talar extremt starkt för att avlagringarna kommer från Sanna Wikner snarare än från en annan, obesläktad person.',
+      interp:'Insidan av en handske bärs mot huden och ger normalt DNA från bäraren. Det är alltså den som burit handsken som pekas ut.',
+      caveat:'DNA-resultatet besvarar frågan vems cellerna är – inte när handsken bars eller vad bäraren gjorde. Sekundär överföring kan aldrig helt uteslutas, men är osannolik på insidan av en handske.' },
+    { id:'l2', name:'DNA – handskens utsida och rörbiten', sample:'Spår 12 och 14', method:'STR-analys av blodavlagringar och kontaktspår', days:6,
+      result:'Blodet på handskens utsida och i rörbitens ena ände ger en profil som överensstämmer med Robin Sahlin. På rörbitens skaft erhålls en blandbild med minst tre bidragsgivare; ingen enskild profil kan säkert tolkas ut.',
+      interp:'Robins blod på både handsken och röret binder ihop de två föremålen med gärningen.',
+      caveat:'Blandbilden på skaftet är otolkbar. Ett verktyg som legat i ett gemensamt förråd hanteras av många – att någons DNA saknas betyder inte att personen inte hållit i det.' },
+    { id:'l3', name:'DNA – blodet på Kevin Roos jacka', sample:'Spår 21, jacka', method:'STR-analys av blodfläck', days:5,
+      result:'Blodet på jackan ger en profil som överensstämmer med Kevin Roos egen referensprofil. Inget av Robin Sahlins DNA påvisas på jackan.',
+      interp:'Blodet är Kevins eget. Uppgiften om näsblod efter ett bråk vid parkeringen får stöd, och styrks dessutom av ordningsvakten.',
+      caveat:'Det här är fallets viktigaste påminnelse: en tidigare dom, avsaknad av alibi och blod på kläderna kändes som tre bevis. Det var noll bevis. Så uppstår tunnelseende.' },
+    { id:'l4', name:'Rättsmedicinsk obduktion', sample:'Kroppen', method:'Rättsmedicinsk undersökning vid RMV', days:14,
+      result:'Dödsorsak: skallfraktur med blödning under hårda hjärnhinnan. Minst två slag mot bakhuvudet med ett avlångt, hårt föremål. Alkoholkoncentration 1,4 promille. Dödstid bedöms till 02:00–03:30.',
+      interp:'Två slag talar mot en ren olycka och mot ett enda fall mot betongkanten.',
+      caveat:'Dödstiden är ett intervall och inte en tidpunkt. Låg utomhustemperatur gör beräkningen från kroppstemperatur osäkrare, inte säkrare.' },
+    { id:'l5', name:'Blodspårsanalys på platsen', sample:'Lastkajen', method:'Dokumentation och tolkning av blodspårsmönster', days:3,
+      result:'Passiva droppar och rinnmärken kring huvudet. Ett tomrum om cirka 40 × 25 cm i pölen. På containerns lock påvisas ett fåtal små kaststänk i riktning från lastkajen.',
+      interp:'Tomrummet talar för att ett föremål – exempelvis en väska eller en fot – låg eller stod i blodet och sedan avlägsnades. Kaststänken vid containern stämmer med att vapnet burits dit.',
+      caveat:'Blodspårstolkning är den mest ifrågasatta forensiska metoden. Att blod finns och var det finns är säkert. Detaljerade rekonstruktioner av händelseförlopp har svagt vetenskapligt stöd.' },
+    { id:'l6', name:'Skoavtrycksundersökning', sample:'Spår 08, avgjutning', method:'Jämförelse mot beslagtagna skodon', days:7,
+      result:'Avtrycken kommer från en känga av vanligt förekommande modell i storlek 38. I hälpartiet finns en 11 mm lång skåra med oregelbunden kant. Motsvarande skada återfinns i höger känga som tagits i beslag hos Sanna Wikner.',
+      interp:'Modell och storlek är klassbestämning – många har sådana kängor. Slitageskadan är däremot slumpmässigt uppkommen och gör jämförelsen betydligt starkare.',
+      caveat:'Ett skoavtryck visar att en sko varit på platsen, inte vem som hade den på sig eller när avtrycket uppstod.' },
+    { id:'l7', name:'Digital forensik – telefon och mastdata', sample:'Beslagtagen telefon samt operatörsuppgifter', method:'Tömning av telefon, masttömning efter domstolsbeslut', days:10,
+      result:'Sanna Wikners telefon ansluter till fastighetens wifi 02:34. Masttömning visar att telefonen varit uppkopplad mot basstationen som täcker industriområdet mellan 23:40 och 03:20. Positionsdata i telefonen är raderad för det aktuella dygnet.',
+      interp:'Uppgiften att hon lämnade området vid 23:00 stämmer inte med telefonens data. Wifi-anslutningen är betydligt mer preciserad än mastdata, eftersom accesspunkten sitter i byggnaden.',
+      caveat:'Masttömning placerar en telefon i ett område – inte en person på en adress. Basstationens täckning är här cirka 900 meter. Den raderade positionsdatan är ett indicium, inte ett bevis.' },
+    { id:'l8', name:'Verktygsspår – rörbiten mot förrådet', sample:'Spår 14 samt verktyg i förrådet', method:'Jämförelse av kapsnitt och materialanalys', days:9,
+      result:'Rörbitens kapsnitt uppvisar spårlinjer som överensstämmer med kapmaskinen i fastighetens verktygsförråd. I förrådet finns fem rör av samma dimension och legering. Förrådet öppnades 01:58 med nyckelbricka SW-02.',
+      interp:'Vapnet kommer med hög sannolikhet från förrådet, som öppnades två timmar innan kroppen hittades och i början av rättsläkarens dödstidsintervall.',
+      caveat:'Verktygsspår kopplar rör till maskin, inte till person. Kopplingen till en människa går via passerloggen – och den registrerar en bricka.' }
+  ],
+  assess:[
+    { id:'a1', text:'DNA-analysen av arbetshandskens insida: resultatvärde +4 för att avlagringarna kommer från Sanna Wikner, och på utsidan finns Robin Sahlins blod.', type:'teknisk', weight:'starkt',
+      why:'Teknisk bevisning av hög kvalitet. Insidan av en handske bärs mot huden, och kombinationen med offrets blod på utsidan binder föremålet till både bärare och gärning. Notera ändå att DNA besvarar källfrågan, inte handlingsfrågan.' },
+    { id:'a2', text:'Festdeltagaren som "typ halv tre" såg "en kvinna i ljus jacka" gå mot lastkajen på 30 meters avstånd i mörker, efter sex–sju öl.', type:'vittne', weight:'svagt',
+      why:'Vittnesbevisning med flera kända försvagande faktorer: mörker, avstånd, alkohol och en vag tidsangivelse. Uppgiften kan ge stöd åt en tidslinje men kan aldrig ensam peka ut en person.' },
+    { id:'a3', text:'Robins meddelande tre dagar före dödsfallet: "Om jag åker dit så åker du med. 40 000 innan fredag."', type:'indicium', weight:'svagt',
+      why:'Meddelandet visar en konflikt och ett möjligt motiv. Motiv är ett indicium – det säger något om varför någon skulle kunna vilja begå brottet, aldrig att personen gjorde det. Många har motiv, ytterst få begår mord.' },
+    { id:'a4', text:'Kevin Roos har en tidigare våldsdom, saknar alibi och greps med blod på jackan.', type:'indicium', weight:'svagt',
+      why:'Detta är fallets fälla. Tre omständigheter som känns tunga är i själva verket svaga indicier – och analysen visade att blodet var hans eget. Tidigare brottslighet är inte bevis för ny brottslighet.' },
+    { id:'a5', text:'Passerloggen visar att nyckelbricka SW-02, utfärdad till Sanna Wikner, öppnade verktygsförrådet 01:58.', type:'teknisk', weight:'svagt',
+      why:'Loggen är teknisk bevisning, men den registrerar en bricka – inte en hand. Ensam är den svag. Det är först tillsammans med skoavtrycket, DNA:t och wifi-anslutningen som den blir tung.' },
+    { id:'a6', text:'Skoavtrycket i leran har en 11 mm slitageskada i hälen som återfinns i Sanna Wikners beslagtagna känga.', type:'teknisk', weight:'starkt',
+      why:'Storlek och mönster är klassbestämning, men en slumpmässigt uppkommen slitageskada gör jämförelsen individualiserande. Kvarstående fråga för försvaret: vem bar skon, och när?' },
+    { id:'a7', text:'Melvin Åkerlunds kassalucka mellan 02:10 och 02:50, mitt i dödstidsintervallet.', type:'indicium', weight:'svagt',
+      why:'Ett klassiskt indicium som pekar mot en avvikelse – men förklaringen visade sig vara ett annat brott. Att någon ljuger i ett förhör betyder inte att personen ljuger om just mordet.' }
+  ],
+  evidencePool:[
+    { id:'e1', label:'DNA från Sanna Wikner på insidan av handsken vars utsida bär Robins blod', strong:true },
+    { id:'e2', label:'Skoavtryck med individuell slitageskada som matchar Sanna Wikners känga', strong:true },
+    { id:'e3', label:'Rörbiten kommer från förrådet som öppnades 01:58 med Sannas bricka, och hennes telefon ansluter till fastighetens wifi 02:34 trots att hon uppgett att hon åkte hem 23:00', strong:true },
+    { id:'e4', label:'Vittnet som såg "en kvinna i ljus jacka" gå mot lastkajen', strong:false },
+    { id:'e5', label:'Robins utpressningsliknande meddelande om 40 000 kronor', strong:false },
+    { id:'e6', label:'Kevin Roos tidigare våldsdom och avsaknad av alibi', strong:false },
+    { id:'e7', label:'Melvin Åkerlunds oförklarade lucka i kassasystemet', strong:false },
+    { id:'e8', label:'Att Douglas Hage arbetade svart och var den som hittade kroppen', strong:false }
+  ],
+  theory:{
+    correctNeutral:'offer',
+    neutralNote:'I uppföljningsförhöret säger Sanna Wikner: "Han utpressade mig. Han hade själv dragit in mig i alltihop… Han fick skylla sig själv." Hon flyttar skulden till offret och gör honom till någon som förtjänade det som hände. Det är förnekande av offer.',
+    options:[
+      { id:'t1', name:'Rationella valteorin', level:'Individ', correct:true,
+        desc:'Brott som ett begränsat rationellt val: vinst mot upptäcktsrisk.',
+        note:'Passar. Hon hämtade ett verktyg ur ett låst förråd, valde en obelyst plats och en tidpunkt då hundratals berusade personer skulle göra vittnesbilden hopplös. Kalkylen var att risken att åka fast var mindre än risken att uthyrningen avslöjades.' },
+      { id:'t2', name:'Rutinaktivitetsteorin', level:'Situation', correct:true,
+        desc:'Motiverad gärningsperson, lämpligt mål och avsaknad av kapabel väktare möts i tid och rum.',
+        note:'Passar mycket väl. Alla tre elementen finns: en motiverad gärningsperson, ett kraftigt berusat offer som gick ut ensamt, och en väktare som var svart anställd, obehörig och ensam om 250 personer.' },
+      { id:'t3', name:'Strainteorin (Agnew)', level:'Individ / relation', correct:true,
+        desc:'Press och negativa upplevelser skapar spänning som kan leda till brott.',
+        note:'Passar delvis. Hotet om åtal, viten och att svika familjeföretaget är en påtaglig press. Använd teorin försiktigt: strain förklarar spänningen, inte varför just den här personen valde dödligt våld när de allra flesta under press inte gör det.' },
+      { id:'t4', name:'Social desorganisation', level:'Samhälle', correct:false,
+        desc:'Svag informell social kontroll i områden med fattigdom och hög omflyttning.',
+        note:'Passar dåligt. Gärningspersonen är en etablerad fastighetsförvaltare, inte en produkt av ett socialt utsatt grannskap. Att brottet skedde i ett nedgånget industriområde säger något om platsen – inte om orsaken.' },
+      { id:'t5', name:'Differentiella associationer', level:'Grupp / relation', correct:false,
+        desc:'Kriminellt beteende lärs in i nära relationer.',
+        note:'Passar dåligt på gärningen. Den olagliga uthyrningen kan möjligen förstås så, men inget i materialet visar att hon lärt sig våld i en kriminell umgängeskrets.' },
+      { id:'t6', name:'Stämplingsteorin', level:'Samhälle / grupp', correct:false,
+        desc:'Samhällets reaktion skapar en avvikaridentitet.',
+        note:'Förklarar inte gärningen – men läs den mot Kevin Roos. Han bemöttes som skyldig av alla, inklusive er, på grund av en tidigare dom. Det är precis den mekanism Becker och Lemert beskriver, och den fanns i den här utredningen.' }
+    ]
+  },
+  solution:{
+    culprit:'sanna',
+    headline:'Sanna Wikner dömdes för mord.',
+    story:'Robin Sahlin hade hyrt lokalen svart av Sanna Wikner och betalat kontant. När kommunen började ställa frågor om byggnaden insåg Robin att han själv riskerade åtal, och pressade Sanna på 40 000 kronor med hotet att annars berätta allt. Under natten låste hon upp verktygsförrådet klockan 01:58, tog en avkapad rörbit och en arbetshandske, och följde efter Robin ut på lastkajen när han gick ut ensam vid 01:50-tiden. Hon slog honom två gånger bakifrån, bar vapnet och handsken till containern 25 meter bort och lämnade platsen. Hennes telefon anslöt till fastighetens wifi 02:34 – nästan fyra timmar efter att hon påstod sig ha åkt hem.',
+    chain:[
+      'DNA från handskens insida talar extremt starkt för Sanna Wikner, och offrets blod finns på handskens utsida.',
+      'Skoavtrycket i leran vid lastkajen har en individuell slitageskada som återfinns i hennes beslagtagna känga.',
+      'Rörbiten är kapad med förrådets kapmaskin, och förrådet öppnades 01:58 med hennes nyckelbricka.',
+      'Hennes telefon anslöt till fastighetens wifi 02:34 – hon uppgav 23:00 som avresetid.',
+      'Positionsdata för det aktuella dygnet var raderad ur telefonen.',
+      'Meddelandet från Robin ger ett tydligt motiv: hon riskerade åtal och miljonbelopp i viten.',
+      'Hon ändrade sin berättelse i uppföljningsförhöret och lade skulden på offret.'
+    ],
+    herrings:[
+      { who:'Kevin Roos', text:'Tidigare våldsdom, ingen alibi, blod på jackan – blodet var hans eget näsblod, styrkt av både DNA-analysen och vaktens uppgifter. Han var utredningens mest utsatta person och den som var minst inblandad.' },
+      { who:'Melvin Åkerlund', text:'Luckan i kassasystemet under dödstiden berodde på narkotikaförsäljning i ett trapphus. Ett annat brott – inte det här.' },
+      { who:'Douglas Hage', text:'Att arbeta svart och hitta kroppen gör en person intressant, inte skyldig. Hans uppgifter blev tvärtom det som friade Kevin.' },
+      { who:'Nadia Persson', text:'Öppet hat mot offret plus fyrtio tidsstämplade filmer. Starkast motiv, starkast alibi – en påminnelse om att motiv och gärning är olika frågor.' }
+    ],
+    lessons:[
+      { title:'Tunnelseende har ett ansikte', text:'Kevin Roos hade allt som får en utredning att låsa sig: en dom, ett dåligt rykte, inget alibi och blod på kläderna. Ett enda DNA-prov raderade alltihop. Fråga er hur många timmar ni hade lagt på honom om ni inte beställt den analysen – och vad det hade kostat honom.' },
+      { title:'En logg är inte en person', text:'Passerloggen registrerade brickan SW-02, inte Sanna Wikners hand. Wifi-anslutningen registrerade en telefon, inte en människa. Tekniska system dokumenterar föremål. Kopplingen till en människa måste alltid bevisas separat.' },
+      { title:'Klassbestämning mot individualisering', text:'Skostorlek 38 och ett vanligt sulmönster delas av hundratusentals människor. Det som gjorde skoavtrycket till bevis var en slumpmässig 11 mm skåra. Lär er skilja på vad en analys kan utesluta och vad den kan peka ut.' }
+    ]
+  }
+},
+
+/* ================== FALL 2: NATTPASSET ================== */
+nattpasset: {
+  icon:'🏥',
+  title:'Nattpasset',
+  subtitle:'Ett dödsfall som såg naturligt ut',
+  difficulty:'Svår',
+  tags:['Rättskemi','Riktad analys','Brott mot äldre','Loggar'],
+  blurb:'En 74-årig man dör i sömnen på ett vård- och omsorgsboende. Ingen misstänker något förrän en sjuksköterska reagerar på ett stickmärke. Fallet handlar om hur nära ett brott kan komma att aldrig upptäckas alls – och om vem som egentligen utsätter äldre för brott.',
+  place:'Vård- och omsorgsboendet Almgården',
+  date:'Natten mot onsdag den 5 mars',
+  brief:{
+    background:'Almgården har 42 boende fördelade på fyra avdelningar. På avdelning 3 arbetar två personer under natten. Bengt Ohlin flyttade in för 14 månader sedan efter en stroke. Han hade nedsatt rörlighet men var klar i tanken och skötte fortfarande sin egen ekonomi med hjälp av en framtidsfullmakt.',
+    crime:'Bengt Ohlin, 74 år, hittades avliden i sin säng klockan 06:40 av personal vid morgonronden. Dödsfallet bedömdes först som naturligt. Vid den yttre likbesiktningen reagerade en sjuksköterska på ett färskt stickmärke på lårets utsida, som inte kunde förklaras av någon ordination. Polis kopplades in och en rättsmedicinsk obduktion begärdes.',
+    timeOfDeath:'Dödstid bedöms till mellan cirka 23:00 och 03:00, utifrån likfläckarnas utveckling och kroppstemperatur. Rummet var uppvärmt till 22 °C, vilket gör beräkningen osäkrare.',
+    lastSeen:'Bengt sågs senast vid 22:15 av nattpersonalen vid rutinronden. Han var då vaken och pratade om att han skulle till banken i nästa vecka.',
+    note:'Utan sjuksköterskans reaktion hade dödsfallet skrivits ut som naturligt och kroppen kremerats. Fråga er under hela fallet hur många liknande dödsfall som aldrig utreds.'
+  },
+  victim:{ name:'Bengt Ohlin', age:74, role:'Boende på Almgården, tidigare byggnadsingenjör',
+    desc:'Änkling sedan sex år. Beskrivs av personalen som noggrann och envis. Hade nyligen börjat ställa frågor om sin ekonomi och begärt ut kontoutdrag 24 månader bakåt.' },
+  suspects:[
+    { id:'elvira', name:'Elvira Sand', age:34, role:'Undersköterska, nattpasset', color:'#2ec4b6', initials:'ES',
+      bg:'Har arbetat på Almgården i nio år. Ansvarade tillsammans med en kollega för avdelning 3 den aktuella natten.',
+      motive:'Ingen känd konflikt. Fanns dock på plats och har tillgång till alla rum.',
+      alibi:'stark', alibiText:'Passerloggar och två signerade ronder tillsammans med kollega. Rörelserna följer avdelningens rutin.',
+      statement:'Jag gick ronden 22:15 och sedan 02:00. Bengt sov när jag tittade in andra gången, det trodde jag i alla fall. Jag var i medicinrummet vid tolv över tre, det är nattkontrollen av narkotikaskåpet, den signeras alltid av två.',
+      followUp:'Jag har tänkt på en sak. Bengt sa till mig förra veckan att han skulle ta med sig kontoutdragen till banken. Han var upprörd. Han sa: "Det stämmer inte, och jag vet vem som har hanterat det." Jag trodde han var förvirrad. Det ångrar jag.' },
+    { id:'hampus', name:'Hampus Ceder', age:49, role:'Läkare med ansvar för boendet', color:'#4f9cf9', initials:'HC',
+      bg:'Konsultläkare på Almgården. Anmäldes enligt lex Maria för ett år sedan efter en felordination som drabbade just Bengt Ohlin.',
+      motive:'Bengt hade anmält honom och drivit ärendet vidare till IVO.',
+      alibi:'stark', alibiText:'Jourpass på sjukhuset 22:00–07:00 med tolv tidsstämplade journalsignaturer.',
+      statement:'Att jag blev anmäld är korrekt och det var berättigat. Jag skrev ut fel dos. Jag har gått igenom det i utredningen och i mig själv. Men jag hade jourpass den natten och rörde inte det här huset.',
+      followUp:'Jag vill säga en sak som läkare: om ingen hade frågat efter insulin hade ingen hittat insulin. Rutinmässig screening plockar inte upp det. Kolla vem som visste det.' },
+    { id:'marianne', name:'Marianne Ohlin', age:51, role:'Dotter, har framtidsfullmakt', color:'#f0b429', initials:'MO',
+      bg:'Bengts äldsta barn. Driver ett enskilt företag inom event som gått med förlust i tre år. Har haft framtidsfullmakt för faderns ekonomi sedan hans stroke.',
+      motive:'Fadern hade begärt ut kontoutdrag och bokat tid på banken.',
+      alibi:'svag', alibiText:'Besökslogg och entrékamera visar besök 20:40–21:35. Uppger att hon åkte hem, ingen annan kan styrka det.',
+      statement:'Jag var där på kvällen som jag brukar. Vi drack te, jag läste tidningen för honom. Han var trött. Sedan åkte jag hem vid halv tio. Pappa hade ju blivit gammal, det är väl inte konstigt att han somnade in?',
+      followUp:'Fullmakten var för att hjälpa honom! Han kunde inte hantera bankärenden efter stroken. Om det ser konstigt ut på kontot så är det för att jag har betalat räkningar åt honom. Och han hade ju ändå inte lång tid kvar, det sa läkaren. Han låg och väntade. Det där sista året var ingen värdig tid för honom.' },
+    { id:'robert', name:'Robert Ohlin', age:47, role:'Son', color:'#a56eff', initials:'RO',
+      bg:'Bengts yngste son. Bor 40 mil bort och besöker fadern ungefär var sjätte vecka. Har uttryckt starka åsikter om faderns livskvalitet.',
+      motive:'Har skrivit att fadern "borde få slippa". Delar arvet med systern.',
+      alibi:'stark', alibiText:'Betalning med kort i en annan stad klockan 22:48 samt hotellets nyckelkortslogg.',
+      statement:'Jag skrev det där till min fru när jag hade gråtit i bilen efter ett besök. Han var inte pappa längre för mig. Men jag menade att jag önskade att han skulle få dö i lugn och ro, inte att någon skulle döda honom. Det finns skillnad.',
+      followUp:'Fråga min syster om pengarna. Jag ville inte tro det, men jag såg ett kontoutdrag i somras och det gick inte ihop. Jag sa till pappa att han skulle kolla upp det. Det är kanske mitt fel att han började gräva.' },
+    { id:'yasmin', name:'Yasmin Talib', age:28, role:'Sjuksköterska, läkemedelsansvarig', color:'#e5484d', initials:'YT',
+      bg:'Ansvarar för läkemedelshanteringen på avdelningen. Systemet visar att hon kvitterat ut insulin under fel patientnamn tre veckor före dödsfallet.',
+      motive:'Ingen känd konflikt. Har dock haft tillgång till insulin och en oförklarad avvikelse i systemet.',
+      alibi:'stark', alibiText:'Arbetade inte den aktuella natten. Schemalagd ledig, styrkt av schema och mobildata från annan ort.',
+      statement:'Jag hade inte ens jobbat på fyra dagar. Att det står fel namn i systemet vet jag om, jag rapporterade det själv som en avvikelse. Insulinet gick till Ingegerd på rum 12 som ska ha det. Jag hade valt fel rad i listan.',
+      followUp:'Ni får granska varenda uttag jag gjort på nio år. Jag skulle ändå vilja säga en sak: den som gjorde det här behövde inte stjäla insulin härifrån. Vem som helst med diabetes i familjen har det i kylskåpet hemma.' }
+  ],
+  scene:{
+    solo:['n1','n2','n3','n4','n5','n6','n7','n8','n9','n10'],
+    A:['n1','n2','n3','n7','n9'],
+    B:['n4','n5','n6','n8','n10']
+  },
+  clues:{
+    n1:{ label:'Fyndplatsen – rum 7', type:'fys', text:'Bengt Ohlin ligger på rygg i sin säng, täcket uppdraget. Inga tecken på kamp, inget är omkullvält, inget saknas i rummet.', note:'Frånvaro av kamp utesluter inte brott. Det talar för ett brott som inte kräver våld.' },
+    n2:{ label:'Stickmärke på höger lår', type:'bio', text:'Vid likbesiktningen syns ett färskt insticksmärke på lårets utsida, cirka 8 cm ovanför knäet. Ingen ordination motsvarar en injektion i det området.', note:'Detta enda fynd är anledningen till att fallet över huvud taget blev en utredning.' },
+    n3:{ label:'Läkemedelsjournalen', type:'dok', text:'Bengt Ohlin hade ingen diabetesdiagnos. Inga insulinpreparat är ordinerade till honom, och inget insulin finns registrerat på avdelning 3:s lager för hans räkning.', note:'Om substansen inte hör hemma hos patienten måste den ha kommit någon annanstans ifrån.' },
+    n4:{ label:'Besökslogg och entrékamera', type:'dig', text:'Marianne Ohlin registrerar sig i besöksloggen 20:40 och passerar entrékameran på väg ut 21:35. Kameran täcker huvudentrén. Personalentrén på baksidan saknar kamera och öppnas med bricka.', note:'En kamera visar vem som gick ut den vägen – inte vem som stannade eller kom tillbaka en annan väg.' },
+    n5:{ label:'Passerlogg medicinrummet', type:'dig', text:'Elvira Sands bricka öppnar medicinrummet 03:12. Nattkontrollen av narkotikaskåpet är signerad av två personer samma tid.', note:'En rutinåtgärd som finns dokumenterad ser misstänkt ut ända tills man läser rutinen.' },
+    n6:{ label:'Avvikelse i läkemedelssystemet', type:'dig', text:'Tre veckor före dödsfallet har Yasmin Talib kvitterat ut snabbverkande insulin under fel patientnamn. Avvikelsen är egenrapporterad samma dag.', note:'Egenrapporterade avvikelser ser ofta belastande ut för den som letar efter en skyldig.' },
+    n7:{ label:'Bengts bankärenden', type:'dok', text:'Bengt Ohlin hade beställt kontoutdrag 24 månader bakåt och bokat ett personligt möte på bankkontoret till tisdagen efter dödsfallet.', note:'Tidsmässig närhet mellan ett hot mot någons intressen och ett dödsfall är ett klassiskt indicium.' },
+    n8:{ label:'Framtidsfullmakten', type:'dok', text:'Marianne Ohlin har en framtidsfullmakt sedan två år som ger henne rätt att sköta faderns ekonomi. Bengts konton är kopplade till hennes bank-id för överföringar.', note:'Ekonomiskt utnyttjande av äldre begås oftast av någon i den närmaste kretsen.' },
+    n9:{ label:'Fynd i papperskorg på besöksparkeringen', type:'fys', text:'I en papperskorg på besöksparkeringen, cirka 30 meter från personalentrén, hittas en tom injektionspenna för snabbverkande insulin. Papperskorgen töms på fredagar.', note:'Fyndplatsen är utanför avspärrningen. Fundera på vad det gör med spårkedjan.' },
+    n10:{ label:'Roberts meddelande till sin fru', type:'dok', text:'Skickat sex veckor före dödsfallet: "Jag orkar inte se honom så här. Pappa borde få slippa det här."', note:'Ett meddelande skrivet i sorg läses helt annorlunda när man redan tror att man vet vem som är skyldig.' }
+  },
+  labBudget:5,
+  lab:[
+    { id:'m1', name:'Rättsmedicinsk obduktion', sample:'Kroppen', method:'Rättsmedicinsk undersökning vid RMV', days:12,
+      result:'Ingen sjuklig förändring som förklarar dödsfallet. En stickkanal påvisas i lårets muskulatur motsvarande hudmärket. Inga tecken på våld i övrigt. Rättsläkaren anger dödsorsaken som oklar i avvaktan på rättskemi.',
+      interp:'Stickkanalen bekräftar att en injektion getts kort före döden. Kroppen i sig ger inget svar på vad som injicerades.',
+      caveat:'"Oklar dödsorsak" är inte samma sak som "inget brott". Det är en uppmaning att analysera vidare.' },
+    { id:'m2', name:'Rättskemi – riktad analys av insulin och C-peptid', sample:'Blod och glaskroppsvätska', method:'Immunkemi samt LC-MS/MS, riktad beställning', days:16,
+      result:'Kraftigt förhöjd insulinkoncentration i blodet. C-peptid är omätbart låg. Kroppsegen insulinproduktion ger alltid C-peptid i motsvarande mängd.',
+      interp:'Kombinationen högt insulin och omätbar C-peptid är det klassiska fyndet vid tillfört (exogent) insulin. Bengt Ohlin hade ingen diabetes och inget ordinerat insulin. Dödsorsaken fastställs som svår insulinutlöst hypoglykemi.',
+      caveat:'Detta fynd hade aldrig kommit fram utan en riktad beställning. Rutinscreening letar inte efter insulin. Utan sjuksköterskans reaktion på stickmärket hade fallet skrivits av som naturlig död.' },
+    { id:'m3', name:'DNA – injektionspennan', sample:'Spår 04, injektionspenna', method:'STR-analys av kontaktspår på greppet', days:8,
+      result:'En blandbild med två bidragsgivare. Huvudbidraget ger resultatvärde +3: resultaten talar starkt för att avlagringarna kommer från Marianne Ohlin. Den mindre komponenten kan inte tolkas.',
+      interp:'Pennan har hanterats av Marianne Ohlin. Preparattypen överensstämmer med det snabbverkande insulin som påvisats i kroppen.',
+      caveat:'Pennan låg i en offentlig papperskorg utanför avspärrningen. Försvaret kommer att angripa spårkedjan: vem som helst kunde ha lagt den där, och en tredje persons DNA går inte att utesluta i en blandbild.' },
+    { id:'m4', name:'Fingeravtryck – injektionspennan', sample:'Spår 04', method:'Cyanoakrylatframkallning och jämförelse i AFIS', days:5,
+      result:'Två partiella avtryck framkallas. Antalet användbara minutiae är för lågt för en jämförelse. Utlåtande: resultatet kan varken tala för eller emot någon person.',
+      interp:'Analysen ger inget. Det är ett vanligt utfall i verkliga utredningar och det säger ingenting om skuld.',
+      caveat:'Ett negativt eller obrukbart resultat är inte ett bevis för oskuld – och inte heller ett bevis för att någon torkat av föremålet.' },
+    { id:'m5', name:'Digital forensik – Marianne Ohlins telefon', sample:'Beslagtagen telefon', method:'Fullständig tömning inklusive raderat innehåll', days:11,
+      result:'Raderad sökhistorik återskapas: "hur mycket insulin är farligt", "insulin upptäcks obduktion" och "kremering hur lång tid". Sökningarna gjordes nio till fjorton dagar före dödsfallet. Telefonens platshistorik saknas för det aktuella dygnet.',
+      interp:'Sökningarna sker efter att fadern beställt kontoutdrag och före dödsfallet. De visar kunskap om både metoden och om hur upptäckt undviks – det talar för planering, alltså uppsåt.',
+      caveat:'Sökningar visar vad som gjorts på en telefon, inte med säkerhet av vem. Motfrågan i domstol blir alltid: kunde någon annan ha använt enheten?' },
+    { id:'m6', name:'Ekonomisk granskning av kontona', sample:'Bengt Ohlins bankkonton', method:'Kontoanalys 24 månader bakåt', days:9,
+      result:'412 000 kronor har under 18 månader förts över från Bengt Ohlins sparkonto till Marianne Ohlins företagskonto i 31 transaktioner, samtliga strax under 15 000 kronor. Inga motsvarande fakturor eller räkningar finns.',
+      interp:'Överföringarna är systematiska och uppdelade i mindre belopp. Fadern hade beställt kontoutdrag som täcker exakt denna period och bokat möte på banken.',
+      caveat:'Grov förskingring eller trolöshet mot huvudman är ett brott i sig. Det är fortfarande ett motiv, inte ett bevis för mordet. Håll isär de två brotten i er bevisvärdering.' },
+    { id:'m7', name:'Granskning av Yasmin Talibs läkemedelsuttag', sample:'Läkemedelssystemet, nio år', method:'Systemgranskning och lagerkontroll', days:6,
+      result:'Uttaget tre veckor före dödsfallet är ett registreringsfel: insulinet levererades till den patient på rum 12 som har det ordinerat, dokumenterat i två signaturer och i lagersaldot. Inga övriga avvikelser hittas på nio år.',
+      interp:'Avvikelsen är förklarad. Yasmin Talib arbetade dessutom inte den aktuella natten.',
+      caveat:'Notera hur belastande en egenrapporterad avvikelse såg ut innan den granskades. Den som rapporterar sina egna fel blir lättast misstänkt.' },
+    { id:'m8', name:'Kontroll av alibin', sample:'Journalsystem, hotell, kortköp, scheman', method:'Inhämtning av jämförande uppgifter', days:4,
+      result:'Hampus Ceder: tolv journalsignaturer på sjukhuset mellan 22:04 och 06:51. Robert Ohlin: kortköp i annan stad 22:48 och hotellnyckelkort 23:10. Elvira Sand: två signerade ronder och dubbelsignerad narkotikakontroll. Yasmin Talib: schemalagd ledig, mobil uppkopplad 25 mil bort.',
+      interp:'Fyra av fem misstänkta har alibin som går att kontrollera mot oberoende källor. Kvar står den vars uppgift ingen kan bekräfta.',
+      caveat:'Ett kontrollerbart alibi styrker en persons uppgift men bevisar inte automatiskt oskuld. Motsatsen gäller också: att sakna alibi är inte ett bevis för skuld.' }
+  ],
+  assess:[
+    { id:'b1', text:'Rättskemin: kraftigt förhöjt insulin i kombination med omätbar C-peptid, hos en person utan diabetes och utan ordinerat insulin.', type:'teknisk', weight:'starkt',
+      why:'Teknisk bevisning av högsta klass. Kombinationen är det etablerade fyndet för tillfört insulin och fastställer att ett brott över huvud taget har begåtts. Utan detta fynd finns inget fall.' },
+    { id:'b2', text:'DNA på injektionspennans grepp: resultatvärde +3 för Marianne Ohlin, i en blandbild med två bidragsgivare.', type:'teknisk', weight:'starkt',
+      why:'Starkt tekniskt resultat som binder henne till föremålet. Men bevisvärdet dras ned av att pennan låg i en offentlig papperskorg utanför avspärrningen – spårkedjan är bruten där, och det kommer försvaret att utnyttja.' },
+    { id:'b3', text:'Den raderade sökhistoriken om insulin och obduktion, gjord nio till fjorton dagar före dödsfallet.', type:'teknisk', weight:'starkt',
+      why:'Digital forensik är teknisk bevisning. Den är särskilt tung här eftersom den visar planering och alltså uppsåt, och eftersom den tidsmässigt ligger mellan faderns kontoutdrag och dödsfallet. Kvarstående invändning: sökningar visar en enhet, inte med säkerhet en hand.' },
+    { id:'b4', text:'Att Marianne Ohlin fört över 412 000 kronor från faderns konto och att han beställt kontoutdrag som täcker perioden.', type:'indicium', weight:'svagt',
+      why:'Ett tungt motiv – men motiv är per definition ett indicium. Många människor förskingrar från anhöriga utan att döda dem. Indiciet får sin styrka först i kedjan med de tekniska bevisen.' },
+    { id:'b5', text:'Robert Ohlins meddelande "Pappa borde få slippa det här", skrivet sex veckor tidigare.', type:'indicium', weight:'svagt',
+      why:'Ett indicium som nästan uteslutande får sin laddning av läsarens förväntan. I sitt sammanhang är det en sörjande sons uttryck – och han har dessutom ett kontrollerbart alibi.' },
+    { id:'b6', text:'Yasmin Talibs uttag av insulin under fel patientnamn tre veckor före dödsfallet.', type:'indicium', weight:'svagt',
+      why:'Ett indicium som föll vid granskning: registreringsfel, rätt patient, egenrapporterat, och hon arbetade inte den natten. Notera hur nära utredningen var att fastna på den mest synliga avvikelsen.' },
+    { id:'b7', text:'Elvira Sands passering av medicinrummet klockan 03:12, mitt i dödstidsintervallet.', type:'indicium', weight:'svagt',
+      why:'En dokumenterad rutinåtgärd, dubbelsignerad. Loggar ser alltid misstänkta ut för den som inte känner rutinen. Fråga alltid vad som är normalt innan ni tolkar en avvikelse.' },
+    { id:'b8', text:'Att Marianne Ohlin lämnade huset 21:35 enligt entrékameran och uppger att hon åkte hem.', type:'vittne', weight:'svagt',
+      why:'Kamerabilden är teknisk – men själva uppgiften om vad hon gjorde därefter är hennes egen utsaga, och den saknar stöd. Personalentrén saknar kamera. Ett alibi som ingen kan bekräfta är varken bevis eller motbevis.' }
+  ],
+  evidencePool:[
+    { id:'f1', label:'Rättskemiskt fynd: högt insulin och omätbar C-peptid hos en icke-diabetiker utan ordination', strong:true },
+    { id:'f2', label:'Mariannes DNA på injektionspennan av samma preparattyp som påvisats i kroppen', strong:true },
+    { id:'f3', label:'Raderade sökningar om insulindos, obduktion och kremering, gjorda före dödsfallet', strong:true },
+    { id:'f4', label:'De 412 000 kronorna och faderns bokade bankmöte veckan efter', strong:false },
+    { id:'f5', label:'Roberts meddelande om att fadern "borde få slippa"', strong:false },
+    { id:'f6', label:'Yasmin Talibs felregistrerade insulinuttag', strong:false },
+    { id:'f7', label:'Elvira Sands passering av medicinrummet 03:12', strong:false },
+    { id:'f8', label:'Att lex Maria-anmälan gav läkaren en konflikt med offret', strong:false }
+  ],
+  theory:{
+    correctNeutral:'skada',
+    neutralNote:'Marianne Ohlin säger i uppföljningsförhöret: "Han hade ju ändå inte lång tid kvar… Det där sista året var ingen värdig tid för honom." Hon omdefinierar gärningen så att ingen egentlig skada uppstått – offret skulle ändå dö och led. Det är förnekande av skada. Jämför med hennes förklaring av pengarna, där hon i stället förnekar ansvar.',
+    options:[
+      { id:'u1', name:'Rationella valteorin', level:'Individ', correct:true,
+        desc:'Brott som ett begränsat rationellt val: vinst mot upptäcktsrisk.',
+        note:'Passar mycket väl. Metoden valdes för att den är svårupptäckt, tidpunkten för att den låg före bankmötet, och sökningarna om kremering visar att upptäcktsrisken kalkylerades. Det här är planerat, instrumentellt brott.' },
+      { id:'u2', name:'Strainteorin (Merton och Agnew)', level:'Samhälle / individ', correct:true,
+        desc:'Spänning mellan mål och tillgängliga medel, eller press från negativa livshändelser.',
+        note:'Passar. Ett företag som gått med förlust i tre år, en livsstil som ska upprätthållas och 412 000 kronor som snart skulle upptäckas. Mertons "innovation" – att nå målet med otillåtna medel – beskriver förskingringen väl, och Agnews vidgade strain den akuta pressen när avslöjandet närmade sig.' },
+      { id:'u3', name:'Rutinaktivitetsteorin', level:'Situation', correct:true,
+        desc:'Motiverad gärningsperson, lämpligt mål och avsaknad av kapabel väktare.',
+        note:'Passar. Ett sängliggande offer, ett boende med två personal på 42 boende under natten, en okamerabevakad personalentré och en anhörig med självklar tillgång till rummet. Väktaren saknades i praktiken.' },
+      { id:'u4', name:'Neutraliseringsteknikerna som förklaring', level:'Individ', correct:true,
+        desc:'Tankeknep som kopplar bort moralen och gör brottet möjligt att genomföra.',
+        note:'Passar väl här. "Han hade ändå inte lång tid kvar" är inte bara en efterhandsförklaring – forskningen menar att sådana omdefinieringar ofta sker före gärningen och är det som gör den möjlig att utföra.' },
+      { id:'u5', name:'Stämplingsteorin', level:'Samhälle / grupp', correct:false,
+        desc:'Samhällets reaktion skapar en avvikaridentitet.',
+        note:'Passar dåligt på gärningspersonen, som aldrig tidigare stämplats som kriminell. Använd den däremot för att diskutera vad misstanken gjorde med Yasmin Talib, vars egenrapporterade avvikelse gjorde henne till huvudmisstänkt i personalgruppens ögon.' },
+      { id:'u6', name:'Social desorganisation', level:'Samhälle', correct:false,
+        desc:'Svag informell social kontroll i utsatta bostadsområden.',
+        note:'Passar inte. Brottet begicks i en institutionsmiljö av en person med stabil social förankring. Teorin är utvecklad för att förklara skillnader i brottsnivå mellan grannskap, inte enskilda brott i en familj.' }
+    ]
+  },
+  solution:{
+    culprit:'marianne',
+    headline:'Marianne Ohlin dömdes för mord och för grov trolöshet mot huvudman.',
+    story:'Marianne Ohlin hade under 18 månader fört över 412 000 kronor från sin fars sparkonto till sitt eget företagskonto, uppdelat i 31 transaktioner strax under 15 000 kronor. När Bengt Ohlin började ifrågasätta sin ekonomi, beställde kontoutdrag 24 månader bakåt och bokade tid på banken, hade hon knappt två veckor på sig. Hon sökte på nätet efter insulindoser, hur insulin upptäcks vid obduktion och hur lång tid en kremering tar. Under besöket den 4 mars gav hon fadern en injektion snabbverkande insulin i lårets utsida – hon har själv diabetes typ 1 och tillgång till preparatet hemma. Hon lämnade huset 21:35 och kastade den tomma pennan i en papperskorg på besöksparkeringen. Utan att en sjuksköterska reagerade på ett stickmärke hade dödsfallet aldrig utretts.',
+    chain:[
+      'Rättskemin visar kraftigt förhöjt insulin med omätbar C-peptid – tillfört insulin hos en person utan diabetes och utan ordination.',
+      'Stickkanalen i lårmuskulaturen motsvarar hudmärket och kan inte förklaras av någon ordination.',
+      'DNA på injektionspennans grepp talar starkt för Marianne Ohlin, och preparattypen stämmer med fyndet i kroppen.',
+      'Raderade sökningar om insulindos, obduktion och kremering, gjorda mellan faderns beställning av kontoutdrag och dödsfallet.',
+      'Den ekonomiska granskningen visar 412 000 kronor i systematiska överföringar som fadern var på väg att upptäcka.',
+      'Samtliga övriga misstänkta har alibin som kunnat kontrolleras mot oberoende källor.'
+    ],
+    herrings:[
+      { who:'Yasmin Talib', text:'Ett felregistrerat insulinuttag tre veckor före dödsfallet pekade rakt mot henne – tills granskningen visade att det var ett registreringsfel, att insulinet gått till rätt patient, att hon själv rapporterat avvikelsen och att hon inte ens arbetade den natten.' },
+      { who:'Robert Ohlin', text:'Meddelandet "pappa borde få slippa det här" är skrivet i sorg sex veckor tidigare. Kortköp och hotellnyckel placerar honom 40 mil bort.' },
+      { who:'Hampus Ceder', text:'En lex Maria-anmälan ger en konflikt, men tolv journalsignaturer under natten ger ett av utredningens starkaste alibin. Det var dessutom han som pekade på att insulin kräver riktad analys.' },
+      { who:'Elvira Sand', text:'Passering av medicinrummet 03:12 var en dubbelsignerad rutinkontroll. Det var hennes kollega som reagerade på stickmärket – utan den reaktionen hade fallet aldrig funnits.' }
+    ],
+    lessons:[
+      { title:'Labbet letar bara efter det man frågar efter', text:'Rutinmässig rättskemisk screening hade aldrig hittat insulin. Fallet existerar bara därför att någon ställde rätt fråga vid rätt tillfälle. Diskutera hur många brott mot äldre som därför aldrig ens blir en statistikpost – det är mörkertalet i praktiken.' },
+      { title:'Brott mot äldre begås oftast av någon i närheten', text:'Bilden av den okände gärningspersonen stämmer sällan. Ekonomiskt utnyttjande av äldre sker nästan alltid inom familjen eller den närmaste kretsen, och det är precis den relationen som gör brottet både möjligt och svårupptäckt. Koppla till Nils Christies "ideala offer": Bengt Ohlin passar mallen väl – men gärningspersonen gjorde det inte, och det är därför ingen såg det.' },
+      { title:'Spårkedjan är en del av bevisvärdet', text:'DNA-resultatet från pennan var tekniskt utmärkt. Att pennan låg i en offentlig papperskorg utanför avspärrningen sänkte ändå dess värde, eftersom vem som helst kunde ha placerat den där. Ett perfekt analysresultat från ett dåligt hanterat spår är inte ett perfekt bevis.' }
+    ]
+  }
+},
+
+/* ================== FALL 3: KALLT FALL VINDELN ================== */
+kallt: {
+  icon:'❄️',
+  title:'Kallt fall',
+  subtitle:'Ett sexton år gammalt mord tas upp igen',
+  difficulty:'Utmanande',
+  tags:['Cold case','Y-STR','Stämplingsteori','Minneskontaminering'],
+  blurb:'2009 försvann en 19-åring efter en fest. Utredningen låste sig vid pojkvännen och lades ner. Nu har DNA-tekniken blivit känsligare och fallet tas upp igen. Det svåraste med fallet är inte att hitta gärningspersonen – det är att se vad utredarna missade första gången.',
+  place:'Vindelälvsområdet, Västerbotten',
+  date:'Ursprunglig gärning natten mot söndag den 14 juni 2009. Utredningen återupptas 2026.',
+  brief:{
+    background:'Amanda Krook, 19 år, försvann efter en fest i en bystuga natten mot den 14 juni 2009. Hon lämnade festen ensam vid halv två på natten. Tre veckor senare hittades hon avliden i ett skogsområde elva kilometer bort av en person som plockade svamp. Utredningen 2009 inriktades tidigt på hennes dåvarande pojkvän Tobias Ling, som förhördes fjorton gånger men aldrig åtalades. Förundersökningen lades ner 2011. Sedan lagändringen 2010 preskriberas inte mord, och regionens cold case-grupp har nu tagit upp fallet igen sedan NFC infört en känsligare analysmetod.',
+    crime:'Amanda Krook, 19 år. Dödsorsaken bedömdes 2009 som kvävning. Kroppen hade legat i skogsmiljö i cirka tre veckor, vilket kraftigt begränsade de rättsmedicinska fynden. Hennes jacka, ett par skor och en mobiltelefon återfanns aldrig.',
+    timeOfDeath:'Kunde inte bestämmas närmare än "sannolikt inom det första dygnet efter försvinnandet". Efter tre veckor i sommarvarm skogsmiljö går rigor mortis, likfläckar och kroppstemperatur inte längre att använda.',
+    lastSeen:'Amanda lämnade bystugan omkring 01:30. Ett vittne uppgav 2009 att hon "kanske" tog en taxi. Taxibolaget uppgav då att ingen tur registrerats.',
+    note:'Detta är ett arkivfall. Ni arbetar inte med en färsk brottsplats utan med sexton år gammalt material – och med vad utredarna 2009 valde att inte titta på.'
+  },
+  victim:{ name:'Amanda Krook', age:19, role:'Studerande, hemmahörande i byn',
+    desc:'Hade avslutat gymnasiet tre veckor före försvinnandet och skulle flytta till Umeå i augusti. Beskrevs som social och försiktig. Hade den kvällen druckit alkohol och saknade jacka när hon lämnade festen.' },
+  suspects:[
+    { id:'tobias', name:'Tobias Ling', age:36, role:'Amandas dåvarande pojkvän (20 år 2009)', color:'#4f9cf9', initials:'TL',
+      bg:'Huvudmisstänkt 2009. Förhördes fjorton gånger, aldrig åtalad. Har sedan dess förlorat två anställningar, flyttat tre gånger och varit sjukskriven i perioder.',
+      motive:'Paret hade grälat på festen. Utredningen 2009 antog svartsjuka.',
+      alibi:'stark', alibiText:'Fyra personer placerade honom i bystugan till 03:00 redan 2009. Uppgiften nedprioriterades då.',
+      statement:'Jag har svarat på de här frågorna i sexton år. Jag var kvar i stugan, det sa fyra personer redan då och ingen ville höra det. Jag har blivit uppsagd två gånger när folk googlat mitt namn. Min dotter har fått höra på skolgården att hennes pappa är mördare.',
+      followUp:'Vet ni vad som är värst? Att jag i flera år trodde att jag kanske hade gjort det. När fjorton förhör säger samma sak börjar man tvivla på sitt eget minne. Jag vill att ni hittar den som gjorde det. Inte för min skull längre – för Amandas.' },
+    { id:'kent', name:'Kent Sivertsson', age:58, role:'Granne, skogsarbetare (42 år 2009)', color:'#f0b429', initials:'KS',
+      bg:'Bodde 800 meter från bystugan 2009. Dömdes 2007 för ofredande av en granne. Kände till skogsområdet där kroppen hittades.',
+      motive:'Tidigare dom, lokalkännedom och ett rykte i byn.',
+      alibi:'svag', alibiText:'Uppgav 2009 att han sov hemma. Ingen kan styrka det, men inget motsäger det heller.',
+      statement:'Jag har fått leva med att halva byn tror att det var jag. Jag har en dom för att jag skrek åt en granne över en tomtgräns för nästan tjugo år sedan. Det gör mig inte till mördare. Jag sov hemma. Jag har sagt det varje gång.',
+      followUp:'Ta mitt DNA. Ta det i dag. Jag bad om att få lämna prov redan 2009 och de sa att det inte behövdes eftersom de hade en misstänkt. De hade redan bestämt sig för pojken.' },
+    { id:'petter', name:'Petter Holmlund', age:35, role:'Festkamrat (19 år 2009)', color:'#a56eff', initials:'PH',
+      bg:'Var på festen. Den nya DNA-analysen ger en träff som pekar mot honom i ett av de bevarade spåren.',
+      motive:'Var på plats och förekommer i ett nytt DNA-fynd.',
+      alibi:'svag', alibiText:'Var kvar på festen enligt flera, men gick ut flera gånger under kvällen.',
+      statement:'Vi var kompisar sedan sjuan. Jag har tänkt på Amanda varje midsommar i sexton år. Att mitt DNA skulle finnas på henne fattar jag inte – jag kramade henne, vi kramades alltid, men det var mitt i kvällen.',
+      followUp:'Jackan. Hon frös och jag lånade ut min jacka till henne på verandan, hon hade den på sig en halvtimme och sedan tog jag tillbaka den när hon gick in igen. Fråga vem som helst som var där, minst tre stycken såg det.' },
+    { id:'annika', name:'Annika Krook', age:44, role:'Amandas halvsyster (28 år 2009)', color:'#2ec4b6', initials:'AK',
+      bg:'Amandas halvsyster på faderns sida. Låg 2009 i tvist med Amandas mor om arvet efter deras far.',
+      motive:'Ekonomisk tvist inom familjen.',
+      alibi:'stark', alibiText:'Arbetade natturnus på ett sjukhus i Umeå, styrkt av tidrapport och kollegor.',
+      statement:'Vi bråkade om pengar med hennes mamma, inte med Amanda. Amanda var arton när pappa dog. Jag jobbade natt på sjukhuset den helgen, det står i tidrapporterna som ni redan har.',
+      followUp:'Jag har en sak jag aldrig sa 2009 för att ingen frågade mig. Amanda ringde mig i maj och sa att en äldre man hade "börjat höra av sig" och att hon tyckte det var obehagligt. Hon ville inte säga vem. Jag trodde det var något strunt. Ingen polis ställde någonsin den frågan till mig.' },
+    { id:'mikael', name:'Mikael Rehn', age:52, role:'Taxichaufför (36 år 2009)', color:'#e5484d', initials:'MR',
+      bg:'Körde taxi i området 2009. Hördes en gång som vittne, aldrig som misstänkt. Flyttade från länet 2010. Dömdes 2014 i en annan del av landet för olaga frihetsberövande av en kvinnlig passagerare.',
+      motive:'Framkom inte 2009 eftersom han aldrig behandlades som misstänkt.',
+      alibi:'svag', alibiText:'Uppgav 2009 att han lämnade av en kvinnlig passagerare i Vindeln centrum 01:55 och åkte hem. Ingen kontrollerade uppgiften.',
+      statement:'Jag har svarat på det här en gång, för sexton år sedan. Jag körde en tjej till centrum, hon steg av, jag åkte hem. Det är allt jag vet. Varför gräver ni i det nu? Ni hade ju en misstänkt.',
+      followUp:'Jag hade druckit den kvällen, det medger jag, det var därför jag inte registrerade turen. Om något hände så minns jag det inte. Jag är ingen sådan människa. Sånt händer när man är full, det kan hända vem som helst.' }
+  ],
+  scene:{
+    solo:['k1','k2','k3','k4','k5','k6','k7','k8','k9','k10'],
+    A:['k1','k3','k5','k7','k9'],
+    B:['k2','k4','k6','k8','k10']
+  },
+  clues:{
+    k1:{ label:'Den ursprungliga förundersökningen', type:'dok', text:'Akten från 2009 omfattar 1 340 sidor. Tobias Ling förhörs fjorton gånger. Taxichauffören Mikael Rehn hörs en gång, som vittne, i tjugo minuter. Ingen DNA-provtagning görs på någon annan än Tobias Ling.', note:'Läs fördelningen som en karta över utredarnas hypotes. Allt som inte passade hypotesen fick tjugo minuter.' },
+    k2:{ label:'Fyndplatsen 2009', type:'fys', text:'Kroppen påträffades elva kilometer från bystugan, cirka 60 meter från en skogsbilväg, efter tre veckor. Fyndplatsen bedömdes som sekundär – hon hade transporterats dit.', note:'En sekundär fyndplats betyder att gärningspersonen hade tillgång till ett transportmedel.' },
+    k3:{ label:'Bevarat material i arkivet', type:'bio', text:'I NFC:s arkiv finns bevarade tejplyft från Amandas tröja, ett hårstrå och ett fiberprov. Materialet är förvarat med obruten dokumentation sedan 2009.', note:'Att spår sparats korrekt i sexton år är det som gör ett cold case möjligt att lösa.' },
+    k4:{ label:'Blå syntetfiber', type:'fys', text:'I tröjans dragkedja satt en blå syntetfiber som 2009 noterades men aldrig analyserades vidare, eftersom den inte kunde jämföras med något.', note:'Ett spår utan jämförelsematerial är inte värdelöst – det är bara för tidigt.' },
+    k5:{ label:'Taxibolagets körjournal', type:'dok', text:'Bolaget gick i konkurs 2012 och journalerna finns i konkursboet. En tur bokad 01:40 till "Vindeln centrum" är manuellt avregistrerad i systemet klockan 04:12 samma natt.', note:'2009 uppgav bolaget att ingen tur registrerats. Ingen kontrollerade det påståendet.' },
+    k6:{ label:'Mikael Rehns fordonshistorik', type:'dok', text:'Rehn ägde 2009 en mörkblå Volvo V70, årsmodell 2002. Ett verkstadskvitto visar byte av framsätesklädsel den 17 juni 2009 – tre dagar efter försvinnandet. Bilen skrotades 2011.', note:'Bilen finns inte längre. Kvittot gör det.' },
+    k7:{ label:'Vittnesuppgifter då och nu', type:'dok', text:'Fyra vittnen hördes 2009. Vid nya förhör 2026 har tre av dem ändrat sina uppgifter, och två beskriver detaljer som inte fanns i deras ursprungliga berättelser men som förekommit i lokalpress och i en poddserie 2021.', note:'Minnet är rekonstruktion. Ett vittnesmål som blivit rikare på sexton år har blivit sämre, inte bättre.' },
+    k8:{ label:'Petter Holmlunds jacka', type:'bio', text:'Petter Holmlund bar den kvällen en jacka som enligt minst tre personer lånades ut till Amanda i ungefär en halvtimme på verandan innan hon gick in igen.', note:'Håll den här uppgiften i minnet när DNA-resultaten kommer.' },
+    k9:{ label:'Mikael Rehns senare dom', type:'dok', text:'Rehn dömdes 2014 i annan del av landet för olaga frihetsberövande av en kvinnlig passagerare som han kört hem nattetid.', note:'Rättsligt är tidigare brottslighet i princip inte bevis för ny brottslighet. Utredningstaktiskt är det ändå en anledning att titta närmare.' },
+    k10:{ label:'Vad som hände med Tobias Ling', type:'dok', text:'Tobias Ling har aldrig åtalats. Han har förlorat två anställningar sedan misstankarna spreds lokalt, flyttat tre gånger och varit sjukskriven i perioder. Hans dotter har utsatts för trakasserier i skolan.', note:'Det här är inte ett spår i utredningen. Det är utredningens konsekvens – och en av fallets viktigaste lärdomar.' }
+  },
+  labBudget:5,
+  lab:[
+    { id:'c1', name:'Förnyad DNA-analys av bevarade tejplyft', sample:'Arkivspår 2009-114', method:'Känsligare STR-metod än den som fanns 2009', days:21,
+      result:'Ur tejplyftet från tröjans axelparti erhålls nu en tolkningsbar blandbild med Amanda Krook och minst en manlig bidragsgivare. Med 2009 års metod gav samma spår "otillräckligt underlag".',
+      interp:'Det är själva grunden för att fallet kunde återupptas: samma spår, känsligare teknik, nytt svar.',
+      caveat:'En känsligare metod plockar också upp mer bakgrunds-DNA och fler överföringar. Ju mindre mängd DNA, desto viktigare blir frågan om hur det hamnade där – inte bara vems det är.' },
+    { id:'c2', name:'Y-STR-analys av den manliga komponenten', sample:'Arkivspår 2009-114', method:'Analys av markörer på Y-kromosomen', days:14,
+      result:'En manlig haplotyp fastställs. Tobias Ling och Petter Holmlund kan uteslutas som källa till den. Haplotypen är förenlig med Mikael Rehn.',
+      interp:'Y-STR är särskilt användbar när kvinnligt DNA dominerar kraftigt i en blandbild, eftersom man då kan analysera enbart den manliga delen.',
+      caveat:'Y-STR pekar på en faderslinje, inte på en individ. Alla män i samma faderslinje – far, söner, bröder, kusiner på fädernet – delar haplotyp. Ensamt är detta aldrig ett utpekande.' },
+    { id:'c3', name:'DNA-jämförelse mot Petter Holmlund', sample:'Arkivspår samt referensprov', method:'STR-analys och jämförelse', days:9,
+      result:'Petter Holmlunds DNA påvisas på tröjans framsida och krage, men inte i axelspåret. Fyndet är förenligt med kroppskontakt och med att ett klädesplagg burits av båda.',
+      interp:'Uppgiften att jackan lånades ut i en halvtimme förklarar fynden väl. Tre personer bekräftar utlåningen.',
+      caveat:'Detta är sekundär överföring i praktiken: DNA flyttas via ett mellanled. Fyndet ser belastande ut ända tills man vet vad som hände med jackan – och exakt så uppstår justitiemord.' },
+    { id:'c4', name:'Fiberanalys', sample:'Blå syntetfiber ur dragkedjan', method:'Mikroskopi och jämförande färgämnesanalys', days:12,
+      result:'Fibern är en blå polyesterfiber vars färgämne och tvärsnitt överensstämmer med originalklädsel i Volvo V70 av årsmodell 2000–2004. Fabrikatet användes i uppskattningsvis 90 000 fordon i Sverige.',
+      interp:'Fibern binder inte en person, men den binder en fordonstyp – och Mikael Rehn ägde en mörkblå V70 årsmodell 2002 vars framsätesklädsel byttes tre dagar efter försvinnandet.',
+      caveat:'Detta är en klassbestämning, inte en individualisering. Nittiotusen bilar är nittiotusen alternativa förklaringar. Fibern får sitt värde först ihop med kvittot och körjournalen.' },
+    { id:'c5', name:'Historisk mast- och trafikdata', sample:'Bevarat operatörsmaterial i beslag från 2009', method:'Analys av basstationsdata', days:8,
+      result:'Mikael Rehns telefon är uppkopplad mot basstationen som täcker skogsbilvägen mot fyndplatsen mellan 02:10 och 03:05 natten mot den 14 juni 2009. Han har uppgett att han lämnade av passageraren i centrum 01:55 och åkte hem.',
+      interp:'Uppgiften han lämnade 2009 stämmer inte med hans egen telefon. Ingen kontrollerade det då, eftersom han aldrig behandlades som misstänkt.',
+      caveat:'Basstationen på landsbygden täcker flera kilometer. Datan placerar en telefon i ett stort område, inte en bil på en skogsbilväg. Den motbevisar hans uppgift – den bevisar inte gärningen.' },
+    { id:'c6', name:'Rättsmedicinsk omgranskning', sample:'Obduktionsprotokoll och bevarade preparat', method:'Förnyad granskning vid RMV', days:18,
+      result:'Fynden från 2009 står sig: dödsorsaken bedöms som kvävning. Skador på handleder som 2009 tolkades som postmortala djurangrepp bedöms nu som möjliga fasthållningsskador. Dödstiden kan inte preciseras ytterligare.',
+      interp:'Omtolkningen av handledsskadorna stödjer ett händelseförlopp med fasthållning och därmed ett frihetsberövande före döden.',
+      caveat:'En omtolkning sexton år senare görs av någon som vet vad utredningen letar efter. Det är forensisk bekräftelsebias i sin renaste form – väg in det innan ni lutar er mot fyndet.' },
+    { id:'c7', name:'Förnyade vittnesförhör', sample:'Fyra vittnen från 2009', method:'Strukturerade förhör med öppna frågor', days:6,
+      result:'Tre av fyra vittnen lämnar uppgifter som skiljer sig från 2009. Två beskriver detaljer som inte fanns i deras ursprungliga berättelser men som förekommit i en poddserie 2021. Ett vittne uppger nu att hon "alltid tyckt att taxichauffören var obehaglig".',
+      interp:'De ursprungliga berättelserna från 2009 är av högre kvalitet än dagens. De nya uppgifterna ska hanteras med stor försiktighet.',
+      caveat:'Minneskontaminering: när ett vittne tagit del av mediebilden av fallet blandas den med det egna minnet, utan att vittnet märker det. Vittnet blir samtidigt mer säkert – och mindre tillförlitligt.' },
+    { id:'c8', name:'Slagning i DNA-registret', sample:'Manlig profil ur arkivspåret', method:'Sökning mot spår-, utrednings- och dna-registret samt Prüm', days:3,
+      result:'Den fullständiga manliga profilen ur axelspåret ger träff mot en profil registrerad i dna-registret efter en fällande dom 2014. Profilen tillhör Mikael Rehn. NFC anger resultatvärde +4 vid jämförelse med referensprov.',
+      interp:'Det är precis så cold case-fall löses i verkligheten: gärningspersonen registreras i ett register för ett senare brott, och en gammal profil får plötsligt ett namn.',
+      caveat:'En registerträff är en utgångspunkt för en utredning, inte en dom. Frågan kvarstår: hur och när hamnade DNA:t på tröjan? Här besvaras det av mastdata, fiber, körjournal och verkstadskvitto tillsammans.' }
+  ],
+  assess:[
+    { id:'d1', text:'DNA-träffen: fullständig manlig profil ur arkivspåret ger resultatvärde +4 för Mikael Rehn efter registerslagning.', type:'teknisk', weight:'starkt',
+      why:'Teknisk bevisning av högsta klass, med obruten spårkedja sedan 2009. Kvarstående fråga som åklagaren måste besvara: hur hamnade DNA:t där? Det är först ihop med mastdata och fibrer som handlingsfrågan besvaras.' },
+    { id:'d2', text:'Y-STR-analysen som utesluter Tobias Ling och Petter Holmlund och är förenlig med Mikael Rehn.', type:'teknisk', weight:'svagt',
+      why:'Teknisk bevisning, men Y-STR pekar på en faderslinje och inte på en individ. Dess stora värde här är negativt: den utesluter två personer. Att utesluta är ofta ett starkare forensiskt bidrag än att peka ut.' },
+    { id:'d3', text:'Petter Holmlunds DNA på tröjans framsida och krage.', type:'teknisk', weight:'svagt',
+      why:'Tekniskt korrekt men förklarat: jackan var utlånad i en halvtimme, bekräftat av tre personer. Klassisk sekundär överföring. Ett tekniskt starkt resultat kan ha ett svagt bevisvärde när det finns en enkel alternativ förklaring.' },
+    { id:'d4', text:'Fiberanalysen: blå polyesterfiber som överensstämmer med originalklädsel i Volvo V70 årsmodell 2000–2004, en typ som funnits i cirka 90 000 fordon.', type:'teknisk', weight:'svagt',
+      why:'Klassbestämning. Ensam nästan värdelös. Tillsammans med att den misstänkte ägde en sådan bil och bytte klädsel tre dagar efter försvinnandet blir den ett tungt led i en indiciekedja.' },
+    { id:'d5', text:'Mastdata som placerar Mikael Rehns telefon vid skogsbilvägen 02:10–03:05, i strid med hans egen uppgift.', type:'teknisk', weight:'svagt',
+      why:'Teknisk bevisning med grov upplösning – på landsbygden täcker en basstation flera kilometer. Dess styrka ligger inte i positionen utan i att den motbevisar hans berättelse. Att en misstänkt lämnat en osann uppgift är ett indicium, inte ett bevis.' },
+    { id:'d6', text:'Att ett vittne 2026 uppger sig "alltid ha tyckt att taxichauffören var obehaglig".', type:'vittne', weight:'svagt',
+      why:'Vittnesbevisning av lägsta kvalitet: sexton år gammal, förändrad efter mediebevakning och formulerad som ett omdöme snarare än en iakttagelse. Uppgiften ska inte användas till annat än att förstå hur minnen förändras.' },
+    { id:'d7', text:'Att Mikael Rehn dömdes 2014 för olaga frihetsberövande av en kvinnlig passagerare.', type:'indicium', weight:'svagt',
+      why:'Utredningstaktiskt högst relevant, rättsligt svagt: tidigare brottslighet får i princip inte användas som bevis för ny brottslighet. Det var dessutom domen som gjorde att hans profil fanns i registret – dess verkliga betydelse är den, inte som bevis.' },
+    { id:'d8', text:'Att den avregistrerade taxituren 01:40 klockan 04:12 samma natt togs bort manuellt ur bokningssystemet.', type:'indicium', weight:'svagt',
+      why:'Ett starkt indicium om beteende efter gärningen, men fortfarande ett indicium: någon raderade en tur. Att koppla raderingen till en specifik person kräver ytterligare bevisning.' }
+  ],
+  evidencePool:[
+    { id:'g1', label:'DNA-träffen i registret: fullständig manlig profil ur arkivspåret, resultatvärde +4 för Mikael Rehn', strong:true },
+    { id:'g2', label:'Mastdata som motbevisar hans uppgift om att ha åkt hem 01:55, i kombination med den manuellt avregistrerade taxituren', strong:true },
+    { id:'g3', label:'Fibern från Volvo V70-klädsel i tröjans dragkedja tillsammans med verkstadskvittot på klädselbyte tre dagar efter försvinnandet', strong:true },
+    { id:'g4', label:'Petter Holmlunds DNA på tröjans framsida', strong:false },
+    { id:'g5', label:'Att Tobias Ling grälade med Amanda på festen', strong:false },
+    { id:'g6', label:'Kent Sivertssons dom från 2007 och lokalkännedom om skogsområdet', strong:false },
+    { id:'g7', label:'Vittnet som 2026 minns att taxichauffören var "obehaglig"', strong:false },
+    { id:'g8', label:'Att Mikael Rehn dömdes 2014 för olaga frihetsberövande', strong:false }
+  ],
+  theory:{
+    correctNeutral:'ansvar',
+    neutralNote:'Mikael Rehn säger i uppföljningsförhöret: "Jag hade druckit… Om något hände så minns jag det inte. Jag är ingen sådan människa. Sånt händer när man är full, det kan hända vem som helst." Han skjuter över orsaken på alkoholen och på omständigheterna, och håller samtidigt fast vid sin självbild. Det är förnekande av ansvar.',
+    options:[
+      { id:'v1', name:'Rutinaktivitetsteorin', level:'Situation', correct:true,
+        desc:'Motiverad gärningsperson, lämpligt mål och avsaknad av kapabel väktare möts i tid och rum.',
+        note:'Passar mycket väl, och förklarar yrkesrollens betydelse. En taxichaufför nattetid möter systematiskt ensamma, berusade passagerare i ett slutet utrymme, utan insyn och utan väktare. Tillfällesstrukturen är inbyggd i arbetet – det är därför branschen sedan dess reglerats hårdare.' },
+      { id:'v2', name:'Stämplingsteorin', level:'Samhälle / grupp', correct:true,
+        desc:'Samhällets reaktion skapar en avvikaridentitet – primär och sekundär avvikelse.',
+        note:'Passar, men riktad mot Tobias Ling snarare än mot gärningspersonen. Han begick aldrig något brott, men bar stämpeln i sexton år: uppsagd två gånger, tre flyttar, sjukskrivningar, ett barn som trakasseras. Fallet visar att stämpling inte kräver en dom – misstanken räcker.' },
+      { id:'v3', name:'Individinriktade förklaringar och mönsterbeteende', level:'Individ', correct:true,
+        desc:'Personlighetsdrag, impulskontroll och upprepade beteendemönster hos gärningspersonen.',
+        note:'Relevant här, eftersom domen 2014 gäller ett påfallande likartat händelseförlopp. Men var försiktiga: ett upprepat mönster är inte samma sak som en diagnos, och populärkulturens bild av den kalla seriegärningsmannen passar sällan verkligheten. Det som faktiskt gjorde skillnad i fallet var registret, inte psykologin.' },
+      { id:'v4', name:'Strainteorin', level:'Samhälle / individ', correct:false,
+        desc:'Spänning mellan kulturella mål och tillgängliga medel.',
+        note:'Passar dåligt. Det finns inget i materialet som tyder på att gärningen syftade till att nå ett mål som samhället värderar. Strain förklarar framför allt vinningsbrott och brott under ekonomisk press.' },
+      { id:'v5', name:'Social desorganisation', level:'Samhälle', correct:false,
+        desc:'Svag informell social kontroll i områden med hög omflyttning och fattigdom.',
+        note:'Passar inte. Byn hade tvärtom mycket stark informell social kontroll – alla kände alla. Det var just den sociala kontrollen som gjorde stämplingen av Tobias Ling så förödande.' },
+      { id:'v6', name:'Differentiella associationer', level:'Grupp / relation', correct:false,
+        desc:'Kriminellt beteende lärs in i nära relationer.',
+        note:'Passar inte. Inget i materialet visar en kriminell umgängeskrets eller inlärda tekniker. Teorin är stark för gäng- och ungdomsbrottslighet, svag för brott av ensamt agerande vuxna.' }
+    ]
+  },
+  solution:{
+    culprit:'mikael',
+    headline:'Mikael Rehn åtalades och dömdes 2026 för mord begånget 2009.',
+    story:'Amanda Krook lämnade festen ensam vid 01:30. Mikael Rehn tog en bokning klockan 01:40 och plockade upp henne. I stället för att köra henne till centrum körde han mot skogsbilvägen. Handledsskadorna talar för att hon hölls fast. Hon dog av kvävning, och kroppen lämnades cirka 60 meter från vägen. Klockan 04:12 samma natt raderade han turen manuellt ur bokningssystemet. Tre dagar senare bytte han framsätesklädseln i sin Volvo V70. Han hördes en gång 2009, som vittne, i tjugo minuter – eftersom utredningen redan hade en misstänkt. Först när han dömdes för ett liknande brott 2014 hamnade hans DNA-profil i registret, och först när NFC:s känsligare metod gav en tolkningsbar profil ur ett sexton år gammalt tejplyft kunde de två uppgifterna mötas.',
+    chain:[
+      'Fullständig manlig DNA-profil ur bevarat arkivspår ger registerträff och resultatvärde +4 vid jämförelse med referensprov.',
+      'Y-STR-analysen utesluter både den ursprungliga huvudmisstänkte och festkamraten.',
+      'Historisk mastdata placerar hans telefon i området fram till 03:05 – han uppgav att han åkte hem 01:55.',
+      'Taxituren bokad 01:40 raderades manuellt ur systemet klockan 04:12 samma natt.',
+      'Blå polyesterfiber från V70-klädsel i tröjans dragkedja, och verkstadskvitto på byte av framsätesklädsel tre dagar efter försvinnandet.',
+      'Handledsskadorna omtolkades vid den rättsmedicinska omgranskningen som möjliga fasthållningsskador.',
+      'Domen 2014 gällde ett påfallande likartat händelseförlopp – rättsligt svagt som bevis, men avgörande för att profilen fanns i registret.'
+    ],
+    herrings:[
+      { who:'Tobias Ling', text:'Fjorton förhör, ingen bevisning, och fyra vittnen som redan 2009 placerade honom i bystugan till klockan tre. Utredningens hypotes gjorde honom till gärningsperson i byns ögon i sexton år. Han var aldrig ens i närheten av platsen.' },
+      { who:'Petter Holmlund', text:'Nytt DNA-fynd som såg avgörande ut i tre veckor – tills utlåningen av jackan kom fram. Sekundär överföring, bekräftad av tre personer. Om ni misstänkte honom: exakt så uppstår ett justitiemord.' },
+      { who:'Kent Sivertsson', text:'En dom för ofredande från 2007, lokalkännedom och ett rykte i byn. Han bad själv om att få lämna DNA-prov 2009 och fick nej, eftersom utredningen redan hade en misstänkt.' },
+      { who:'Vittnesuppgifterna från 2026', text:'Tre av fyra vittnen hade ändrat sina berättelser, två med detaljer hämtade ur en poddserie. De uppgifter som var bäst var de sexton år gamla.' }
+    ],
+    lessons:[
+      { title:'Tunnelseende kostar två personer deras liv', text:'Utredningen 2009 lade fjorton förhör på en person och tjugo minuter på gärningspersonen. Amanda Krooks fall förblev olöst i sexton år, och Tobias Ling förlorade sitt arbete, sitt rykte och delar av sin hälsa. Bekräftelsebias är inte ett teoretiskt begrepp – det är den mekanism som gjorde båda dessa saker samtidigt.' },
+      { title:'Ett spår är bara så bra som det arkiv det ligger i', text:'Fallet löstes därför att tejplyft, hårstrå och fiberprov sparats med obruten dokumentation i sexton år, och därför att metoden blev känsligare. Cold case-arbete är i praktiken en fråga om spårkedja, arkiv och teknikutveckling – inte om geniala kommissarier.' },
+      { title:'Vittnesminnet blir sämre, men känns säkrare', text:'Tre av fyra vittnen hade ändrat sina uppgifter, och två hade omedvetet vävt in detaljer ur en poddserie. Samtidigt var de mer säkra 2026 än 2009. Sambandet mellan hur säkert ett vittne känner sig och hur rätt det har är svagt – och det försvagas ytterligare av mediebevakning.' },
+      { title:'Registret gjorde jobbet, inte intuitionen', text:'Att Mikael Rehn kunde identifieras berodde på att han dömdes för ett annat brott 2014 och registrerades. Det väcker en principiell fråga värd att diskutera: vilka DNA-register vill vi ha, hur länge ska profiler sparas, och var går gränsen mellan uppklarning och integritet?' }
+    ]
+  }
+}
+
+};
+
+/* =====================================================================
+   SPELMOTOR
+   ===================================================================== */
+
+const PHASES = ['brief','scene','lab','interviews','assess','charge','theory','verdict'];
+const PHASE_LABELS = {
+  brief:'1. Fallakt', scene:'2. Brottsplats', lab:'3. Labb', interviews:'4. Förhör',
+  assess:'5. Bevisvärdering', charge:'6. Åtal', theory:'7. Teori', verdict:'8. Domslut'
+};
+const TYPE_LABELS = { bio:'Biologiskt spår', fys:'Fysiskt spår', dig:'Digitalt spår', dok:'Dokument/uppgift' };
+const EVIDENCE_TYPES = [
+  { id:'teknisk',  label:'Teknisk bevisning' },
+  { id:'vittne',   label:'Vittnesuppgift' },
+  { id:'indicium', label:'Indicium' }
+];
+const WEIGHTS = [ { id:'starkt', label:'Starkt bevisvärde' }, { id:'svagt', label:'Svagt bevisvärde' } ];
+
+let state = blankState();
+
+function blankState(){
+  return {
+    caseId:null, mode:null, phase:null,
+    side:'A',                    // aktiv utredare i parläge
+    openClues:new Set(),
+    ordered:[],                  // beställda analyser
+    openInterviews:new Set(),
+    assessAnswers:{},            // {itemId:{type,weight}}
+    assessChecked:false, assessScore:0,
+    accused:null, pickedEvidence:new Set(), charged:false,
+    theoryPicks:new Set(), neutralPick:null, theoryChecked:false, theoryScore:0
+  };
+}
+
+const cur = () => CASES[state.caseId];
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* ---------- STARTSKÄRM ---------- */
+function renderCaseGrid(){
+  document.getElementById('caseGrid').innerHTML = Object.entries(CASES).map(([id,c]) => `
+    <button class="case-card" id="card-${id}" onclick="selectCase('${id}')">
+      <span class="case-icon">${c.icon}</span>
+      <h3>${esc(c.title)}</h3>
+      <div class="case-sub">${esc(c.subtitle)}</div>
+      <p>${esc(c.blurb)}</p>
+      <div class="case-meta">
+        <span class="pill amber">${esc(c.difficulty)}</span>
+        ${c.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join('')}
+      </div>
+    </button>
+  `).join('');
+}
+
+function selectCase(id){
+  state.caseId = id;
+  document.querySelectorAll('.case-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('card-'+id).classList.add('selected');
+  checkReady();
+}
+
+function selectMode(m){
+  state.mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('mode-'+m).classList.add('selected');
+  checkReady();
+}
+
+function checkReady(){
+  const ok = !!(state.caseId && state.mode);
+  document.getElementById('startBtn').disabled = !ok;
+  document.getElementById('startHint').textContent = ok
+    ? 'Klart. Öppna förundersökningen när ni är redo.'
+    : 'Välj ett fall och en arbetsform för att börja.';
+}
+
+function startGame(){
+  if(!state.caseId || !state.mode) return;
+  const keepCase = state.caseId, keepMode = state.mode;
+  state = blankState();
+  state.caseId = keepCase; state.mode = keepMode;
+
+  document.getElementById('startScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  document.getElementById('rulesBtn').style.display = 'inline-block';
+  document.getElementById('restartBtn').style.display = 'inline-block';
+
+  loadNotes();
+  goTo('brief');
+}
+
+function restartGame(){
+  state = blankState();
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('startScreen').classList.add('active');
+  document.getElementById('rulesBtn').style.display = 'none';
+  document.getElementById('restartBtn').style.display = 'none';
+  document.querySelectorAll('.case-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('startHint').textContent = 'Välj ett fall och en arbetsform för att börja.';
+  document.querySelectorAll('#gameScreen textarea').forEach(t=>t.value='');
+  window.scrollTo({top:0});
+}
+
+/* ---------- NAVIGATION ---------- */
+function goTo(phase){
+  state.phase = phase;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+phase).classList.add('active');
+  renderRail();
+  const r = {
+    brief:renderBrief, scene:renderScene, lab:renderLab, interviews:renderInterviews,
+    assess:renderAssess, charge:renderCharge, theory:renderTheory, verdict:renderVerdict
+  }[phase];
+  if(r) r();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderRail(){
+  const i = PHASES.indexOf(state.phase);
+  document.getElementById('progressRail').innerHTML = PHASES.map((p,n)=>{
+    let cls='progress-step', click='', dis='disabled';
+    if(n<i){ cls+=' done'; click=`onclick="goTo('${p}')"`; dis=''; }
+    else if(n===i){ cls+=' current'; }
+    else { cls+=' locked'; }
+    return `<button class="${cls}" ${click} ${dis}>${PHASE_LABELS[p]}</button>`;
+  }).join('');
+}
+
+/* ---------- FAS 1: FALLAKT ---------- */
+function renderBrief(){
+  const c = cur();
+  document.getElementById('briefContent').innerHTML = `
+    <div class="card">
+      <h3>${c.icon} ${esc(c.title)} – ${esc(c.subtitle)}</h3>
+      <dl>
+        <div class="factline"><dt>Plats</dt><dd>${esc(c.place)}</dd></div>
+        <div class="factline"><dt>Tid för händelsen</dt><dd>${esc(c.date)}</dd></div>
+      </dl>
+      <h4>Bakgrund</h4>
+      <p>${esc(c.brief.background)}</p>
+      <h4>Brottet</h4>
+      <p>${esc(c.brief.crime)}</p>
+      <dl style="margin-top:1rem;">
+        <div class="factline"><dt>Dödstid</dt><dd>${esc(c.brief.timeOfDeath)}</dd></div>
+        <div class="factline"><dt>Senast sedd i livet</dt><dd>${esc(c.brief.lastSeen)}</dd></div>
+      </dl>
+      <div class="case-file">
+        <h4>Att tänka på</h4>
+        <p style="margin:0;">${esc(c.brief.note)}</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Målsägande</h3>
+      <p><strong>${esc(c.victim.name)}</strong>, ${c.victim.age} år – ${esc(c.victim.role)}</p>
+      <p>${esc(c.victim.desc)}</p>
+    </div>
+
+    <div class="card">
+      <h3>Personer av intresse</h3>
+      ${c.suspects.map(s=>`
+        <div style="display:flex; gap:.9rem; align-items:center; padding:.7rem 0; border-bottom:1px solid var(--line);">
+          <span class="avatar" style="background:${s.color}2e; color:${s.color};">${s.initials}</span>
+          <div>
+            <strong style="color:${s.color};">${esc(s.name)}</strong>, ${s.age} år
+            <div class="suspect-role">${esc(s.role)}</div>
+          </div>
+        </div>
+      `).join('')}
+      <p style="margin-top:1rem; color:var(--muted); font-size:.88rem;">
+        Att stå med på den här listan betyder att en person haft möjlighet eller anledning – ingenting annat.
+        Er uppgift är lika mycket att avföra personer som att peka ut någon.
+      </p>
+    </div>
+
+    ${state.mode==='pair' ? `
+      <div class="case-file">
+        <h4>Parläge aktiverat</h4>
+        <p style="margin:0;">Utredare A och utredare B får olika spår och olika förhör. Berätta för varandra – men visa inte skärmen. Ingen av er kan lösa fallet ensam.</p>
+      </div>` : ''}
+    ${state.mode==='group' ? `
+      <div class="case-file">
+        <h4>Gruppläge aktiverat</h4>
+        <p style="margin:0;">Fördela rollerna förundersökningsledare, kriminaltekniker, förhörsledare, åklagare och försvarare. Försvararens uppgift är att hitta en alternativ förklaring till varje bevis – ta den rollen på allvar.</p>
+      </div>` : ''}
+  `;
+}
+
+/* ---------- FAS 2: BROTTSPLATS ---------- */
+function activeClueIds(){
+  const c = cur();
+  if(state.mode === 'pair') return c.scene[state.side];
+  return c.scene.solo;
+}
+
+function renderScene(){
+  const c = cur();
+  const banner = document.getElementById('sceneBanner');
+  if(state.mode === 'pair'){
+    banner.innerHTML = `
+      <div class="split-banner">
+        <div>
+          <strong>Utredare ${state.side}</strong>
+          <p>Ni ser bara era egna spår. ${state.side==='A'?'Utredare B':'Utredare A'} har fem andra fynd.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="switchSide('scene')">Växla till utredare ${state.side==='A'?'B':'A'}</button>
+      </div>`;
+  } else banner.innerHTML = '';
+
+  document.getElementById('sceneGrid').innerHTML = activeClueIds().map(id=>{
+    const cl = c.clues[id];
+    const open = state.openClues.has(id);
+    return `
+      <button class="clue-card ${open?'open':'locked'}" ${open?'':`onclick="openClue('${id}')"`}>
+        <div class="clue-top">
+          <span class="clue-title">${open?'🔓':'🔒'} ${esc(cl.label)}</span>
+          <span class="clue-tag ${cl.type}">${TYPE_LABELS[cl.type]}</span>
+        </div>
+        <div class="clue-body">
+          ${esc(cl.text)}
+          ${open?`<div class="clue-note"><strong>Kriminalteknikerns notering:</strong> ${esc(cl.note)}</div>`:''}
+        </div>
+        ${open?'':'<div class="hint">Klicka för att dokumentera fyndet</div>'}
+      </button>`;
+  }).join('');
+}
+
+function openClue(id){ state.openClues.add(id); renderScene(); }
+
+function switchSide(phase){
+  state.side = state.side === 'A' ? 'B' : 'A';
+  if(phase === 'scene') renderScene(); else renderInterviews();
+}
+
+/* ---------- FAS 3: LABB ---------- */
+function renderLab(){
+  const c = cur();
+  const used = state.ordered.length, left = c.labBudget - used;
+
+  document.getElementById('budgetDots').innerHTML =
+    Array.from({length:c.labBudget}, (_,i)=>`<span class="dot ${i<used?'used':''}"></span>`).join('');
+  document.getElementById('budgetNote').textContent = left > 0
+    ? `${left} av ${c.labBudget} analyser kvar. Ni kan inte beställa allt – prioritera det som kan avföra en person, inte bara det som bekräftar er teori.`
+    : 'Budgeten är slut. Arbeta vidare med det ni har – så ser verkligheten ut.';
+
+  document.getElementById('labGrid').innerHTML = c.lab.map(a=>{
+    const done = state.ordered.includes(a.id);
+    return `
+      <div class="analysis-card ${done?'done':''}">
+        <h4>${done?'✅':'🧪'} ${esc(a.name)}</h4>
+        <div class="analysis-meta">Provmaterial: ${esc(a.sample)} · Metod: ${esc(a.method)} · Svarstid: <em>${a.days} dagar</em></div>
+        ${done ? `
+          <div class="report">
+            <span class="rep-label">Analysresultat</span>
+            ${esc(a.result)}
+            <div class="interp"><strong>Tolkning:</strong> ${esc(a.interp)}</div>
+            <div class="caveat"><strong>Felkälla och begränsning:</strong> ${esc(a.caveat)}</div>
+          </div>`
+        : `<button class="btn btn-ghost btn-sm" onclick="orderLab('${a.id}')" ${left<=0?'disabled':''}>
+             ${left<=0?'Budgeten är slut':'Beställ analys'}
+           </button>`}
+      </div>`;
+  }).join('');
+}
+
+function orderLab(id){
+  const c = cur();
+  if(state.ordered.length >= c.labBudget || state.ordered.includes(id)) return;
+  state.ordered.push(id);
+  renderLab();
+}
+
+/* ---------- FAS 4: FÖRHÖR ---------- */
+function activeSuspects(){
+  const c = cur();
+  if(state.mode !== 'pair') return c.suspects;
+  const half = Math.ceil(c.suspects.length/2);
+  return state.side === 'A' ? c.suspects.slice(0,half) : c.suspects.slice(half);
+}
+
+function renderInterviews(){
+  const banner = document.getElementById('interviewBanner');
+  if(state.mode === 'pair'){
+    banner.innerHTML = `
+      <div class="split-banner">
+        <div>
+          <strong>Utredare ${state.side}</strong>
+          <p>Ni håller bara era egna förhör. Referera dem för varandra efteråt.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="switchSide('interviews')">Växla till utredare ${state.side==='A'?'B':'A'}</button>
+      </div>`;
+  } else banner.innerHTML = '';
+
+  document.getElementById('suspectGrid').innerHTML = activeSuspects().map(s=>{
+    const o1 = state.openInterviews.has(s.id), o2 = state.openInterviews.has(s.id+'-f');
+    return `
+      <div class="suspect-card">
+        <div class="suspect-head">
+          <span class="avatar" style="background:${s.color}2e; color:${s.color};">${s.initials}</span>
+          <div>
+            <h4 style="color:${s.color};">${esc(s.name)}, ${s.age}</h4>
+            <div class="suspect-role">${esc(s.role)}</div>
+          </div>
+        </div>
+        <div class="suspect-bg">${esc(s.bg)}</div>
+        <div class="suspect-motive"><strong>Möjligt motiv:</strong> ${esc(s.motive)}</div>
+        <span class="alibi ${s.alibi}">Alibi: ${s.alibi==='stark'?'kontrollerbart':(s.alibi==='svag'?'delvis / obekräftat':'saknas')}</span>
+        <div style="font-size:.85rem; color:var(--muted); margin-bottom:.6rem;">${esc(s.alibiText)}</div>
+
+        ${o1 ? `<div class="quote"><h5>Förhör – berättelse</h5><p>"${esc(s.statement)}"</p></div>`
+             : `<button class="btn btn-ghost btn-sm" onclick="openInterview('${s.id}')">🎙️ Håll förhör</button>`}
+
+        ${o2 ? `<div class="quote follow"><h5>Uppföljningsfråga</h5><p>"${esc(s.followUp)}"</p></div>` : ''}
+        ${o1 && !o2 ? `<button class="btn btn-ghost btn-sm" onclick="openInterview('${s.id}-f')">🔍 Ställ uppföljningsfråga</button>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function openInterview(id){ state.openInterviews.add(id); renderInterviews(); }
+
+/* ---------- FAS 5: BEVISVÄRDERING ---------- */
+function renderAssess(){
+  const c = cur();
+  document.getElementById('assessList').innerHTML = c.assess.map((it,n)=>{
+    const ans = state.assessAnswers[it.id] || {};
+    const done = state.assessChecked;
+    const typeOk = ans.type === it.type, wOk = ans.weight === it.weight;
+    return `
+      <div class="assess-item">
+        <div class="assess-text"><strong>Uppgift ${n+1}.</strong> ${esc(it.text)}</div>
+        <div class="choice-row">
+          <div class="q">Vilken typ av bevisning?</div>
+          <div class="chips">
+            ${EVIDENCE_TYPES.map(t=>{
+              let cls='chip';
+              if(done){
+                if(t.id===it.type) cls+=' correct';
+                else if(ans.type===t.id) cls+=' wrong';
+              } else if(ans.type===t.id) cls+=' on';
+              return `<button class="${cls}" ${done?'disabled':''} onclick="setAssess('${it.id}','type','${t.id}')">${t.label}</button>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="choice-row">
+          <div class="q">Vilket bevisvärde har uppgiften i sig själv?</div>
+          <div class="chips">
+            ${WEIGHTS.map(w=>{
+              let cls='chip';
+              if(done){
+                if(w.id===it.weight) cls+=' correct';
+                else if(ans.weight===w.id) cls+=' wrong';
+              } else if(ans.weight===w.id) cls+=' on';
+              return `<button class="${cls}" ${done?'disabled':''} onclick="setAssess('${it.id}','weight','${w.id}')">${w.label}</button>`;
+            }).join('')}
+          </div>
+        </div>
+        ${done ? `<div class="feedback ${(typeOk&&wOk)?'':'miss'}">
+            <strong>${(typeOk&&wOk)?'Rätt bedömt.':'Se över den här.'}</strong> ${esc(it.why)}
+          </div>` : ''}
+      </div>`;
+  }).join('');
+  document.getElementById('assessCheckBtn').style.display = state.assessChecked ? 'none' : 'inline-block';
+  if(state.assessChecked) showAssessScore();
+}
+
+function setAssess(itemId, field, val){
+  if(state.assessChecked) return;
+  state.assessAnswers[itemId] = state.assessAnswers[itemId] || {};
+  state.assessAnswers[itemId][field] = val;
+  renderAssess();
+}
+
+function checkAssessment(){
+  const c = cur();
+  const unanswered = c.assess.filter(it=>{
+    const a = state.assessAnswers[it.id] || {};
+    return !a.type || !a.weight;
+  }).length;
+  if(unanswered > 0){
+    alert('Ni har ' + unanswered + ' uppgift(er) kvar att bedöma. Ta ställning till alla innan ni lämnar in – att avstå är också ett val, men inte här.');
+    return;
+  }
+  let pts = 0;
+  c.assess.forEach(it=>{
+    const a = state.assessAnswers[it.id];
+    if(a.type === it.type) pts++;
+    if(a.weight === it.weight) pts++;
+  });
+  state.assessScore = pts;
+  state.assessChecked = true;
+  renderAssess();
+}
+
+function showAssessScore(){
+  const c = cur();
+  const max = c.assess.length * 2;
+  const pct = Math.round(state.assessScore / max * 100);
+  let comment;
+  if(pct >= 85) comment = 'Ni skiljer säkert på bevistyper och ser skillnaden mellan vad ett bevis visar och vad det påstås visa.';
+  else if(pct >= 60) comment = 'Godkänd grund. Titta särskilt på de uppgifter där ni satte starkt bevisvärde – vad kan förklaras på ett annat sätt?';
+  else comment = 'Gå igenom förklaringarna ovan noggrant. Nyckeln är att indicier och motiv nästan alltid är svaga i sig själva, och att teknisk bevisning svarar på källfrågan – inte på handlingsfrågan.';
+  document.getElementById('assessScore').innerHTML = `
+    <div class="score-box">
+      <span class="big">${state.assessScore} / ${max}</span>
+      <p>${comment}</p>
+    </div>`;
+}
+
+/* ---------- FAS 6: ÅTAL ---------- */
+function renderCharge(){
+  const c = cur();
+  document.getElementById('pickGrid').innerHTML = c.suspects.map(s=>`
+    <button class="pick-btn ${state.accused===s.id?'on':''}" onclick="pickSuspect('${s.id}')">
+      <div class="pk-av avatar" style="background:${s.color}2e; color:${s.color};">${s.initials}</div>
+      <div class="pk-name">${esc(s.name)}</div>
+      <div class="pk-role">${esc(s.role)}</div>
+    </button>`).join('');
+
+  document.getElementById('evidencePickList').innerHTML = c.evidencePool.map(e=>{
+    const on = state.pickedEvidence.has(e.id);
+    return `
+      <button class="evidence-pick ${on?'on':''}" onclick="toggleEvidence('${e.id}')">
+        <span class="box">${on?'✓':''}</span>
+        <span>${esc(e.label)}</span>
+      </button>`;
+  }).join('');
+
+  document.getElementById('pickCount').textContent = `${state.pickedEvidence.size} av 3 valda`;
+  document.getElementById('chargeBtn').disabled = !(state.accused && state.pickedEvidence.size === 3);
+}
+
+function pickSuspect(id){ state.accused = id; renderCharge(); }
+
+function toggleEvidence(id){
+  if(state.pickedEvidence.has(id)) state.pickedEvidence.delete(id);
+  else if(state.pickedEvidence.size < 3) state.pickedEvidence.add(id);
+  else { alert('Ni har redan valt tre bevis. Avmarkera ett om ni vill byta – ett åtal ska stå på sina starkaste ben, inte på alla.'); return; }
+  renderCharge();
+}
+
+function submitCharge(){
+  if(!state.accused || state.pickedEvidence.size !== 3) return;
+  state.charged = true;
+  goTo('theory');
+}
+
+/* ---------- FAS 7: TEORI ---------- */
+function renderTheory(){
+  const c = cur();
+  const culprit = c.suspects.find(s=>s.id === c.solution.culprit);
+  const accused = c.suspects.find(s=>s.id === state.accused);
+
+  document.getElementById('theoryIntro').innerHTML = `
+    <div class="card">
+      <h3>Utgångspunkt för analysen</h3>
+      <p>Ni har väckt åtal mot <strong>${esc(accused ? accused.name : 'ingen')}</strong>. Domslutet kommer i nästa fas.</p>
+      <p>Den kriminologiska analysen görs oberoende av om ni pekade rätt. Utgå från gärningen som sådan:
+      ett ${esc(c.subtitle.toLowerCase())} som beskrivs i fallakten, och från de förhörssvar ni tagit del av.</p>
+      <p style="color:var(--muted); font-size:.9rem;">Öppna gärna faktabankens flik <em>Teorier</em> i ett eget fönster medan ni arbetar.</p>
+    </div>`;
+
+  document.getElementById('theoryGrid').innerHTML = c.theory.options.map(t=>{
+    const on = state.theoryPicks.has(t.id);
+    let cls = 'theory-card';
+    if(state.theoryChecked){
+      cls += ' revealed';
+      if(t.correct) cls += ' hit';
+      else if(on) cls += ' miss';
+    } else if(on) cls += ' on';
+    return `
+      <button class="${cls}" ${state.theoryChecked?'disabled':''} onclick="toggleTheory('${t.id}')">
+        <div class="lvl">Nivå: ${esc(t.level)}</div>
+        <h4>${on&&!state.theoryChecked?'✓ ':''}${esc(t.name)}</h4>
+        <p>${esc(t.desc)}</p>
+        <div class="verdict-note"><strong>${t.correct?'Passar:':'Passar mindre bra:'}</strong> ${esc(t.note)}</div>
+      </button>`;
+  }).join('');
+
+  document.getElementById('neutralChips').innerHTML = NEUTRAL_OPTIONS.map(n=>{
+    let cls='chip';
+    if(state.theoryChecked){
+      if(n.id === c.theory.correctNeutral) cls+=' correct';
+      else if(state.neutralPick === n.id) cls+=' wrong';
+    } else if(state.neutralPick === n.id) cls+=' on';
+    return `<button class="${cls}" ${state.theoryChecked?'disabled':''} onclick="pickNeutral('${n.id}')">${n.label}</button>`;
+  }).join('');
+
+  document.getElementById('theoryCheckBtn').style.display = state.theoryChecked ? 'none' : 'inline-block';
+  if(state.theoryChecked) showTheoryScore();
+  else document.getElementById('theoryScore').innerHTML = '';
+}
+
+function toggleTheory(id){
+  if(state.theoryChecked) return;
+  if(state.theoryPicks.has(id)) state.theoryPicks.delete(id); else state.theoryPicks.add(id);
+  renderTheory();
+}
+
+function pickNeutral(id){
+  if(state.theoryChecked) return;
+  state.neutralPick = id;
+  renderTheory();
+}
+
+function checkTheory(){
+  const c = cur();
+  if(state.theoryPicks.size === 0 || !state.neutralPick){
+    alert('Välj minst en förklaringsmodell och en neutraliseringsteknik innan ni lämnar in.');
+    return;
+  }
+  let pts = 0;
+  c.theory.options.forEach(t=>{
+    const picked = state.theoryPicks.has(t.id);
+    if(t.correct && picked) pts += 2;
+    if(!t.correct && picked) pts -= 1;   // att välja allt ska inte löna sig
+  });
+  if(state.neutralPick === c.theory.correctNeutral) pts += 2;
+  state.theoryScore = Math.max(0, pts);
+  state.theoryChecked = true;
+  renderTheory();
+}
+
+function showTheoryScore(){
+  const c = cur();
+  const max = c.theory.options.filter(t=>t.correct).length * 2 + 2;
+  const pct = state.theoryScore / max;
+  let comment;
+  if(pct >= .85) comment = 'Ni väljer teorier som faktiskt förklarar just det här brottet, och undviker att bre på med allt ni kan.';
+  else if(pct >= .5) comment = 'Rimlig analys. Läs motiveringarna på de kort ni valde bort respektive valde till – i kriminologin är motiveringen svaret, inte etiketten.';
+  else comment = 'Läs igenom kortens motiveringar. Poäng dras för teorier som valts utan att passa: att kunna avfärda en förklaringsmodell med argument är lika viktigt som att välja rätt.';
+  document.getElementById('theoryScore').innerHTML = `
+    <div class="score-box">
+      <span class="big">${state.theoryScore} / ${max}</span>
+      <p>${comment}</p>
+      <p style="margin-top:.8rem; color:var(--warm); text-align:left;"><strong>Neutraliseringstekniken:</strong> ${esc(c.theory.neutralNote)}</p>
+    </div>`;
+}
+
+/* ---------- FAS 8: DOMSLUT ---------- */
+function renderVerdict(){
+  const c = cur();
+  const right = state.accused === c.solution.culprit;
+  const accused = c.suspects.find(s=>s.id === state.accused);
+  const culprit = c.suspects.find(s=>s.id === c.solution.culprit);
+  const strongPicked = [...state.pickedEvidence].filter(id => (c.evidencePool.find(e=>e.id===id)||{}).strong).length;
+
+  const assessMax = c.assess.length * 2;
+  const theoryMax = c.theory.options.filter(t=>t.correct).length * 2 + 2;
+  const total = (right?20:0) + strongPicked*5 + state.assessScore + state.theoryScore;
+  const totalMax = 20 + 15 + assessMax + theoryMax;
+
+  let holds, holdsText;
+  if(!right){
+    holds = false;
+    holdsText = `Åtalet ogillades. ${esc(accused ? accused.name : 'Den åtalade')} frikändes. Den bevisning som fanns pekade i själva verket mot en annan person, och för den åtalade fanns rimliga alternativa förklaringar till varje omständighet ni lade fram.`;
+  } else if(strongPicked === 3){
+    holds = true;
+    holdsText = 'Åtalet bifölls. Samtliga tre bevis ni valde tillhörde den bärande bevisningen. Domstolen fann att skulden var ställd utom rimligt tvivel och att inga rimliga alternativa förklaringar återstod.';
+  } else if(strongPicked === 2){
+    holds = true;
+    holdsText = 'Åtalet bifölls, men med anmärkning. Två av era tre bevis var bärande. Det tredje var ett indicium som försvaret angrep utan större motstånd – domen vilar tyngre på de två övriga än vad ni själva byggde den på.';
+  } else {
+    holds = false;
+    holdsText = `Ni pekade ut rätt person – men åtalet ogillades. Endast ${strongPicked} av tre valda bevis var bärande. Åklagaren har hela bevisbördan, och en riktig slutsats som vilar på motiv, rykte och lösa indicier når inte upp till beviskravet. Det här är den svåraste lärdomen i fallet: att veta räcker inte, det ska bevisas.`;
+  }
+
+  document.getElementById('verdictContent').innerHTML = `
+    <div class="verdict-banner ${right && holds ? 'right':'wrong'}">
+      <span class="vicon">${right && holds ? '⚖️' : (right ? '📉' : '❌')}</span>
+      <h3>${right && holds ? 'Fällande dom' : (right ? 'Rätt person – ogillat åtal' : 'Frikännande dom')}</h3>
+      <p>${holdsText}</p>
+    </div>
+
+    <div class="card">
+      <h3>Så gick det till</h3>
+      <p><strong>${esc(c.solution.headline)}</strong></p>
+      <p>${esc(c.solution.story)}</p>
+      ${!right ? `<p style="color:var(--warm);">Ni åtalade <strong>${esc(accused ? accused.name : '–')}</strong>. Gärningsperson var <strong style="color:var(--amber);">${esc(culprit.name)}</strong>.</p>` : ''}
+    </div>
+
+    <div class="card">
+      <h3>Den bärande bevisningen</h3>
+      <ul class="chain-list">${c.solution.chain.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+    </div>
+
+    <div class="card">
+      <h3>Det som pekade fel</h3>
+      <p style="color:var(--muted); font-size:.9rem;">Varje spår nedan såg belastande ut. Fråga er hur länge ni trodde på det – och varför.</p>
+      <ul class="herring-list">
+        ${c.solution.herrings.map(h=>`<li><strong>${esc(h.who)}:</strong> ${esc(h.text)}</li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Vad fallet lär ut</h3>
+      ${c.solution.lessons.map(l=>`
+        <div class="lesson-box">
+          <h4>${esc(l.title)}</h4>
+          <p style="margin:0;">${esc(l.text)}</p>
+        </div>`).join('')}
+    </div>
+
+    <div class="card">
+      <h3>Utredningsrapport</h3>
+      <table class="tbl">
+        <tr><th>Moment</th><th>Resultat</th><th>Poäng</th></tr>
+        <tr><td>Rätt gärningsperson</td><td>${right?'Ja':'Nej – ' + esc(culprit.name) + ' var gärningsperson'}</td><td>${right?20:0} / 20</td></tr>
+        <tr><td>Bärande bevisning i åtalet</td><td>${strongPicked} av 3 valda bevis höll i domstol</td><td>${strongPicked*5} / 15</td></tr>
+        <tr><td>Bevisvärdering</td><td>${state.assessChecked?'Inlämnad':'Ej inlämnad'}</td><td>${state.assessScore} / ${assessMax}</td></tr>
+        <tr><td>Kriminologisk analys</td><td>${state.theoryChecked?'Inlämnad':'Ej inlämnad'}</td><td>${state.theoryScore} / ${theoryMax}</td></tr>
+        <tr><td>Beställda analyser</td><td>${state.ordered.length} av ${c.labBudget} i budget, ${c.lab.length} möjliga</td><td>–</td></tr>
+        <tr><td>Dokumenterade spår</td><td>${state.openClues.size} av ${Object.keys(c.clues).length}</td><td>–</td></tr>
+        <tr><th>Summa</th><th></th><th>${total} / ${totalMax}</th></tr>
+      </table>
+      <p style="font-size:.88rem; color:var(--muted);">Poängen är ett arbetsredskap, inte ett betyg. Det som bedöms i kursen är era motiveringar – varför ni värderade bevisen som ni gjorde och varför ni valde era förklaringsmodeller.</p>
+    </div>
+
+    <div class="card">
+      <h3>Att diskutera efteråt</h3>
+      <ol style="margin-left:1.2rem;">
+        <li style="margin-bottom:.5rem;">Vilket bevis övertygade er först – och hur påverkade det hur ni läste allt som kom sedan?</li>
+        <li style="margin-bottom:.5rem;">Misstänkte ni någon på grund av tidigare brottslighet, yrke eller livsstil snarare än på grund av bevisning?</li>
+        <li style="margin-bottom:.5rem;">Vilken alternativ förklaring hade en försvarare lyft mot ert starkaste bevis?</li>
+        <li style="margin-bottom:.5rem;">Vad hade situationell brottsprevention kunnat ändra i det här fallet – och vad hade det kostat i frihet eller integritet?</li>
+        <li>Hur hade brottet rapporterats i medier? Passar offret in i Nils Christies "ideala offer"?</li>
+      </ol>
+    </div>
+  `;
+}
+
+/* ---------- ANTECKNINGAR ---------- */
+const NOTE_FIELDS = ['scene','lab','int'];
+function noteKey(f){ return `utredningsrummet-${state.caseId}-${f}`; }
+
+function loadNotes(){
+  NOTE_FIELDS.forEach(f=>{
+    const el = document.getElementById('note-'+f);
+    if(!el) return;
+    try { el.value = localStorage.getItem(noteKey(f)) || ''; } catch(e){ el.value = ''; }
+    el.oninput = () => {
+      try {
+        localStorage.setItem(noteKey(f), el.value);
+        const s = document.getElementById('saved-'+f);
+        if(s){ s.textContent = 'Sparat lokalt'; setTimeout(()=>{ s.textContent=''; }, 1500); }
+      } catch(e){ /* privat läge – anteckningar sparas inte */ }
+    };
+  });
+}
+
+/* ---------- MODALER ---------- */
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function showTab(id, btn){
+  const box = btn.closest('.modal-box');
+  box.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('on'));
+  box.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+
+document.querySelectorAll('.modal').forEach(m=>{
+  m.addEventListener('click', e=>{ if(e.target === m) m.classList.remove('open'); });
+});
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'));
+});
+
+/* ---------- INIT ---------- */
+renderCaseGrid();
+</script>
+
+</body>
+</html>
