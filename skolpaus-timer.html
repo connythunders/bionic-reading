@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paus-timer – Dags för en paus</title>
+<meta name="description" content="Ställ in en arbetstimer. När tiden är ute låses skärmen i 5 minuter för en obligatorisk paus.">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+        --bg-work: #f0f4f8;
+        --bg-work-card: #ffffff;
+        --text-primary: #1a2a3a;
+        --text-secondary: #4a5568;
+        --accent: #3b82f6;
+        --accent-hover: #2563eb;
+        --border: #d1d9e6;
+        --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        --radius: 16px;
+        --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        --sky-top: #1a1f3d;
+        --sky-mid: #3d3460;
+        --sky-glow: #b06a8f;
+        --sky-horizon: #e8927c;
+        --gold: #f0c674;
+        --green: #8fd4a8;
+        --red: #ef4444;
+    }
+
+    html, body {
+        height: 100%;
+        font-family: var(--font-main);
+        color: var(--text-primary);
+        background: var(--bg-work);
+        overflow: hidden;
+    }
+
+    button {
+        cursor: pointer;
+        border: none;
+        font-family: inherit;
+    }
+
+    *:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    .screen {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem;
+    }
+    .screen.active { display: flex; }
+
+    /* ===== SETUP SCREEN ===== */
+    #setup { background: var(--bg-work); }
+    .setup-card {
+        background: var(--bg-work-card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 3rem 2.5rem;
+        max-width: 460px;
+        width: 100%;
+    }
+    .setup-card .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .setup-card h1 { font-size: 1.7rem; margin-bottom: 0.5rem; }
+    .setup-card p.sub { color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.5; }
+
+    .presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+    .preset-btn {
+        background: #eef2f7;
+        color: var(--text-primary);
+        border: 2px solid transparent;
+        border-radius: 10px;
+        padding: 0.6rem 1.1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: 0.15s ease;
+    }
+    .preset-btn:hover { background: #e2e8f0; }
+    .preset-btn.selected {
+        background: #dbeafe;
+        border-color: var(--accent);
+        color: var(--accent-hover);
+    }
+
+    .custom-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        margin-bottom: 2rem;
+        color: var(--text-secondary);
+    }
+    .custom-row input {
+        width: 5rem;
+        padding: 0.5rem;
+        font-size: 1.1rem;
+        text-align: center;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+    }
+
+    .start-btn {
+        background: var(--accent);
+        color: white;
+        font-size: 1.15rem;
+        font-weight: 700;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        width: 100%;
+        transition: 0.15s ease;
+    }
+    .start-btn:hover { background: var(--accent-hover); }
+    .start-btn:disabled { background: #a5b4c3; cursor: not-allowed; }
+
+    .fullscreen-hint {
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    /* ===== WORK SCREEN ===== */
+    #work { background: var(--bg-work); }
+    #work .label { font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    #work .clock {
+        font-size: clamp(4rem, 18vw, 9rem);
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        color: var(--text-primary);
+        letter-spacing: 0.02em;
+    }
+    #work .cancel-btn {
+        margin-top: 2.5rem;
+        background: transparent;
+        border: 2px solid var(--border);
+        color: var(--text-secondary);
+        padding: 0.6rem 1.3rem;
+        border-radius: 10px;
+        font-size: 0.95rem;
+    }
+    #work .cancel-btn:hover { border-color: #cbd5e1; color: var(--text-primary); }
+
+    /* ===== LOCK SCREEN ===== */
+    #lock {
+        background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-glow) 80%, var(--sky-horizon) 100%);
+        color: #f2eee9;
+        z-index: 9999;
+    }
+    #lock .badge {
+        display: inline-block;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        color: var(--gold);
+        margin-bottom: 1rem;
+    }
+    #lock h1 {
+        font-size: clamp(1.8rem, 5vw, 2.6rem);
+        font-weight: normal;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 30px rgba(240, 198, 116, 0.3);
+    }
+    #lock .clock {
+        font-size: clamp(4.5rem, 20vw, 10rem);
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        color: var(--gold);
+        margin: 1rem 0 1.5rem;
+    }
+    #lock .tip {
+        max-width: 480px;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #d8d0e4;
+        min-height: 3.2em;
+    }
+    #lock .reenter-btn {
+        display: none;
+        margin-top: 2rem;
+        background: var(--gold);
+        color: #1a1f3d;
+        font-weight: 700;
+        font-size: 1.05rem;
+        padding: 0.9rem 1.8rem;
+        border-radius: 12px;
+    }
+    #lock .reenter-btn.show { display: inline-block; }
+
+    /* ===== DONE SCREEN ===== */
+    #done { background: var(--bg-work); }
+    #done .icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    #done h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    #done p { color: var(--text-secondary); margin-bottom: 2rem; max-width: 420px; }
+</style>
+</head>
+<body>
+
+<!-- ===== SETUP ===== -->
+<section id="setup" class="screen active">
+    <div class="setup-card">
+        <div class="icon">⏱️</div>
+        <h1>Paus-timer</h1>
+        <p class="sub">Välj hur länge du ska jobba. När tiden är ute låses skärmen i 5 minuter så du tar en riktig paus.</p>
+
+        <div class="presets" id="presets">
+            <button class="preset-btn" data-min="15">15 min</button>
+            <button class="preset-btn selected" data-min="25">25 min</button>
+            <button class="preset-btn" data-min="30">30 min</button>
+            <button class="preset-btn" data-min="45">45 min</button>
+            <button class="preset-btn" data-min="60">60 min</button>
+        </div>
+
+        <div class="custom-row">
+            <span>eller eget antal minuter:</span>
+            <input type="number" id="customMinutes" min="1" max="180" placeholder="25">
+        </div>
+
+        <button class="start-btn" id="startBtn">Starta arbetspass</button>
+        <p class="fullscreen-hint">Sidan går i helskärm när du startar, så pausen syns tydligt när tiden är slut.</p>
+    </div>
+</section>
+
+<!-- ===== WORK (counting down to the break) ===== -->
+<section id="work" class="screen">
+    <div class="label">Jobba fokuserat – paus om</div>
+    <div class="clock" id="workClock">25:00</div>
+    <button class="cancel-btn" id="cancelBtn">Avbryt timer</button>
+</section>
+
+<!-- ===== LOCK (forced 5-minute break) ===== -->
+<section id="lock" class="screen">
+    <div class="badge">Paus</div>
+    <h1>Bra jobbat! Nu tar vi 5 minuters paus.</h1>
+    <div class="clock" id="lockClock">05:00</div>
+    <div class="tip" id="lockTip"></div>
+    <button class="reenter-btn" id="reenterBtn">Tillbaka till pausen</button>
+</section>
+
+<!-- ===== DONE ===== -->
+<section id="done" class="screen">
+    <div class="icon">✅</div>
+    <h1>Pausen är slut!</h1>
+    <p>Bra jobbat. Nu är du redo att fortsätta jobba igen.</p>
+    <button class="start-btn" id="restartBtn" style="width:auto;">Starta nytt arbetspass</button>
+</section>
+
+<script>
+(function () {
+    'use strict';
+
+    var STORAGE_KEY = 'paus-timer-lock-until';
+    var BREAK_SECONDS = 5 * 60;
+
+    var setupEl = document.getElementById('setup');
+    var workEl = document.getElementById('work');
+    var lockEl = document.getElementById('lock');
+    var doneEl = document.getElementById('done');
+
+    var presetsEl = document.getElementById('presets');
+    var customMinutesEl = document.getElementById('customMinutes');
+    var startBtn = document.getElementById('startBtn');
+    var cancelBtn = document.getElementById('cancelBtn');
+    var restartBtn = document.getElementById('restartBtn');
+    var reenterBtn = document.getElementById('reenterBtn');
+    var workClockEl = document.getElementById('workClock');
+    var lockClockEl = document.getElementById('lockClock');
+    var lockTipEl = document.getElementById('lockTip');
+
+    var tips = [
+        'Sträck på dig och rulla axlarna bakåt några gånger.',
+        'Titta bort från skärmen – hitta något som är minst 6 meter bort.',
+        'Ta några djupa andetag: in genom näsan, ut genom munnen.',
+        'Drick lite vatten.',
+        'Res dig upp och gå några steg om du kan.',
+        'Blinka extra mycket och vila ögonen en stund.'
+    ];
+
+    var workTimer = null;
+    var lockTimer = null;
+    var workEndsAt = null;
+    var lockEndsAt = null;
+    var selectedMinutes = 25;
+
+    function showScreen(el) {
+        [setupEl, workEl, lockEl, doneEl].forEach(function (s) { s.classList.remove('active'); });
+        el.classList.add('active');
+    }
+
+    function formatTime(totalSeconds) {
+        var m = Math.max(0, Math.floor(totalSeconds / 60));
+        var s = Math.max(0, Math.floor(totalSeconds % 60));
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function requestFullscreenSafe() {
+        var el = document.documentElement;
+        var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+        if (req) {
+            try { req.call(el); } catch (e) { /* ignore, best effort */ }
+        }
+    }
+
+    function isFullscreen() {
+        return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+    }
+
+    function playTone() {
+        try {
+            var ctx = new (window.AudioContext || window.webkitAudioContext)();
+            [0, 0.25, 0.5].forEach(function (delay) {
+                var osc = ctx.createOscillator();
+                var gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 660;
+                gain.gain.setValueAtTime(0.15, ctx.currentTime + delay);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.2);
+                osc.connect(gain).connect(ctx.destination);
+                osc.start(ctx.currentTime + delay);
+                osc.stop(ctx.currentTime + delay + 0.2);
+            });
+        } catch (e) { /* audio not available, ignore */ }
+    }
+
+    // ----- Preset selection -----
+    presetsEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('.preset-btn');
+        if (!btn) return;
+        Array.prototype.forEach.call(presetsEl.children, function (b) { b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        selectedMinutes = parseInt(btn.getAttribute('data-min'), 10);
+        customMinutesEl.value = '';
+    });
+
+    customMinutesEl.addEventListener('input', function () {
+        var v = parseInt(customMinutesEl.value, 10);
+        if (v > 0) {
+            Array.prototype.forEach.call(presetsEl.children, function (b) { b.classList.remove('selected'); });
+            selectedMinutes = v;
+        }
+    });
+
+    // ----- Start work timer -----
+    startBtn.addEventListener('click', function () {
+        var custom = parseInt(customMinutesEl.value, 10);
+        var minutes = custom > 0 ? custom : selectedMinutes;
+        minutes = Math.min(Math.max(minutes, 1), 180);
+
+        requestFullscreenSafe(); // do this on the click (user gesture) so it's allowed
+        workEndsAt = Date.now() + minutes * 60 * 1000;
+        showScreen(workEl);
+        tickWork();
+        workTimer = setInterval(tickWork, 250);
+    });
+
+    function tickWork() {
+        var remaining = (workEndsAt - Date.now()) / 1000;
+        if (remaining <= 0) {
+            clearInterval(workTimer);
+            workClockEl.textContent = '00:00';
+            startBreak();
+            return;
+        }
+        workClockEl.textContent = formatTime(remaining);
+    }
+
+    cancelBtn.addEventListener('click', function () {
+        clearInterval(workTimer);
+        showScreen(setupEl);
+    });
+
+    // ----- Break lock -----
+    function startBreak(resumeUntil) {
+        playTone();
+        lockEndsAt = resumeUntil || (Date.now() + BREAK_SECONDS * 1000);
+        localStorage.setItem(STORAGE_KEY, String(lockEndsAt));
+        lockTipEl.textContent = tips[Math.floor(Math.random() * tips.length)];
+        requestFullscreenSafe();
+        showScreen(lockEl);
+        tickLock();
+        lockTimer = setInterval(tickLock, 250);
+    }
+
+    function tickLock() {
+        var remaining = (lockEndsAt - Date.now()) / 1000;
+        if (remaining <= 0) {
+            clearInterval(lockTimer);
+            lockClockEl.textContent = '00:00';
+            endBreak();
+            return;
+        }
+        lockClockEl.textContent = formatTime(remaining);
+    }
+
+    function endBreak() {
+        localStorage.removeItem(STORAGE_KEY);
+        showScreen(doneEl);
+    }
+
+    restartBtn.addEventListener('click', function () {
+        showScreen(setupEl);
+    });
+
+    // Try to pull the student back into fullscreen if they leave it mid-break.
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    function handleFullscreenChange() {
+        if (!lockEl.classList.contains('active')) return;
+        if (!isFullscreen()) {
+            reenterBtn.classList.add('show');
+        } else {
+            reenterBtn.classList.remove('show');
+        }
+    }
+    reenterBtn.addEventListener('click', function () {
+        requestFullscreenSafe();
+    });
+
+    // Warn before closing/navigating away during the break.
+    window.addEventListener('beforeunload', function (e) {
+        if (lockEl.classList.contains('active')) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Block a handful of common escape shortcuts while locked (best effort —
+    // the browser and OS still own things like Alt+Tab or closing the app).
+    document.addEventListener('keydown', function (e) {
+        if (!lockEl.classList.contains('active')) return;
+        var blocked = ['F5', 'F11', 'F12'];
+        if (blocked.indexOf(e.key) !== -1 ||
+            ((e.ctrlKey || e.metaKey) && ['r', 'w', 't', 'n'].indexOf(e.key.toLowerCase()) !== -1)) {
+            e.preventDefault();
+        }
+    });
+    document.addEventListener('contextmenu', function (e) {
+        if (lockEl.classList.contains('active')) e.preventDefault();
+    });
+
+    // If the page is reopened while a break is still counting down
+    // (student closed the tab and came back), resume the lock instead
+    // of showing the setup screen again.
+    (function resumeIfLocked() {
+        var stored = parseInt(localStorage.getItem(STORAGE_KEY), 10);
+        if (stored && stored > Date.now()) {
+            startBreak(stored);
+        }
+    })();
+})();
+</script>
+</body>
+</html>
