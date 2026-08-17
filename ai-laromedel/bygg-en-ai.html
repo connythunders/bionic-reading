@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="sv" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bygg en AI på 60 sekunder – kNN-labb – AI-läromedel</title>
+  <meta name="description" content="Rita exempel, träna en riktig klassificeringsmodell (kNN) och se den gissa live i webbläsaren – utan internet, utan svarta lådor.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* === LABB-SPECIFIKA STILAR (bygg-en-ai.html) === */
+    .lab-hero {
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d1b69 55%, #1a1a2e 100%);
+      color: #fff;
+      padding: 2.5rem 2rem;
+      border-radius: var(--radius);
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .lab-hero::before {
+      content: '';
+      position: absolute;
+      top: -60%;
+      right: -8%;
+      width: 320px;
+      height: 320px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    .lab-hero h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; }
+    .lab-hero .lead { font-size: 1rem; opacity: 0.92; max-width: 640px; line-height: 1.6; }
+
+    .step-grid {
+      display: grid;
+      gap: 1.25rem;
+      margin: 1.5rem 0;
+    }
+    @media (min-width: 720px) {
+      .step-grid.classes { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+    }
+
+    .lab-panel {
+      background: var(--color-surface);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+    .lab-panel h3 { font-size: 1rem; margin-bottom: 0.4rem; }
+
+    .step-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: white;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 0.75rem;
+    }
+
+    .class-card {
+      border-radius: var(--radius);
+      padding: 1rem;
+      border: 2px solid var(--class-color, var(--color-border));
+      background: var(--color-surface);
+      position: relative;
+    }
+    .class-card .class-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+    }
+    .class-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--class-color);
+      flex-shrink: 0;
+    }
+    .class-name-input {
+      flex: 1;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      background: transparent;
+      color: var(--color-text);
+      border-bottom: 1px dashed var(--color-border);
+      padding: 0.15rem 0;
+      min-width: 0;
+    }
+    .class-name-input:focus { outline: none; border-bottom-color: var(--class-color); }
+    .remove-class-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--color-text-muted); font-size: 1rem; line-height: 1;
+      padding: 0.15rem 0.3rem;
+    }
+    .remove-class-btn:hover { color: var(--color-error); }
+
+    .pad-row { display: flex; gap: 0.75rem; align-items: flex-start; flex-wrap: wrap; }
+    canvas.draw-pad {
+      background: #fff;
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      touch-action: none;
+      cursor: crosshair;
+      display: block;
+    }
+    .pad-btns { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .btn {
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.45rem 0.8rem;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text);
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition), transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn:hover:not(:disabled) { border-color: var(--color-primary); }
+    .btn:active:not(:disabled) { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary {
+      background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+      border-color: transparent;
+      color: #fff;
+    }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+    .btn-ghost { border-style: dashed; }
+    .btn-sm { font-size: 0.72rem; padding: 0.3rem 0.55rem; }
+
+    .example-count {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      margin: 0.5rem 0 0.35rem;
+    }
+    .example-count.ready { color: var(--color-success); font-weight: 600; }
+
+    .thumb-strip { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .thumb-strip img {
+      width: 34px; height: 34px;
+      border-radius: 4px;
+      border: 1px solid var(--color-border);
+      background: #fff;
+    }
+
+    .add-class-btn {
+      width: 100%;
+      border: 2px dashed var(--color-border);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--color-text-muted);
+      padding: 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .add-class-btn:hover:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
+    .add-class-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* --- Testpanel --- */
+    .test-area {
+      display: flex;
+      gap: 1.75rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      margin-top: 1rem;
+    }
+    .test-canvas-wrap { position: relative; flex-shrink: 0; }
+    canvas#test-pad {
+      background: #fff;
+      border: 3px solid var(--color-border);
+      border-radius: var(--radius);
+      touch-action: none;
+      cursor: crosshair;
+      display: block;
+    }
+    .test-overlay {
+      position: absolute; inset: 3px;
+      background: rgba(248,247,244,0.94);
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 1rem;
+      font-size: 0.85rem; color: var(--color-text-muted);
+      border-radius: calc(var(--radius) - 3px);
+      pointer-events: none;
+    }
+    [data-theme="dark"] .test-overlay { background: rgba(30,30,50,0.94); }
+
+    .vision-box { text-align: center; }
+    .vision-box canvas { image-rendering: pixelated; border: 1px solid var(--color-border); border-radius: 4px; background:#fff; }
+    .vision-box p { font-size: 0.72rem; color: var(--color-text-muted); margin-top: 0.35rem; max-width: 110px; }
+
+    .predict-col { flex: 1; min-width: 240px; }
+    .predict-headline {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.9rem;
+      min-height: 1.8em;
+    }
+    .predict-headline .emoji { font-size: 1.6rem; margin-right: 0.3rem; }
+
+    .vote-row { margin-bottom: 0.55rem; }
+    .vote-row .vote-label {
+      display: flex; justify-content: space-between;
+      font-size: 0.8rem; font-weight: 600; margin-bottom: 0.2rem;
+    }
+    .vote-track {
+      height: 10px;
+      border-radius: 6px;
+      background: var(--color-border);
+      overflow: hidden;
+    }
+    .vote-fill { height: 100%; width: 0%; transition: width 0.25s ease; border-radius: 6px; }
+
+    .k-control {
+      margin-top: 1.1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-border);
+    }
+    .k-control label { font-size: 0.85rem; font-weight: 600; display: flex; justify-content: space-between; }
+    .k-control input[type=range] { width: 100%; margin-top: 0.4rem; accent-color: var(--color-primary); }
+    .k-note { font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.4rem; min-height: 2.6em; }
+    .k-note.warn { color: var(--color-warning); }
+
+    .neighbors-box { margin-top: 1rem; }
+    .neighbors-box p.label { font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 0.35rem; }
+    .neighbor-thumb {
+      display: inline-flex; flex-direction: column; align-items: center;
+      margin: 0 0.3rem 0.3rem 0; font-size: 0.62rem; color: var(--color-text-muted);
+    }
+    .neighbor-thumb img {
+      width: 32px; height: 32px; border-radius: 4px; background: #fff;
+      border: 2px solid var(--nb-color, var(--color-border));
+    }
+
+    .challenge-box {
+      background: var(--color-accent-light);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin: 2rem 0;
+    }
+    [data-theme="dark"] .challenge-box { background: #241a45; }
+    .challenge-box h3 { margin-bottom: 0.6rem; }
+    .challenge-box ol { padding-left: 1.25rem; }
+    .challenge-box li { margin-bottom: 0.5rem; font-size: 0.92rem; }
+
+    .recap-box {
+      background: var(--color-surface);
+      border-left: 4px solid var(--color-primary);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 1rem 1.25rem;
+      margin: 2rem 0;
+    }
+    .recap-box strong { color: var(--color-primary); }
+
+    .top-actions { display: flex; justify-content: flex-end; margin: 1.5rem 0; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-title">AI<span>Läromedel</span></a>
+    <nav class="a11y-toolbar" aria-label="Tillgänglighetsverktyg">
+      <button class="a11y-btn" id="bionic-toggle">👁 Bionic</button>
+      <div class="font-size-controls">
+        <button class="a11y-btn" id="fs-down">A−</button>
+        <span>A</span>
+        <button class="a11y-btn" id="fs-up">A+</button>
+      </div>
+      <button class="a11y-btn" id="lh-up">↕ Radavstånd</button>
+      <button class="a11y-btn" id="font-toggle">Aa Font</button>
+      <button class="a11y-btn" id="dark-toggle">🌙 Mörkt</button>
+    </nav>
+  </div>
+</header>
+
+<main class="page-wrapper">
+
+  <section class="lab-hero">
+    <div class="chapter-number">Live-labb &bull; Kapitel 4: Maskininlärning</div>
+    <h1>🧪 Bygg en AI på 60 sekunder</h1>
+    <p class="lead">Du ska nu göra det en AI-modell faktiskt gör: lära sig av exempel och sedan gissa på egen hand. Ingen internetuppkoppling, inget konto och inget skrivet av oss i förväg – <strong>ni</strong> tränar modellen, live, med era egna teckningar.</p>
+  </section>
+
+  <p>Algoritmen som körs här heter <strong>kNN</strong> (k-nearest neighbour) – exakt samma algoritm som beskrivs i <a href="kapitel-04.html">kapitel 4, avsnittet &quot;Klassificering och kNN&quot;</a>. Den är enkel nog att förklara på en tavla, men den är en <em>riktig</em> maskininlärningsmodell: den har träningsdata, etiketter, en avståndsformel och en gissning med osäkerhet – precis som ett spamfilter eller en bildigenkänningsmodell.</p>
+
+  <div class="recap-box">
+    <p><strong>Så fungerar det:</strong> Ni ritar några exempel av varje kategori (t.ex. cirklar och kryss) och märker dem. AI:n omvandlar varje teckning till en lista med tal – en <strong>vektor</strong> – som beskriver var det finns bläck och var det är tomt. När ni sedan ritar något nytt letar AI:n upp de <strong>k</strong> mest lika teckningarna den känner till och röstar: &quot;flest av mina grannar var cirklar, så det här är nog en cirkel&quot;.</p>
+  </div>
+
+  <!-- STEG 1: TRÄNA -->
+  <div class="lab-panel">
+    <span class="step-label">Steg 1 · Träna</span>
+    <h3>Rita minst 3 exempel per klass</h3>
+    <p class="instruction" style="font-size:0.85rem;color:var(--color-text-muted);margin-bottom:1rem">Fler och mer varierade exempel (olika storlek, vinkel, tjocklek) ger en säkrare AI. Byt gärna ritare mellan varje exempel!</p>
+
+    <div class="step-grid classes" id="classes-container"></div>
+
+    <button class="add-class-btn" id="add-class-btn" style="margin-top:1rem">+ Lägg till en tredje klass</button>
+  </div>
+
+  <!-- STEG 2: TESTA -->
+  <div class="lab-panel" style="margin-top:1.5rem">
+    <span class="step-label">Steg 2 · Testa</span>
+    <h3>Rita något nytt – se AI:n gissa live</h3>
+
+    <div class="test-area">
+      <div class="test-canvas-wrap">
+        <canvas id="test-pad" width="280" height="280"></canvas>
+        <div class="test-overlay" id="test-overlay">Lägg till minst 2 exempel per klass i steg 1 innan du testar här.</div>
+      </div>
+
+      <div class="vision-box">
+        <canvas id="vision-canvas" width="90" height="90"></canvas>
+        <p>Så här &quot;ser&quot; AI:n bilden – varje ruta är ett tal mellan 0 och 1.</p>
+      </div>
+
+      <div class="predict-col">
+        <div class="predict-headline" id="predict-headline">Rita något i rutan till vänster →</div>
+        <div id="vote-bars"></div>
+
+        <div class="k-control">
+          <label for="k-slider"><span>Antal grannar som röstar (k)</span> <span id="k-value">3</span></label>
+          <input type="range" id="k-slider" min="1" max="9" value="3" step="1">
+          <p class="k-note" id="k-note">Med lågt k lyssnar AI:n bara på sin allra närmsta granne – snabbt men känsligt för konstiga exempel (överanpassning). Med högt k jämnar den ut rösterna men kan missa finare skillnader (underanpassning). Prova att dra reglaget!</p>
+        </div>
+
+        <div class="neighbors-box" id="neighbors-box"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="top-actions">
+    <button class="btn btn-ghost" id="reset-all-btn">↺ Nollställ hela AI:n</button>
+  </div>
+
+  <div class="challenge-box">
+    <h3>🚀 Utmaningar att prova tillsammans i klassrummet</h3>
+    <ol>
+      <li>Hur få exempel klarar ni er med innan AI:n gissar rätt varje gång? Ta bort exempel och se när den börjar gissa fel.</li>
+      <li>Låt två elever rita samma symbol på helt olika sätt (stor/liten, snabb/långsam). Klarar AI:n båda ändå?</li>
+      <li>Dra k-reglaget till 1 och sedan till 9 – vad händer med gissningarna och säkerheten? Koppla till <em>överanpassning</em> och <em>underanpassning</em> i kapitel 4.</li>
+      <li>Lägg till en tredje klass och rita något tvetydigt, mitt emellan två kategorier. Vad röstar grannarna på då?</li>
+      <li>Diskutera: Vad är skillnaden mellan den här AI:n och en app som Bildigenkänning i mobilen? Vad har de gemensamt (träningsdata, etiketter, klassificering) och vad saknas här (miljontals bilder, inlärda mönster i stället för råa pixlar, djupinlärning)?</li>
+    </ol>
+  </div>
+
+  <div class="recap-box">
+    <p><strong>Vad hände just nu?</strong> Ni gjorde alla stegen i övervakad inlärning för hand: samlade <strong>träningsdata</strong> med <strong>etiketter</strong>, omvandlade den till talvektorer (<strong>features</strong>), och lät en algoritm (<strong>kNN</strong>) hitta en <strong>beslutsgräns</strong> mellan klasserna utifrån <strong>euklidiskt avstånd</strong>. Riktiga bild-AI:er (t.ex. CNN, se kapitel 4) gör i grunden samma sak, fast med miljontals exempel och betydligt smartare features än råa pixlar.</p>
+  </div>
+
+  <p style="margin-top:2rem"><a href="kapitel-04.html">← Tillbaka till kapitel 4: Tekniken bakom AI – Inlärning</a></p>
+
+</main>
+
+<script src="script.js"></script>
+<script>
+'use strict';
+
+/* ============================================================
+   BYGG EN AI – kNN-labb (helt klientbaserat, inga externa API:er)
+   ============================================================ */
+
+const GRID = 18;                 // nedskalad upplösning (18x18 = 324 "features")
+const PAD_SIZE = 120;             // px, träningsritytor
+const TEST_SIZE = 280;            // px, testrityta
+const MAX_CLASSES = 4;
+const MIN_EXAMPLES_PER_CLASS_RECOMMENDED = 3;
+
+const PALETTE = [
+  { color: 'var(--color-primary)', hex: '#2563eb' },
+  { color: 'var(--color-error)',   hex: '#dc2626' },
+  { color: 'var(--color-success)', hex: '#059669' },
+  { color: 'var(--color-warning)', hex: '#d97706' }
+];
+
+let classes = [
+  { id: 1, name: 'Cirkel ⭕', examples: [] },
+  { id: 2, name: 'Kryss ❌', examples: [] }
+];
+let nextClassId = 3;
+
+const classesContainer = document.getElementById('classes-container');
+const addClassBtn = document.getElementById('add-class-btn');
+const testPad = document.getElementById('test-pad');
+const testCtx = testPad.getContext('2d');
+const testOverlay = document.getElementById('test-overlay');
+const visionCanvas = document.getElementById('vision-canvas');
+const visionCtx = visionCanvas.getContext('2d');
+const predictHeadline = document.getElementById('predict-headline');
+const voteBars = document.getElementById('vote-bars');
+const neighborsBox = document.getElementById('neighbors-box');
+const kSlider = document.getElementById('k-slider');
+const kValueLabel = document.getElementById('k-value');
+const kNote = document.getElementById('k-note');
+const resetAllBtn = document.getElementById('reset-all-btn');
+
+function colorFor(index) { return PALETTE[index % PALETTE.length]; }
+
+/* ---------- Rityta: gemensam pekar-/mus-/pekskärmslogik ---------- */
+function makeDrawable(canvas, lineWidth, onStroke) {
+  const ctx = canvas.getContext('2d');
+  fillWhite(ctx, canvas);
+  let drawing = false;
+  let last = null;
+
+  function pos(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (evt.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (evt.clientY - rect.top) * (canvas.height / rect.height);
+    return { x, y };
+  }
+
+  function start(evt) {
+    evt.preventDefault();
+    drawing = true;
+    last = pos(evt);
+    ctx.beginPath();
+    ctx.arc(last.x, last.y, lineWidth / 2, 0, Math.PI * 2);
+    ctx.fillStyle = '#000';
+    ctx.fill();
+    if (onStroke) onStroke();
+  }
+  function move(evt) {
+    if (!drawing) return;
+    evt.preventDefault();
+    const p = pos(evt);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(last.x, last.y);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    last = p;
+    if (onStroke) onStroke();
+  }
+  function end(evt) {
+    if (!drawing) return;
+    drawing = false;
+    if (onStroke) onStroke(true);
+  }
+
+  canvas.addEventListener('pointerdown', start);
+  canvas.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', end);
+  canvas.style.touchAction = 'none';
+
+  return ctx;
+}
+
+function fillWhite(ctx, canvas) {
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function isBlank(canvas) {
+  const ctx = canvas.getContext('2d');
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  for (let i = 0; i < data.length; i += 4 * 17) {
+    if (data[i] < 250 || data[i + 1] < 250 || data[i + 2] < 250) return false;
+  }
+  return true;
+}
+
+/* ---------- Downsampling: canvas -> vektor med GRID*GRID tal (0-1) ---------- */
+const dsCanvas = document.createElement('canvas');
+dsCanvas.width = GRID; dsCanvas.height = GRID;
+const dsCtx = dsCanvas.getContext('2d');
+
+function toVector(sourceCanvas) {
+  dsCtx.fillStyle = '#fff';
+  dsCtx.fillRect(0, 0, GRID, GRID);
+  dsCtx.drawImage(sourceCanvas, 0, 0, GRID, GRID);
+  const data = dsCtx.getImageData(0, 0, GRID, GRID).data;
+  const vec = new Float32Array(GRID * GRID);
+  for (let i = 0, p = 0; i < data.length; i += 4, p++) {
+    const luminance = (data[i] + data[i + 1] + data[i + 2]) / 3 / 255;
+    vec[p] = 1 - luminance; // bläck = 1, tomt = 0
+  }
+  return vec;
+}
+
+function euclidean(a, b) {
+  let sum = 0;
+  for (let i = 0; i < a.length; i++) { const d = a[i] - b[i]; sum += d * d; }
+  return Math.sqrt(sum);
+}
+
+/* ---------- Rendera klasskort (Steg 1) ---------- */
+function renderClasses() {
+  classesContainer.innerHTML = '';
+  classes.forEach((cls, idx) => {
+    const pal = colorFor(idx);
+    const card = document.createElement('div');
+    card.className = 'class-card';
+    card.style.setProperty('--class-color', pal.hex);
+
+    card.innerHTML = `
+      <div class="class-header">
+        <span class="class-dot"></span>
+        <input class="class-name-input" value="${escapeAttr(cls.name)}" aria-label="Namn på klass" maxlength="24">
+        ${classes.length > 2 ? '<button class="remove-class-btn" title="Ta bort klass" aria-label="Ta bort klass">✕</button>' : ''}
+      </div>
+      <div class="pad-row">
+        <canvas class="draw-pad" width="${PAD_SIZE}" height="${PAD_SIZE}"></canvas>
+        <div class="pad-btns">
+          <button class="btn btn-primary btn-sm add-example-btn">+ Lägg till exempel</button>
+          <button class="btn btn-sm clear-pad-btn">Rensa ritning</button>
+          <button class="btn btn-sm undo-example-btn">Ångra senaste</button>
+        </div>
+      </div>
+      <p class="example-count"></p>
+      <div class="thumb-strip"></div>
+    `;
+
+    const nameInput = card.querySelector('.class-name-input');
+    nameInput.addEventListener('input', () => { cls.name = nameInput.value || cls.name; updatePredictionUI(); });
+
+    const removeBtn = card.querySelector('.remove-class-btn');
+    if (removeBtn) {
+      removeBtn.addEventListener('click', () => {
+        classes = classes.filter(c => c.id !== cls.id);
+        renderClasses();
+        updateAddClassBtn();
+        updatePredictionUI();
+      });
+    }
+
+    const pad = card.querySelector('.draw-pad');
+    makeDrawable(pad, 9, null);
+
+    card.querySelector('.clear-pad-btn').addEventListener('click', () => {
+      const ctx = pad.getContext('2d');
+      fillWhite(ctx, pad);
+    });
+
+    card.querySelector('.add-example-btn').addEventListener('click', () => {
+      if (isBlank(pad)) return;
+      const vec = toVector(pad);
+      cls.examples.push({ vec, thumb: pad.toDataURL() });
+      const ctx = pad.getContext('2d');
+      fillWhite(ctx, pad);
+      updateCardMeta(card, cls);
+      updatePredictionUI();
+    });
+
+    card.querySelector('.undo-example-btn').addEventListener('click', () => {
+      cls.examples.pop();
+      updateCardMeta(card, cls);
+      updatePredictionUI();
+    });
+
+    classesContainer.appendChild(card);
+    updateCardMeta(card, cls);
+  });
+}
+
+function updateCardMeta(card, cls) {
+  const countEl = card.querySelector('.example-count');
+  const n = cls.examples.length;
+  countEl.textContent = n >= MIN_EXAMPLES_PER_CLASS_RECOMMENDED
+    ? `✓ ${n} exempel – redo!`
+    : `${n} exempel (minst ${MIN_EXAMPLES_PER_CLASS_RECOMMENDED} rekommenderas)`;
+  countEl.classList.toggle('ready', n >= MIN_EXAMPLES_PER_CLASS_RECOMMENDED);
+
+  const strip = card.querySelector('.thumb-strip');
+  strip.innerHTML = '';
+  cls.examples.forEach(ex => {
+    const img = document.createElement('img');
+    img.src = ex.thumb;
+    img.alt = '';
+    strip.appendChild(img);
+  });
+}
+
+function escapeAttr(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function updateAddClassBtn() {
+  addClassBtn.disabled = classes.length >= MAX_CLASSES;
+  addClassBtn.textContent = classes.length >= MAX_CLASSES
+    ? 'Max antal klasser nått'
+    : `+ Lägg till en ${classes.length === 2 ? 'tredje' : 'fjärde'} klass`;
+}
+
+addClassBtn.addEventListener('click', () => {
+  if (classes.length >= MAX_CLASSES) return;
+  const names = ['Fyrkant ▢', 'Stjärna ★'];
+  classes.push({ id: nextClassId++, name: names[classes.length - 2] || `Klass ${classes.length + 1}`, examples: [] });
+  renderClasses();
+  updateAddClassBtn();
+});
+
+resetAllBtn.addEventListener('click', () => {
+  if (!confirm('Nollställa alla klasser och exempel?')) return;
+  classes = [
+    { id: 1, name: 'Cirkel ⭕', examples: [] },
+    { id: 2, name: 'Kryss ❌', examples: [] }
+  ];
+  nextClassId = 3;
+  renderClasses();
+  updateAddClassBtn();
+  fillWhite(testCtx, testPad);
+  updatePredictionUI();
+});
+
+/* ---------- Steg 2: Testyta ---------- */
+makeDrawable(testPad, 16, (final) => scheduleUpdate());
+
+let rafPending = false;
+function scheduleUpdate() {
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => { rafPending = false; updatePredictionUI(); });
+}
+
+kSlider.addEventListener('input', () => {
+  kValueLabel.textContent = kSlider.value;
+  updatePredictionUI();
+});
+
+function totalExamples() { return classes.reduce((s, c) => s + c.examples.length, 0); }
+function classesReady() { return classes.every(c => c.examples.length >= 2) && classes.length >= 2; }
+
+function updatePredictionUI() {
+  const ready = classesReady();
+  testOverlay.style.display = ready ? 'none' : 'flex';
+
+  // Rita "AI:ns syn" av testrutan
+  const testEmpty = isBlank(testPad);
+  visionCtx.fillStyle = '#fff';
+  visionCtx.fillRect(0, 0, visionCanvas.width, visionCanvas.height);
+
+  if (!ready || testEmpty) {
+    predictHeadline.textContent = ready ? 'Rita något i rutan till vänster →' : '';
+    voteBars.innerHTML = '';
+    neighborsBox.innerHTML = '';
+    return;
+  }
+
+  const vec = toVector(testPad);
+  drawVision(vec);
+
+  const kRequested = parseInt(kSlider.value, 10);
+  const kEffective = Math.min(kRequested, totalExamples());
+
+  const all = [];
+  classes.forEach((c, idx) => c.examples.forEach(ex => all.push({ dist: euclidean(vec, ex.vec), cls: c, idx, thumb: ex.thumb })));
+  all.sort((a, b) => a.dist - b.dist);
+  const nearest = all.slice(0, kEffective);
+
+  const votes = new Map();
+  classes.forEach(c => votes.set(c.id, 0));
+  nearest.forEach(n => votes.set(n.cls.id, votes.get(n.cls.id) + 1));
+
+  let winner = classes[0];
+  classes.forEach(c => { if (votes.get(c.id) > votes.get(winner.id)) winner = c; });
+
+  const winnerVotes = votes.get(winner.id);
+  const winnerColorIdx = classes.indexOf(winner);
+  const winnerHex = colorFor(winnerColorIdx).hex;
+
+  if (winnerVotes === Math.floor(kEffective / classes.length) && classes.length > 2 && new Set([...votes.values()]).size === 1) {
+    predictHeadline.innerHTML = `<span class="emoji">🤔</span> Oavgjort – lika många röster på flera klasser!`;
+  } else {
+    predictHeadline.innerHTML = `<span class="emoji">🎯</span> AI:n gissar: <span style="color:${winnerHex}">${escapeAttr(winner.name)}</span>`;
+  }
+
+  voteBars.innerHTML = '';
+  classes.forEach((c, idx) => {
+    const pal = colorFor(idx);
+    const v = votes.get(c.id) || 0;
+    const pct = kEffective > 0 ? Math.round((v / kEffective) * 100) : 0;
+    const row = document.createElement('div');
+    row.className = 'vote-row';
+    row.innerHTML = `
+      <div class="vote-label"><span>${escapeAttr(c.name)}</span><span>${v}/${kEffective} grannar (${pct}%)</span></div>
+      <div class="vote-track"><div class="vote-fill" style="width:${pct}%;background:${pal.hex}"></div></div>
+    `;
+    voteBars.appendChild(row);
+  });
+
+  // Grannar
+  neighborsBox.innerHTML = '<p class="label">Närmaste exempel AI:n jämförde med:</p>';
+  nearest.forEach(n => {
+    const pal = colorFor(classes.indexOf(n.cls));
+    const wrap = document.createElement('span');
+    wrap.className = 'neighbor-thumb';
+    wrap.style.setProperty('--nb-color', pal.hex);
+    wrap.innerHTML = `<img src="${n.thumb}" alt=""><span>${n.dist.toFixed(1)}</span>`;
+    neighborsBox.appendChild(wrap);
+  });
+
+  // k-varningar
+  if (kRequested > totalExamples()) {
+    kNote.textContent = `k = ${kRequested} men ni har bara ${totalExamples()} exempel totalt – AI:n använder alla ${kEffective} den har (underanpassning: den ser i princip bara den vanligaste klassen).`;
+    kNote.classList.add('warn');
+  } else if (kRequested === 1) {
+    kNote.textContent = 'k = 1: AI:n litar blint på sin enda närmsta granne. Snabbt, men om just det exemplet var konstigt (t.ex. felritat) blir gissningen fel – ett tecken på överanpassning.';
+    kNote.classList.add('warn');
+  } else {
+    kNote.textContent = 'Prova att dra reglaget till max och till 1 – se hur gissningen och säkerheten ändras.';
+    kNote.classList.remove('warn');
+  }
+}
+
+function drawVision(vec) {
+  const cell = visionCanvas.width / GRID;
+  visionCtx.fillStyle = '#fff';
+  visionCtx.fillRect(0, 0, visionCanvas.width, visionCanvas.height);
+  for (let y = 0; y < GRID; y++) {
+    for (let x = 0; x < GRID; x++) {
+      const v = vec[y * GRID + x];
+      if (v > 0.03) {
+        visionCtx.fillStyle = `rgba(37,99,235,${Math.min(1, v)})`;
+        visionCtx.fillRect(x * cell, y * cell, cell, cell);
+      }
+    }
+  }
+}
+
+/* ---------- Init ---------- */
+renderClasses();
+updateAddClassBtn();
+updatePredictionUI();
+</script>
+</body>
+</html>
