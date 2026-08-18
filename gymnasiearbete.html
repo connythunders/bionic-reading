@@ -644,6 +644,16 @@ select.field{ cursor:pointer }
         <p>Gymnasiearbetet styrs nationellt av Skolverket, men <strong>varje skola bestämmer sina egna formaliakrav</strong> – mall, typsnitt, referenssystem, omfång och deadlines. Handboken beskriver det som är vanligast och det som gäller nationellt. Krockar något med din skolas mall, så är det <strong>skolans mall som gäller</strong>.</p>
       </div>
 
+      <div class="notice no-print" id="program-valjare">
+        <h2>Vilket program läser du?</h2>
+        <p>Välj Ekonomi- eller Samhällsvetenskapsprogrammet, så lyfts exempel och tips som passar din inriktning fram i texten. Går du ett annat program, eller vill du se allt? Välj "Alla program".</p>
+        <div class="segmented" role="group" aria-label="Välj program" data-set="program" style="margin-top:.7rem">
+          <button data-val="alla" aria-pressed="true">Alla program</button>
+          <button data-val="ek" aria-pressed="false">Ekonomiprogrammet</button>
+          <button data-val="sam" aria-pressed="false">Samhällsvetenskapsprogrammet</button>
+        </div>
+      </div>
+
       <div class="prose" id="prose">
 <h2 id="kap-grunderna">Vad är gymnasiearbetet?</h2>
 <p class="lead">Gymnasiearbetet är ett eget arbete på 100 poäng som du gör i slutet av gymnasiet. Det är ett kvitto på att du är förberedd för det som kommer efter – högskolestudier eller arbete inom ditt yrkesområde.</p>
@@ -861,6 +871,16 @@ Tack!
   <li><strong>Utgå från ett problem på APL-platsen.</strong> Fråga din handledare på arbetsplatsen: "Vad krånglar här som ingen hinner fixa?" Svaret är ofta ett färdigt gymnasiearbete: en checklista, en instruktion, en produkt.</li>
 </ol>
 
+<div class="callout tip" data-program-only="ek">
+  <h4>Ämnesspår för dig på Ekonomiprogrammet</h4>
+  <p>Utgå gärna från företagsekonomi, juridik eller privatekonomi: en lokal butik eller förening, ett konsumenträttsfall, en kommunal budget eller en jämförelse mellan företags hållbarhetsredovisningar. Koppla ämnet till examensmålen för din inriktning, Ekonomi eller Juridik.</p>
+</div>
+
+<div class="callout tip" data-program-only="sam">
+  <h4>Ämnesspår för dig på Samhällsvetenskapsprogrammet</h4>
+  <p>Utgå gärna från statskunskap, sociologi, psykologi eller medier: en attitydundersökning på skolan, en analys av lokal politik, eller en jämförelse mellan hur olika medier rapporterar samma händelse. Koppla ämnet till examensmålen för din inriktning, Samhällsvetenskap eller Beteendevetenskap.</p>
+</div>
+
 <div class="callout warn">
   <h4>Vanligt misstag</h4>
   <p>Fyra ämnesfällor: ämnet är för brett ("psykisk ohälsa bland unga"), ämnet är för smalt så det tar slut efter två sidor, ämnet saknar källor helt, eller ämnet kräver data du aldrig kommer få tag på (patientjournaler, företagshemligheter, intervjuer med personer som inte svarar).</p>
@@ -921,22 +941,22 @@ Jag förväntar mig att [X] eftersom [kort motivering].</pre>
   <div class="example-good"><h4>Bättre</h4><p>Naturvetenskap: Hur mycket mikroplast finns i vattenprover tagna på tre platser längs Motala ström, och skiljer sig halterna mellan platser uppströms och nedströms reningsverket?</p></div>
 </div>
 
-<div class="example">
+<div class="example" data-program-only="sam">
   <div class="example-bad"><h4>Svagt</h4><p>Samhällsvetenskap: Vad tycker unga om politik?</p></div>
   <div class="example-good"><h4>Bättre</h4><p>Samhällsvetenskap: Vilka skäl uppger elever i årskurs 3 på min skola för att de tänker rösta eller avstå i riksdagsvalet, och skiljer sig skälen mellan yrkesprogram och högskoleförberedande program?</p></div>
 </div>
 
-<div class="example">
+<div class="example" data-program-only="ek">
   <div class="example-bad"><h4>Svagt</h4><p>Ekonomi: Hur påverkar inflationen samhället?</p></div>
   <div class="example-good"><h4>Bättre</h4><p>Ekonomi: Hur förändrades priset på tio basvaror i tre livsmedelsbutiker i min kommun mellan 2024 och 2026, jämfört med den officiella statistiken?</p></div>
 </div>
 
-<div class="example">
+<div class="example" data-program-only="vard">
   <div class="example-bad"><h4>Svagt</h4><p>Vård och omsorg: Hur gör man bra bemötande på ett äldreboende?</p></div>
   <div class="example-good"><h4>Bättre</h4><p>Vård och omsorg: Vilka moment i morgonrutinen upplever personalen på min APL-plats som mest tidskritiska, och hur kan en checklista utformad utifrån deras svar stödja de momenten?</p></div>
 </div>
 
-<div class="example">
+<div class="example" data-program-only="bygg">
   <div class="example-bad"><h4>Svagt</h4><p>Bygg och anläggning: Vilket isoleringsmaterial är bäst?</p></div>
   <div class="example-good"><h4>Bättre</h4><p>Bygg och anläggning: Hur skiljer sig materialkostnad och monteringstid mellan mineralull och cellulosaisolering vid isolering av en provvägg på 2 kvadratmeter?</p></div>
 </div>
@@ -2716,7 +2736,8 @@ const SETTINGS = {
   width:{ attr:'data-width', def:'normal' },
   font:{ attr:'data-font', def:'system' },
   spacing:{ attr:'data-spacing', def:'0' },
-  theme:{ attr:'data-theme', def:'ljus' }
+  theme:{ attr:'data-theme', def:'ljus' },
+  program:{ attr:'data-program', def:'alla' }
 };
 const TOGGLES = { focus:'data-focus', ruler:'data-ruler', motion:'data-motion' };
 
@@ -2726,10 +2747,17 @@ function applySetting(key, val, save=true){
   $$('[data-set="'+key+'"] button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.val===val)));
   if(save) store.set(key, val);
   if(key==='bionic') renderBionic(parseInt(val,10)||0);
+  if(key==='program') filterProgram(val);
   if(key==='theme'){
     const meta = document.querySelector('meta[name="theme-color"]');
     if(meta) meta.setAttribute('content', getComputedStyle(document.body).backgroundColor);
   }
+}
+function filterProgram(val){
+  $$('[data-program-only]').forEach(el => {
+    const progs = el.dataset.programOnly.split(/\s+/);
+    el.style.display = (val !== 'alla' && !progs.includes(val)) ? 'none' : '';
+  });
 }
 function applyToggle(key, on, save=true){
   document.documentElement.setAttribute(TOGGLES[key], on ? (key==='motion' ? 'lugn' : '1') : '');
@@ -2820,6 +2848,7 @@ function renderBionic(level){
   prose.replaceChildren(...Array.from(fresh.childNodes));
   if(level > 0) bionify(prose, level);
   enhanceProse();
+  filterProgram(document.documentElement.getAttribute('data-program') || SETTINGS.program.def);
 }
 
 /* ============================================================
