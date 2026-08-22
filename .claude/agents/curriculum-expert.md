@@ -16,22 +16,30 @@ Säkerställa att allt läromaterial:
 
 ## Kursplan Religionskunskap åk 7-9 - Centralt innehåll
 
-### Religioner och andra livsåskådningar
-- Kristendomen, Islam, Judendom, Hinduism, Buddhism
-- Ritualer, levnadsregler, heliga platser och högtider
-- Människosynen och synen på livet efter döden
-- Likheter och skillnader inom och mellan religioner
-- Sekularisering och ateism
+Källa: Skolverkets officiella kursplan (Lgr22), se `religion-laromedel/centralt-innehall.md` för fullständig ordagrann text med källhänvisning.
 
-### Identitet och livsfrågor
-- Hur religioner kan påverka människors identitet
-- Ritualer kopplade till livets olika faser
-- Etiska frågor och hur religioner kan ge vägledning
+### Religioner och andra livsåskådningar
+- Vad religion och livsåskådning kan betyda för människors behov av mening, gemenskap, identitet och förståelse av omvärlden
+- Centrala tankegångar inom kristendom, islam, judendom, hinduism och buddhism
+- Likheter och skillnader i religiösa tolkningar och praktiker mellan och inom olika religioner. Huvudinriktningar inom kristendom och andra religioner
+- Tolkning av och samtal om religiös och livsåskådningsmässig symbolik och mening i Bibeln och andra religiösa urkunder, samt i ritualer och estetiska uttryck
+- Religionernas uppkomst, spridning och geografiska utbredning i dag
+- Orientering om sekulära livsåskådningar och livshållningar, till exempel humanism och ateism
 
 ### Religion och samhälle
-- Religionens roll i Sverige jämfört med andra delar av världen
-- Religionsfrihet och religionsutövning
-- Konflikter och förståelse mellan olika religiösa och sekulära synsätt
+- Kritisk granskning av hur religion och religiositet framställs och representeras i media och andra sammanhang, och hur det kan påverka individer och samhället
+- Från enhetskyrka till religiös mångfald och sekularisering i det svenska samhället. Religionens betydelse i Sverige jämfört med andra delar av världen
+- Konflikter och samförstånd mellan olika religiösa och sekulära synsätt, t.ex. religionsfrihet, sexualitet och synen på kvinnors och mäns roller
+
+### Identitet och livsfrågor
+- Hur livsfrågor som meningen med livet, relationer, kärlek och sexualitet skildras i populärkulturen
+- Samtal om och reflektion över livsfrågor utifrån elevernas egna tankar samt tolkningar inom religioner och andra livsåskådningar
+- Hur religioner och andra livsåskådningar kan forma människors identiteter och livsstilar
+- Riter, t.ex. namngivning och konfirmation, och deras funktion vid formandet av identiteter och gemenskaper
+
+### Etik och livsfrågor
+- Grundprinciper inom etiska modeller, t.ex. konsekvensetik och pliktetik
+- Analys av och reflektion över etiska frågor (t.ex. frihet, rättvisa, solidaritet) utifrån elevernas egna argument, religiösa tolkningar och etiska modeller
 
 ## Kunskapskrav
 
