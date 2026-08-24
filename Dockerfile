@@ -4,6 +4,7 @@ FROM nginx:alpine
 # Kopiera alla statiska filer till NGINX
 COPY index.html /usr/share/nginx/html/
 COPY adaptivt-prov.html /usr/share/nginx/html/
+COPY adaptivt-prov-resultat.html /usr/share/nginx/html/
 COPY quiz-standalone.html /usr/share/nginx/html/
 COPY css/ /usr/share/nginx/html/css/
 COPY js/ /usr/share/nginx/html/js/

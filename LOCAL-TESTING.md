@@ -20,6 +20,7 @@ git pull origin claude/build-from-image-deUKq
 Dubbelklicka på någon av dessa filer i Utforskaren/Finder:
 - `index.html`
 - `adaptivt-prov.html`
+- `adaptivt-prov-resultat.html`
 - `quiz-standalone.html`
 
 **Alternativ B - Med Python:**

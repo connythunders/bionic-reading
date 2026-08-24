@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provresultat - Adaptiv Provplattform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 { color: #667eea; margin-bottom: 10px; }
+        .subtitle { color: #666; margin-bottom: 25px; }
+
+        a.back-link { color: #667eea; text-decoration: none; font-weight: 600; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95em;
+        }
+
+        th { color: #667eea; }
+
+        tr.session-row { cursor: pointer; }
+        tr.session-row:hover { background: #f8f9fa; }
+
+        .status { display: none; padding: 15px; border-radius: 10px; margin: 15px 0; }
+        .status.error { display: block; background: #f8d7da; color: #721c24; }
+        .status.info { display: block; background: #e8f4f8; color: #333; }
+
+        .detail-panel {
+            display: none;
+            margin-top: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .detail-panel.open { display: block; }
+
+        .answer-card {
+            background: white;
+            border-left: 5px solid #667eea;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+        }
+
+        .answer-card h4 { color: #333; margin-bottom: 8px; }
+        .answer-card p { color: #555; white-space: pre-wrap; }
+        .badge {
+            display: inline-block;
+            font-size: 0.8em;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: #e0e0e0;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a class="back-link" href="adaptivt-prov.html">&larr; Tillbaka till provplattformen</a>
+        <h1>📊 Provresultat</h1>
+        <p class="subtitle">Sparade adaptiva prov och elevsvar.</p>
+
+        <div id="status" class="status"></div>
+
+        <table id="sessionsTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Elev</th>
+                    <th>Ämne</th>
+                    <th>Provämne</th>
+                    <th>Årskurs</th>
+                    <th>Frågor</th>
+                    <th>Högsta nivå</th>
+                    <th>Klart</th>
+                    <th>Datum</th>
+                </tr>
+            </thead>
+            <tbody id="sessionsBody"></tbody>
+        </table>
+
+        <div id="detailPanel" class="detail-panel"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = `${window.location.protocol}//${window.location.hostname}:3000`;
+        const difficultyNames = ['Lätt', 'Medel', 'Svår'];
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text ?? '';
+            return div.innerHTML;
+        }
+
+        async function loadSessions() {
+            const statusEl = document.getElementById('status');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/adaptive-exam/sessions`);
+                if (!response.ok) throw new Error('Kunde inte hämta provsessioner');
+                const sessions = await response.json();
+
+                if (sessions.length === 0) {
+                    statusEl.className = 'status info';
+                    statusEl.textContent = 'Inga sparade prov ännu.';
+                    return;
+                }
+
+                const tbody = document.getElementById('sessionsBody');
+                tbody.innerHTML = sessions.map(s => `
+                    <tr class="session-row" onclick="showDetail(${s.id})">
+                        <td>${escapeHtml(s.student_name)}</td>
+                        <td>${escapeHtml(s.subject)}</td>
+                        <td>${escapeHtml(s.topic)}</td>
+                        <td>${escapeHtml(String(s.grade))}</td>
+                        <td>${s.answered_questions ?? 0}</td>
+                        <td>${difficultyNames[s.max_difficulty] ?? '-'}</td>
+                        <td>${s.finished_at ? '✅' : '⏳ Pågår'}</td>
+                        <td>${new Date(s.created_at).toLocaleString('sv-SE')}</td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('sessionsTable').style.display = 'table';
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = '⚠️ Kunde inte nå servern. Kontrollera att backend körs (se docker-compose).';
+            }
+        }
+
+        async function showDetail(sessionId) {
+            const panel = document.getElementById('detailPanel');
+            panel.classList.add('open');
+            panel.innerHTML = '<p>Laddar...</p>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/adaptive-exam/sessions/${sessionId}`);
+                if (!response.ok) throw new Error('Kunde inte hämta provsessionen');
+                const data = await response.json();
+
+                const answersHtml = data.answers.map(a => `
+                    <div class="answer-card">
+                        <h4>${escapeHtml(a.question)} <span class="badge">${difficultyNames[a.difficulty] ?? '-'}</span></h4>
+                        <p>${escapeHtml(a.answer)}</p>
+                    </div>
+                `).join('') || '<p>Inga svar sparade för denna session.</p>';
+
+                panel.innerHTML = `
+                    <h3>${escapeHtml(data.session.student_name)} - ${escapeHtml(data.session.topic)}</h3>
+                    <p style="color:#666; margin: 8px 0 20px;">
+                        ${escapeHtml(data.session.subject)} · Årskurs ${escapeHtml(String(data.session.grade))} ·
+                        ${data.session.exam_mode === 'text' ? 'Textbaserat' : 'Ämnesbaserat'} prov
+                    </p>
+                    ${answersHtml}
+                `;
+            } catch (error) {
+                panel.innerHTML = '<p>⚠️ Kunde inte hämta provets svar.</p>';
+            }
+        }
+
+        loadSessions();
+    </script>
+</body>
+</html>

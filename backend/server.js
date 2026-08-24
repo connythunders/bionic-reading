@@ -34,6 +34,7 @@ app.locals.pool = pool;
 
 // Import routes
 const quizRoutes = require('./routes/quiz');
+const adaptiveExamRoutes = require('./routes/adaptiveExam');
 
 // Routes
 app.get('/api/health', (req, res) => {
@@ -42,6 +43,9 @@ app.get('/api/health', (req, res) => {
 
 // AI Quiz routes
 app.use('/api/quiz', quizRoutes);
+
+// Adaptiv provplattform routes
+app.use('/api/adaptive-exam', adaptiveExamRoutes);
 
 // Hämta alla quiz-resultat
 app.get('/api/results', async (req, res) => {

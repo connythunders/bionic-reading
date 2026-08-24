@@ -55,5 +55,36 @@ CREATE INDEX idx_documents_uploaded ON documents(uploaded_at DESC);
 CREATE INDEX idx_quiz_sessions_document ON quiz_sessions(document_id);
 CREATE INDEX idx_ai_quiz_results_session ON ai_quiz_results(quiz_session_id);
 
+-- Tabell för adaptiva provsessioner
+CREATE TABLE IF NOT EXISTS adaptive_exam_sessions (
+    id SERIAL PRIMARY KEY,
+    student_name VARCHAR(255) NOT NULL,
+    subject VARCHAR(50) NOT NULL,
+    grade INTEGER NOT NULL,
+    exam_mode VARCHAR(10) NOT NULL,
+    topic VARCHAR(500) NOT NULL,
+    source_text TEXT,
+    time_limit_minutes INTEGER NOT NULL,
+    answered_questions INTEGER DEFAULT 0,
+    max_difficulty INTEGER DEFAULT 0,
+    time_used_seconds INTEGER,
+    finished_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabell för elevsvar i adaptiva prov
+CREATE TABLE IF NOT EXISTS adaptive_exam_answers (
+    id SERIAL PRIMARY KEY,
+    session_id INTEGER REFERENCES adaptive_exam_sessions(id) ON DELETE CASCADE,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    difficulty INTEGER NOT NULL,
+    quality_score INTEGER,
+    answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_adaptive_exam_sessions_created ON adaptive_exam_sessions(created_at DESC);
+CREATE INDEX idx_adaptive_exam_answers_session ON adaptive_exam_answers(session_id);
+
 -- Visa tabellstruktur
 \d quiz_results
