@@ -1,9 +1,15 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Anthropic = require('@anthropic-ai/sdk');
+
+const MODEL = 'claude-opus-5';
 
 class AIEvaluator {
   constructor() {
-    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+    this.apiKey = process.env.ANTHROPIC_API_KEY;
+    this.enabled = Boolean(this.apiKey && this.apiKey !== 'your_api_key_here');
+
+    if (this.enabled) {
+      this.client = new Anthropic({ apiKey: this.apiKey });
+    }
   }
 
   /**
@@ -50,12 +56,23 @@ TON: Vänlig, professionell, uppmuntrande, personlig
 SPRÅK: Svenska
 FORMAT: Löpande text i paragrafer. INGEN markdown, INGA punktlistor, INGA rubriker.`;
 
-    try {
-      const result = await this.model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
+    if (!this.enabled) {
+      return this.generateFallbackFeedback(score, totalQuestions, percentage);
+    }
 
-      return text.trim();
+    try {
+      const response = await this.client.messages.create({
+        model: MODEL,
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }],
+      });
+
+      const textBlock = response.content.find(block => block.type === 'text');
+      if (!textBlock) {
+        throw new Error('AI-svaret innehöll ingen text');
+      }
+
+      return textBlock.text.trim();
     } catch (error) {
       console.error('AI Evaluation Error:', error);
       // Fallback feedback om AI-anropet misslyckas

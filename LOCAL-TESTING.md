@@ -43,6 +43,13 @@ npx http-server -p 8080
 **Förutsättningar:**
 - Docker Desktop installerat ([Ladda ner här](https://www.docker.com/products/docker-desktop/))
 
+**Aktivera AI-genererade frågor (valfritt men rekommenderat):**
+```bash
+cp .env.example .env
+# Öppna .env och klistra in din Anthropic API-nyckel (https://console.anthropic.com/settings/keys)
+```
+Utan nyckel fungerar allt fortfarande, men frågorna genereras från de inbyggda mallarna istället för AI.
+
 **Kör:**
 ```bash
 # Starta alla tjänster (PostgreSQL, Node.js, NGINX)

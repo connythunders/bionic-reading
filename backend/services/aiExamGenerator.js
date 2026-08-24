@@ -1,15 +1,22 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Anthropic = require('@anthropic-ai/sdk');
+const { z } = require('zod/v4');
+const { zodOutputFormat } = require('@anthropic-ai/sdk/helpers/zod');
 
 const DIFFICULTY_NAMES = ['Lätt', 'Medel', 'Svår'];
+const MODEL = 'claude-opus-5';
+
+const QuestionSchema = z.object({
+  question: z.string(),
+  hints: z.array(z.string()).length(3),
+});
 
 class AIExamGenerator {
   constructor() {
-    this.apiKey = process.env.GEMINI_API_KEY;
+    this.apiKey = process.env.ANTHROPIC_API_KEY;
     this.enabled = Boolean(this.apiKey && this.apiKey !== 'your_api_key_here');
 
     if (this.enabled) {
-      this.genAI = new GoogleGenerativeAI(this.apiKey);
-      this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+      this.client = new Anthropic({ apiKey: this.apiKey });
     }
   }
 
@@ -31,7 +38,7 @@ class AIExamGenerator {
    */
   async generateQuestion({ subject, topic, grade, difficulty, mode, sourceText, askedQuestions = [] }) {
     if (!this.enabled) {
-      throw new Error('AI är inte konfigurerad på servern (GEMINI_API_KEY saknas)');
+      throw new Error('AI är inte konfigurerad på servern (ANTHROPIC_API_KEY saknas)');
     }
 
     const difficultyText = DIFFICULTY_NAMES[difficulty] || DIFFICULTY_NAMES[1];
@@ -42,28 +49,18 @@ class AIExamGenerator {
       ? this.buildTextModePrompt({ subject, topic, difficultyText, gradeText, sourceText, previousQuestions })
       : this.buildTopicModePrompt({ subject, topic, difficultyText, gradeText, previousQuestions });
 
-    const result = await this.model.generateContent({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.9,
-        maxOutputTokens: 500,
-      },
+    const response = await this.client.messages.parse({
+      model: MODEL,
+      max_tokens: 2048,
+      messages: [{ role: 'user', content: prompt }],
+      output_config: { format: zodOutputFormat(QuestionSchema) },
     });
 
-    const response = await result.response;
-    const text = response.text();
-
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
+    if (!response.parsed_output) {
       throw new Error('Kunde inte tolka AI-svaret');
     }
 
-    const parsed = JSON.parse(jsonMatch[0]);
-    if (!parsed.question || !Array.isArray(parsed.hints)) {
-      throw new Error('AI-svaret saknar fråga eller ledtrådar');
-    }
-
-    return { question: parsed.question, hints: parsed.hints };
+    return response.parsed_output;
   }
 
   buildTopicModePrompt({ subject, topic, difficultyText, gradeText, previousQuestions }) {
@@ -91,13 +88,7 @@ UNDVIK:
 - Ja/nej-frågor
 - Frågor som kräver endast ett ord som svar
 
-Skapa också 3 SOKRATISKA ledtrådar som hjälper eleven att tänka själv (ge INTE svaret direkt).
-
-Svara i JSON-format:
-{
-  "question": "din öppna fråga här",
-  "hints": ["ledtråd 1", "ledtråd 2", "ledtråd 3"]
-}`;
+Skapa också 3 SOKRATISKA ledtrådar som hjälper eleven att tänka själv (ge INTE svaret direkt).`;
   }
 
   buildTextModePrompt({ subject, topic, difficultyText, gradeText, sourceText, previousQuestions }) {
@@ -131,13 +122,7 @@ UNDVIK:
 - fraser som "enligt texten", "använd exempel från texten", "citera texten"
 - be eleven referera till specifika delar eller citat
 
-Skapa också 3 SOKRATISKA ledtrådar som hjälper eleven minnas och resonera.
-
-Svara i JSON-format:
-{
-  "question": "din fråga baserad på texten",
-  "hints": ["ledtråd 1", "ledtråd 2", "ledtråd 3"]
-}`;
+Skapa också 3 SOKRATISKA ledtrådar som hjälper eleven minnas och resonera.`;
   }
 }
 

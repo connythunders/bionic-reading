@@ -1,18 +1,38 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Anthropic = require('@anthropic-ai/sdk');
+const { z } = require('zod/v4');
+const { zodOutputFormat } = require('@anthropic-ai/sdk/helpers/zod');
+
+const MODEL = 'claude-opus-5';
+
+const QuestionSchema = z.object({
+  question: z.string(),
+  options: z.array(z.string()).length(4),
+  correct: z.number().int().min(0).max(3),
+  topic: z.string(),
+  difficulty: z.enum(['easy', 'medium', 'hard']),
+});
 
 class AIQuizGenerator {
   constructor() {
-    this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+    this.apiKey = process.env.ANTHROPIC_API_KEY;
+    this.enabled = Boolean(this.apiKey && this.apiKey !== 'your_api_key_here');
+
+    if (this.enabled) {
+      this.client = new Anthropic({ apiKey: this.apiKey });
+    }
   }
 
   /**
-   * Genererar quiz-frågor från text med Google Gemini AI
+   * Genererar quiz-frågor från text med Claude
    * @param {string} text - Text att skapa quiz från
    * @param {number} questionCount - Antal frågor (standard: 25)
    * @returns {Promise<Array>} - Array av quiz-frågor
    */
   async generateQuiz(text, questionCount = 25) {
+    if (!this.enabled) {
+      throw new Error('AI är inte konfigurerad på servern (ANTHROPIC_API_KEY saknas)');
+    }
+
     // Begränsa textlängd för att undvika token limits
     const maxChars = 50000;
     const truncatedText = text.substring(0, maxChars);
@@ -32,104 +52,31 @@ KRAV:
 
 TOPICS: Identifiera 5-7 huvudteman i texten och fördela frågorna jämnt mellan dessa teman.
 
-FORMAT (strikt JSON):
-Returnera ENDAST en JSON-array med frågor enligt följande format. Ingen annan text före eller efter JSON:
-
-[
-  {
-    "question": "Tydlig fråga här?",
-    "options": ["Alternativ A", "Alternativ B", "Alternativ C", "Alternativ D"],
-    "correct": 0,
-    "topic": "Huvudtema",
-    "difficulty": "easy"
-  },
-  {
-    "question": "Nästa fråga?",
-    "options": ["Alt 1", "Alt 2", "Alt 3", "Alt 4"],
-    "correct": 2,
-    "topic": "Annat tema",
-    "difficulty": "medium"
-  }
-]
-
-difficulty kan vara: "easy", "medium", eller "hard"
-correct är index (0-3) för det korrekta svaret
+correct är index (0-3) för det korrekta svaret bland options.
 
 TEXT ATT SKAPA QUIZ FRÅN:
 ${truncatedText}
 
-Returnera ENDAST JSON-arrayen med exakt ${questionCount} frågor. Ingen annan text.`;
+Skapa exakt ${questionCount} frågor enligt kraven ovan.`;
 
     try {
-      const result = await this.model.generateContent(prompt);
-      const response = await result.response;
-      const content = response.text();
+      const response = await this.client.messages.parse({
+        model: MODEL,
+        max_tokens: 16000,
+        messages: [{ role: 'user', content: prompt }],
+        output_config: {
+          format: zodOutputFormat(z.object({ questions: z.array(QuestionSchema).length(questionCount) })),
+        },
+      });
 
-      const questions = this.parseQuestions(content, questionCount);
+      if (!response.parsed_output) {
+        throw new Error('Kunde inte tolka AI-svaret');
+      }
 
-      return questions;
+      return response.parsed_output.questions;
     } catch (error) {
       console.error('AI Quiz Generation Error:', error);
       throw new Error(`AI kunde inte generera quiz: ${error.message}`);
-    }
-  }
-
-  /**
-   * Parsar och validerar quiz-frågor från AI-svar
-   * @param {string} content - AI-svar
-   * @param {number} expectedCount - Förväntat antal frågor
-   * @returns {Array} - Validerade quiz-frågor
-   */
-  parseQuestions(content, expectedCount) {
-    try {
-      // Extrahera JSON från svaret
-      // Ta bort eventuella markdown code blocks
-      let cleanedContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-
-      // Försök först hitta JSON direkt
-      let jsonMatch = cleanedContent.match(/\[[\s\S]*\]/);
-
-      if (!jsonMatch) {
-        // Om ingen JSON hittas, kasta fel
-        throw new Error('Inget giltigt JSON-format hittades i AI-svaret');
-      }
-
-      const questions = JSON.parse(jsonMatch[0]);
-
-      // Validera att det är en array
-      if (!Array.isArray(questions)) {
-        throw new Error('Svaret är inte en array');
-      }
-
-      // Validera antal frågor
-      if (questions.length !== expectedCount) {
-        console.warn(`Förväntade ${expectedCount} frågor, fick ${questions.length}`);
-      }
-
-      // Validera varje fråga
-      questions.forEach((q, i) => {
-        if (!q.question || typeof q.question !== 'string') {
-          throw new Error(`Fråga ${i + 1}: Saknar eller ogiltig 'question'`);
-        }
-        if (!Array.isArray(q.options) || q.options.length !== 4) {
-          throw new Error(`Fråga ${i + 1}: Måste ha exakt 4 options`);
-        }
-        if (typeof q.correct !== 'number' || q.correct < 0 || q.correct > 3) {
-          throw new Error(`Fråga ${i + 1}: 'correct' måste vara 0-3`);
-        }
-        if (!q.topic || typeof q.topic !== 'string') {
-          throw new Error(`Fråga ${i + 1}: Saknar eller ogiltig 'topic'`);
-        }
-        if (!q.difficulty || !['easy', 'medium', 'hard'].includes(q.difficulty)) {
-          // Sätt default om saknas
-          q.difficulty = 'medium';
-        }
-      });
-
-      return questions;
-    } catch (error) {
-      console.error('Question parsing error:', error);
-      throw new Error(`Kunde inte tolka quiz-frågor: ${error.message}`);
     }
   }
 
