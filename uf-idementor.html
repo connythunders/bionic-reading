@@ -313,32 +313,7 @@
   .insight-del:hover{color:var(--danger); background:var(--danger-bg);}
   .insights-empty{color:var(--text-muted); font-size:0.85rem; font-style:italic; padding:6px 2px;}
 
-  /* ---------- Modal ---------- */
-  .modal-backdrop{
-    position:fixed; inset:0; background:rgba(43,38,32,0.45);
-    display:flex; align-items:center; justify-content:center;
-    padding:20px; z-index:100;
-  }
-  .modal-backdrop[hidden]{display:none;}
-  .modal{
-    background:var(--panel-bg); border-radius:var(--radius-lg);
-    box-shadow:var(--shadow-lg); max-width:480px; width:100%;
-    padding:24px; max-height:90vh; overflow-y:auto;
-  }
-  .modal h2{font-size:1.15rem; margin-bottom:4px;}
-  .modal p{font-size:0.88rem; color:var(--text-muted); margin-top:4px;}
-  .modal-close-row{display:flex; justify-content:flex-end; gap:10px; margin-top:18px;}
   .field-label{font-size:0.85rem; font-weight:600; display:block; margin:14px 0 6px;}
-  #apiKeyInput{
-    width:100%; padding:10px 12px; border:1.5px solid var(--border-strong);
-    border-radius:var(--radius-md); font-size:0.95rem; background:#FFFDF9; color:var(--text);
-  }
-  #apiKeyInput:focus{border-color:var(--accent);}
-  .key-status{
-    font-size:0.82rem; margin-top:8px; display:flex; align-items:center; gap:6px;
-  }
-  .key-status.ok{color:var(--success);}
-  .key-status.missing{color:var(--danger);}
 
   /* ---------- Toast ---------- */
   .toast{
@@ -368,9 +343,6 @@
         </div>
       </div>
       <div class="toolbar">
-        <button type="button" class="btn" id="btnSettings" aria-haspopup="dialog">
-          <span aria-hidden="true">⚙️</span> Inställningar
-        </button>
         <button type="button" class="btn" id="btnExport">
           <span aria-hidden="true">⬇️</span> Exportera session
         </button>
@@ -420,26 +392,8 @@
   </main>
 
   <footer class="app-footer">
-    UF-idémentor sparar bara i din egen webbläsare (localStorage) - inga konton, inga servrar, ingen känslig data.
+    UF-idémentor sparar din chatt och dina insikter bara i din egen webbläsare (localStorage). Meddelanden skickas via skolans säkra proxy för att nå Anthropics API - ingen API-nyckel behövs i webbläsaren.
   </footer>
-</div>
-
-<!-- Settings modal -->
-<div class="modal-backdrop" id="settingsBackdrop" hidden>
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-    <h2 id="settingsTitle">Inställningar</h2>
-    <p>API-nyckeln sparas bara lokalt i din webbläsare (localStorage) och skickas aldrig någon annanstans än direkt till Anthropics API.</p>
-
-    <label for="apiKeyInput" class="field-label">Anthropic API-nyckel</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-…" autocomplete="off" spellcheck="false">
-    <p class="key-status" id="keyStatus"></p>
-
-    <div class="modal-close-row">
-      <button type="button" class="btn btn-danger-text" id="btnClearKey">Ta bort nyckel</button>
-      <button type="button" class="btn btn-primary" id="btnSaveKey">Spara</button>
-      <button type="button" class="btn" id="btnCloseSettings">Stäng</button>
-    </div>
-  </div>
 </div>
 
 <div class="toast" id="toast" hidden></div>
@@ -478,12 +432,11 @@
   const STORAGE = {
     messages: 'ufMentor.messages',
     insights: 'ufMentor.insights',
-    phase:    'ufMentor.phase',
-    apiKey:   'ufMentor.apiKey'
+    phase:    'ufMentor.phase'
   };
 
-  const MODEL = 'claude-sonnet-4-6';
-  const MAX_TOKENS = 700;
+  // Serverless-proxy som håller Anthropic-nyckeln dold - se uf-idementor-proxy/README.md
+  const PROXY_URL = 'https://uf-idementor-proxy.vercel.app/api/mentor';
 
   const PHASES = [
     { id:'ide',            label:'Idé',                 icon:'💡',
@@ -555,12 +508,6 @@
   function saveMessages(){ saveJSON(STORAGE.messages, state.messages); }
   function saveInsights(){ saveJSON(STORAGE.insights, state.insights); }
   function savePhase(){ saveJSON(STORAGE.phase, state.phase); }
-
-  function getApiKey(){ return localStorage.getItem(STORAGE.apiKey) || ''; }
-  function setApiKey(key){
-    if(key) localStorage.setItem(STORAGE.apiKey, key);
-    else localStorage.removeItem(STORAGE.apiKey);
-  }
 
   /* ---------------- Toast ---------------- */
   let toastTimer = null;
@@ -674,13 +621,6 @@
     text = text.trim();
     if(!text) return;
 
-    const key = getApiKey();
-    if(!key){
-      openSettings();
-      toast('Lägg till din API-nyckel i Inställningar först.');
-      return;
-    }
-
     state.messages.push({ role:'user', text, phase:state.phase, ts:Date.now() });
     saveMessages();
     renderMessages();
@@ -696,17 +636,10 @@
         .filter(m => m.role === 'user' || m.role === 'mentor')
         .map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }));
 
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch(PROXY_URL, {
         method: 'POST',
-        headers:{
-          'content-type':'application/json',
-          'x-api-key': key,
-          'anthropic-version':'2023-06-01',
-          'anthropic-dangerous-direct-browser-access':'true'
-        },
+        headers:{ 'content-type':'application/json' },
         body: JSON.stringify({
-          model: MODEL,
-          max_tokens: MAX_TOKENS,
           system: buildSystemPrompt(state.phase),
           messages: apiMessages
         })
@@ -717,8 +650,7 @@
       if(!res.ok){
         const errText = await res.text();
         console.error('UF-idémentor API-fel:', res.status, errText);
-        let friendly = 'Något gick fel (' + res.status + '). Kontrollera din API-nyckel i Inställningar.';
-        if(res.status === 401) friendly = 'API-nyckeln verkar felaktig. Kontrollera den i Inställningar.';
+        let friendly = 'Något gick fel (' + res.status + '). Försök igen om en liten stund, eller säg till din lärare om det fortsätter.';
         if(res.status === 429) friendly = 'För många förfrågningar just nu - vänta en liten stund och försök igen.';
         state.messages.push({ role:'mentor', text: friendly, phase:state.phase, ts:Date.now(), isError:true });
         saveMessages();
@@ -727,7 +659,7 @@
       }
 
       const data = await res.json();
-      const answer = (data.content || []).map(c => c.text || '').join('\n').trim() || 'Hmm, jag fick inget svar. Kan du prova att skriva igen?';
+      const answer = data.answer || 'Hmm, jag fick inget svar. Kan du prova att skriva igen?';
 
       state.messages.push({ role:'mentor', text: answer, phase:state.phase, ts:Date.now() });
       saveMessages();
@@ -859,25 +791,6 @@
     toast('Ny session startad.');
   }
 
-  /* ---------------- Settings modal ---------------- */
-  function openSettings(){
-    $('#apiKeyInput').value = getApiKey();
-    updateKeyStatus();
-    $('#settingsBackdrop').hidden = false;
-    $('#apiKeyInput').focus();
-  }
-  function closeSettings(){ $('#settingsBackdrop').hidden = true; }
-  function updateKeyStatus(){
-    const el = $('#keyStatus');
-    if(getApiKey()){
-      el.textContent = '🔑 Nyckel sparad i den här webbläsaren.';
-      el.className = 'key-status ok';
-    }else{
-      el.textContent = 'Ingen nyckel sparad ännu.';
-      el.className = 'key-status missing';
-    }
-  }
-
   /* ---------------- Textarea auto-grow ---------------- */
   function autoGrow(el){
     el.style.height = 'auto';
@@ -921,31 +834,6 @@
 
     $('#btnExport').addEventListener('click', exportSession);
     $('#btnNewSession').addEventListener('click', newSession);
-
-    $('#btnSettings').addEventListener('click', openSettings);
-    $('#btnCloseSettings').addEventListener('click', closeSettings);
-    $('#settingsBackdrop').addEventListener('click', e => { if(e.target.id === 'settingsBackdrop') closeSettings(); });
-    document.addEventListener('keydown', e => {
-      if(e.key === 'Escape' && !$('#settingsBackdrop').hidden) closeSettings();
-    });
-    $('#btnSaveKey').addEventListener('click', () => {
-      const v = $('#apiKeyInput').value.trim();
-      if(!v){ toast('Skriv in en nyckel först.'); return; }
-      setApiKey(v);
-      updateKeyStatus();
-      toast('Nyckel sparad.');
-    });
-    $('#btnClearKey').addEventListener('click', () => {
-      setApiKey('');
-      $('#apiKeyInput').value = '';
-      updateKeyStatus();
-      toast('Nyckeln är borttagen.');
-    });
-
-    if(!getApiKey()){
-      // Gentle nudge on first load, no modal auto-pop to avoid surprising the student
-      toast('Tips: lägg till din API-nyckel i Inställningar för att kunna chatta.');
-    }
   }
 
   document.addEventListener('DOMContentLoaded', init);
