@@ -188,6 +188,15 @@
     .chip button:hover { color: var(--danger); }
     .add-course-row { display: flex; gap: 0.5rem; max-width: 420px; }
 
+    .sk-picker { background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 10px; padding: 1rem; }
+    .sk-picker > label { color: var(--primary-dark); }
+    .sk-picker select { max-width: 480px; margin-top: 0.3rem; }
+    .chip.selectable { cursor: pointer; user-select: none; background: white; }
+    .chip.selectable:hover { border-color: var(--primary); }
+    .chip.selectable.selected { background: var(--primary); border-color: var(--primary-dark); color: white; }
+    .sk-source-link { font-size: 0.75rem; }
+    .sk-source-link a { color: var(--primary-dark); }
+
     .filter-bar {
         display: flex;
         gap: 0.7rem;
@@ -340,7 +349,7 @@
                 <div class="form-grid">
                     <div>
                         <label for="f-course">Kurs *</label>
-                        <select id="f-course" required></select>
+                        <select id="f-course" required onchange="updateSkPicker()"></select>
                     </div>
                     <div>
                         <label for="f-type">Typ</label>
@@ -372,6 +381,13 @@
                         <input type="text" id="f-tags" placeholder="T.ex. foderekonomi, kalkylering, hållbarhet, budget" required>
                         <p class="field-note">Kommaseparerade ord som beskriver VAD som testas – används för att jämföra mot andra kurser.</p>
                     </div>
+                    <div class="full sk-picker" id="skPicker" style="display:none;">
+                        <label>📚 Hämta nyckelord från Skolverkets kursplan</label>
+                        <select id="skCourseSelect" onchange="renderSkKeywords()"></select>
+                        <p class="field-note" id="skCourseMeta"></p>
+                        <div class="course-chips" id="skKeywordChips"></div>
+                        <button type="button" class="btn btn-outline btn-small" style="margin-top:0.5rem;" onclick="addSelectedSkKeywords()">➕ Lägg till valda nyckelord</button>
+                    </div>
                     <div>
                         <label for="f-teacher">Lärare (valfritt)</label>
                         <input type="text" id="f-teacher" placeholder="Vem man kan prata med">
@@ -389,7 +405,7 @@
 
             <div class="course-manage">
                 <h2 class="section-title" style="font-size:1rem;">Hantera kurser</h2>
-                <p class="hint" style="margin-bottom:0.6rem;">Standardkurser: Ekonomi, Naturvetenskap, Samhällsvetenskap, Djurvård, Lantbruk, El, Bygg. Lägg till fler eller ta bort de ni inte använder.</p>
+                <p class="hint" style="margin-bottom:0.6rem;">Standardkurser: Ekonomi, Naturvetenskap, Samhällsvetenskap, Djurvård, Lantbruk, El, Bygg. Lägg till fler eller ta bort de ni inte använder. För standardkurserna kan du hämta nyckelord direkt från Skolverkets kursplaner när du lägger in en uppgift.</p>
                 <div class="course-chips" id="courseChips"></div>
                 <div class="add-course-row">
                     <input type="text" id="newCourseInput" placeholder="Ny kurs/program...">
@@ -455,6 +471,19 @@ const STORAGE_KEY = 'dubbelarbete_items_v1';
 const COURSES_KEY = 'dubbelarbete_courses_v1';
 const DEFAULT_COURSES = ['Ekonomi (Ek)', 'Naturvetenskap (NA)', 'Samhällsvetenskap (Sam)', 'Djurvård', 'Lantbruk', 'El', 'Bygg'];
 
+// Maps the app's default kurs-chips to program keys in skolverket-kursdata.json
+const SKOLVERKET_PROGRAM_MAP = {
+    'Ekonomi (Ek)': 'EK',
+    'Naturvetenskap (NA)': 'NA',
+    'Samhällsvetenskap (Sam)': 'SA',
+    'Djurvård': 'NB_DJURVARD',
+    'Lantbruk': 'NB_LANTBRUK',
+    'El': 'EL',
+    'Bygg': 'BYGG'
+};
+let skolverketData = null;
+let skSelectedKeywords = new Set();
+
 const STOPWORDS = new Set([
     'och','att','det','som','för','med','till','den','det','en','ett','är','av','på','om','kan','ska',
     'har','inte','eller','samt','sina','sitt','sin','man','vi','de','du','jag','han','hon','vår','våra',
@@ -516,6 +545,75 @@ function renderCourseSelects() {
     filterSel.innerHTML = '<option value="">Alla kurser</option>' + courses.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
     if (courses.includes(currentForm)) formSel.value = currentForm;
     if (courses.includes(currentFilter)) filterSel.value = currentFilter;
+    updateSkPicker();
+}
+
+// ---------- SKOLVERKET KEYWORD PICKER ----------
+async function loadSkolverketData() {
+    try {
+        const res = await fetch('skolverket-kursdata.json');
+        if (!res.ok) throw new Error('not ok');
+        skolverketData = await res.json();
+    } catch (e) {
+        skolverketData = null; // Feature just stays hidden (e.g. opened via file:// or file missing)
+    }
+    updateSkPicker();
+}
+
+function updateSkPicker() {
+    const picker = document.getElementById('skPicker');
+    if (!picker) return;
+    const kurs = document.getElementById('f-course').value;
+    const programKey = SKOLVERKET_PROGRAM_MAP[kurs];
+    const program = skolverketData && programKey ? skolverketData.programs[programKey] : null;
+
+    if (!program) {
+        picker.style.display = 'none';
+        return;
+    }
+
+    picker.style.display = 'block';
+    const sel = document.getElementById('skCourseSelect');
+    sel.innerHTML = program.courses.map(cid => {
+        const c = skolverketData.courses[cid];
+        return c ? `<option value="${escapeHtml(cid)}">${escapeHtml(c.name)}</option>` : '';
+    }).join('');
+    skSelectedKeywords = new Set();
+    renderSkKeywords();
+}
+
+function renderSkKeywords() {
+    const sel = document.getElementById('skCourseSelect');
+    const cid = sel.value;
+    const course = skolverketData && cid ? skolverketData.courses[cid] : null;
+    const chipsEl = document.getElementById('skKeywordChips');
+    const metaEl = document.getElementById('skCourseMeta');
+    skSelectedKeywords = new Set();
+
+    if (!course) { chipsEl.innerHTML = ''; metaEl.innerHTML = ''; return; }
+
+    metaEl.innerHTML = `Kurskod: ${escapeHtml(course.kurskod)} &middot; <span class="sk-source-link"><a href="${escapeHtml(course.source_url)}" target="_blank" rel="noopener">Källa: Skolverket</a></span>`;
+    chipsEl.innerHTML = course.keywords.map(kw => `
+        <span class="chip selectable" data-kw="${escapeHtml(kw)}" onclick="toggleSkKeyword(this)">${escapeHtml(kw)}</span>
+    `).join('');
+}
+
+function toggleSkKeyword(el) {
+    const kw = el.dataset.kw;
+    if (skSelectedKeywords.has(kw)) { skSelectedKeywords.delete(kw); el.classList.remove('selected'); }
+    else { skSelectedKeywords.add(kw); el.classList.add('selected'); }
+}
+
+function addSelectedSkKeywords() {
+    if (!skSelectedKeywords.size) { showToast('Välj minst ett nyckelord först', true); return; }
+    const tagsField = document.getElementById('f-tags');
+    const existing = tagsField.value.split(',').map(t => t.trim()).filter(Boolean);
+    const existingLower = existing.map(t => t.toLowerCase());
+    [...skSelectedKeywords].forEach(kw => { if (!existingLower.includes(kw.toLowerCase())) existing.push(kw); });
+    tagsField.value = existing.join(', ');
+    document.querySelectorAll('#skKeywordChips .chip.selected').forEach(el => el.classList.remove('selected'));
+    skSelectedKeywords = new Set();
+    showToast('Nyckelord tillagda');
 }
 
 function renderCourseChips() {
@@ -560,6 +658,7 @@ function resetForm() {
     document.getElementById('formTitle').textContent = 'Lägg till planering/uppgift';
     document.getElementById('submitBtn').textContent = '💾 Spara uppgift';
     document.getElementById('cancelEditBtn').style.display = 'none';
+    updateSkPicker();
 }
 
 function cancelEdit() { resetForm(); }
@@ -600,6 +699,7 @@ function editItem(id) {
     if (!item) return;
     editingId = id;
     document.getElementById('f-course').value = item.course;
+    updateSkPicker();
     document.getElementById('f-type').value = item.type || 'Uppgift';
     document.getElementById('f-title').value = item.title;
     document.getElementById('f-week').value = item.week || '';
@@ -855,6 +955,7 @@ function init() {
     renderCourseChips();
     updateTabCounts();
     renderList();
+    loadSkolverketData();
 }
 init();
 </script>
