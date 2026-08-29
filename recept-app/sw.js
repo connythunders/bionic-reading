@@ -1,4 +1,4 @@
-const CACHE_NAME = "recept-app-v1";
+const CACHE_NAME = "recept-app-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
