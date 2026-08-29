@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recept</title>
+<meta name="description" content="Fota recept, gör om till text och samla dem under egna rubriker.">
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff7e5f">
+
+<!-- iOS: gör appen installningsbar på hemskärmen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Recept">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <h1>🍲 Mina recept</h1>
+  <button id="addBtn" class="icon-btn primary" title="Nytt recept" aria-label="Nytt recept">+</button>
+</header>
+
+<div id="installBanner" class="install-banner" hidden>
+  <span id="installText">Lägg till appen på hemskärmen för snabb åtkomst.</span>
+  <div class="install-actions">
+    <button id="installBtn" class="btn small" hidden>Installera</button>
+    <button id="dismissInstall" class="btn small ghost">Stäng</button>
+  </div>
+</div>
+
+<main id="homeView" class="view">
+  <div class="toolbar">
+    <input id="searchInput" type="search" placeholder="Sök recept…" autocomplete="off">
+    <button id="manageCatsBtn" class="btn ghost small">Hantera rubriker</button>
+  </div>
+
+  <div id="categoryChips" class="chips"></div>
+
+  <div id="recipeGrid" class="recipe-grid"></div>
+
+  <p id="emptyState" class="empty-state" hidden>
+    Inga recept än. Tryck på <strong>+</strong> för att fota ditt första recept.
+  </p>
+</main>
+
+<main id="editorView" class="view" hidden>
+  <div class="editor-header">
+    <button id="backBtn" class="icon-btn" aria-label="Tillbaka">←</button>
+    <h2 id="editorTitle">Nytt recept</h2>
+    <button id="deleteBtn" class="icon-btn danger" title="Ta bort recept" hidden aria-label="Ta bort recept">🗑</button>
+  </div>
+
+  <div class="photo-area">
+    <img id="photoPreview" alt="Foto av receptet" hidden>
+    <div id="photoPlaceholder" class="photo-placeholder">Inget foto valt</div>
+    <div class="photo-buttons">
+      <label class="btn small">
+        📷 Ta foto
+        <input id="cameraInput" type="file" accept="image/*" capture="environment" hidden>
+      </label>
+      <label class="btn small ghost">
+        🖼️ Välj bild
+        <input id="galleryInput" type="file" accept="image/*" hidden>
+      </label>
+      <button id="ocrBtn" class="btn small accent" hidden>🔎 Läs av text</button>
+    </div>
+    <div id="ocrProgress" class="ocr-progress" hidden>
+      <div class="ocr-bar"><div id="ocrBarFill" class="ocr-bar-fill"></div></div>
+      <span id="ocrStatus">Tolkar bild…</span>
+    </div>
+  </div>
+
+  <label class="field-label" for="titleInput">Titel</label>
+  <input id="titleInput" type="text" placeholder="T.ex. Mammas köttfärslimpa" autocomplete="off">
+
+  <label class="field-label" for="categorySelect">Rubrik / kategori</label>
+  <select id="categorySelect"></select>
+
+  <label class="field-label" for="textArea">Recept</label>
+  <textarea id="textArea" rows="10" placeholder="Ingredienser och gör så här…"></textarea>
+
+  <label class="field-label" for="commentArea">Kommentarer / anteckningar</label>
+  <textarea id="commentArea" rows="4" placeholder="Egna tips, ändringar, vem som gillade det…"></textarea>
+
+  <button id="saveBtn" class="btn primary wide">Spara recept</button>
+</main>
+
+<div id="catModal" class="modal" hidden>
+  <div class="modal-card">
+    <h3>Hantera rubriker</h3>
+    <ul id="catList" class="cat-list"></ul>
+    <div class="add-cat-row">
+      <input id="newCatInput" type="text" placeholder="Ny rubrik, t.ex. Efterrätter" autocomplete="off">
+      <button id="addCatBtn" class="btn small primary">Lägg till</button>
+    </div>
+    <button id="closeCatModal" class="btn ghost wide">Klar</button>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>
