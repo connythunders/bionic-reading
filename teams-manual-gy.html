@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Lättläst manual för elever om hur man använder Microsoft Teams på gymnasiet: logga in, kanaler, chatt, uppgifter och inlämning, videomöten, filer, vanliga misstag och felsökning. Med Bionic Reading och mörkt läge.">
+<meta name="description" content="Lättläst manual för elever om hur man använder Microsoft Teams på gymnasiet: logga in, kanaler, chatt, uppgifter och inlämning, videomöten, filer, vanliga misstag och felsökning. Med en Fråga-knapp för att söka svar direkt i manualen, Bionic Reading och mörkt läge.">
 <meta name="theme-color" content="#f7f5f1">
 <title>Microsoft Teams – manual för elever (Gy)</title>
 <style>
@@ -177,6 +177,39 @@ dl.glossary dd{ margin:.2rem 0 0; color:var(--text-soft); }
 .chip-row{ display:flex; gap:.5rem; flex-wrap:wrap; margin:.8rem 0; }
 .chip{ background:var(--surface-2); border:1px solid var(--line); border-radius:99px; padding:.3rem .8rem; font-size:.85rem; }
 
+.ask-cta{
+  display:inline-flex; align-items:center; gap:.5rem; margin-top:1rem;
+  background:var(--accent); color:#fff; border:none; border-radius:99px;
+  padding:.7rem 1.3rem; font-size:.92rem; font-weight:700; cursor:pointer; box-shadow:var(--shadow);
+}
+.ask-cta:hover{ filter:brightness(1.08); }
+
+/* Fråga-panelen (drawer) */
+#askBackdrop{ position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:70; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+#askBackdrop.on{ opacity:1; pointer-events:auto; }
+.panel{
+  position:fixed; z-index:85; top:0; right:0; bottom:0; width:min(94vw,26rem);
+  background:var(--surface); border-left:1px solid var(--line); box-shadow:var(--shadow);
+  display:flex; flex-direction:column; transform:translateX(102%); transition:transform .22s ease;
+}
+.panel.open{ transform:none; }
+@media (max-width:560px){
+  .panel{ top:auto; width:100%; height:88vh; border-left:none; border-top:1px solid var(--line); border-radius:18px 18px 0 0; transform:translateY(102%); }
+  .panel.open{ transform:none; }
+}
+.panel-head{ display:flex; align-items:center; gap:.6rem; padding:.9rem 1rem; border-bottom:1px solid var(--line); }
+.panel-head h2{ font-size:1rem; margin:0 auto 0 0; }
+.panel-head button{ background:var(--surface-2); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:.35rem .6rem; cursor:pointer; }
+.panel-body{ overflow-y:auto; padding:1rem; flex:1; }
+.panel-body .hint{ font-size:.83rem; color:var(--text-soft); margin:0 0 .7rem; }
+.field{ width:100%; font:inherit; font-size:.95rem; padding:.7rem .8rem; min-height:46px; background:var(--bg); color:var(--text); border:1px solid var(--line-strong); border-radius:10px; }
+.qa-answer{ border:1px solid var(--line); border-left:4px solid var(--accent); background:var(--bg); border-radius:10px; padding:.85rem 1rem; margin:.9rem 0 0; }
+.qa-answer h3{ font-size:.95rem; margin:0 0 .4rem; }
+.qa-answer p{ font-size:.9rem; margin:.3rem 0; }
+.qa-answer .src{ margin-top:.6rem; font-size:.78rem; color:var(--text-faint); }
+.qa-answer .src a{ color:var(--accent); }
+.empty{ font-size:.88rem; color:var(--text-faint); padding:.4rem .1rem; }
+
 footer.page{ border-top:1px solid var(--line); padding:2rem 1.4rem 3rem; text-align:center; color:var(--text-faint); font-size:.85rem; }
 
 .mobile-toc-toggle{ display:none; }
@@ -226,6 +259,7 @@ footer.page{ border-top:1px solid var(--line); padding:2rem 1.4rem 3rem; text-al
       <button type="button" id="bionic3" aria-pressed="false">B3</button>
     </div>
     <button type="button" id="printBtn">🖨️ Skriv ut</button>
+    <button type="button" id="askBtn">💬 Fråga</button>
   </div>
 </header>
 
@@ -261,6 +295,7 @@ footer.page{ border-top:1px solid var(--line); padding:2rem 1.4rem 3rem; text-al
         <span class="badge">Gymnasiet</span>
         <span class="badge">Lättläst</span>
         <span class="badge">Bionic Reading</span>
+        <span class="badge">Fråga-funktion</span>
       </div>
       <h1>Microsoft Teams – manual för elever</h1>
       <p class="lead">Den här sidan visar dig steg för steg hur du använder Microsoft Teams i skolan: logga in, hitta rätt kurs, chatta, lämna in uppgifter och vara med på videolektioner. Använd menyn till vänster för att hoppa mellan kapitel, eller läs uppifrån och ner.</p>
@@ -274,6 +309,7 @@ footer.page{ border-top:1px solid var(--line); padding:2rem 1.4rem 3rem; text-al
           <li>Läsa lärarens feedback</li>
           <li>Hitta mina filer</li>
         </ul>
+        <button type="button" class="ask-cta" id="askBtnHero">🤔 Kört fast? Fråga här</button>
       </div>
     </div>
 
@@ -603,6 +639,20 @@ footer.page{ border-top:1px solid var(--line); padding:2rem 1.4rem 3rem; text-al
 
 <a href="#prose" class="back-to-top no-print" id="backToTop">↑ Till toppen</a>
 
+<div id="askBackdrop" class="no-print"></div>
+<aside class="panel no-print" id="askPanel" aria-hidden="true" aria-labelledby="ask-titel" role="dialog">
+  <div class="panel-head">
+    <h2 id="ask-titel">Kört fast? Fråga här</h2>
+    <button type="button" id="askClose" aria-label="Stäng">✕</button>
+  </div>
+  <div class="panel-body">
+    <p class="hint">Skriv din fråga med egna ord. Svaren kommer från manualens eget innehåll och fungerar även utan internet.</p>
+    <input class="field" id="askInput" type="search" placeholder="T.ex. hur lämnar jag in en uppgift?" autocomplete="off" enterkeyhint="search">
+    <div class="chip-row" id="askChips"></div>
+    <div id="askSvar"></div>
+  </div>
+</aside>
+
 <footer class="page no-print">
   <p>Manual för Microsoft Teams i gymnasieskolan. Lättläst, mobilanpassad och med stöd för Bionic Reading och mörkt läge.</p>
   <p>Senast uppdaterad: augusti 2026.</p>
@@ -744,6 +794,121 @@ footer.page{ border-top:1px solid var(--line); padding:2rem 1.4rem 3rem; text-al
   window.addEventListener('scroll', () => {
     backToTop.classList.toggle('visible', window.scrollY > 500);
   }, { passive: true });
+
+  /* ---- Fråga (offline-kunskapsbas) ---- */
+  const KAPITELNAMN = {
+    k2:'Logga in', k3:'Startsidan', k4:'Team och kanaler', k5:'Chatt', k6:'Uppgifter',
+    k7:'Kalender', k8:'Videomöten', k9:'Filer och OneDrive', k10:'Inställningar och notiser',
+    k11:'Nätetikett', k12:'Vanliga problem och felsökning', k13:'Ordlista'
+  };
+  const FAQ = [
+    { kapitel:'k2', q:'Hur loggar jag in i Teams?', tags:['logga in','konto','lösenord','inloggning'],
+      a:'<p>Öppna Teams-appen eller gå till teams.microsoft.com. Skriv din skol-e-post och klicka Nästa, skriv sedan lösenordet och klicka Logga in. Använder skolan tvåstegsverifiering kan du behöva bekräfta i en app eller med en kod.</p>' },
+    { kapitel:'k2', q:'Jag har glömt lösenordet till skolkontot', tags:['glömt lösenord','återställa lösenord'],
+      a:'<p>Kontakta skolans IT-support eller din mentor för att återställa lösenordet. Dela aldrig ditt lösenord med andra.</p>' },
+    { kapitel:'k4', q:'Jag hittar inte min kurs i Teams', tags:['saknar kurs','hittar inte team','fel klass'],
+      a:'<p>Läraren har troligen inte lagt till dig än. Kontakta läraren, inte skolans IT-support, för att bli tillagd i rätt team.</p>' },
+    { kapitel:'k4', q:'Vad är skillnaden på ett team och en kanal?', tags:['team','kanal','skillnad'],
+      a:'<p>Ett <strong>team</strong> är en hel kurs eller klass. En <strong>kanal</strong> är en "flik" inne i teamet för ett visst ämnesområde, till exempel Allmänt eller Prov.</p>' },
+    { kapitel:'k5', q:'Var skriver jag till läraren?', tags:['skriva till läraren','kontakta lärare','meddelande'],
+      a:'<p>Klicka på Chatt i vänstermenyn, starta en ny chatt och skriv namnet på läraren. Gäller frågan hela klassen kan du i stället skriva ett inlägg i rätt kanal.</p>' },
+    { kapitel:'k5', q:'Vad är skillnaden mellan inlägg och chatt?', tags:['inlägg','chatt','skillnad'],
+      a:'<p><strong>Inlägg</strong> i en kanal kan läsas av hela gruppen och passar frågor om kursen. <strong>Chatt</strong> är för dig och en eller ett fåtal personer. Skriv aldrig privata eller känsliga saker i en öppen kanal.</p>' },
+    { kapitel:'k6', q:'Hur lämnar jag in en uppgift?', tags:['lämna in','inlämning','skicka uppgift'],
+      a:'<p>Öppna uppgiften under Uppgifter, ladda upp din fil under Lägg till arbete (eller skriv svaret direkt) och klicka sedan på knappen Lämna in.</p>' },
+    { kapitel:'k6', q:'Hur vet jag att uppgiften verkligen är inlämnad?', tags:['inlämnad','status','kontrollera inlämning'],
+      a:'<p>Det räcker inte att bara lägga till filen. Kontrollera alltid att uppgiften har fått status <strong>Inlämnad</strong> högst upp på sidan.</p>' },
+    { kapitel:'k6', q:'Jag har lämnat in fel fil, vad gör jag?', tags:['fel fil','ångra inlämning','ta bort inlämning'],
+      a:'<p>Fram till deadline kan du oftast klicka på Ta bort inlämning, ladda upp rätt fil och lämna in igen.</p>' },
+    { kapitel:'k6', q:'Var hittar jag feedback och betyg på min uppgift?', tags:['feedback','betyg','bedömd','returnerad','rättad'],
+      a:'<p>När läraren rättat uppgiften hittar du poäng, betyg eller kommentarer på samma ställe som du lämnade in den, ofta märkt Granskad eller Bedömd. Är den märkt Returnerad ska du oftast göra en ändring.</p>' },
+    { kapitel:'k7', q:'Var ser jag mitt schema och mina lektioner?', tags:['schema','kalender','lektioner'],
+      a:'<p>Klicka på Kalender i vänstermenyn. Där ser du bokade möten och videolektioner, ungefär som ett digitalt schema.</p>' },
+    { kapitel:'k8', q:'Hur går jag med i ett videomöte?', tags:['videomöte','gå med','ansluta','länk'],
+      a:'<p>Klicka på mötet i kalendern eller på länken läraren delat, välj Gå med nu och kontrollera att kamera och mikrofon fungerar innan du ansluter.</p>' },
+    { kapitel:'k8', q:'Hur delar jag min skärm i ett möte?', tags:['dela skärm','skärmdelning'],
+      a:'<p>Klicka på skärm-ikonen (🖥️) i mötesverktygen under mötet och välj vad du vill visa.</p>' },
+    { kapitel:'k9', q:'Var hittar jag mina filer och dokument?', tags:['filer','onedrive','dokument','hittar inte fil'],
+      a:'<p>Öppna fliken Filer inne i en kanal för att se delat material, eller kolla OneDrive där dina egna filer sparas automatiskt.</p>' },
+    { kapitel:'k10', q:'Hur byter jag tema eller stänger av notiser?', tags:['inställningar','notiser','tema','mörkt läge teams'],
+      a:'<p>Klicka på din profilbild uppe i hörnet i Teams. Där hittar du Notiser och Utseende (ljust/mörkt tema).</p>' },
+    { kapitel:'k11', q:'Vad gör jag om jag blir utsatt för elaka kommentarer i Teams?', tags:['mobbning','elaka kommentarer','kränkning'],
+      a:'<p>Kontakta din mentor eller lärare direkt. Spara gärna en skärmbild som bevis innan du eventuellt tar bort meddelandet.</p>' },
+    { kapitel:'k12', q:'Jag hör inget eller syns inte i mötet', tags:['hör inget','syns inte','mikrofon fungerar inte','kamera fungerar inte'],
+      a:'<p>Kontrollera att rätt mikrofon och kamera är valda i mötets inställningar. Testa att lämna mötet och gå med igen.</p>' },
+    { kapitel:'k12', q:'Teams är långsamt eller kraschar', tags:['långsamt','kraschar','fryser'],
+      a:'<p>Stäng och starta om appen. Fungerar det ändå inte, prova webbläsarversionen på teams.microsoft.com eller starta om datorn.</p>' },
+    { kapitel:'k12', q:'Jag kan inte lämna in uppgiften, knappen är grå', tags:['knapp grå','kan inte lämna in'],
+      a:'<p>Kontrollera att du laddat upp en fil eller fyllt i textfältet. Har deadline passerat kan inlämning vara stängd – kontakta läraren.</p>' },
+    { kapitel:'k12', q:'Vem kontaktar jag om ingenting fungerar?', tags:['kontakta','it-support','hjälp'],
+      a:'<p>Kontrollera först internet, inloggning och att du provat att starta om. Fungerar det fortfarande inte – visa din lärare eller skolans IT-support vad som händer, och berätta vilken kurs, enhet och vad du ser.</p>' },
+    { kapitel:'k13', q:'Vad betyder Returnerad?', tags:['returnerad','betydelse'],
+      a:'<p>Att läraren har skickat tillbaka uppgiften till dig, till exempel för att du ska göra en ändring innan den bedöms klart.</p>' },
+    { kapitel:'k13', q:'Vad är OneDrive?', tags:['onedrive','molnlagring'],
+      a:'<p>Microsofts molnlagring där dina filer sparas automatiskt, så du kommer åt dem från vilken enhet som helst.</p>' }
+  ];
+  const STOP = new Set(['och','att','i','en','ett','på','för','med','som','av','är','man','jag','den','det','till','om','hur','vad','ska','skall','kan','får','vilken','vilket','vilka','när','var','min','mitt','mina','du','sig','har','hade','vara','måste','göra','gör','så','de','dem','eller','men','inte','ur']);
+  function normText(s){ return (s||'').toLowerCase().replace(/[^a-z0-9åäö\s]/g,' ').replace(/\s+/g,' ').trim(); }
+  function toWords(s){ return normText(s).split(' ').filter(w => w.length > 2 && !STOP.has(w)); }
+  function scoreFaq(q){
+    const qw = toWords(q); if(!qw.length) return [];
+    const nq = normText(q);
+    return FAQ.map(item => {
+      const hay = normText(item.q + ' ' + (item.tags||[]).join(' '));
+      const body = normText(item.a.replace(/<[^>]+>/g,' '));
+      let score = 0;
+      qw.forEach(w => {
+        if((item.tags||[]).some(t => normText(t) === w)) score += 3;
+        if(hay.includes(w)) score += 2;
+        else if(body.includes(w)) score += 1;
+      });
+      if(normText(item.q).includes(nq)) score += 4;
+      return { item, score: score / Math.sqrt(qw.length) };
+    }).filter(r => r.score >= 1.6).sort((a,b) => b.score - a.score).slice(0, 4);
+  }
+  function answerHtml(item){
+    const kap = KAPITELNAMN[item.kapitel];
+    return '<div class="qa-answer"><h3>' + item.q + '</h3>' + item.a +
+      (kap ? '<p class="src">Läs mer: <a href="#' + item.kapitel + '" class="js-goto">' + kap + '</a></p>' : '') +
+      '</div>';
+  }
+  function initAsk(){
+    const input = $('#askInput'), out = $('#askSvar'), chips = $('#askChips');
+    const suggestions = ['Hur lämnar jag in en uppgift?','Var skriver jag till läraren?','Jag hittar inte min kurs','Hur går jag med i ett videomöte?','Vem kontaktar jag om ingenting fungerar?'];
+    chips.innerHTML = suggestions.map(s => '<button type="button" class="chip">' + s + '</button>').join('');
+    $$('.chip', chips).forEach(c => c.addEventListener('click', () => { input.value = c.textContent; run(); input.focus(); }));
+
+    function run(){
+      const q = input.value.trim();
+      if(q.length < 3){ out.innerHTML = ''; return; }
+      const hits = scoreFaq(q);
+      if(!hits.length){
+        out.innerHTML = '<div class="qa-answer"><h3>Jag hittar inget säkert svar på det</h3>' +
+          '<p>Prova andra ord, eller bläddra i kapitlen till vänster. Du kan också fråga din lärare eller skolans IT-support.</p></div>';
+        return;
+      }
+      out.innerHTML = hits.map(h => answerHtml(h.item)).join('');
+      $$('.js-goto', out).forEach(a => a.addEventListener('click', closeAsk));
+    }
+    let t;
+    input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(run, 180); });
+  }
+  const askPanel = $('#askPanel'), askBackdrop = $('#askBackdrop');
+  function openAsk(){
+    askPanel.classList.add('open'); askPanel.setAttribute('aria-hidden','false');
+    askBackdrop.classList.add('on');
+    setTimeout(() => $('#askInput').focus(), 60);
+  }
+  function closeAsk(){
+    askPanel.classList.remove('open'); askPanel.setAttribute('aria-hidden','true');
+    askBackdrop.classList.remove('on');
+  }
+  $('#askBtn').addEventListener('click', openAsk);
+  $('#askBtnHero').addEventListener('click', openAsk);
+  $('#askClose').addEventListener('click', closeAsk);
+  askBackdrop.addEventListener('click', closeAsk);
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeAsk(); });
+  initAsk();
 
   /* ---- Mobil TOC-toggle ---- */
   const tocAside = $('#tocAside'), tocToggle = $('#tocToggle');
