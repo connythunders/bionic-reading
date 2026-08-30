@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="sv" data-theme="ljus" data-font="system" data-size="2" data-bionic="0">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Lättläst manual för elever om hur man använder Microsoft Teams på gymnasiet: logga in, kanaler, chatt, uppgifter, videomöten och filer. Med Bionic Reading och mörkt läge.">
+<meta name="theme-color" content="#f7f5f1">
+<title>Microsoft Teams – manual för elever (Gy)</title>
+<style>
+:root{
+  --bg:#f7f5f1; --bg-tint:#efece6;
+  --surface:#ffffff; --surface-2:#f3f1ec;
+  --text:#1e2227; --text-soft:#565f6b; --text-faint:#7b8593;
+  --line:#ded9d0; --line-strong:#c6bfb2;
+  --accent:#5b3fd6; --accent-weak:#eeeafd; --accent-ink:#3c2996;
+  --warn:#a2560c; --warn-weak:#fbeee0;
+  --good:#2c6b3f; --good-weak:#e5f1e7;
+  --bad:#9d3232; --bad-weak:#fae9e9;
+  --shadow:0 1px 2px rgba(20,20,20,.05), 0 8px 24px rgba(20,20,20,.06);
+  --radius:14px;
+  --lh:1.75;
+  --measure:68ch;
+  --fs:17px;
+}
+html[data-theme="mork"]{
+  --bg:#14171b; --bg-tint:#191d22;
+  --surface:#1c2026; --surface-2:#232830;
+  --text:#e8eaed; --text-soft:#b3bac3; --text-faint:#8d95a0;
+  --line:#333a44; --line-strong:#48515e;
+  --accent:#a396ef; --accent-weak:#28223f; --accent-ink:#cdc4f7;
+  --warn:#e0a45f; --warn-weak:#33271a;
+  --good:#7fc48f; --good-weak:#1c2d21;
+  --bad:#e08585; --bad-weak:#321f1f;
+}
+html[data-font="dyslexi"]{ --font-body:"OpenDyslexic","Comic Sans MS",var(--font-fallback); }
+html[data-size="1"]{ --fs:15px; }
+html[data-size="2"]{ --fs:17px; }
+html[data-size="3"]{ --fs:19px; }
+html[data-size="4"]{ --fs:22px; }
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--font-body, "Segoe UI"), system-ui, -apple-system, sans-serif;
+  font-size:var(--fs); line-height:var(--lh);
+  transition:background .2s ease, color .2s ease;
+}
+a{ color:var(--accent); }
+img{ max-width:100%; }
+.no-print{ }
+.skip-link{ position:absolute; left:-999px; top:0; background:var(--accent); color:#fff; padding:.6rem 1rem; border-radius:0 0 8px 0; z-index:200; }
+.skip-link:focus{ left:0; }
+
+/* Topbar */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:var(--surface); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:.75rem;
+  padding:.6rem 1rem; flex-wrap:wrap;
+}
+.topbar .brand{ display:flex; align-items:center; gap:.55rem; font-weight:700; margin-right:auto; text-decoration:none; color:var(--text); }
+.topbar .brand-icon{ font-size:1.3rem; }
+.topbar .back{ font-size:.85rem; color:var(--text-soft); text-decoration:none; }
+.topbar .back:hover{ color:var(--accent); }
+.controls{ display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+.controls button{
+  background:var(--surface-2); color:var(--text); border:1px solid var(--line);
+  border-radius:8px; padding:.4rem .6rem; font-size:.82rem; cursor:pointer;
+  display:inline-flex; align-items:center; gap:.3rem;
+}
+.controls button:hover{ border-color:var(--accent); color:var(--accent); }
+.controls button[aria-pressed="true"], .controls button.active{
+  background:var(--accent-weak); border-color:var(--accent); color:var(--accent-ink); font-weight:600;
+}
+.seg{ display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.seg button{ border:none; border-radius:0; }
+.seg button + button{ border-left:1px solid var(--line); }
+
+/* Layout */
+.layout{ display:grid; grid-template-columns:270px minmax(0,1fr); gap:0; max-width:1180px; margin:0 auto; }
+aside.toc{
+  border-right:1px solid var(--line); padding:1.2rem .9rem 3rem; align-self:start;
+  position:sticky; top:56px; max-height:calc(100vh - 56px); overflow-y:auto;
+}
+aside.toc h2{ font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin:.2rem 0 .8rem; }
+aside.toc ol{ list-style:none; margin:0; padding:0; counter-reset:ch; }
+aside.toc li{ counter-increment:ch; margin:.15rem 0; }
+aside.toc a{
+  display:flex; gap:.5rem; align-items:baseline; text-decoration:none; color:var(--text-soft);
+  padding:.4rem .5rem; border-radius:8px; font-size:.88rem;
+}
+aside.toc a::before{ content:counter(ch); font-weight:700; color:var(--text-faint); min-width:1.2em; }
+aside.toc a:hover{ background:var(--surface-2); color:var(--text); }
+aside.toc a.active{ background:var(--accent-weak); color:var(--accent-ink); font-weight:600; }
+aside.toc a.active::before{ color:var(--accent); }
+.progress-wrap{ margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line); }
+.progress-wrap .bar{ height:6px; border-radius:99px; background:var(--surface-2); overflow:hidden; }
+.progress-wrap .bar > i{ display:block; height:100%; width:0%; background:var(--accent); transition:width .3s ease; }
+.progress-wrap p{ font-size:.75rem; color:var(--text-faint); margin:.4rem 0 0; }
+
+main{ min-width:0; padding:1.6rem 1.4rem 6rem; }
+.hero{ max-width:var(--measure); }
+.hero h1{ font-size:1.7rem; margin:.2rem 0 .4rem; }
+.hero .lead{ color:var(--text-soft); font-size:1.02rem; }
+.badges{ display:flex; gap:.4rem; flex-wrap:wrap; margin:.7rem 0 1rem; }
+.badge{ font-size:.72rem; background:var(--surface-2); border:1px solid var(--line); padding:.2rem .55rem; border-radius:99px; color:var(--text-soft); }
+.badge.accent{ background:var(--accent-weak); border-color:var(--accent); color:var(--accent-ink); }
+
+#prose section{ max-width:var(--measure); margin:2.6rem 0; scroll-margin-top:70px; }
+#prose h2{
+  font-size:1.3rem; display:flex; gap:.6rem; align-items:center; border-bottom:1px solid var(--line); padding-bottom:.5rem;
+}
+#prose h2 .num{ color:var(--accent); font-variant-numeric:tabular-nums; }
+#prose h3{ font-size:1.05rem; margin-top:1.4rem; }
+#prose p{ margin:.8rem 0; }
+#prose ul, #prose ol{ padding-left:1.3rem; }
+#prose li{ margin:.35rem 0; }
+
+.callout{ border:1px solid var(--line); border-left:4px solid var(--accent); background:var(--surface-2); border-radius:8px; padding:.8rem 1rem; margin:1rem 0; }
+.callout.tip{ border-left-color:var(--good); }
+.callout.warn{ border-left-color:var(--warn); background:var(--warn-weak); }
+.callout p{ margin:.3rem 0; }
+.callout strong.label{ display:block; font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; margin-bottom:.3rem; color:var(--text-faint); }
+
+.steps{ counter-reset:step; list-style:none; padding:0; margin:1rem 0; }
+.steps li{ counter-increment:step; position:relative; padding-left:2.4rem; margin:.9rem 0; }
+.steps li::before{
+  content:counter(step); position:absolute; left:0; top:0; width:1.7rem; height:1.7rem;
+  background:var(--accent-weak); color:var(--accent-ink); border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem;
+}
+
+kbd{ background:var(--surface-2); border:1px solid var(--line-strong); border-bottom-width:2px; border-radius:5px; padding:.05rem .4rem; font-size:.85em; font-family:inherit; }
+
+table.icons{ width:100%; border-collapse:collapse; margin:1rem 0; }
+table.icons th, table.icons td{ text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--line); vertical-align:top; }
+table.icons th{ color:var(--text-faint); font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; }
+table.icons td.icon{ font-size:1.3rem; width:2.2rem; }
+
+ul.checklist{ list-style:none; padding:0; }
+ul.checklist li{ background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:.1rem .2rem; margin:.4rem 0; }
+ul.checklist label{ display:flex; align-items:flex-start; gap:.6rem; padding:.6rem .7rem; cursor:pointer; }
+ul.checklist input[type=checkbox]{ margin-top:.2rem; width:1.1rem; height:1.1rem; accent-color:var(--accent); flex:none; }
+ul.checklist input[type=checkbox]:checked + span{ color:var(--text-faint); text-decoration:line-through; }
+.checklist-meta{ display:flex; justify-content:space-between; align-items:center; font-size:.78rem; color:var(--text-faint); margin:.3rem .2rem 1.2rem; }
+.checklist-meta button{ background:none; border:none; color:var(--accent); cursor:pointer; font-size:.78rem; }
+
+details.faq{ border:1px solid var(--line); border-radius:10px; margin:.6rem 0; background:var(--surface); overflow:hidden; }
+details.faq summary{ cursor:pointer; padding:.8rem 1rem; font-weight:600; list-style:none; display:flex; justify-content:space-between; gap:1rem; }
+details.faq summary::-webkit-details-marker{ display:none; }
+details.faq summary::after{ content:"+"; color:var(--accent); font-size:1.2rem; }
+details.faq[open] summary::after{ content:"–"; }
+details.faq .a{ padding:0 1rem 1rem; color:var(--text-soft); }
+
+dl.glossary{ margin:1rem 0; }
+dl.glossary dt{ font-weight:700; margin-top:.9rem; }
+dl.glossary dd{ margin:.2rem 0 0; color:var(--text-soft); }
+
+.chip-row{ display:flex; gap:.5rem; flex-wrap:wrap; margin:.8rem 0; }
+.chip{ background:var(--surface-2); border:1px solid var(--line); border-radius:99px; padding:.3rem .8rem; font-size:.85rem; }
+
+footer.page{ border-top:1px solid var(--line); padding:2rem 1.4rem 3rem; text-align:center; color:var(--text-faint); font-size:.85rem; }
+
+.mobile-toc-toggle{ display:none; }
+@media (max-width: 880px){
+  .layout{ grid-template-columns:1fr; }
+  aside.toc{
+    position:static; max-height:none; border-right:none; border-bottom:1px solid var(--line);
+    display:none;
+  }
+  aside.toc.open{ display:block; }
+  .mobile-toc-toggle{ display:inline-flex; }
+}
+@media print{
+  .topbar, aside.toc, .no-print, footer.page{ display:none !important; }
+  .layout{ display:block; }
+  main{ padding:0; }
+  #prose section{ break-inside:avoid; max-width:none; }
+  body{ background:#fff; color:#000; }
+}
+.bx{ font-weight:700; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#prose">Hoppa till innehållet</a>
+
+<header class="topbar no-print">
+  <a class="brand" href="start.html">
+    <span class="brand-icon">🟪</span>
+    <span>Teams-manualen</span>
+  </a>
+  <a class="back" href="start.html">← Till startsidan</a>
+  <div class="controls">
+    <button type="button" class="mobile-toc-toggle" id="tocToggle" aria-expanded="false">☰ Kapitel</button>
+    <div class="seg" role="group" aria-label="Ljust eller mörkt läge">
+      <button type="button" id="themeLjus" aria-pressed="true">☀️ Ljus</button>
+      <button type="button" id="themeMork" aria-pressed="false">🌙 Mörk</button>
+    </div>
+    <div class="seg" role="group" aria-label="Textstorlek">
+      <button type="button" id="sizeMinus" aria-label="Mindre text">A−</button>
+      <button type="button" id="sizePlus" aria-label="Större text">A+</button>
+    </div>
+    <button type="button" id="fontToggle" aria-pressed="false">🔤 Dyslexivänligt typsnitt</button>
+    <div class="seg" role="group" aria-label="Bionic Reading-nivå">
+      <button type="button" id="bionic0" aria-pressed="true">Av</button>
+      <button type="button" id="bionic1" aria-pressed="false">B1</button>
+      <button type="button" id="bionic2" aria-pressed="false">B2</button>
+      <button type="button" id="bionic3" aria-pressed="false">B3</button>
+    </div>
+    <button type="button" id="printBtn">🖨️ Skriv ut</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="toc" id="tocAside">
+    <h2>Kapitel</h2>
+    <ol id="tocList">
+      <li><a href="#k1">Vad är Teams?</a></li>
+      <li><a href="#k2">Logga in</a></li>
+      <li><a href="#k3">Startsidan</a></li>
+      <li><a href="#k4">Team och kanaler</a></li>
+      <li><a href="#k5">Chatt</a></li>
+      <li><a href="#k6">Uppgifter</a></li>
+      <li><a href="#k7">Kalender</a></li>
+      <li><a href="#k8">Videomöten</a></li>
+      <li><a href="#k9">Filer och OneDrive</a></li>
+      <li><a href="#k10">Inställningar och notiser</a></li>
+      <li><a href="#k11">Nätetikett</a></li>
+      <li><a href="#k12">Vanliga problem</a></li>
+      <li><a href="#k13">Ordlista</a></li>
+      <li><a href="#k14">Checklista</a></li>
+    </ol>
+    <div class="progress-wrap">
+      <div class="bar"><i id="progressBar"></i></div>
+      <p id="progressText">0 av 14 kapitel lästa</p>
+    </div>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <div class="badges">
+        <span class="badge accent">Manual</span>
+        <span class="badge">Gymnasiet</span>
+        <span class="badge">Lättläst</span>
+        <span class="badge">Bionic Reading</span>
+      </div>
+      <h1>Microsoft Teams – manual för elever</h1>
+      <p class="lead">Den här sidan visar dig steg för steg hur du använder Microsoft Teams i skolan: logga in, hitta rätt kurs, chatta, lämna in uppgifter och vara med på videolektioner. Använd menyn till vänster för att hoppa mellan kapitel, eller läs uppifrån och ner.</p>
+    </div>
+
+    <article id="prose">
+
+      <section id="k1">
+        <h2><span class="num">01</span> Vad är Teams?</h2>
+        <p>Microsoft Teams är skolans digitala klassrum. Det är ett program där du och dina lärare håller kontakt, delar dokument och har lektioner på distans eller som stöd till vanliga lektioner.</p>
+        <p>I Teams kan du:</p>
+        <ul>
+          <li>Se alla dina kurser samlade som egna <strong>team</strong></li>
+          <li>Chatta med lärare och klasskamrater</li>
+          <li>Lämna in och få tillbaka <strong>uppgifter</strong></li>
+          <li>Vara med på <strong>videomöten</strong> och lektioner</li>
+          <li>Dela och samarbeta i <strong>filer</strong> tillsammans med andra</li>
+        </ul>
+        <div class="callout tip">
+          <strong class="label">Bra att veta</strong>
+          <p>Du loggar in med ditt skolkonto – samma konto som du använder till andra skolprogram. Fråga din mentor eller IT-support om du är osäker på ditt användarnamn.</p>
+        </div>
+      </section>
+
+      <section id="k2">
+        <h2><span class="num">02</span> Logga in</h2>
+        <h3>På skoldatorn eller egen dator</h3>
+        <ol class="steps">
+          <li>Öppna <strong>Teams-appen</strong> (eller gå till <a href="https://teams.microsoft.com" target="_blank" rel="noopener">teams.microsoft.com</a> i webbläsaren).</li>
+          <li>Skriv in din skol-e-post, t.ex. <kbd>fornamn.efternamn@dinskola.se</kbd>, och klicka <strong>Nästa</strong>.</li>
+          <li>Skriv ditt lösenord och klicka <strong>Logga in</strong>.</li>
+          <li>Om skolan använder tvåstegsverifiering kan du behöva bekräfta inloggningen i en app eller med en kod.</li>
+        </ol>
+        <h3>På mobilen</h3>
+        <ol class="steps">
+          <li>Ladda ner appen <strong>Microsoft Teams</strong> från App Store eller Google Play.</li>
+          <li>Logga in med samma skolkonto som på datorn.</li>
+          <li>Tillåt notiser om du vill få påminnelser om lektioner och meddelanden.</li>
+        </ol>
+        <div class="callout warn">
+          <strong class="label">Glömt lösenord?</strong>
+          <p>Kontakta skolans IT-support eller din mentor. Dela aldrig ditt lösenord med klasskamrater.</p>
+        </div>
+      </section>
+
+      <section id="k3">
+        <h2><span class="num">03</span> Startsidan och navigering</h2>
+        <p>Till vänster i Teams finns en meny med ikoner. Det är där du rör dig mellan olika delar av appen.</p>
+        <table class="icons">
+          <tr><th>Ikon</th><th>Namn</th><th>Vad den gör</th></tr>
+          <tr><td class="icon">🕘</td><td>Aktivitet</td><td>Visar senaste notiser: nya meddelanden, kommentarer och omnämnanden (@).</td></tr>
+          <tr><td class="icon">💬</td><td>Chatt</td><td>Privata konversationer och gruppchattar utanför dina team.</td></tr>
+          <tr><td class="icon">👥</td><td>Team</td><td>Alla dina kurser/klasser. Här hittar du kanaler och lektionsmaterial.</td></tr>
+          <tr><td class="icon">📅</td><td>Kalender</td><td>Schema över möten och lektioner du är inbjuden till.</td></tr>
+          <tr><td class="icon">📝</td><td>Uppgifter</td><td>Alla inlämningsuppgifter från dina kurser, sorterade efter deadline.</td></tr>
+          <tr><td class="icon">📁</td><td>Filer</td><td>Dokument du sparat eller delat i OneDrive och i dina team.</td></tr>
+        </table>
+        <p>Menyn kan se lite olika ut beroende på om du använder dator, mobil eller webbläsare, men ikonerna betyder samma sak överallt.</p>
+      </section>
+
+      <section id="k4">
+        <h2><span class="num">04</span> Team och kanaler</h2>
+        <p>Varje kurs eller klass du går har ett eget <strong>team</strong>. Inne i ett team finns <strong>kanaler</strong> – ungefär som flikar för olika ämnesområden, till exempel "Allmänt", "Prov" eller ett specifikt arbetsområde.</p>
+        <ol class="steps">
+          <li>Klicka på <strong>Team</strong> i vänstermenyn.</li>
+          <li>Välj vilken kurs du vill öppna i listan.</li>
+          <li>Klicka på en kanal, till exempel <strong>Allmänt</strong>, för att se inlägg, filer och material för just det ämnet.</li>
+          <li>Fliken <strong>Uppgifter</strong> högst upp i teamet visar bara det ämnets inlämningar.</li>
+        </ol>
+        <div class="callout">
+          <strong class="label">Saknar du ett team?</strong>
+          <p>Om en kurs inte syns i din team-lista har läraren kanske inte lagt till dig än. Kontakta läraren, inte skolans IT-support, för att bli tillagd.</p>
+        </div>
+      </section>
+
+      <section id="k5">
+        <h2><span class="num">05</span> Chatt</h2>
+        <p>Du kan skriva direkt till en lärare, en klasskompis eller starta en gruppchatt.</p>
+        <ol class="steps">
+          <li>Klicka på <strong>Chatt</strong> i vänstermenyn.</li>
+          <li>Klicka på pennikonen (✏️) för att starta en ny chatt.</li>
+          <li>Skriv namnet på personen du vill nå och välj rätt person i listan.</li>
+          <li>Skriv ditt meddelande i textrutan längst ner och tryck <kbd>Enter</kbd> för att skicka.</li>
+        </ol>
+        <p>Du kan också skriva inlägg direkt i en kanal (i ett team) om frågan gäller hela klassen – då ser alla i kursen både frågan och svaret.</p>
+        <div class="callout tip">
+          <strong class="label">Omnämning med @</strong>
+          <p>Skriver du <kbd>@</kbd> följt av någons namn i en kanal får den personen en notis om att du vill ha deras uppmärksamhet.</p>
+        </div>
+      </section>
+
+      <section id="k6">
+        <h2><span class="num">06</span> Uppgifter</h2>
+        <p>Här lämnar du in det som läraren begär – texter, bilder, filer eller svar på frågor.</p>
+        <ol class="steps">
+          <li>Klicka på <strong>Uppgifter</strong> i vänstermenyn för att se alla kurser, eller öppna fliken <strong>Uppgifter</strong> inne i ett team för bara den kursen.</li>
+          <li>Klicka på uppgiften du vill jobba med för att läsa instruktionerna och se deadline.</li>
+          <li>Ladda upp din fil under <strong>Lägg till arbete</strong>, eller skriv svaret direkt om läraren har lagt till ett textfält.</li>
+          <li>Klicka på <strong>Lämna in</strong> när du är klar. Du får en bekräftelse på att uppgiften är inlämnad.</li>
+        </ol>
+        <div class="callout warn">
+          <strong class="label">Innan deadline</strong>
+          <p>Fram till deadline kan du oftast ta tillbaka en inlämning och göra ändringar. Klicka på <strong>Ta bort inlämning</strong>, uppdatera filen och lämna in igen.</p>
+        </div>
+        <p>När läraren rättat uppgiften ser du poäng, betyg eller kommentarer på samma ställe, ofta märkt <strong>Granskad</strong> eller <strong>Bedömd</strong>.</p>
+      </section>
+
+      <section id="k7">
+        <h2><span class="num">07</span> Kalender</h2>
+        <p>Kalendern visar dina bokade möten och videolektioner, ungefär som ett digitalt schema.</p>
+        <ul>
+          <li>Klicka på ett möte för att se detaljer: tid, vilka som är med och eventuell länk.</li>
+          <li>Klicka på <strong>Gå med</strong> för att ansluta till ett videomöte i rätt tid.</li>
+          <li>Behöver du boka ett eget möte, till exempel med en lärare, klickar du på <strong>Nytt möte</strong> och bjuder in personen.</li>
+        </ul>
+      </section>
+
+      <section id="k8">
+        <h2><span class="num">08</span> Videomöten</h2>
+        <h3>Ansluta till ett möte</h3>
+        <ol class="steps">
+          <li>Klicka på mötet i kalendern eller på länken läraren delat, och välj <strong>Gå med nu</strong>.</li>
+          <li>Kontrollera att kamera och mikrofon fungerar i förhandsvisningen innan du ansluter.</li>
+          <li>Klicka på <strong>Gå med nu</strong> igen för att komma in i mötet.</li>
+        </ol>
+        <h3>Under mötet</h3>
+        <table class="icons">
+          <tr><th>Ikon</th><th>Funktion</th></tr>
+          <tr><td class="icon">🎤</td><td>Stäng av/på mikrofonen. Ha den avstängd när du inte pratar.</td></tr>
+          <tr><td class="icon">📷</td><td>Stäng av/på kameran.</td></tr>
+          <tr><td class="icon">🖐️</td><td>Räck upp handen om du vill säga något utan att avbryta.</td></tr>
+          <tr><td class="icon">🖥️</td><td>Dela din skärm, till exempel för att visa ett dokument.</td></tr>
+          <tr><td class="icon">💬</td><td>Öppna mötets chatt för att skriva frågor eller svar.</td></tr>
+          <tr><td class="icon">📞</td><td>Lämna mötet.</td></tr>
+        </table>
+        <div class="callout tip">
+          <strong class="label">Tips för videolektioner</strong>
+          <p>Testa ljud och kamera några minuter innan lektionen börjar, sitt på en lugn plats och ha mikrofonen avstängd tills du ska prata.</p>
+        </div>
+      </section>
+
+      <section id="k9">
+        <h2><span class="num">09</span> Filer och OneDrive</h2>
+        <p>Filer du laddar upp i Teams sparas automatiskt i <strong>OneDrive</strong> eller i teamets delade filyta, så du kan komma åt dem från vilken enhet som helst.</p>
+        <ul>
+          <li>Öppna fliken <strong>Filer</strong> inne i en kanal för att se allt material läraren delat.</li>
+          <li>Klicka på <strong>Ladda upp</strong> för att lägga till en egen fil.</li>
+          <li>Öppnar du ett Word-, Excel- eller PowerPoint-dokument direkt i Teams kan flera personer skriva i det samtidigt.</li>
+          <li>Ändringar sparas automatiskt – du behöver oftast inte trycka på "Spara".</li>
+        </ul>
+      </section>
+
+      <section id="k10">
+        <h2><span class="num">10</span> Inställningar och notiser</h2>
+        <p>Klicka på din profilbild uppe i hörnet för att komma åt inställningar.</p>
+        <ul>
+          <li><strong>Status</strong> – visa om du är tillgänglig, upptagen eller borta.</li>
+          <li><strong>Notiser</strong> – välj om och hur du vill bli påmind om nya meddelanden.</li>
+          <li><strong>Utseende</strong> – byt mellan ljust och mörkt tema i själva Teams-appen.</li>
+          <li><strong>Konto</strong> – logga ut, till exempel på en delad skoldator.</li>
+        </ul>
+        <div class="callout warn">
+          <strong class="label">Delad dator</strong>
+          <p>Använder du en dator som andra elever också använder – logga alltid ut när du är klar.</p>
+        </div>
+      </section>
+
+      <section id="k11">
+        <h2><span class="num">11</span> Nätetikett – så pratar vi i Teams</h2>
+        <ul>
+          <li>Skriv till lärare och klasskamrater som du skulle prata i klassrummet – med respekt.</li>
+          <li>Skriv i rätt kanal, så att alla som behöver svaret ser frågan.</li>
+          <li>Dela aldrig andras lösenord, privata bilder eller skärmdumpar av privata chattar.</li>
+          <li>Om du blir utsatt för elaka kommentarer eller mobbning i Teams – kontakta din mentor eller lärare direkt.</li>
+          <li>Kom ihåg att lärare oftast inte svarar på kvällar och helger – räkna med svar under skoltid.</li>
+        </ul>
+      </section>
+
+      <section id="k12">
+        <h2><span class="num">12</span> Vanliga problem</h2>
+        <details class="faq">
+          <summary>Jag hör inget/syns inte i mötet</summary>
+          <div class="a"><p>Kontrollera att rätt mikrofon/kamera är vald under mötets inställningar (kugghjulet eller de tre prickarna). Testa att lämna mötet och gå med igen.</p></div>
+        </details>
+        <details class="faq">
+          <summary>Jag hittar inte kursen i Team-listan</summary>
+          <div class="a"><p>Läraren har troligen inte lagt till dig än. Kontakta läraren eller din mentor, inte IT-support.</p></div>
+        </details>
+        <details class="faq">
+          <summary>Jag kan inte lämna in uppgiften, knappen är grå</summary>
+          <div class="a"><p>Kontrollera att du har laddat upp en fil eller fyllt i textfältet. Har deadline passerat kan inlämning vara stängd – kontakta läraren.</p></div>
+        </details>
+        <details class="faq">
+          <summary>Teams är långsamt eller kraschar</summary>
+          <div class="a"><p>Stäng och starta om appen. Fungerar det ändå inte, prova webbläsarversionen på teams.microsoft.com, eller starta om datorn.</p></div>
+        </details>
+        <details class="faq">
+          <summary>Jag har glömt lösenordet till skolkontot</summary>
+          <div class="a"><p>Kontakta skolans IT-support eller din mentor för att återställa lösenordet. Dela aldrig ditt lösenord med andra.</p></div>
+        </details>
+        <details class="faq">
+          <summary>Jag ser fel klass eller fel person i ett möte</summary>
+          <div class="a"><p>Lämna mötet direkt och kontrollera länken. Hör av dig till läraren om något verkar fel.</p></div>
+        </details>
+      </section>
+
+      <section id="k13">
+        <h2><span class="num">13</span> Ordlista</h2>
+        <dl class="glossary">
+          <dt>Team</dt>
+          <dd>En digital grupp för en kurs eller klass, med egna kanaler, filer och uppgifter.</dd>
+          <dt>Kanal</dt>
+          <dd>En "flik" inne i ett team för ett visst ämne eller arbetsområde.</dd>
+          <dt>Chatt</dt>
+          <dd>Ett privat eller gruppmeddelande utanför ett specifikt team.</dd>
+          <dt>Uppgift (Assignment)</dt>
+          <dd>En inlämningsuppgift som läraren lagt ut, med deadline och eventuell bedömning.</dd>
+          <dt>OneDrive</dt>
+          <dd>Microsofts molnlagring där dina filer sparas automatiskt.</dd>
+          <dt>@omnämning</dt>
+          <dd>Att skriva @ följt av ett namn för att rikta ett meddelande till en särskild person.</dd>
+          <dt>Status</dt>
+          <dd>Visar om du är tillgänglig, upptagen, frånvarande eller offline.</dd>
+        </dl>
+      </section>
+
+      <section id="k14">
+        <h2><span class="num">14</span> Checklista – innan videolektionen</h2>
+        <ul class="checklist" data-checklist="teams-checklista">
+          <li><label><input type="checkbox"><span>Jag har loggat in med rätt skolkonto</span></label></li>
+          <li><label><input type="checkbox"><span>Jag har testat mikrofon och kamera</span></label></li>
+          <li><label><input type="checkbox"><span>Jag sitter på en lugn plats</span></label></li>
+          <li><label><input type="checkbox"><span>Jag har kollat dagens schema i kalendern</span></label></li>
+          <li><label><input type="checkbox"><span>Jag har koll på om jag har en uppgift att lämna in idag</span></label></li>
+          <li><label><input type="checkbox"><span>Mikrofonen är avstängd tills jag ska prata</span></label></li>
+        </ul>
+        <div class="chip-row">
+          <span class="chip">Sparas automatiskt i din webbläsare</span>
+        </div>
+      </section>
+
+    </article>
+  </main>
+</div>
+
+<footer class="page no-print">
+  <p>Manual för Microsoft Teams i gymnasieskolan. Lättläst, mobilanpassad och med stöd för Bionic Reading och mörkt läge.</p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  const html = document.documentElement;
+  const $ = (s, r) => (r||document).querySelector(s);
+  const $$ = (s, r) => Array.from((r||document).querySelectorAll(s));
+
+  const store = {
+    get(k, d){ try{ const v = localStorage.getItem('teams-manual:'+k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
+    set(k, v){ try{ localStorage.setItem('teams-manual:'+k, JSON.stringify(v)); }catch(e){} },
+    del(k){ try{ localStorage.removeItem('teams-manual:'+k); }catch(e){} }
+  };
+
+  /* ---- Tema ---- */
+  function applyTheme(t){
+    html.dataset.theme = t;
+    $('#themeLjus').setAttribute('aria-pressed', String(t==='ljus'));
+    $('#themeMork').setAttribute('aria-pressed', String(t==='mork'));
+    store.set('theme', t);
+  }
+  applyTheme(store.get('theme', 'ljus'));
+  $('#themeLjus').addEventListener('click', () => applyTheme('ljus'));
+  $('#themeMork').addEventListener('click', () => applyTheme('mork'));
+
+  /* ---- Textstorlek ---- */
+  function applySize(n){
+    n = Math.max(1, Math.min(4, n));
+    html.dataset.size = String(n);
+    store.set('size', n);
+  }
+  applySize(store.get('size', 2));
+  $('#sizeMinus').addEventListener('click', () => applySize(Number(html.dataset.size) - 1));
+  $('#sizePlus').addEventListener('click', () => applySize(Number(html.dataset.size) + 1));
+
+  /* ---- Typsnitt ---- */
+  function loadDyslexiFont(){
+    if($('#dyslexi-font-link')) return;
+    const link = document.createElement('link');
+    link.id = 'dyslexi-font-link'; link.rel = 'stylesheet';
+    link.href = 'https://fonts.cdnfonts.com/css/opendyslexic';
+    document.head.appendChild(link);
+  }
+  function applyFont(f){
+    html.dataset.font = f;
+    $('#fontToggle').setAttribute('aria-pressed', String(f==='dyslexi'));
+    store.set('font', f);
+    if(f === 'dyslexi') loadDyslexiFont();
+  }
+  applyFont(store.get('font', 'system'));
+  $('#fontToggle').addEventListener('click', () => applyFont(html.dataset.font === 'dyslexi' ? 'system' : 'dyslexi'));
+
+  /* ---- Bionic Reading ---- */
+  const SKIP_TAGS = new Set(['SCRIPT','STYLE','CODE','PRE','TEXTAREA','INPUT','SELECT','BUTTON','SVG','KBD']);
+  let pristine = null;
+  function fixation(len, level){
+    if(len <= 1) return len;
+    if(len <= 3) return 1;
+    const ratio = level===1 ? 0.35 : level===2 ? 0.5 : 0.65;
+    return Math.max(1, Math.min(len-1, Math.round(len*ratio)));
+  }
+  function bionifyNode(node, level){
+    const text = node.nodeValue;
+    if(!/[a-zA-ZåäöÅÄÖéèüÉÈÜ]/.test(text)) return;
+    const frag = document.createDocumentFragment();
+    text.split(/(\s+)/).forEach(chunk => {
+      if(!chunk) return;
+      const m = chunk.match(/^([^a-zA-ZåäöÅÄÖéèüÉÈÜ0-9]*)([a-zA-ZåäöÅÄÖéèüÉÈÜ]+)(.*)$/s);
+      if(!m){ frag.appendChild(document.createTextNode(chunk)); return; }
+      const [, pre, word, post] = m;
+      const cut = fixation(word.length, level);
+      if(pre) frag.appendChild(document.createTextNode(pre));
+      const b = document.createElement('b'); b.className = 'bx'; b.textContent = word.slice(0, cut);
+      frag.appendChild(b);
+      frag.appendChild(document.createTextNode(word.slice(cut) + post));
+    });
+    node.parentNode.replaceChild(frag, node);
+  }
+  function bionify(root, level){
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        let p = n.parentElement;
+        while(p && p !== root){
+          if(SKIP_TAGS.has(p.tagName)) return NodeFilter.FILTER_REJECT;
+          p = p.parentElement;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = []; let n;
+    while((n = walker.nextNode())) nodes.push(n);
+    nodes.forEach(node => bionifyNode(node, level));
+  }
+  function renderBionic(level){
+    const prose = $('#prose'); if(!prose) return;
+    if(!pristine) pristine = prose.cloneNode(true);
+    const fresh = pristine.cloneNode(true);
+    prose.replaceChildren(...Array.from(fresh.childNodes));
+    if(level > 0) bionify(prose, level);
+    enhanceChecklists();
+  }
+  function applyBionic(level){
+    level = Math.max(0, Math.min(3, level));
+    html.dataset.bionic = String(level);
+    [0,1,2,3].forEach(i => $('#bionic'+i).setAttribute('aria-pressed', String(i===level)));
+    store.set('bionic', level);
+    renderBionic(level);
+  }
+  [0,1,2,3].forEach(i => $('#bionic'+i).addEventListener('click', () => applyBionic(i)));
+
+  /* ---- Checklista ---- */
+  function enhanceChecklists(){
+    $$('#prose ul.checklist').forEach(list => {
+      const id = list.dataset.checklist || 'lista';
+      const saved = store.get('chk:'+id, []);
+      $$('li', list).forEach((li, i) => {
+        const box = $('input[type=checkbox]', li);
+        if(!box) return;
+        box.checked = saved.includes(i);
+        box.addEventListener('change', () => {
+          const cur = new Set(store.get('chk:'+id, []));
+          box.checked ? cur.add(i) : cur.delete(i);
+          store.set('chk:'+id, Array.from(cur).sort((a,b)=>a-b));
+        });
+      });
+    });
+  }
+
+  /* ---- Utskrift ---- */
+  $('#printBtn').addEventListener('click', () => window.print());
+
+  /* ---- Mobil TOC-toggle ---- */
+  const tocAside = $('#tocAside'), tocToggle = $('#tocToggle');
+  tocToggle.addEventListener('click', () => {
+    const open = tocAside.classList.toggle('open');
+    tocToggle.setAttribute('aria-expanded', String(open));
+  });
+  $$('#tocList a').forEach(a => a.addEventListener('click', () => {
+    if(window.innerWidth <= 880){ tocAside.classList.remove('open'); tocToggle.setAttribute('aria-expanded','false'); }
+  }));
+
+  /* ---- Aktivt kapitel + läsförlopp ---- */
+  const sections = $$('#prose section');
+  const tocLinks = $$('#tocList a');
+  const seen = new Set();
+  const progressBar = $('#progressBar'), progressText = $('#progressText');
+  function updateProgress(){
+    progressBar.style.width = Math.round((seen.size / sections.length) * 100) + '%';
+    progressText.textContent = seen.size + ' av ' + sections.length + ' kapitel lästa';
+  }
+  updateProgress();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.id;
+      const link = tocLinks.find(a => a.getAttribute('href') === '#'+id);
+      if(!link) return;
+      if(entry.isIntersecting){
+        tocLinks.forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
+        if(entry.intersectionRatio > 0.4){
+          if(!seen.has(id)){ seen.add(id); updateProgress(); }
+        }
+      }
+    });
+  }, { rootMargin: '-80px 0px -60% 0px', threshold: [0, 0.4, 1] });
+  sections.forEach(s => io.observe(s));
+
+  /* ---- Init ---- */
+  enhanceChecklists();
+  applyBionic(store.get('bionic', 0));
+})();
+</script>
+</body>
+</html>
