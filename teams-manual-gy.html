@@ -72,6 +72,8 @@ img{ max-width:100%; }
 .controls button[aria-pressed="true"], .controls button.active{
   background:var(--accent-weak); border-color:var(--accent); color:var(--accent-ink); font-weight:600;
 }
+#askBtn{ background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+#askBtn:hover{ color:#fff; filter:brightness(1.08); }
 .seg{ display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
 .seg button{ border:none; border-radius:0; }
 .seg button + button{ border-left:1px solid var(--line); }
@@ -209,6 +211,20 @@ dl.glossary dd{ margin:.2rem 0 0; color:var(--text-soft); }
 .qa-answer .src{ margin-top:.6rem; font-size:.78rem; color:var(--text-faint); }
 .qa-answer .src a{ color:var(--accent); }
 .empty{ font-size:.88rem; color:var(--text-faint); padding:.4rem .1rem; }
+
+.ask-fab{
+  position:fixed; left:1.2rem; bottom:1.2rem; z-index:60;
+  display:inline-flex; align-items:center; gap:.5rem;
+  background:var(--accent); color:#fff; border:none; border-radius:99px;
+  padding:.8rem 1.2rem; font-size:.92rem; font-weight:700; cursor:pointer;
+  box-shadow:var(--shadow); animation:ask-pop .3s ease;
+}
+.ask-fab:hover{ filter:brightness(1.08); }
+@keyframes ask-pop{ from{ transform:scale(.9); opacity:0; } to{ transform:scale(1); opacity:1; } }
+@media (max-width:560px){
+  .ask-fab .txt{ display:none; }
+  .ask-fab{ padding:.8rem; }
+}
 
 footer.page{ border-top:1px solid var(--line); padding:2rem 1.4rem 3rem; text-align:center; color:var(--text-faint); font-size:.85rem; }
 
@@ -639,6 +655,8 @@ footer.page{ border-top:1px solid var(--line); padding:2rem 1.4rem 3rem; text-al
 
 <a href="#prose" class="back-to-top no-print" id="backToTop">↑ Till toppen</a>
 
+<button type="button" class="ask-fab no-print" id="askFab">💬 <span class="txt">Kört fast? Fråga</span></button>
+
 <div id="askBackdrop" class="no-print"></div>
 <aside class="panel no-print" id="askPanel" aria-hidden="true" aria-labelledby="ask-titel" role="dialog">
   <div class="panel-head">
@@ -905,6 +923,7 @@ footer.page{ border-top:1px solid var(--line); padding:2rem 1.4rem 3rem; text-al
   }
   $('#askBtn').addEventListener('click', openAsk);
   $('#askBtnHero').addEventListener('click', openAsk);
+  $('#askFab').addEventListener('click', openAsk);
   $('#askClose').addEventListener('click', closeAsk);
   askBackdrop.addEventListener('click', closeAsk);
   document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeAsk(); });
