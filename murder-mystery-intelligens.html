@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Murder Mystery - Mordet på AI-mässan</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-dark: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-surface: #0f3460;
+            --accent-gold: #e2b714;
+            --accent-red: #c0392b;
+            --accent-green: #27ae60;
+            --text-light: #ecf0f1;
+            --text-muted: #95a5a6;
+            --text-warm: #f5e6ca;
+            --border-subtle: rgba(226, 183, 20, 0.2);
+            --shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ===== HEADER ===== */
+        .game-header {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+            border-bottom: 2px solid var(--border-subtle);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .game-header h1 {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #e2b714, #f39c12);
+            color: #1a1a2e;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(226, 183, 20, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--accent-gold);
+            border: 2px solid var(--accent-gold);
+        }
+
+        .btn-outline:hover {
+            background: rgba(226, 183, 20, 0.1);
+        }
+
+        .btn-red {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .btn-red:hover {
+            background: #e74c3c;
+            transform: translateY(-2px);
+        }
+
+        .btn-green {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .btn-green:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ===== SCREENS ===== */
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* ===== START SCREEN ===== */
+        .start-screen {
+            min-height: calc(100vh - 70px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-top: 2rem;
+        }
+
+        .hero-icon { font-size: 5rem; margin-bottom: 1rem; }
+
+        .hero-section h2 {
+            font-size: 2.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .hero-section .tagline {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Mystery Cards */
+        .mystery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            max-width: 1100px;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .mystery-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mystery-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-red));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .mystery-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-gold);
+            box-shadow: var(--shadow);
+        }
+
+        .mystery-card:hover::before { opacity: 1; }
+
+        .mystery-card.selected {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(226, 183, 20, 0.3);
+        }
+
+        .mystery-card.selected::before { opacity: 1; }
+
+        .mystery-card .card-num {
+            display: inline-block;
+            background: var(--accent-gold);
+            color: var(--bg-dark);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .mystery-card h3 {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .mystery-card .difficulty {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.8rem;
+        }
+
+        .mystery-card p {
+            color: var(--text-warm);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .mystery-card .tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(226, 183, 20, 0.15);
+            color: var(--accent-gold);
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Mode Selection */
+        .mode-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid var(--border-subtle);
+            margin-bottom: 2rem;
+        }
+
+        .mode-section h3 {
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 1.2rem;
+            background: var(--bg-surface);
+            border: 2px solid var(--border-subtle);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-light);
+        }
+
+        .mode-btn:hover {
+            border-color: var(--accent-gold);
+            background: rgba(226, 183, 20, 0.1);
+        }
+
+        .mode-btn.selected {
+            border-color: var(--accent-gold);
+            background: rgba(226, 183, 20, 0.15);
+        }
+
+        .mode-btn .mode-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .mode-btn .mode-label { font-weight: 700; font-size: 1rem; }
+        .mode-btn .mode-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+        .start-btn-container {
+            margin-top: 1rem;
+        }
+
+        .btn-start-game {
+            font-size: 1.2rem;
+            padding: 1rem 3rem;
+        }
+
+        /* ===== GAME SCREEN ===== */
+        .game-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 25px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .progress-step.active {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            background: rgba(226, 183, 20, 0.1);
+        }
+
+        .progress-step.completed {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            background: rgba(39, 174, 96, 0.1);
+        }
+
+        .progress-step.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Phase Panels */
+        .phase-panel { display: none; }
+        .phase-panel.active { display: block; }
+
+        .phase-title {
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .phase-desc {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        /* Intro Phase */
+        .intro-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 2rem;
+        }
+
+        .intro-content h3 {
+            color: var(--accent-gold);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .intro-content p {
+            color: var(--text-warm);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .victim-card {
+            background: rgba(192, 57, 43, 0.15);
+            border: 1px solid rgba(192, 57, 43, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .victim-card h4 {
+            color: var(--accent-red);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Suspect Cards */
+        .suspects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .suspect-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .suspect-card:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .suspect-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .suspect-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .suspect-header h4 {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .suspect-header .suspect-role {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .suspect-info {
+            color: var(--text-warm);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .suspect-interview {
+            background: var(--bg-surface);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 0.8rem;
+            display: none;
+        }
+
+        .suspect-interview.revealed {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .suspect-interview h5 {
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .suspect-interview p {
+            color: var(--text-warm);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .btn-interview {
+            width: 100%;
+            margin-top: 0.8rem;
+        }
+
+        /* Pair mode player indicator */
+        .player-indicator {
+            display: none;
+            background: var(--bg-surface);
+            border-radius: 10px;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .player-indicator.p1 {
+            border: 2px solid #3498db;
+            color: #3498db;
+        }
+
+        .player-indicator.p2 {
+            border: 2px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .pair-mode .player-indicator { display: block; }
+
+        .pair-switch-notice {
+            display: none;
+            background: rgba(226, 183, 20, 0.15);
+            border: 2px solid var(--accent-gold);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .pair-mode .pair-switch-notice { display: block; }
+
+        /* Clues */
+        .clues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .clue-item {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .clue-item:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .clue-item.revealed {
+            border-color: var(--accent-green);
+            background: rgba(39, 174, 96, 0.05);
+        }
+
+        .clue-item.hidden-content .clue-text {
+            filter: blur(6px);
+            user-select: none;
+        }
+
+        .clue-item .clue-label {
+            font-weight: 700;
+            color: var(--accent-gold);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .clue-item .clue-text {
+            color: var(--text-warm);
+            font-size: 0.9rem;
+            transition: filter 0.3s;
+        }
+
+        .clue-item .click-hint {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        /* Evidence Board */
+        .evidence-board {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 2rem;
+            min-height: 300px;
+        }
+
+        .evidence-board h3 {
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+        }
+
+        .evidence-list {
+            list-style: none;
+        }
+
+        .evidence-list li {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-warm);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .evidence-list li::before {
+            content: '>';
+            color: var(--accent-gold);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Notepad */
+        .notepad {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .notepad h3 {
+            color: var(--accent-gold);
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .notepad textarea {
+            width: 100%;
+            min-height: 120px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            color: var(--text-light);
+            padding: 1rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        .notepad textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        /* Accusation */
+        .accusation-section {
+            text-align: center;
+        }
+
+        .suspect-select-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .suspect-select-btn {
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-light);
+        }
+
+        .suspect-select-btn:hover {
+            border-color: var(--accent-red);
+            background: rgba(192, 57, 43, 0.1);
+        }
+
+        .suspect-select-btn.selected {
+            border-color: var(--accent-red);
+            background: rgba(192, 57, 43, 0.2);
+            box-shadow: 0 0 15px rgba(192, 57, 43, 0.3);
+        }
+
+        .suspect-select-btn .select-avatar {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .suspect-select-btn .select-name {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .suspect-select-btn .select-role {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .motive-input {
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .motive-input label {
+            display: block;
+            color: var(--accent-gold);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+
+        .motive-input textarea {
+            width: 100%;
+            min-height: 100px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-subtle);
+            border-radius: 10px;
+            color: var(--text-light);
+            padding: 1rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        .motive-input textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        /* Reveal */
+        .reveal-section {
+            text-align: center;
+        }
+
+        .reveal-result {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            border: 2px solid var(--border-subtle);
+        }
+
+        .reveal-result.correct {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 30px rgba(39, 174, 96, 0.2);
+        }
+
+        .reveal-result.wrong {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 30px rgba(192, 57, 43, 0.2);
+        }
+
+        .reveal-result .result-icon { font-size: 4rem; margin-bottom: 1rem; }
+
+        .reveal-result h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .reveal-result.correct h3 { color: var(--accent-green); }
+        .reveal-result.wrong h3 { color: var(--accent-red); }
+
+        .reveal-explanation {
+            background: var(--bg-surface);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .reveal-explanation h4 {
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .reveal-explanation p {
+            color: var(--text-warm);
+            margin-bottom: 0.8rem;
+            line-height: 1.8;
+        }
+
+        .reveal-evidence {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .reveal-evidence li {
+            padding: 0.5rem 0;
+            color: var(--text-warm);
+            font-size: 0.95rem;
+        }
+
+        .reveal-evidence li::before {
+            content: '> ';
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        .lesson-box {
+            background: rgba(226, 183, 20, 0.08);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+
+        .lesson-box h4 {
+            color: var(--accent-gold);
+            margin-bottom: 0.8rem;
+            font-size: 1.05rem;
+        }
+
+        .lesson-box ul {
+            list-style: none;
+        }
+
+        .lesson-box li {
+            padding: 0.4rem 0;
+            color: var(--text-warm);
+            font-size: 0.9rem;
+        }
+
+        .lesson-box li::before {
+            content: '💡 ';
+        }
+
+        /* Navigation buttons */
+        .phase-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(226, 183, 20, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(226, 183, 20, 0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-section h2 { font-size: 2rem; }
+            .mystery-grid { grid-template-columns: 1fr; }
+            .game-container { padding: 1rem; }
+            .progress-bar { gap: 0.3rem; }
+            .progress-step { padding: 0.4rem 0.6rem; font-size: 0.75rem; }
+            .suspects-grid { grid-template-columns: 1fr; }
+            .clues-grid { grid-template-columns: 1fr; }
+            .suspect-select-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+            .mode-buttons { flex-direction: column; }
+            .game-header { padding: 0.8rem 1rem; }
+            .game-header h1 { font-size: 1.1rem; }
+            .hero-icon { font-size: 3.5rem; }
+        }
+
+        /* Back link */
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: var(--accent-gold); }
+    </style>
+</head>
+<body>
+
+<header class="game-header">
+    <a href="start.html" class="back-link">&larr; Tillbaka till portalen</a>
+    <h1>MURDER MYSTERY - VAD ÄR INTELLIGENS?</h1>
+    <div class="header-controls">
+        <button class="btn btn-outline" onclick="showRules()" id="rulesBtn" style="display:none;">Regler</button>
+        <button class="btn btn-outline" onclick="restartGame()" id="restartBtn" style="display:none;">Börja om</button>
+    </div>
+</header>
+
+<!-- ===== START SCREEN ===== -->
+<div id="startScreen" class="screen active">
+    <div class="start-screen">
+        <div class="hero-section fade-in">
+            <div class="hero-icon">🧠🔍</div>
+            <h2>Mordet på AI-mässan</h2>
+            <p class="tagline">Frejaskolans AI-mässa slutar i tragedi. Använd kunskaperna om intelligens, Turingtestet och AI:s praktiska gränser för att avslöja mördaren!</p>
+        </div>
+
+        <h3 style="color: var(--accent-gold); margin-bottom: 1.5rem; font-size: 1.3rem;">Fallet</h3>
+
+        <div class="mystery-grid fade-in">
+            <div class="mystery-card" onclick="selectMystery('aimassan')" id="card-aimassan">
+                <span class="card-num">1</span>
+                <h3>Mordet på AI-mässan</h3>
+                <div class="difficulty">Svårighetsgrad: Medel</div>
+                <p>Juryns ordförande på gymnasiets AI-mässa hittas död i domarrummet strax före prisutdelningen. Fem personer hade motiv - men vem visste tillräckligt om intelligens, imitation och fusk för att komma undan?</p>
+                <div class="tags">
+                    <span class="tag">5 misstänkta</span>
+                    <span class="tag">10 ledtrådar</span>
+                    <span class="tag">~35 min</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mode-section fade-in">
+            <h3>Hur vill ni spela?</h3>
+            <div class="mode-buttons">
+                <div class="mode-btn" onclick="selectMode('solo')" id="mode-solo">
+                    <div class="mode-icon">👤</div>
+                    <div class="mode-label">Ensam</div>
+                    <div class="mode-desc">Spela själv och lös mysteriet på egen hand</div>
+                </div>
+                <div class="mode-btn" onclick="selectMode('pair')" id="mode-pair">
+                    <div class="mode-icon">👥</div>
+                    <div class="mode-label">I par</div>
+                    <div class="mode-desc">Två spelare får olika ledtrådar och måste samarbeta</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="start-btn-container fade-in">
+            <button class="btn btn-gold btn-start-game" onclick="startGame()" id="startGameBtn" disabled>
+                Starta spelet
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div id="gameScreen" class="screen">
+    <div class="game-container">
+        <!-- Progress bar -->
+        <div class="progress-bar" id="progressBar"></div>
+
+        <!-- Phase 1: Intro -->
+        <div class="phase-panel" id="phase-intro">
+            <h2 class="phase-title">Introduktion</h2>
+            <p class="phase-desc">Läs bakgrunden noggrant - varje detalj kan vara viktig.</p>
+            <div class="intro-content" id="introContent"></div>
+            <div class="phase-nav">
+                <div></div>
+                <button class="btn btn-gold" onclick="goToPhase('crime-scene')">Undersök brottsplatsen &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Phase 2: Crime Scene -->
+        <div class="phase-panel" id="phase-crime-scene">
+            <h2 class="phase-title">Brottsplatsen</h2>
+            <p class="phase-desc" id="crimeSceneDesc">Klicka på ledtrådarna för att avslöja dem. I parspel ser varje spelare olika ledtrådar.</p>
+
+            <div class="player-indicator p1" id="csPlayer1">🔵 Spelare 1 - Dina ledtrådar</div>
+            <div class="player-indicator p2" id="csPlayer2" style="display:none;">🔴 Spelare 2 - Dina ledtrådar</div>
+
+            <div class="clues-grid" id="cluesGrid"></div>
+
+            <div class="pair-switch-notice" id="pairSwitchClues">
+                <strong>Parspel:</strong> Byt vem som tittar på skärmen för att se den andra spelarens ledtrådar!
+                <br><button class="btn btn-gold" style="margin-top:0.8rem;" onclick="switchCluePlayer()">Byt till nästa spelare</button>
+            </div>
+
+            <div class="notepad">
+                <h3>📝 Anteckningar</h3>
+                <textarea id="notesClues" placeholder="Skriv ner viktiga observationer här..."></textarea>
+            </div>
+
+            <div class="phase-nav">
+                <button class="btn btn-outline" onclick="goToPhase('intro')">&larr; Tillbaka</button>
+                <button class="btn btn-gold" onclick="goToPhase('interviews')">Förhör misstänkta &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Phase 3: Interviews -->
+        <div class="phase-panel" id="phase-interviews">
+            <h2 class="phase-title">Förhör</h2>
+            <p class="phase-desc">Förhör de misstänkta. I parspel får varje spelare prata med olika personer.</p>
+
+            <div class="player-indicator p1" id="intPlayer1">🔵 Spelare 1 - Dina förhör</div>
+            <div class="player-indicator p2" id="intPlayer2" style="display:none;">🔴 Spelare 2 - Dina förhör</div>
+
+            <div class="suspects-grid" id="suspectsGrid"></div>
+
+            <div class="pair-switch-notice" id="pairSwitchInterviews">
+                <strong>Parspel:</strong> Byt vem som tittar på skärmen!
+                <br><button class="btn btn-gold" style="margin-top:0.8rem;" onclick="switchInterviewPlayer()">Byt till nästa spelare</button>
+            </div>
+
+            <div class="notepad">
+                <h3>📝 Anteckningar</h3>
+                <textarea id="notesInterviews" placeholder="Vad sa de misstänkta? Vilka motsägelser finns?"></textarea>
+            </div>
+
+            <div class="phase-nav">
+                <button class="btn btn-outline" onclick="goToPhase('crime-scene')">&larr; Tillbaka</button>
+                <button class="btn btn-gold" onclick="goToPhase('evidence')">Granska bevisen &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Phase 4: Evidence Board -->
+        <div class="phase-panel" id="phase-evidence">
+            <h2 class="phase-title">Bevissammanställning</h2>
+            <p class="phase-desc">Här samlas alla ledtrådar och förhörssvar. Diskutera och dra era slutsatser!</p>
+
+            <div class="evidence-board">
+                <h3>🔍 Alla upptäckta ledtrådar</h3>
+                <ul class="evidence-list" id="evidenceList"></ul>
+            </div>
+
+            <div style="margin-top:1.5rem;" class="evidence-board">
+                <h3>💬 Sammanfattning av förhör</h3>
+                <ul class="evidence-list" id="interviewSummary"></ul>
+            </div>
+
+            <div class="notepad">
+                <h3>📝 Slutsatser</h3>
+                <textarea id="notesEvidence" placeholder="Vem tror ni är skyldig? Varför?"></textarea>
+            </div>
+
+            <div class="phase-nav">
+                <button class="btn btn-outline" onclick="goToPhase('interviews')">&larr; Tillbaka</button>
+                <button class="btn btn-red" onclick="goToPhase('accusation')">Gå till anklagelsen &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Phase 5: Accusation -->
+        <div class="phase-panel" id="phase-accusation">
+            <div class="accusation-section">
+                <h2 class="phase-title">Anklagelsen</h2>
+                <p class="phase-desc">Vem tror ni är mördaren? Välj en misstänkt och förklara varför.</p>
+
+                <div class="suspect-select-grid" id="accusationGrid"></div>
+
+                <div class="motive-input">
+                    <label for="motiveText">Förklara kort: Varför tror ni denna person är skyldig?</label>
+                    <textarea id="motiveText" placeholder="Beskriv motivet och vilka bevis som pekar på denna person..."></textarea>
+                </div>
+
+                <button class="btn btn-red" style="font-size: 1.1rem; padding: 1rem 2.5rem;" onclick="makeAccusation()" id="accuseBtn" disabled>
+                    ☠ Avslöja lösningen
+                </button>
+            </div>
+
+            <div class="phase-nav">
+                <button class="btn btn-outline" onclick="goToPhase('evidence')">&larr; Tillbaka till bevisen</button>
+                <div></div>
+            </div>
+        </div>
+
+        <!-- Phase 6: Reveal -->
+        <div class="phase-panel" id="phase-reveal">
+            <div class="reveal-section">
+                <h2 class="phase-title">Avslöjandet</h2>
+
+                <div class="reveal-result" id="revealResult"></div>
+
+                <div class="reveal-explanation" id="revealExplanation"></div>
+
+                <div style="margin-top: 2rem;">
+                    <button class="btn btn-gold" style="font-size: 1.1rem; padding: 1rem 2rem; margin: 0.5rem;" onclick="restartGame()">Spela igen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== RULES MODAL ===== -->
+<div id="rulesModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:200; padding:2rem; overflow-y:auto;">
+    <div style="max-width:600px; margin:2rem auto; background:var(--bg-card); border-radius:16px; padding:2rem; border:2px solid var(--accent-gold);">
+        <h2 style="color:var(--accent-gold); margin-bottom:1rem;">Spelregler</h2>
+        <div style="color:var(--text-warm); line-height:1.8;">
+            <p><strong>Mål:</strong> Ta reda på vem som är mördaren genom att undersöka brottsplatsen och förhöra de misstänkta.</p>
+            <br>
+            <p><strong>Så här spelar ni:</strong></p>
+            <ol style="padding-left:1.5rem; margin:1rem 0;">
+                <li>Läs introduktionen noggrant</li>
+                <li>Undersök ledtrådarna på brottsplatsen</li>
+                <li>Förhör alla misstänkta</li>
+                <li>Sammanställ bevisen</li>
+                <li>Gör er anklagelse</li>
+            </ol>
+            <br>
+            <p><strong>Parspel:</strong> Varje spelare får tillgång till olika ledtrådar och förhör. Ni måste berätta för varandra vad ni hittat - men ni får INTE visa skärmen! Diskutera och lös fallet tillsammans.</p>
+            <br>
+            <p><strong>Tips:</strong> Skriv anteckningar! Var uppmärksam på tider, alibin och vad varje misstänkt faktiskt visste om AI och intelligens. Alla misstänkta har motiv, men bara en är skyldig.</p>
+        </div>
+        <button class="btn btn-gold" style="margin-top:1.5rem; width:100%;" onclick="closeRules()">Stäng</button>
+    </div>
+</div>
+
+<script>
+// ===== GAME DATA =====
+const mysteries = {
+    aimassan: {
+        title: "Mordet på AI-mässan",
+        setting: "Frejaskolans aula och foajé, under den årliga AI-mässan där gymnasiets AI 100p-elever visar upp sina projekt för jury, lärare och investerare.",
+        intro: {
+            background: "AI-mässan är höjdpunkten på kursen AI 100 poäng. Elever tävlar i kategorin 'Årets AI-projekt' inför en jury, allmänheten och lokala investerare. Juryns ordförande är professor Bengt Wallander, en välkänd men kontroversiell forskare som i åratal hävdat att sann intelligens bara kan mätas med den så kallade g-faktorn - en bred, generell kognitiv förmåga. Han är ökänd för att offentligt döma ut projekt han anser vara 'bara mönsterigenkänning, ingen äkta intelligens'.",
+            crime: "Klockan 15:35, fem minuter före prisutdelningen, hittar en lokalvårdare professor Wallander livlös i domarrummet bakom aulascenen. Hans kaffetermos, som alltid stod bredvid hans anteckningar, innehöll spår av ett kraftigt receptbelagt lugnande medel i en dos som fått hans hjärta att stanna. Termosen stod framme i det olåsta domarrummet under hela mässan.",
+            timeOfDeath: "Beräknad dödstid: mellan klockan 15:00 och 15:20, under juryns paus efter finalbedömningen.",
+            lastSeen: "Wallander sågs senast klockan 15:00 då han gick in i domarrummet ensam med sin kaffetermos för att förbereda sitt tal inför prisutdelningen."
+        },
+        victim: {
+            name: "Professor Bengt Wallander",
+            age: 61,
+            role: "Juryordförande för AI-mässan, gästforskare i kognitionsvetenskap",
+            desc: "Skarp och respekterad inom sitt fält, men beryktad för sin kompromisslösa syn på intelligens och sin vana att förödmjuka dem som utmanade honom. Förespråkade envist g-faktorn framför alla andra sätt att förstå intelligens."
+        },
+        suspects: [
+            {
+                id: "elin",
+                name: "Elin Sahlin",
+                age: 17,
+                role: "Elev - byggde ett schackspelande AI-program",
+                color: "#2980b9",
+                emoji: "👧",
+                background: "Elin har lagt hundratals timmar på ett schackprogram som använder sökalgoritmer för att välja bästa drag - ungefär som Claude Shannon beskrev redan på 1950-talet. Under finalbedömningen kallade Wallander inför publik hennes projekt för 'bara brute-force, ingen äkta intelligens', en förödmjukelse som spreds snabbt bland eleverna.",
+                interview: "Jag var i utställningshallen hela eftermiddagen och pratade med besökare om mitt projekt. Ja, det som hände på scenen var hemskt jobbigt, men jag skulle aldrig skada någon för en elak kommentar.",
+                secretInterview: "Okej... sanningen är att jag inte orkade stå kvar i hallen efter det som hände. Jag satt ensam i ett tomt klassrum och grät mellan klockan 15:00 och 15:20. Ingen såg mig där, tyvärr.",
+                motive: "Offentligt förödmjukad av Wallander inför hela skolan, riskerade att förlora det stipendium hon behövde för fortsatta studier."
+            },
+            {
+                id: "marcus",
+                name: "Marcus Öhman",
+                age: 45,
+                role: "Lärare i teknik och gästforskare",
+                color: "#8e44ad",
+                emoji: "🧑",
+                background: "Marcus forskar på den miljöbundna och funktionella modellen av intelligens - synen att intelligens handlar om att nå mål i olika miljöer, inte en generell förmåga. Han och Wallander har i åratal tvistat offentligt om exemplet med skogen och öknen. Wallander såg nyligen till att Marcus ansökan om fast tjänst avslogs.",
+                interview: "Jag stod vid scenen och testade ljudanläggningen inför prisutdelningen hela eftermiddagen, från klockan 15:00. Ljudteknikern kan intyga det. Ja, Bengt och jag var oense om det mesta, men det var akademiskt, inget personligt.",
+                secretInterview: "Det stämmer att vi hade ett högljutt gräl klockan 14:45 - han sa att han tänkte döma ut min forskning offentligt i sitt tal. Jag blev rasande och lämnade honom vid domarrummet, men gick raka vägen till scenen efteråt.",
+                motive: "Wallander hade fällt hans tjänsteansökan och planerade att offentligt döma ut hans forskning i prisutdelningstalet."
+            },
+            {
+                id: "saga",
+                name: "Saga Bergqvist",
+                age: 18,
+                role: "Elev - byggde chatboten 'Vanja'",
+                color: "#c0392b",
+                emoji: "👩",
+                background: "Sagas chatbot 'Vanja' har imponerat stort på juryn genom att övertyga dem om att den är en riktig person - en artonårig tjej med dyslexi som gör medvetna stavfel. Vanja ledde tävlingen om förstapriset: 50 000 kronor och en praktikplats på ett AI-företag.",
+                interview: "Jag satt ensam i ett grupprum och finslipade min presentation inför prisutdelningen, ungefär klockan 15:00 till 15:25. Jag tänkte bara på mitt tal, ingen annan var där.",
+                secretInterview: "...Okej. Wallander konfronterade mig klockan 14:50 och sa att han hade granskat Vanjas källkod. Han hade upptäckt att 'dyslexi-tjejen' bara var en påhittad persona för att lura juryn till sympatipoäng - precis som när ett AI-program lurade Turingtestet genom att utge sig för en ukrainsk pojke. Han sa att han skulle avslöja mig och diskvalificera mig på scen. Men jag rörde aldrig hans termos, jag svär.",
+                motive: "Wallander hade upptäckt att hennes vinnande chatbot fuskade genom att låtsas vara en människa med språksvårigheter, och tänkte avslöja och diskvalificera henne inför hela mässan."
+            },
+            {
+                id: "oskar",
+                name: "Oskar Lindmark",
+                age: 19,
+                role: "F.d. elev, nu ung entreprenör",
+                color: "#e67e22",
+                emoji: "🧑",
+                background: "Oskar gick på Frejaskolan för två år sedan och driver nu ett litet företag som säljer 'AI-produkter' - bland annat en 'AI-tandborste' utan någon egentlig AI-teknik bakom sig, i stil med de urvattnade buzzword-produkter som fyller dagens marknad. Han sökte investerare på mässan för en ny lansering.",
+                interview: "Jag pratade med tre olika investerare i foajén hela eftermiddagen, från strax efter klockan 15:00. De kan säkert bekräfta det, jag har deras kontaktuppgifter.",
+                secretInterview: "Wallander hade genomskådat att min 'tandborste' inte har någon AI i sig alls, bara en enkel timer. Han sa att han tänkte varna investerarna öppet. Jag bad honom vänta tills efter mässan, men han vägrade. Ändå - jag var upptagen med mina möten, jag hann aldrig gå till domarrummet.",
+                motive: "Wallander hade genomskådat att hans 'AI-produkt' saknade verklig AI-teknik och tänkte avslöja bluffen inför investerarna."
+            },
+            {
+                id: "ingrid",
+                name: "Ingrid Cronqvist",
+                age: 52,
+                role: "Rektor och mässans huvudarrangör",
+                color: "#27ae60",
+                emoji: "👩",
+                background: "Ingrid har investerat en stor del av skolans budget i AI 100p-kursen och mässan. Wallander hade skrivit in i sitt tal att skolans undervisning i teknik och AI var 'grovt underfinansierad och riskerar elevernas framtid' - ett uttalande som skulle skada skolans rykte inför press och föräldrar.",
+                interview: "Jag var i entrén hela eftermiddagen och löste logistik inför prisutdelningen - ljus, scen, gäster. Minst tio personer kan intyga att de såg mig springa runt där.",
+                secretInterview: "Ja, Bengt och jag hade en kort dispyt om talets innehåll tidigare på förmiddagen. Jag bad honom mjuka upp formuleringarna. Men jag lämnade aldrig entrén efter klockan 14:00 - fråga vem som helst av personalen.",
+                motive: "Ville skydda skolans rykte inför Wallanders planerade offentliga kritik av teknikundervisningens finansiering."
+            }
+        ],
+        clues: {
+            solo: [
+                { label: "Kaffetermosen", text: "Wallanders kaffetermos innehöll spår av ett kraftigt receptbelagt lugnande medel. Termosen stod framme i det olåsta domarrummet under hela mässan." },
+                { label: "Apotekskvitto", text: "Ett kvitto i Sagas plånbok visar köp av ett receptbelagt lugnande medel tre dagar före mässan, hämtat i hennes eget namn." },
+                { label: "Anteckning i portföljen", text: "En handskriven lapp i Wallanders portfölj: 'Vanja = fusk. Persona-trick, precis som den ukrainska pojken. Avslöja + diskvalificera på scen kl 15:45.'" },
+                { label: "Passerkortsloggen", text: "Den elektroniska loggen visar att Sagas passerkort användes för att låsa upp domarrummets dörr klockan 15:05 - fem minuter efter att Wallander gått in ensam." },
+                { label: "Marcus vittnesmål", text: "Marcus berättar att han i förbifarten såg Saga gå mot domarrummet strax efter klockan 15:00, men tänkte inget mer på det då." },
+                { label: "Klasskompisens vittnesmål", text: "En klasskompis bekräftar att hon såg Elin sitta ensam och gråta i ett tomt klassrum runt klockan 15:10." },
+                { label: "Ljudteknikerns logg", text: "Ljudteknikern intygar att Marcus testade mikrofoner och högtalare vid scenen kontinuerligt från klockan 15:00 till 15:30." },
+                { label: "Investerarnas kalender", text: "Två av investerarna bekräftar skriftligt att de hade bokade möten med Oskar i foajén mellan klockan 15:00 och 15:30." },
+                { label: "Personalens observationer", text: "Tio anställda intygar att de såg rektor Ingrid Cronqvist springa mellan entrén och scenen under hela eftermiddagen." },
+                { label: "Vanjas källkod", text: "IT-teknikerns granskning av chatboten Vanjas kod avslöjar en dold instruktion: 'Uppträd som en 16-årig tjej med dyslexi. Gör medvetna stavfel och skriv kort, för att verka mänsklig.' I marginalen har Wallander skrivit: 'Precis Turingtestets svaghet - imitation, inte intelligens.'" }
+            ],
+            player1: [
+                { label: "Kaffetermosen", text: "Wallanders kaffetermos innehöll spår av ett kraftigt receptbelagt lugnande medel. Termosen stod framme i det olåsta domarrummet under hela mässan." },
+                { label: "Anteckning i portföljen", text: "En handskriven lapp i Wallanders portfölj: 'Vanja = fusk. Persona-trick, precis som den ukrainska pojken. Avslöja + diskvalificera på scen kl 15:45.'" },
+                { label: "Passerkortsloggen", text: "Den elektroniska loggen visar att Sagas passerkort användes för att låsa upp domarrummets dörr klockan 15:05 - fem minuter efter att Wallander gått in ensam." },
+                { label: "Investerarnas kalender", text: "Två av investerarna bekräftar skriftligt att de hade bokade möten med Oskar i foajén mellan klockan 15:00 och 15:30." },
+                { label: "Vanjas källkod", text: "IT-teknikerns granskning av chatboten Vanjas kod avslöjar en dold instruktion: 'Uppträd som en 16-årig tjej med dyslexi. Gör medvetna stavfel och skriv kort, för att verka mänsklig.' I marginalen har Wallander skrivit: 'Precis Turingtestets svaghet - imitation, inte intelligens.'" }
+            ],
+            player2: [
+                { label: "Apotekskvitto", text: "Ett kvitto i Sagas plånbok visar köp av ett receptbelagt lugnande medel tre dagar före mässan, hämtat i hennes eget namn." },
+                { label: "Marcus vittnesmål", text: "Marcus berättar att han i förbifarten såg Saga gå mot domarrummet strax efter klockan 15:00, men tänkte inget mer på det då." },
+                { label: "Klasskompisens vittnesmål", text: "En klasskompis bekräftar att hon såg Elin sitta ensam och gråta i ett tomt klassrum runt klockan 15:10." },
+                { label: "Ljudteknikerns logg", text: "Ljudteknikern intygar att Marcus testade mikrofoner och högtalare vid scenen kontinuerligt från klockan 15:00 till 15:30." },
+                { label: "Personalens observationer", text: "Tio anställda intygar att de såg rektor Ingrid Cronqvist springa mellan entrén och scenen under hela eftermiddagen." }
+            ]
+        },
+        interviewAssign: {
+            player1: ["elin", "marcus", "saga"],
+            player2: ["oskar", "ingrid"]
+        },
+        solution: {
+            culprit: "saga",
+            explanation: "Saga Bergqvist är mördaren. Wallander hade under den tekniska granskningen upptäckt att hennes chatbot 'Vanja' inte alls visade äkta intelligens - den var programmerad att låtsas vara en tonårstjej med dyslexi för att vinna juryns sympati, ett rent imitationstrick likt exemplet med AI-programmet som utgav sig för en ukrainsk pojke för att lura Turingtestet. När Wallander konfronterade henne klockan 14:50 och sa att han tänkte avslöja och diskvalificera henne inför hela mässan, gick Saga in i det olåsta domarrummet klockan 15:05 (bekräftat av passerkortsloggen) och tillsatte sitt eget receptbelagda lugnande medel i hans kaffetermos.",
+            evidence: [
+                "Passerkortsloggen visar att Sagas kort låste upp domarrummet kl 15:05, strax efter att Wallander gått in ensam",
+                "Apotekskvittot visar att Saga själv köpt det lugnande medlet tre dagar innan mässan",
+                "Anteckningen i Wallanders portfölj bevisar att han tänkte avslöja och diskvalificera henne kl 15:45 - ett akut motiv",
+                "Vanjas källkod bevisar fusket: en dold instruktion att låtsas vara en person med dyslexi för att vinna sympatipoäng",
+                "Marcus vittnesmål placerar Saga vid domarrummet strax efter klockan 15:00",
+                "De övriga misstänkta har alibin: Marcus vid scenen (ljudteknikern), Oskar hos investerarna, Elin gråtande i ett klassrum (vittne), Ingrid i entrén (tio anställda)"
+            ]
+        }
+    }
+};
+
+// ===== GAME STATE =====
+let state = {
+    selectedMystery: null,
+    selectedMode: null,
+    currentPhase: null,
+    revealedClues: new Set(),
+    revealedInterviews: new Set(),
+    accusedSuspect: null,
+    currentCluePlayer: 1,
+    currentInterviewPlayer: 1
+};
+
+const phases = ['intro', 'crime-scene', 'interviews', 'evidence', 'accusation', 'reveal'];
+const phaseLabels = {
+    'intro': 'Introduktion',
+    'crime-scene': 'Brottsplats',
+    'interviews': 'Förhör',
+    'evidence': 'Bevis',
+    'accusation': 'Anklagelse',
+    'reveal': 'Avslöjande'
+};
+
+// ===== START SCREEN =====
+function selectMystery(id) {
+    state.selectedMystery = id;
+    document.querySelectorAll('.mystery-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('card-' + id).classList.add('selected');
+    checkStartReady();
+}
+
+function selectMode(mode) {
+    state.selectedMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('mode-' + mode).classList.add('selected');
+    checkStartReady();
+}
+
+function checkStartReady() {
+    document.getElementById('startGameBtn').disabled = !(state.selectedMystery && state.selectedMode);
+}
+
+// ===== GAME FLOW =====
+function startGame() {
+    if (!state.selectedMystery || !state.selectedMode) return;
+
+    state.currentPhase = 'intro';
+    state.revealedClues = new Set();
+    state.revealedInterviews = new Set();
+    state.accusedSuspect = null;
+    state.currentCluePlayer = 1;
+    state.currentInterviewPlayer = 1;
+
+    document.getElementById('startScreen').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    document.getElementById('rulesBtn').style.display = 'inline-block';
+    document.getElementById('restartBtn').style.display = 'inline-block';
+
+    if (state.selectedMode === 'pair') {
+        document.getElementById('gameScreen').classList.add('pair-mode');
+    } else {
+        document.getElementById('gameScreen').classList.remove('pair-mode');
+    }
+
+    renderProgressBar();
+    renderIntro();
+    goToPhase('intro');
+}
+
+function goToPhase(phase) {
+    state.currentPhase = phase;
+
+    document.querySelectorAll('.phase-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('phase-' + phase).classList.add('active');
+    document.getElementById('phase-' + phase).classList.add('fade-in');
+
+    renderProgressBar();
+
+    if (phase === 'crime-scene') renderClues();
+    if (phase === 'interviews') renderInterviews();
+    if (phase === 'evidence') renderEvidence();
+    if (phase === 'accusation') renderAccusation();
+    if (phase === 'reveal') renderReveal();
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderProgressBar() {
+    const bar = document.getElementById('progressBar');
+    const currentIndex = phases.indexOf(state.currentPhase);
+
+    bar.innerHTML = phases.map((phase, i) => {
+        let cls = 'progress-step';
+        if (i < currentIndex) cls += ' completed';
+        else if (i === currentIndex) cls += ' active';
+        else cls += ' locked';
+
+        const icon = i < currentIndex ? '✓' : (i === currentIndex ? '●' : '○');
+        const clickable = i <= currentIndex ? `onclick="goToPhase('${phase}')"` : '';
+
+        return `<div class="${cls}" ${clickable}><span>${icon}</span> ${phaseLabels[phase]}</div>`;
+    }).join('');
+}
+
+// ===== RENDER PHASES =====
+function renderIntro() {
+    const m = mysteries[state.selectedMystery];
+    const container = document.getElementById('introContent');
+
+    container.innerHTML = `
+        <h3>${m.title}</h3>
+        <p><strong>Plats:</strong> ${m.setting}</p>
+        <p>${m.intro.background}</p>
+
+        <div class="victim-card">
+            <h4>☠ Offret</h4>
+            <p><strong>${m.victim.name}</strong>, ${m.victim.age} år - ${m.victim.role}</p>
+            <p>${m.victim.desc}</p>
+        </div>
+
+        <p><strong>Brottet:</strong> ${m.intro.crime}</p>
+        <p><strong>Beräknad dödstid:</strong> ${m.intro.timeOfDeath}</p>
+        <p><strong>Senast sedd:</strong> ${m.intro.lastSeen}</p>
+
+        <h3 style="margin-top:1.5rem;">De misstänkta</h3>
+        <p style="margin-bottom:1rem;">Följande personer har identifierats som misstänkta:</p>
+        ${m.suspects.map(s => `
+            <div style="display:flex; align-items:center; gap:0.8rem; padding:0.6rem 0; border-bottom:1px solid var(--border-subtle);">
+                <span class="suspect-avatar" style="background:${s.color}33; color:${s.color}; width:40px; height:40px; font-size:1.1rem;">${s.emoji}</span>
+                <div>
+                    <strong style="color:${s.color};">${s.name}</strong>, ${s.age} år -
+                    <span style="color:var(--text-muted);">${s.role}</span>
+                </div>
+            </div>
+        `).join('')}
+
+        ${state.selectedMode === 'pair' ? `
+            <div style="background:rgba(226,183,20,0.1); border:1px solid var(--accent-gold); border-radius:10px; padding:1.2rem; margin-top:1.5rem;">
+                <strong style="color:var(--accent-gold);">👥 Parspel aktiverat!</strong>
+                <p style="margin-top:0.5rem;">Ni kommer få olika ledtrådar och förhöra olika misstänkta. Berätta för varandra vad ni hittar - men visa INTE skärmen!</p>
+            </div>
+        ` : ''}
+    `;
+}
+
+function renderClues() {
+    const m = mysteries[state.selectedMystery];
+    const grid = document.getElementById('cluesGrid');
+
+    let clues;
+    if (state.selectedMode === 'solo') {
+        clues = m.clues.solo;
+    } else {
+        clues = state.currentCluePlayer === 1 ? m.clues.player1 : m.clues.player2;
+        document.getElementById('csPlayer1').style.display = state.currentCluePlayer === 1 ? 'block' : 'none';
+        document.getElementById('csPlayer2').style.display = state.currentCluePlayer === 2 ? 'block' : 'none';
+    }
+
+    grid.innerHTML = clues.map((clue, i) => {
+        const key = `${state.currentCluePlayer}-${i}`;
+        const revealed = state.revealedClues.has(key);
+        return `
+            <div class="clue-item ${revealed ? 'revealed' : 'hidden-content'}" onclick="revealClue('${key}', this)">
+                <div class="clue-label">${revealed ? '🔓' : '🔒'} Ledtråd: ${clue.label}</div>
+                <div class="clue-text">${clue.text}</div>
+                ${!revealed ? '<div class="click-hint">Klicka för att avslöja</div>' : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function revealClue(key, el) {
+    if (state.revealedClues.has(key)) return;
+    state.revealedClues.add(key);
+    el.classList.remove('hidden-content');
+    el.classList.add('revealed');
+    const label = el.querySelector('.clue-label');
+    label.textContent = '🔓 ' + label.textContent.replace('🔒 ', '').replace('🔓 ', '');
+    const hint = el.querySelector('.click-hint');
+    if (hint) hint.remove();
+}
+
+function switchCluePlayer() {
+    state.currentCluePlayer = state.currentCluePlayer === 1 ? 2 : 1;
+    renderClues();
+}
+
+function renderInterviews() {
+    const m = mysteries[state.selectedMystery];
+    const grid = document.getElementById('suspectsGrid');
+
+    let suspects;
+    if (state.selectedMode === 'solo') {
+        suspects = m.suspects;
+    } else {
+        const assignedIds = state.currentInterviewPlayer === 1 ? m.interviewAssign.player1 : m.interviewAssign.player2;
+        suspects = m.suspects.filter(s => assignedIds.includes(s.id));
+        document.getElementById('intPlayer1').style.display = state.currentInterviewPlayer === 1 ? 'block' : 'none';
+        document.getElementById('intPlayer2').style.display = state.currentInterviewPlayer === 2 ? 'block' : 'none';
+    }
+
+    grid.innerHTML = suspects.map(s => {
+        const interviewRevealed = state.revealedInterviews.has(s.id);
+        const secretRevealed = state.revealedInterviews.has(s.id + '-secret');
+
+        return `
+            <div class="suspect-card">
+                <div class="suspect-header">
+                    <span class="suspect-avatar" style="background:${s.color}33; color:${s.color};">${s.emoji}</span>
+                    <div>
+                        <h4 style="color:${s.color};">${s.name}, ${s.age}</h4>
+                        <div class="suspect-role">${s.role}</div>
+                    </div>
+                </div>
+                <div class="suspect-info">${s.background}</div>
+                <p style="color:var(--text-muted); font-size:0.85rem;"><strong>Motiv:</strong> ${s.motive}</p>
+
+                <div class="suspect-interview ${interviewRevealed ? 'revealed' : ''}" id="interview-${s.id}">
+                    <h5>💬 Förhör - Första svar</h5>
+                    <p>"${s.interview}"</p>
+                </div>
+
+                ${!interviewRevealed ? `
+                    <button class="btn btn-outline btn-interview" onclick="revealInterview('${s.id}')">
+                        💬 Förhör denna person
+                    </button>
+                ` : ''}
+
+                <div class="suspect-interview ${secretRevealed ? 'revealed' : ''}" id="secret-${s.id}">
+                    <h5>🔎 Förhör - Uppföljningsfråga</h5>
+                    <p>"${s.secretInterview}"</p>
+                </div>
+
+                ${interviewRevealed && !secretRevealed ? `
+                    <button class="btn btn-outline btn-interview" onclick="revealSecret('${s.id}')" id="secret-btn-${s.id}">
+                        🔎 Ställ uppföljningsfråga
+                    </button>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+function revealInterview(id) {
+    state.revealedInterviews.add(id);
+    renderInterviews();
+}
+
+function revealSecret(id) {
+    state.revealedInterviews.add(id + '-secret');
+    renderInterviews();
+}
+
+function switchInterviewPlayer() {
+    state.currentInterviewPlayer = state.currentInterviewPlayer === 1 ? 2 : 1;
+    renderInterviews();
+}
+
+function renderEvidence() {
+    const m = mysteries[state.selectedMystery];
+    const evidenceList = document.getElementById('evidenceList');
+    const interviewSummary = document.getElementById('interviewSummary');
+
+    // Collect all revealed clues
+    let allClues = [];
+    if (state.selectedMode === 'solo') {
+        m.clues.solo.forEach((clue, i) => {
+            if (state.revealedClues.has(`1-${i}`)) {
+                allClues.push(clue);
+            }
+        });
+    } else {
+        m.clues.player1.forEach((clue, i) => {
+            if (state.revealedClues.has(`1-${i}`)) {
+                allClues.push(clue);
+            }
+        });
+        m.clues.player2.forEach((clue, i) => {
+            if (state.revealedClues.has(`2-${i}`)) {
+                allClues.push(clue);
+            }
+        });
+    }
+
+    if (allClues.length === 0) {
+        evidenceList.innerHTML = '<li>Inga ledtrådar har avslöjats än. Gå tillbaka till brottsplatsen!</li>';
+    } else {
+        evidenceList.innerHTML = allClues.map(c =>
+            `<li><strong>${c.label}:</strong> ${c.text}</li>`
+        ).join('');
+    }
+
+    // Interview summary
+    let interviews = [];
+    m.suspects.forEach(s => {
+        if (state.revealedInterviews.has(s.id)) {
+            interviews.push(`<li><strong>${s.name} (${s.role}):</strong> "${s.interview}"</li>`);
+        }
+        if (state.revealedInterviews.has(s.id + '-secret')) {
+            interviews.push(`<li><strong>${s.name} (uppföljning):</strong> "${s.secretInterview}"</li>`);
+        }
+    });
+
+    if (interviews.length === 0) {
+        interviewSummary.innerHTML = '<li>Inga förhör har genomförts än. Gå tillbaka och förhör de misstänkta!</li>';
+    } else {
+        interviewSummary.innerHTML = interviews.join('');
+    }
+}
+
+function renderAccusation() {
+    const m = mysteries[state.selectedMystery];
+    const grid = document.getElementById('accusationGrid');
+
+    grid.innerHTML = m.suspects.map(s => `
+        <div class="suspect-select-btn ${state.accusedSuspect === s.id ? 'selected' : ''}"
+             onclick="selectAccused('${s.id}')">
+            <div class="select-avatar" style="color:${s.color};">${s.emoji}</div>
+            <div class="select-name">${s.name}</div>
+            <div class="select-role">${s.role}</div>
+        </div>
+    `).join('');
+
+    updateAccuseButton();
+}
+
+function selectAccused(id) {
+    state.accusedSuspect = id;
+    renderAccusation();
+}
+
+function updateAccuseButton() {
+    document.getElementById('accuseBtn').disabled = !state.accusedSuspect;
+}
+
+function makeAccusation() {
+    if (!state.accusedSuspect) return;
+    goToPhase('reveal');
+}
+
+function renderReveal() {
+    const m = mysteries[state.selectedMystery];
+    const isCorrect = state.accusedSuspect === m.solution.culprit;
+    const accusedName = m.suspects.find(s => s.id === state.accusedSuspect).name;
+    const culpritName = m.suspects.find(s => s.id === m.solution.culprit).name;
+
+    const resultDiv = document.getElementById('revealResult');
+    const explDiv = document.getElementById('revealExplanation');
+
+    if (isCorrect) {
+        resultDiv.className = 'reveal-result correct';
+        resultDiv.innerHTML = `
+            <div class="result-icon">🏆</div>
+            <h3>Rätt! Ni löste fallet!</h3>
+            <p style="color:var(--text-warm); font-size:1.1rem;">
+                <strong>${accusedName}</strong> är verkligen mördaren. Utmärkt detektivarbete!
+            </p>
+        `;
+    } else {
+        resultDiv.className = 'reveal-result wrong';
+        resultDiv.innerHTML = `
+            <div class="result-icon">❌</div>
+            <h3>Fel misstänkt!</h3>
+            <p style="color:var(--text-warm); font-size:1.1rem;">
+                Ni anklagade <strong>${accusedName}</strong>, men den skyldiga är
+                <strong style="color:var(--accent-gold);">${culpritName}</strong>.
+            </p>
+        `;
+    }
+
+    explDiv.innerHTML = `
+        <h4>🔍 Så här gick det till</h4>
+        <p>${m.solution.explanation}</p>
+        <h4 style="margin-top:1.5rem;">Avgörande bevis:</h4>
+        <ul class="reveal-evidence">
+            ${m.solution.evidence.map(e => `<li>${e}</li>`).join('')}
+        </ul>
+        <div class="lesson-box">
+            <h4>Kopplingar till lektionen om intelligens och AI</h4>
+            <ul>
+                <li><strong>Turingtestets svaghet:</strong> Saga vann juryns sympati genom att låtsas vara en människa med språksvårigheter - precis som exemplet med AI-programmet som utgav sig för en ukrainsk pojke. Det visar att Turingtestet mäter förmågan till imitation snarare än äkta intelligens.</li>
+                <li><strong>G-faktorn kontra funktionell kapacitet:</strong> Wallanders och Marcus konflikt speglar den verkliga oenigheten mellan att se intelligens som en generell mental förmåga (g-faktorn) eller som förmågan att nå mål i olika miljöer (skogen och öknen).</li>
+                <li><strong>Sökalgoritmer:</strong> Elins schackprogram bygger på samma idé som Claude Shannon beskrev - att en dator inte kan pröva alla drag, utan måste använda smarta sökstrategier.</li>
+                <li><strong>AI som marknadsföringsbegrepp:</strong> Oskars "AI-tandborste" utan verklig AI-teknik visar hur ordet AI urvattnats till ett tomt säljord, precis som i lektionens exempel med AI-tandborstar och AI Coca-Cola.</li>
+            </ul>
+        </div>
+    `;
+}
+
+// ===== UTILITIES =====
+function showRules() {
+    document.getElementById('rulesModal').style.display = 'block';
+}
+
+function closeRules() {
+    document.getElementById('rulesModal').style.display = 'none';
+}
+
+function restartGame() {
+    state = {
+        selectedMystery: null,
+        selectedMode: null,
+        currentPhase: null,
+        revealedClues: new Set(),
+        revealedInterviews: new Set(),
+        accusedSuspect: null,
+        currentCluePlayer: 1,
+        currentInterviewPlayer: 1
+    };
+
+    document.getElementById('gameScreen').classList.remove('active', 'pair-mode');
+    document.getElementById('startScreen').classList.add('active');
+    document.getElementById('rulesBtn').style.display = 'none';
+    document.getElementById('restartBtn').style.display = 'none';
+
+    document.querySelectorAll('.mystery-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('startGameBtn').disabled = true;
+
+    document.querySelectorAll('textarea').forEach(t => t.value = '');
+
+    window.scrollTo({ top: 0 });
+}
+
+// Close modal on background click
+document.getElementById('rulesModal').addEventListener('click', function(e) {
+    if (e.target === this) closeRules();
+});
+</script>
+
+</body>
+</html>
