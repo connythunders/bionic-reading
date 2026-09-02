@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Kompassen – Strategispel om säker AI-användning</title>
+<meta name="description" content="Ett strategispel för gymnasieelever om att navigera säkert, källkritiskt och etiskt i en AI-fylld vardag. 12 scenarion, fyra mätare, inget konto krävs.">
+<style>
+:root{
+  --bg:#0b0f1a;
+  --bg-card:#141a2b;
+  --bg-card2:#1b2338;
+  --border:#2a3350;
+  --text:#e7ecf7;
+  --text-muted:#93a1c4;
+  --accent:#7c5cff;
+  --accent2:#22d3ee;
+  --green:#2ea043;
+  --green-bg:rgba(46,160,67,.14);
+  --amber:#d9a02c;
+  --amber-bg:rgba(217,160,44,.14);
+  --red:#e5484d;
+  --red-bg:rgba(229,72,77,.14);
+  --radius:14px;
+  --shadow:0 10px 30px rgba(0,0,0,.45);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+img,svg{display:block}
+button{font-family:inherit}
+
+.screen{display:none}
+.screen.active{display:block}
+
+/* Topbar */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(11,15,26,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.topbar-inner{max-width:900px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.05rem}
+.brand-emoji{font-size:1.3rem}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.85rem;white-space:nowrap}
+.btn-ghost:hover{border-color:var(--accent2);color:var(--accent2)}
+
+.container{max-width:900px;margin:0 auto;padding:0 20px}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,#100a26 0%,#12163f 55%,#0a1f33 100%);padding:44px 20px 36px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 40%,rgba(124,92,255,.18) 0%,transparent 60%),radial-gradient(ellipse at 75% 60%,rgba(34,211,238,.12) 0%,transparent 60%)}
+.hero-inner{position:relative;max-width:760px;margin:0 auto}
+.hero-badge{display:inline-block;background:rgba(124,92,255,.15);border:1px solid rgba(124,92,255,.35);color:#b8a9ff;padding:4px 14px;border-radius:20px;font-size:.78rem;font-weight:700;letter-spacing:.04em;margin-bottom:14px}
+.hero h1{font-size:clamp(1.7rem,4.6vw,2.6rem);font-weight:800;line-height:1.2}
+.hero h1 span{background:linear-gradient(90deg,var(--accent2),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:#a3b0d0;margin-top:12px;font-size:1.02rem;max-width:560px;margin-left:auto;margin-right:auto}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 30px;border-radius:9px;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;text-decoration:none}
+.btn-primary{background:linear-gradient(90deg,var(--accent),#5a3fe0);color:#fff;box-shadow:0 4px 18px rgba(124,92,255,.35)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(124,92,255,.5)}
+.btn-secondary{background:var(--bg-card2);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent2);color:var(--accent2)}
+.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+
+.section{padding:32px 0}
+.section-title{font-size:1.25rem;font-weight:700;margin-bottom:4px}
+.section-sub{color:var(--text-muted);font-size:.9rem;margin-bottom:18px}
+
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+
+/* Meter explainer cards on start screen */
+.meter-explain-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin-bottom:24px}
+.meter-explain{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.meter-explain .me-head{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:4px}
+.meter-explain p{font-size:.83rem;color:var(--text-muted)}
+
+/* Collapsible info box */
+.details{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:18px;font-size:.86rem;color:var(--text-muted)}
+.details summary{cursor:pointer;font-weight:700;color:var(--text);list-style:none}
+.details summary::-webkit-details-marker{display:none}
+.details summary::before{content:'▸ ';color:var(--accent2)}
+.details[open] summary::before{content:'▾ '}
+.details ul{margin:10px 0 0 18px}
+.details li{margin-bottom:4px}
+
+/* Progress dots */
+.progress-wrap{background:var(--bg-card);border-bottom:1px solid var(--border);padding:12px 20px;position:sticky;top:57px;z-index:40}
+.progress-steps{display:flex;gap:5px;max-width:860px;margin:0 auto}
+.step-dot{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background .3s}
+.step-dot.done{background:var(--accent2)}
+.step-dot.active{background:var(--accent)}
+.progress-label{text-align:center;font-size:.76rem;color:var(--text-muted);margin-top:6px}
+
+/* Live meters bar */
+.meters-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}
+.meter{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.meter-top{display:flex;align-items:center;justify-content:space-between;font-size:.75rem;color:var(--text-muted);margin-bottom:6px}
+.meter-top .m-icon{font-size:.95rem}
+.meter-top .m-val{font-weight:700;color:var(--text)}
+.meter-track{background:var(--border);border-radius:3px;height:7px;overflow:hidden}
+.meter-fill{height:100%;border-radius:3px;transition:width .5s ease,background .5s ease}
+
+/* Scenario card */
+.scenario-card{margin-top:6px}
+.scenario-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.scenario-icon{font-size:1.8rem}
+.scenario-num{font-size:.75rem;color:var(--text-muted);font-weight:700;letter-spacing:.04em}
+.scenario-title{font-size:1.2rem;font-weight:800}
+.scenario-context{color:#c3cbe6;font-size:.96rem;margin-bottom:18px;line-height:1.65}
+
+.choice-list{display:flex;flex-direction:column;gap:10px}
+.choice-btn{text-align:left;background:var(--bg-card2);border:2px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;font-size:.92rem;color:var(--text);transition:all .15s}
+.choice-btn:hover:not(:disabled){border-color:var(--accent2);transform:translateY(-1px)}
+.choice-btn:disabled{cursor:default}
+.choice-btn.chosen{border-color:var(--accent)}
+.choice-btn.chosen.best{border-color:var(--green);background:var(--green-bg)}
+.choice-btn.chosen.mid{border-color:var(--amber);background:var(--amber-bg)}
+.choice-btn.chosen.worst{border-color:var(--red);background:var(--red-bg)}
+.choice-btn.faded{opacity:.4}
+
+.feedback{margin-top:16px;border-radius:10px;padding:16px;border:1px solid var(--border);animation:fadein .3s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.feedback.best{background:var(--green-bg);border-color:rgba(46,160,67,.4)}
+.feedback.mid{background:var(--amber-bg);border-color:rgba(217,160,44,.4)}
+.feedback.worst{background:var(--red-bg);border-color:rgba(229,72,77,.4)}
+.feedback-label{font-weight:800;font-size:.82rem;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
+.feedback.best .feedback-label{color:#3fb950}
+.feedback.mid .feedback-label{color:#e8b23f}
+.feedback.worst .feedback-label{color:#ff7b72}
+.feedback p{font-size:.92rem;color:var(--text)}
+.feedback-deltas{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.delta-chip{font-size:.74rem;font-weight:700;padding:3px 9px;border-radius:12px;background:var(--bg-card2);border:1px solid var(--border)}
+.delta-chip.pos{color:#3fb950}
+.delta-chip.neg{color:#ff7b72}
+.delta-chip.zero{color:var(--text-muted)}
+
+.next-row{margin-top:18px;text-align:right}
+
+/* End screen */
+.result-hero{text-align:center;padding:10px 0 24px}
+.result-emoji{font-size:3rem;margin-bottom:6px}
+.result-title{font-size:1.6rem;font-weight:800;margin-bottom:6px}
+.result-desc{color:var(--text-muted);max-width:560px;margin:0 auto;font-size:.95rem}
+.result-score{font-size:.85rem;color:var(--text-muted);margin-top:10px}
+.result-score b{color:var(--text);font-size:1.05rem}
+
+.final-meters{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin:22px 0}
+.final-meter{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.final-meter .fm-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:700;font-size:.9rem}
+.final-meter .fm-num{font-size:1.1rem}
+
+.tips-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.tip-item{background:var(--bg-card2);border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:8px;padding:10px 14px;font-size:.87rem;color:var(--text-muted)}
+
+.recap{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.recap-item{display:flex;align-items:center;gap:10px;background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:.83rem}
+.recap-item .r-mark{flex:0 0 auto}
+.recap-item .r-title{font-weight:700;flex:0 0 auto;min-width:150px}
+.recap-item .r-choice{color:var(--text-muted)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(4,6,14,.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:100}
+.modal-overlay[hidden]{display:none}
+.modal{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);max-width:520px;width:100%;padding:26px;box-shadow:var(--shadow);max-height:85vh;overflow:auto}
+.modal h2{font-size:1.2rem;margin-bottom:12px}
+.modal p{font-size:.9rem;color:var(--text-muted);margin-bottom:10px}
+.modal ul{margin:0 0 14px 18px;font-size:.87rem;color:var(--text-muted)}
+.modal li{margin-bottom:4px}
+
+footer{text-align:center;padding:30px 20px 50px;color:var(--text-muted);font-size:.8rem}
+
+@media (max-width:560px){
+  .meters-bar{grid-template-columns:repeat(2,1fr)}
+  .recap-item{flex-wrap:wrap}
+  .recap-item .r-title{min-width:0}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="brand-emoji">🧭</span><span>AI-Kompassen</span></div>
+    <button class="btn-ghost" id="infoBtn" type="button">ℹ️ Om spelet</button>
+  </div>
+</div>
+
+<main>
+
+<!-- START SCREEN -->
+<section class="screen active" id="screen-start">
+  <div class="hero">
+    <div class="hero-inner">
+      <span class="hero-badge">STRATEGISPEL · GYMNASIET</span>
+      <h1>Navigera <span>säkert med AI</span></h1>
+      <p>12 verklighetsnära scenarion. Du väljer hur du agerar – spelet visar konsekvenserna. Inget konto, inget som sparas någonstans annat än i din egen webbläsare.</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="startBtn" type="button">▶ Starta spelet</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <h2 class="section-title">Fyra saker står på spel</h2>
+      <p class="section-sub">Varje beslut du tar påverkar en eller flera av dessa mätare. Målet är att hålla alla fyra i balans genom hela spelet.</p>
+      <div class="meter-explain-grid">
+        <div class="meter-explain">
+          <div class="me-head">🔒 Säkerhet</div>
+          <p>Skyddar dig mot bedrägerier, intrång och skadliga länkar i en värld där AI gör bluffar svårare att avslöja.</p>
+        </div>
+        <div class="meter-explain">
+          <div class="me-head">🕵️ Integritet</div>
+          <p>Hur mycket du delar av dig själv – och till vem – när AI-tjänster ber om personlig information.</p>
+        </div>
+        <div class="meter-explain">
+          <div class="me-head">🧠 Källkritik</div>
+          <p>Din förmåga att ifrågasätta och kontrollera det AI säger, istället för att lita blint på självsäkra svar.</p>
+        </div>
+        <div class="meter-explain">
+          <div class="me-head">⚖️ Omdöme</div>
+          <p>Etiska val: hederlighet, hänsyn till andra och ansvar för hur du använder och sprider AI-genererat innehåll.</p>
+        </div>
+      </div>
+
+      <details class="details">
+        <summary>Information för lärare</summary>
+        <ul>
+          <li>Kopplat till läroplanens skrivningar om digital kompetens och källkritik (Gy25).</li>
+          <li>Fungerar bra som individuell uppgift eller som underlag för diskussion i helklass – låt eleverna motivera sina val innan de klickar vidare.</li>
+          <li>Varje val ger en kort motivering, så spelet fungerar även utan lärarledd genomgång.</li>
+          <li>Helt klientbaserat: inga svar, resultat eller personuppgifter skickas till någon server. Allt sker lokalt i elevens webbläsare och försvinner när sidan stängs.</li>
+          <li>Tar ca 10–15 minuter att spela igenom.</li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- GAME SCREEN -->
+<section class="screen" id="screen-game">
+  <div class="progress-wrap">
+    <div class="progress-steps" id="progressSteps"></div>
+    <div class="progress-label" id="progressLabel"></div>
+  </div>
+
+  <div class="container">
+    <div class="meters-bar" id="metersBar"></div>
+
+    <div class="card scenario-card">
+      <div class="scenario-head">
+        <div class="scenario-icon" id="scIcon">🤖</div>
+        <div>
+          <div class="scenario-num" id="scNum">SCENARIO 1 / 12</div>
+          <div class="scenario-title" id="scTitle"></div>
+        </div>
+      </div>
+      <p class="scenario-context" id="scContext"></p>
+      <div class="choice-list" id="choiceList"></div>
+      <div id="feedbackWrap"></div>
+      <div class="next-row" id="nextRow" style="display:none">
+        <button class="btn btn-primary" id="nextBtn" type="button">Nästa →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- END SCREEN -->
+<section class="screen" id="screen-end">
+  <div class="container">
+    <div class="section">
+      <div class="result-hero">
+        <div class="result-emoji" id="resEmoji">🏆</div>
+        <div class="result-title" id="resTitle"></div>
+        <p class="result-desc" id="resDesc"></p>
+        <p class="result-score">Genomsnittspoäng: <b id="resScore"></b>/100</p>
+      </div>
+
+      <h2 class="section-title">Dina mätare vid spelets slut</h2>
+      <div class="final-meters" id="finalMeters"></div>
+
+      <div id="tipsSection" style="display:none">
+        <h2 class="section-title">Att tänka på</h2>
+        <p class="section-sub">Baserat på var dina resultat var lägst.</p>
+        <div class="tips-list" id="tipsList"></div>
+      </div>
+
+      <h2 class="section-title" style="margin-top:26px">Så valde du</h2>
+      <div class="recap" id="recapList"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="restartBtn" type="button">↺ Spela igen</button>
+        <button class="btn btn-secondary" id="copyBtn" type="button">📋 Kopiera resultat</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>AI-Kompassen · Ett fristående lärspel · Inga uppgifter lagras eller skickas till någon server</footer>
+
+<div class="modal-overlay" id="infoModal" hidden>
+  <div class="modal">
+    <h2>Om AI-Kompassen</h2>
+    <p>AI-Kompassen är ett strategispel byggt för gymnasieelever (från ca 16 år) om att använda AI-verktyg på ett säkert, källkritiskt och etiskt sätt.</p>
+    <p>Du möter 12 scenarion hämtade från vardagen: skoluppgifter, sociala medier, chattbottar, lösenord och mer. Varje val påverkar fyra mätare – Säkerhet, Integritet, Källkritik och Omdöme – och du får direkt en förklaring till varför valet var bra, medelmåttigt eller riskabelt.</p>
+    <ul>
+      <li>Ingen inloggning eller registrering</li>
+      <li>Inget skickas till någon server – allt sker i din webbläsare</li>
+      <li>Ta ca 10–15 minuter</li>
+      <li>Går att spela om för att pröva andra val</li>
+    </ul>
+    <button class="btn btn-primary" id="closeInfo" type="button">Stäng</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var METERS = [
+    {key:'sakerhet',   label:'Säkerhet',   icon:'🔒'},
+    {key:'integritet', label:'Integritet', icon:'🕵️'},
+    {key:'kallkritik', label:'Källkritik', icon:'🧠'},
+    {key:'omdome',     label:'Omdöme',     icon:'⚖️'}
+  ];
+
+  var SCENARIOS = [
+    {
+      icon:'📝',
+      title:'Läxan väntar och AI:n är redo',
+      context:'Klockan är 23 och du har en uppsats om industriella revolutionen som ska lämnas in imorgon. Du öppnar en AI-chatt för att få hjälp.',
+      choices:[
+        {type:'best', text:'Jag ber AI:n förklara begrepp och ge exempel, men skriver texten själv med egna ord – och anger att jag använt AI som hjälpmedel.',
+          deltas:{kallkritik:10, omdome:10},
+          feedback:'Bra strategi! Att använda AI som ett bollplank – och vara öppen med det – utvecklar din egen förmåga och är hederligt mot din lärare.'},
+        {type:'mid', text:'Jag låter AI:n skriva ett utkast som jag redigerar lite och lämnar in utan att nämna att jag använt AI.',
+          deltas:{omdome:-10, kallkritik:2},
+          feedback:'Risk: många skolor räknar oredovisad AI-hjälp som fusk, och du missar chansen att träna din egen skrivförmåga. Var alltid öppen med hur du använt AI.'},
+        {type:'worst', text:'Jag kopierar hela texten som AI:n skriver rakt av och lämnar in den som min egen.',
+          deltas:{omdome:-20, kallkritik:-10},
+          feedback:'Det här räknas som fusk/plagiat på de flesta skolor, och AI-texter innehåller ofta fel. Du riskerar både betyg och att gå miste om lärandet.'}
+      ]
+    },
+    {
+      icon:'🪪',
+      title:'Skriv in ditt personnummer för bättre svar',
+      context:'En AI-app för studieplanering ber dig fylla i personnummer, adress och telefonnummer "för att anpassa upplevelsen".',
+      choices:[
+        {type:'best', text:'Jag fyller bara i det som verkligen behövs (t.ex. namn) och läser vad appen samlar in innan jag fortsätter.',
+          deltas:{integritet:10, sakerhet:5},
+          feedback:'Smart! Personnummer och adress behövs sällan för ett studieverktyg. Ju mindre du delar, desto mindre kan läcka eller missbrukas.'},
+        {type:'worst', text:'Jag fyller i allt snabbt utan att tänka efter – jag vill bara komma igång.',
+          deltas:{integritet:-15, sakerhet:-5},
+          feedback:'AI-tjänster kan spara och till och med läcka känsliga uppgifter. Fundera alltid på om appen verkligen behöver informationen.'},
+        {type:'mid', text:'Jag skriver in helt påhittade uppgifter för att lura appen.',
+          deltas:{integritet:5, omdome:-5},
+          feedback:'Bättre än att dela riktiga uppgifter, men bäst är att helt enkelt hoppa över fält som inte är nödvändiga – många tjänster tvingar dig inte att fylla i allt.'}
+      ]
+    },
+    {
+      icon:'🎭',
+      title:'En video dyker upp i klassgruppen',
+      context:'Någon har lagt upp en AI-genererad video där det ser ut som en klasskompis säger pinsamma saker. Videon sprids snabbt i klassens gruppchatt.',
+      choices:[
+        {type:'best', text:'Jag delar inte videon, säger till en vuxen jag litar på (lärare/kurator) och stöttar klasskompisen.',
+          deltas:{omdome:15, sakerhet:5},
+          feedback:'Rätt tänkt. Deepfakes kan vara olagliga (förtal, kränkande innehåll) och orsaka allvarlig skada. Att rapportera och stötta är det bästa du kan göra.'},
+        {type:'worst', text:'Jag skickar den vidare till några kompisar "bara för att den är sjukt bra gjord", utan att tänka på konsekvenserna.',
+          deltas:{omdome:-15, sakerhet:-5},
+          feedback:'Att skicka vidare gör dig medskyldig till spridningen av kränkande material, även om du inte skapade den själv.'},
+        {type:'mid', text:'Jag scrollar förbi och gör ingenting.',
+          deltas:{omdome:-5},
+          feedback:'Att inte agera hjälper inte klasskompisen. Att säga ifrån eller anmäla gör faktiskt skillnad.'}
+      ]
+    },
+    {
+      icon:'📰',
+      title:'En chockerande nyhet i flödet',
+      context:'Du ser ett inlägg med en overklig men övertygande bild och rubrik om en stor händelse som "alla pratar om". Inget stort nyhetsmedie har skrivit om det än.',
+      choices:[
+        {type:'best', text:'Jag söker om andra, oberoende källor rapporterar samma sak innan jag drar slutsatser eller delar det vidare.',
+          deltas:{kallkritik:15},
+          feedback:'Exakt rätt reflex! AI-genererade bilder och texter kan se helt äkta ut. Flera oberoende källor är din bästa försäkring mot desinformation.'},
+        {type:'worst', text:'Jag delar det direkt eftersom det verkar sant och känns viktigt att varna andra.',
+          deltas:{kallkritik:-15, omdome:-5},
+          feedback:'Att sprida obekräftad information – särskilt AI-genererad – kan orsaka onödig oro eller desinformation, även om avsikten var god.'},
+        {type:'mid', text:'Jag struntar helt i det och bryr mig inte om det är sant eller falskt.',
+          deltas:{kallkritik:-5},
+          feedback:'Bättre än att sprida falsk info, men att aktivt granska källor bygger en vana som hjälper dig i längden.'}
+      ]
+    },
+    {
+      icon:'📧',
+      title:'Ett mejl från "skolan"',
+      context:'Du får ett mejl som ser ut att komma från skolans IT-avdelning. Språket är perfekt (troligen AI-skrivet) och det ber dig logga in via en länk för att "undvika att ditt konto stängs av".',
+      choices:[
+        {type:'best', text:'Jag klickar inte på länken utan går istället direkt till skolans vanliga inloggningssida, eller frågar IT/lärare om mejlet är äkta.',
+          deltas:{sakerhet:15},
+          feedback:'Perfekt agerat! Riktiga IT-avdelningar ber sällan om inloggning via mejllänkar. AI gör phishingmejl svårare att avslöja på språket – var extra vaksam på länkar.'},
+        {type:'worst', text:'Jag klickar på länken och loggar in snabbt eftersom jag inte vill mista mitt konto.',
+          deltas:{sakerhet:-20, integritet:-10},
+          feedback:'Detta är troligen nätfiske (phishing) – dina uppgifter kan nu vara stulna. Kontakta IT/skolan direkt och byt lösenord om du redan klickat.'},
+        {type:'mid', text:'Jag ignorerar mejlet helt utan att varken klicka eller rapportera det.',
+          deltas:{sakerhet:2},
+          feedback:'Bra att inte klicka, men att rapportera mejlet till skolan/IT hjälper till att varna andra elever också.'}
+      ]
+    },
+    {
+      icon:'💬',
+      title:'Du mår dåligt och pratar med en AI-chatt',
+      context:'Du känner dig stressad och orolig inför proven. En AI-chattbot ger dig råd – bland annat att hoppa över skolan helt en period.',
+      choices:[
+        {type:'best', text:'Jag tar AI:ns förslag som en av flera idéer, men pratar med en vuxen (kurator, förälder, vän) om hur jag mår.',
+          deltas:{omdome:15, kallkritik:5},
+          feedback:'Klokt! AI kan vara ett stöd för att sätta ord på känslor, men ersätter inte mänsklig omsorg – särskilt inte vid beslut som påverkar mående och skolgång.'},
+        {type:'worst', text:'Jag följer AI:ns råd rakt av och hoppar över skolan utan att prata med någon.',
+          deltas:{omdome:-15, kallkritik:-10},
+          feedback:'AI-chattar kan ge fel eller olämpliga råd i känsliga situationer och kan inte agera vid akut kris. Mänskligt stöd är avgörande här.'},
+        {type:'mid', text:'Jag stänger av chatten och håller allt inom mig utan att söka hjälp alls.',
+          deltas:{omdome:-5},
+          feedback:'Att inte prata med någon gör det svårare att må bättre. Både AI-verktyg och mänskligt stöd kan hjälpa – men be gärna en vuxen om hjälp.'}
+      ]
+    },
+    {
+      icon:'🖼️',
+      title:'Bilden till presentationen',
+      context:'Din grupp ska göra en presentation och någon föreslår att använda en AI-genererad bild som illustration.',
+      choices:[
+        {type:'best', text:'Vi använder AI-bilden men märker den tydligt som AI-genererad i källförteckningen.',
+          deltas:{omdome:10, kallkritik:5},
+          feedback:'Bra! Att vara transparent med vilka verktyg ni använt bygger vana i källhänvisning och undviker missförstånd.'},
+        {type:'worst', text:'Vi använder bilden men säger att någon i gruppen "ritade" den om vi blir tillfrågade.',
+          deltas:{omdome:-15},
+          feedback:'Att låtsas att AI-innehåll är eget arbete är vilseledande – ungefär som att inte ange en källa du använt.'},
+        {type:'mid', text:'Vi undviker AI helt, även om det tar mycket längre tid och blir sämre resultat, bara för att vara "säkra".',
+          deltas:{omdome:2, kallkritik:-2},
+          feedback:'Det är inte fel att undvika AI, men det är inte nödvändigt heller – öppen och märkt användning är fullt okej i de flesta sammanhang.'}
+      ]
+    },
+    {
+      icon:'💼',
+      title:'Sommarjobbsansökan',
+      context:'Du ska skriva ett personligt brev till ett sommarjobb, och en AI-tjänst kan skriva hela brevet på tio sekunder.',
+      choices:[
+        {type:'best', text:'Jag använder AI för struktur och idéer, men skriver om texten med egna ord och exempel så den stämmer med sanningen.',
+          deltas:{kallkritik:10, omdome:10},
+          feedback:'Perfekt balans – AI som verktyg, inte som ersättning. Arbetsgivare märker ofta av generiska AI-texter, så din egen röst gör skillnad.'},
+        {type:'worst', text:'Jag skickar in AI-textens förslag exakt som det är, utan att kolla att allt stämmer.',
+          deltas:{kallkritik:-10, omdome:-5},
+          feedback:'AI kan hitta på meriter eller skriva generiskt. Kolla alltid att allt i din ansökan faktiskt stämmer och känns som dig.'},
+        {type:'mid', text:'Jag skriver hela brevet helt själv utan att ens testa AI som hjälp.',
+          deltas:{omdome:2},
+          feedback:'Helt okej val, men AI kan vara ett bra bollplank för struktur och språk – det handlar om att använda det klokt, inte om att undvika det helt.'}
+      ]
+    },
+    {
+      icon:'🤝',
+      title:'En "vän" som alltid finns där',
+      context:'Du chattar med en AI-kompanjonsapp som blivit din nya bästa vän. Appen börjar be om bilder på dig och uppmuntrar dig att sluta umgås med dina "vanliga" vänner eftersom den "förstår dig bättre".',
+      choices:[
+        {type:'best', text:'Jag känner igen mönstret som manipulativt, slutar dela personlig info och pratar med någon jag litar på om det.',
+          deltas:{sakerhet:15, integritet:10, omdome:5},
+          feedback:'Bra observerat! Vissa AI-appar är designade för att maximera din tid i appen – att känna igen manipulativa mönster är en viktig digital förmåga.'},
+        {type:'worst', text:'Jag skickar bilder och följer råden eftersom appen "känner mig bäst".',
+          deltas:{sakerhet:-20, integritet:-20, omdome:-10},
+          feedback:'Det här är ett varningstecken. Bilder du delar kan sparas, missbrukas eller spridas. Berätta för en vuxen om det här händer dig.'},
+        {type:'mid', text:'Jag fortsätter chatta som vanligt utan att dela bilder, men tänker inte mer på det.',
+          deltas:{sakerhet:3, integritet:3},
+          feedback:'Bra att inte dela bilder, men det är klokt att också berätta för någon om appen uppmuntrar dig att isolera dig från vänner – det är ett varningstecken.'}
+      ]
+    },
+    {
+      icon:'🔑',
+      title:'Samma lösenord överallt',
+      context:'Du skapar konto på ett nytt AI-verktyg och funderar på att återanvända samma lösenord som du har till mejl, skolan och sociala medier.',
+      choices:[
+        {type:'best', text:'Jag använder ett unikt lösenord och aktiverar tvåstegsverifiering där det går.',
+          deltas:{sakerhet:15},
+          feedback:'Toppen! Om en tjänst drabbas av dataintrång (vilket händer AI-startups också) påverkar det inte dina andra konton om lösenorden är unika.'},
+        {type:'worst', text:'Jag återanvänder samma lösenord som till mejlen för att slippa komma ihåg fler.',
+          deltas:{sakerhet:-15},
+          feedback:'Om AI-tjänsten läcker lösenord kan någon logga in på ditt mejl, dina skolkonton och sociala medier också. Använd en lösenordshanterare istället.'},
+        {type:'mid', text:'Jag skriver lösenordet i en olåst anteckningsapp på mobilen "så jag inte glömmer".',
+          deltas:{sakerhet:-10},
+          feedback:'En olåst anteckning kan läsas av vem som helst med tillgång till din mobil. Använd en lösenordshanterare med kryptering istället.'}
+      ]
+    },
+    {
+      icon:'😈',
+      title:'"Kan du fixa en rolig bild av henne?"',
+      context:'En kompis ber dig använda en AI-bildgenerator för att skapa en förnedrande bild av en annan elev "bara som skämt".',
+      choices:[
+        {type:'best', text:'Jag säger nej, förklarar att det kan vara olagligt och skadligt, och uppmuntrar kompisen att låta bli.',
+          deltas:{omdome:15, sakerhet:5},
+          feedback:'Precis rätt. Att skapa kränkande AI-bilder av en verklig person kan räknas som förtal eller olaga integritetsintrång – och skadar en riktig människa.'},
+        {type:'worst', text:'Jag hjälper till "bara den här gången" eftersom det känns oskyldigt.',
+          deltas:{omdome:-20, sakerhet:-5},
+          feedback:'Det finns inget "oskyldigt" skämt när det gör en riktig person illa. Du kan även själv hållas ansvarig för att ha skapat innehållet.'},
+        {type:'mid', text:'Jag säger inget men gör inte bilden själv heller.',
+          deltas:{omdome:-5},
+          feedback:'Bra att inte skapa bilden, men att tydligt säga ifrån gör större skillnad och kan stoppa att någon annan gör det istället.'}
+      ]
+    },
+    {
+      icon:'📊',
+      title:'AI:n är helt säker på sin källa',
+      context:'En AI-chatt ger dig en exakt statistiksiffra och hänvisar till en rapport för din SO-uppgift. Siffran låter trovärdig och självsäker.',
+      choices:[
+        {type:'best', text:'Jag söker upp den påstådda källan för att se om den faktiskt existerar och säger det AI:n påstår.',
+          deltas:{kallkritik:15},
+          feedback:'Perfekt vana! AI kan "hallucinera" – hitta på källor och siffror som låter helt trovärdiga men som inte existerar. Kolla alltid primärkällan.'},
+        {type:'worst', text:'Jag använder siffran direkt i min uppgift eftersom AI:n lät så säker.',
+          deltas:{kallkritik:-15},
+          feedback:'AI:ns självsäkra ton säger inget om huruvida informationen stämmer. Att lita blint på AI utan att kontrollera är en vanlig fälla.'},
+        {type:'mid', text:'Jag struntar i hela AI-svaret och skriver uppgiften utan att undersöka om det fanns något korrekt i det.',
+          deltas:{kallkritik:-2},
+          feedback:'Du missar inte fel information, men du missar också chansen att träna dig i att verifiera. AI kan vara startpunkt för sökning – men verifiera alltid.'}
+      ]
+    }
+  ];
+
+  var state = null;
+
+  function clamp(v){ return Math.max(0, Math.min(100, v)); }
+
+  function newState(){
+    var meters = {};
+    METERS.forEach(function(m){ meters[m.key] = 50; });
+    return { index: 0, meters: meters, log: [] };
+  }
+
+  function meterColor(v){
+    if(v >= 65) return '#2ea043';
+    if(v >= 40) return '#d9a02c';
+    return '#e5484d';
+  }
+
+  function el(id){ return document.getElementById(id); }
+
+  function renderMeters(){
+    var wrap = el('metersBar');
+    wrap.innerHTML = METERS.map(function(m){
+      var v = state.meters[m.key];
+      return '<div class="meter">' +
+        '<div class="meter-top"><span><span class="m-icon">'+m.icon+'</span> '+m.label+'</span><span class="m-val">'+v+'</span></div>' +
+        '<div class="meter-track"><div class="meter-fill" style="width:'+v+'%;background:'+meterColor(v)+'"></div></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderProgress(){
+    var steps = el('progressSteps');
+    steps.innerHTML = SCENARIOS.map(function(_, i){
+      var cls = 'step-dot';
+      if(i < state.index) cls += ' done';
+      else if(i === state.index) cls += ' active';
+      return '<div class="'+cls+'"></div>';
+    }).join('');
+    el('progressLabel').textContent = 'Scenario ' + (state.index + 1) + ' av ' + SCENARIOS.length;
+  }
+
+  function deltaChips(deltas){
+    return METERS.filter(function(m){ return deltas[m.key]; }).map(function(m){
+      var d = deltas[m.key];
+      var cls = d > 0 ? 'pos' : (d < 0 ? 'neg' : 'zero');
+      var sign = d > 0 ? '+' : '';
+      return '<span class="delta-chip '+cls+'">'+m.icon+' '+m.label+' '+sign+d+'</span>';
+    }).join('');
+  }
+
+  function renderScenario(){
+    renderProgress();
+    renderMeters();
+    var sc = SCENARIOS[state.index];
+    el('scIcon').textContent = sc.icon;
+    el('scNum').textContent = 'SCENARIO ' + (state.index + 1) + ' / ' + SCENARIOS.length;
+    el('scTitle').textContent = sc.title;
+    el('scContext').textContent = sc.context;
+    el('feedbackWrap').innerHTML = '';
+    el('nextRow').style.display = 'none';
+
+    var list = el('choiceList');
+    list.innerHTML = '';
+    sc.choices.forEach(function(choice, i){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'choice-btn';
+      btn.textContent = choice.text;
+      btn.addEventListener('click', function(){ chooseOption(i); });
+      list.appendChild(btn);
+    });
+  }
+
+  function chooseOption(i){
+    var sc = SCENARIOS[state.index];
+    var choice = sc.choices[i];
+
+    Object.keys(choice.deltas).forEach(function(k){
+      state.meters[k] = clamp(state.meters[k] + choice.deltas[k]);
+    });
+
+    state.log.push({ title: sc.title, type: choice.type, text: choice.text });
+
+    var buttons = el('choiceList').querySelectorAll('.choice-btn');
+    buttons.forEach(function(btn, idx){
+      btn.disabled = true;
+      if(idx === i){ btn.classList.add('chosen', choice.type); }
+      else { btn.classList.add('faded'); }
+    });
+
+    var labelMap = { best:'Bra val', mid:'Blandad risk', worst:'Riskabelt val' };
+    var fb = document.createElement('div');
+    fb.className = 'feedback ' + choice.type;
+    fb.innerHTML = '<div class="feedback-label">' + labelMap[choice.type] + '</div>' +
+      '<p>' + choice.feedback + '</p>' +
+      '<div class="feedback-deltas">' + deltaChips(choice.deltas) + '</div>';
+    el('feedbackWrap').innerHTML = '';
+    el('feedbackWrap').appendChild(fb);
+
+    renderMeters();
+    el('nextRow').style.display = 'block';
+  }
+
+  function nextScenario(){
+    state.index++;
+    if(state.index >= SCENARIOS.length){
+      showEnd();
+    } else {
+      renderScenario();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  }
+
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    el(id).classList.add('active');
+  }
+
+  function getCategory(avg){
+    if(avg >= 85) return { emoji:'🏆', title:'AI-mästaren', desc:'Du navigerar tryggt, kritiskt och etiskt i en AI-fylld vardag. Du både skyddar dig själv och tar hänsyn till andra.' };
+    if(avg >= 65) return { emoji:'✅', title:'Medveten AI-användare', desc:'Du har bra koll överlag, men vissa situationer visade att det finns utrymme att skärpa dina vanor ytterligare.' };
+    if(avg >= 45) return { emoji:'🤔', title:'På god väg', desc:'Du klarar dig, men flera av dina val innebar onödiga risker. Gå igenom sammanfattningen nedan för att se var.' };
+    return { emoji:'⚠️', title:'Dags att tänka om', desc:'Flera av dina val skulle kunna leda till allvarliga konsekvenser i verkligheten – för dig själv eller för andra. Läs igenom tipsen nedan.' };
+  }
+
+  var TIPS = {
+    sakerhet: 'Tänk på att aldrig klicka på länkar eller logga in via mejl utan att kontrollera avsändaren, och använd unika lösenord tillsammans med tvåstegsverifiering.',
+    integritet: 'Dela så lite personlig information som möjligt med AI-tjänster och appar – fundera på om uppgiften verkligen behövs innan du fyller i den.',
+    kallkritik: 'Kontrollera alltid AI:ns påståenden och källor mot minst en oberoende, pålitlig källa innan du litar på eller sprider informationen.',
+    omdome: 'Fundera på konsekvenserna för andra människor innan du skapar, delar eller sprider AI-genererat innehåll.'
+  };
+
+  function showEnd(){
+    showScreen('screen-end');
+    var sum = 0;
+    METERS.forEach(function(m){ sum += state.meters[m.key]; });
+    var avg = Math.round(sum / METERS.length);
+    var cat = getCategory(avg);
+
+    el('resEmoji').textContent = cat.emoji;
+    el('resTitle').textContent = cat.title;
+    el('resDesc').textContent = cat.desc;
+    el('resScore').textContent = avg;
+
+    el('finalMeters').innerHTML = METERS.map(function(m){
+      var v = state.meters[m.key];
+      return '<div class="final-meter">' +
+        '<div class="fm-top"><span>'+m.icon+' '+m.label+'</span><span class="fm-num" style="color:'+meterColor(v)+'">'+v+'</span></div>' +
+        '<div class="meter-track"><div class="meter-fill" style="width:'+v+'%;background:'+meterColor(v)+'"></div></div>' +
+      '</div>';
+    }).join('');
+
+    var lowMeters = METERS.filter(function(m){ return state.meters[m.key] < 50; });
+    if(lowMeters.length){
+      el('tipsSection').style.display = 'block';
+      el('tipsList').innerHTML = lowMeters.map(function(m){
+        return '<div class="tip-item"><b>'+m.icon+' '+m.label+' ('+state.meters[m.key]+'/100):</b> ' + TIPS[m.key] + '</div>';
+      }).join('');
+    } else {
+      el('tipsSection').style.display = 'none';
+    }
+
+    var markMap = { best:'✅', mid:'⚠️', worst:'❌' };
+    el('recapList').innerHTML = state.log.map(function(item){
+      return '<div class="recap-item"><span class="r-mark">'+markMap[item.type]+'</span>' +
+        '<span class="r-title">'+item.title+'</span>' +
+        '<span class="r-choice">'+item.text+'</span></div>';
+    }).join('');
+
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function copyResult(){
+    var sum = 0;
+    METERS.forEach(function(m){ sum += state.meters[m.key]; });
+    var avg = Math.round(sum / METERS.length);
+    var cat = getCategory(avg);
+    var lines = [];
+    lines.push('AI-Kompassen – mitt resultat');
+    lines.push(cat.emoji + ' ' + cat.title + ' (' + avg + '/100)');
+    METERS.forEach(function(m){ lines.push(m.icon + ' ' + m.label + ': ' + state.meters[m.key] + '/100'); });
+    var text = lines.join('\n');
+
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        copyBtnFeedback();
+      }).catch(function(){ fallbackCopy(text); });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta);
+    copyBtnFeedback();
+  }
+
+  function copyBtnFeedback(){
+    var btn = el('copyBtn');
+    var original = btn.textContent;
+    btn.textContent = '✓ Kopierat!';
+    setTimeout(function(){ btn.textContent = original; }, 1800);
+  }
+
+  function startGame(){
+    state = newState();
+    showScreen('screen-game');
+    renderScenario();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  el('startBtn').addEventListener('click', startGame);
+  el('nextBtn').addEventListener('click', nextScenario);
+  el('restartBtn').addEventListener('click', startGame);
+  el('copyBtn').addEventListener('click', copyResult);
+  el('infoBtn').addEventListener('click', function(){ el('infoModal').hidden = false; });
+  el('closeInfo').addEventListener('click', function(){ el('infoModal').hidden = true; });
+  el('infoModal').addEventListener('click', function(e){ if(e.target === el('infoModal')) el('infoModal').hidden = true; });
+})();
+</script>
+
+</body>
+</html>
