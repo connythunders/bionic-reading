@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vårdnadshavarkommunikation – Trygga mejl på minuter</title>
+<meta name="description" content="Verktyg för lärare och pedagoger i förskola, grundskola och gymnasium att skriva professionella, GDPR-säkra mejl till vårdnadshavare – förankrat i Skollagen, Föräldrabalken och Skolverkets riktlinjer.">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --font-size: 16px;
+    --line-height: 1.6;
+    --bg: #fdfaf6;
+    --surface: #ffffff;
+    --surface-alt: #f6f2ea;
+    --border: #e4ddd0;
+    --text: #29241c;
+    --text-muted: #74695a;
+    --accent: #a5622f;
+    --accent-hover: #8a4f24;
+    --accent-soft: #f3e4d4;
+    --success: #3d7a4f;
+    --success-soft: #e9f4ea;
+    --danger: #b23b3b;
+    --danger-soft: #fbeaea;
+    --warning: #8a6100;
+    --warning-soft: #fdf3d8;
+    --radius: 10px;
+    --shadow: 0 2px 10px rgba(41,36,28,0.08);
+    --transition: 0.18s ease;
+    --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-serif: Georgia, 'Times New Roman', serif;
+  }
+
+  body {
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .container { max-width: 980px; margin: 0 auto; padding: 1rem 1rem 3rem; }
+
+  .app-header { background: linear-gradient(135deg, var(--accent) 0%, #7a3f1c 100%); color: #fff; padding: 1.5rem 1.75rem; margin-bottom: 1.25rem; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+  .app-header .header-text { min-width: 0; flex: 1 1 260px; }
+  .app-header h1 { font-size: 1.55rem; font-weight: 700; margin-bottom: 0.3rem; overflow-wrap: break-word; }
+  .app-header p { opacity: 0.92; font-size: 0.92rem; max-width: 46ch; overflow-wrap: break-word; }
+  .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .header-actions .btn { background: rgba(255,255,255,0.16); color: #fff; border: 1px solid rgba(255,255,255,0.35); }
+  .header-actions .btn:hover { background: rgba(255,255,255,0.28); }
+
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+  .section-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.4rem; }
+
+  .api-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .api-row input { flex: 1; min-width: 200px; font-family: monospace; font-size: 0.9rem; padding: 0.55rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-alt); color: var(--text); }
+  .api-row input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .api-status { font-size: 0.82rem; color: var(--text-muted); font-family: monospace; padding: 0.4rem 0.6rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius); white-space: nowrap; }
+  .hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+  .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.15rem; border: none; border-radius: var(--radius); font-size: 0.93rem; font-weight: 600; cursor: pointer; transition: var(--transition); text-align: center; white-space: nowrap; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger { background: var(--danger-soft); color: var(--danger); border: 1px solid #f0c9c9; }
+  .btn-danger:hover { background: #f6dada; }
+  .btn-sm { padding: 0.38rem 0.75rem; font-size: 0.82rem; }
+  .btn-block { width: 100%; justify-content: center; }
+
+  /* ===== TABS ===== */
+  .tabs { display: flex; gap: 0.2rem; border-bottom: 2px solid var(--border); margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .tab-btn { padding: 0.65rem 1.1rem; border: none; background: none; cursor: pointer; font-weight: 600; color: var(--text-muted); border-bottom: 3px solid transparent; margin-bottom: -2px; font-size: 0.92rem; font-family: inherit; }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ===== LEVEL CHIPS ===== */
+  .level-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+  .level-chip { padding: 0.5rem 1rem; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--text); cursor: pointer; font-weight: 600; font-size: 0.88rem; font-family: inherit; transition: var(--transition); }
+  .level-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .level-chip:hover:not(.active) { border-color: var(--accent); }
+
+  .mode-row { display: flex; gap: 0.5rem; margin-bottom: 1.1rem; }
+  .mode-btn { flex: 1; padding: 0.6rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface-alt); cursor: pointer; font-weight: 600; font-size: 0.88rem; color: var(--text); font-family: inherit; }
+  .mode-btn.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-hover); }
+
+  /* ===== CATEGORY GRID ===== */
+  .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.65rem; margin-bottom: 0.5rem; }
+  .cat-card { text-align: left; border: 1px solid var(--border); background: var(--surface-alt); border-radius: var(--radius); padding: 0.85rem 0.95rem; cursor: pointer; font-family: inherit; transition: var(--transition); display: flex; flex-direction: column; gap: 0.3rem; }
+  .cat-card:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .cat-card.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent) inset; }
+  .cat-card .cat-icon { font-size: 1.3rem; }
+  .cat-card .cat-title { font-weight: 700; font-size: 0.92rem; }
+  .cat-card .cat-desc { font-size: 0.8rem; color: var(--text-muted); }
+  .cat-card.sensitive .cat-title::after { content: ' 🔒'; }
+
+  /* ===== FORM ===== */
+  .form-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.85rem; }
+  .form-group { display: flex; flex-direction: column; gap: 0.35rem; flex: 1; min-width: 200px; }
+  .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+  .form-group .opt { font-weight: 400; }
+
+  input[type="text"], select { padding: 0.55rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font-size: 0.95rem; font-family: inherit; }
+  select { cursor: pointer; }
+  input[type="text"]:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  textarea { width: 100%; min-height: 100px; padding: 0.7rem 0.85rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.95rem; font-family: inherit; resize: vertical; background: var(--surface); color: var(--text); line-height: var(--line-height); }
+
+  .checkbox-row { display: flex; gap: 1.1rem; flex-wrap: wrap; margin: 0.5rem 0 1rem; }
+  .checkbox-row label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; cursor: pointer; }
+
+  .tone-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 0.5rem; margin-bottom: 1rem; }
+  .tone-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 0.6rem 0.75rem; cursor: pointer; background: var(--surface); font-family: inherit; text-align: left; }
+  .tone-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .tone-card .tone-label { font-weight: 700; font-size: 0.85rem; }
+  .tone-card .tone-desc { font-size: 0.76rem; color: var(--text-muted); }
+
+  /* ===== SENSITIVE DATA WARNING ===== */
+  .sensitive-warning { display: none; background: var(--danger-soft); border: 1px solid #f0c9c9; border-radius: var(--radius); padding: 0.75rem 1rem; color: var(--danger); font-size: 0.85rem; margin-bottom: 1rem; }
+  .sensitive-warning.visible { display: block; }
+  .sensitive-warning strong { display: block; margin-bottom: 0.2rem; }
+
+  /* ===== GUIDANCE ===== */
+  details.guidance { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-alt); margin-bottom: 1.25rem; overflow: hidden; }
+  details.guidance summary { padding: 0.85rem 1rem; cursor: pointer; font-weight: 700; font-size: 0.9rem; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  details.guidance summary::-webkit-details-marker { display: none; }
+  details.guidance summary::after { content: '▾'; color: var(--text-muted); transition: transform 0.15s ease; }
+  details.guidance[open] summary::after { transform: rotate(180deg); }
+  .guidance-body { padding: 0 1.1rem 1.1rem; }
+  .guidance-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  @media (max-width: 640px) { .guidance-cols { grid-template-columns: 1fr; } }
+  .guidance-col h4 { font-size: 0.82rem; margin-bottom: 0.5rem; }
+  .guidance-col.do h4 { color: var(--success); }
+  .guidance-col.avoid h4 { color: var(--danger); }
+  .guidance-col ul { padding-left: 1.1rem; font-size: 0.83rem; color: var(--text); }
+  .guidance-col li { margin-bottom: 0.35rem; }
+  .legal-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .legal-chip { font-size: 0.74rem; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 0.28rem 0.65rem; color: var(--accent-hover); text-decoration: none; }
+  .legal-chip:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+  .loading { display: none; text-align: center; padding: 2.5rem; }
+  .loading.visible { display: block; }
+  .spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+  .spinner-sm { width: 18px; height: 18px; border-width: 3px; margin: 0; display: inline-block; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { color: var(--text-muted); font-size: 0.95rem; }
+
+  .error-box { display: none; background: var(--danger-soft); border: 1px solid #f0c9c9; border-radius: var(--radius); padding: 1rem 1.25rem; color: var(--danger); margin-bottom: 1rem; }
+  .error-box.visible { display: block; }
+  .error-box strong { display: block; margin-bottom: 0.25rem; }
+  .hidden { display: none !important; }
+
+  /* ===== RESULT ===== */
+  .result-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .result-header h2 { font-size: 1.2rem; }
+  .subject-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+  .subject-row label { font-weight: 700; font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
+  .subject-row input { flex: 1; font-weight: 600; }
+  #body-textarea { min-height: 320px; font-family: var(--font-serif); font-size: 1rem; line-height: 1.7; }
+  .result-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+  .quick-adjust { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .quick-adjust .btn { background: var(--surface-alt); }
+
+  .translate-box { border-top: 1px dashed var(--border); margin-top: 1.25rem; padding-top: 1.1rem; }
+  .translate-body { white-space: pre-wrap; font-family: var(--font-serif); background: var(--surface-alt); border-radius: var(--radius); padding: 0.9rem 1rem; margin-top: 0.6rem; font-size: 0.95rem; }
+
+  .compliance-box { border-top: 1px dashed var(--border); margin-top: 1.25rem; padding-top: 1.1rem; }
+  .compliance-list { margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .compliance-item { border-radius: var(--radius); padding: 0.6rem 0.85rem; font-size: 0.85rem; }
+  .compliance-item.flag { background: var(--danger-soft); color: var(--danger); border: 1px solid #f0c9c9; }
+  .compliance-item.ok { background: var(--success-soft); color: var(--success); border: 1px solid #c8e3cc; }
+
+  .legal-footer { font-size: 0.82rem; color: var(--text-muted); margin-top: 1.25rem; padding-top: 1rem; border-top: 1px dashed var(--border); }
+  .legal-footer .legal-title { font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
+
+  /* ===== DRAFTS / TEMPLATES ===== */
+  .search-row { margin-bottom: 1rem; }
+  .search-row input { width: 100%; }
+  .list-item { border: 1px solid var(--border); border-radius: var(--radius); padding: 0.8rem 1rem; margin-bottom: 0.6rem; background: var(--surface-alt); display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
+  .list-item-main { flex: 1; min-width: 0; cursor: pointer; }
+  .list-item-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.15rem; }
+  .list-item-meta { font-size: 0.78rem; color: var(--text-muted); }
+  .list-item-snippet { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.3rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .list-item-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
+  .empty-state { text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 0.92rem; }
+
+  /* ===== PROFILE MODAL ===== */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(41,36,28,0.5); align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+  .modal-overlay.visible { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; max-width: 440px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal h3 { margin-bottom: 1rem; font-size: 1.05rem; }
+  .modal-close-row { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem; }
+
+  @media (max-width: 600px) {
+    .app-header { flex-direction: column; }
+    .app-header .header-text { width: 100%; }
+    .app-header h1 { font-size: 1.3rem; }
+    .result-header { flex-direction: column; align-items: flex-start; }
+  }
+
+  @media print {
+    .no-print { display: none !important; }
+    body { background: #fff; }
+    .container { max-width: 100%; padding: 0; }
+    .section { border: none; box-shadow: none; padding: 0; margin-bottom: 1rem; }
+    #body-textarea { border: none; min-height: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="app-header no-print">
+    <div class="header-text">
+      <h1>Vårdnadshavarkommunikation</h1>
+      <p>Skriv professionella, GDPR-säkra mejl till vårdnadshavare – förankrat i Skollagen (2010:800), Föräldrabalken och Skolverkets riktlinjer.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-sm" onclick="openProfileModal()">⚙️ Profil</button>
+    </div>
+  </header>
+
+  <div class="error-box no-print" id="error-box" role="alert" aria-live="polite"></div>
+
+  <!-- API KEY -->
+  <section class="section no-print" id="api-section">
+    <div class="section-title">API-nyckel (Anthropic)</div>
+    <div class="api-row">
+      <input type="password" id="api-key-input" placeholder="Klistra in din Anthropic API-nyckel (sk-ant-...)" autocomplete="off" aria-label="API-nyckel">
+      <button class="btn btn-secondary btn-sm" id="api-save-btn" onclick="saveApiKey()">Spara</button>
+      <button class="btn btn-secondary btn-sm" id="api-clear-btn" onclick="clearApiKey()" style="display:none">Rensa</button>
+      <span class="api-status" id="api-status" style="display:none"></span>
+    </div>
+    <p class="hint">Nyckeln sparas bara i din webbläsare (localStorage). Ingen text skickas till någon annan server än Anthropic när du klickar på "Generera mejl".</p>
+  </section>
+
+  <!-- TABS -->
+  <div class="tabs no-print">
+    <button class="tab-btn active" data-tab="new" onclick="switchTab('new')">✉️ Nytt mejl</button>
+    <button class="tab-btn" data-tab="templates" onclick="switchTab('templates')">📁 Mina mallar</button>
+    <button class="tab-btn" data-tab="drafts" onclick="switchTab('drafts')">💾 Sparade utkast</button>
+  </div>
+
+  <!-- ============ TAB: NYTT MEJL ============ -->
+  <div class="tab-panel active" id="tab-new">
+
+    <section class="section no-print">
+      <div class="section-title">1. Skolform</div>
+      <div class="level-row" id="level-row"></div>
+
+      <div class="section-title">2. Vad ska mejlet handla om?</div>
+      <div class="mode-row">
+        <button class="mode-btn active" id="mode-new-btn" onclick="setMode('new')">Skapa nytt mejl</button>
+        <button class="mode-btn" id="mode-rewrite-btn" onclick="setMode('rewrite')">Skriv om befintlig text</button>
+      </div>
+
+      <div id="cat-grid-wrap">
+        <div class="cat-grid" id="cat-grid"></div>
+      </div>
+
+      <div id="rewrite-wrap" class="hidden">
+        <div class="form-group" style="margin-bottom:0.85rem;">
+          <label for="rewrite-input">Din text, utkast eller stödord som ska skrivas om</label>
+          <textarea id="rewrite-input" placeholder="Klistra in texten som AI:n ska skriva om..." oninput="scanSensitive('rewrite-input')"></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:0.85rem;">
+          <label for="rewrite-purpose">Skriv om texten för ändamålet</label>
+          <input type="text" id="rewrite-purpose" placeholder="T.ex. mer konfliktdämpande, kortare, eller till engelska föräldrar">
+        </div>
+      </div>
+    </section>
+
+    <section class="section no-print" id="form-section">
+      <div class="section-title">3. Detaljer</div>
+
+      <div class="sensitive-warning" id="sensitive-warning">
+        <strong>⚠️ Möjlig känslig uppgift upptäckt</strong>
+        <span id="sensitive-warning-text"></span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="child-name">Barnets/elevens förnamn <span class="opt">(valfritt)</span></label>
+          <input type="text" id="child-name" placeholder="T.ex. Leo eller Astrid">
+        </div>
+        <div class="form-group">
+          <label for="group-name">Avdelning/klass <span class="opt">(valfritt)</span></label>
+          <input type="text" id="group-name" placeholder="T.ex. Solrosen eller 7B">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:0.85rem;" id="stodord-wrap">
+        <label for="stodord-input">Stödord, punktlista eller kort beskrivning av vad mejlet ska ta upp</label>
+        <textarea id="stodord-input" placeholder="Skriv de punkter du vill ha med – AI:n formulerar hela mejlet åt dig..." oninput="scanSensitive('stodord-input')"></textarea>
+      </div>
+
+      <div class="section-title" style="margin-top:0.5rem;">Tonläge</div>
+      <div class="tone-grid" id="tone-grid"></div>
+
+      <div class="checkbox-row">
+        <label><input type="checkbox" id="opt-list" checked> Använd punktlista där det passar</label>
+        <label><input type="checkbox" id="opt-signature" checked> Lägg till avslutande signatur automatiskt</label>
+      </div>
+
+      <details class="guidance" id="guidance-details">
+        <summary>🛡️ Riktlinjer för säker vårdnadshavarkommunikation</summary>
+        <div class="guidance-body">
+          <div class="guidance-cols">
+            <div class="guidance-col do">
+              <h4>✅ Rätt tillvägagångssätt</h4>
+              <ul id="guidance-do"></ul>
+            </div>
+            <div class="guidance-col avoid">
+              <h4>🚫 Undvik</h4>
+              <ul id="guidance-avoid"></ul>
+            </div>
+          </div>
+          <div class="section-title" style="margin-bottom:0.5rem;">Tillämpliga lagrum och råd</div>
+          <div class="legal-chips" id="guidance-legal"></div>
+        </div>
+      </details>
+
+      <button class="btn btn-primary btn-block" id="generate-btn" onclick="handleGenerate()">✨ Generera mejl</button>
+    </section>
+
+    <div class="loading no-print" id="generating-section">
+      <div class="spinner"></div>
+      <p id="generating-text">AI:n skriver mejlet...</p>
+    </div>
+
+    <section class="section hidden" id="result-section">
+      <div class="result-header">
+        <h2 id="result-title">Färdigt mejlutkast</h2>
+        <span class="hint" id="result-category-note"></span>
+      </div>
+
+      <div class="quick-adjust no-print">
+        <span class="hint" style="align-self:center;">Snabbjusteringar:</span>
+        <button class="btn btn-sm btn-secondary" onclick="quickAdjust('konfliktdampande')">😌 Mer konfliktdämpande</button>
+        <button class="btn btn-sm btn-secondary" onclick="quickAdjust('uppmuntrande')">🌟 Mer uppmuntrande</button>
+        <button class="btn btn-sm btn-secondary" onclick="quickAdjust('kortare')">✂️ Kortare</button>
+        <button class="btn btn-sm btn-secondary" onclick="quickAdjust('formellare')">🎩 Mer formellt</button>
+      </div>
+
+      <div class="subject-row">
+        <label for="subject-input">Ämne</label>
+        <input type="text" id="subject-input" aria-label="Ämnesrad">
+      </div>
+      <textarea id="body-textarea" aria-label="Brödtext (du kan göra ändringar direkt här)"></textarea>
+
+      <div class="result-actions no-print">
+        <button class="btn btn-secondary btn-sm" onclick="copyEmail(this)">📋 Kopiera</button>
+        <button class="btn btn-secondary btn-sm" onclick="openInEmailClient()">📧 Öppna i e-postprogram</button>
+        <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Skriv ut</button>
+        <button class="btn btn-secondary btn-sm" onclick="saveDraft()">💾 Spara som utkast</button>
+        <button class="btn btn-secondary btn-sm" onclick="openSaveTemplateModal()">📁 Spara som mall</button>
+        <button class="btn btn-secondary btn-sm" onclick="translateEmail()">🌍 Översätt till engelska</button>
+        <button class="btn btn-secondary btn-sm" onclick="checkCompliance()">🔍 Granska mot GDPR &amp; sekretess</button>
+      </div>
+
+      <div class="compliance-box hidden no-print" id="compliance-box">
+        <div class="section-title">Granskning</div>
+        <div id="compliance-list" class="compliance-list"></div>
+      </div>
+
+      <div class="translate-box hidden no-print" id="translate-box">
+        <div class="section-title">English translation</div>
+        <div class="translate-body" id="translate-body">English translation will appear here...</div>
+      </div>
+
+      <div class="legal-footer" id="legal-footer"></div>
+    </section>
+  </div>
+
+  <!-- ============ TAB: MALLAR ============ -->
+  <div class="tab-panel" id="tab-templates">
+    <section class="section no-print">
+      <div class="section-title">Skapa ny återkommande mall</div>
+      <div class="form-group" style="margin-bottom:0.6rem;">
+        <label for="tpl-name">Namn på mallen</label>
+        <input type="text" id="tpl-name" placeholder="T.ex. Månadsbrev eller Varning ogiltig frånvaro">
+      </div>
+      <div class="form-group" style="margin-bottom:0.85rem;">
+        <label for="tpl-text">Skriv de återkommande punkterna som AI ska utgå ifrån och formulera om</label>
+        <textarea id="tpl-text" placeholder="Skriv stödord eller punkter som kan återanvändas som mall..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="createTemplateFromForm()">Skapa ny egen mall</button>
+    </section>
+
+    <section class="section">
+      <div class="section-title">Bläddra bland återkommande mallar</div>
+      <div id="templates-list"></div>
+    </section>
+  </div>
+
+  <!-- ============ TAB: UTKAST ============ -->
+  <div class="tab-panel" id="tab-drafts">
+    <section class="section">
+      <div class="search-row no-print">
+        <input type="text" id="draft-search" placeholder="Sök bland utkast..." oninput="renderDrafts()">
+      </div>
+      <p class="hint" style="margin-bottom:1rem;">Dina påbörjade eller sparade mejl sparas tryggt i din webbläsare.</p>
+      <div id="drafts-list"></div>
+    </section>
+  </div>
+
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay no-print" id="profile-modal">
+  <div class="modal">
+    <h3>Redigera profil och inställningar</h3>
+    <div class="form-group" style="margin-bottom:0.6rem;">
+      <label for="profile-name">Ditt namn</label>
+      <input type="text" id="profile-name" placeholder="T.ex. Sara Lindgren">
+    </div>
+    <div class="form-group" style="margin-bottom:0.6rem;">
+      <label for="profile-role">Din roll</label>
+      <input type="text" id="profile-role" placeholder="T.ex. Förskollärare på avdelning Ekorren">
+    </div>
+    <div class="form-group" style="margin-bottom:0.6rem;">
+      <label for="profile-school">Skola/förskola</label>
+      <input type="text" id="profile-school" placeholder="T.ex. Björkdalskolan">
+    </div>
+    <div class="form-group">
+      <label><input type="checkbox" id="profile-signature-toggle" checked> Inkludera automatisk professionell avslutande signatur</label>
+    </div>
+    <div class="modal-close-row">
+      <button class="btn btn-secondary" onclick="closeProfileModal()">Avbryt</button>
+      <button class="btn btn-primary" onclick="saveProfile()">Spara inställningar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE TEMPLATE MODAL -->
+<div class="modal-overlay no-print" id="save-template-modal">
+  <div class="modal">
+    <h3>Spara som mall för framtida utskick</h3>
+    <div class="form-group">
+      <label for="save-tpl-name">Ange ett namn för mallen:</label>
+      <input type="text" id="save-tpl-name" placeholder="T.ex. Veckobrev fredagar">
+    </div>
+    <div class="modal-close-row">
+      <button class="btn btn-secondary" onclick="closeSaveTemplateModal()">Avbryt</button>
+      <button class="btn btn-primary" onclick="confirmSaveTemplate()">Spara mall</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================================================
+// CONFIG
+// ===================================================
+const MODEL = 'claude-sonnet-5';
+const LS_KEY_API = 'vk_apikey';
+const LS_KEY_PROFILE = 'vk_profile';
+const LS_KEY_DRAFTS = 'vk_drafts';
+const LS_KEY_TEMPLATES = 'vk_templates';
+
+const LEVELS = [
+  { id: 'forskola', label: 'Förskola (Lpfö 18)' },
+  { id: 'grundskola', label: 'Grundskola (Skolplikt)' },
+  { id: 'gymnasium', label: 'Gymnasium' },
+];
+
+const LEGAL = {
+  'skollag-narvaro': { law: 'Skollagen (2010:800) 7 och 10 kapitel', text: 'Skolplikt och omedelbar underrättelse vid frånvaro.', url: 'https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/skollag-2010800_sfs-2010-800/#K1' },
+  'csn': { law: 'CSN – ogiltig frånvaro', text: 'Skolan är skyldig att sammanställa ogiltig frånvaro som kan påverka studiebidraget.', url: 'https://www.csn.se/partner/skolor/gymnasieskolan/skolk-och-ogiltig-franvaro.html' },
+  'lpfo': { law: 'Läroplan för förskolan (Lpfö 18)', text: 'Förskolan är frivillig men lyder under Skollagen (2010:800) 8 kapitel.', url: 'https://www.skolverket.se/undervisning/forskolan/laroplan-for-forskolan-lpfo-18' },
+  'usamtal': { law: 'Skolverkets allmänna råd', text: 'Utvecklingssamtal ska genomföras minst en gång om året.', url: 'https://www.skolverket.se/regler-och-ansvar/ansvar-i-skolfragor/utvecklingssamtal-och-skriftliga-omdomen' },
+  'foraldrabalk-bada': { law: 'Föräldrabalken (1949:381)', text: 'Båda vårdnadshavare har rätt till samma information om barnet, oavsett boendeform.', url: 'https://lagen.nu/1949:381#K6P11S2' },
+  'klarsprak': { law: 'Skolverkets klarspråk', text: 'Korta meningar, enkla ord och tydlig struktur för alla vårdnadshavare.', url: 'https://www.skolverket.se/skolutveckling/inspiration-och-stod-i-arbetet/stod-i-arbetet/samverkan-med-hem-och-vardnadshavare' },
+  'osl': { law: 'Offentlighets- och sekretesslagen (OSL)', text: 'Sekretess gäller för enskild elevs personliga förhållanden – nämn aldrig andra inblandade elevers namn.', url: 'https://www.skolverket.se/regler-och-ansvar/ansvar-i-skolfragor/behandling-av-personuppgifter-i-skolan' },
+  'krankande': { law: 'Skollagen (2010:800) 6 kapitel', text: 'Skolan är skyldig att utreda och åtgärda kränkande behandling skyndsamt.', url: 'https://www.skolverket.se/regler-och-ansvar/ansvar-i-skolfragor/krankande-behandling-mobbning-och-diskriminering' },
+  'gdpr': { law: 'Dataskyddsförordningen (GDPR) Artikel 9', text: 'Känsliga personuppgifter (hälsa, etnicitet m.m.) får aldrig skickas i vanlig, okrypterad e-post.', url: 'https://www.skolverket.se/regler-och-ansvar/ansvar-i-skolfragor/behandling-av-personuppgifter-i-skolan' },
+  'foraldrabalk-18': { law: 'Föräldrabalken – 18 år', text: 'Vid myndighetsdagen övergår rätten att samtycka till informationsutlämning till eleven själv.', url: 'https://lagen.nu/1949:381#K6P13S1' },
+  'myndig': { law: 'Skolverket – myndiga elever', text: 'Vägledning om sekretess och samtycke för myndiga gymnasieelever.', url: 'https://www.skolverket.se/regler-och-ansvar/ansvar-i-skolfragor/myndiga-elever-i-gymnasieskolan' },
+  'sarskilt-stod': { law: 'Skollagen – extra anpassningar och särskilt stöd', text: 'Reglerar rätten till stöd, men detaljer om åtgärdsprogram hör inte hemma i vanlig e-post.', url: 'https://www.skolverket.se/regler-och-ansvar/ansvar-i-skolfragor/extra-anpassningar-och-sarskilt-stod' },
+};
+
+const CATEGORIES = [
+  { id: 'franvaro', levels: ['grundskola', 'gymnasium'], icon: '📋', title: 'Frånvarouppföljning och CSN-varning', desc: 'Saklig och omedelbar uppföljning av ogiltig frånvaro eller upprepad sen ankomst.', tone: 'saklig', legal: ['skollag-narvaro', 'csn'] },
+  { id: 'usamtal-forskola', levels: ['forskola'], icon: '🧑‍🏫', title: 'Inbjudan till utvecklingssamtal', desc: 'Bjud in vårdnadshavare till årligt samtal om barnets trivsel, trygghet och utveckling.', tone: 'vanlig', legal: ['lpfo', 'usamtal'] },
+  { id: 'usamtal-grundskola', levels: ['grundskola'], icon: '🧑‍🏫', title: 'Inbjudan till utvecklingssamtal', desc: 'Boka tid för utvecklingssamtal med elev och båda vårdnadshavarna om kunskapsutveckling.', tone: 'vanlig', legal: ['usamtal', 'foraldrabalk-bada'] },
+  { id: 'usamtal-gymnasium', levels: ['gymnasium'], icon: '🎓', title: 'Utvecklingssamtal på gymnasiet', desc: 'Inbjudan till terminens utvecklingssamtal om kurser, poäng och framtida gymnasieexamen.', tone: 'vanlig', legal: ['usamtal'] },
+  { id: 'veckobrev', levels: ['grundskola'], icon: '🗓️', title: 'Veckobrev till klassen', desc: 'Sammanfattning av veckans undervisning, kommande läxor, prov och viktiga datum.', tone: 'vanlig', legal: ['klarsprak'] },
+  { id: 'inskolning', levels: ['forskola'], icon: '👋', title: 'Välkomsthälsning inför inskolning', desc: 'Välkomsthälsning inför barnets inskolning med tider, rutiner och trygghetsprinciper.', tone: 'vanlig', legal: ['lpfo'] },
+  { id: 'klader', levels: ['forskola'], icon: '🧥', title: 'Påminnelse om kläder efter väder', desc: 'Vänlig påminnelse om årstidsanpassade utekläder, stövlar, regnkläder och extrakläder i lådan.', tone: 'vanlig' },
+  { id: 'pedagogisk-forskola', levels: ['forskola'], icon: '🎨', title: 'Pedagogisk återkoppling', desc: 'Återkoppling om barnens lek, skapande, matematiska tänkande eller senaste skogsutflykt.', tone: 'vanlig', legal: ['lpfo'] },
+  { id: 'positiv', levels: ['forskola', 'grundskola', 'gymnasium'], icon: '⭐', title: 'Positiv daglig hälsning', desc: 'Kort, spontan och äkta uppskattning för något fint som hänt under dagen.', tone: 'uppmuntrande' },
+  { id: 'incident', levels: ['forskola', 'grundskola', 'gymnasium'], icon: '⚖️', title: 'Incident eller konflikt mellan elever', desc: 'Saklig och konfliktdämpande information om en incident, utan att peka ut andra barn.', tone: 'konfliktdampande', sensitive: true, legal: ['osl', 'foraldrabalk-bada'] },
+  { id: 'trygghet', levels: ['forskola', 'grundskola', 'gymnasium'], icon: '🛡️', title: 'Kallelse: trygghet och kränkande behandling', desc: 'GDPR-säker inbjudan till möte om pedagogiska anpassningar utan känsliga uppgifter i texten.', tone: 'saklig', sensitive: true, legal: ['krankande', 'gdpr', 'sarskilt-stod'] },
+  { id: 'ledighet', levels: ['grundskola', 'gymnasium'], icon: '✈️', title: 'Information om ledighetsansökan', desc: 'Information om regler vid ansökan om ledighet utanför ordinarie lov och rektorsbeslut.', tone: 'saklig', legal: ['skollag-narvaro'] },
+  { id: 'kursinfo', levels: ['gymnasium'], icon: '📘', title: 'Kursinformation vid terminsstart', desc: 'Information till elever och vårdnadshavare om kursens upplägg, mål, bedömning och litteratur.', tone: 'saklig' },
+  { id: 'restuppgifter', levels: ['gymnasium'], icon: '📝', title: 'Restuppgifter och provtillfällen', desc: 'Påminnelse om restuppgifter, prövning och kommande provtillfällen.', tone: 'saklig' },
+  { id: 'myndig', levels: ['gymnasium'], icon: '🎂', title: 'Information inför 18-årsdagen', desc: 'Information till elev och vårdnadshavare om sekretess och samtycke vid myndighetsdagen.', tone: 'saklig', legal: ['foraldrabalk-18', 'myndig'] },
+  { id: 'utflykt', levels: ['forskola', 'grundskola'], icon: '🌳', title: 'Utflykt eller friluftsdag', desc: 'Praktisk information om tider, matsäck, kläder och transport inför en utflykt.', tone: 'vanlig' },
+];
+
+const TONES = [
+  { id: 'vanlig', label: 'Vänligt och relationsstärkande', desc: 'Fokus på positiv återkoppling och engagemang.' },
+  { id: 'konstruktiv', label: 'Konstruktivt och avvägt', desc: 'Passar utmaningar, incidenter eller känsligare frågor.' },
+  { id: 'saklig', label: 'Kortfattat, neutralt och professionellt', desc: 'Passar officiell information och regler.' },
+  { id: 'konfliktdampande', label: 'Konfliktdämpande', desc: 'Lugnar situationen och undviker skuldbeläggning.' },
+  { id: 'uppmuntrande', label: 'Mer uppmuntrande', desc: 'Extra varm och peppande ton.' },
+];
+
+const GUIDANCE_DO_DEFAULT = [
+  'Beskriv händelseförloppet sakligt och objektivt utan etiketterande ord',
+  'Fokusera på det egna barnets upplevelse och skolans åtgärder framåt',
+  'Bekräfta vårdnadshavarens engagemang utan att bekräfta rykten',
+  'Formulera dig så att du tryggt kan stå för texten i ett offentligt sammanhang',
+  'Sätt viktigaste datumet och tiden tidigt i meddelandet',
+  'Använd korta meningar, enkla ord och tydlig struktur för alla vårdnadshavare',
+];
+const GUIDANCE_AVOID_DEFAULT = [
+  'Att namnge den andre eleven, dela ut skuld eller lova disciplinära åtgärder mot andra barn',
+  'Att ta ställning i en föräldrakonflikt eller utesluta den ena föräldern från information',
+  'Att skicka kopior på åtgärdsprogram eller nämna medicinska diagnoser i mejl',
+  'Ensidiga anklagelser eller dömande omdömen som stänger dialogen',
+  'Fullständiga personnummer (ÅÅMMDD-XXXX)',
+  'Att bifoga oskyddade klassfoton i öppna e-postutskick',
+];
+
+// Enkel lokal detektion av känsliga uppgifter innan något skickas till AI:n
+const PERSONNUMMER_RE = /\b\d{6,8}[-+]\d{4}\b/;
+const MEDICAL_TERMS_RE = /\b(adhd|autis\w*|asperger\w*|astma\w*|allerg\w*|diagnos\w*|medicin\w*|npf|dyslex\w*|epilepsi\w*)\b/i;
+
+const SENSITIVE_PATTERNS = [
+  { re: PERSONNUMMER_RE, msg: 'Texten innehåller något som ser ut som ett personnummer. Ta bort det – ange istället bara barnets förnamn.' },
+  { re: MEDICAL_TERMS_RE, msg: 'Texten kan innehålla en medicinsk diagnos eller känslig hälsouppgift. Sådant hör inte hemma i vanlig e-post – hänvisa istället till ett möte.' },
+];
+
+// ===================================================
+// STATE
+// ===================================================
+let currentApiKey = '';
+let currentLevel = 'grundskola';
+let currentMode = 'new';
+let currentCategory = null;
+let profile = { name: '', role: '', school: '', signature: true };
+let templates = [];
+let drafts = [];
+let lastResult = null; // { subject, body, categoryId }
+
+// ===================================================
+// INIT
+// ===================================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadApiKey();
+  loadProfile();
+  loadTemplates();
+  loadDrafts();
+  renderLevelChips();
+  renderToneGrid();
+  setLevel(currentLevel);
+  setMode('new');
+  renderTemplates();
+  renderDrafts();
+});
+
+// ===================================================
+// API KEY
+// ===================================================
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('sk-')) {
+    showError('API-nyckeln verkar inte vara korrekt. Den ska börja med "sk-".');
+    return;
+  }
+  currentApiKey = val;
+  localStorage.setItem(LS_KEY_API, val);
+  document.getElementById('api-key-input').value = '';
+  updateApiDisplay();
+  hideError();
+}
+function clearApiKey() {
+  currentApiKey = '';
+  localStorage.removeItem(LS_KEY_API);
+  updateApiDisplay();
+}
+function loadApiKey() {
+  const stored = localStorage.getItem(LS_KEY_API);
+  if (stored) { currentApiKey = stored; updateApiDisplay(); }
+}
+function updateApiDisplay() {
+  const status = document.getElementById('api-status');
+  const saveBtn = document.getElementById('api-save-btn');
+  const clearBtn = document.getElementById('api-clear-btn');
+  const input = document.getElementById('api-key-input');
+  if (currentApiKey) {
+    status.textContent = currentApiKey.slice(0, 5) + '...' + currentApiKey.slice(-4);
+    status.style.display = 'inline-block';
+    saveBtn.style.display = 'none';
+    clearBtn.style.display = 'inline-flex';
+    input.style.display = 'none';
+  } else {
+    status.style.display = 'none';
+    saveBtn.style.display = 'inline-flex';
+    clearBtn.style.display = 'none';
+    input.style.display = 'block';
+  }
+}
+
+// ===================================================
+// UI HELPERS
+// ===================================================
+function showError(msg) {
+  const box = document.getElementById('error-box');
+  box.innerHTML = '<strong>Fel</strong>' + escapeHtml(msg);
+  box.classList.add('visible');
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function hideError() { document.getElementById('error-box').classList.remove('visible'); }
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s == null ? '' : String(s);
+  return d.innerHTML;
+}
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'drafts') renderDrafts();
+  if (name === 'templates') renderTemplates();
+}
+
+// ===================================================
+// SENSITIVE DATA SCAN
+// ===================================================
+function scanSensitive(fieldId) {
+  const text = document.getElementById(fieldId).value;
+  const warning = document.getElementById('sensitive-warning');
+  const warningText = document.getElementById('sensitive-warning-text');
+  const hit = SENSITIVE_PATTERNS.find(p => p.re.test(text));
+  if (hit) {
+    warningText.textContent = hit.msg;
+    warning.classList.add('visible');
+  } else {
+    warning.classList.remove('visible');
+  }
+}
+
+// ===================================================
+// LEVEL / MODE / CATEGORY / TONE
+// ===================================================
+function renderLevelChips() {
+  const row = document.getElementById('level-row');
+  row.innerHTML = LEVELS.map(l =>
+    '<button class="level-chip" data-level="' + l.id + '" onclick="setLevel(\'' + l.id + '\')">' + escapeHtml(l.label) + '</button>'
+  ).join('');
+}
+function setLevel(levelId) {
+  currentLevel = levelId;
+  document.querySelectorAll('.level-chip').forEach(c => c.classList.toggle('active', c.dataset.level === levelId));
+  currentCategory = null;
+  renderCategoryGrid();
+  renderGuidance(null);
+}
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('mode-new-btn').classList.toggle('active', mode === 'new');
+  document.getElementById('mode-rewrite-btn').classList.toggle('active', mode === 'rewrite');
+  document.getElementById('cat-grid-wrap').classList.toggle('hidden', mode !== 'new');
+  document.getElementById('rewrite-wrap').classList.toggle('hidden', mode !== 'rewrite');
+  document.getElementById('stodord-wrap').classList.toggle('hidden', mode !== 'new');
+}
+function renderCategoryGrid() {
+  const grid = document.getElementById('cat-grid');
+  const list = CATEGORIES.filter(c => c.levels.includes(currentLevel));
+  grid.innerHTML = list.map(c =>
+    '<button type="button" class="cat-card' + (c.sensitive ? ' sensitive' : '') + (currentCategory === c.id ? ' selected' : '') + '" onclick="selectCategory(\'' + c.id + '\')">' +
+      '<span class="cat-icon">' + c.icon + '</span>' +
+      '<span class="cat-title">' + escapeHtml(c.title) + '</span>' +
+      '<span class="cat-desc">' + escapeHtml(c.desc) + '</span>' +
+    '</button>'
+  ).join('');
+}
+function getCategory(id) { return CATEGORIES.find(c => c.id === id) || null; }
+function selectCategory(id) {
+  currentCategory = id;
+  renderCategoryGrid();
+  const cat = getCategory(id);
+  if (cat && cat.tone) selectTone(cat.tone);
+  renderGuidance(cat);
+  document.getElementById('form-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function renderToneGrid() {
+  const grid = document.getElementById('tone-grid');
+  grid.innerHTML = TONES.map(t =>
+    '<button type="button" class="tone-card" data-tone="' + t.id + '" onclick="selectTone(\'' + t.id + '\')">' +
+      '<div class="tone-label">' + escapeHtml(t.label) + '</div>' +
+      '<div class="tone-desc">' + escapeHtml(t.desc) + '</div>' +
+    '</button>'
+  ).join('');
+  selectTone('vanlig');
+}
+function selectTone(id) {
+  document.querySelectorAll('.tone-card').forEach(c => c.classList.toggle('selected', c.dataset.tone === id));
+}
+function getSelectedTone() {
+  const el = document.querySelector('.tone-card.selected');
+  const id = el ? el.dataset.tone : 'vanlig';
+  return TONES.find(t => t.id === id) || TONES[0];
+}
+function renderGuidance(cat) {
+  const doList = cat && cat.sensitive
+    ? ['NÄMN ALDRIG andra inblandade elevers namn (tredjepersonssekretess enl. OSL)'].concat(GUIDANCE_DO_DEFAULT)
+    : GUIDANCE_DO_DEFAULT;
+  const avoidList = GUIDANCE_AVOID_DEFAULT;
+  document.getElementById('guidance-do').innerHTML = doList.map(t => '<li>' + escapeHtml(t) + '</li>').join('');
+  document.getElementById('guidance-avoid').innerHTML = avoidList.map(t => '<li>' + escapeHtml(t) + '</li>').join('');
+
+  const legalIds = (cat && cat.legal) ? cat.legal : ['osl', 'gdpr'];
+  document.getElementById('guidance-legal').innerHTML = legalIds.map(id => {
+    const l = LEGAL[id];
+    if (!l) return '';
+    return '<a class="legal-chip" href="' + l.url + '" target="_blank" rel="noopener">' + escapeHtml(l.law) + '</a>';
+  }).join('');
+
+  if (cat && cat.sensitive) document.getElementById('guidance-details').open = true;
+}
+
+// ===================================================
+// PROFILE
+// ===================================================
+function loadProfile() {
+  try {
+    const raw = localStorage.getItem(LS_KEY_PROFILE);
+    if (raw) profile = Object.assign(profile, JSON.parse(raw));
+  } catch (e) { console.error('Failed to load profile from localStorage', e); }
+}
+function openProfileModal() {
+  document.getElementById('profile-name').value = profile.name || '';
+  document.getElementById('profile-role').value = profile.role || '';
+  document.getElementById('profile-school').value = profile.school || '';
+  document.getElementById('profile-signature-toggle').checked = profile.signature !== false;
+  document.getElementById('profile-modal').classList.add('visible');
+}
+function closeProfileModal() { document.getElementById('profile-modal').classList.remove('visible'); }
+function saveProfile() {
+  profile = {
+    name: document.getElementById('profile-name').value.trim(),
+    role: document.getElementById('profile-role').value.trim(),
+    school: document.getElementById('profile-school').value.trim(),
+    signature: document.getElementById('profile-signature-toggle').checked,
+  };
+  try { localStorage.setItem(LS_KEY_PROFILE, JSON.stringify(profile)); }
+  catch (e) { console.error('Failed to save profile to localStorage', e); }
+  closeProfileModal();
+}
+
+// ===================================================
+// TEMPLATES
+// ===================================================
+function loadTemplates() {
+  try {
+    const raw = localStorage.getItem(LS_KEY_TEMPLATES);
+    templates = raw ? JSON.parse(raw) : [];
+  } catch (e) { console.error('Failed to load custom templates', e); templates = []; }
+}
+function persistTemplates() {
+  try { localStorage.setItem(LS_KEY_TEMPLATES, JSON.stringify(templates)); }
+  catch (e) { console.error('Failed to save template', e); }
+}
+function createTemplateFromForm() {
+  const name = document.getElementById('tpl-name').value.trim();
+  const text = document.getElementById('tpl-text').value.trim();
+  if (!name || !text) { showError('Ange både ett namn och ett innehåll för mallen.'); return; }
+  templates.unshift({ id: 'tpl_' + Date.now(), name, text, createdAt: Date.now() });
+  persistTemplates();
+  document.getElementById('tpl-name').value = '';
+  document.getElementById('tpl-text').value = '';
+  renderTemplates();
+  hideError();
+}
+function deleteTemplate(id) {
+  templates = templates.filter(t => t.id !== id);
+  persistTemplates();
+  renderTemplates();
+}
+function useTemplate(id) {
+  const tpl = templates.find(t => t.id === id);
+  if (!tpl) return;
+  currentMode = 'new';
+  currentCategory = null;
+  setMode('new');
+  document.getElementById('stodord-input').value = tpl.text;
+  scanSensitive('stodord-input');
+  renderGuidance(null);
+  switchTab('new');
+  document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+}
+function renderTemplates() {
+  const wrap = document.getElementById('templates-list');
+  if (!templates.length) {
+    wrap.innerHTML = '<div class="empty-state">Inga sparade mallar ännu. Skapa din första ovan – t.ex. "Egen sparad lärarmall" för veckobrev eller frånvaropåminnelser.</div>';
+    return;
+  }
+  wrap.innerHTML = templates.map(t =>
+    '<div class="list-item">' +
+      '<div class="list-item-main" onclick="useTemplate(\'' + t.id + '\')">' +
+        '<div class="list-item-title">' + escapeHtml(t.name) + '</div>' +
+        '<div class="list-item-snippet">' + escapeHtml(t.text) + '</div>' +
+      '</div>' +
+      '<div class="list-item-actions">' +
+        '<button class="btn btn-secondary btn-sm" onclick="useTemplate(\'' + t.id + '\')">Klicka för att lägga till</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteTemplate(\'' + t.id + '\')">Ta bort</button>' +
+      '</div>' +
+    '</div>'
+  ).join('');
+}
+function openSaveTemplateModal() {
+  if (!lastResult) { showError('Skriv något först innan du sparar som mall.'); return; }
+  document.getElementById('save-tpl-name').value = '';
+  document.getElementById('save-template-modal').classList.add('visible');
+}
+function closeSaveTemplateModal() { document.getElementById('save-template-modal').classList.remove('visible'); }
+function confirmSaveTemplate() {
+  const name = document.getElementById('save-tpl-name').value.trim();
+  if (!name) { showError('Ange ett namn för mallen.'); return; }
+  const body = document.getElementById('body-textarea').value.trim();
+  templates.unshift({ id: 'tpl_' + Date.now(), name, text: body, createdAt: Date.now() });
+  persistTemplates();
+  renderTemplates();
+  closeSaveTemplateModal();
+  hideError();
+}
+
+// ===================================================
+// DRAFTS
+// ===================================================
+function loadDrafts() {
+  try {
+    const raw = localStorage.getItem(LS_KEY_DRAFTS);
+    drafts = raw ? JSON.parse(raw) : [];
+  } catch (e) { console.error('Failed to load drafts from localStorage', e); drafts = []; }
+}
+function persistDrafts() {
+  try { localStorage.setItem(LS_KEY_DRAFTS, JSON.stringify(drafts)); }
+  catch (e) { console.error('Failed to save draft', e); }
+}
+function saveDraft() {
+  const subject = document.getElementById('subject-input').value.trim();
+  const body = document.getElementById('body-textarea').value.trim();
+  if (!body) { showError('Skriv något först innan du sparar som utkast.'); return; }
+  drafts.unshift({ id: 'draft_' + Date.now(), subject: subject || '(Utan ämne)', body, updatedAt: Date.now() });
+  persistDrafts();
+  renderDrafts();
+  hideError();
+}
+function deleteDraft(id) {
+  drafts = drafts.filter(d => d.id !== id);
+  persistDrafts();
+  renderDrafts();
+}
+function loadDraft(id) {
+  const d = drafts.find(x => x.id === id);
+  if (!d) return;
+  lastResult = { subject: d.subject, body: d.body, categoryId: null };
+  showResult(d.subject, d.body, null);
+  switchTab('new');
+}
+function renderDrafts() {
+  const wrap = document.getElementById('drafts-list');
+  const q = (document.getElementById('draft-search').value || '').toLowerCase();
+  const filtered = drafts.filter(d => !q || d.subject.toLowerCase().includes(q) || d.body.toLowerCase().includes(q));
+  if (!drafts.length) {
+    wrap.innerHTML = '<div class="empty-state">Inga sparade utkast ännu</div>';
+    return;
+  }
+  if (!filtered.length) {
+    wrap.innerHTML = '<div class="empty-state">Inga utkast matchade din sökning</div>';
+    return;
+  }
+  wrap.innerHTML = filtered.map(d =>
+    '<div class="list-item">' +
+      '<div class="list-item-main" onclick="loadDraft(\'' + d.id + '\')">' +
+        '<div class="list-item-title">' + escapeHtml(d.subject) + '</div>' +
+        '<div class="list-item-meta">' + new Date(d.updatedAt).toLocaleString('sv-SE') + '</div>' +
+        '<div class="list-item-snippet">' + escapeHtml(d.body) + '</div>' +
+      '</div>' +
+      '<div class="list-item-actions">' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteDraft(\'' + d.id + '\')">Ta bort</button>' +
+      '</div>' +
+    '</div>'
+  ).join('');
+}
+
+// ===================================================
+// PROMPT BUILDING
+// ===================================================
+function levelLabel(id) { const l = LEVELS.find(x => x.id === id); return l ? l.label : id; }
+
+function baseSystemPrompt() {
+  let p = 'Du är en erfaren svensk lärare/pedagog som skriver mejl till vårdnadshavare. ' +
+    'Du skriver alltid på korrekt svenska, i ett sakligt och professionellt men varmt språk, anpassat för ' + levelLabel(currentLevel).toLowerCase() + '.\n\n' +
+    'ABSOLUTA REGLER (bryt aldrig mot dessa):\n' +
+    '- Nämn ALDRIG andra elevers namn, inte ens indirekt, om texten handlar om en incident eller konflikt (sekretess enligt Offentlighets- och sekretesslagen, OSL).\n' +
+    '- Skriv ALDRIG ut fullständiga personnummer.\n' +
+    '- Nämn ALDRIG medicinska diagnoser eller detaljer ur åtgärdsprogram/kränkningsutredningar.\n' +
+    '- Ta aldrig ställning i en föräldrakonflikt och utestäng aldrig en vårdnadshavare från information (Föräldrabalken ger båda vårdnadshavare samma rätt till information).\n' +
+    '- Var aldrig dömande, anklagande eller skuldbeläggande. Formulera dig så att texten tål att läsas offentligt (mejl till en myndighet kan bli en allmän handling).\n' +
+    '- Skriv ENDAST det som efterfrågas – hitta aldrig på fakta, datum eller händelser som inte finns i underlaget.\n\n';
+  return p;
+}
+
+function buildFormattingBlock() {
+  return 'FORMATERING:\n' +
+    (document.getElementById('opt-list').checked ? '- Använd numrerad lista eller punktlista där det gör texten tydligare.\n' : '- Skriv i löpande stycken, undvik listor.\n') +
+    '- Strukturera med tydliga, korta stycken.\n' +
+    (document.getElementById('opt-signature').checked && (profile.name || profile.school) ?
+      '- Avsluta med en professionell signatur som använder: ' + [profile.name, profile.role, profile.school].filter(Boolean).join(', ') + '.\n' :
+      '- Avsluta med en enkel hälsningsfras, ingen specifik signatur behövs.\n');
+}
+
+function buildChildContextBlock() {
+  const childName = document.getElementById('child-name').value.trim();
+  const groupName = document.getElementById('group-name').value.trim();
+  let p = '';
+  if (childName) p += 'Barnets/elevens förnamn: ' + childName + '\n';
+  if (groupName) p += 'Avdelning/klass: ' + groupName + '\n';
+  return p;
+}
+
+function buildGenerateSystemPrompt(cat, tone) {
+  let p = baseSystemPrompt();
+  if (cat) {
+    p += 'SYFTE MED MEJLET: ' + cat.title + ' – ' + cat.desc + '\n\n';
+  }
+  p += 'ÖNSKAT TONLÄGE: ' + tone.label + ' (' + tone.desc + ')\n\n';
+  p += buildFormattingBlock() +
+    '\nSVARSFORMAT (följ exakt, ingen extra text före eller efter):\n' +
+    '### ÄMNE\n<en kort, konkret ämnesrad>\n### MEJLTEXT\n<hela mejlets brödtext, klar att skicka>\n';
+  return p;
+}
+
+function buildGenerateUserPrompt(cat) {
+  const stodord = document.getElementById('stodord-input').value.trim();
+  let p = buildChildContextBlock();
+  p += '\nStödord/underlag från läraren:\n' + (stodord || '(inga stödord angivna, formulera generiskt utifrån syftet ovan)') + '\n';
+  return p;
+}
+
+// ===================================================
+// ANTHROPIC CALL
+// ===================================================
+async function callClaude(systemPrompt, userPrompt, maxTokens) {
+  if (!currentApiKey) {
+    showError('Du måste ange en Anthropic API-nyckel innan du kan generera material.');
+    document.getElementById('api-section').scrollIntoView({ behavior: 'smooth' });
+    throw new Error('no-api-key');
+  }
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': currentApiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: maxTokens || 2000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    const errMsg = (errData.error && errData.error.message) || ('HTTP ' + response.status);
+    if (response.status === 401) throw new Error('Ogiltig API-nyckel. Kontrollera att du kopierat hela nyckeln korrekt.');
+    if (response.status === 429) throw new Error('För många förfrågningar. Vänta en stund och försök igen.');
+    if (response.status === 400) throw new Error('Förfrågan avvisades: ' + errMsg);
+    throw new Error('API-fel: ' + errMsg);
+  }
+
+  const data = await response.json();
+  if (data.stop_reason === 'refusal') {
+    throw new Error('AI:n kunde inte generera texten just nu (innehållet flaggades av säkerhetsfilter). Prova att omformulera underlaget.');
+  }
+  const textBlock = (data.content || []).find(b => b.type === 'text');
+  if (!textBlock) throw new Error('AI:n returnerade inget textsvar. Försök igen.');
+  return textBlock.text;
+}
+
+function parseSubjectAndBody(raw) {
+  const subjMatch = raw.match(/###\s*ÄMNE\s*\n([\s\S]*?)(?=\n###|$)/i);
+  const bodyMatch = raw.match(/###\s*MEJLTEXT\s*\n([\s\S]*)$/i);
+  const subject = subjMatch ? subjMatch[1].trim() : '';
+  const body = bodyMatch ? bodyMatch[1].trim() : raw.trim();
+  return { subject, body };
+}
+
+// ===================================================
+// GENERATE
+// ===================================================
+async function handleGenerate() {
+  hideError();
+
+  if (currentMode === 'new' && !currentCategory) {
+    showError('Välj en kategori för mejlet innan du genererar (eller byt till "Skriv om befintlig text").');
+    return;
+  }
+  if (currentMode === 'rewrite' && !document.getElementById('rewrite-input').value.trim()) {
+    showError('Klistra in texten som ska skrivas om.');
+    return;
+  }
+
+  document.getElementById('form-section').classList.add('hidden');
+  document.getElementById('result-section').classList.add('hidden');
+  document.getElementById('generating-section').classList.add('visible');
+  document.getElementById('generating-text').textContent = currentMode === 'rewrite' ? 'Skriver om och anpassar texten...' : 'AI:n skriver mejlet...';
+
+  try {
+    let subject = '', body = '', catId = null;
+    if (currentMode === 'new') {
+      const cat = getCategory(currentCategory);
+      const tone = getSelectedTone();
+      const sys = buildGenerateSystemPrompt(cat, tone);
+      const usr = buildGenerateUserPrompt(cat);
+      const raw = await callClaude(sys, usr, 2200);
+      const parsed = parseSubjectAndBody(raw);
+      subject = parsed.subject; body = parsed.body; catId = cat.id;
+    } else {
+      const text = document.getElementById('rewrite-input').value.trim();
+      const purpose = document.getElementById('rewrite-purpose').value.trim();
+      const tone = getSelectedTone();
+      const sys = baseSystemPrompt() +
+        'DIN UPPGIFT: Skriv om texten nedan så att den passar syftet: "' + (purpose || 'en tydligare, mer professionell version') + '". ' +
+        'Önskat tonläge: ' + tone.label + ' (' + tone.desc + ').\n\n' +
+        buildFormattingBlock() +
+        '\nSVARSFORMAT (följ exakt, ingen extra text före eller efter):\n' +
+        '### ÄMNE\n<en kort, konkret ämnesrad>\n### MEJLTEXT\n<den omskrivna texten>\n';
+      const childCtx = buildChildContextBlock();
+      const usr = (childCtx ? childCtx + '\n' : '') + 'Text att skriva om:\n\n' + text;
+      const raw = await callClaude(sys, usr, 2200);
+      const parsed = parseSubjectAndBody(raw);
+      subject = parsed.subject; body = parsed.body;
+    }
+    lastResult = { subject, body, categoryId: catId };
+    showResult(subject, body, catId);
+  } catch (err) {
+    document.getElementById('generating-section').classList.remove('visible');
+    document.getElementById('form-section').classList.remove('hidden');
+    if (err.message !== 'no-api-key') showError(err.message || 'Något gick fel. Försök igen.');
+  }
+}
+
+function showResult(subject, body, catId) {
+  document.getElementById('generating-section').classList.remove('visible');
+  document.getElementById('form-section').classList.remove('hidden');
+  document.getElementById('result-section').classList.remove('hidden');
+  document.getElementById('subject-input').value = subject;
+  document.getElementById('body-textarea').value = body;
+  document.getElementById('translate-box').classList.add('hidden');
+  document.getElementById('compliance-box').classList.add('hidden');
+
+  const cat = catId ? getCategory(catId) : null;
+  document.getElementById('result-category-note').textContent = cat ? cat.title : 'Granskad mot GDPR, sekretess och skollagens riktlinjer.';
+
+  const legalIds = cat && cat.legal ? cat.legal : ['osl', 'gdpr'];
+  const legalHtml = legalIds.map(id => {
+    const l = LEGAL[id];
+    if (!l) return '';
+    return '<div class="legal-item" style="margin-bottom:0.4rem;"><b style="color:var(--accent);">' + escapeHtml(l.law) + ':</b> ' + escapeHtml(l.text) + ' <a class="legal-chip" style="margin-left:0.3rem;" href="' + l.url + '" target="_blank" rel="noopener">Läs mer hos officiell källa</a></div>';
+  }).join('');
+  document.getElementById('legal-footer').innerHTML = '<div class="legal-title">Förankrat i Skollagen, Föräldrabalken, GDPR och Skolverkets allmänna råd</div>' + legalHtml;
+
+  document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===================================================
+// QUICK ADJUST / RESULT ACTIONS
+// ===================================================
+async function quickAdjust(kind) {
+  const body = document.getElementById('body-textarea').value.trim();
+  if (!body) return;
+  const labels = {
+    konfliktdampande: 'mer konfliktdämpande, mjukare och mindre skuldbeläggande',
+    uppmuntrande: 'mer uppmuntrande, varm och peppande',
+    kortare: 'kortare och mer koncis, men behåll all viktig information',
+    formellare: 'mer formell och kortfattat professionell',
+  };
+  document.getElementById('result-section').classList.add('hidden');
+  document.getElementById('generating-section').classList.add('visible');
+  document.getElementById('generating-text').textContent = 'Justerar tonen...';
+  try {
+    const sys = baseSystemPrompt() +
+      'DIN UPPGIFT: Skriv om mejlet nedan så att det blir ' + labels[kind] + '. Behåll ämnesraden om den fortfarande passar, annars justera den lätt.\n\n' +
+      'SVARSFORMAT (följ exakt, ingen extra text före eller efter):\n' +
+      '### ÄMNE\n<ämnesrad>\n### MEJLTEXT\n<omskriven brödtext>\n';
+    const usr = 'Ämne: ' + (document.getElementById('subject-input').value.trim() || '(inget)') + '\n\nMejltext:\n' + body;
+    const raw = await callClaude(sys, usr, 2200);
+    const parsed = parseSubjectAndBody(raw);
+    lastResult = { subject: parsed.subject, body: parsed.body, categoryId: lastResult ? lastResult.categoryId : null };
+    showResult(parsed.subject, parsed.body, lastResult.categoryId);
+  } catch (err) {
+    document.getElementById('generating-section').classList.remove('visible');
+    document.getElementById('result-section').classList.remove('hidden');
+    if (err.message !== 'no-api-key') showError(err.message || 'Kunde inte justera mejlet.');
+  }
+}
+
+async function copyEmail(btn) {
+  const subject = document.getElementById('subject-input').value;
+  const body = document.getElementById('body-textarea').value;
+  const text = (subject ? 'Ämne: ' + subject + '\n\n' : '') + body;
+  try {
+    await navigator.clipboard.writeText(text);
+    flashButtonFeedback(btn, 'Kopierat!');
+  } catch (e) {
+    showError('Kunde inte kopiera automatiskt. Markera texten manuellt istället.');
+  }
+}
+function flashButtonFeedback(btn, msg) {
+  if (!btn) return;
+  const original = btn.textContent;
+  btn.textContent = '✅ ' + msg;
+  setTimeout(() => { btn.textContent = original; }, 1600);
+}
+function openInEmailClient() {
+  const subject = document.getElementById('subject-input').value;
+  const body = document.getElementById('body-textarea').value;
+  const href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  if (href.length > 1900) {
+    showError('Mejlet är för långt för att öppnas direkt i e-postprogrammet. Kopiera texten istället och klistra in den manuellt.');
+    return;
+  }
+  window.location.href = href;
+}
+
+// ===================================================
+// TRANSLATE
+// ===================================================
+async function translateEmail() {
+  const body = document.getElementById('body-textarea').value.trim();
+  if (!body) return;
+  const box = document.getElementById('translate-box');
+  const out = document.getElementById('translate-body');
+  box.classList.remove('hidden');
+  out.textContent = 'Översätter...';
+  box.scrollIntoView({ behavior: 'smooth' });
+  try {
+    const sys = 'Du översätter mejl mellan svensk skola/förskola och engelsktalande vårdnadshavare. ' +
+      'Tillhandahåll en professionell engelsk översättning. Behåll samma struktur och ton. Svara ENDAST med den engelska översättningen, ingen annan text.';
+    const subject = document.getElementById('subject-input').value.trim();
+    const usr = 'Subject: ' + subject + '\n\n' + body;
+    const translated = await callClaude(sys, usr, 1800);
+    out.textContent = translated.trim();
+  } catch (err) {
+    out.textContent = '';
+    box.classList.add('hidden');
+    if (err.message !== 'no-api-key') showError(err.message || 'Kunde inte översätta texten.');
+  }
+}
+
+// ===================================================
+// COMPLIANCE CHECK
+// ===================================================
+function localComplianceScan(text) {
+  const issues = [];
+  if (PERSONNUMMER_RE.test(text)) issues.push('Texten innehåller vad som ser ut som ett fullständigt personnummer.');
+  if (MEDICAL_TERMS_RE.test(text)) issues.push('Texten kan innehålla en medicinsk diagnos eller känslig hälsouppgift.');
+  if (/\bkl(?:ass)?foto|bifogar (?:ett |)foto\b/i.test(text)) issues.push('Texten nämner bifogat foto – säkerställ att det inte är ett oskyddat klassfoto.');
+  return issues;
+}
+
+async function checkCompliance() {
+  const body = document.getElementById('body-textarea').value.trim();
+  if (!body) return;
+  const box = document.getElementById('compliance-box');
+  const list = document.getElementById('compliance-list');
+  box.classList.remove('hidden');
+  list.innerHTML = '<div class="compliance-item ok"><span class="spinner spinner-sm"></span> Granskar text mot GDPR, sekretess och skollagens riktlinjer...</div>';
+  box.scrollIntoView({ behavior: 'smooth' });
+
+  const localIssues = localComplianceScan(body);
+
+  try {
+    const sys = 'Du är expert på GDPR, Offentlighets- och sekretesslagen (OSL), Skollagen (2010:800) och Föräldrabalken, ' +
+      'och granskar mejl från skolpersonal till vårdnadshavare. Leta efter: personnummer, medicinska diagnoser, namn på andra elever, ' +
+      'dömande/anklagande formuleringar, eller information som utesluter en vårdnadshavare. ' +
+      'Svara ENDAST med en punktlista (en rad per punkt, börja varje rad med "-"). Om inget problem hittas, svara med exakt: "Inga problem hittades."';
+    const raw = await callClaude(sys, 'Granska denna text:\n\n' + body, 700);
+    const aiIssues = raw.trim().toLowerCase().startsWith('inga problem')
+      ? []
+      : raw.split('\n').map(l => l.replace(/^-\s*/, '').trim()).filter(Boolean);
+
+    const allIssues = localIssues.concat(aiIssues);
+    if (!allIssues.length) {
+      list.innerHTML = '<div class="compliance-item ok">✅ Inga uppenbara GDPR- eller sekretessproblem hittades.</div>';
+    } else {
+      list.innerHTML = allIssues.map(i => '<div class="compliance-item flag">⚠️ ' + escapeHtml(i) + '</div>').join('');
+    }
+  } catch (err) {
+    if (localIssues.length) {
+      list.innerHTML = localIssues.map(i => '<div class="compliance-item flag">⚠️ ' + escapeHtml(i) + '</div>').join('');
+    } else {
+      list.innerHTML = '<div class="compliance-item flag">Kunde inte köra AI-granskningen (' + escapeHtml(err.message || 'okänt fel') + '). Grundläggande lokal kontroll hittade inga problem.</div>';
+    }
+  }
+}
+
+// ===================================================
+// MODAL / OVERLAY CLICK-OUTSIDE
+// ===================================================
+document.addEventListener('click', (e) => {
+  if (e.target.classList && e.target.classList.contains('modal-overlay')) {
+    e.target.classList.remove('visible');
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible'));
+  }
+});
+</script>
+</body>
+</html>
