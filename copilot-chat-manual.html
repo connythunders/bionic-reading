@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="sv" data-theme="ljus" data-font="system" data-size="2" data-bionic="0">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Lättläst manual för elever om hur man använder Copilot Chat – gratisversionen som ingår i skolans Microsoft-konto: logga in, ställa bra frågor, skriva om och sammanfatta text, skapa bilder, ladda upp filer och vara källkritisk mot AI-svar. Med en Fråga-knapp för att söka svar direkt i manualen, Bionic Reading och mörkt läge.">
+<meta name="theme-color" content="#f7f5f1">
+<title>Copilot Chat – manual för elever</title>
+<style>
+:root{
+  --bg:#f7f5f1; --bg-tint:#efece6;
+  --surface:#ffffff; --surface-2:#f3f1ec;
+  --text:#1e2227; --text-soft:#565f6b; --text-faint:#7b8593;
+  --line:#ded9d0; --line-strong:#c6bfb2;
+  --accent:#0d9488; --accent-weak:#e2f4f1; --accent-ink:#0b6f66;
+  --warn:#a2560c; --warn-weak:#fbeee0;
+  --good:#2c6b3f; --good-weak:#e5f1e7;
+  --bad:#9d3232; --bad-weak:#fae9e9;
+  --shadow:0 1px 2px rgba(20,20,20,.05), 0 8px 24px rgba(20,20,20,.06);
+  --radius:14px;
+  --lh:1.75;
+  --measure:68ch;
+  --fs:17px;
+}
+html[data-theme="mork"]{
+  --bg:#14171b; --bg-tint:#191d22;
+  --surface:#1c2026; --surface-2:#232830;
+  --text:#e8eaed; --text-soft:#b3bac3; --text-faint:#8d95a0;
+  --line:#333a44; --line-strong:#48515e;
+  --accent:#5eead4; --accent-weak:#12332f; --accent-ink:#99f6e4;
+  --warn:#e0a45f; --warn-weak:#33271a;
+  --good:#7fc48f; --good-weak:#1c2d21;
+  --bad:#e08585; --bad-weak:#321f1f;
+}
+html[data-font="dyslexi"]{ --font-body:"OpenDyslexic","Comic Sans MS",var(--font-fallback); }
+html[data-size="1"]{ --fs:15px; }
+html[data-size="2"]{ --fs:17px; }
+html[data-size="3"]{ --fs:19px; }
+html[data-size="4"]{ --fs:22px; }
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--font-body, "Segoe UI"), system-ui, -apple-system, sans-serif;
+  font-size:var(--fs); line-height:var(--lh);
+  transition:background .2s ease, color .2s ease;
+}
+a{ color:var(--accent); }
+img{ max-width:100%; }
+.skip-link{ position:absolute; left:-999px; top:0; background:var(--accent); color:#fff; padding:.6rem 1rem; border-radius:0 0 8px 0; z-index:200; }
+.skip-link:focus{ left:0; }
+
+/* Topbar */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:var(--surface); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:.75rem;
+  padding:.6rem 1rem; flex-wrap:wrap;
+}
+.topbar .brand{ display:flex; align-items:center; gap:.55rem; font-weight:700; margin-right:auto; text-decoration:none; color:var(--text); }
+.topbar .brand-icon{ font-size:1.3rem; }
+.topbar .back{ font-size:.85rem; color:var(--text-soft); text-decoration:none; }
+.topbar .back:hover{ color:var(--accent); }
+.controls{ display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+.controls button{
+  background:var(--surface-2); color:var(--text); border:1px solid var(--line);
+  border-radius:8px; padding:.4rem .6rem; font-size:.82rem; cursor:pointer;
+  display:inline-flex; align-items:center; gap:.3rem;
+}
+.controls button:hover{ border-color:var(--accent); color:var(--accent); }
+.controls button[aria-pressed="true"], .controls button.active{
+  background:var(--accent-weak); border-color:var(--accent); color:var(--accent-ink); font-weight:600;
+}
+#askBtn{ background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+#askBtn:hover{ color:#fff; filter:brightness(1.08); }
+.seg{ display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.seg button{ border:none; border-radius:0; }
+.seg button + button{ border-left:1px solid var(--line); }
+
+/* Layout */
+.layout{ display:grid; grid-template-columns:270px minmax(0,1fr); gap:0; max-width:1180px; margin:0 auto; }
+aside.toc{
+  border-right:1px solid var(--line); padding:1.2rem .9rem 3rem; align-self:start;
+  position:sticky; top:56px; max-height:calc(100vh - 56px); overflow-y:auto;
+}
+aside.toc h2{ font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin:.2rem 0 .8rem; }
+aside.toc ol{ list-style:none; margin:0; padding:0; counter-reset:ch; }
+aside.toc li{ counter-increment:ch; margin:.15rem 0; }
+aside.toc a{
+  display:flex; gap:.5rem; align-items:baseline; text-decoration:none; color:var(--text-soft);
+  padding:.4rem .5rem; border-radius:8px; font-size:.88rem;
+}
+aside.toc a::before{ content:counter(ch); font-weight:700; color:var(--text-faint); min-width:1.2em; }
+aside.toc a:hover{ background:var(--surface-2); color:var(--text); }
+aside.toc a.active{ background:var(--accent-weak); color:var(--accent-ink); font-weight:600; }
+aside.toc a.active::before{ color:var(--accent); }
+.progress-wrap{ margin-top:1rem; padding-top:1rem; border-top:1px solid var(--line); }
+.progress-wrap .bar{ height:6px; border-radius:99px; background:var(--surface-2); overflow:hidden; }
+.progress-wrap .bar > i{ display:block; height:100%; width:0%; background:var(--accent); transition:width .3s ease; }
+.progress-wrap p{ font-size:.75rem; color:var(--text-faint); margin:.4rem 0 0; }
+
+main{ min-width:0; padding:1.6rem 1.4rem 6rem; }
+.hero{ max-width:var(--measure); }
+.hero h1{ font-size:1.7rem; margin:.2rem 0 .4rem; }
+.hero .lead{ color:var(--text-soft); font-size:1.02rem; }
+.badges{ display:flex; gap:.4rem; flex-wrap:wrap; margin:.7rem 0 1rem; }
+.badge{ font-size:.72rem; background:var(--surface-2); border:1px solid var(--line); padding:.2rem .55rem; border-radius:99px; color:var(--text-soft); }
+.badge.accent{ background:var(--accent-weak); border-color:var(--accent); color:var(--accent-ink); }
+
+.goal-box{ border:1px solid var(--accent); background:var(--accent-weak); border-radius:var(--radius); padding:1rem 1.2rem; margin:1.2rem 0 0; }
+.goal-box strong.label{ display:block; font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; margin-bottom:.5rem; color:var(--accent-ink); }
+.goal-box ul{ list-style:none; padding:0; margin:0; columns:2; column-gap:1.5rem; }
+.goal-box li{ margin:.3rem 0; break-inside:avoid; }
+.goal-box li::before{ content:"✓ "; color:var(--good); font-weight:700; }
+@media (max-width:640px){ .goal-box ul{ columns:1; } }
+
+#prose section{ max-width:var(--measure); margin:2.6rem 0; scroll-margin-top:70px; }
+#prose h2{
+  font-size:1.3rem; display:flex; gap:.6rem; align-items:center; border-bottom:1px solid var(--line); padding-bottom:.5rem;
+}
+#prose h2 .num{ color:var(--accent); font-variant-numeric:tabular-nums; }
+#prose h3{ font-size:1.05rem; margin-top:1.4rem; }
+#prose p{ margin:.8rem 0; }
+#prose ul, #prose ol{ padding-left:1.3rem; }
+#prose li{ margin:.35rem 0; }
+#prose p.q{ margin:.3rem 0 0; font-style:italic; color:var(--accent-ink); }
+
+.back-to-top{
+  position:fixed; right:1.2rem; bottom:1.2rem; z-index:60;
+  background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow);
+  border-radius:99px; padding:.55rem 1rem; font-size:.82rem; color:var(--text);
+  text-decoration:none; opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+  transform:translateY(6px);
+}
+.back-to-top.visible{ opacity:1; pointer-events:auto; transform:translateY(0); }
+.back-to-top:hover{ border-color:var(--accent); color:var(--accent); }
+
+.callout{ border:1px solid var(--line); border-left:4px solid var(--accent); background:var(--surface-2); border-radius:8px; padding:.8rem 1rem; margin:1rem 0; }
+.callout.tip{ border-left-color:var(--good); }
+.callout.warn{ border-left-color:var(--warn); background:var(--warn-weak); }
+.callout p{ margin:.3rem 0; }
+.callout strong.label{ display:block; font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; margin-bottom:.3rem; color:var(--text-faint); }
+
+.steps{ counter-reset:step; list-style:none; padding:0; margin:1rem 0; }
+.steps li{ counter-increment:step; position:relative; padding-left:2.4rem; margin:.9rem 0; }
+.steps li::before{
+  content:counter(step); position:absolute; left:0; top:0; width:1.7rem; height:1.7rem;
+  background:var(--accent-weak); color:var(--accent-ink); border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem;
+}
+
+kbd{ background:var(--surface-2); border:1px solid var(--line-strong); border-bottom-width:2px; border-radius:5px; padding:.05rem .4rem; font-size:.85em; font-family:inherit; }
+
+table.icons{ width:100%; border-collapse:collapse; margin:1rem 0; }
+table.icons th, table.icons td{ text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--line); vertical-align:top; }
+table.icons th{ color:var(--text-faint); font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; }
+table.icons td.icon{ font-size:1.3rem; width:2.2rem; }
+
+ul.checklist{ list-style:none; padding:0; }
+ul.checklist li{ background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:.1rem .2rem; margin:.4rem 0; }
+ul.checklist label{ display:flex; align-items:flex-start; gap:.6rem; padding:.6rem .7rem; cursor:pointer; }
+ul.checklist input[type=checkbox]{ margin-top:.2rem; width:1.1rem; height:1.1rem; accent-color:var(--accent); flex:none; }
+ul.checklist input[type=checkbox]:checked + span{ color:var(--text-faint); text-decoration:line-through; }
+.checklist-meta{ display:flex; justify-content:space-between; align-items:center; font-size:.78rem; color:var(--text-faint); margin:.3rem .2rem 1.2rem; }
+.checklist-meta button{ background:none; border:none; color:var(--accent); cursor:pointer; font-size:.78rem; }
+
+details.faq{ border:1px solid var(--line); border-radius:10px; margin:.6rem 0; background:var(--surface); overflow:hidden; }
+details.faq summary{ cursor:pointer; padding:.8rem 1rem; font-weight:600; list-style:none; display:flex; justify-content:space-between; gap:1rem; }
+details.faq summary::-webkit-details-marker{ display:none; }
+details.faq summary::after{ content:"+"; color:var(--accent); font-size:1.2rem; }
+details.faq[open] summary::after{ content:"–"; }
+details.faq .a{ padding:0 1rem 1rem; color:var(--text-soft); }
+
+dl.glossary{ margin:1rem 0; }
+dl.glossary dt{ font-weight:700; margin-top:.9rem; }
+dl.glossary dd{ margin:.2rem 0 0; color:var(--text-soft); }
+
+.chip-row{ display:flex; gap:.5rem; flex-wrap:wrap; margin:.8rem 0; }
+.chip{ background:var(--surface-2); border:1px solid var(--line); border-radius:99px; padding:.3rem .8rem; font-size:.85rem; }
+
+.ask-cta{
+  display:inline-flex; align-items:center; gap:.5rem; margin-top:1rem;
+  background:var(--accent); color:#fff; border:none; border-radius:99px;
+  padding:.7rem 1.3rem; font-size:.92rem; font-weight:700; cursor:pointer; box-shadow:var(--shadow);
+}
+.ask-cta:hover{ filter:brightness(1.08); }
+
+/* Fråga-panelen (drawer) */
+#askBackdrop{ position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:70; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+#askBackdrop.on{ opacity:1; pointer-events:auto; }
+.panel{
+  position:fixed; z-index:85; top:0; right:0; bottom:0; width:min(94vw,26rem);
+  background:var(--surface); border-left:1px solid var(--line); box-shadow:var(--shadow);
+  display:flex; flex-direction:column; transform:translateX(102%); transition:transform .22s ease;
+}
+.panel.open{ transform:none; }
+@media (max-width:560px){
+  .panel{ top:auto; width:100%; height:88vh; border-left:none; border-top:1px solid var(--line); border-radius:18px 18px 0 0; transform:translateY(102%); }
+  .panel.open{ transform:none; }
+}
+.panel-head{ display:flex; align-items:center; gap:.6rem; padding:.9rem 1rem; border-bottom:1px solid var(--line); }
+.panel-head h2{ font-size:1rem; margin:0 auto 0 0; }
+.panel-head button{ background:var(--surface-2); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:.35rem .6rem; cursor:pointer; }
+.panel-body{ overflow-y:auto; padding:1rem; flex:1; }
+.panel-body .hint{ font-size:.83rem; color:var(--text-soft); margin:0 0 .7rem; }
+.field{ width:100%; font:inherit; font-size:.95rem; padding:.7rem .8rem; min-height:46px; background:var(--bg); color:var(--text); border:1px solid var(--line-strong); border-radius:10px; }
+.qa-answer{ border:1px solid var(--line); border-left:4px solid var(--accent); background:var(--bg); border-radius:10px; padding:.85rem 1rem; margin:.9rem 0 0; }
+.qa-answer h3{ font-size:.95rem; margin:0 0 .4rem; }
+.qa-answer p{ font-size:.9rem; margin:.3rem 0; }
+.qa-answer .src{ margin-top:.6rem; font-size:.78rem; color:var(--text-faint); }
+.qa-answer .src a{ color:var(--accent); }
+.empty{ font-size:.88rem; color:var(--text-faint); padding:.4rem .1rem; }
+
+.ask-fab{
+  position:fixed; left:1.2rem; bottom:1.2rem; z-index:60;
+  display:inline-flex; align-items:center; gap:.5rem;
+  background:var(--accent); color:#fff; border:none; border-radius:99px;
+  padding:.8rem 1.2rem; font-size:.92rem; font-weight:700; cursor:pointer;
+  box-shadow:var(--shadow); animation:ask-pop .3s ease;
+}
+.ask-fab:hover{ filter:brightness(1.08); }
+@keyframes ask-pop{ from{ transform:scale(.9); opacity:0; } to{ transform:scale(1); opacity:1; } }
+@media (max-width:560px){
+  .ask-fab .txt{ display:none; }
+  .ask-fab{ padding:.8rem; }
+}
+
+footer.page{ border-top:1px solid var(--line); padding:2rem 1.4rem 3rem; text-align:center; color:var(--text-faint); font-size:.85rem; }
+
+.mobile-toc-toggle{ display:none; }
+@media (max-width: 880px){
+  .layout{ grid-template-columns:1fr; }
+  aside.toc{
+    position:static; max-height:none; border-right:none; border-bottom:1px solid var(--line);
+    display:none;
+  }
+  aside.toc.open{ display:block; }
+  .mobile-toc-toggle{ display:inline-flex; }
+}
+@media print{
+  .topbar, aside.toc, .no-print, footer.page{ display:none !important; }
+  .layout{ display:block; }
+  main{ padding:0; }
+  #prose section{ break-inside:avoid; max-width:none; }
+  body{ background:#fff; color:#000; }
+}
+.bx{ font-weight:700; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#prose">Hoppa till innehållet</a>
+
+<header class="topbar no-print">
+  <div class="brand">
+    <span class="brand-icon">💬</span>
+    <span>Copilot Chat-manualen</span>
+  </div>
+  <a class="back" href="start.html">← Till startsidan</a>
+  <div class="controls">
+    <button type="button" class="mobile-toc-toggle" id="tocToggle" aria-expanded="false">☰ Kapitel</button>
+    <div class="seg" role="group" aria-label="Ljust eller mörkt läge">
+      <button type="button" id="themeLjus" aria-pressed="true">☀️ Ljus</button>
+      <button type="button" id="themeMork" aria-pressed="false">🌙 Mörk</button>
+    </div>
+    <div class="seg" role="group" aria-label="Textstorlek">
+      <button type="button" id="sizeMinus" aria-label="Mindre text">A−</button>
+      <button type="button" id="sizePlus" aria-label="Större text">A+</button>
+    </div>
+    <button type="button" id="fontToggle" aria-pressed="false">🔤 Dyslexivänligt typsnitt</button>
+    <div class="seg" role="group" aria-label="Bionic Reading-nivå">
+      <button type="button" id="bionic0" aria-pressed="true">Av</button>
+      <button type="button" id="bionic1" aria-pressed="false">B1</button>
+      <button type="button" id="bionic2" aria-pressed="false">B2</button>
+      <button type="button" id="bionic3" aria-pressed="false">B3</button>
+    </div>
+    <button type="button" id="printBtn">🖨️ Skriv ut</button>
+    <button type="button" id="askBtn">💬 Fråga</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="toc" id="tocAside">
+    <h2>Kapitel</h2>
+    <ol id="tocList">
+      <li><a href="#k1">Vad är Copilot Chat?</a></li>
+      <li><a href="#k2">Logga in med skolkontot</a></li>
+      <li><a href="#k3">Gratisversionen jämfört med Copilot Pro</a></li>
+      <li><a href="#k4">Skriva en bra fråga (prompt)</a></li>
+      <li><a href="#k5">Föra ett samtal – ställa följdfrågor</a></li>
+      <li><a href="#k6">Sammanfatta och skriva om text</a></li>
+      <li><a href="#k7">Ladda upp filer och bilder</a></li>
+      <li><a href="#k8">Skapa bilder</a></li>
+      <li><a href="#k9">Copilot i Edge, Word och PowerPoint</a></li>
+      <li><a href="#k10">Källkritik – lita inte blint på AI:n</a></li>
+      <li><a href="#k11">Vad får jag använda Copilot till i skolan?</a></li>
+      <li><a href="#k12">Vanliga misstag och felsökning</a></li>
+      <li><a href="#k13">Ordlista</a></li>
+      <li><a href="#k14">Checklista</a></li>
+    </ol>
+    <div class="progress-wrap">
+      <div class="bar"><i id="progressBar"></i></div>
+      <p id="progressText">0 av 14 kapitel lästa</p>
+    </div>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <div class="badges">
+        <span class="badge accent">Manual</span>
+        <span class="badge">Gratisversionen</span>
+        <span class="badge">Lättläst</span>
+        <span class="badge">Bionic Reading</span>
+        <span class="badge">Fråga-funktion</span>
+      </div>
+      <h1>Copilot Chat – manual för elever</h1>
+      <p class="lead">Den här guiden handlar om <strong>Copilot Chat</strong> – gratisversionen som ingår i skolans Microsoft-konto, inte den dyra betalversionen "Microsoft 365 Copilot" som lärare eller rektorer kan ha. Här får du steg för steg lära dig hur du loggar in, skriver bra frågor, sammanfattar text, laddar upp filer, skapar bilder och är källkritisk mot det AI:n svarar. Använd menyn till vänster för att hoppa mellan kapitel, eller läs uppifrån och ner.</p>
+      <div class="goal-box">
+        <strong class="label">Det här ska du kunna efter guiden</strong>
+        <ul>
+          <li>Logga in på Copilot Chat med skolkontot</li>
+          <li>Skriva tydliga frågor som ger bättre svar</li>
+          <li>Ställa följdfrågor i samma samtal</li>
+          <li>Ladda upp en fil eller bild och fråga om den</li>
+          <li>Skapa en bild med Copilot</li>
+          <li>Vara källkritisk och känna till skolans regler</li>
+        </ul>
+        <button type="button" class="ask-cta" id="askBtnHero">🤔 Kört fast? Fråga här</button>
+      </div>
+    </div>
+
+    <article id="prose">
+
+      <section id="k1">
+        <h2><span class="num">01</span> Vad är Copilot Chat?</h2>
+        <p>Copilot Chat är en <strong>AI-chattbot</strong> från Microsoft. Du skriver en fråga eller ett uppdrag i en textruta, och AI:n svarar med text, förslag eller till exempel en sammanfattning. Copilot Chat bygger på samma sorts teknik som andra AI-chattbotar, men ingår i skolans Microsoft-konto och är <strong>gratis att använda</strong> med skolinloggning.</p>
+        <p>Med Copilot Chat kan du till exempel:</p>
+        <ul>
+          <li>Ställa <strong>frågor</strong> om nästan vilket ämne som helst</li>
+          <li>Få hjälp att <strong>sammanfatta, förklara eller skriva om</strong> en text</li>
+          <li>Ladda upp en <strong>fil eller bild</strong> och ställa frågor om innehållet</li>
+          <li>Skapa <strong>bilder</strong> utifrån en beskrivning</li>
+          <li>Öva inför prov genom att be Copilot ställa frågor till dig</li>
+        </ul>
+        <div class="callout tip">
+          <strong class="label">Bra att veta</strong>
+          <p>Copilot Chat är ett verktyg, inte en person som "vet" saker. Det är ett dataprogram som räknar ut vilka ord som troligen passar bra som svar – det gissar alltså, även om gissningen oftast är bra. Därför ska du alltid tänka källkritiskt (mer om det i kapitel 10).</p>
+        </div>
+      </section>
+
+      <section id="k2">
+        <h2><span class="num">02</span> Logga in med skolkontot</h2>
+        <p class="q">"Var hittar jag Copilot Chat?" · "Måste jag betala?"</p>
+        <ol class="steps">
+          <li>Gå till <a href="https://copilot.microsoft.com" target="_blank" rel="noopener">copilot.microsoft.com</a>, eller öppna Copilot-appen om skolan har installerat den.</li>
+          <li>Klicka på <strong>Logga in</strong> uppe till höger och logga in med ditt <strong>skolkonto</strong> (samma inloggning som till Teams och OneDrive).</li>
+          <li>Kontrollera att du är inloggad med skolkontot och inte ett privat Microsoft-konto – titta på namnet eller e-postadressen uppe i hörnet.</li>
+        </ol>
+        <div class="callout warn">
+          <strong class="label">Logga alltid in med skolkontot</strong>
+          <p>När du är inloggad med skolkontot är dina frågor och svar skyddade och används inte för att träna AI-modellen vidare. Är du inte inloggad, eller inloggad med ett privat konto, gäller inte samma skydd. Fråga din lärare om du är osäker på vilket konto du ska använda.</p>
+        </div>
+      </section>
+
+      <section id="k3">
+        <h2><span class="num">03</span> Gratisversionen jämfört med Copilot Pro</h2>
+        <p>Det finns flera versioner av Copilot, och det är lätt att blanda ihop dem:</p>
+        <table class="icons">
+          <tr><th>Icke</th><th>Vad det är</th></tr>
+          <tr><td class="icon">💬</td><td><strong>Copilot Chat (gratis)</strong> – den här manualen. Ingår i skolans Microsoft-konto, kostar inget extra. Du chattar, laddar upp filer och skapar bilder.</td></tr>
+          <tr><td class="icon">💳</td><td><strong>Copilot Pro / Microsoft 365 Copilot</strong> – en betalversion som ger till exempel fler bildgenereringar, snabbare svar och AI direkt inbyggt i Word, Excel och PowerPoint. Kostar pengar och är inte det den här manualen handlar om.</td></tr>
+        </table>
+        <div class="callout tip">
+          <strong class="label">Du behöver inte betala för något</strong>
+          <p>Allt du behöver som elev finns i den vanliga, gratis Copilot Chat med ditt skolkonto. Ser du en knapp som ber dig uppgradera eller betala – klicka inte på den utan att fråga din lärare först.</p>
+        </div>
+      </section>
+
+      <section id="k4">
+        <h2><span class="num">04</span> Skriva en bra fråga (prompt)</h2>
+        <p class="q">"Varför blir svaret så luddigt?"</p>
+        <p>Ju tydligare du skriver, desto bättre blir svaret. Ett bra sätt att komma ihåg vad du ska ha med är att tänka på fyra saker:</p>
+        <ol class="steps">
+          <li><strong>Vad</strong> vill du ha hjälp med? Var konkret, till exempel "förklara fotosyntesen" i stället för bara "biologi".</li>
+          <li><strong>För vem</strong> är svaret? Till exempel "förklara som för en elev i årskurs 8".</li>
+          <li><strong>Hur långt/vilken form</strong> vill du ha svaret i? Till exempel "i punktform, max fem punkter" eller "en kort text på 100 ord".</li>
+          <li><strong>Vad ska det användas till?</strong> Till exempel "jag ska plugga inför ett prov" eller "jag ska skriva en labbrapport".</li>
+        </ol>
+        <div class="callout tip">
+          <strong class="label">Exempel</strong>
+          <p>Dåligt: <em>"berätta om andra världskriget"</em>.<br>Bättre: <em>"Förklara de tre viktigaste orsakerna till andra världskriget, som för en elev i årskurs 9, i punktform så jag kan plugga inför ett prov."</em></p>
+        </div>
+      </section>
+
+      <section id="k5">
+        <h2><span class="num">05</span> Föra ett samtal – ställa följdfrågor</h2>
+        <p>Copilot Chat minns vad ni pratat om tidigare i <strong>samma samtal</strong>. Du behöver alltså inte upprepa allt du redan skrivit.</p>
+        <ol class="steps">
+          <li>Skriv din första fråga i rutan längst ner och tryck <kbd>Enter</kbd> eller klicka på pilen.</li>
+          <li>Läs svaret. Är det för långt, för svårt eller inte riktigt rätt – skriv en <strong>följdfråga</strong>, till exempel "kan du göra det enklare?" eller "kan du ge ett exempel till?".</li>
+          <li>Vill du börja om helt, eller byta ämne, klicka på <strong>Nytt samtal</strong> så blandas inte olika ämnen ihop.</li>
+        </ol>
+        <div class="callout tip">
+          <strong class="label">Be Copilot ändra svaret i stället för att fråga om igen</strong>
+          <p>Fick du ett svar som nästan var bra? Skriv till exempel "gör det kortare", "skriv enklare språk" eller "ge mig tre exempel till" i stället för att skriva om hela frågan från början.</p>
+        </div>
+      </section>
+
+      <section id="k6">
+        <h2><span class="num">06</span> Sammanfatta och skriva om text</h2>
+        <p class="q">"Kan Copilot sammanfatta en text jag klistrar in?"</p>
+        <ol class="steps">
+          <li>Klistra in texten du vill ha hjälp med direkt i chattrutan, eller ladda upp den som en fil (se kapitel 7).</li>
+          <li>Skriv vad du vill ha gjort, till exempel "sammanfatta den här texten i fem punkter" eller "förklara svåra ord i texten".</li>
+          <li>Läs igenom svaret och jämför med originaltexten – har Copilot fått med det viktigaste?</li>
+        </ol>
+        <div class="callout warn">
+          <strong class="label">Skriv aldrig av ett AI-svar rakt av</strong>
+          <p>Använd sammanfattningen som stöd för att förstå texten, men skriv själv med egna ord i dina inlämningar. Se kapitel 11 om vad som gäller för just din skoluppgift.</p>
+        </div>
+      </section>
+
+      <section id="k7">
+        <h2><span class="num">07</span> Ladda upp filer och bilder</h2>
+        <p class="q">"Kan jag ladda upp mina anteckningar eller en bild av en uppgift?"</p>
+        <ol class="steps">
+          <li>Klicka på <strong>gem- eller plus-ikonen</strong> bredvid chattrutan.</li>
+          <li>Välj en fil (till exempel PDF, Word eller bild) från datorn eller mobilen.</li>
+          <li>Skriv vad du vill att Copilot ska göra med filen, till exempel "förklara vad som är fel i mitt uträkningssvar" eller "sammanfatta det här dokumentet".</li>
+        </ol>
+        <div class="callout warn">
+          <strong class="label">Ladda aldrig upp privat eller känslig information</strong>
+          <p>Ladda inte upp filer med personuppgifter om andra, lösenord eller sådant som är hemligt eller privat. Ladda bara upp sådant som handlar om din egen skoluppgift.</p>
+        </div>
+      </section>
+
+      <section id="k8">
+        <h2><span class="num">08</span> Skapa bilder</h2>
+        <p>Copilot Chat kan skapa bilder utifrån en textbeskrivning.</p>
+        <ol class="steps">
+          <li>Skriv vad du vill ha en bild av, till exempel "en bild på en medeltida borg vid en flod, tecknad stil".</li>
+          <li>Vänta medan bilden skapas – det tar oftast bara några sekunder.</li>
+          <li>Gillar du inte resultatet, skriv vad du vill ändra, till exempel "gör himlen mörkare" eller "ta bort personerna i bilden".</li>
+          <li>Ladda ner bilden genom att klicka på den och välja <strong>Spara/Ladda ner</strong>.</li>
+        </ol>
+        <div class="callout warn">
+          <strong class="label">Skapa inte bilder på riktiga personer</strong>
+          <p>Be aldrig Copilot skapa en bild som föreställer en riktig person, till exempel en klasskompis eller lärare, särskilt inte i en situation som kan uppfattas som kränkande. Det kan bryta mot skolans regler.</p>
+        </div>
+      </section>
+
+      <section id="k9">
+        <h2><span class="num">09</span> Copilot i Edge, Word och PowerPoint</h2>
+        <p>Den gratis Copilot Chat-funktionen dyker också upp på andra ställen, inte bara på copilot.microsoft.com:</p>
+        <ul>
+          <li><strong>Microsoft Edge</strong> – klicka på Copilot-ikonen i sidopanelen för att chatta om sidan du har öppen.</li>
+          <li><strong>Word, PowerPoint och Excel på webben</strong> – i vissa skolkonton finns en begränsad, gratis Copilot-funktion i sidopanelen. Fråga din lärare vad som gäller för just din skola.</li>
+        </ul>
+        <div class="callout">
+          <strong class="label">Skiljer sig från den betalda versionen</strong>
+          <p>Den fullständiga AI-funktionen inbyggd i själva dokumentet (till exempel att skriva hela texter automatiskt i Word) hör oftast till den dyra Microsoft 365 Copilot-licensen. Har skolan inte den licensen ser du färre AI-funktioner i Office-programmen – det är normalt.</p>
+        </div>
+      </section>
+
+      <section id="k10">
+        <h2><span class="num">10</span> Källkritik – lita inte blint på AI:n</h2>
+        <p class="q">"Kan jag lita på det Copilot svarar?"</p>
+        <p>Copilot kan låta säkert även när svaret är fel. Det kallas ofta att AI:n <strong>hallucinerar</strong> – hittar på fakta, årtal, citat eller källor som ser äkta ut men inte stämmer.</p>
+        <ul>
+          <li>AI:n kan blanda ihop fakta eller <strong>hitta på källor</strong> som inte finns.</li>
+          <li>Svaret kan vara <strong>förenklat</strong> eller missa viktiga detaljer.</li>
+          <li>Copilot vet inte alltid vad som är sant, bara vad som är ett troligt svar utifrån mönster i text.</li>
+        </ul>
+        <div class="callout warn">
+          <strong class="label">Gör så här</strong>
+          <p>Kontrollera viktiga fakta, årtal och namn mot en annan källa, till exempel din kursbok eller en pålitlig webbplats, innan du använder dem i en inlämning. Be gärna Copilot ange var informationen kommer ifrån, men lita inte blint på det.</p>
+        </div>
+      </section>
+
+      <section id="k11">
+        <h2><span class="num">11</span> Vad får jag använda Copilot till i skolan?</h2>
+        <p>Reglerna för AI-verktyg skiljer sig mellan skolor, lärare och uppgifter. Det som gäller för en uppgift gäller inte alltid för nästa.</p>
+        <ul>
+          <li>Ofta är det okej att använda Copilot för att <strong>förklara, öva eller få tips</strong> inför en uppgift.</li>
+          <li>Det är oftast <strong>inte okej</strong> att lämna in text som Copilot skrivit som om du skrivit den själv – det räknas som fusk/plagiat på många skolor.</li>
+          <li>Vissa prov och examinationer tillåter inget AI-stöd alls.</li>
+        </ul>
+        <div class="callout warn">
+          <strong class="label">Fråga alltid din lärare</strong>
+          <p>Är du osäker på vad som gäller för en specifik uppgift – fråga läraren innan du använder Copilot, inte efteråt. Det är alltid bättre att fråga en gång för mycket än att råka fuska.</p>
+        </div>
+      </section>
+
+      <section id="k12">
+        <h2><span class="num">12</span> Vanliga misstag och felsökning</h2>
+        <div class="callout warn">
+          <strong class="label">Vanliga misstag</strong>
+          <ul>
+            <li>Man skriver för otydliga frågor och blir besviken på svaret.</li>
+            <li>Man klistrar in ett AI-svar direkt i en inlämning utan att kontrollera eller skriva om det.</li>
+            <li>Man tror att Copilot alltid har rätt, utan att kolla fakta.</li>
+            <li>Man är inloggad med fel konto, eller inte inloggad alls.</li>
+            <li>Man laddar upp privat information om sig själv eller andra.</li>
+          </ul>
+        </div>
+        <details class="faq">
+          <summary>Jag kommer inte in på Copilot Chat</summary>
+          <div class="a"><p>Kontrollera att du är inloggad med skolkontot. Fungerar det ändå inte, prova att logga ut och in igen, eller kontakta skolans IT-support.</p></div>
+        </details>
+        <details class="faq">
+          <summary>Svaret är fel eller konstigt</summary>
+          <div class="a"><p>Skriv en följdfråga och be Copilot förklara eller ompröva svaret, till exempel "är du säker på det?". Kontrollera alltid viktiga fakta mot en annan källa.</p></div>
+        </details>
+        <details class="faq">
+          <summary>Jag hittar inte gem-knappen för att ladda upp en fil</summary>
+          <div class="a"><p>Den kan se olika ut beroende på enhet. Leta efter en gem-, plus- eller bildikon direkt intill textrutan där du skriver din fråga.</p></div>
+        </details>
+        <details class="faq">
+          <summary>Jag blir ombedd att betala eller uppgradera</summary>
+          <div class="a"><p>Du ska aldrig behöva betala som elev. Klicka inte på uppgraderingsknappen – fråga din lärare eller skolans IT-support i stället.</p></div>
+        </details>
+      </section>
+
+      <section id="k13">
+        <h2><span class="num">13</span> Ordlista</h2>
+        <dl class="glossary">
+          <dt>Copilot Chat</dt>
+          <dd>Den gratis AI-chattboten från Microsoft som ingår i skolans Microsoft-konto.</dd>
+          <dt>Prompt</dt>
+          <dd>Den fråga eller instruktion du skriver till Copilot.</dd>
+          <dt>Följdfråga</dt>
+          <dd>En ny fråga i samma samtal som bygger vidare på det Copilot redan svarat.</dd>
+          <dt>Hallucination</dt>
+          <dd>När AI:n hittar på fakta, citat eller källor som låter äkta men inte stämmer.</dd>
+          <dt>Copilot Pro / Microsoft 365 Copilot</dt>
+          <dd>Betalversionen av Copilot med fler funktioner, till exempel AI direkt inbyggt i Word och PowerPoint. Inte det den här manualen handlar om.</dd>
+          <dt>Skolkonto</dt>
+          <dd>Ditt inloggningskonto från skolan, samma som du använder till Teams och OneDrive.</dd>
+        </dl>
+      </section>
+
+      <section id="k14">
+        <h2><span class="num">14</span> Checklista – kan du det här?</h2>
+        <p>Gå igenom listan när du gått igenom hela guiden. Kryssa i det du känner dig säker på.</p>
+        <ul class="checklist" data-checklist="copilot-chat-checklista">
+          <li><label><input type="checkbox"><span>Jag kan logga in på Copilot Chat med skolkontot</span></label></li>
+          <li><label><input type="checkbox"><span>Jag vet att gratisversionen inte kostar pengar och skiljer sig från Copilot Pro</span></label></li>
+          <li><label><input type="checkbox"><span>Jag kan skriva en tydlig fråga med vad, för vem och hur långt svaret ska vara</span></label></li>
+          <li><label><input type="checkbox"><span>Jag kan ställa en följdfråga i samma samtal</span></label></li>
+          <li><label><input type="checkbox"><span>Jag kan ladda upp en fil eller bild och fråga om den</span></label></li>
+          <li><label><input type="checkbox"><span>Jag kan skapa en bild med Copilot</span></label></li>
+          <li><label><input type="checkbox"><span>Jag kontrollerar viktiga fakta mot en annan källa innan jag använder dem</span></label></li>
+          <li><label><input type="checkbox"><span>Jag vet att jag ska fråga läraren om vad som är tillåtet för en specifik uppgift</span></label></li>
+        </ul>
+        <div class="chip-row">
+          <span class="chip">Sparas automatiskt i din webbläsare</span>
+        </div>
+      </section>
+
+    </article>
+  </main>
+</div>
+
+<a href="#prose" class="back-to-top no-print" id="backToTop">↑ Till toppen</a>
+
+<button type="button" class="ask-fab no-print" id="askFab">💬 <span class="txt">Kört fast? Fråga</span></button>
+
+<div id="askBackdrop" class="no-print"></div>
+<aside class="panel no-print" id="askPanel" aria-hidden="true" aria-labelledby="ask-titel" role="dialog">
+  <div class="panel-head">
+    <h2 id="ask-titel">Kört fast? Fråga här</h2>
+    <button type="button" id="askClose" aria-label="Stäng">✕</button>
+  </div>
+  <div class="panel-body">
+    <p class="hint">Skriv din fråga med egna ord. Svaren kommer från manualens eget innehåll och fungerar även utan internet.</p>
+    <input class="field" id="askInput" type="search" placeholder="T.ex. hur laddar jag upp en fil?" autocomplete="off" enterkeyhint="search">
+    <div class="chip-row" id="askChips"></div>
+    <div id="askSvar"></div>
+  </div>
+</aside>
+
+<footer class="page no-print">
+  <p>Manual för Copilot Chat – gratisversionen – i skolan. Lättläst, mobilanpassad och med stöd för Bionic Reading och mörkt läge.</p>
+  <p>Senast uppdaterad: september 2026.</p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  const html = document.documentElement;
+  const $ = (s, r) => (r||document).querySelector(s);
+  const $$ = (s, r) => Array.from((r||document).querySelectorAll(s));
+
+  const store = {
+    get(k, d){ try{ const v = localStorage.getItem('copilot-chat-manual:'+k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
+    set(k, v){ try{ localStorage.setItem('copilot-chat-manual:'+k, JSON.stringify(v)); }catch(e){} },
+    del(k){ try{ localStorage.removeItem('copilot-chat-manual:'+k); }catch(e){} }
+  };
+
+  /* ---- Tema ---- */
+  function applyTheme(t){
+    html.dataset.theme = t;
+    $('#themeLjus').setAttribute('aria-pressed', String(t==='ljus'));
+    $('#themeMork').setAttribute('aria-pressed', String(t==='mork'));
+    store.set('theme', t);
+  }
+  applyTheme(store.get('theme', 'ljus'));
+  $('#themeLjus').addEventListener('click', () => applyTheme('ljus'));
+  $('#themeMork').addEventListener('click', () => applyTheme('mork'));
+
+  /* ---- Textstorlek ---- */
+  function applySize(n){
+    n = Math.max(1, Math.min(4, n));
+    html.dataset.size = String(n);
+    store.set('size', n);
+  }
+  applySize(store.get('size', 2));
+  $('#sizeMinus').addEventListener('click', () => applySize(Number(html.dataset.size) - 1));
+  $('#sizePlus').addEventListener('click', () => applySize(Number(html.dataset.size) + 1));
+
+  /* ---- Typsnitt ---- */
+  function loadDyslexiFont(){
+    if($('#dyslexi-font-link')) return;
+    const link = document.createElement('link');
+    link.id = 'dyslexi-font-link'; link.rel = 'stylesheet';
+    link.href = 'https://fonts.cdnfonts.com/css/opendyslexic';
+    document.head.appendChild(link);
+  }
+  function applyFont(f){
+    html.dataset.font = f;
+    $('#fontToggle').setAttribute('aria-pressed', String(f==='dyslexi'));
+    store.set('font', f);
+    if(f === 'dyslexi') loadDyslexiFont();
+  }
+  applyFont(store.get('font', 'system'));
+  $('#fontToggle').addEventListener('click', () => applyFont(html.dataset.font === 'dyslexi' ? 'system' : 'dyslexi'));
+
+  /* ---- Bionic Reading ---- */
+  const SKIP_TAGS = new Set(['SCRIPT','STYLE','CODE','PRE','TEXTAREA','INPUT','SELECT','BUTTON','SVG','KBD']);
+  let pristine = null;
+  function fixation(len, level){
+    if(len <= 1) return len;
+    if(len <= 3) return 1;
+    const ratio = level===1 ? 0.35 : level===2 ? 0.5 : 0.65;
+    return Math.max(1, Math.min(len-1, Math.round(len*ratio)));
+  }
+  function bionifyNode(node, level){
+    const text = node.nodeValue;
+    if(!/[a-zA-ZåäöÅÄÖéèüÉÈÜ]/.test(text)) return;
+    const frag = document.createDocumentFragment();
+    text.split(/(\s+)/).forEach(chunk => {
+      if(!chunk) return;
+      const m = chunk.match(/^([^a-zA-ZåäöÅÄÖéèüÉÈÜ0-9]*)([a-zA-ZåäöÅÄÖéèüÉÈÜ]+)(.*)$/s);
+      if(!m){ frag.appendChild(document.createTextNode(chunk)); return; }
+      const [, pre, word, post] = m;
+      const cut = fixation(word.length, level);
+      if(pre) frag.appendChild(document.createTextNode(pre));
+      const b = document.createElement('b'); b.className = 'bx'; b.textContent = word.slice(0, cut);
+      frag.appendChild(b);
+      frag.appendChild(document.createTextNode(word.slice(cut) + post));
+    });
+    node.parentNode.replaceChild(frag, node);
+  }
+  function bionify(root, level){
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        let p = n.parentElement;
+        while(p && p !== root){
+          if(SKIP_TAGS.has(p.tagName)) return NodeFilter.FILTER_REJECT;
+          p = p.parentElement;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const nodes = []; let n;
+    while((n = walker.nextNode())) nodes.push(n);
+    nodes.forEach(node => bionifyNode(node, level));
+  }
+  function renderBionic(level){
+    const prose = $('#prose'); if(!prose) return;
+    if(!pristine) pristine = prose.cloneNode(true);
+    const fresh = pristine.cloneNode(true);
+    prose.replaceChildren(...Array.from(fresh.childNodes));
+    if(level > 0) bionify(prose, level);
+    enhanceChecklists();
+  }
+  function applyBionic(level){
+    level = Math.max(0, Math.min(3, level));
+    html.dataset.bionic = String(level);
+    [0,1,2,3].forEach(i => $('#bionic'+i).setAttribute('aria-pressed', String(i===level)));
+    store.set('bionic', level);
+    renderBionic(level);
+  }
+  [0,1,2,3].forEach(i => $('#bionic'+i).addEventListener('click', () => applyBionic(i)));
+
+  /* ---- Checklista ---- */
+  function enhanceChecklists(){
+    $$('#prose ul.checklist').forEach(list => {
+      const id = list.dataset.checklist || 'lista';
+      const saved = store.get('chk:'+id, []);
+      $$('li', list).forEach((li, i) => {
+        const box = $('input[type=checkbox]', li);
+        if(!box) return;
+        box.checked = saved.includes(i);
+        box.addEventListener('change', () => {
+          const cur = new Set(store.get('chk:'+id, []));
+          box.checked ? cur.add(i) : cur.delete(i);
+          store.set('chk:'+id, Array.from(cur).sort((a,b)=>a-b));
+        });
+      });
+    });
+  }
+
+  /* ---- Utskrift ---- */
+  $('#printBtn').addEventListener('click', () => window.print());
+
+  /* ---- Till toppen ---- */
+  const backToTop = $('#backToTop');
+  window.addEventListener('scroll', () => {
+    backToTop.classList.toggle('visible', window.scrollY > 500);
+  }, { passive: true });
+
+  /* ---- Fråga (offline-kunskapsbas) ---- */
+  const KAPITELNAMN = {
+    k2:'Logga in med skolkontot', k3:'Gratisversionen jämfört med Copilot Pro', k4:'Skriva en bra fråga (prompt)',
+    k5:'Föra ett samtal – ställa följdfrågor', k6:'Sammanfatta och skriva om text', k7:'Ladda upp filer och bilder',
+    k8:'Skapa bilder', k9:'Copilot i Edge, Word och PowerPoint', k10:'Källkritik – lita inte blint på AI:n',
+    k11:'Vad får jag använda Copilot till i skolan?', k12:'Vanliga misstag och felsökning', k13:'Ordlista'
+  };
+  const FAQ = [
+    { kapitel:'k2', q:'Hur loggar jag in på Copilot Chat?', tags:['logga in','skolkonto','inloggning'],
+      a:'<p>Gå till copilot.microsoft.com och klicka på Logga in uppe till höger. Använd samma skolkonto som till Teams och OneDrive.</p>' },
+    { kapitel:'k3', q:'Måste jag betala för Copilot?', tags:['betala','kostar','gratis','copilot pro','uppgradera'],
+      a:'<p>Nej. Copilot Chat med skolkontot är gratis. Copilot Pro/Microsoft 365 Copilot är en betalversion med fler funktioner som den här manualen inte handlar om.</p>' },
+    { kapitel:'k4', q:'Hur skriver jag en bra fråga till Copilot?', tags:['bra fråga','prompt','skriva fråga'],
+      a:'<p>Tänk på fyra saker: vad du vill ha hjälp med, vem svaret är för, hur långt/i vilken form du vill ha svaret, och vad det ska användas till. Ju tydligare fråga, desto bättre svar.</p>' },
+    { kapitel:'k5', q:'Hur ställer jag en följdfråga?', tags:['följdfråga','samtal','förbättra svar'],
+      a:'<p>Skriv bara en ny fråga i samma chatt, till exempel "gör det kortare" eller "ge ett exempel till". Copilot minns vad ni pratat om i samma samtal.</p>' },
+    { kapitel:'k6', q:'Kan Copilot sammanfatta en text?', tags:['sammanfatta','skriva om','förklara text'],
+      a:'<p>Ja. Klistra in eller ladda upp texten och be Copilot sammanfatta den, till exempel i fem punkter. Jämför alltid med originaltexten.</p>' },
+    { kapitel:'k7', q:'Hur laddar jag upp en fil eller bild?', tags:['ladda upp','fil','bild','pdf'],
+      a:'<p>Klicka på gem- eller plusikonen bredvid chattrutan och välj filen. Skriv sedan vad du vill att Copilot ska göra med den.</p>' },
+    { kapitel:'k8', q:'Hur skapar jag en bild med Copilot?', tags:['skapa bild','bildgenerering','designer'],
+      a:'<p>Skriv en beskrivning av bilden du vill ha, till exempel motiv och stil. Copilot skapar bilden på några sekunder och du kan be om ändringar.</p>' },
+    { kapitel:'k10', q:'Kan jag lita på det Copilot svarar?', tags:['lita på','hallucination','stämmer','pålitligt'],
+      a:'<p>Inte blint. AI:n kan hitta på fakta eller källor, så kallad hallucination. Kontrollera viktiga uppgifter mot en annan källa innan du använder dem.</p>' },
+    { kapitel:'k11', q:'Får jag lämna in text som Copilot skrivit?', tags:['fuska','plagiat','regler','tillåtet'],
+      a:'<p>Oftast inte om du lämnar in det som om du skrivit det själv – det kan räknas som fusk. Fråga alltid läraren vad som gäller för just din uppgift.</p>' },
+    { kapitel:'k12', q:'Jag blir ombedd att betala eller uppgradera', tags:['betala','uppgradera','pro'],
+      a:'<p>Du ska aldrig behöva betala som elev. Klicka inte på uppgraderingsknappen, fråga din lärare eller skolans IT-support i stället.</p>' },
+    { kapitel:'k12', q:'Jag kommer inte in på Copilot Chat', tags:['kommer inte in','fungerar inte','inloggning fel'],
+      a:'<p>Kontrollera att du är inloggad med skolkontot. Prova att logga ut och in igen, eller kontakta skolans IT-support om det fortfarande inte fungerar.</p>' }
+  ];
+  const STOP = new Set(['och','att','i','en','ett','på','för','med','som','av','är','man','jag','den','det','till','om','hur','vad','ska','skall','kan','får','vilken','vilket','vilka','när','var','min','mitt','mina','du','sig','har','hade','vara','måste','göra','gör','så','de','dem','eller','men','inte','ur']);
+  function normText(s){ return (s||'').toLowerCase().replace(/[^a-z0-9åäö\s]/g,' ').replace(/\s+/g,' ').trim(); }
+  function toWords(s){ return normText(s).split(' ').filter(w => w.length > 2 && !STOP.has(w)); }
+  function scoreFaq(q){
+    const qw = toWords(q); if(!qw.length) return [];
+    const nq = normText(q);
+    return FAQ.map(item => {
+      const hay = normText(item.q + ' ' + (item.tags||[]).join(' '));
+      const body = normText(item.a.replace(/<[^>]+>/g,' '));
+      let score = 0;
+      qw.forEach(w => {
+        if((item.tags||[]).some(t => normText(t) === w)) score += 3;
+        if(hay.includes(w)) score += 2;
+        else if(body.includes(w)) score += 1;
+      });
+      if(normText(item.q).includes(nq)) score += 4;
+      return { item, score: score / Math.sqrt(qw.length) };
+    }).filter(r => r.score >= 1.6).sort((a,b) => b.score - a.score).slice(0, 4);
+  }
+  function answerHtml(item){
+    const kap = KAPITELNAMN[item.kapitel];
+    return '<div class="qa-answer"><h3>' + item.q + '</h3>' + item.a +
+      (kap ? '<p class="src">Läs mer: <a href="#' + item.kapitel + '" class="js-goto">' + kap + '</a></p>' : '') +
+      '</div>';
+  }
+  function initAsk(){
+    const input = $('#askInput'), out = $('#askSvar'), chips = $('#askChips');
+    const suggestions = ['Hur skriver jag en bra fråga?','Hur laddar jag upp en fil?','Hur skapar jag en bild?','Kan jag lita på svaren?','Får jag lämna in text som Copilot skrivit?'];
+    chips.innerHTML = suggestions.map(s => '<button type="button" class="chip">' + s + '</button>').join('');
+    $$('.chip', chips).forEach(c => c.addEventListener('click', () => { input.value = c.textContent; run(); input.focus(); }));
+
+    function run(){
+      const q = input.value.trim();
+      if(q.length < 3){ out.innerHTML = ''; return; }
+      const hits = scoreFaq(q);
+      if(!hits.length){
+        out.innerHTML = '<div class="qa-answer"><h3>Jag hittar inget säkert svar på det</h3>' +
+          '<p>Prova andra ord, eller bläddra i kapitlen till vänster. Du kan också fråga din lärare eller skolans IT-support.</p></div>';
+        return;
+      }
+      out.innerHTML = hits.map(h => answerHtml(h.item)).join('');
+      $$('.js-goto', out).forEach(a => a.addEventListener('click', closeAsk));
+    }
+    let t;
+    input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(run, 180); });
+  }
+  const askPanel = $('#askPanel'), askBackdrop = $('#askBackdrop');
+  function openAsk(){
+    askPanel.classList.add('open'); askPanel.setAttribute('aria-hidden','false');
+    askBackdrop.classList.add('on');
+    setTimeout(() => $('#askInput').focus(), 60);
+  }
+  function closeAsk(){
+    askPanel.classList.remove('open'); askPanel.setAttribute('aria-hidden','true');
+    askBackdrop.classList.remove('on');
+  }
+  $('#askBtn').addEventListener('click', openAsk);
+  $('#askBtnHero').addEventListener('click', openAsk);
+  $('#askFab').addEventListener('click', openAsk);
+  $('#askClose').addEventListener('click', closeAsk);
+  askBackdrop.addEventListener('click', closeAsk);
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeAsk(); });
+  initAsk();
+
+  /* ---- Mobil TOC-toggle ---- */
+  const tocAside = $('#tocAside'), tocToggle = $('#tocToggle');
+  tocToggle.addEventListener('click', () => {
+    const open = tocAside.classList.toggle('open');
+    tocToggle.setAttribute('aria-expanded', String(open));
+  });
+  $$('#tocList a').forEach(a => a.addEventListener('click', () => {
+    if(window.innerWidth <= 880){ tocAside.classList.remove('open'); tocToggle.setAttribute('aria-expanded','false'); }
+  }));
+
+  /* ---- Aktivt kapitel + läsförlopp ---- */
+  const sections = $$('#prose section');
+  const tocLinks = $$('#tocList a');
+  const seen = new Set();
+  const progressBar = $('#progressBar'), progressText = $('#progressText');
+  function updateProgress(){
+    progressBar.style.width = Math.round((seen.size / sections.length) * 100) + '%';
+    progressText.textContent = seen.size + ' av ' + sections.length + ' kapitel lästa';
+  }
+  updateProgress();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const id = entry.target.id;
+      const link = tocLinks.find(a => a.getAttribute('href') === '#'+id);
+      if(!link) return;
+      if(entry.isIntersecting){
+        tocLinks.forEach(a => a.classList.remove('active'));
+        link.classList.add('active');
+        if(entry.intersectionRatio > 0.4){
+          if(!seen.has(id)){ seen.add(id); updateProgress(); }
+        }
+      }
+    });
+  }, { rootMargin: '-80px 0px -60% 0px', threshold: [0, 0.4, 1] });
+  sections.forEach(s => io.observe(s));
+
+  /* ---- Init ---- */
+  enhanceChecklists();
+  applyBionic(store.get('bionic', 0));
+})();
+</script>
+</body>
+</html>
