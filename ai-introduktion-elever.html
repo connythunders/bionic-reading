@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="sv" data-theme="ljus">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Kom igång med AI på 15 minuter: vad AI faktiskt är, vad du kan använda det till i skolan, hur du skriver bra frågor och vilka regler som gäller – för gymnasieelever.">
+<meta name="theme-color" content="#f7f5f1">
+<title>AI för nybörjare – introduktion för elever</title>
+<style>
+:root{
+  --bg:#f7f5f1; --bg-tint:#efece6;
+  --surface:#ffffff; --surface-2:#f3f1ec;
+  --text:#1e2227; --text-soft:#565f6b; --text-faint:#7b8593;
+  --line:#ded9d0; --line-strong:#c6bfb2;
+  --accent:#185abc; --accent-weak:#e7eefb; --accent-ink:#12448f;
+  --gold:#a2560c; --gold-weak:#fbeee0; --gold-ink:#7a4109;
+  --shadow:0 1px 2px rgba(20,20,20,.05), 0 8px 24px rgba(20,20,20,.06);
+  --radius:14px;
+}
+html[data-theme="mork"]{
+  --bg:#14171b; --bg-tint:#191d22;
+  --surface:#1c2026; --surface-2:#232830;
+  --text:#e8eaed; --text-soft:#b3bac3; --text-faint:#8d95a0;
+  --line:#333a44; --line-strong:#48515e;
+  --accent:#7fadf7; --accent-weak:#1c2a3f; --accent-ink:#aecbfa;
+  --gold:#e0a45f; --gold-weak:#33271a; --gold-ink:#e0a45f;
+}
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:"Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size:17px; line-height:1.6;
+  transition:background .2s ease, color .2s ease;
+}
+a{ color:var(--accent); }
+
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:var(--surface); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:.75rem;
+  padding:.6rem 1rem; flex-wrap:wrap;
+}
+.topbar .brand{ display:flex; align-items:center; gap:.55rem; font-weight:700; margin-right:auto; text-decoration:none; color:var(--text); }
+.topbar .brand-icon{ font-size:1.3rem; }
+.topbar .back{ font-size:.85rem; color:var(--text-soft); text-decoration:none; }
+.topbar .back:hover{ color:var(--accent); }
+.seg{ display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.seg button{
+  background:var(--surface-2); color:var(--text); border:none; border-radius:0;
+  padding:.4rem .6rem; font-size:.82rem; cursor:pointer;
+}
+.seg button + button{ border-left:1px solid var(--line); }
+.seg button[aria-pressed="true"]{ background:var(--accent-weak); color:var(--accent-ink); font-weight:600; }
+
+main{ max-width:920px; margin:0 auto; padding:2.4rem 1.4rem 5rem; }
+
+.eyebrow{ font-size:.78rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); }
+h1{ font-size:clamp(1.8rem,4vw,2.5rem); line-height:1.1; margin:.3rem 0 .6rem; }
+.lead{ color:var(--text-soft); font-size:1.05rem; max-width:62ch; margin:0 0 2.2rem; }
+
+.section-head{
+  display:flex; align-items:baseline; justify-content:space-between; gap:1rem;
+  border-bottom:1px solid var(--line); padding-bottom:.5rem; margin-bottom:1.2rem;
+}
+h2{ font-size:1.35rem; margin:0; }
+.count{ font-size:.82rem; color:var(--text-faint); white-space:nowrap; }
+
+section{ margin-bottom:2.6rem; }
+
+p.body{ margin:0 0 1rem; max-width:70ch; }
+p.body:last-child{ margin-bottom:0; }
+
+.grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:.9rem; }
+
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:1.1rem 1.1rem 1rem; display:flex; flex-direction:column; gap:.5rem;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.card:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+.card .icon{ font-size:1.4rem; }
+.card .fn{ font-weight:700; font-size:1.02rem; }
+.card .desc{ font-size:.92rem; color:var(--text-soft); }
+
+.steps{ display:flex; flex-direction:column; gap:.8rem; counter-reset:step; }
+.step{
+  display:flex; gap:.9rem; align-items:flex-start; background:var(--surface);
+  border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem;
+}
+.step-num{
+  flex:none; width:2rem; height:2rem; border-radius:50%; background:var(--accent-weak);
+  color:var(--accent-ink); font-weight:700; display:flex; align-items:center; justify-content:center;
+}
+.step p{ margin:0; }
+.step .fn{ font-weight:700; margin-bottom:.2rem; }
+
+.bonus-wrap{
+  background:var(--gold-weak); border:1px solid color-mix(in srgb, var(--gold) 35%, transparent);
+  border-radius:18px; padding:1.4rem;
+}
+.bonus-wrap .section-head{ border-bottom-color:color-mix(in srgb, var(--gold) 35%, transparent); }
+.bonus-wrap h2{ color:var(--gold-ink); }
+.bonus-wrap ul{ margin:0; padding-left:1.3rem; display:flex; flex-direction:column; gap:.7rem; }
+.bonus-wrap li strong{ color:var(--gold-ink); }
+
+.tip{
+  display:flex; gap:.8rem; align-items:flex-start; background:var(--surface);
+  border:1px dashed var(--line-strong); border-radius:var(--radius); padding:1rem 1.2rem;
+}
+.tip-label{ font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); white-space:nowrap; padding-top:.15rem; }
+.tip p{ margin:0; font-size:.94rem; color:var(--text); }
+.tip p + p{ margin-top:.5rem; }
+
+footer.page{ max-width:920px; margin:0 auto; padding:0 1.4rem 2rem; font-size:.82rem; color:var(--text-faint); border-top:1px solid var(--line); padding-top:1rem; }
+
+@media print{ .topbar{ display:none !important; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="start.html">
+    <span class="brand-icon">🤖</span>
+    <span>AI för nybörjare</span>
+  </a>
+  <a class="back" href="start.html">← Till startsidan</a>
+  <div class="seg" role="group" aria-label="Ljust eller mörkt läge">
+    <button type="button" id="themeLjus" aria-pressed="true">☀️ Ljus</button>
+    <button type="button" id="themeMork" aria-pressed="false">🌙 Mörk</button>
+  </div>
+</header>
+
+<main>
+  <div class="eyebrow">AI · Gymnasiet</div>
+  <h1>AI för nybörjare</h1>
+  <p class="lead">
+    Kom igång med AI på 15 minuter. Här får du veta vad AI faktiskt är, vad det
+    kan hjälpa dig med i skolarbetet, hur du skriver frågor som ger bättre svar
+    – och vilka regler som gäller när du använder det.
+  </p>
+
+  <section aria-labelledby="vad-ar-ai">
+    <div class="section-head">
+      <h2 id="vad-ar-ai">Vad är AI, egentligen?</h2>
+    </div>
+    <p class="body">
+      De AI-verktyg du möter i skolan, till exempel Copilot, är chattbotar
+      byggda på så kallade språkmodeller. Enkelt förklarat har de tränats på
+      enorma mängder text och har lärt sig vilket ord som brukar komma härnäst
+      i en mening. När du skriver en fråga bygger AI:n ett svar ord för ord,
+      utifrån mönster den sett förut.
+    </p>
+    <p class="body">
+      Det betyder att AI:n inte "vet" saker på samma sätt som en person, och
+      inte kan slå upp fakta i en bok. Den gissar det mest sannolika svaret –
+      vilket oftast blir bra, men ibland blir helt fel. Mer om det längre ner.
+    </p>
+  </section>
+
+  <section aria-labelledby="anvandning">
+    <div class="section-head">
+      <h2 id="anvandning">Vad kan du använda AI till i skolan?</h2>
+    </div>
+    <div class="grid">
+
+      <article class="card">
+        <div class="icon">📚</div>
+        <div class="fn">Sammanfatta text</div>
+        <div class="desc">Klistra in en lång text och be om en kort sammanfattning innan du läser hela.</div>
+      </article>
+
+      <article class="card">
+        <div class="icon">📝</div>
+        <div class="fn">Öva inför prov</div>
+        <div class="desc">Be AI:n skapa övningsfrågor om ett kapitel så du kan testa dig själv.</div>
+      </article>
+
+      <article class="card">
+        <div class="icon">💡</div>
+        <div class="fn">Förklara svåra begrepp</div>
+        <div class="desc">Fastnar du på ett begrepp? Be om en enklare förklaring eller en liknelse.</div>
+      </article>
+
+      <article class="card">
+        <div class="icon">🧠</div>
+        <div class="fn">Brainstorma idéer</div>
+        <div class="desc">Skriver du fast? Be om fem olika vinklar på en uppgift att välja mellan.</div>
+      </article>
+
+      <article class="card">
+        <div class="icon">🔤</div>
+        <div class="fn">Språkgranska en text</div>
+        <div class="desc">Be AI:n peka ut stavfel eller otydliga meningar i din egen text – inte skriva om den åt dig.</div>
+      </article>
+
+      <article class="card">
+        <div class="icon">🗣️</div>
+        <div class="fn">Öva ett språk</div>
+        <div class="desc">Be AI:n hålla en enkel konversation på engelska eller ett annat språk du läser.</div>
+      </article>
+
+    </div>
+  </section>
+
+  <section aria-labelledby="fraga-bra">
+    <div class="section-head">
+      <h2 id="fraga-bra">Skriv frågor som ger bättre svar</h2>
+    </div>
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="fn">Var tydlig med vad du vill ha</div>
+          <p>"Förklara fotosyntesen" ger ett svar. "Förklara fotosyntesen på tre meningar, för en elev i åk 9" ger ett mycket bättre.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="fn">Ge sammanhang</div>
+          <p>Berätta vilket ämne, vilken årskurs och vad texten ska användas till – ju mer AI:n vet, desto mer träffsäkert svar.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="fn">Be om exempel</div>
+          <p>Ett konkret exempel gör ofta en förklaring mycket lättare att förstå än en abstrakt beskrivning.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div>
+          <div class="fn">Fortsätt samtalet</div>
+          <p>Fick du inte rätt svar direkt? Skriv en följdfråga: "kan du förklara enklare" eller "ge mig ett annat exempel".</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section aria-labelledby="regler" class="bonus-wrap">
+    <div class="section-head">
+      <h2 id="regler">⚠️ Regler du behöver kunna</h2>
+    </div>
+    <ul>
+      <li><strong>Redovisa alltid</strong> när du använt AI i en uppgift, om läraren bett om det – fråga om du är osäker på vad som gäller.</li>
+      <li><strong>Lämna aldrig in AI-text som ditt eget arbete</strong> utan att ange att du fått hjälp av AI. Det räknas som fusk.</li>
+      <li><strong>Dela aldrig personuppgifter</strong> – namn på klasskompisar, adresser, betyg eller annat känsligt – i en chatt med AI.</li>
+      <li><strong>Kontrollera alltid fakta.</strong> AI kan "hitta på" saker som låter helt trovärdiga men är felaktiga – det kallas att AI:n hallucinerar.</li>
+    </ul>
+  </section>
+
+  <div class="tip">
+    <span class="tip-label">Nästa steg</span>
+    <div>
+      <p>Vill du öva mer på att känna igen risker som phishing, deepfakes och källkritik? Testa strategispelet <a href="ai-sakerhet-strategispel.html">AI-Kompassen</a>.</p>
+      <p>Ska du jobba med källor och anteckningar? Se manualen för <a href="notebooklm-manual.html">NotebookLM</a>.</p>
+    </div>
+  </div>
+</main>
+
+<footer class="page">
+  Gäller AI-verktyg i allmänhet, till exempel Copilot. Fråga alltid din lärare vilka regler som gäller för just din skola och uppgift.
+</footer>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var btnLjus = document.getElementById('themeLjus');
+  var btnMork = document.getElementById('themeMork');
+  function apply(t){
+    root.setAttribute('data-theme', t);
+    btnLjus.setAttribute('aria-pressed', String(t === 'ljus'));
+    btnMork.setAttribute('aria-pressed', String(t === 'mork'));
+    try { localStorage.setItem('ai-introduktion-elever:theme', t); } catch(e) {}
+  }
+  var saved;
+  try { saved = localStorage.getItem('ai-introduktion-elever:theme'); } catch(e) {}
+  if (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) saved = 'mork';
+  apply(saved === 'mork' ? 'mork' : 'ljus');
+  btnLjus.addEventListener('click', function(){ apply('ljus'); });
+  btnMork.addEventListener('click', function(){ apply('mork'); });
+})();
+</script>
+</body>
+</html>
