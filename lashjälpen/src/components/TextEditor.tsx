@@ -1,5 +1,6 @@
 import { useRef, useMemo } from 'react'
 import type { AppSettings } from '../hooks/useSettings'
+import { splitWordForBionic } from '../utils/bionic'
 
 interface TextEditorProps {
   text: string
@@ -39,13 +40,16 @@ export default function TextEditor({
   const charCount = text.length
 
   const textStyle: React.CSSProperties = {
-    fontFamily: settings.fontFamily === 'OpenDyslexic' ? "'OpenDyslexic', Arial, sans-serif" : `${settings.fontFamily}, sans-serif`,
+    fontFamily: settings.fontFamily === 'OpenDyslexic' || settings.fontFamily === 'Lexend'
+      ? `'${settings.fontFamily}', Arial, sans-serif`
+      : `${settings.fontFamily}, sans-serif`,
     fontSize: `${settings.fontSize}px`,
     letterSpacing: `${settings.letterSpacing}px`,
     wordSpacing: `${settings.wordSpacing}px`,
     lineHeight: settings.lineHeight,
     color: settings.textColor,
     textAlign: 'left',
+    maxWidth: `${settings.maxWidth}ch`,
   }
 
   const handleWordClick = (e: React.MouseEvent) => {
@@ -159,6 +163,21 @@ export default function TextEditor({
                 const globalIdx = wordOffset + localWordIdx
                 localWordIdx++
                 const isHighlighted = globalIdx === highlightWordIndex
+
+                if (settings.bionicMode) {
+                  const { bold, rest } = splitWordForBionic(segment)
+                  return (
+                    <span
+                      key={wIdx}
+                      data-word={segment.replace(/[^\wåäöÅÄÖ]/g, '')}
+                      className={`cursor-pointer hover:underline decoration-primary/30 ${
+                        isHighlighted ? 'tts-highlight' : ''
+                      }`}
+                    >
+                      <b className="font-bold">{bold}</b>{rest}
+                    </span>
+                  )
+                }
 
                 return (
                   <span

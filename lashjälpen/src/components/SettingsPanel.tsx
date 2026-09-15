@@ -26,6 +26,7 @@ const BACKGROUND_PRESETS = [
 ]
 
 const FONT_OPTIONS = [
+  { value: 'Lexend' as const, label: 'Lexend' },
   { value: 'OpenDyslexic' as const, label: 'OpenDyslexic' },
   { value: 'Arial' as const, label: 'Arial' },
   { value: 'Verdana' as const, label: 'Verdana' },
@@ -118,12 +119,38 @@ export default function SettingsPanel({
                         ? 'bg-primary text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
-                    style={{ fontFamily: font.value === 'OpenDyslexic' ? "'OpenDyslexic', Arial" : font.value }}
+                    style={{ fontFamily: font.value === 'OpenDyslexic' || font.value === 'Lexend' ? `'${font.value}', Arial` : font.value }}
                   >
                     {font.label}
                   </button>
                 ))}
               </div>
+              <p className="mt-2 text-xs text-gray-400">
+                Lexend har starkast forskningsstöd för lässnabbhet. OpenDyslexic är populärt men forskningsstödet är svagare — testa vad som fungerar bäst för dig.
+              </p>
+            </div>
+
+            {/* Line width */}
+            <div className="mb-4">
+              <label htmlFor="maxWidth" className="block text-sm font-medium text-gray-700 mb-1">
+                Radlängd: {rawSettings.maxWidth} tecken
+              </label>
+              <input
+                id="maxWidth"
+                type="range"
+                min="40"
+                max="90"
+                step="5"
+                value={rawSettings.maxWidth}
+                onChange={(e) => onUpdateSetting('maxWidth', parseInt(e.target.value))}
+                className="w-full accent-primary"
+              />
+              <div className="flex justify-between text-xs text-gray-400">
+                <span>Korta rader</span><span>Långa rader</span>
+              </div>
+              <p className="mt-1 text-xs text-gray-400">
+                Kortare rader gör det lättare att hitta tillbaka till radens början — forskning visar att det underlättar för många med lässvårigheter.
+              </p>
             </div>
 
             {/* Font size */}
