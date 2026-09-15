@@ -9,6 +9,7 @@ import STTButton from './components/STTButton'
 import ReadingRuler from './components/ReadingRuler'
 import FocusMode from './components/FocusMode'
 import SyllableView from './components/SyllableView'
+import BionicToggle from './components/BionicToggle'
 import WordLookup from './components/WordLookup'
 import SettingsPanel from './components/SettingsPanel'
 
@@ -183,6 +184,10 @@ export default function App() {
             enabled={settings.syllableMode}
             onToggle={(v) => updateSetting('syllableMode', v)}
           />
+          <BionicToggle
+            enabled={settings.bionicMode}
+            onToggle={(v) => updateSetting('bionicMode', v)}
+          />
 
           {/* Quick font size controls */}
           <div className="flex items-center gap-1 ml-auto">
@@ -226,6 +231,21 @@ export default function App() {
             <strong>Tips:</strong> Klicka på ett ord i texten för att slå upp dess betydelse. Använd knapparna ovan för att anpassa läsupplevelsen.
           </p>
         </div>
+
+        {/* About & research */}
+        <details className="mt-4 p-4 bg-gray-50 rounded-xl text-sm text-gray-600">
+          <summary className="cursor-pointer font-medium text-gray-700">
+            Om verktyget &amp; forskningen bakom det
+          </summary>
+          <ul className="mt-3 space-y-2 list-disc list-inside">
+            <li><strong>Talsyntes &amp; diktering</strong> — starkt forskningsstöd. Låter dig komma åt text utan att avkodningen står i vägen, och öva avkodning i din egen takt.</li>
+            <li><strong>Kortare radlängd</strong> — forskning visar att kortare rader gör det lättare att hitta tillbaka till nästa rad vid läsning.</li>
+            <li><strong>Lexend (typsnitt)</strong> — testat i studier med tusentals elever och visat mätbart snabbare läsning, särskilt för svaga läsare.</li>
+            <li><strong>Färgat läge, läslinjal &amp; fokusläge</strong> — minskar visuellt "brus" på sidan. Hjälper många, även om effekten varierar från person till person.</li>
+            <li><strong>Stavelsedelning</strong> — kan underlätta avkodning av långa ord, i linje med fonologisk träning.</li>
+            <li><strong>Bionic Reading</strong> — experimentellt. Forskningsstödet är begränsat och blandat, men vissa elever upplever det som motiverande. Prova själv om det hjälper dig eller inte.</li>
+          </ul>
+        </details>
       </main>
 
       {/* Settings Panel */}

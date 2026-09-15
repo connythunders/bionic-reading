@@ -7,11 +7,12 @@ export interface UserProfile {
 
 export interface AppSettings {
   // Typography
-  fontFamily: 'OpenDyslexic' | 'Arial' | 'Verdana'
+  fontFamily: 'OpenDyslexic' | 'Lexend' | 'Arial' | 'Verdana'
   fontSize: number        // 14-32
   letterSpacing: number   // 0-8
   wordSpacing: number     // 0-16
   lineHeight: number      // 1.2-3.0
+  maxWidth: number        // 40-90 (characters per line)
 
   // Colors
   backgroundColor: string
@@ -29,6 +30,9 @@ export interface AppSettings {
   // Syllable helper
   syllableMode: boolean
 
+  // Bionic reading (bold word-prefixes as a reading anchor)
+  bionicMode: boolean
+
   // TTS
   ttsRate: number         // 0.5-2
   ttsLang: string
@@ -43,6 +47,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   letterSpacing: 1,
   wordSpacing: 2,
   lineHeight: 1.8,
+  maxWidth: 65,
 
   backgroundColor: '#FFFFFF',
   textColor: '#1A1A1A',
@@ -54,6 +59,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 
   focusModeEnabled: false,
   syllableMode: false,
+  bionicMode: false,
 
   ttsRate: 1.0,
   ttsLang: 'sv-SE',
