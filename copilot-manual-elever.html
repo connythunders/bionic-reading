@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="sv" data-theme="ljus">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Manual för elever om AI och Copilot: varför AI finns, när den hjälper och när den stjäl ditt tänkande, hur prompten styr svaret, källkritik, hallucinationer och skolans regler.">
+<meta name="theme-color" content="#f7f5f1">
+<title>AI och Copilot – manual för dig som elev</title>
+<style>
+:root{
+  --bg:#f7f5f1; --bg-tint:#efece6;
+  --surface:#ffffff; --surface-2:#f3f1ec;
+  --text:#1e2227; --text-soft:#565f6b; --text-faint:#7b8593;
+  --line:#ded9d0; --line-strong:#c6bfb2;
+  --accent:#185abc; --accent-weak:#e7eefb; --accent-ink:#12448f;
+  --gold:#a2560c; --gold-weak:#fbeee0; --gold-ink:#7a4109;
+  --bad:#b3261e; --bad-weak:#fbe9e7; --bad-ink:#8c1d17;
+  --good:#1e7a4c; --good-weak:#e6f4ec; --good-ink:#155c39;
+  --shadow:0 1px 2px rgba(20,20,20,.05), 0 8px 24px rgba(20,20,20,.06);
+  --radius:14px;
+}
+html[data-theme="mork"]{
+  --bg:#14171b; --bg-tint:#191d22;
+  --surface:#1c2026; --surface-2:#232830;
+  --text:#e8eaed; --text-soft:#b3bac3; --text-faint:#8d95a0;
+  --line:#333a44; --line-strong:#48515e;
+  --accent:#7fadf7; --accent-weak:#1c2a3f; --accent-ink:#aecbfa;
+  --gold:#e0a45f; --gold-weak:#33271a; --gold-ink:#e0a45f;
+  --bad:#f2897e; --bad-weak:#3a2220; --bad-ink:#f2897e;
+  --good:#7fd9a8; --good-weak:#1b3327; --good-ink:#7fd9a8;
+}
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; }
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:"Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size:17px; line-height:1.6;
+  transition:background .2s ease, color .2s ease;
+}
+a{ color:var(--accent); }
+
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:var(--surface); border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:.75rem;
+  padding:.6rem 1rem; flex-wrap:wrap;
+}
+.topbar .brand{ display:flex; align-items:center; gap:.55rem; font-weight:700; margin-right:auto; text-decoration:none; color:var(--text); }
+.topbar .brand-icon{ font-size:1.3rem; }
+.topbar .back{ font-size:.85rem; color:var(--text-soft); text-decoration:none; }
+.topbar .back:hover{ color:var(--accent); }
+.seg{ display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.seg button{
+  background:var(--surface-2); color:var(--text); border:none; border-radius:0;
+  padding:.4rem .6rem; font-size:.82rem; cursor:pointer;
+}
+.seg button + button{ border-left:1px solid var(--line); }
+.seg button[aria-pressed="true"]{ background:var(--accent-weak); color:var(--accent-ink); font-weight:600; }
+
+main{ max-width:920px; margin:0 auto; padding:2.4rem 1.4rem 5rem; }
+
+.eyebrow{ font-size:.78rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); }
+h1{ font-size:clamp(1.8rem,4vw,2.5rem); line-height:1.1; margin:.3rem 0 .6rem; }
+.lead{ color:var(--text-soft); font-size:1.05rem; max-width:66ch; margin:0 0 1.2rem; }
+
+.section-head{
+  display:flex; align-items:baseline; justify-content:space-between; gap:1rem;
+  border-bottom:1px solid var(--line); padding-bottom:.5rem; margin-bottom:1.2rem;
+}
+h2{ font-size:1.35rem; margin:0; }
+.count{ font-size:.82rem; color:var(--text-faint); white-space:nowrap; }
+
+section{ margin-bottom:2.6rem; }
+
+p.body{ margin:0 0 1rem; max-width:70ch; }
+p.body:last-child{ margin-bottom:0; }
+
+.grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:.9rem; }
+
+.card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+  padding:1.1rem 1.1rem 1rem; display:flex; flex-direction:column; gap:.5rem;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.card:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+.card .icon{ font-size:1.4rem; }
+.card .fn{ font-weight:700; font-size:1.02rem; }
+.card .desc{ font-size:.92rem; color:var(--text-soft); }
+.card .desc a{ white-space:nowrap; }
+
+.steps{ display:flex; flex-direction:column; gap:.8rem; counter-reset:step; }
+.step{
+  display:flex; gap:.9rem; align-items:flex-start; background:var(--surface);
+  border:1px solid var(--line); border-radius:var(--radius); padding:1rem 1.2rem;
+}
+.step-num{
+  flex:none; width:2rem; height:2rem; border-radius:50%; background:var(--accent-weak);
+  color:var(--accent-ink); font-weight:700; display:flex; align-items:center; justify-content:center;
+}
+.step p{ margin:0; }
+.step .fn{ font-weight:700; margin-bottom:.2rem; }
+
+.promptbox{
+  background:var(--surface-2); border-left:3px solid var(--accent); border-radius:6px;
+  padding:.55rem .85rem; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:.86rem; margin:.4rem 0; color:var(--text);
+}
+
+.compare-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media (max-width:640px){ .compare-grid{ grid-template-columns:1fr; } }
+.compare-card{ border-radius:var(--radius); padding:1.1rem 1.2rem; border:1px solid var(--line); }
+.compare-card.bad{ background:var(--bad-weak); border-color:color-mix(in srgb, var(--bad) 35%, transparent); }
+.compare-card.good{ background:var(--good-weak); border-color:color-mix(in srgb, var(--good) 35%, transparent); }
+.compare-card .who{ font-weight:700; margin-bottom:.5rem; }
+.compare-card.bad .who{ color:var(--bad-ink); }
+.compare-card.good .who{ color:var(--good-ink); }
+.compare-card ul{ margin:0; padding-left:1.2rem; display:flex; flex-direction:column; gap:.35rem; font-size:.92rem; }
+.compare-card p.result{ margin:.7rem 0 0; font-size:.88rem; font-style:italic; color:var(--text-soft); }
+
+.ladder{ display:flex; flex-direction:column; align-items:center; gap:.1rem; margin:.3rem 0 .5rem; }
+.ladder-step{
+  width:100%; max-width:440px; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); padding:.85rem 1.2rem; text-align:center;
+}
+.ladder-step .lvl{ font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); }
+.ladder-step .desc{ font-weight:600; margin-top:.15rem; }
+.ladder-arrow{ color:var(--text-faint); font-size:1.15rem; line-height:1.4; }
+
+.bonus-wrap{
+  background:var(--gold-weak); border:1px solid color-mix(in srgb, var(--gold) 35%, transparent);
+  border-radius:18px; padding:1.4rem;
+}
+.bonus-wrap .section-head{ border-bottom-color:color-mix(in srgb, var(--gold) 35%, transparent); }
+.bonus-wrap h2{ color:var(--gold-ink); }
+.bonus-wrap ul{ margin:0; padding-left:1.3rem; display:flex; flex-direction:column; gap:.7rem; }
+.bonus-wrap li strong{ color:var(--gold-ink); }
+.bonus-wrap ol{ margin:0; padding-left:1.3rem; display:flex; flex-direction:column; gap:.7rem; }
+.bonus-wrap li strong{ color:var(--gold-ink); }
+
+.tip{
+  display:flex; gap:.8rem; align-items:flex-start; background:var(--surface);
+  border:1px dashed var(--line-strong); border-radius:var(--radius); padding:1rem 1.2rem;
+}
+.tip-label{ font-size:.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); white-space:nowrap; padding-top:.15rem; }
+.tip p{ margin:0; font-size:.94rem; color:var(--text); }
+.tip p + p{ margin-top:.5rem; }
+
+.challenge{
+  background:var(--accent-weak); border:1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius:18px; padding:1.4rem;
+}
+.challenge h2{ color:var(--accent-ink); }
+.challenge .section-head{ border-bottom-color:color-mix(in srgb, var(--accent) 35%, transparent); }
+.challenge ol{ margin:0 0 0 1.2rem; padding:0; display:flex; flex-direction:column; gap:.6rem; }
+.challenge li strong{ color:var(--accent-ink); }
+
+footer.page{ max-width:920px; margin:0 auto; padding:0 1.4rem 2rem; font-size:.82rem; color:var(--text-faint); border-top:1px solid var(--line); padding-top:1rem; }
+
+@media print{ .topbar{ display:none !important; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="start.html">
+    <span class="brand-icon">🧠</span>
+    <span>AI och Copilot – elevmanual</span>
+  </a>
+  <a class="back" href="start.html">← Till startsidan</a>
+  <div class="seg" role="group" aria-label="Ljust eller mörkt läge">
+    <button type="button" id="themeLjus" aria-pressed="true">☀️ Ljus</button>
+    <button type="button" id="themeMork" aria-pressed="false">🌙 Mörk</button>
+  </div>
+</header>
+
+<main>
+  <div class="eyebrow">AI · Copilot · Fördjupning</div>
+  <h1>AI och Copilot – manual för dig som elev</h1>
+  <p class="lead">
+    Har du redan läst <a href="ai-introduktion-elever.html">AI för nybörjare</a> eller testat
+    <a href="ai-sakerhet-strategispel.html">AI-Kompassen</a>? Bra – den här manualen bygger vidare
+    på dem. Här handlar det mindre om att skriva den perfekta prompten och mer om något
+    viktigare: <strong>varför</strong> AI finns, när den hjälper dig och när den istället
+    stjäl ditt eget tänkande.
+  </p>
+
+  <section aria-labelledby="varfor">
+    <div class="section-head">
+      <h2 id="varfor">Om AI kan skriva en text på tio sekunder – varför ska du lära dig skriva?</h2>
+    </div>
+    <p class="body">
+      Ställ frågan till dig själv. Ett vanligt svar är "för att jag måste" – men det är inte
+      hela sanningen. Copilot och annan AI kan <strong>producera</strong> text, bilder och
+      svar snabbt. Men AI kan inte göra det som händer i ditt huvud när du:
+    </p>
+    <ul style="margin:0 0 1rem; padding-left:1.3rem; display:flex; flex-direction:column; gap:.35rem;">
+      <li><strong>förstår</strong> vad texten faktiskt betyder,</li>
+      <li><strong>bedömer</strong> om den är bra, rätt eller vinklad, och</li>
+      <li><strong>fattar beslut</strong> om vad du ska göra med den.</li>
+    </ul>
+    <p class="body">
+      Det är därför skolan inte bara kan handla om att lära sig skriva prompts. AI producerar
+      – du måste fortfarande förstå, bedöma och besluta. Den delen kan ingen AI ta över åt dig.
+    </p>
+  </section>
+
+  <section aria-labelledby="prompten">
+    <div class="section-head">
+      <h2 id="prompten">Prompten styr resultatet</h2>
+    </div>
+    <p class="body">
+      Testa själv: be Copilot förklara samma sak på tre olika sätt och jämför svaren.
+    </p>
+    <div class="promptbox">"Berätta om den franska revolutionen."</div>
+    <div class="promptbox">"Förklara den franska revolutionen för en elev i årskurs 4."</div>
+    <div class="promptbox">"Förklara den franska revolutionen som ett TikTok-manus."</div>
+    <p class="body">
+      Tre helt olika svar – från samma fråga. Det som ändrades var inte ämnet, utan
+      <em>hur du bad om det</em>. Det betyder att det alltid är du som styr vad du får ut:
+      hur detaljerat, för vem och i vilken form. Ge Copilot mottagare, sammanhang och form,
+      så blir svaret betydligt mer användbart.
+    </p>
+  </section>
+
+  <section aria-labelledby="hallucination">
+    <div class="section-head">
+      <h2 id="hallucination">AI kan ha fel – ibland helt fel</h2>
+    </div>
+    <p class="body">
+      Fråga Copilot något knepigt, till exempel <em>"Vem uppfann internet?"</em> eller
+      <em>"Hur många länder finns det i Europa?"</em> – och kontrollera sedan svaret mot en
+      annan källa. Ganska ofta hittar du fel, gamla uppgifter eller alltför säkra påståenden.
+    </p>
+    <p class="body">
+      Det kallas att AI:n <strong>hallucinerar</strong>: den hittar på fakta som låter helt
+      trovärdiga men som är felaktiga. Orsaken är enkel men viktig att förstå –
+      <strong>AI vet inte vad som är sant</strong>. Den gissar helt enkelt vilket ord som
+      troligen kommer härnäst, baserat på mönster i enorma mängder text. Den slår aldrig upp
+      fakta i en bok eller kollar en källa innan den svarar.
+    </p>
+    <div class="tip">
+      <span class="tip-label">Kom ihåg</span>
+      <p>Kontrollera alltid viktiga fakta mot en annan källa – särskilt siffror, årtal, namn
+      och citat. Ju säkrare svaret låter, desto viktigare är det att dubbelkolla det.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="aieller">
+    <div class="section-head">
+      <h2 id="aieller">AI eller människa – kan du se skillnaden?</h2>
+    </div>
+    <p class="body">
+      Testa med en kompis: visa en AI-genererad bild bredvid ett foto, eller en AI-skriven
+      text bredvid en text skriven av en människa. Gissa vilken som är vilken – och fundera
+      sedan på vad som faktiskt avslöjade skillnaden. Bilderna och texterna blir mer
+      övertygande för varje år som går, vilket gör källkritik viktigare än någonsin, inte
+      mindre viktig.
+    </p>
+  </section>
+
+  <section aria-labelledby="smart">
+    <div class="section-head">
+      <h2 id="smart">Kopiera eller lär dig – vem lär sig mest?</h2>
+    </div>
+    <p class="body">Samma verktyg, samma uppgift, helt olika resultat beroende på hur det används.</p>
+    <div class="compare-grid">
+      <div class="compare-card bad">
+        <div class="who">😴 Eleven som kopierar</div>
+        <div class="promptbox">"Skriv min uppgift."</div>
+        <ul>
+          <li>Klistrar in frågan rakt av</li>
+          <li>Kopierar svaret utan att läsa det</li>
+          <li>Lämnar in som sitt eget arbete</li>
+        </ul>
+        <p class="result">Resultat: inget nytt fastnar i huvudet. Och att lämna in AI-text
+        som sitt eget arbete räknas som fusk.</p>
+      </div>
+      <div class="compare-card good">
+        <div class="who">🙋 Eleven som lär sig</div>
+        <div class="promptbox">"Förklara detta på enklare svenska."</div>
+        <div class="promptbox">"Förhör mig – och ge exempel."</div>
+        <div class="promptbox">"Ge mig fem kontrollfrågor."</div>
+        <ul>
+          <li>Använder Copilot för att förstå, inte för att slippa tänka</li>
+          <li>Testar sig själv innan provet</li>
+          <li>Skriver till sist svaret med egna ord</li>
+        </ul>
+        <p class="result">Resultat: kunskapen stannar kvar – även utan Copilot i rummet.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="privatlarare">
+    <div class="section-head">
+      <h2 id="privatlarare">Använd Copilot som en privatlärare</h2>
+    </div>
+    <p class="body">Nästa gång du pluggar inför ett prov, testa den här ordningen:</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div>
+          <div class="fn">Be om en förklaring på din nivå</div>
+          <p class="promptbox">"Förklara fotosyntesen som om jag vore 15 år."</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div>
+          <div class="fn">Be om att bli förhörd, en fråga i taget</div>
+          <p class="promptbox">"Ställ fem frågor om fotosyntesen, en i taget."</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div>
+          <div class="fn">Be om förklaring när du svarar fel</div>
+          <p class="promptbox">"Förklara mitt fel om jag svarar fel."</p>
+        </div>
+      </div>
+    </div>
+    <p class="body">
+      Skillnaden mot att bara läsa en sammanfattning är stor: du blir aktivt testad, precis
+      som i en riktig övningssituation – fast Copilot har oändligt med tid för just dig.
+    </p>
+  </section>
+
+  <section aria-labelledby="risker">
+    <div class="section-head">
+      <h2 id="risker">Fyra saker att tänka på varje gång du använder AI</h2>
+    </div>
+    <div class="grid">
+      <article class="card">
+        <div class="icon">🔍</div>
+        <div class="fn">Källkritik</div>
+        <div class="desc">Öva på att hitta felet: be Copilot svara på en fråga du redan kan, och
+        leta aktivt efter vad som är fel eller missvisande i svaret.</div>
+      </article>
+      <article class="card">
+        <div class="icon">🔒</div>
+        <div class="fn">Integritet</div>
+        <div class="desc">Lägg aldrig in personnummer, adresser, betyg eller andra
+        personuppgifter om dig själv eller klasskompisar i en chatt med AI. Se skolans
+        <a href="https://rattvik-my.sharepoint.com/personal/conny_lindgren_rattvik_se/_layouts/15/Doc.aspx?sourcedoc=%7B452C2507-E2A9-4172-BDFE-162FE0EE45F9%7D&file=AI-policy.docx&action=default&mobileredirect=true&DefaultItemOpen=1" target="_blank" rel="noopener">AI-policy</a>.</div>
+      </article>
+      <article class="card">
+        <div class="icon">⚖️</div>
+        <div class="fn">Bias</div>
+        <div class="desc">Be AI beskriva en "chef", en "programmerare" och en "sjuksköterska".
+        Fundera på om svaren bygger på stereotyper – och varför de i så fall gör det.</div>
+      </article>
+      <article class="card">
+        <div class="icon">🚫</div>
+        <div class="fn">Fusk</div>
+        <div class="desc">AI blir hjälp när den får dig att förstå mer. Den blir fusk när den
+        gör jobbet åt dig och du lämnar in det som ditt eget. Läs skolans
+        <a href="https://rattvik-my.sharepoint.com/personal/conny_lindgren_rattvik_se/_layouts/15/Doc.aspx?sourcedoc=%7B452C2507-E2A9-4172-BDFE-162FE0EE45F9%7D&file=AI-policy.docx&action=default&mobileredirect=true&DefaultItemOpen=1" target="_blank" rel="noopener">AI-policy</a>
+        om eget arbete och transparens om du är osäker.</div>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="trappan">
+    <div class="section-head">
+      <h2 id="trappan">Trappan: låt inte AI tänka åt dig</h2>
+    </div>
+    <p class="body">
+      Det här är kanske det viktigaste i hela manualen, och det är få som pratar om det. Tänk
+      dig fyra nivåer, som en trappa:
+    </p>
+    <div class="ladder">
+      <div class="ladder-step">
+        <div class="lvl">Nivå 1</div>
+        <div class="desc">AI gör jobbet</div>
+      </div>
+      <div class="ladder-arrow">↓</div>
+      <div class="ladder-step">
+        <div class="lvl">Nivå 2</div>
+        <div class="desc">Jag läser</div>
+      </div>
+      <div class="ladder-arrow">↓</div>
+      <div class="ladder-step">
+        <div class="lvl">Nivå 3</div>
+        <div class="desc">Jag förstår</div>
+      </div>
+      <div class="ladder-arrow">↓</div>
+      <div class="ladder-step">
+        <div class="lvl">Nivå 4</div>
+        <div class="desc">Jag kan själv</div>
+      </div>
+    </div>
+    <p class="body">
+      Om du alltid stannar på nivå 1 – låter AI:n tänka färdigt och bara kopierar – blir din
+      egen tankeförmåga svagare över tid. Jämför med GPS: sedan alla har GPS i fickan har
+      många blivit sämre på att själva hitta rätt. På samma sätt kan AI göra dig sämre på att
+      skriva, minnas och resonera – om du använder den fel. Målet är alltid att ta dig hela
+      vägen till nivå 4, där du klarar dig själv, även utan Copilot.
+    </p>
+  </section>
+
+  <section aria-labelledby="utmaning" class="challenge">
+    <div class="section-head">
+      <h2 id="utmaning">Din utmaning</h2>
+    </div>
+    <p class="body">Testa detta själv, gärna tillsammans med en klasskompis:</p>
+    <ol>
+      <li><strong>Visa något som Copilot gör bättre än du.</strong> Kanske snabb
+      sammanfattning, förslag på idéer eller att hitta olika vinklar på ett ämne.</li>
+      <li><strong>Visa något som du gör bättre än Copilot.</strong> Kanske att avgöra vad som
+      faktiskt stämmer, förstå ett sammanhang på djupet, eller fatta ett beslut du står för.</li>
+    </ol>
+    <p class="body" style="margin-top:.8rem;">
+      Tillsammans sammanfattar de två svaren varför AI är ett verktyg att använda smart –
+      inte en genväg som gör jobbet åt dig.
+    </p>
+  </section>
+
+  <section aria-labelledby="sammanfattning" class="bonus-wrap">
+    <div class="section-head">
+      <h2 id="sammanfattning">Fyra saker att ta med dig</h2>
+    </div>
+    <ol>
+      <li><strong>AI är ett verktyg, inte en ersättare.</strong> Det är du som ska förstå,
+      bedöma och besluta – AI kan bara producera.</li>
+      <li><strong>Öva på att prompta.</strong> Var tydlig, ge sammanhang och testa dig fram –
+      prompten styr resultatet.</li>
+      <li><strong>Var källkritisk.</strong> AI kan hallucinera fram felaktiga fakta som låter
+      helt trovärdiga – kontrollera alltid viktiga uppgifter.</li>
+      <li><strong>Skydda ditt eget tänkande.</strong> Låt inte AI göra hela jobbet – klättra
+      trappan till nivå 4, där du klarar dig själv.</li>
+    </ol>
+  </section>
+
+  <div class="tip">
+    <span class="tip-label">Fortsätt här</span>
+    <div>
+      <p>Vill du öva mer på att känna igen risker som phishing, deepfakes och källkritik? Testa
+      strategispelet <a href="ai-sakerhet-strategispel.html">AI-Kompassen</a>.</p>
+      <p>Ska du jobba med källor och anteckningar istället för att bara chatta? Se manualen för
+      <a href="notebooklm-manual.html">NotebookLM</a>.</p>
+    </div>
+  </div>
+</main>
+
+<footer class="page">
+  Gäller AI-verktyg i allmänhet, till exempel Copilot. Skolans fullständiga AI-policy hittar du
+  hos din lärare – fråga alltid om du är osäker på vilka regler som gäller för just din uppgift.
+</footer>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var btnLjus = document.getElementById('themeLjus');
+  var btnMork = document.getElementById('themeMork');
+  function apply(t){
+    root.setAttribute('data-theme', t);
+    btnLjus.setAttribute('aria-pressed', String(t === 'ljus'));
+    btnMork.setAttribute('aria-pressed', String(t === 'mork'));
+    try { localStorage.setItem('copilot-manual-elever:theme', t); } catch(e) {}
+  }
+  var saved;
+  try { saved = localStorage.getItem('copilot-manual-elever:theme'); } catch(e) {}
+  if (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) saved = 'mork';
+  apply(saved === 'mork' ? 'mork' : 'ljus');
+  btnLjus.addEventListener('click', function(){ apply('ljus'); });
+  btnMork.addEventListener('click', function(){ apply('mork'); });
+})();
+</script>
+</body>
+</html>
