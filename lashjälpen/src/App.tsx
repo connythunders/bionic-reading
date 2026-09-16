@@ -6,6 +6,7 @@ import { splitTextIntoSyllables } from './utils/syllables'
 import TextEditor from './components/TextEditor'
 import TTSControls from './components/TTSControls'
 import STTButton from './components/STTButton'
+import FileUpload from './components/FileUpload'
 import ReadingRuler from './components/ReadingRuler'
 import FocusMode from './components/FocusMode'
 import SyllableView from './components/SyllableView'
@@ -13,7 +14,7 @@ import BionicToggle from './components/BionicToggle'
 import WordLookup from './components/WordLookup'
 import SettingsPanel from './components/SettingsPanel'
 
-const SAMPLE_TEXT = `Välkommen till LasHjälpen!
+const SAMPLE_TEXT = `Välkommen till Läshjälpen!
 
 Det här är en läsassistent som hjälper dig att läsa texter på ett enklare sätt. Du kan ändra textstorlek, typsnitt och färger för att göra texten lättare att läsa.
 
@@ -67,6 +68,16 @@ export default function App() {
     })
   }, [stt])
 
+  // File upload handler
+  const handleFileExtracted = useCallback((extractedText: string, fileName: string) => {
+    setText(prev => {
+      if (prev.trim() && !window.confirm(`Ersätt nuvarande text med innehållet från "${fileName}"?`)) {
+        return prev
+      }
+      return extractedText
+    })
+  }, [])
+
   // Word lookup
   const handleWordClick = useCallback((word: string, rect: DOMRect) => {
     const cleanWord = word.replace(/[^\wåäöÅÄÖ]/g, '')
@@ -118,7 +129,7 @@ export default function App() {
                   className="text-xl font-bold"
                   style={{ color: settings.textColor }}
                 >
-                  LasHjälpen
+                  Läshjälpen
                 </h1>
                 <p className="text-xs text-gray-500">Läsassistent</p>
               </div>
@@ -171,6 +182,11 @@ export default function App() {
               onStart={handleSTTStart}
               onStop={stt.stopListening}
             />
+          </div>
+
+          {/* File upload */}
+          <div>
+            <FileUpload onTextExtracted={handleFileExtracted} />
           </div>
         </div>
 
