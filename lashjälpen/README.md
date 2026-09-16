@@ -1,4 +1,4 @@
-# LasHjälpen - Läsassistent
+# Läshjälpen - Läsassistent
 
 A dyslexia-friendly reading assistant for students aged 8-18. Fully client-side, no backend required.
 
