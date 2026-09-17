@@ -15,11 +15,11 @@
   <div class="header-inner">
     <a href="index.html" class="site-title">AI<span>Läromedel</span></a>
     <nav class="a11y-toolbar" aria-label="Tillgänglighetsverktyg">
-      <button class="a11y-btn" id="bionic-toggle">👁 Bionic</button>
+      <button class="a11y-btn" id="bionic-toggle" aria-pressed="false" title="Bionic Reading">👁 Bionic</button>
       <div class="font-size-controls">
-        <button class="a11y-btn" id="fs-down">A−</button>
-        <span>A</span>
-        <button class="a11y-btn" id="fs-up">A+</button>
+        <button class="a11y-btn" id="fs-down" aria-label="Minska textstorlek">A−</button>
+        <span aria-hidden="true">A</span>
+        <button class="a11y-btn" id="fs-up" aria-label="Öka textstorlek">A+</button>
       </div>
       <button class="a11y-btn" id="lh-up">↕ Radavstånd</button>
       <button class="a11y-btn" id="font-toggle">Aa Font</button>
@@ -31,8 +31,8 @@
 <div class="progress-bar"><div class="progress-fill"></div></div>
 
 <main class="page-wrapper">
-  <nav class="breadcrumb">
-    <a href="index.html">Startsida</a> <span>›</span> <span>Kapitel 4</span>
+  <nav class="breadcrumb" aria-label="Brödsmulor">
+    <a href="index.html">Startsida</a> <span aria-hidden="true">›</span> <span>Kapitel 4</span>
   </nav>
 
   <div class="chapter-hero">
@@ -52,6 +52,8 @@
       <li>förklara hur en artificiell neuron räknar och hur ett neuralt nätverk tränas med bakåtpropagering</li>
       <li>beskriva grunderna i bearbetning av naturligt språk (NLP): tokenisering, sentimentanalys, maskinöversättning och namngiven entitetsigenkänning</li>
       <li>förklara i grova drag hur datorseende går från pixlar via mönster till klassificering och objektigenkänning</li>
+      <li>förklara hur ett beslutsträd lärs in från data och varför det är lätt att förklara</li>
+      <li>beskriva hur generativ AI skapar text och bild, och vad en prompt är</li>
       <li>resonera om överanpassning, underanpassning och varför språkmodeller kan hallucinera</li>
     </ul>
   </div>
@@ -211,11 +213,27 @@ modell.förutsäg(ny_ansökan)</code></pre>
 
     <p>Värdena k och m är modellens <strong>parametrar</strong> – "reglage" som kan justeras för att ändra modellens beteende. Träningen går ut på att hitta de parametervärden som ger minst fel. Felet mäts med en <strong>kostnadsfunktion</strong>, till exempel medelkvadratfel (MSE). En vanlig metod för att minimera kostnaden är <strong>gradient descent</strong>: man startar med slumpmässiga parametrar och justerar dem stegvis i den riktning som minskar kostnaden. Hur stora steg som tas styrs av inlärningshastigheten (learning rate). Varje varv genom träningsdatan kallas en <strong>epok</strong>.</p>
 
-    <p>En chattbots språkmodell är förstås mycket mer komplex än en rät linje – men även den har parametrar som justeras under träningen, i storleksordningen hundratals miljarder. Principen är densamma: skruva på reglagen tills felet minskar.</p>
+    <p>En chattbotts språkmodell är förstås mycket mer komplex än en rät linje – men även den har parametrar som justeras under träningen, i storleksordningen hundratals miljarder. Principen är densamma: skruva på reglagen tills felet minskar.</p>
 
     <h4>Klassificering och kNN</h4>
 
     <p>Vid klassificering lär sig modellen en <strong>beslutsgräns</strong> som skiljer klasserna åt – som ett osynligt staket i ett diagram. En enkel och tydlig algoritm är <strong>kNN</strong> (k-nearest neighbour): för en ny punkt tittar modellen på de k närmaste punkterna i träningsdatan. Är de flesta grannarna äpplen gissar den "äpple"; är de flesta päron gissar den "päron". Närhet mäts oftast med euklidiskt avstånd – som fågelvägen på en karta.</p>
+
+    <h4>Beslutsträd – en modell som går att förklara</h4>
+
+    <p>I kapitel 3 mötte du beslutsträdet som ett sätt att beskriva beslut steg för steg. Inom maskininlärning är <strong>beslutsträd</strong> också en klassificeringsmetod – och den kanske mest lättförklarade av alla. Skillnaden mot kapitel 3 är att frågorna inte skrivs av en människa utan <em>lärs in</em> från data.</p>
+
+    <p>Algoritmen går igenom alla egenskaper i träningsdatan och letar efter den fråga som bäst delar upp exemplen i rena grupper. För ett spamfilter kan den första frågan bli "Innehåller mejlet ordet 'gratis'?" om det skiljer skräppost från vanlig post bäst. Sedan upprepas samma sak för varje gren: nästa bästa fråga, och nästa, tills grupperna är tillräckligt rena eller trädet nått sitt maximala djup. Varje blad blir ett svar: spam eller inte spam.</p>
+
+    <pre><code>Innehåller mejlet ordet "gratis"?
+├── Ja:  Är avsändaren okänd?
+│        ├── Ja:  SPAM
+│        └── Nej: INTE SPAM
+└── Nej: Fler än tre länkar?
+         ├── Ja:  SPAM
+         └── Nej: INTE SPAM</code></pre>
+
+    <p>Styrkan är <strong>transparens</strong>: du kan följa exakt varför modellen fattade ett visst beslut, vilket är svårt i ett neuralt nätverk. Det gör beslutsträd populära där besluten måste kunna förklaras, till exempel inom vård och myndigheter. Svagheten är att ett ensamt träd lätt blir överanpassat – därför används ofta många träd tillsammans, en så kallad <em>random forest</em>, där träden "röstar" om svaret.</p>
 
     <h4>Överanpassning och underanpassning</h4>
 
@@ -307,6 +325,11 @@ modell.förutsäg(ny_ansökan)</code></pre>
     <p>Varje neuron gör en enkel beräkning. Den tar emot invärden (x), multiplicerar varje värde med en <strong>vikt</strong> (w), summerar och lägger till en <strong>biasterm</strong> (b):</p>
     <pre><code>z = x1·w1 + x2·w2 + x3·w3 + b</code></pre>
     <p>Resultatet skickas genom en aktiveringsfunktion och vidare till nästa lager. Hela idén är: <em>multiplicera → summera → aktivera → skicka vidare</em>. Kraften ligger i att detta görs väldigt många gånger, i miljontals neuroner.</p>
+
+    <div class="info-box">
+      <strong>Två betydelser av "bias"</strong>
+      <p>Ordet <em>bias</em> används i två helt olika betydelser i AI. <strong>Biastermen</strong> (b) i en neuron är bara ett tal som förskjuter resultatet, ungefär som m i y = kx + m. <strong>Bias</strong> i betydelsen skevhet handlar om snedvriden data och orättvisa beslut, som du läste om i kapitel 2. Blanda inte ihop dem.</p>
+    </div>
 
     <h3>Aktiveringsfunktioner</h3>
 
@@ -409,7 +432,7 @@ Tokens:  ["Katten", "sover", "på", "mattan", "."]</code></pre>
       </ul>
     </div>
 
-    <p>Chattbotar, röstassistenter, spamfilter och sökmotorer bygger alla på NLP. Även de stora språkmodellerna du läser om längre fram i kapitlet är i grunden avancerade NLP-system – men NLP omfattar betydligt mer än textgenerering, allt från enkla stavningskontroller till komplexa dialogsystem.</p>
+    <p>Chattbottar, röstassistenter, spamfilter och sökmotorer bygger alla på NLP. Även de stora språkmodellerna du läser om längre fram i kapitlet är i grunden avancerade NLP-system – men NLP omfattar betydligt mer än textgenerering, allt från enkla stavningskontroller till komplexa dialogsystem.</p>
 
     <section class="exercise">
       <span class="exercise-label">Övning</span>
@@ -509,6 +532,59 @@ Tokens:  ["Katten", "sover", "på", "mattan", "."]</code></pre>
       <p>LLM:er kan producera felaktig information med hög säkerhet – ett fenomen som kallas <em>hallucination</em>. Det uppstår för att modellen genererar text som statistiskt verkar rimlig, utan en intern kontroll mot faktadatabaser. Källkritik är därför viktigt även vid AI-användning.</p>
     </div>
 
+    <div class="section-divider"></div>
+
+    <h2>Generativ AI – hur skapas text och bild?</h2>
+
+    <p><strong>Generativ AI</strong> är ett samlingsnamn för modeller som skapar nytt innehåll: text, bild, ljud, video eller kod. De verktyg du troligen använder mest – chattbottar och bildgeneratorer – hör hit. Tekniken bakom är samma maskininlärning som resten av kapitlet handlar om, men uppgiften är omvänd: i stället för att <em>klassificera</em> indata ska modellen <em>producera</em> något nytt som liknar träningsdatan.</p>
+
+    <h3>Text: gissa nästa ord</h3>
+
+    <p>En språkmodell tränas på en enda, till synes enkel uppgift: att gissa nästa token i en text. Ge den "Katten sover på" och den räknar ut en sannolikhet för varje tänkbar fortsättning – "mattan" hög, "soffan" ganska hög, "traktorn" låg. Modellen väljer ett ord, lägger till det och gissar igen, ord för ord, tills svaret är klart. För att bli bra på den uppgiften tvingas modellen lära sig grammatik, fakta, resonemangsmönster och stil – allt som finns i miljarder meningar. Det är därför den kan svara på frågor den aldrig sett förut.</p>
+
+    <p>Efter grundträningen finjusteras modellen med exempel på bra dialoger och med mänsklig återkoppling, så att den svarar hjälpsamt i stället för att bara fortsätta texten. Det är den <em>finjusterade</em> modellen du möter i en chattbott.</p>
+
+    <div class="fact-box">
+      <strong>Faktaruta – Prompt och promptning</strong>
+      <p>En <strong>prompt</strong> är den text du skickar in till en generativ modell: din fråga, instruktion eller beskrivning. Eftersom modellen fortsätter texten utifrån mönster i träningsdatan påverkar formuleringen svaret mycket. Tre saker som brukar ge bättre resultat:</p>
+      <ul>
+        <li><strong>Sammanhang</strong> – berätta vem svaret är till och vad det ska användas till.</li>
+        <li><strong>Avgränsning</strong> – ange längd, form och nivå ("tre punkter, för en nybörjare").</li>
+        <li><strong>Exempel</strong> – visa ett exempel på hur du vill ha svaret.</li>
+      </ul>
+      <p>Men kom ihåg: en bra prompt gör inte modellen mer faktasäker. Den kan fortfarande hallucinera – kontrollera alltid uppgifter du ska använda.</p>
+    </div>
+
+    <h3>Bild: från brus till motiv</h3>
+
+    <p>De flesta bildgeneratorer bygger på <strong>diffusionsmodeller</strong>. Under träningen förstörs miljontals bilder stegvis med slumpmässigt brus, och modellen lär sig att gå åt andra hållet: att ta bort lite brus i taget och återskapa bilden. När du sedan skriver en prompt börjar modellen från rent brus och "städar fram" en bild som passar beskrivningen, steg för steg. Texten i prompten styr processen via en språkmodell som kopplar ord till bildinnehåll. Samma princip används för musik och video.</p>
+
+    <h3>Vad generativ AI inte gör</h3>
+
+    <ul>
+      <li>Den <strong>kopierar inte</strong> texter eller bilder ur en databas. Den skapar nytt utifrån inlärda mönster – men mönstren kommer från material som människor skapat, vilket väcker upphovsrättsfrågorna i kapitel 2.</li>
+      <li>Den <strong>vet inte</strong> vad som är sant. Den vet vad som är sannolikt. Därför är hallucinationer inte en bugg som kan tas bort helt, utan en följd av hur tekniken fungerar.</li>
+      <li>Den <strong>förstår inte</strong> i mänsklig mening – jämför "Det kinesiska rummet" i kapitel 1. Att svaren låter förstående gör frågan svårare, inte enklare.</li>
+    </ul>
+
+    <section class="exercise">
+      <span class="exercise-label">Övning</span>
+      <h4>Prova själv: samma fråga, olika promptar</h4>
+      <p class="instruction">Använd en chattbott som skolan tillåter. Diskutera resultaten i par.</p>
+      <details class="think-box">
+        <summary>Prova: Ställ samma fråga tre gånger på olika sätt</summary>
+        <p>Fråga först kort ("Vad är fotosyntes?"), sedan med sammanhang och avgränsning ("Förklara fotosyntes för en 10-åring i tre meningar"), sedan med krav på källor. Vad ändras? Vad blir bättre – och vad blir bara mer självsäkert?</p>
+      </details>
+      <details class="think-box">
+        <summary>Prova: Fånga en hallucination</summary>
+        <p>Be chattbotten om tre källor om ett smalt ämne du kan mycket om, till exempel din hemort eller ett fritidsintresse. Kontrollera varje källa. Fanns de? Stämde innehållet? Varför är det så svårt att se skillnad på ett sant och ett påhittat svar?</p>
+      </details>
+      <details class="think-box">
+        <summary>Fundera: Vem har skapat en AI-bild?</summary>
+        <p>Du skriver prompten, modellen genererar, och träningsdatan består av miljontals människors bilder. Vem är upphovsperson? Jämför med hur en fotograf eller en illustratör arbetar.</p>
+      </details>
+    </section>
+
     <section class="exercise">
       <span class="exercise-label">Övning</span>
       <h4>Sant eller falskt? Myter om maskininlärning</h4>
@@ -557,7 +633,9 @@ Tokens:  ["Katten", "sover", "på", "mattan", "."]</code></pre>
         <li>Neurala nätverk bygger på enkla neuronberäkningar i många lager och tränas genom att gradienter propageras bakåt (bakåtpropagering).</li>
         <li>NLP (bearbetning av naturligt språk) delar upp text i tokens och löser uppgifter som sentimentanalys, maskinöversättning och namngiven entitetsigenkänning.</li>
         <li>Datorseende går från pixlar via inlärda mönster till klassificering och kan hitta enskilda objekt i en bild (objektigenkänning).</li>
+        <li>Beslutsträd lärs in genom att välja den fråga som bäst delar upp datan, steg för steg – lätta att förklara men känsliga för överanpassning.</li>
         <li>LLM:er genererar text baserat på statistiska mönster i träningsdata, vilket kan ge hallucination.</li>
+        <li>Generativ AI skapar nytt innehåll: språkmodeller gissar nästa ord, bildmodeller "städar fram" en bild ur brus. Prompten styr resultatet, men gör inte modellen faktasäker.</li>
       </ul>
     </div>
 
@@ -582,6 +660,10 @@ Tokens:  ["Katten", "sover", "på", "mattan", "."]</code></pre>
         <div class="concept-item"><strong>Hallucination</strong><p>Fel som LLM:er producerar med falskt hög säkerhet.</p></div>
         <div class="concept-item"><strong>Bias</strong><p>Skevhet i data som leder till orättvisa modellbeslut.</p></div>
         <div class="concept-item"><strong>Förväxlingsmatris</strong><p>Tabell som visar en klassificerares rätta och felaktiga gissningar.</p></div>
+        <div class="concept-item"><strong>Beslutsträd</strong><p>Klassificeringsmodell som lär in en följd av ja/nej-frågor från data; lätt att förklara.</p></div>
+        <div class="concept-item"><strong>Generativ AI</strong><p>Modeller som skapar ny text, bild, ljud eller kod utifrån mönster i träningsdatan.</p></div>
+        <div class="concept-item"><strong>Prompt</strong><p>Texten du skickar in till en generativ modell – styr resultatet men inte sanningshalten.</p></div>
+        <div class="concept-item"><strong>Diffusionsmodell</strong><p>Bildmodell som tränats att ta bort brus och därför kan skapa bilder ur brus.</p></div>
       </div>
     </div>
 
@@ -658,7 +740,7 @@ Tokens:  ["Katten", "sover", "på", "mattan", "."]</code></pre>
     </div>
   </section>
 
-  <nav class="chapter-nav">
+  <nav class="chapter-nav" aria-label="Kapitelnavigering">
     <a href="kapitel-03.html" class="nav-btn">← Kapitel 3</a>
     <a href="index.html" class="nav-btn home">🏠 Startsidan</a>
     <a href="kapitel-05.html" class="nav-btn next">Kapitel 5 →</a>
