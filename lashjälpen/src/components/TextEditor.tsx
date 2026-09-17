@@ -245,32 +245,36 @@ export default function TextEditor({
         <div className="flex items-center gap-4 text-sm text-gray-500">
           <span>{wordCount} ord</span>
           <span>{charCount} tecken</span>
-          {text.trim() && (
-            <button
-              onClick={handleClear}
-              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors min-h-[44px]"
-              aria-label="Rensa all text"
-            >
-              Rensa
-            </button>
-          )}
+          <button
+            onClick={handleClear}
+            disabled={!text.trim()}
+            className="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            aria-label="Rensa all text"
+          >
+            Rensa
+          </button>
         </div>
       </div>
 
       {/* Editor / Display */}
       {isEditing ? (
-        <textarea
-          value={text}
-          onChange={(e) => onTextChange(e.target.value)}
-          className="flex-1 w-full p-4 rounded-xl border-2 border-gray-200 focus:border-primary resize-none transition-colors"
-          style={{
-            ...textStyle,
-            backgroundColor: settings.backgroundColor,
-            minHeight: '300px',
-          }}
-          placeholder="Klistra in eller skriv din text här..."
-          autoFocus
-        />
+        <div className="flex-1 flex flex-col gap-2">
+          <textarea
+            value={text}
+            onChange={(e) => onTextChange(e.target.value)}
+            className="flex-1 w-full p-4 rounded-xl border-2 border-gray-200 focus:border-primary resize-none transition-colors"
+            style={{
+              ...textStyle,
+              backgroundColor: settings.backgroundColor,
+              minHeight: '300px',
+            }}
+            placeholder="Klistra in eller skriv din text här..."
+            autoFocus
+          />
+          <p className="text-sm text-gray-500">
+            Klicka på <strong>Visa text</strong> när du är klar. Uppläsning, Bionic, stavelser och fokusläge fungerar i visningsläget.
+          </p>
+        </div>
       ) : (
         <div
           ref={displayRef}

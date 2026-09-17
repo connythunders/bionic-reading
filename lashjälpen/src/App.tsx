@@ -97,6 +97,7 @@ export default function App() {
 
   // TTS handlers
   const handlePlay = useCallback(() => {
+    setIsEditing(false)
     tts.speak(text)
   }, [tts, text])
 
@@ -112,13 +113,18 @@ export default function App() {
 
   // File upload handler
   const handleFileExtracted = useCallback((extractedText: string, fileName: string) => {
-    setText(prev => {
-      if (prev.trim() && !window.confirm(`Ersätt nuvarande text med innehållet från "${fileName}"?`)) {
-        return prev
-      }
-      return extractedText
-    })
-  }, [])
+    if (text.trim() && !window.confirm(`Ersätt nuvarande text med innehållet från "${fileName}"?`)) {
+      return
+    }
+    setText(extractedText)
+    setIsEditing(false)
+  }, [text])
+
+  // View features only show in display mode, so enabling one leaves the editor
+  const enableView = useCallback((partial: Partial<typeof settings>) => {
+    setIsEditing(false)
+    updateSettings(partial)
+  }, [updateSettings])
 
   // Word lookup
   const handleWordClick = useCallback((word: string, rect: DOMRect) => {
@@ -237,15 +243,16 @@ export default function App() {
         <div className="flex flex-wrap items-center gap-2 mb-6">
           <FocusMode
             enabled={settings.focusModeEnabled}
-            onToggle={(v) => updateSetting('focusModeEnabled', v)}
+            onToggle={(v) => (v ? enableView({ focusModeEnabled: true }) : updateSetting('focusModeEnabled', false))}
           />
+          {/* Syllable view replaces the normal rendering, so the two modes exclude each other */}
           <SyllableView
             enabled={settings.syllableMode}
-            onToggle={(v) => updateSetting('syllableMode', v)}
+            onToggle={(v) => (v ? enableView({ syllableMode: true, bionicMode: false }) : updateSetting('syllableMode', false))}
           />
           <BionicToggle
             enabled={settings.bionicMode}
-            onToggle={(v) => updateSetting('bionicMode', v)}
+            onToggle={(v) => (v ? enableView({ bionicMode: true, syllableMode: false }) : updateSetting('bionicMode', false))}
           />
 
           {/* Quick font size controls */}
