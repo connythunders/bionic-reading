@@ -258,18 +258,23 @@ export default function TextEditor({
 
       {/* Editor / Display */}
       {isEditing ? (
-        <textarea
-          value={text}
-          onChange={(e) => onTextChange(e.target.value)}
-          className="flex-1 w-full p-4 rounded-xl border-2 border-gray-200 focus:border-primary resize-none transition-colors"
-          style={{
-            ...textStyle,
-            backgroundColor: settings.backgroundColor,
-            minHeight: '300px',
-          }}
-          placeholder="Klistra in eller skriv din text här..."
-          autoFocus
-        />
+        <div className="flex-1 flex flex-col gap-2">
+          <textarea
+            value={text}
+            onChange={(e) => onTextChange(e.target.value)}
+            className="flex-1 w-full p-4 rounded-xl border-2 border-gray-200 focus:border-primary resize-none transition-colors"
+            style={{
+              ...textStyle,
+              backgroundColor: settings.backgroundColor,
+              minHeight: '300px',
+            }}
+            placeholder="Klistra in eller skriv din text här..."
+            autoFocus
+          />
+          <p className="text-sm text-gray-500">
+            Klicka på <strong>Visa text</strong> när du är klar. Uppläsning, Bionic, stavelser och fokusläge fungerar i visningsläget.
+          </p>
+        </div>
       ) : (
         <div
           ref={displayRef}
