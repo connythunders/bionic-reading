@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import type { AppSettings } from '../hooks/useSettings'
 import { splitWordForBionic } from '../utils/bionic'
 
@@ -38,6 +38,24 @@ export default function TextEditor({
   }, [text])
 
   const charCount = text.length
+
+  // Keep the word being read aloud in view for long documents
+  useEffect(() => {
+    if (highlightWordIndex < 0 || !displayRef.current) return
+    const el = displayRef.current.querySelector('.tts-highlight')
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const margin = 120
+    if (rect.top < margin || rect.bottom > window.innerHeight - margin) {
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }
+  }, [highlightWordIndex])
+
+  const handleClear = () => {
+    if (window.confirm('Vill du rensa all text?')) {
+      onTextChange('')
+    }
+  }
 
   const textStyle: React.CSSProperties = {
     fontFamily: settings.fontFamily === 'OpenDyslexic' || settings.fontFamily === 'Lexend'
@@ -227,6 +245,15 @@ export default function TextEditor({
         <div className="flex items-center gap-4 text-sm text-gray-500">
           <span>{wordCount} ord</span>
           <span>{charCount} tecken</span>
+          {text.trim() && (
+            <button
+              onClick={handleClear}
+              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors min-h-[44px]"
+              aria-label="Rensa all text"
+            >
+              Rensa
+            </button>
+          )}
         </div>
       </div>
 

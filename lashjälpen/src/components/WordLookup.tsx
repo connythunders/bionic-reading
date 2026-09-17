@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { lookupWord, pronounceWord, type WordDefinition } from '../utils/wordLookup'
+import { lookupWord, pronounceWord, wiktionaryPageUrl, type WordDefinition } from '../utils/wordLookup'
 
 interface WordLookupProps {
   word: string | null
@@ -8,22 +8,17 @@ interface WordLookupProps {
   onClose: () => void
 }
 
+// Rendered with key={word} by the parent, so each looked-up word gets fresh state.
 export default function WordLookup({ word, position, lang, onClose }: WordLookupProps) {
   const [definition, setDefinition] = useState<WordDefinition | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const popupRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!word) {
-      setDefinition(null)
-      setError(null)
-      return
-    }
+    if (!word) return
 
     let cancelled = false
-    setLoading(true)
-    setError(null)
 
     lookupWord(word, lang.split('-')[0]).then(result => {
       if (cancelled) return
@@ -118,7 +113,17 @@ export default function WordLookup({ word, position, lang, onClose }: WordLookup
         )}
 
         {error && (
-          <p className="text-sm text-gray-500 py-1">{error}</p>
+          <div className="py-1 space-y-2">
+            <p className="text-sm text-gray-500">{error}</p>
+            <a
+              href={wiktionaryPageUrl(word)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-sm text-primary underline"
+            >
+              Sök på Wiktionary
+            </a>
+          </div>
         )}
 
         {definition && (
@@ -143,6 +148,14 @@ export default function WordLookup({ word, position, lang, onClose }: WordLookup
                 </ul>
               </div>
             ))}
+            {definition.source && (
+              <p className="text-xs text-gray-400 pt-1">
+                Källa:{' '}
+                <a href={definition.source.url} target="_blank" rel="noopener noreferrer" className="underline">
+                  {definition.source.name}
+                </a>
+              </p>
+            )}
           </div>
         )}
       </div>

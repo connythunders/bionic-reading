@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useSettings } from './hooks/useSettings'
 import { useTTS } from './hooks/useTTS'
 import { useSTT } from './hooks/useSTT'
@@ -24,6 +24,18 @@ Använd stavelsefunktionen för att dela upp ord i stavelser. Det kan göra det 
 
 Testa läslinjalen genom att slå på den i inställningarna. Den följer din mus och hjälper dig att hålla fokus på rätt rad.`
 
+const TEXT_STORAGE_KEY = 'lashjälpen-text'
+
+function loadStoredText(): string {
+  try {
+    const stored = localStorage.getItem(TEXT_STORAGE_KEY)
+    if (stored !== null) return stored
+  } catch {
+    // localStorage unavailable
+  }
+  return SAMPLE_TEXT
+}
+
 export default function App() {
   const {
     settings,
@@ -37,7 +49,7 @@ export default function App() {
     deleteProfile,
   } = useSettings()
 
-  const [text, setText] = useState(SAMPLE_TEXT)
+  const [text, setText] = useState(loadStoredText)
   const [isEditing, setIsEditing] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [focusParagraphIndex, setFocusParagraphIndex] = useState(0)
@@ -47,11 +59,41 @@ export default function App() {
   const tts = useTTS(settings.ttsLang, settings.ttsRate)
   const stt = useSTT(settings.ttsLang)
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(TEXT_STORAGE_KEY, text)
+    } catch {
+      // Quota exceeded or localStorage unavailable
+    }
+  }, [text])
+
   // Syllable data
   const syllableData = useMemo(() => {
     if (!settings.syllableMode) return null
     return splitTextIntoSyllables(text)
   }, [text, settings.syllableMode])
+
+  // Global word index at which each paragraph starts (same split as TextEditor)
+  const paragraphWordStarts = useMemo(() => {
+    const starts: number[] = []
+    let count = 0
+    for (const para of text.split('\n')) {
+      starts.push(count)
+      count += para.split(/\s+/).filter(w => w.length > 0).length
+    }
+    return starts
+  }, [text])
+
+  // While reading aloud, focus mode follows the paragraph being read
+  const effectiveFocusIndex = useMemo(() => {
+    if (tts.currentWordIndex < 0) return focusParagraphIndex
+    let idx = 0
+    for (let i = 0; i < paragraphWordStarts.length; i++) {
+      if (paragraphWordStarts[i] <= tts.currentWordIndex) idx = i
+      else break
+    }
+    return idx
+  }, [tts.currentWordIndex, paragraphWordStarts, focusParagraphIndex])
 
   // TTS handlers
   const handlePlay = useCallback(() => {
@@ -60,10 +102,10 @@ export default function App() {
 
   // STT handler
   const handleSTTStart = useCallback(() => {
-    stt.startListening((transcript) => {
+    stt.startListening((segment) => {
       setText(prev => {
-        if (!prev.trim()) return transcript
-        return prev + '\n' + transcript
+        if (!prev.trim()) return segment
+        return /\s$/.test(prev) ? prev + segment : prev + ' ' + segment
       })
     })
   }, [stt])
@@ -107,6 +149,7 @@ export default function App() {
 
       {/* Word Lookup Popup */}
       <WordLookup
+        key={lookupWord ?? 'none'}
         word={lookupWord}
         position={lookupPosition}
         lang={settings.ttsLang}
@@ -234,7 +277,7 @@ export default function App() {
           isEditing={isEditing}
           onEditingChange={setIsEditing}
           focusModeActive={settings.focusModeEnabled}
-          focusParagraphIndex={focusParagraphIndex}
+          focusParagraphIndex={effectiveFocusIndex}
           onParagraphHover={setFocusParagraphIndex}
           onWordClick={handleWordClick}
           syllableMode={settings.syllableMode}

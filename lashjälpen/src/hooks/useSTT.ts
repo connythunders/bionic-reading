@@ -91,16 +91,14 @@ export function useSTT(lang: string = 'sv-SE') {
         }
       }
 
-      if (final) {
-        setState(prev => {
-          const newTranscript = prev.transcript + (prev.transcript ? ' ' : '') + final.trim()
-          onResult?.(newTranscript)
-          return {
-            ...prev,
-            transcript: newTranscript,
-            interimTranscript: '',
-          }
-        })
+      if (final.trim()) {
+        const segment = final.trim()
+        onResult?.(segment)
+        setState(prev => ({
+          ...prev,
+          transcript: prev.transcript + (prev.transcript ? ' ' : '') + segment,
+          interimTranscript: '',
+        }))
       }
 
       if (interim) {
