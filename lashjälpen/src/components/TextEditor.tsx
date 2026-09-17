@@ -245,15 +245,14 @@ export default function TextEditor({
         <div className="flex items-center gap-4 text-sm text-gray-500">
           <span>{wordCount} ord</span>
           <span>{charCount} tecken</span>
-          {text.trim() && (
-            <button
-              onClick={handleClear}
-              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors min-h-[44px]"
-              aria-label="Rensa all text"
-            >
-              Rensa
-            </button>
-          )}
+          <button
+            onClick={handleClear}
+            disabled={!text.trim()}
+            className="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors min-h-[44px] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            aria-label="Rensa all text"
+          >
+            Rensa
+          </button>
         </div>
       </div>
 

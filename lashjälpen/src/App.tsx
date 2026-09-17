@@ -239,13 +239,14 @@ export default function App() {
             enabled={settings.focusModeEnabled}
             onToggle={(v) => updateSetting('focusModeEnabled', v)}
           />
+          {/* Syllable view replaces the normal rendering, so the two modes exclude each other */}
           <SyllableView
             enabled={settings.syllableMode}
-            onToggle={(v) => updateSetting('syllableMode', v)}
+            onToggle={(v) => updateSettings(v ? { syllableMode: true, bionicMode: false } : { syllableMode: false })}
           />
           <BionicToggle
             enabled={settings.bionicMode}
-            onToggle={(v) => updateSetting('bionicMode', v)}
+            onToggle={(v) => updateSettings(v ? { bionicMode: true, syllableMode: false } : { bionicMode: false })}
           />
 
           {/* Quick font size controls */}
