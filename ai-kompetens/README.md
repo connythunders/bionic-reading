@@ -1,6 +1,10 @@
 # AI-kompetens för gymnasiet
 
-En statisk, svensk webbsida om AI-kompetens för gymnasieelever (16–19 år), byggd på EU:s AI-förordning (Förordning (EU) 2024/1689, ändrad genom Förordning (EU) 2026/1744, "Digital Omnibus on AI"). Ingen build-process, inga externa beroenden, inga spårare, ingen inloggning.
+En statisk, svensk webbsida om AI-kompetens, byggd på EU:s AI-förordning (Förordning (EU) 2024/1689, ändrad genom Förordning (EU) 2026/1744, "Digital Omnibus on AI"). Ingen build-process, inga externa beroenden, inga spårare, ingen inloggning.
+
+Sidan har två spår, länkade till varandra via en banner högst upp:
+- **`index.html`** — för gymnasieelever (16–19 år).
+- **`larare.html`** — för lärare: artikel 4 ur personalens perspektiv, AI i planering/undervisning, bedömning och otillåten hjälp, dataskydd i yrkesrollen, lokala riktlinjer (platshållare, se nedan) och en lokal självskattning inspirerad av DigCompEdu.
 
 ## Köra sidan lokalt
 
@@ -33,16 +37,20 @@ Se till att `index.html`, `styles.css`, `js/interactions-data.js`, `js/interacti
 ## Filstruktur
 
 ```
-index.html                  Hela sidan (alla 8 sektioner)
-styles.css                   Allt CSS, inklusive designsystem-dokumentation högst upp i filen
-js/ui.js                     Tema-växling, mobilmeny, fokushantering
-js/interactions-data.js      All data för quiz, riskpyramid, scenarier, faktakoll
-js/interactions.js           Renderingslogik för de interaktiva övningarna i sektion 5
-assets/*.svg                 Fristående kopior av diagrammen (ej refererade av sidan, se docs/antaganden.md)
-research/*.md                Rå-research (juridik, pedagogik, elevperspektiv) — underlag, inte del av sidan
-docs/faktakontroll.md        Fullständig faktagranskning av alla juridiska påståenden, med källor
-docs/antaganden.md           Antaganden gjorda där uppdraget var öppet eller information saknades
+index.html                     Elevsidan (8 sektioner)
+larare.html                    Lärarspåret (7 sektioner)
+styles.css                     Allt CSS, delas av båda sidorna, designsystem-dokumentation högst upp i filen
+js/ui.js                       Tema-växling, mobilmeny, fokushantering — delas av båda sidorna
+js/interactions-data.js        All data för elevsidans quiz, riskpyramid, scenarier, faktakoll
+js/interactions.js             Renderingslogik för elevsidans interaktiva övningar (sektion 5)
+js/larare.js                   Renderingslogik för lärarspårets självskattning (sektion 6)
+assets/*.svg                   Fristående kopior av diagrammen (ej refererade av sidan, se docs/antaganden.md)
+docs/faktakontroll.md          Faktagranskning av elevsidans juridiska påståenden, med källor
+docs/faktakontroll-larare.md   Faktagranskning av lärarspårets påståenden (Skolverket, skollagen, IMY, UNESCO, DigCompEdu m.fl.)
+docs/antaganden.md             Antaganden gjorda där uppdraget var öppet eller information saknades
 ```
+
+**Att fylla i:** `larare.html`, sektion "Lokala riktlinjer" är en medveten platshållare — vi har inte haft tillgång till Rättviks kommuns/Stiernhööksgymnasiets faktiska AI-riktlinjer, godkända verktyg eller kontaktväg för AI-frågor. Lägg in dem där så snart de finns, istället för att lämna platshållartexten kvar.
 
 ## Vad läraren/ansvarig bör uppdatera när lagtexten ändras
 
