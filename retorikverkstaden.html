@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retorikverkstaden</title>
+<meta name="description" content="Interaktivt verktyg där man drar i reglage för patos, logos och etos och ser en argumenterande text förändras i realtid.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --paper:#EFF1E8;
+    --panel:#FFFFFF;
+    --ink:#161A16;
+    --ink-soft:#54594F;
+    --line:#D9D6C6;
+    --mustard:#F4B729;
+    --mustard-ink:#3A2A05;
+    --patos:#DE4E39;
+    --patos-tint:rgba(222,78,57,.13);
+    --logos:#2E6EA6;
+    --logos-tint:rgba(46,110,166,.13);
+    --etos:#3C8A57;
+    --etos-tint:rgba(60,138,87,.13);
+    --track:#E4E1D3;
+    --shadow: 4px 4px 0 var(--ink);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#15181A;
+      --panel:#1E2320;
+      --ink:#F0EEE3;
+      --ink-soft:#B8BCAE;
+      --line:#3A3F38;
+      --mustard:#F4B729;
+      --mustard-ink:#241a03;
+      --patos:#FF7A62;
+      --patos-tint:rgba(255,122,98,.16);
+      --logos:#6FB0E8;
+      --logos-tint:rgba(111,176,232,.16);
+      --etos:#6FCB8F;
+      --etos-tint:rgba(111,203,143,.16);
+      --track:#2C312C;
+      --shadow: 4px 4px 0 var(--ink);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#15181A;
+    --panel:#1E2320;
+    --ink:#F0EEE3;
+    --ink-soft:#B8BCAE;
+    --line:#3A3F38;
+    --mustard:#F4B729;
+    --mustard-ink:#241a03;
+    --patos:#FF7A62;
+    --patos-tint:rgba(255,122,98,.16);
+    --logos:#6FB0E8;
+    --logos-tint:rgba(111,176,232,.16);
+    --etos:#6FCB8F;
+    --etos-tint:rgba(111,203,143,.16);
+    --track:#2C312C;
+    --shadow: 4px 4px 0 var(--ink);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:
+      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 8%, transparent) 1.4px, transparent 1.4px) 0 0/16px 16px,
+      var(--paper);
+    color:var(--ink);
+    font-family:'Work Sans', system-ui, sans-serif;
+  }
+  .page{
+    max-width:1080px;
+    margin:0 auto;
+    padding:28px 20px 56px;
+  }
+
+  /* Breadcrumb */
+  .crumbs__bar{ height:6px; background:linear-gradient(90deg, var(--patos), var(--mustard) 45%, var(--logos) 75%, var(--etos)); border-radius:3px; margin-bottom:14px;}
+  .crumbs__row{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em;}
+  .crumbs__sep{ opacity:.5; }
+  .crumbs__current{ color:var(--ink); }
+
+  /* Hero */
+  .hero{ margin:22px 0 28px; }
+  .hero h1{
+    font-family:'Archivo Black', 'Work Sans', sans-serif;
+    font-size:clamp(30px,5vw,46px);
+    line-height:1.02;
+    margin:0 0 6px;
+    text-wrap:balance;
+  }
+  .hero__sub{ display:block; color:var(--mustard-ink); background:var(--mustard); padding:2px 10px; margin-top:8px; border-radius:6px; display:inline-block; font-size:.55em; }
+  .hero__lede{ max-width:62ch; color:var(--ink-soft); font-size:16px; line-height:1.55; margin-top:14px; }
+
+  /* Layout */
+  .layout{ display:grid; grid-template-columns:minmax(240px,320px) 1fr; gap:20px; align-items:start; }
+  .layout__right{ display:flex; flex-direction:column; gap:20px; min-width:0; }
+  @media (max-width:760px){ .layout{ grid-template-columns:1fr; } }
+
+  .panel{
+    background:var(--panel);
+    border:2.5px solid var(--ink);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:20px;
+  }
+  .panel__title{
+    font-family:'Archivo Black', sans-serif;
+    font-size:14px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    background:var(--ink);
+    color:var(--paper);
+    display:inline-block;
+    padding:6px 12px;
+    border-radius:7px;
+    margin:0 0 16px;
+  }
+
+  /* Steps */
+  .steps{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px; }
+  .steps li{ display:flex; gap:12px; align-items:flex-start; font-size:14.5px; line-height:1.45; }
+  .steps__num{
+    flex:none; width:24px; height:24px; border-radius:50%;
+    background:var(--patos); color:#fff; font-weight:800; font-size:13px;
+    display:flex; align-items:center; justify-content:center;
+    border:2px solid var(--ink);
+  }
+  .tip{ margin-top:20px; display:flex; gap:12px; padding:14px; background:var(--mustard); border:2px solid var(--ink); border-radius:10px; color:var(--mustard-ink); }
+  .tip__icon svg{ display:block; width:22px; height:22px; }
+  .tip__title{ font-weight:800; margin:0 0 3px; font-size:13.5px; text-transform:uppercase; letter-spacing:.03em; }
+  .tip__body{ margin:0; font-size:13.5px; line-height:1.45; }
+
+  /* Sliders */
+  .sliders{ display:flex; flex-direction:column; gap:20px; }
+  .slider__head{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .slider__icon{ width:26px; height:26px; flex:none; display:flex; align-items:center; justify-content:center; border-radius:50%; border:2px solid var(--ink); }
+  .slider__icon svg{ width:15px; height:15px; }
+  .slider[data-kind="patos"] .slider__icon{ background:var(--patos-tint); color:var(--patos); }
+  .slider[data-kind="logos"] .slider__icon{ background:var(--logos-tint); color:var(--logos); }
+  .slider[data-kind="etos"] .slider__icon{ background:var(--etos-tint); color:var(--etos); }
+  .slider__label{ font-weight:700; font-size:14.5px; }
+  .slider__label em{ font-style:normal; font-weight:500; color:var(--ink-soft); }
+  .slider__value{ margin-left:auto; font-variant-numeric:tabular-nums; font-weight:800; font-size:14px; background:var(--track); padding:2px 9px; border-radius:6px; min-width:34px; text-align:center; }
+
+  input[type=range]{
+    -webkit-appearance:none; appearance:none;
+    width:100%; height:10px; border-radius:6px; border:2px solid var(--ink);
+    background:var(--track); cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:24px; height:24px; border-radius:50%;
+    background:var(--thumb, var(--ink)); border:3px solid var(--ink); margin-top:-2px;
+    box-shadow:0 1px 0 rgba(0,0,0,.25);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:24px; height:24px; border-radius:50%; background:var(--thumb, var(--ink)); border:3px solid var(--ink);
+  }
+  .slider[data-kind="patos"] input{ --thumb: var(--patos); }
+  .slider[data-kind="logos"] input{ --thumb: var(--logos); }
+  .slider[data-kind="etos"] input{ --thumb: var(--etos); }
+
+  /* Text card */
+  .textcard{ border:2px dashed var(--line); border-radius:10px; padding:18px 20px; background:color-mix(in srgb, var(--panel) 96%, var(--ink) 4%); }
+  .textcard h3{ margin:0 0 10px; font-family:'Archivo Black', sans-serif; font-size:20px; line-height:1.15; text-wrap:balance; }
+  .textcard p{ margin:0 0 12px; font-size:15px; line-height:1.65; color:var(--ink); }
+  .textcard p:last-child{ margin-bottom:0; }
+  .hl{ border-radius:4px; padding:0 3px; transition:background .25s ease, color .25s ease; }
+  .hl--patos{ background:var(--patos-tint); }
+  .hl--logos{ background:var(--logos-tint); }
+  .hl--etos{ background:var(--etos-tint); }
+
+  .legend{ display:flex; gap:18px; margin-top:14px; font-size:12.5px; font-weight:700; color:var(--ink-soft); flex-wrap:wrap; }
+  .legend span{ display:flex; align-items:center; gap:6px; }
+  .dot{ width:10px; height:10px; border-radius:50%; display:inline-block; border:1.5px solid var(--ink); }
+  .dot--patos{ background:var(--patos); }
+  .dot--logos{ background:var(--logos); }
+  .dot--etos{ background:var(--etos); }
+
+  /* Footer nav */
+  .nav{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:28px; flex-wrap:wrap; }
+  .btn{
+    font-family:inherit; font-weight:800; font-size:14px; cursor:pointer;
+    border:2.5px solid var(--ink); border-radius:10px; padding:11px 18px;
+    box-shadow:3px 3px 0 var(--ink);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
+  .btn--ghost{ background:var(--panel); color:var(--ink); }
+  .btn--primary{ background:var(--mustard); color:var(--mustard-ink); }
+  .btn:focus-visible{ outline:3px solid var(--logos); outline-offset:2px; }
+
+  .dots{ display:flex; gap:8px; }
+  .dots button{
+    width:10px; height:10px; border-radius:50%; border:2px solid var(--ink); background:var(--panel);
+    padding:0; cursor:pointer;
+  }
+  .dots button[aria-current="true"]{ background:var(--patos); }
+
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translate(-50%,20px);
+    background:var(--ink); color:var(--paper); font-weight:700; font-size:13.5px;
+    padding:12px 18px; border-radius:10px; max-width:88vw; text-align:center;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+    box-shadow:0 6px 18px rgba(0,0,0,.25);
+  }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+
+  @media (prefers-reduced-motion:reduce){
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header class="crumbs">
+    <div class="crumbs__bar"></div>
+    <div class="crumbs__row">
+      <span>Argumenterande text</span>
+      <span class="crumbs__sep">›</span>
+      <span class="crumbs__current">3. Testa själv</span>
+    </div>
+  </header>
+
+  <div class="hero">
+    <h1>Testa själv <span class="hero__sub">Hur förändras texten?</span></h1>
+    <p class="hero__lede">I en debattartikel använder man ofta retoriska grepp som patos, logos och etos. Dra i reglagen och se hur språket, ordvalet och tonen i texten förändras beroende på balansen mellan dem.</p>
+  </div>
+
+  <main class="layout">
+    <aside class="panel">
+      <h2 class="panel__title">Gör så här</h2>
+      <ol class="steps">
+        <li><span class="steps__num">1</span><span>Dra i reglagen för att justera patos, logos och etos.</span></li>
+        <li><span class="steps__num">2</span><span>Läs hur texten förändras i rutan till höger.</span></li>
+        <li><span class="steps__num">3</span><span>Fundera på: vilken version tycker du är mest övertygande — och varför?</span></li>
+      </ol>
+      <div class="tip">
+        <div class="tip__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.5.4.8 1 .9 1.6l.2.7h6l.2-.7c.1-.6.4-1.2.9-1.6A7 7 0 0 0 12 2Z"/></svg>
+        </div>
+        <div>
+          <p class="tip__title">Kom ihåg</p>
+          <p class="tip__body">Det finns sällan ett "rätt" svar. Olika situationer kräver olika balans mellan patos, logos och etos.</p>
+        </div>
+      </div>
+    </aside>
+
+    <div class="layout__right">
+      <section class="panel">
+        <h2 class="panel__title">Justera de retoriska greppen</h2>
+        <div class="sliders">
+          <div class="slider" data-kind="patos">
+            <div class="slider__head">
+              <span class="slider__icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-10-9.2C.4 8.6 2 5 5.6 5c2 0 3.4 1 4.4 2.4C11 6 12.4 5 14.4 5 18 5 19.6 8.6 22 11.8 19.5 16.4 12 21 12 21Z"/></svg></span>
+              <span class="slider__label">Patos <em>– väcka känslor</em></span>
+              <span class="slider__value" id="val-patos">80</span>
+            </div>
+            <input type="range" min="0" max="100" value="80" id="patos" aria-label="Patos">
+          </div>
+
+          <div class="slider" data-kind="logos">
+            <div class="slider__head">
+              <span class="slider__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2a3.5 3.5 0 0 0-3.5 3.5V6a3 3 0 0 0-2 5.2A3 3 0 0 0 6 16.8V19a3 3 0 0 0 3 3h.5a3.5 3.5 0 0 0 3.5-3.5v-13A3.5 3.5 0 0 0 9.5 2Z"/><path d="M14.5 2A3.5 3.5 0 0 1 18 5.5V6a3 3 0 0 1 2 5.2 3 3 0 0 1-2 5.6V19a3 3 0 0 1-3 3h-.5a3.5 3.5 0 0 1-3.5-3.5v-13A3.5 3.5 0 0 1 14.5 2Z"/></svg></span>
+              <span class="slider__label">Logos <em>– använda fakta och logik</em></span>
+              <span class="slider__value" id="val-logos">30</span>
+            </div>
+            <input type="range" min="0" max="100" value="30" id="logos" aria-label="Logos">
+          </div>
+
+          <div class="slider" data-kind="etos">
+            <div class="slider__head">
+              <span class="slider__icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 5v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V5l-8-3Z"/></svg></span>
+              <span class="slider__label">Etos <em>– bygga trovärdighet</em></span>
+              <span class="slider__value" id="val-etos">50</span>
+            </div>
+            <input type="range" min="0" max="100" value="50" id="etos" aria-label="Etos">
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel__title">Texten förändras så här</h2>
+        <div class="textcard">
+          <h3 id="text-heading">Vi måste rädda skolgården!</h3>
+          <div id="text-body"></div>
+        </div>
+        <div class="legend">
+          <span><i class="dot dot--patos"></i>Patos</span>
+          <span><i class="dot dot--logos"></i>Logos</span>
+          <span><i class="dot dot--etos"></i>Etos</span>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="nav">
+    <button class="btn btn--ghost" id="prevBtn">← Föregående</button>
+    <div class="dots" id="stepDots" aria-hidden="true"></div>
+    <button class="btn btn--primary" id="nextBtn">Nästa: Skriv uppgift →</button>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+(function(){
+  var BANK = {
+    open: {
+      low: "Frågan om skolgårdens framtid tas upp på nästa kommunmöte.",
+      mid: "Det är dags att prata om skolgården — innan det är för sent.",
+      high: "Det är dags att vakna. Våra skolgårdar håller på att försvinna — och med dem en av de sista platserna där barn och unga får vara sig själva."
+    },
+    close: {
+      low: "Kommunen bör utreda frågan vidare under hösten.",
+      mid: "Låt oss inte vänta tills skolgården är borta för att inse vad vi förlorade.",
+      high: "Varje barn förtjänar en plats att springa, skratta och andas ut på. Låt oss visa att vi menar allvar med barnens hälsa och framtid — rädda skolgården, innan ännu en generation växer upp utan en plats att kalla sin."
+    },
+    etos: {
+      low: "Skolgården ligger på skolans område",
+      mid: "Lärare och skolsköterskor vittnar samstämmigt om skolgårdens betydelse för elevernas hälsa och trygghet",
+      high: "Enligt Skolverket, Svenska barnläkarföreningen och flera oberoende utbildningsforskare är tillgång till utomhusmiljö en förutsättning för barns utveckling — inte en lyx, utan en rättighet"
+    },
+    logos: {
+      low: "och används av eleverna under rasterna.",
+      mid: "och enligt skolans egen uppföljning använder över hälften av eleverna den varje rast.",
+      high: "och forskning visar att 20 minuters utomhuslek om dagen kan höja koncentrationsförmågan med upp till 15 procent — en siffra kommunen inte har råd att bortse från."
+    },
+    heading: {
+      patos: "Vi måste rädda skolgården!",
+      logos: "Skolgårdens värde — vad säger fakta?",
+      etos: "Experter är eniga: skolgården behövs",
+      balanced: "Vi måste rädda skolgården!"
+    }
+  };
+
+  function tier(v){ return v < 34 ? "low" : v < 67 ? "mid" : "high"; }
+
+  var ids = ["patos","logos","etos"];
+  var els = {}, valEls = {};
+  ids.forEach(function(id){
+    els[id] = document.getElementById(id);
+    valEls[id] = document.getElementById("val-" + id);
+  });
+
+  function paintTrack(input){
+    var v = +input.value;
+    input.style.background = "linear-gradient(to right, var(--thumb) 0%, var(--thumb) " + v + "%, var(--track) " + v + "%, var(--track) 100%)";
+  }
+
+  function dominant(state){
+    if(state.patos >= state.logos && state.patos >= state.etos) return "patos";
+    if(state.logos >= state.patos && state.logos >= state.etos) return "logos";
+    return "etos";
+  }
+
+  function render(){
+    var state = { patos:+els.patos.value, logos:+els.logos.value, etos:+els.etos.value };
+    ids.forEach(function(id){
+      valEls[id].textContent = state[id];
+      paintTrack(els[id]);
+    });
+
+    var pt = tier(state.patos), lt = tier(state.logos), et = tier(state.etos);
+    var dom = dominant(state);
+
+    document.getElementById("text-heading").textContent = BANK.heading[dom];
+
+    var body = document.getElementById("text-body");
+    body.innerHTML =
+      '<p><span class="hl hl--patos">' + BANK.open[pt] + '</span></p>' +
+      '<p><span class="hl hl--etos">' + BANK.etos[et] + '</span> <span class="hl hl--logos">' + BANK.logos[lt] + '</span></p>' +
+      '<p><span class="hl hl--patos">' + BANK.close[pt] + '</span></p>';
+  }
+
+  ids.forEach(function(id){ els[id].addEventListener("input", render); });
+  render();
+
+  // Step dots (decorative, matches "steg 3 av 5")
+  var dotsWrap = document.getElementById("stepDots");
+  for (var i = 0; i < 5; i++){
+    var b = document.createElement("button");
+    if (i === 2) b.setAttribute("aria-current", "true");
+    b.addEventListener("click", function(){ showToast("Den här demot visar bara steg 3 av 5."); });
+    dotsWrap.appendChild(b);
+  }
+
+  var toastEl = document.getElementById("toast");
+  var toastTimer;
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2600);
+  }
+
+  document.getElementById("prevBtn").addEventListener("click", function(){
+    showToast("Det här är den första sidan i den här demot.");
+  });
+  document.getElementById("nextBtn").addEventListener("click", function(){
+    showToast("Bra övat! Nästa steg är att skriva din egen argumenterande text.");
+  });
+})();
+</script>
+</body>
+</html>
