@@ -4,405 +4,1348 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Retorikverkstaden</title>
-<meta name="description" content="Interaktivt verktyg där man drar i reglage för patos, logos och etos och ser en argumenterande text förändras i realtid.">
+<meta name="description" content="Interaktivt läromedel i fem steg om argumenterande text: lär dig patos, logos och etos, träna på att känna igen greppen, dra i reglage som skriver om en debattartikel, skriv en egen text med realtidsanalys och testa dina kunskaper.">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Work+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
   :root{
-    --paper:#EFF1E8;
+    --paper:#FAF7F2;
+    --dot:#d8d0c2;
     --panel:#FFFFFF;
-    --ink:#161A16;
-    --ink-soft:#54594F;
-    --line:#D9D6C6;
-    --mustard:#F4B729;
-    --mustard-ink:#3A2A05;
-    --patos:#DE4E39;
-    --patos-tint:rgba(222,78,57,.13);
-    --logos:#2E6EA6;
-    --logos-tint:rgba(46,110,166,.13);
-    --etos:#3C8A57;
-    --etos-tint:rgba(60,138,87,.13);
-    --track:#E4E1D3;
-    --shadow: 4px 4px 0 var(--ink);
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --paper:#15181A;
-      --panel:#1E2320;
-      --ink:#F0EEE3;
-      --ink-soft:#B8BCAE;
-      --line:#3A3F38;
-      --mustard:#F4B729;
-      --mustard-ink:#241a03;
-      --patos:#FF7A62;
-      --patos-tint:rgba(255,122,98,.16);
-      --logos:#6FB0E8;
-      --logos-tint:rgba(111,176,232,.16);
-      --etos:#6FCB8F;
-      --etos-tint:rgba(111,203,143,.16);
-      --track:#2C312C;
-      --shadow: 4px 4px 0 var(--ink);
-    }
-  }
-  :root[data-theme="dark"]{
-    --paper:#15181A;
-    --panel:#1E2320;
-    --ink:#F0EEE3;
-    --ink-soft:#B8BCAE;
-    --line:#3A3F38;
-    --mustard:#F4B729;
-    --mustard-ink:#241a03;
-    --patos:#FF7A62;
-    --patos-tint:rgba(255,122,98,.16);
-    --logos:#6FB0E8;
-    --logos-tint:rgba(111,176,232,.16);
-    --etos:#6FCB8F;
-    --etos-tint:rgba(111,203,143,.16);
-    --track:#2C312C;
-    --shadow: 4px 4px 0 var(--ink);
+    --ink:#1e293b;
+    --ink-strong:#0f172a;
+    --muted:#64748b;
+    --faint:#94a3b8;
+    --line:#e2e8f0;
+    --yellow:#FDE047;
+    --yellow-soft:#FEF9C3;
+    --yellow-pale:#FEFCE8;
+    --patos:#EF4444;
+    --logos:#3B82F6;
+    --etos:#10B981;
+    --patos-soft:#FEE2E2;
+    --logos-soft:#DBEAFE;
+    --etos-soft:#D1FAE5;
+    --red-pale:#FEF2F2;
+    --green-pale:#ECFDF5;
+    --sky:#7DD3FC;
+    --sky-pale:#F0F9FF;
   }
 
-  *{box-sizing:border-box;}
+  *{box-sizing:border-box}
+
   body{
-    background:
-      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 8%, transparent) 1.4px, transparent 1.4px) 0 0/16px 16px,
-      var(--paper);
+    margin:0;
+    font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+    background-color:var(--paper);
+    background-image:radial-gradient(var(--dot) 1.2px,transparent 1.2px);
+    background-size:20px 20px;
     color:var(--ink);
-    font-family:'Work Sans', system-ui, sans-serif;
-  }
-  .page{
-    max-width:1080px;
-    margin:0 auto;
-    padding:28px 20px 56px;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
   }
 
-  /* Breadcrumb */
-  .crumbs__bar{ height:6px; background:linear-gradient(90deg, var(--patos), var(--mustard) 45%, var(--logos) 75%, var(--etos)); border-radius:3px; margin-bottom:14px;}
-  .crumbs__row{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em;}
-  .crumbs__sep{ opacity:.5; }
-  .crumbs__current{ color:var(--ink); }
+  h1,h2,h3{font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;margin:0}
+  p{margin:0}
+  ul,ol{margin:0}
+  ::selection{background:var(--yellow);color:#000}
 
-  /* Hero */
-  .hero{ margin:22px 0 28px; }
-  .hero h1{
-    font-family:'Archivo Black', 'Work Sans', sans-serif;
-    font-size:clamp(30px,5vw,46px);
-    line-height:1.02;
-    margin:0 0 6px;
-    text-wrap:balance;
-  }
-  .hero__sub{ display:block; color:var(--mustard-ink); background:var(--mustard); padding:2px 10px; margin-top:8px; border-radius:6px; display:inline-block; font-size:.55em; }
-  .hero__lede{ max-width:62ch; color:var(--ink-soft); font-size:16px; line-height:1.55; margin-top:14px; }
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 16px 40px}
 
-  /* Layout */
-  .layout{ display:grid; grid-template-columns:minmax(240px,320px) 1fr; gap:20px; align-items:start; }
-  .layout__right{ display:flex; flex-direction:column; gap:20px; min-width:0; }
-  @media (max-width:760px){ .layout{ grid-template-columns:1fr; } }
+  .neo{border:2.5px solid #000;box-shadow:4px 4px 0 #000}
+  .neo-sm{border:2px solid #000;box-shadow:2.5px 2.5px 0 #000}
 
-  .panel{
-    background:var(--panel);
-    border:2.5px solid var(--ink);
-    border-radius:14px;
-    box-shadow:var(--shadow);
-    padding:20px;
-  }
-  .panel__title{
-    font-family:'Archivo Black', sans-serif;
-    font-size:14px;
-    letter-spacing:.04em;
-    text-transform:uppercase;
-    background:var(--ink);
-    color:var(--paper);
-    display:inline-block;
-    padding:6px 12px;
-    border-radius:7px;
-    margin:0 0 16px;
-  }
-
-  /* Steps */
-  .steps{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px; }
-  .steps li{ display:flex; gap:12px; align-items:flex-start; font-size:14.5px; line-height:1.45; }
-  .steps__num{
-    flex:none; width:24px; height:24px; border-radius:50%;
-    background:var(--patos); color:#fff; font-weight:800; font-size:13px;
-    display:flex; align-items:center; justify-content:center;
-    border:2px solid var(--ink);
-  }
-  .tip{ margin-top:20px; display:flex; gap:12px; padding:14px; background:var(--mustard); border:2px solid var(--ink); border-radius:10px; color:var(--mustard-ink); }
-  .tip__icon svg{ display:block; width:22px; height:22px; }
-  .tip__title{ font-weight:800; margin:0 0 3px; font-size:13.5px; text-transform:uppercase; letter-spacing:.03em; }
-  .tip__body{ margin:0; font-size:13.5px; line-height:1.45; }
-
-  /* Sliders */
-  .sliders{ display:flex; flex-direction:column; gap:20px; }
-  .slider__head{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
-  .slider__icon{ width:26px; height:26px; flex:none; display:flex; align-items:center; justify-content:center; border-radius:50%; border:2px solid var(--ink); }
-  .slider__icon svg{ width:15px; height:15px; }
-  .slider[data-kind="patos"] .slider__icon{ background:var(--patos-tint); color:var(--patos); }
-  .slider[data-kind="logos"] .slider__icon{ background:var(--logos-tint); color:var(--logos); }
-  .slider[data-kind="etos"] .slider__icon{ background:var(--etos-tint); color:var(--etos); }
-  .slider__label{ font-weight:700; font-size:14.5px; }
-  .slider__label em{ font-style:normal; font-weight:500; color:var(--ink-soft); }
-  .slider__value{ margin-left:auto; font-variant-numeric:tabular-nums; font-weight:800; font-size:14px; background:var(--track); padding:2px 9px; border-radius:6px; min-width:34px; text-align:center; }
-
-  input[type=range]{
-    -webkit-appearance:none; appearance:none;
-    width:100%; height:10px; border-radius:6px; border:2px solid var(--ink);
-    background:var(--track); cursor:pointer;
-  }
-  input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none; width:24px; height:24px; border-radius:50%;
-    background:var(--thumb, var(--ink)); border:3px solid var(--ink); margin-top:-2px;
-    box-shadow:0 1px 0 rgba(0,0,0,.25);
-  }
-  input[type=range]::-moz-range-thumb{
-    width:24px; height:24px; border-radius:50%; background:var(--thumb, var(--ink)); border:3px solid var(--ink);
-  }
-  .slider[data-kind="patos"] input{ --thumb: var(--patos); }
-  .slider[data-kind="logos"] input{ --thumb: var(--logos); }
-  .slider[data-kind="etos"] input{ --thumb: var(--etos); }
-
-  /* Text card */
-  .textcard{ border:2px dashed var(--line); border-radius:10px; padding:18px 20px; background:color-mix(in srgb, var(--panel) 96%, var(--ink) 4%); }
-  .textcard h3{ margin:0 0 10px; font-family:'Archivo Black', sans-serif; font-size:20px; line-height:1.15; text-wrap:balance; }
-  .textcard p{ margin:0 0 12px; font-size:15px; line-height:1.65; color:var(--ink); }
-  .textcard p:last-child{ margin-bottom:0; }
-  .hl{ border-radius:4px; padding:0 3px; transition:background .25s ease, color .25s ease; }
-  .hl--patos{ background:var(--patos-tint); }
-  .hl--logos{ background:var(--logos-tint); }
-  .hl--etos{ background:var(--etos-tint); }
-
-  .legend{ display:flex; gap:18px; margin-top:14px; font-size:12.5px; font-weight:700; color:var(--ink-soft); flex-wrap:wrap; }
-  .legend span{ display:flex; align-items:center; gap:6px; }
-  .dot{ width:10px; height:10px; border-radius:50%; display:inline-block; border:1.5px solid var(--ink); }
-  .dot--patos{ background:var(--patos); }
-  .dot--logos{ background:var(--logos); }
-  .dot--etos{ background:var(--etos); }
-
-  /* Footer nav */
-  .nav{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:28px; flex-wrap:wrap; }
   .btn{
-    font-family:inherit; font-weight:800; font-size:14px; cursor:pointer;
-    border:2.5px solid var(--ink); border-radius:10px; padding:11px 18px;
-    box-shadow:3px 3px 0 var(--ink);
-    transition:transform .12s ease, box-shadow .12s ease;
+    font:inherit;font-weight:800;font-size:14px;cursor:pointer;
+    border:2px solid #000;box-shadow:3px 3px 0 #000;border-radius:8px;
+    background:var(--panel);padding:10px 20px;color:var(--ink-strong);
+    display:inline-flex;align-items:center;gap:8px;transition:transform .1s ease,box-shadow .1s ease;
   }
-  .btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
-  .btn--ghost{ background:var(--panel); color:var(--ink); }
-  .btn--primary{ background:var(--mustard); color:var(--mustard-ink); }
-  .btn:focus-visible{ outline:3px solid var(--logos); outline-offset:2px; }
+  .btn:hover:not(:disabled){transform:translate(-1px,-1px);box-shadow:4px 4px 0 #000}
+  .btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+  .btn:disabled{opacity:.4;cursor:default}
+  .btn--primary{background:var(--yellow)}
+  .btn--small{padding:6px 12px;font-size:12px;box-shadow:2.5px 2.5px 0 #000}
 
-  .dots{ display:flex; gap:8px; }
-  .dots button{
-    width:10px; height:10px; border-radius:50%; border:2px solid var(--ink); background:var(--panel);
-    padding:0; cursor:pointer;
+  .hero{background:var(--yellow);border-radius:16px;padding:20px}
+  .hero__row{display:flex;flex-direction:column;gap:16px}
+  .chip{
+    display:inline-block;background:var(--yellow-soft);border:2px solid #000;box-shadow:2.5px 2.5px 0 #000;
+    border-radius:8px;padding:5px 12px;font-family:'Outfit',sans-serif;font-weight:800;
+    font-size:11px;text-transform:uppercase;letter-spacing:.04em;
   }
-  .dots button[aria-current="true"]{ background:var(--patos); }
+  .hero h1{font-size:30px;font-weight:900;text-transform:uppercase;letter-spacing:-.02em;line-height:1.02;margin-top:12px}
+  .hero__sub{margin-top:8px;font-size:14px;line-height:1.6;font-weight:500;color:#1f2937;max-width:62ch}
 
-  .toast{
-    position:fixed; left:50%; bottom:28px; transform:translate(-50%,20px);
-    background:var(--ink); color:var(--paper); font-weight:700; font-size:13.5px;
-    padding:12px 18px; border-radius:10px; max-width:88vw; text-align:center;
-    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
-    box-shadow:0 6px 18px rgba(0,0,0,.25);
+  .card{background:var(--panel);border-radius:12px;overflow:hidden}
+  .card__head{background:var(--yellow);border-bottom:2.5px solid #000;padding:8px 16px}
+  .card__head h2{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;font-style:italic}
+  .card__body{padding:20px}
+
+  .stack{display:flex;flex-direction:column;gap:20px}
+  .stack--sm{gap:12px}
+
+  /* Steg 1 */
+  .pillars{display:grid;gap:20px}
+  .pillar{background:var(--panel);border-radius:12px;padding:20px}
+  .pillar__icon{
+    width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+    border:2px solid #000;box-shadow:2.5px 2.5px 0 #000;font-size:20px;
   }
-  .toast.show{ opacity:1; transform:translate(-50%,0); }
+  .pillar__kicker{margin-top:16px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.12em}
+  .pillar h3{font-size:24px;font-weight:900;text-transform:uppercase;font-style:italic;letter-spacing:-.02em}
+  .pillar__tag{font-family:'Outfit',sans-serif;font-weight:800;font-size:14px;color:var(--ink-strong);margin-top:2px}
+  .pillar p{margin-top:8px;font-size:14px;line-height:1.6;color:#334155}
 
-  @media (prefers-reduced-motion:reduce){
-    *{ transition:none !important; }
+  .sub-h{font-family:'Outfit',sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .rule{border-bottom:2px solid #000;padding-bottom:6px}
+
+  .bullets{list-style:none;padding:0;margin-top:8px;display:flex;flex-direction:column;gap:8px}
+  .bullets li{display:flex;gap:10px;font-size:14px;line-height:1.6;color:#334155}
+  .bullets li::before{content:"";flex:none;width:8px;height:8px;border-radius:999px;background:var(--patos);margin-top:8px}
+  .bullets--grey li::before{background:var(--faint);width:6px;height:6px;margin-top:9px}
+
+  .quote-box{
+    border-left:4px solid var(--yellow);background:var(--yellow-pale);padding:12px 16px;border-radius:0 8px 8px 0;
+    font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:17px;line-height:1.6;color:var(--ink-strong);
+  }
+  .warn{
+    display:flex;gap:12px;border:2px solid var(--yellow);background:var(--yellow-pale);
+    border-radius:10px;padding:12px 16px;font-size:14px;line-height:1.6;color:#334155;
+  }
+  .warn b{color:var(--ink-strong)}
+
+  .formula{background:var(--yellow);border-radius:12px;padding:20px}
+  .formula__row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px}
+  .formula__item{background:#fff;border:2px solid #000;box-shadow:2.5px 2.5px 0 #000;border-radius:8px;padding:8px 12px;font-size:14px}
+  .formula__plus{font-family:'Outfit',sans-serif;font-weight:900;font-size:20px}
+
+  .teaser{width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px;border-radius:12px}
+  .teaser__label{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .teaser__title{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;display:block}
+
+  /* Gör så här / Kom ihåg */
+  .howto{position:relative}
+  .howto__badge{
+    position:absolute;top:-12px;left:16px;z-index:2;background:var(--patos);color:#fff;
+    border:2px solid #000;box-shadow:2.5px 2.5px 0 #000;border-radius:999px;padding:4px 12px;
+    font-family:'Outfit',sans-serif;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.04em;
+  }
+  .howto__box{background:var(--red-pale);border-radius:12px;padding:28px 20px 20px}
+  .howto ol{list-style:none;padding:0;display:flex;flex-direction:column;gap:12px}
+  .howto li{display:flex;gap:12px;font-size:14px;line-height:1.45;color:#334155}
+  .howto .num{
+    flex:none;width:24px;height:24px;border-radius:999px;background:var(--patos);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-top:2px;
+  }
+  .tip{background:var(--yellow-soft);border-radius:12px;padding:16px;display:flex;gap:12px}
+  .tip__icon{flex:none;font-size:18px;line-height:1.2}
+  .tip__title{font-family:'Outfit',sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .tip p{margin-top:4px;font-size:14px;line-height:1.6;color:#334155}
+
+  /* Reglage */
+  .slider-row + .slider-row{margin-top:20px}
+  .slider-label{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:14px;font-weight:700;color:#1f2937}
+  .slider-line{display:flex;align-items:center;gap:16px}
+  .slider-val{flex:none;width:36px;text-align:right;font-size:14px;font-weight:700;color:var(--muted)}
+
+  input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;width:100%;height:22px}
+  input[type=range]:focus{outline:none}
+  input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:999px}
+  input[type=range]::-moz-range-track{height:8px;border-radius:999px;background:transparent}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;height:22px;width:22px;margin-top:-7px;border-radius:50%;
+    background:var(--patos);border:3px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.25);cursor:grab;transition:transform .1s ease;
+  }
+  input[type=range]:active::-webkit-slider-thumb{cursor:grabbing;transform:scale(1.15)}
+  input[type=range]::-moz-range-thumb{
+    height:22px;width:22px;border-radius:50%;background:var(--patos);
+    border:3px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.25);cursor:grab;
+  }
+  #s-logos::-webkit-slider-thumb{background:var(--logos)}
+  #s-logos::-moz-range-thumb{background:var(--logos)}
+  #s-etos::-webkit-slider-thumb{background:var(--etos)}
+  #s-etos::-moz-range-thumb{background:var(--etos)}
+
+  .article h3{font-size:20px;font-weight:800}
+  .article p{margin-top:12px;font-size:14px;line-height:1.8;color:#334155}
+  .hl{border-radius:4px;padding:2px 3px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+  .hl--patos{background:rgba(239,68,68,.13)}
+  .hl--logos{background:rgba(59,130,246,.13)}
+  .hl--etos{background:rgba(16,185,129,.15)}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;font-weight:600;color:var(--muted)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:10px;height:10px;border-radius:999px;display:block}
+  .fade{animation:fade .18s ease-out}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* Övning och test */
+  .score{
+    display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px solid #000;
+    box-shadow:2.5px 2.5px 0 #000;border-radius:12px;padding:10px 16px;font-size:14px;font-weight:800;
+  }
+  .score__num{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .counter-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .dashes{display:flex;align-items:center;gap:6px}
+  .dash{height:6px;width:8px;border-radius:999px;background:var(--line);transition:width .2s ease}
+  .dash.done{background:var(--ink-strong)}
+  .dash.now{width:24px;background:var(--ink-strong)}
+
+  .alts{display:grid;gap:16px;margin-top:20px}
+  .alt{
+    background:#fff;border-radius:12px;padding:20px 16px;cursor:pointer;font:inherit;
+    display:flex;flex-direction:column;align-items:center;gap:12px;transition:background .15s ease;
+  }
+  .alt:hover:not(:disabled){background:var(--yellow-pale)}
+  .alt:disabled{cursor:default}
+  .alt__icon{
+    width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    border:2px solid #000;box-shadow:2.5px 2.5px 0 #000;font-size:20px;
+  }
+  .alt__label{font-size:14px;font-weight:800;color:var(--ink-strong)}
+  .alt.correct{background:var(--etos-soft)}
+  .alt.wrong{background:var(--patos-soft)}
+  .alt.dim{opacity:.5}
+
+  .opts{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+  .opt{
+    width:100%;display:flex;align-items:center;gap:12px;text-align:left;font:inherit;cursor:pointer;
+    background:#fff;border-radius:12px;padding:12px 16px;transition:background .15s ease;
+  }
+  .opt:hover:not(:disabled){background:var(--yellow-pale)}
+  .opt:disabled{cursor:default}
+  .opt__letter{
+    flex:none;width:28px;height:28px;border-radius:8px;background:#fff;border:2px solid #000;box-shadow:2.5px 2.5px 0 #000;
+    display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:12px;font-weight:800;
+  }
+  .opt__text{font-size:14px;font-weight:600;color:#1f2937}
+  .opt__mark{margin-left:auto;font-weight:800}
+  .opt.correct{background:var(--etos-soft)}
+  .opt.wrong{background:var(--patos-soft)}
+  .opt.dim{opacity:.5}
+
+  .feedback{margin-top:20px;border-radius:12px;border:2px solid;padding:16px;display:flex;gap:12px}
+  .feedback.right{border-color:var(--etos);background:var(--green-pale)}
+  .feedback.wrong{border-color:var(--patos);background:var(--red-pale)}
+  .feedback__icon{
+    flex:none;width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+    border:2px solid #000;box-shadow:2.5px 2.5px 0 #000;font-weight:800;font-size:14px;
+  }
+  .feedback.right .feedback__icon{background:var(--etos)}
+  .feedback.wrong .feedback__icon{background:var(--patos);color:#fff}
+  .feedback__title{font-family:'Outfit',sans-serif;font-size:14px;font-weight:800}
+  .feedback p{margin-top:4px;font-size:14px;line-height:1.6;color:#334155}
+  .feedback--flat{display:block}
+  .feedback--flat p{margin-top:0}
+  .right-align{display:flex;justify-content:flex-end;margin-top:16px}
+
+  .result{text-align:center;padding:8px 0}
+  .result__label{font-family:'Outfit',sans-serif;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .result__score{font-family:'Outfit',sans-serif;font-size:40px;font-weight:900;margin-top:8px}
+  .result__score span{color:var(--faint)}
+  .result p{margin-top:8px;font-size:14px;line-height:1.6;color:#334155}
+
+  /* Steg 4 */
+  .field{
+    width:100%;font:inherit;font-weight:700;border:2px solid #cbd5e1;background:#f8fafc;
+    border-radius:12px;padding:12px 16px;color:var(--ink-strong);margin-top:8px;
+  }
+  .field:focus{outline:none;border-color:#000}
+  .field::placeholder{font-weight:500;color:var(--faint)}
+  .suggestions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+  .suggestions b{font-size:12px;font-weight:800;color:#334155}
+  .sugg{
+    font:inherit;font-size:12px;font-weight:600;cursor:pointer;color:#334155;
+    border:2px solid #cbd5e1;background:#f8fafc;border-radius:8px;padding:6px 12px;
+    max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:border-color .15s ease,background .15s ease;
+  }
+  .sugg:hover{border-color:#000;background:var(--yellow-soft)}
+
+  .editor__head{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:2.5px solid #000;padding:10px 16px}
+  .editor__title{display:flex;align-items:center;gap:8px}
+  .editor__count{font-size:12px;font-weight:600;color:var(--muted)}
+  .editor__count b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#334155}
+  #draft{
+    width:100%;min-height:240px;resize:vertical;border:0;background:#fff;padding:20px;
+    font:inherit;font-size:16px;line-height:1.7;color:#1f2937;display:block;
+  }
+  #draft:focus{outline:none}
+  #draft::placeholder{color:var(--faint)}
+  .editor__foot{
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;
+    border-top:2.5px solid #000;background:#f8fafc;padding:10px 16px;
+  }
+  .editor__hint{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#475569}
+
+  .live{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .live__badge{background:var(--yellow);border:2px solid #000;box-shadow:2.5px 2.5px 0 #000;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .meter + .meter{margin-top:16px}
+  .meter__top{display:flex;align-items:center;gap:8px}
+  .meter__label{font-size:14px;font-weight:700;color:#1f2937}
+  .meter__pct{margin-left:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;font-weight:700;color:var(--muted)}
+  .track{display:block;height:12px;width:100%;border-radius:999px;background:#e2e8f0;overflow:hidden;margin-top:6px}
+  .track>span{display:block;height:100%;border-radius:999px;transition:width .3s ease}
+  .evidence{margin-top:6px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .evidence code{background:#f1f5f9;color:#475569;border-radius:6px;padding:2px 6px;font-family:inherit;font-weight:500}
+
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .pill{display:flex;align-items:center;gap:6px;border:2px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--faint)}
+  .pill.on{border-color:var(--etos);background:var(--green-pale);color:#047857}
+
+  .coach{margin-top:20px;border:2px solid var(--yellow);background:var(--yellow-pale);border-radius:12px;padding:16px}
+  .coach__title{display:flex;align-items:center;gap:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:800}
+  .coach__lean{margin-top:8px;font-size:14px;line-height:1.6;color:#334155}
+
+  .checklist{border:2px solid var(--sky);background:var(--sky-pale);border-radius:12px;padding:20px}
+  .checklist h2{font-family:'Outfit',sans-serif;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .check{display:flex;align-items:flex-start;gap:12px;cursor:pointer;margin-top:10px}
+  .check input{position:absolute;opacity:0;width:0;height:0}
+  .check__box{
+    flex:none;width:20px;height:20px;margin-top:2px;border-radius:6px;background:#fff;
+    border:2px solid #000;box-shadow:2.5px 2.5px 0 #000;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:800;line-height:1;
+  }
+  .check input:checked + .check__box{background:#34D399}
+  .check__text{font-size:14px;line-height:1.45;color:#334155}
+  .check input:checked ~ .check__text{color:var(--faint);text-decoration:line-through}
+  .check input:focus-visible + .check__box{outline:2px solid #000;outline-offset:2px}
+
+  /* Lathund */
+  .guide__head{
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;
+    background:var(--yellow);border-bottom:2.5px solid #000;padding:12px 20px;
+  }
+  .guide__head h2{font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+  .guide__section + .guide__section{margin-top:24px}
+  .guide__list{list-style:none;padding:0;margin-top:12px;display:flex;flex-direction:column;gap:8px}
+  .guide__list li{display:flex;gap:12px;font-size:14px;line-height:1.6;color:#334155}
+  .guide__list b{color:var(--ink-strong)}
+  .guide__num{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--faint);flex:none}
+  .guide__dot{flex:none}
+
+  /* Navigering */
+  .nav{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:32px}
+  .nav__center{display:flex;flex-direction:column;align-items:center}
+  .dots{display:flex;align-items:center;gap:8px}
+  .dot-btn{background:none;border:0;padding:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:999px}
+  .dot-btn:hover .dot{transform:scale(1.25)}
+  .dot{width:8px;height:8px;border-radius:999px;background:#cbd5e1;transition:transform .15s ease}
+  .dot.done{background:var(--ink-strong)}
+  .dot.now{width:12px;height:12px;background:var(--patos)}
+  .nav__label{font-size:12px;font-weight:600;color:var(--muted);margin-top:6px}
+
+  .icon{font-size:16px;line-height:1}
+
+  @media (min-width:640px){
+    .wrap{padding:32px 24px 48px}
+    .hero{padding:28px}
+    .hero h1{font-size:38px}
+    .hero__row{flex-direction:row;align-items:flex-start;justify-content:space-between}
+    .pillars{grid-template-columns:repeat(3,1fr)}
+    .alts{grid-template-columns:repeat(3,1fr)}
+    .nav{flex-direction:row;justify-content:space-between}
+    .nav__prev{order:1}
+    .nav__center{order:2}
+    .nav__next{order:3}
+  }
+  @media (min-width:900px){
+    .hero h1{font-size:46px}
+    .two-col{display:grid;grid-template-columns:5fr 7fr;gap:24px;align-items:start}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:20px}
   }
 </style>
 </head>
 <body>
+<div class="wrap">
+  <main id="app"></main>
 
-<div class="page">
-  <header class="crumbs">
-    <div class="crumbs__bar"></div>
-    <div class="crumbs__row">
-      <span>Argumenterande text</span>
-      <span class="crumbs__sep">›</span>
-      <span class="crumbs__current">3. Testa själv</span>
+  <nav class="nav" aria-label="Stegnavigering">
+    <button class="btn nav__prev" id="prevBtn">← Föregående</button>
+    <div class="nav__center">
+      <div class="dots" id="dots"></div>
+      <p class="nav__label" id="navLabel"></p>
     </div>
-  </header>
-
-  <div class="hero">
-    <h1>Testa själv <span class="hero__sub">Hur förändras texten?</span></h1>
-    <p class="hero__lede">I en debattartikel använder man ofta retoriska grepp som patos, logos och etos. Dra i reglagen och se hur språket, ordvalet och tonen i texten förändras beroende på balansen mellan dem.</p>
-  </div>
-
-  <main class="layout">
-    <aside class="panel">
-      <h2 class="panel__title">Gör så här</h2>
-      <ol class="steps">
-        <li><span class="steps__num">1</span><span>Dra i reglagen för att justera patos, logos och etos.</span></li>
-        <li><span class="steps__num">2</span><span>Läs hur texten förändras i rutan till höger.</span></li>
-        <li><span class="steps__num">3</span><span>Fundera på: vilken version tycker du är mest övertygande — och varför?</span></li>
-      </ol>
-      <div class="tip">
-        <div class="tip__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.5.4.8 1 .9 1.6l.2.7h6l.2-.7c.1-.6.4-1.2.9-1.6A7 7 0 0 0 12 2Z"/></svg>
-        </div>
-        <div>
-          <p class="tip__title">Kom ihåg</p>
-          <p class="tip__body">Det finns sällan ett "rätt" svar. Olika situationer kräver olika balans mellan patos, logos och etos.</p>
-        </div>
-      </div>
-    </aside>
-
-    <div class="layout__right">
-      <section class="panel">
-        <h2 class="panel__title">Justera de retoriska greppen</h2>
-        <div class="sliders">
-          <div class="slider" data-kind="patos">
-            <div class="slider__head">
-              <span class="slider__icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-10-9.2C.4 8.6 2 5 5.6 5c2 0 3.4 1 4.4 2.4C11 6 12.4 5 14.4 5 18 5 19.6 8.6 22 11.8 19.5 16.4 12 21 12 21Z"/></svg></span>
-              <span class="slider__label">Patos <em>– väcka känslor</em></span>
-              <span class="slider__value" id="val-patos">80</span>
-            </div>
-            <input type="range" min="0" max="100" value="80" id="patos" aria-label="Patos">
-          </div>
-
-          <div class="slider" data-kind="logos">
-            <div class="slider__head">
-              <span class="slider__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2a3.5 3.5 0 0 0-3.5 3.5V6a3 3 0 0 0-2 5.2A3 3 0 0 0 6 16.8V19a3 3 0 0 0 3 3h.5a3.5 3.5 0 0 0 3.5-3.5v-13A3.5 3.5 0 0 0 9.5 2Z"/><path d="M14.5 2A3.5 3.5 0 0 1 18 5.5V6a3 3 0 0 1 2 5.2 3 3 0 0 1-2 5.6V19a3 3 0 0 1-3 3h-.5a3.5 3.5 0 0 1-3.5-3.5v-13A3.5 3.5 0 0 1 14.5 2Z"/></svg></span>
-              <span class="slider__label">Logos <em>– använda fakta och logik</em></span>
-              <span class="slider__value" id="val-logos">30</span>
-            </div>
-            <input type="range" min="0" max="100" value="30" id="logos" aria-label="Logos">
-          </div>
-
-          <div class="slider" data-kind="etos">
-            <div class="slider__head">
-              <span class="slider__icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 5v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V5l-8-3Z"/></svg></span>
-              <span class="slider__label">Etos <em>– bygga trovärdighet</em></span>
-              <span class="slider__value" id="val-etos">50</span>
-            </div>
-            <input type="range" min="0" max="100" value="50" id="etos" aria-label="Etos">
-          </div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <h2 class="panel__title">Texten förändras så här</h2>
-        <div class="textcard">
-          <h3 id="text-heading">Vi måste rädda skolgården!</h3>
-          <div id="text-body"></div>
-        </div>
-        <div class="legend">
-          <span><i class="dot dot--patos"></i>Patos</span>
-          <span><i class="dot dot--logos"></i>Logos</span>
-          <span><i class="dot dot--etos"></i>Etos</span>
-        </div>
-      </section>
-    </div>
-  </main>
-
-  <footer class="nav">
-    <button class="btn btn--ghost" id="prevBtn">← Föregående</button>
-    <div class="dots" id="stepDots" aria-hidden="true"></div>
-    <button class="btn btn--primary" id="nextBtn">Nästa: Skriv uppgift →</button>
-  </footer>
-
-  <div class="toast" id="toast"></div>
+    <button class="btn btn--primary nav__next" id="nextBtn"></button>
+  </nav>
 </div>
 
 <script>
-(function(){
-  var BANK = {
-    open: {
-      low: "Frågan om skolgårdens framtid tas upp på nästa kommunmöte.",
-      mid: "Det är dags att prata om skolgården — innan det är för sent.",
-      high: "Det är dags att vakna. Våra skolgårdar håller på att försvinna — och med dem en av de sista platserna där barn och unga får vara sig själva."
-    },
-    close: {
-      low: "Kommunen bör utreda frågan vidare under hösten.",
-      mid: "Låt oss inte vänta tills skolgården är borta för att inse vad vi förlorade.",
-      high: "Varje barn förtjänar en plats att springa, skratta och andas ut på. Låt oss visa att vi menar allvar med barnens hälsa och framtid — rädda skolgården, innan ännu en generation växer upp utan en plats att kalla sin."
-    },
-    etos: {
-      low: "Skolgården ligger på skolans område",
-      mid: "Lärare och skolsköterskor vittnar samstämmigt om skolgårdens betydelse för elevernas hälsa och trygghet",
-      high: "Enligt Skolverket, Svenska barnläkarföreningen och flera oberoende utbildningsforskare är tillgång till utomhusmiljö en förutsättning för barns utveckling — inte en lyx, utan en rättighet"
-    },
-    logos: {
-      low: "och används av eleverna under rasterna.",
-      mid: "och enligt skolans egen uppföljning använder över hälften av eleverna den varje rast.",
-      high: "och forskning visar att 20 minuters utomhuslek om dagen kan höja koncentrationsförmågan med upp till 15 procent — en siffra kommunen inte har råd att bortse från."
-    },
-    heading: {
-      patos: "Vi måste rädda skolgården!",
-      logos: "Skolgårdens värde — vad säger fakta?",
-      etos: "Experter är eniga: skolgården behövs",
-      balanced: "Vi måste rädda skolgården!"
-    }
+(function () {
+  'use strict';
+
+  /* ============================================================
+     Data
+     ============================================================ */
+
+  var STEPS = [
+    { n: 1, short: 'Grunderna' },
+    { n: 2, short: 'Känn igen greppen' },
+    { n: 3, short: 'Testa själv' },
+    { n: 4, short: 'Skriv uppgift' },
+    { n: 5, short: 'Kunskapstest' }
+  ];
+  var LAST = STEPS.length;
+
+  var APPEAL = {
+    patos: { label: 'Patos', icon: '❤️', color: 'var(--patos)', soft: 'var(--patos-soft)' },
+    logos: { label: 'Logos', icon: '🧠', color: 'var(--logos)', soft: 'var(--logos-soft)' },
+    etos:  { label: 'Etos',  icon: '🛡️', color: 'var(--etos)',  soft: 'var(--etos-soft)' }
+  };
+  var APPEALS = ['patos', 'logos', 'etos'];
+
+  var PILLARS = [
+    { key: 'patos', kicker: 'Känslan', tag: 'Väcka känslor & empati',
+      body: 'Att tala till hjärtat. Skapa glädje, vrede, sorg, hopp eller rädsla med hjälp av målande ord, personliga berättelser och metaforer.' },
+    { key: 'logos', kicker: 'Förnuftet', tag: 'Fakta, logik & bevis',
+      body: 'Att tala till förnuftet och intellektet. Använda statistik, vetenskapliga undersökningar, orsak-verkan och logiska slutsatser.' },
+    { key: 'etos', kicker: 'Trovärdigheten', tag: 'Bygga förtroende & auktoritet',
+      body: 'Att övertyga genom den du är. Visa expertis, god moral, ärlighet och att du vill publikens bästa.' }
+  ];
+
+  var DEVICES = [
+    'Värdeladdade och målande adjektiv',
+    'Känsloladdade retoriska frågor',
+    'Personliga öden och dramatiska berättelser',
+    'Metaforer och liknelser (t.ex. ”en iskall prioritering”)'
+  ];
+
+  var FORMULA = [
+    { name: 'Etos', verb: 'skapar förtroende', color: 'var(--etos)' },
+    { name: 'Logos', verb: 'övertygar förnuftet', color: 'var(--logos)' },
+    { name: 'Patos', verb: 'manar till handling', color: 'var(--patos)' }
+  ];
+
+  var ALTERNATIVES = [
+    { key: 'patos', label: 'Patos (Känsla)' },
+    { key: 'logos', label: 'Logos (Fakta & logik)' },
+    { key: 'etos', label: 'Etos (Trovärdighet)' }
+  ];
+
+  var RECOGNITION = [
+    { source: 'Ur en debattartikel om idrott och hälsa i skolan',
+      quote: 'Enligt en undersökning från Folkhälsomyndigheten rör sig endast två av tio svenska barn tillräckligt mycket varje dag.',
+      answer: 'logos',
+      why: 'Siffror från en namngiven undersökning. Argumentet vilar på mätbara fakta, inte på känslor eller på vem som talar.' },
+    { source: 'Ur ett tal på ett föräldramöte',
+      quote: 'Tänk på alla de barn som varje kväll somnar med en klump i magen inför morgondagens rast.',
+      answer: 'patos',
+      why: 'En målande bild av ett barns oro. Språket är känsloladdat och ska väcka medkänsla hos den som lyssnar.' },
+    { source: 'Ur en insändare om skolmaten',
+      quote: 'Som skolsköterska har jag mött tusentals elever under mina tjugo år i yrket.',
+      answer: 'etos',
+      why: 'Skribenten lyfter fram sin yrkesroll och sin erfarenhet. Poängen är att du ska lita på avsändaren.' },
+    { source: 'Ur en debattartikel om mobilförbud',
+      quote: 'Året efter att skolan införde mobilfri undervisning höjdes snittbetyget i nian med nästan tio procent.',
+      answer: 'logos',
+      why: 'Ett resonemang om orsak och verkan med ett mätbart resultat. Också det är logos, även utan ordet ”forskning”.' }
+  ];
+  var RECOGNITION_CORRECT = RECOGNITION.map(function (q) {
+    return ALTERNATIVES.map(function (a) { return a.key; }).indexOf(q.answer);
+  });
+
+  var KNOWLEDGE = [
+    { q: 'Vad är det huvudsakliga målet med retorikgreppet PATOS?',
+      options: ['Att väcka känslor och empati hos mottagaren.', 'Att bevisa sina påståenden med statistik.', 'Att visa att avsändaren är expert på ämnet.'],
+      correct: 0, why: 'Patos talar till hjärtat – glädje, vrede, sorg, hopp eller rädsla.' },
+    { q: 'Vilket av följande är ett typiskt LOGOS-argument?',
+      options: ['”Som förälder vet jag precis hur det känns.”', '”Åtta av tio elever uppger att de sover för lite.”', '”Tänk på alla barn som far illa medan vi väntar.”'],
+      correct: 1, why: 'Siffror och mätbara förhållanden är logos. De två andra är etos respektive patos.' },
+    { q: 'Hur bygger du ETOS i en debattartikel?',
+      options: ['Genom att använda många utropstecken.', 'Genom att räkna upp så många siffror som möjligt.', 'Genom att visa din erfarenhet och att du vill läsarens bästa.'],
+      correct: 2, why: 'Etos handlar om vem du är: expertis, ärlighet och god vilja.' },
+    { q: 'Vad är risken med att bara använda patos?',
+      options: ['Texten kan upplevas som manipulerande och sakna underlag.', 'Texten blir alltid för kort.', 'Texten blir svår att läsa högt.'],
+      correct: 0, why: 'Utan fakta som stöttar känslorna landar texten som ”känslotjafs”.' },
+    { q: 'Vad ska en debattartikel avslutas med?',
+      options: ['En sammanfattning av motståndarens argument.', 'En kraftfull uppmaning till handling.', 'En ny fråga som lämnas obesvarad.'],
+      correct: 1, why: 'Slutklämmen ska tala om vad du vill att läsaren eller beslutsfattaren ska göra.' }
+  ];
+  var KNOWLEDGE_CORRECT = KNOWLEDGE.map(function (q) { return q.correct; });
+
+  /* Steg 3: ett stycke per grepp, i tre styrkor */
+  var PARAGRAPHS = {
+    patos: [
+      'Antalet skolgårdar i landets kommuner minskar. Skolgården fyller flera funktioner: den används för rörelse, lek och social samvaro under skoldagen.',
+      'Skolgårdarna blir allt färre, och det påverkar barnens vardag mer än vi tror. En skolgård är mer än asfalt och gungor – den är en plats för rörelse, lek och gemenskap.',
+      'Det är dags att vakna. Våra skolgårdar håller på att försvinna – och med dem försvinner en av de få platser där barn och unga kan vara sig själva. En skolgård är inte bara asfalt och gungor, den är frihet, rörelse och gemenskap. Varje barn förtjänar en plats att springa, skratta och andas på.'
+    ],
+    logos: [
+      'Skolgårdar byggs ibland bort för att ge plats åt parkeringar och nya skolbyggnader.',
+      'Forskning visar att barn som rör sig mår bättre, presterar bättre i skolan och har lättare att koncentrera sig. Ändå byggs skolgårdar bort för att ge plats åt parkeringar och nya skolbyggnader.',
+      'Forskning visar att barn som rör sig mår bättre, presterar bättre i skolan och har lättare att koncentrera sig. Bara två av tio barn når upp till den rekommenderade dagliga rörelsen, samtidigt som skolgårdsytan per elev har minskat kraftigt sedan 1990-talet. Ändå byggs skolgårdar bort för att ge plats åt parkeringar och nya skolbyggnader.'
+    ],
+    etos: [
+      'Frågan om skolgårdarnas framtid bör diskuteras inför kommande beslut om stadsplanering.',
+      'Vi som vuxna har ett ansvar. Låt oss visa att vi menar allvar med barns hälsa och framtid. Rädda skolgården, innan ännu en generation växer upp utan en plats att kalla sin.',
+      'Som lärare med tjugo år i yrket, och i likhet med både Skolverket och Barnombudsmannen, ser jag varje dag vad skolgården betyder. Vi som vuxna har ett ansvar. Låt oss visa att vi menar allvar med barns hälsa och framtid – rädda skolgården, innan ännu en generation växer upp utan en plats att kalla sin.'
+    ]
+  };
+  var TITLES = {
+    patos: 'Vi måste rädda skolgården!',
+    logos: 'Skolgården: det här säger forskningen',
+    etos: 'Därför bör vi bevara skolgården'
   };
 
-  function tier(v){ return v < 34 ? "low" : v < 67 ? "mid" : "high"; }
+  var SUGGESTIONS = ['Mobilförbud i skolan', 'Gratis frukost till alla elever', 'Sänk rösträttsåldern till 16 år'];
+  var METERS = [
+    { key: 'patos', label: 'Patos (Känslor & empati)' },
+    { key: 'logos', label: 'Logos (Fakta, logik & siffror)' },
+    { key: 'etos', label: 'Etos (Trovärdighet & ansvar)' }
+  ];
+  var WRITING_CHECKS = [
+    { id: 'tes', text: 'Tydlig rubrik och tes (vad vill du?)' },
+    { id: 'logos', text: 'Minst ett sakargument med bevis (Logos)' },
+    { id: 'patos', text: 'Känslomässig vädjan eller målande exempel (Patos)' },
+    { id: 'etos', text: 'Trovärdig ton och moraliskt ansvar (Etos)' },
+    { id: 'slut', text: 'Slutkläm med konkret uppmaning' }
+  ];
 
-  var ids = ["patos","logos","etos"];
-  var els = {}, valEls = {};
-  ids.forEach(function(id){
-    els[id] = document.getElementById(id);
-    valEls[id] = document.getElementById("val-" + id);
+  var GUIDE_PILLARS = [
+    { key: 'patos', name: 'Patos', nick: 'Hjärtat', text: 'Väcker känslor, empati och handlingskraft med målande språk och berättelser.' },
+    { key: 'logos', name: 'Logos', nick: 'Hjärnan', text: 'Övertygar genom fakta, statistik, forskning och logiska orsakssamband.' },
+    { key: 'etos', name: 'Etos', nick: 'Karaktären', text: 'Bygger förtroende genom erfarenhet, gemensamma värderingar och lagar.' }
+  ];
+  var GUIDE_STRUCTURE = [
+    { label: 'Rubrik', text: 'Uttryck din tes tydligt.' },
+    { label: 'Inledning', text: 'Skapa en intresseväckande krok.' },
+    { label: 'Tes', text: 'Slå fast ditt huvudbudskap.' },
+    { label: 'Argument 1 & 2', text: 'Fakta (Logos) + Känsla (Patos).' },
+    { label: 'Motargument', text: 'Lyft vad motståndaren tycker.' },
+    { label: 'Bemötande', text: 'Visa varför motargumentet inte håller.' },
+    { label: 'Slutkläm', text: 'Kraftfull uppmaning till handling.' }
+  ];
+  var GUIDE_CONNECTIVES = [
+    { label: 'Orsak', words: 'eftersom, därför att, på grund av, av den anledningen.' },
+    { label: 'Motsats', words: 'däremot, å andra sidan, trots detta, dock.' },
+    { label: 'Följd', words: 'följaktligen, som ett resultat av, därmed.' }
+  ];
+
+  function guideAsText() {
+    var lines = ['RETORIKENS LATHUND', '', '1. DE TRE PELARNA I KORTHET'];
+    GUIDE_PILLARS.forEach(function (p) { lines.push('- ' + p.name + ' (' + p.nick + '): ' + p.text); });
+    lines.push('', '2. DEBATTARTIKELNS STRUKTUR');
+    GUIDE_STRUCTURE.forEach(function (s, i) { lines.push((i + 1) + '. ' + s.label + ': ' + s.text); });
+    lines.push('', '3. SMARTA SAMBANDSORD');
+    GUIDE_CONNECTIVES.forEach(function (c) { lines.push(c.label + ': ' + c.words); });
+    return lines.join('\n');
+  }
+
+  /* ============================================================
+     Analys av elevens text (steg 4)
+
+     Räknar språkliga signaler och väger ihop dem till en täthet per ord.
+     Analysen förstår inte innehållet – den speglar textens språk. Därför
+     redovisar den också vilka ord den reagerade på.
+     ============================================================ */
+
+  var WORDS = {
+    patos: [['känsl',1.5,'c'],['hjärt',1.5,'c'],['barn',1],['unga',1,'e'],['ungdom',1],['framtid',1.5],['generation',1],
+      ['drömm',1.5,'c'],['hopp',1.5],['rädsl',1.5,'c'],['rädd',1],['oro',1.5,'p'],['sorg',1.5],['glädj',1.5,'c'],
+      ['vrede',1.5],['ilsk',1.5],['kärlek',1.5],['smärt',1.5,'c'],['lidand',1.5,'c'],['svik',1.5],['orättvis',1.5],
+      ['skam',1.25],['fruktansvär',2],['hjärtlös',2],['grym',1.5],['ensam',1.5],['tragisk',1.5],['desperat',1.5],
+      ['skrämmande',1.5],['förtvivl',2,'c'],['tårar',2],['skratt',1.5],['trygg',1],['iskall',1.5],['steril',1.5],['värdig',1]],
+    logos: [['forskning',2],['forskare',2],['studie',2],['undersökning',2],['statistik',2],['rapport',1.5],['siffror',1.5],
+      ['data',1.5,'p'],['mätning',1.5],['procent',2],['andel',1],['genomsnitt',1.5],['snitt',1,'p'],['dubbelt',1],
+      ['hälften',1],['majoritet',1.5],['visar',1.5,'p'],['bevis',2],['enligt',1.5,'e'],['resultat',1.5],['slutsats',1.5],
+      ['analys',1.5],['jämför',1.25,'c'],['orsak',1.5],['effekt',1.5],['konsekvens',1.5],['samband',1.5],['fakta',2,'p'],
+      ['faktum',1.5],['eftersom',1.25,'e'],['experiment',1.5],['källa',1.5,'p'],['källor',1.5],['miljoner',1.25],
+      ['miljarder',1.25],['kronor',1]],
+    etos: [['ansvar',2],['plikt',1.5],['skyldighet',1.5],['moral',1.5],['heder',1.5],['förtroende',2],['trovärdig',2],
+      ['ärlig',1.5],['respekt',1.25],['erfarenhet',2],['yrke',1.5,'p'],['utbilda',1.5],['expert',1.5],['sakkunnig',1.5],
+      ['legitimer',1.5],['skolverket',2],['folkhälsomyndigheten',2],['socialstyrelsen',2],['barnombudsmannen',2],
+      ['myndighet',1.5],['lagen',1.25,'e'],['lagar',1.25,'e'],['lagstiftning',1.25],['tillsammans',1.25],['gemensam',1.25],
+      ['solidar',1.25,'c'],['värdering',1.25],['vi',0.5,'e'],['jag',0.4,'e']]
+  };
+
+  /* \b i JavaScript är ASCII-baserat: å, ä och ö räknas inte som bokstäver där, så
+     /\bå andra sidan\b/ skulle aldrig matcha. Ordgränserna byggs med Unicode-klasser. */
+  function phrase(source, flags) {
+    return new RegExp('(?<![\\p{L}\\p{N}])(?:' + source + ')(?![\\p{L}\\p{N}])', flags || 'gu');
+  }
+
+  var PHRASES = {
+    patos: [[phrase('tänk (dig|på|er)'), 1.5], [phrase('föreställ dig'), 1.5], [phrase('se framför dig'), 1.5],
+      [phrase('hur kan vi'), 1.5], [phrase('vi (kan|får) inte'), 1.25], [phrase('är det rimligt'), 1.25],
+      [phrase('vad händer med'), 1.25]],
+    logos: [[phrase('därför att'), 1.5], [phrase('på grund av'), 1.25], [phrase('det leder till'), 1.5],
+      [phrase('som ett resultat'), 1.5], [phrase('till exempel'), 1], [phrase('var(annan|tredje|fjärde)'), 1.25],
+      [phrase('(\\d+ )?av (tio|hundra|fem)'), 1.5]],
+    etos: [[phrase('som (lärare|förälder|elev|rektor|sjuksköterska|läkare|vuxen|forskare|politiker)'), 2.5],
+      [phrase('min erfarenhet'), 2.5], [phrase('jag har (arbetat|jobbat|mött|sett)'), 2.5], [phrase('i mitt yrke'), 2.5],
+      [phrase('vi vuxna'), 1.5], [phrase('vårt (gemensamma )?ansvar'), 2], [phrase('låt oss'), 1.25]]
+  };
+
+  /* Utan g-flaggan: .test() på ett globalt uttryck minns var det slutade. */
+  var CALL_TO_ACTION = phrase('låt oss|vi måste|vi behöver|det är dags|kräv(er vi)?|inför|sluta|rösta|skriv under|agera|ta ansvar|gör något', 'u');
+  var COUNTER_ARGUMENT = phrase('visserligen|däremot|å andra sidan|trots detta|invändningen|motargument|men samtidigt|vissa (menar|hävdar|tycker)', 'u');
+
+  /* Svenska är ett sammansättningsspråk med huvudordet sist ("skol|resultat"), så längre
+     stammar matchas var som helst i ordet. Korta ord måste stämma exakt, annars skulle
+     "vi" träffa "vinter". */
+  function modeOf(stem, mode) {
+    if (mode === 'c') return 'contains';
+    if (mode === 'p') return 'prefix';
+    if (mode === 'e') return 'exact';
+    if (stem.length >= 6) return 'contains';
+    if (stem.length >= 4) return 'prefix';
+    return 'exact';
+  }
+
+  var LEXICON = {};
+  APPEALS.forEach(function (appeal) {
+    LEXICON[appeal] = WORDS[appeal].map(function (entry) {
+      return { stem: entry[0], weight: entry[1], mode: modeOf(entry[0], entry[2]) };
+    });
   });
 
-  function paintTrack(input){
-    var v = +input.value;
-    input.style.background = "linear-gradient(to right, var(--thumb) 0%, var(--thumb) " + v + "%, var(--track) " + v + "%, var(--track) 100%)";
+  var SATURATION = { patos: 0.23, logos: 0.09, etos: 0.21 };
+  var MAX_REPEATS = 3;
+
+  function matchWord(token, rules) {
+    var best = null;
+    for (var i = 0; i < rules.length; i++) {
+      var r = rules[i];
+      var hit = r.mode === 'exact' ? token === r.stem
+        : r.mode === 'prefix' ? token.indexOf(r.stem) === 0
+        : token.indexOf(r.stem) !== -1;
+      if (hit && (!best || r.weight > best.weight)) best = r;
+    }
+    return best;
   }
 
-  function dominant(state){
-    if(state.patos >= state.logos && state.patos >= state.etos) return "patos";
-    if(state.logos >= state.patos && state.logos >= state.etos) return "logos";
-    return "etos";
+  function countWords(text) {
+    var t = text.trim();
+    return t ? t.split(/\s+/).filter(Boolean).length : 0;
+  }
+  function countSentences(text) {
+    return text.split(/[.!?]+/).filter(function (p) { return p.trim().length > 0; }).length;
   }
 
-  function render(){
-    var state = { patos:+els.patos.value, logos:+els.logos.value, etos:+els.etos.value };
-    ids.forEach(function(id){
-      valEls[id].textContent = state[id];
-      paintTrack(els[id]);
+  function analyze(text) {
+    var empty = {
+      scores: { patos: 0, logos: 0, etos: 0 }, evidence: { patos: [], logos: [], etos: [] },
+      words: 0, sentences: 0, averageSentence: 0, dominant: null,
+      hasCallToAction: false, hasCounterArgument: false, exclamations: 0
+    };
+    var trimmed = text.trim();
+    if (!trimmed) return empty;
+
+    var lower = trimmed.toLowerCase();
+    var tokens = lower.match(/[a-zåäöéèüà]+/g) || [];
+    var words = countWords(trimmed);
+    var sentences = countSentences(trimmed);
+
+    var tally = { patos: { hits: 0, ev: [] }, logos: { hits: 0, ev: [] }, etos: { hits: 0, ev: [] } };
+    var seen = {};
+
+    function add(appeal, weight, evidence, key) {
+      seen[key] = (seen[key] || 0) + 1;
+      if (seen[key] > MAX_REPEATS) return;
+      tally[appeal].hits += weight;
+      if (evidence && tally[appeal].ev.indexOf(evidence) === -1 && tally[appeal].ev.length < 5) {
+        tally[appeal].ev.push(evidence);
+      }
+    }
+
+    tokens.forEach(function (token) {
+      APPEALS.forEach(function (appeal) {
+        var m = matchWord(token, LEXICON[appeal]);
+        if (m) add(appeal, m.weight, token, appeal + ':' + m.stem);
+      });
     });
 
-    var pt = tier(state.patos), lt = tier(state.logos), et = tier(state.etos);
-    var dom = dominant(state);
+    APPEALS.forEach(function (appeal) {
+      PHRASES[appeal].forEach(function (pair) {
+        var found = lower.match(pair[0]);
+        if (!found) return;
+        found.forEach(function (m) { add(appeal, pair[1], m, appeal + ':' + pair[0].source); });
+      });
+    });
 
-    document.getElementById("text-heading").textContent = BANK.heading[dom];
+    (lower.match(/\d+([.,]\d+)?/g) || []).slice(0, 4).forEach(function (n, i) {
+      add('logos', 1.5, n, 'logos:num' + i);
+    });
+    var percent = (lower.match(/%/g) || []).length;
+    for (var p = 0; p < Math.min(percent, 2); p++) add('logos', 1, '%', 'logos:pct' + p);
 
-    var body = document.getElementById("text-body");
-    body.innerHTML =
-      '<p><span class="hl hl--patos">' + BANK.open[pt] + '</span></p>' +
-      '<p><span class="hl hl--etos">' + BANK.etos[et] + '</span> <span class="hl hl--logos">' + BANK.logos[lt] + '</span></p>' +
-      '<p><span class="hl hl--patos">' + BANK.close[pt] + '</span></p>';
+    var exclamations = (trimmed.match(/!/g) || []).length;
+    for (var e = 0; e < Math.min(exclamations, 3); e++) add('patos', 1, null, 'patos:excl' + e);
+    var questions = (trimmed.match(/\?/g) || []).length;
+    for (var q = 0; q < Math.min(questions, 2); q++) add('patos', 0.75, null, 'patos:q' + q);
+
+    /* Täthet i stället för antal, så att en lång text inte automatiskt får höga värden.
+       Golvet på 25 ord hindrar att en mening med ett laddat ord slår i taket. */
+    function score(appeal) {
+      var density = tally[appeal].hits / Math.max(words, 25);
+      if (density === 0) return 0;
+      return Math.round((100 * density) / (density + SATURATION[appeal]));
+    }
+
+    var scores = { patos: score('patos'), logos: score('logos'), etos: score('etos') };
+    var best = APPEALS.reduce(function (a, b) { return scores[a] >= scores[b] ? a : b; });
+
+    return {
+      scores: scores,
+      evidence: { patos: tally.patos.ev, logos: tally.logos.ev, etos: tally.etos.ev },
+      words: words,
+      sentences: sentences,
+      averageSentence: sentences ? Math.round(words / sentences) : 0,
+      dominant: scores[best] > 0 ? best : null,
+      hasCallToAction: CALL_TO_ACTION.test(lower),
+      hasCounterArgument: COUNTER_ARGUMENT.test(lower),
+      exclamations: exclamations
+    };
   }
 
-  ids.forEach(function(id){ els[id].addEventListener("input", render); });
+  var ADVICE = {
+    patos: 'Väck en känsla: måla upp ett konkret exempel, ställ en retorisk fråga eller använd ett laddat ord.',
+    logos: 'Backa upp påståendet: lägg till en siffra, en undersökning eller ett tydligt orsak–verkan-resonemang.',
+    etos: 'Etablera din trovärdighet genom att nämna personlig erfarenhet eller gemensamt ansvar.'
+  };
+
+  function coachingTips(a) {
+    if (a.words === 0) return ['Börja skriva så analyserar vi texten medan du jobbar.'];
+    var tips = [];
+    APPEALS.filter(function (k) { return a.scores[k] < 35; })
+      .sort(function (x, y) { return a.scores[x] - a.scores[y]; })
+      .forEach(function (k) { tips.push(ADVICE[k]); });
+
+    if (a.words < 40) tips.push('Texten är kort. Utveckla ditt starkaste argument med en mening till.');
+    if (a.words >= 30 && !a.hasCallToAction) tips.push('Avsluta med en uppmaning – vad vill du att läsaren eller beslutsfattaren ska göra?');
+    if (a.words >= 60 && !a.hasCounterArgument) tips.push('Bemöt ett motargument: ”Visserligen kostar det pengar, men …” gör texten svårare att avfärda.');
+    if (a.exclamations >= 3) tips.push('Många utropstecken kan göra texten skrikig. Låt argumenten bära i stället.');
+    if (a.averageSentence >= 28) tips.push('Meningarna är långa. Dela någon av dem så blir poängen tydligare.');
+    if (tips.length === 0) tips.push('Fin balans mellan greppen! Läs igenom och stryk det som inte driver din tes framåt.');
+    return tips.slice(0, 3);
+  }
+
+  function levelOf(v) { return v < 34 ? 0 : v < 67 ? 1 : 2; }
+  function dominantAppeal(v) {
+    if (v.patos >= v.logos && v.patos >= v.etos) return 'patos';
+    if (v.logos >= v.etos) return 'logos';
+    return 'etos';
+  }
+
+  /* ============================================================
+     Tillstånd – sparas i webbläsaren
+     ============================================================ */
+
+  var KEY = 'retorikverkstaden:v2';
+
+  function emptyQuiz(length) {
+    var answers = [];
+    for (var i = 0; i < length; i++) answers.push(null);
+    return { index: 0, answers: answers };
+  }
+
+  function defaults() {
+    return {
+      step: 1,
+      values: { patos: 80, logos: 30, etos: 50 },
+      thesis: '',
+      draft: '',
+      checks: {},
+      quiz2: emptyQuiz(RECOGNITION.length),
+      quiz5: emptyQuiz(KNOWLEDGE.length)
+    };
+  }
+
+  /* Sparat innehåll som inte längre passar formen kastas, så att t.ex. ett quiz som
+     fått en fråga till börjar om i stället för att peka utanför listan. */
+  function reviveQuiz(stored, length) {
+    if (!stored || typeof stored !== 'object') return null;
+    if (!Array.isArray(stored.answers) || stored.answers.length !== length) return null;
+    var i = stored.index;
+    if (typeof i !== 'number' || i % 1 !== 0 || i < 0 || i > length) return null;
+    return { index: i, answers: stored.answers.map(function (a) { return typeof a === 'number' ? a : null; }) };
+  }
+
+  function load() {
+    var state = defaults();
+    var raw;
+    try { raw = window.localStorage.getItem(KEY); } catch (err) { return state; }
+    if (!raw) return state;
+
+    var saved;
+    try { saved = JSON.parse(raw); } catch (err) { return state; }
+    if (!saved || typeof saved !== 'object') return state;
+
+    if (typeof saved.step === 'number' && saved.step >= 1 && saved.step <= LAST) state.step = saved.step;
+    if (saved.values && typeof saved.values === 'object') {
+      var ok = APPEALS.every(function (k) {
+        return typeof saved.values[k] === 'number' && saved.values[k] >= 0 && saved.values[k] <= 100;
+      });
+      if (ok) state.values = { patos: saved.values.patos, logos: saved.values.logos, etos: saved.values.etos };
+    }
+    if (typeof saved.thesis === 'string') state.thesis = saved.thesis;
+    if (typeof saved.draft === 'string') state.draft = saved.draft;
+    if (saved.checks && typeof saved.checks === 'object' && !Array.isArray(saved.checks)) {
+      Object.keys(saved.checks).forEach(function (k) {
+        if (typeof saved.checks[k] === 'boolean') state.checks[k] = saved.checks[k];
+      });
+    }
+    state.quiz2 = reviveQuiz(saved.quiz2, RECOGNITION.length) || state.quiz2;
+    state.quiz5 = reviveQuiz(saved.quiz5, KNOWLEDGE.length) || state.quiz5;
+    return state;
+  }
+
+  function save() {
+    try { window.localStorage.setItem(KEY, JSON.stringify(state)); } catch (err) { /* privat läge */ }
+  }
+
+  var state = load();
+
+  /* ============================================================
+     Hjälpare
+     ============================================================ */
+
+  var app = document.getElementById('app');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var dotsEl = document.getElementById('dots');
+  var navLabel = document.getElementById('navLabel');
+
+  var ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, function (c) { return ESCAPES[c]; });
+  }
+
+  function hero(kicker, title, sub, aside) {
+    return '<header class="hero neo">' +
+      '<div class="hero__row"><div style="min-width:0">' +
+      '<span class="chip">' + esc(kicker) + '</span>' +
+      '<h1>' + esc(title) + '</h1>' +
+      (sub ? '<p class="hero__sub">' + esc(sub) + '</p>' : '') +
+      '</div>' + (aside ? '<div style="flex:none">' + aside + '</div>' : '') +
+      '</div></header>';
+  }
+
+  function card(title, body, bodyStyle) {
+    return '<section class="card neo">' +
+      '<div class="card__head"><h2>' + esc(title) + '</h2></div>' +
+      '<div class="card__body"' + (bodyStyle ? ' style="' + bodyStyle + '"' : '') + '>' + body + '</div>' +
+      '</section>';
+  }
+
+  function trackFill(key, value) {
+    return 'linear-gradient(to right, ' + APPEAL[key].color + ' ' + value + '%, #E2E8F0 ' + value + '%)';
+  }
+
+  function countCorrect(quiz, correct) {
+    return quiz.answers.filter(function (a, i) { return a !== null && a === correct[i]; }).length;
+  }
+
+  /* ============================================================
+     Steg 1 – Grunderna
+     ============================================================ */
+
+  function renderStep1() {
+    var pillars = PILLARS.map(function (p) {
+      var a = APPEAL[p.key];
+      return '<div class="pillar neo">' +
+        '<span class="pillar__icon" style="background:' + a.soft + '">' + a.icon + '</span>' +
+        '<p class="pillar__kicker" style="color:' + a.color + '">' + esc(p.kicker) + '</p>' +
+        '<h3>' + esc(a.label) + '</h3>' +
+        '<p class="pillar__tag">' + esc(p.tag) + '</p>' +
+        '<p>' + esc(p.body) + '</p>' +
+        '</div>';
+    }).join('');
+
+    var devices = DEVICES.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('');
+
+    var deep =
+      '<h3 style="font-size:20px;font-weight:800">Hur du berör mottagaren på djupet</h3>' +
+      '<div class="split" style="margin-top:16px">' +
+        '<div>' +
+          '<p class="sub-h">Typiska språkliga knep:</p>' +
+          '<ul class="bullets">' + devices + '</ul>' +
+        '</div>' +
+        '<div class="stack stack--sm">' +
+          '<div>' +
+            '<p class="sub-h">Exempel ur verkligheten:</p>' +
+            '<blockquote class="quote-box" style="margin-top:8px">”Hur kan vi se våra barn i ögonen när vi bygger bort deras sista gröna fristad för några kalla parkeringsrutor?”</blockquote>' +
+          '</div>' +
+          '<div class="warn"><span class="icon">⚠️</span><p><b>Varning vid för mycket Patos:</b> Texten kan upplevas som manipulerande eller ”känslotjafs” om du inte har fakta (Logos) som stöder dina påståenden.</p></div>' +
+        '</div>' +
+      '</div>';
+
+    var formula = FORMULA.map(function (f, i) {
+      return (i > 0 ? '<span class="formula__plus">+</span>' : '') +
+        '<span class="formula__item"><b style="font-family:Outfit,sans-serif;color:' + f.color + '">' + esc(f.name) + '</b> ' + esc(f.verb) + '</span>';
+    }).join('');
+
+    app.innerHTML =
+      '<div class="stack">' +
+        hero('Steg 1 av 5 · Grunderna', 'Retorikens tre grundpelare',
+          'Redan i det antika Grekland formulerade filosofen Aristoteles de tre sätt en talare eller skribent kan övertyga sin publik på: genom att beröra hjärtat (Patos), övertyga hjärnan (Logos) eller vinna förtroendet (Etos).') +
+        '<div class="pillars">' + pillars + '</div>' +
+        card('Fördjupning: Patos – Väcka känslor', deep, 'padding:24px') +
+        '<div class="formula neo"><p class="sub-h">Aristoteles gyllene formel:</p><div class="formula__row">' + formula + '<span class="formula__plus">!</span></div></div>' +
+        '<button class="btn teaser" id="teaser"><span><span class="teaser__label">Nästa</span><span class="teaser__title">' + esc(STEPS[1].short) + '</span></span><span class="icon">→</span></button>' +
+      '</div>';
+
+    document.getElementById('teaser').addEventListener('click', function () { goTo(2); });
+  }
+
+  /* ============================================================
+     Steg 2 – Känn igen greppen
+     ============================================================ */
+
+  function renderStep2() {
+    var quiz = state.quiz2;
+    var total = RECOGNITION.length;
+    var score = countCorrect(quiz, RECOGNITION_CORRECT);
+    var done = quiz.index >= total;
+    var pos = Math.min(quiz.index, total - 1);
+    var question = RECOGNITION[pos];
+    var correct = RECOGNITION_CORRECT[pos];
+    var given = done ? null : quiz.answers[quiz.index];
+    var answered = given !== null && given !== undefined;
+
+    var aside = '<span class="score"><span class="icon">🎖️</span>Poäng: <span class="score__num">' + score + ' / ' + total + '</span></span>';
+
+    var dashes = RECOGNITION.map(function (_, i) {
+      var cls = i === quiz.index ? 'dash now' : (quiz.answers[i] !== null ? 'dash done' : 'dash');
+      return '<span class="' + cls + '"></span>';
+    }).join('');
+
+    var body;
+    if (done) {
+      body =
+        '<div class="result">' +
+          '<p class="result__label">Ditt resultat</p>' +
+          '<p class="result__score">' + score + ' <span>av ' + total + '</span></p>' +
+          '<p>' + (score === total
+            ? 'Alla rätt! Du ser skillnad på greppen även när de är förklädda.'
+            : score >= total / 2
+              ? 'Bra jobbat. Läs gärna förklaringarna en gång till och kör om övningen.'
+              : 'Greppen liknar varandra i början. Gå tillbaka till steg 1 och kör sedan om övningen.') + '</p>' +
+        '</div>';
+    } else {
+      var alts = ALTERNATIVES.map(function (alt, i) {
+        var a = APPEAL[alt.key];
+        var cls = 'alt neo';
+        if (answered) {
+          if (i === correct) cls += ' correct';
+          else if (i === given) cls += ' wrong';
+          else cls += ' dim';
+        }
+        return '<button class="' + cls + '" data-choice="' + i + '"' + (answered ? ' disabled' : '') + '>' +
+          '<span class="alt__icon" style="background:' + a.soft + '">' + a.icon + '</span>' +
+          '<span class="alt__label">' + esc(alt.label) + '</span>' +
+          '</button>';
+      }).join('');
+
+      var feedback = '';
+      if (answered) {
+        var right = given === correct;
+        feedback =
+          '<div class="feedback ' + (right ? 'right' : 'wrong') + ' fade">' +
+            '<span class="feedback__icon">' + (right ? '✓' : '✕') + '</span>' +
+            '<div><p class="feedback__title">' + (right ? 'Rätt!' : 'Inte riktigt – rätt svar är ' + esc(ALTERNATIVES[correct].label) + '.') + '</p>' +
+            '<p>' + esc(question.why) + '</p></div>' +
+          '</div>' +
+          '<div class="right-align"><button class="btn btn--primary" id="nextQ">' +
+            (quiz.index + 1 === total ? 'Se resultat →' : 'Nästa fråga →') + '</button></div>';
+      }
+
+      body =
+        '<span class="chip" style="background:#fff">' + esc(question.source) + '</span>' +
+        '<blockquote class="quote-box" style="margin-top:16px">”' + esc(question.quote) + '”</blockquote>' +
+        '<div class="alts">' + alts + '</div>' + feedback;
+    }
+
+    app.innerHTML =
+      '<div class="stack">' +
+        hero('Steg 2 av 5 · Interaktiv träning', 'Känn igen retorikgreppen', 'Läs citatet nedan. Vilket av de tre greppen dominerar?', aside) +
+        '<div class="counter-row"><p class="sub-h">' + (done ? 'Klart!' : 'Fråga ' + (quiz.index + 1) + ' av ' + total) + '</p>' +
+        '<div class="dashes">' + dashes + '</div></div>' +
+        '<section class="card neo fade" style="border-radius:16px"><div class="card__body" style="padding:24px">' + body + '</div></section>' +
+        '<div><button class="btn" id="restart2"><span class="icon">↺</span>Börja om övningen</button></div>' +
+      '</div>';
+
+    Array.prototype.forEach.call(app.querySelectorAll('[data-choice]'), function (btn) {
+      btn.addEventListener('click', function () {
+        if (answered) return;
+        quiz.answers[quiz.index] = Number(btn.getAttribute('data-choice'));
+        save();
+        renderStep2();
+      });
+    });
+    var nextQ = document.getElementById('nextQ');
+    if (nextQ) nextQ.addEventListener('click', function () { quiz.index += 1; save(); renderStep2(); });
+    document.getElementById('restart2').addEventListener('click', function () {
+      state.quiz2 = emptyQuiz(RECOGNITION.length); save(); renderStep2();
+    });
+  }
+
+  /* ============================================================
+     Steg 3 – Testa själv
+     ============================================================ */
+
+  function articleHTML() {
+    var v = state.values;
+    var title = TITLES[dominantAppeal(v)];
+    var parts = [
+      { key: 'patos', text: PARAGRAPHS.patos[levelOf(v.patos)] },
+      { key: 'logos', text: PARAGRAPHS.logos[levelOf(v.logos)] },
+      { key: 'etos', text: PARAGRAPHS.etos[levelOf(v.etos)] }
+    ];
+    return '<h3>' + esc(title) + '</h3>' +
+      parts.map(function (p) {
+        return '<p><span class="hl hl--' + p.key + '">' + esc(p.text) + '</span></p>';
+      }).join('') +
+      '<div class="legend">' + APPEALS.map(function (k) {
+        return '<span><i style="background:' + APPEAL[k].color + '"></i>' + APPEAL[k].label + '</span>';
+      }).join('') + '</div>';
+  }
+
+  function renderStep3() {
+    var labels = {
+      patos: 'Patos – väcka känslor',
+      logos: 'Logos – använda fakta och logik',
+      etos: 'Etos – bygga trovärdighet'
+    };
+
+    var sliders = APPEALS.map(function (key) {
+      var value = state.values[key];
+      return '<div class="slider-row">' +
+        '<div class="slider-label"><span class="icon">' + APPEAL[key].icon + '</span><label for="s-' + key + '">' + esc(labels[key]) + '</label></div>' +
+        '<div class="slider-line">' +
+          '<input type="range" id="s-' + key + '" min="0" max="100" value="' + value + '" style="background:' + trackFill(key, value) + '">' +
+          '<output class="slider-val" id="v-' + key + '">' + value + '</output>' +
+        '</div></div>';
+    }).join('');
+
+    var left =
+      '<div class="howto"><span class="howto__badge">Gör så här:</span><div class="howto__box neo"><ol>' +
+        '<li><span class="num">1</span><span>Dra i reglagen för att justera patos, logos och etos.</span></li>' +
+        '<li><span class="num">2</span><span>Läs hur texten förändras i rutan till höger.</span></li>' +
+        '<li><span class="num">3</span><span>Fundera på: Vilken version tycker du är mest övertygande – och varför?</span></li>' +
+      '</ol></div></div>' +
+      '<div class="tip neo"><span class="tip__icon">💡</span><div><p class="tip__title">Kom ihåg:</p>' +
+      '<p>Det finns sällan ett ”rätt” svar. Olika situationer kräver olika balans mellan patos, logos och etos.</p></div></div>';
+
+    var right =
+      card('Justera de retoriska greppen', sliders) +
+      card('Texten förändras så här', '<div class="article" id="article">' + articleHTML() + '</div>', 'padding:24px');
+
+    app.innerHTML =
+      '<div class="stack">' +
+        hero('Steg 3 av 5 · Retoriska reglage', 'Testa själv: Hur förändras texten?',
+          'I en debattartikel använder man ofta retoriska grepp som patos, logos och etos. Här kan du justera balansen mellan dem och se hur språket, ordvalen och tonen förändras.') +
+        '<div class="two-col"><div class="stack">' + left + '</div><div class="stack">' + right + '</div></div>' +
+      '</div>';
+
+    APPEALS.forEach(function (key) {
+      var input = document.getElementById('s-' + key);
+      input.addEventListener('input', function () {
+        var value = Number(input.value);
+        state.values[key] = value;
+        document.getElementById('v-' + key).textContent = value;
+        input.style.background = trackFill(key, value);
+        var article = document.getElementById('article');
+        article.innerHTML = articleHTML();
+        article.classList.remove('fade');
+        void article.offsetWidth;
+        article.classList.add('fade');
+        save();
+      });
+    });
+  }
+
+  /* ============================================================
+     Steg 4 – Skriv uppgift
+     ============================================================ */
+
+  function analysisHTML(a) {
+    var meters = METERS.map(function (m) {
+      var value = a.scores[m.key];
+      var ev = a.evidence[m.key];
+      return '<div class="meter">' +
+        '<div class="meter__top"><span class="icon">' + APPEAL[m.key].icon + '</span>' +
+        '<span class="meter__label">' + esc(m.label) + '</span>' +
+        '<span class="meter__pct">' + value + '%</span></div>' +
+        '<span class="track"><span style="width:' + value + '%;background:' + APPEAL[m.key].color + '"></span></span>' +
+        (ev.length ? '<p class="evidence"><span>Reagerade på:</span>' +
+          ev.map(function (t) { return '<code>' + esc(t) + '</code>'; }).join('') + '</p>' : '') +
+        '</div>';
+    }).join('');
+
+    var pills = a.words > 0
+      ? '<div class="pills">' +
+          '<span class="pill' + (a.hasCallToAction ? ' on' : '') + '">' + (a.hasCallToAction ? '✓' : '–') + ' Uppmaning</span>' +
+          '<span class="pill' + (a.hasCounterArgument ? ' on' : '') + '">' + (a.hasCounterArgument ? '✓' : '–') + ' Motargument</span>' +
+        '</div>'
+      : '';
+
+    var tips = coachingTips(a).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
+
+    return '<div class="live"><h2 class="sub-h">Realtidsanalys av din text</h2><span class="live__badge">Live</span></div>' +
+      '<div style="margin-top:16px">' + meters + '</div>' + pills +
+      '<div class="coach"><p class="coach__title"><span class="icon">💡</span>Coachande råd till din text:</p>' +
+      (a.dominant ? '<p class="coach__lean">Din text lutar mest åt <b>' + esc(a.dominant) + '</b>.</p>' : '') +
+      '<ul class="bullets bullets--grey" style="margin-top:8px">' + tips + '</ul></div>';
+  }
+
+  function renderStep4() {
+    var suggestions = SUGGESTIONS.map(function (s) {
+      return '<button class="sugg" data-sugg="' + esc(s) + '" title="' + esc(s) + '">' + esc(s) + '</button>';
+    }).join('');
+
+    var checks = WRITING_CHECKS.map(function (c) {
+      var on = state.checks[c.id] === true;
+      return '<label class="check"><input type="checkbox" data-check="' + c.id + '"' + (on ? ' checked' : '') + '>' +
+        '<span class="check__box">' + (on ? '✓' : '') + '</span>' +
+        '<span class="check__text">' + esc(c.text) + '</span></label>';
+    }).join('');
+
+    app.innerHTML =
+      '<div class="stack">' +
+        hero('Steg 4 av 5 · Egen text', 'Skrivuppgift: Bygg din egen text',
+          'Skriv ett kort inlägg eller stycke till en debattartikel. Se i realtid hur din text använder patos, logos och etos!') +
+
+        '<section class="card neo" style="border-radius:16px"><div class="card__body">' +
+          '<label class="sub-h" for="thesis">Din tes / ämne:</label>' +
+          '<input class="field" id="thesis" type="text" placeholder="T.ex. Vi måste rädda skolgårdarna från att byggas bort">' +
+          '<div class="suggestions"><b>Förslag:</b>' + suggestions + '</div>' +
+        '</div></section>' +
+
+        '<section class="card neo" style="border-radius:16px">' +
+          '<div class="editor__head">' +
+            '<div class="editor__title"><span class="icon">✒️</span><h2 class="sub-h">Ditt debattinlägg</h2></div>' +
+            '<p class="editor__count" id="counts"></p>' +
+          '</div>' +
+          '<textarea id="draft" placeholder="Skriv ditt inlägg här …"></textarea>' +
+          '<div class="editor__foot">' +
+            '<p class="editor__hint"><span class="icon">💡</span>Tips: Försök få med minst ett argument från varje grepp.</p>' +
+            '<button class="btn btn--small" id="copyDraft"><span class="icon">⧉</span>Kopiera</button>' +
+          '</div>' +
+        '</section>' +
+
+        '<section class="card neo" style="border-radius:16px"><div class="card__body" id="analysis" style="padding:24px"></div></section>' +
+
+        '<section class="checklist"><h2>Retorik-checklista för debattartiklar:</h2>' + checks + '</section>' +
+      '</div>';
+
+    var thesis = document.getElementById('thesis');
+    thesis.value = state.thesis;
+
+    var draft = document.getElementById('draft');
+    draft.value = state.draft;
+
+    var counts = document.getElementById('counts');
+    var analysisBox = document.getElementById('analysis');
+
+    function refresh() {
+      var a = analyze(state.draft);
+      analysisBox.innerHTML = analysisHTML(a);
+      counts.innerHTML = '<b>' + a.words + '</b> ord · <b>' + a.sentences + '</b> ' +
+        (a.sentences === 1 ? 'mening' : 'meningar');
+    }
+    refresh();
+
+    draft.addEventListener('input', function () { state.draft = draft.value; save(); refresh(); });
+    thesis.addEventListener('input', function () { state.thesis = thesis.value; save(); });
+
+    Array.prototype.forEach.call(app.querySelectorAll('[data-sugg]'), function (btn) {
+      btn.addEventListener('click', function () {
+        state.thesis = btn.getAttribute('data-sugg');
+        thesis.value = state.thesis;
+        save();
+      });
+    });
+
+    Array.prototype.forEach.call(app.querySelectorAll('[data-check]'), function (box) {
+      box.addEventListener('change', function () {
+        state.checks[box.getAttribute('data-check')] = box.checked;
+        box.nextElementSibling.textContent = box.checked ? '✓' : '';
+        save();
+      });
+    });
+
+    var copyBtn = document.getElementById('copyDraft');
+    copyBtn.addEventListener('click', function () { copyText(state.draft, copyBtn, 'Kopiera'); });
+  }
+
+  function copyText(text, button, resetLabel) {
+    if (!text.trim()) return;
+    if (!navigator.clipboard || !navigator.clipboard.writeText) return;
+    navigator.clipboard.writeText(text).then(function () {
+      button.innerHTML = '<span class="icon">✓</span>Kopierat!';
+      window.setTimeout(function () {
+        button.innerHTML = '<span class="icon">⧉</span>' + resetLabel;
+      }, 1600);
+    }, function () { /* nekad behörighet – knappen står kvar oförändrad */ });
+  }
+
+  /* ============================================================
+     Steg 5 – Kunskapstest och lathund
+     ============================================================ */
+
+  function renderStep5() {
+    var quiz = state.quiz5;
+    var total = KNOWLEDGE.length;
+    var score = countCorrect(quiz, KNOWLEDGE_CORRECT);
+    var done = quiz.index >= total;
+    var pos = Math.min(quiz.index, total - 1);
+    var question = KNOWLEDGE[pos];
+    var given = done ? null : quiz.answers[quiz.index];
+    var answered = given !== null && given !== undefined;
+    var letters = ['A', 'B', 'C', 'D'];
+
+    var testBody;
+    if (done) {
+      testBody =
+        '<div class="result">' +
+          '<p class="result__score">' + score + ' <span>av ' + total + '</span></p>' +
+          '<p>' + (score === total
+            ? 'Fullpott! Du har greppen i ryggmärgen – spara lathunden och använd den när du skriver.'
+            : score >= 3
+              ? 'Bra jobbat! Läs igenom lathunden nedan så sitter resten.'
+              : 'Gå tillbaka till steg 1 och 2, och gör sedan om testet. Lathunden nedan är en bra genväg.') + '</p>' +
+          '<button class="btn" id="restart5" style="margin-top:20px"><span class="icon">↺</span>Gör om testet</button>' +
+        '</div>';
+    } else {
+      var opts = question.options.map(function (option, i) {
+        var cls = 'opt neo';
+        var mark = '';
+        if (answered) {
+          if (i === question.correct) { cls += ' correct'; mark = '<span class="opt__mark">✓</span>'; }
+          else if (i === given) { cls += ' wrong'; mark = '<span class="opt__mark">✕</span>'; }
+          else cls += ' dim';
+        }
+        return '<button class="' + cls + '" data-opt="' + i + '"' + (answered ? ' disabled' : '') + '>' +
+          '<span class="opt__letter">' + letters[i] + '</span>' +
+          '<span class="opt__text">' + esc(option) + '</span>' + mark +
+          '</button>';
+      }).join('');
+
+      var feedback = '';
+      if (answered) {
+        var right = given === question.correct;
+        feedback =
+          '<div class="feedback feedback--flat ' + (right ? 'right' : 'wrong') + ' fade">' +
+            '<p><b class="feedback__title">' + (right ? 'Rätt! ' : 'Inte riktigt. ') + '</b>' + esc(question.why) + '</p>' +
+          '</div>' +
+          '<div class="right-align"><button class="btn btn--primary" id="nextK">' +
+            (quiz.index + 1 === total ? 'Se resultat →' : 'Nästa fråga →') + '</button></div>';
+      }
+
+      testBody = '<h2 style="font-size:18px;font-weight:800;margin-top:16px">' + esc(question.q) + '</h2>' +
+        '<div class="opts">' + opts + '</div>' + feedback;
+    }
+
+    var guidePillars = GUIDE_PILLARS.map(function (p) {
+      return '<li><span class="guide__dot icon">' + APPEAL[p.key].icon + '</span>' +
+        '<span><b>' + esc(p.name) + ' (' + esc(p.nick) + '):</b> ' + esc(p.text) + '</span></li>';
+    }).join('');
+
+    var guideStructure = GUIDE_STRUCTURE.map(function (s, i) {
+      return '<li><span class="guide__num">' + (i + 1) + '.</span><span><b>' + esc(s.label) + ':</b> ' + esc(s.text) + '</span></li>';
+    }).join('');
+
+    var guideWords = GUIDE_CONNECTIVES.map(function (c) {
+      return '<li><span><b><i>' + esc(c.label) + ':</i></b> ' + esc(c.words) + '</span></li>';
+    }).join('');
+
+    app.innerHTML =
+      '<div class="stack">' +
+        hero('Steg 5 av 5 · Kunskapstest & lathund', 'Testa dina kunskaper & ladda ner lathunden',
+          'Svara på de 5 frågorna för att se hur väl du behärskar patos, logos och etos, och spara sedan lathunden inför dina kommande skrivuppgifter!') +
+
+        '<section class="card neo" style="border-radius:16px"><div class="card__body" style="padding:24px">' +
+          '<div class="counter-row" style="border-bottom:1px solid var(--line);padding-bottom:16px">' +
+            '<p class="sub-h">' + (done ? 'Klart!' : 'Fråga ' + (quiz.index + 1) + ' av ' + total) + '</p>' +
+            '<span class="score" style="border-color:var(--yellow);box-shadow:none;border-radius:999px;padding:6px 12px">' +
+              '<span class="icon">🎖️</span>' + score + ' / ' + total + ' rätt</span>' +
+          '</div>' + testBody +
+        '</div></section>' +
+
+        '<section class="card neo" style="border-radius:16px">' +
+          '<div class="guide__head"><h2><span class="icon">📖</span>Retorikens lathund</h2>' +
+            '<div style="display:flex;gap:8px">' +
+              '<button class="btn btn--small" id="copyGuide"><span class="icon">⧉</span>Kopiera</button>' +
+              '<button class="btn btn--small" id="dlGuide"><span class="icon">⤓</span>Ladda ner</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card__body" style="padding:24px">' +
+            '<div class="guide__section"><h3 class="sub-h rule">1. De tre pelarna i korthet:</h3><ul class="guide__list">' + guidePillars + '</ul></div>' +
+            '<div class="guide__section"><h3 class="sub-h rule">2. Debattartikelns struktur:</h3><ol class="guide__list">' + guideStructure + '</ol></div>' +
+            '<div class="guide__section"><h3 class="sub-h rule">3. Smarta sambandsord:</h3><ul class="guide__list">' + guideWords + '</ul></div>' +
+          '</div>' +
+        '</section>' +
+      '</div>';
+
+    Array.prototype.forEach.call(app.querySelectorAll('[data-opt]'), function (btn) {
+      btn.addEventListener('click', function () {
+        if (answered) return;
+        quiz.answers[quiz.index] = Number(btn.getAttribute('data-opt'));
+        save();
+        renderStep5();
+      });
+    });
+    var nextK = document.getElementById('nextK');
+    if (nextK) nextK.addEventListener('click', function () { quiz.index += 1; save(); renderStep5(); });
+    var restart5 = document.getElementById('restart5');
+    if (restart5) restart5.addEventListener('click', function () {
+      state.quiz5 = emptyQuiz(KNOWLEDGE.length); save(); renderStep5();
+    });
+
+    var copyGuide = document.getElementById('copyGuide');
+    copyGuide.addEventListener('click', function () { copyText(guideAsText(), copyGuide, 'Kopiera'); });
+
+    document.getElementById('dlGuide').addEventListener('click', function () {
+      var blob = new Blob([guideAsText()], { type: 'text/plain;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href = url;
+      link.download = 'retorikens-lathund.txt';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  /* ============================================================
+     Navigering
+     ============================================================ */
+
+  var RENDERERS = { 1: renderStep1, 2: renderStep2, 3: renderStep3, 4: renderStep4, 5: renderStep5 };
+
+  function renderNav() {
+    prevBtn.disabled = state.step === 1;
+    nextBtn.textContent = state.step >= LAST ? 'Börja om från början ↺' : 'Nästa: ' + STEPS[state.step].short + ' →';
+    navLabel.textContent = 'Steg ' + state.step + ' av ' + LAST;
+    dotsEl.innerHTML = STEPS.map(function (s) {
+      var cls = s.n === state.step ? 'dot now' : (s.n < state.step ? 'dot done' : 'dot');
+      return '<button class="dot-btn" data-step="' + s.n + '" aria-label="Gå till steg ' + s.n + ': ' + esc(s.short) + '"' +
+        (s.n === state.step ? ' aria-current="step"' : '') + '><span class="' + cls + '"></span></button>';
+    }).join('');
+    Array.prototype.forEach.call(dotsEl.querySelectorAll('[data-step]'), function (btn) {
+      btn.addEventListener('click', function () { goTo(Number(btn.getAttribute('data-step'))); });
+    });
+  }
+
+  function render() {
+    RENDERERS[state.step]();
+    renderNav();
+  }
+
+  function goTo(next) {
+    var clamped = Math.min(LAST, Math.max(1, next));
+    if (clamped === state.step) return;
+    state.step = clamped;
+    save();
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  prevBtn.addEventListener('click', function () { goTo(state.step - 1); });
+  nextBtn.addEventListener('click', function () { goTo(state.step >= LAST ? 1 : state.step + 1); });
+
   render();
-
-  // Step dots (decorative, matches "steg 3 av 5")
-  var dotsWrap = document.getElementById("stepDots");
-  for (var i = 0; i < 5; i++){
-    var b = document.createElement("button");
-    if (i === 2) b.setAttribute("aria-current", "true");
-    b.addEventListener("click", function(){ showToast("Den här demot visar bara steg 3 av 5."); });
-    dotsWrap.appendChild(b);
-  }
-
-  var toastEl = document.getElementById("toast");
-  var toastTimer;
-  function showToast(msg){
-    toastEl.textContent = msg;
-    toastEl.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2600);
-  }
-
-  document.getElementById("prevBtn").addEventListener("click", function(){
-    showToast("Det här är den första sidan i den här demot.");
-  });
-  document.getElementById("nextBtn").addEventListener("click", function(){
-    showToast("Bra övat! Nästa steg är att skriva din egen argumenterande text.");
-  });
 })();
 </script>
 </body>
