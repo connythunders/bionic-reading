@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Berättelsegeneratorn</title>
+<style>
+:root {
+  --bg: #f4f1fa;
+  --surface: #ffffff;
+  --surface-2: #f5f7fa;
+  --text: #22223a;
+  --muted: #5f6078;
+  --border: #e2def0;
+  --accent: #6a4fc9;
+  --accent-2: #764ba2;
+  --accent-soft: #ece7fb;
+  --char: #d9480f;
+  --place: #1c7c54;
+  --conflict: #c2255c;
+  --ok: #2b8a3e;
+  --err: #c92a2a;
+  --shadow: 0 10px 30px rgba(60, 40, 120, 0.12);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15131f;
+    --surface: #211e2e;
+    --surface-2: #2a2639;
+    --text: #ece9f7;
+    --muted: #a9a5c0;
+    --border: #3a3550;
+    --accent: #a58bff;
+    --accent-2: #b28ce0;
+    --accent-soft: #2f2847;
+    --char: #ff9a5c;
+    --place: #5fd39b;
+    --conflict: #ff7aa8;
+    --ok: #69db7c;
+    --err: #ff8787;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15131f;
+  --surface: #211e2e;
+  --surface-2: #2a2639;
+  --text: #ece9f7;
+  --muted: #a9a5c0;
+  --border: #3a3550;
+  --accent: #a58bff;
+  --accent-2: #b28ce0;
+  --accent-soft: #2f2847;
+  --char: #ff9a5c;
+  --place: #5fd39b;
+  --conflict: #ff7aa8;
+  --ok: #69db7c;
+  --err: #ff8787;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+.hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 28px 16px 72px;
+  text-align: center;
+}
+.hero-top {
+  max-width: 1000px;
+  margin: 0 auto 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.hero a, .hero button.theme {
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.95em;
+  background: rgba(255,255,255,0.18);
+  border: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.hero a:hover, .hero button.theme:hover { background: rgba(255,255,255,0.3); }
+.hero h1 { font-size: clamp(1.8em, 5vw, 2.6em); margin-bottom: 6px; }
+.hero p { opacity: 0.95; max-width: 620px; margin: 0 auto; }
+
+main {
+  max-width: 1000px;
+  margin: -48px auto 40px;
+  padding: 0 16px;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 22px;
+  margin-bottom: 20px;
+}
+.panel h2 {
+  font-size: 1.1em;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hint { color: var(--muted); font-size: 0.92em; }
+
+.steer-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.steer-row input {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-size: 1em;
+  font-family: inherit;
+  background: var(--surface-2);
+  color: var(--text);
+}
+.steer-row input:focus { outline: none; border-color: var(--accent); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  cursor: pointer;
+  font-family: inherit;
+}
+.chip:hover { border-color: var(--accent); }
+.chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.steer-status { margin-top: 10px; font-size: 0.9em; color: var(--muted); min-height: 1.2em; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1em;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
+.btn-secondary { background: var(--accent-soft); color: var(--accent); }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 8px 12px; font-weight: 500; font-size: 0.9em; }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 4px 0 20px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.el {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 5px solid var(--c);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.el[data-kind="karaktar"] { --c: var(--char); }
+.el[data-kind="plats"] { --c: var(--place); }
+.el[data-kind="konflikt"] { --c: var(--conflict); }
+.el-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.el-label { font-weight: 700; color: var(--c); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85em; }
+.el-tools { display: flex; gap: 6px; }
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1.05em;
+}
+.icon-btn:hover { border-color: var(--c); }
+.icon-btn[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: #fff; }
+.el-value {
+  width: 100%;
+  font-size: 1.3em;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text);
+  background: transparent;
+  border: 2px dashed transparent;
+  border-radius: 10px;
+  padding: 6px 8px;
+  resize: none;
+  min-height: 3.2em;
+  line-height: 1.3;
+}
+.el-value:hover { border-color: var(--border); }
+.el-value:focus { outline: none; border-color: var(--c); background: var(--surface-2); }
+.el.spin .el-value { animation: spin 0.35s ease; }
+@keyframes spin {
+  0% { opacity: 0; transform: translateY(-8px); }
+  100% { opacity: 1; transform: none; }
+}
+.alt-title { font-size: 0.8em; color: var(--muted); }
+.alts { display: flex; flex-wrap: wrap; gap: 6px; }
+.alts .chip { font-size: 0.85em; padding: 4px 10px; text-align: left; }
+.alts .chip:hover { border-color: var(--c); }
+
+.synopsis textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 14px;
+  font-size: 1.08em;
+  line-height: 1.6;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-family: Georgia, 'Times New Roman', serif;
+  background: var(--surface-2);
+  color: var(--text);
+  resize: vertical;
+}
+.synopsis textarea:focus { outline: none; border-color: var(--accent); }
+.synopsis .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.questions { margin-top: 14px; padding: 14px; border-radius: 12px; background: var(--accent-soft); }
+.questions h3 { font-size: 0.95em; margin-bottom: 6px; color: var(--accent); }
+.questions ul { padding-left: 20px; }
+.questions li { margin: 3px 0; }
+
+details.ai summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 8px; }
+details.ai summary::-webkit-details-marker { display: none; }
+details.ai summary::after { content: '▸'; margin-left: auto; color: var(--muted); }
+details.ai[open] summary::after { content: '▾'; }
+.ai-body { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.key-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.key-row input {
+  flex: 1 1 240px; min-width: 0;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  background: var(--surface-2);
+  color: var(--text);
+}
+.key-status { font-family: monospace; padding: 6px 10px; border-radius: 8px; background: var(--surface-2); }
+.pill { font-size: 0.75em; padding: 2px 8px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.pill.on { background: var(--ok); color: #fff; }
+
+.msg { margin-top: 8px; font-size: 0.92em; }
+.msg.err { color: var(--err); }
+.msg.ok { color: var(--ok); }
+
+.history ol { padding-left: 22px; }
+.history li { margin: 6px 0; cursor: pointer; }
+.history li:hover { color: var(--accent); }
+.history li small { color: var(--muted); }
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text); color: var(--bg);
+  padding: 10px 18px; border-radius: 10px;
+  opacity: 0; pointer-events: none;
+  transition: all 0.25s ease;
+}
+.toast.show { opacity: 1; transform: translateX(-50%); }
+
+@media (max-width: 520px) {
+  .panel { padding: 16px; }
+  .actions .btn { flex: 1 1 100%; }
+}
+@media print {
+  .hero, .actions, .el-tools, .alts, .alt-title, details.ai, .history, .steer-panel, .synopsis .row { display: none !important; }
+  body { background: #fff; color: #000; }
+  main { margin: 0; }
+  .el, .panel { box-shadow: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-top">
+    <a href="start.html">← Alla verktyg</a>
+    <button class="theme" id="themeBtn" type="button" aria-label="Byt mellan ljust och mörkt läge">🌓 Tema</button>
+  </div>
+  <h1>📖 Berättelsegeneratorn</h1>
+  <p>Slumpa fram en karaktär, en plats och en konflikt – en kreativ ram att börja skriva från. Rikta gärna förslagen, lås det du gillar och slumpa om resten.</p>
+</header>
+
+<main>
+  <section class="panel steer-panel">
+    <h2>🧭 Rikta berättelsen <span class="hint">(valfritt)</span></h2>
+    <div class="steer-row">
+      <input id="steer" type="text" placeholder="T.ex. ”Berättelsen ska utspela sig på medeltiden”" autocomplete="off">
+    </div>
+    <div class="chips" id="themeChips"></div>
+    <div class="steer-status" id="steerStatus"></div>
+  </section>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="rollAll" type="button">🎲 Slumpa berättelse</button>
+    <button class="btn btn-secondary" id="aiRoll" type="button" hidden>✨ Slumpa med AI</button>
+  </div>
+
+  <section class="cards" id="cards"></section>
+
+  <section class="panel synopsis">
+    <h2>📝 Synopsis</h2>
+    <p class="hint" style="margin-bottom:10px">Valen sammanfattade till en början på en berättelse. Du kan skriva i rutan.</p>
+    <textarea id="synopsis" aria-label="Synopsis"></textarea>
+    <div class="row">
+      <button class="btn btn-ghost" id="reword" type="button">🔄 Ny formulering</button>
+      <button class="btn btn-ghost" id="aiSynopsis" type="button" hidden>✨ Skriv synopsis med AI</button>
+      <button class="btn btn-ghost" id="copy" type="button">📋 Kopiera</button>
+      <button class="btn btn-ghost" id="print" type="button">🖨️ Skriv ut</button>
+      <button class="btn btn-ghost" id="save" type="button">⭐ Spara ramen</button>
+    </div>
+    <div class="msg" id="synMsg"></div>
+    <div class="questions">
+      <h3>Att fundera på innan du skriver</h3>
+      <ul id="questions"></ul>
+    </div>
+  </section>
+
+  <section class="panel history" id="historyPanel" hidden>
+    <h2>⭐ Sparade ramar <span class="hint">(klicka för att ta fram igen)</span></h2>
+    <ol id="history"></ol>
+    <div style="margin-top:10px"><button class="btn btn-ghost" id="clearHistory" type="button">Rensa listan</button></div>
+  </section>
+
+  <section class="panel">
+    <details class="ai" id="aiDetails">
+      <summary>✨ AI-läge <span class="pill" id="aiPill">Av</span></summary>
+      <div class="ai-body">
+        <p class="hint">Utan AI väljer generatorn från färdiga listor, och fritext som inte matchar ett tema följer bara med i synopsen. Med AI blir förslagen anpassade efter precis det du skriver i rutan ”Rikta berättelsen”, och synopsen kan skrivas som löpande text. Kräver en egen API-nyckel från Anthropic. Nyckeln sparas bara i din webbläsare.</p>
+        <div class="key-row">
+          <input id="keyInput" type="password" placeholder="sk-ant-..." autocomplete="off">
+          <span class="key-status" id="keyStatus" hidden></span>
+          <button class="btn btn-secondary" id="keySave" type="button">Spara nyckel</button>
+          <button class="btn btn-ghost" id="keyClear" type="button" hidden>Ta bort nyckel</button>
+        </div>
+        <div class="msg" id="aiMsg"></div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- Ordbanker ----------
+   karaktarer: skrivs som de ska stå mitt i en mening (versal läggs på vid visning).
+   platser: [preposition, plats].
+   konflikter: substantivfraser som passar efter ”genom”/”handlar om”. */
+const TEMAN = {
+  allmant: {
+    namn: 'Blandat', ikon: '🎲', ord: [],
+    karaktarer: ['en 67-årig man', 'tusenfotingen Marianne', 'en nervös brandman', 'en pensionerad balettdansös', 'en tolvåring som aldrig ljuger', 'en talande papegoja', 'en busschaufför med hemligt förflutet', 'tvillingarna Ali och Aisha', 'en bortglömd snögubbe', 'en rektor som hatar regler', 'en korvgubbe med stora drömmar', 'en robotdammsugare som vill bli fri', 'en ensam fyrvaktare', 'en frisör som kan läsa tankar', 'en katt som tror att den är hund', 'en farmor som spelar datorspel'],
+    platser: [['på', 'den lokala korvkiosken'], ['i', 'ett flygplan'], ['i', 'en hiss som fastnat'], ['på', 'en övergiven campingplats'], ['i', 'ett stökigt kök'], ['på', 'ett tåg genom fjällen'], ['på', 'ett sjukhus mitt i natten'], ['i', 'en loppisbod'], ['på', 'en ishockeyarena'], ['i', 'ett växthus'], ['på', 'en ö utan internet'], ['i', 'en tvättstuga i källaren'], ['på', 'ett bibliotek efter stängning'], ['i', 'en skogsglänta'], ['på', 'en bensinmack längs E45']],
+    konflikter: ['ett oväntat möte som leder till kärlek', 'en tragisk olycka', 'ett försvunnet arv', 'en lögn som växer sig för stor', 'en vänskap som sätts på prov', 'ett brev som kommer fram trettio år för sent', 'en tävling där bara en kan vinna', 'ett misstag som alla får se', 'ett hemligt löfte som måste brytas', 'en storm som stänger in alla', 'en förväxling som får stora följder', 'ett val mellan familjen och drömmen', 'en ovän som behöver hjälp', 'ett rykte som sprids alldeles för fort']
+  },
+  medeltid: {
+    namn: 'Medeltiden', ikon: '🏰', ord: ['medeltid', 'riddare', 'borg', 'slott', '1300', '1200', '1400', 'kung', 'pest', 'kloster'],
+    karaktarer: ['en lärling hos stadens smed', 'en riddare som är rädd för hästar', 'en nunna som smugglar böcker', 'en gycklare vid kungens hov', 'en fattig bondflicka', 'en rik köpman från Lübeck', 'en ung munk som inte kan hålla tyst', 'en läkekvinna som anklagas för häxeri', 'en väpnare som drömmer om att bli skald', 'en borgfru som styr när herren är i krig', 'en tjuv i Visbys gränder', 'en pilgrim på väg till Nidaros'],
+    platser: [['på', 'en borg under belägring'], ['i', 'ett kloster i skogen'], ['på', 'en marknad i Visby'], ['i', 'en smedja'], ['på', 'ett gästgiveri vid landsvägen'], ['i', 'kungens tornrum'], ['på', 'en ängsgård som drabbats av pesten'], ['i', 'en katedral som håller på att byggas'], ['på', 'ett tornerspel'], ['i', 'en källare under rådhuset']],
+    konflikter: ['pesten som når byn', 'en förbjuden kärlek mellan olika stånd', 'ett stulet reliksrin', 'en skatt som bönderna inte kan betala', 'en anklagelse om häxeri', 'ett giftermål som ska rädda familjen', 'en kung som dör utan arvinge', 'en belägring som aldrig tar slut', 'en hemlig karta till klostrets skatt', 'ett svek inom den egna ätten']
+  },
+  vikingatid: {
+    namn: 'Vikingatiden', ikon: '🛶', ord: ['viking', 'asagud', 'asatro', 'oden', 'nordisk', 'runsten', 'runor', 'järnålder'],
+    karaktarer: ['en skeppsbyggare som aldrig varit till sjöss', 'en völva som ser fel framtid', 'en trälflicka som kan läsa runor', 'en hövding med dålig rygg', 'en ung skald', 'en handelsman på väg till Miklagård', 'en sköldmö som vill hem', 'en smed som gör svärd åt båda sidor', 'en pojke som hittar en runsten', 'en gammal viking som vägrar dö på sotsängen'],
+    platser: [['på', 'ett långskepp i storm'], ['i', 'ett långhus en vinterkväll'], ['på', 'tinget'], ['i', 'Birka'], ['på', 'en blotplats i skogen'], ['vid', 'en handelsplats i Gårdarike'], ['på', 'en ö utanför Irlands kust'], ['i', 'en gravhög']],
+    konflikter: ['en blodsfejd mellan två gårdar', 'ett löfte till gudarna som måste hållas', 'en resa västerut som går fel', 'ett stulet svärd med namn', 'en dröm som tolkas som ett järtecken', 'en fånge som visar sig vara släkt', 'en hövding som ska väljas', 'ett skepp som aldrig kommer tillbaka']
+  },
+  rymden: {
+    namn: 'Rymden & framtiden', ikon: '🚀', ord: ['rymd', 'framtid', 'sci', 'robot', 'planet', 'mars', 'astronaut', '2100', '3000', 'dystopi', 'ai'],
+    karaktarer: ['en städrobot med samvete', 'en astronaut som är höjdrädd', 'den sista människan på Mars', 'en klon som vill vara unik', 'en hackare på fjorton år', 'en utomjording som studerar svensk fika', 'en kapten på ett rostigt fraktskepp', 'en AI som vill ha semester', 'en tidsresenär som glömt varför', 'en botaniker på en rymdstation'],
+    platser: [['på', 'en rymdstation i omloppsbana'], ['i', 'en undervattensstad år 2150'], ['på', 'en öde planet'], ['i', 'ett generationsskepp mellan stjärnorna'], ['på', 'en övergiven gruvmåne'], ['i', 'en stad där det alltid regnar'], ['i', 'ett virtuellt klassrum'], ['på', 'en fabrik som tillverkar minnen']],
+    konflikter: ['en signal från okänt håll', 'en syrebrist som ingen får veta om', 'en AI som tar över', 'ett tidsparadox-misstag', 'ett förbud mot känslor', 'ett möte med en främmande art', 'ett virus i datorsystemet', 'en flykt från ett perfekt samhälle']
+  },
+  fantasy: {
+    namn: 'Saga & fantasy', ikon: '🐉', ord: ['saga', 'fantasy', 'magi', 'drake', 'troll', 'häx', 'trollkarl', 'alv', 'förtroll'],
+    karaktarer: ['en drake som är allergisk mot eld', 'en lärling som misslyckas med varje trollformel', 'ett troll som vill bli poet', 'en prinsessa som vägrar bli räddad', 'en talande räv', 'en skogsrå med hemlängtan', 'en häxa som öppnar kafé', 'en riddare av papper', 'en tomte som slutat tro på julen', 'en älva utan vingar'],
+    platser: [['i', 'en förtrollad skog'], ['i', 'ett slott byggt av is'], ['under', 'en bro där trollen bor'], ['i', 'en magisk skola'], ['på', 'en marknad för önskningar'], ['i', 'ett torn utan dörrar'], ['vid', 'en sjö där tiden står still'], ['i', 'en grotta full av glömda drömmar']],
+    konflikter: ['en förbannelse som bara kan brytas vid midnatt', 'en förlorad trollstav', 'en profetia som pekar ut fel person', 'ett byte av kroppar', 'en drake som hotar riket', 'en önskan som slår fel', 'ett svek från en magisk vän', 'ett land där färgerna försvinner']
+  },
+  skrack: {
+    namn: 'Skräck & mysterium', ikon: '👻', ord: ['skräck', 'spök', 'läskig', 'mysterium', 'mörk', 'hemsök', 'zombie', 'vampyr', 'halloween'],
+    karaktarer: ['en nattvakt på ett museum', 'en flicka som hör röster i väggarna', 'en spökjägare som inte tror på spöken', 'en granne som aldrig syns på dagen', 'en docka som flyttar sig själv', 'en präst med en hemlighet', 'en influencer som filmar i övergivna hus', 'en gammal man som räknar kråkor'],
+    platser: [['i', 'ett övergivet sanatorium'], ['på', 'en kyrkogård i dimma'], ['i', 'en stuga långt in i skogen'], ['på', 'ett nöjesfält efter stängning'], ['i', 'en källare som inte finns på ritningen'], ['på', 'ett hotell där rum 13 saknas'], ['i', 'en skolkorridor efter midnatt']],
+    konflikter: ['ett ljud som kommer närmare varje natt', 'ett foto där någon extra syns', 'en dörr som inte går att stänga', 'en försvunnen klasskamrat', 'en gammal förbannelse över huset', 'ett meddelande från någon som är död', 'en spegel som visar fel rum']
+  },
+  skola: {
+    namn: 'Skolan', ikon: '🏫', ord: ['skola', 'klass', 'elev', 'lärare', 'högstadi', 'rast', 'matsal', 'gymnasi'],
+    karaktarer: ['en nyinflyttad elev i nian', 'en vikarie som aldrig vikarierat förut', 'en skolvaktmästare som vet allt', 'en elev som alltid kommer för sent', 'en matsalspersonal med kockdrömmar', 'en tyst tjej som skriver dikter', 'en klassens clown som egentligen är ledsen', 'en rektor som byter plats med en elev'],
+    platser: [['i', 'skolmatsalen'], ['på', 'skolgården en regnig rast'], ['i', 'ett klassrum under nationella proven'], ['på', 'en klassresa till Stockholm'], ['i', 'omklädningsrummet'], ['på', 'skolbalen'], ['i', 'skolans förråd'], ['på', 'en friluftsdag i fjällen']],
+    konflikter: ['ett fusk som avslöjas', 'en hemlig beundrare', 'ett försvunnet provpapper', 'en vänskap som splittras', 'ett skvaller i gruppchatten', 'en tävling mot parallellklassen', 'en elev som ska flytta', 'ett skämt som går för långt']
+  },
+  deckare: {
+    namn: 'Deckare', ikon: '🔍', ord: ['deckare', 'mord', 'brott', 'polis', 'detektiv', 'kriminal', 'stöld', 'thriller'],
+    karaktarer: ['en kommissarie som snart ska gå i pension', 'en journalistpraktikant', 'en pensionerad lärare som löser brott', 'en ficktjuv som blir vittne', 'en rättsläkare med hundallergi', 'en privatdetektiv utan körkort', 'en elvaåring med förstoringsglas', 'en misstänkt som faktiskt är oskyldig'],
+    platser: [['på', 'en herrgård under en snöstorm'], ['på', 'ett kryssningsfartyg'], ['på', 'en polisstation i en liten bruksort'], ['i', 'ett konstgalleri'], ['på', 'Siljans strand en tidig morgon'], ['i', 'ett tåg på väg norrut'], ['på', 'en bröllopsfest']],
+    konflikter: ['ett försvunnet konstverk', 'ett alibi som inte håller', 'ett mord i ett låst rum', 'en utpressning', 'ett vittne som ljuger', 'en falsk identitet', 'ett gammalt ouppklarat fall']
+  },
+  hav: {
+    namn: 'Havet & pirater', ikon: '🏴‍☠️', ord: ['hav', 'pirat', 'sjö', 'skepp', 'båt', 'ö', 'strand', 'sjöman'],
+    karaktarer: ['en piratkapten som blir sjösjuk', 'en skeppskatt', 'en fyrvaktares dotter', 'en fiskare som fångar en flaskpost', 'en sjöjungfru som vill gå på land', 'en skeppskock med en hemlig karta', 'en ung dykare'],
+    platser: [['på', 'ett piratskepp'], ['på', 'en öde ö'], ['i', 'ett sjunket vrak'], ['i', 'en hamnkrog'], ['på', 'en fyr ute i havsbandet'], ['på', 'en flotte mitt på Atlanten']],
+    konflikter: ['ett myteri ombord', 'en skattkarta som saknar en bit', 'en storm som skiljer vännerna åt', 'ett sjöodjur som vaknar', 'ett skepp som försvinner i dimman', 'ett löfte till havet']
+  },
+  vildavastern: {
+    namn: 'Vilda västern', ikon: '🤠', ord: ['västern', 'cowboy', 'vilda', 'sheriff', 'guldrush', 'prärie'],
+    karaktarer: ['en sheriff som inte kan skjuta', 'en guldgrävare från Dalarna', 'en saloonägare med ett förflutet', 'en ung posttjänstryttare', 'en kringresande tandläkare', 'en häst med egen vilja'],
+    platser: [['i', 'en dammig gruvstad'], ['på', 'ett tåg genom prärien'], ['i', 'en saloon'], ['vid', 'en flod full av guld'], ['på', 'en ranch vid gränsen']],
+    konflikter: ['ett bankrån', 'en guldfyndighet som alla vill åt', 'en duell vid middagstid', 'en efterlyst vän', 'en torka som hotar staden']
+  }
+};
+
+const MALL_SYNOPSIS = [
+  (k, p, c) => `${cap(k)} befinner sig ${p}. Allt förändras genom ${c}.`,
+  (k, p, c) => `Det börjar som en helt vanlig dag ${p}. Men för ${k} blir den allt annat än vanlig – berättelsen handlar om ${c}.`,
+  (k, p, c) => `${cap(p)} möter vi ${k}. Snart ställs allt på sin spets av ${c}.`,
+  (k, p, c) => `Ingen hade kunnat ana vad som skulle hända ${p}. Här hamnar ${k} mitt i ${c} – och måste bestämma sig för vad som är viktigast.`,
+  (k, p, c) => `Huvudperson: ${k}. Plats: ${p}. Problemet: ${c}. Hur långt är huvudpersonen beredd att gå för att lösa det?`
+];
+
+const FRAGOR = [
+  k => `Vad vill ${k} allra mest?`,
+  () => 'Vad eller vem står i vägen?',
+  () => 'Hur luktar, låter och ser platsen ut? Välj en detalj som bara finns just där.',
+  () => 'Vilken scen öppnar berättelsen – mitt i händelserna eller strax innan?',
+  k => `Hur har ${k} förändrats när berättelsen är slut?`,
+  () => 'Ska slutet vara lyckligt, sorgligt eller öppet?'
+];
+
+/* ---------- Tillstånd ---------- */
+const KINDS = [
+  { key: 'karaktar', label: 'Karaktär', bank: 'karaktarer' },
+  { key: 'plats', label: 'Plats', bank: 'platser' },
+  { key: 'konflikt', label: 'Konflikt', bank: 'konflikter' }
+];
+const state = {
+  valt: { karaktar: '', plats: '', konflikt: '' },      // text som visas i rutan
+  prep: 'på',                                            // preposition till platsen
+  alts: { karaktar: [], plats: [], konflikt: [] },
+  locked: { karaktar: false, plats: false, konflikt: false },
+  temaVal: null,        // tema valt via chip
+  aiPool: null,         // förslag från AI för aktuell riktning
+  mallIndex: 0,
+  synopsisFromAI: false
+};
+
+const $ = id => document.getElementById(id);
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+const low = s => s ? s.charAt(0).toLowerCase() + s.slice(1) : s;
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+
+/* ---------- Riktning ---------- */
+// Ett nyckelord matchar början av ett ord i texten; ord på max två tecken (”ö”, ”ai”) måste matcha hela ordet.
+function matchaTema(text) {
+  const ordIText = text.toLowerCase().split(/[^a-z0-9åäöéü-]+/).filter(Boolean);
+  if (!ordIText.length) return null;
+  for (const [key, tema] of Object.entries(TEMAN)) {
+    if (tema.ord.some(o => ordIText.some(w => o.length <= 2 ? w === o : w.startsWith(o)))) return key;
+  }
+  return null;
+}
+
+function aktivtTema() {
+  const text = $('steer').value.trim();
+  if (state.temaVal) return state.temaVal;
+  return matchaTema(text) || 'allmant';
+}
+
+function uppdateraStatus() {
+  const text = $('steer').value.trim();
+  const status = $('steerStatus');
+  document.querySelectorAll('#themeChips .chip').forEach(c => c.classList.toggle('active', c.dataset.tema === state.temaVal));
+  if (state.aiPool) { status.textContent = '✨ Förslagen kommer från AI och följer din riktning.'; return; }
+  if (!text && !state.temaVal) { status.textContent = 'Inget valt – förslagen blandas från alla möjliga håll.'; return; }
+  const tema = aktivtTema();
+  if (tema !== 'allmant') {
+    status.textContent = `${TEMAN[tema].ikon} Förslagen hämtas från temat ”${TEMAN[tema].namn}”.`;
+  } else {
+    status.textContent = harNyckel()
+      ? 'Din riktning matchar inget färdigt tema. Tryck på ”Slumpa med AI” för förslag som följer den.'
+      : 'Din riktning matchar inget färdigt tema, men den följer med i synopsen. Slå på AI-läget längst ner för förslag som följer den.';
+  }
+}
+
+function byggChips() {
+  const box = $('themeChips');
+  Object.entries(TEMAN).forEach(([key, t]) => {
+    if (key === 'allmant') return;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.dataset.tema = key;
+    b.textContent = `${t.ikon} ${t.namn}`;
+    b.addEventListener('click', () => {
+      state.temaVal = state.temaVal === key ? null : key;
+      state.aiPool = null;
+      uppdateraStatus();
+      slumpaAlla();
+    });
+    box.appendChild(b);
+  });
+}
+
+/* ---------- Kort ---------- */
+function byggKort() {
+  const wrap = $('cards');
+  KINDS.forEach(k => {
+    const el = document.createElement('article');
+    el.className = 'el';
+    el.dataset.kind = k.key;
+    el.innerHTML = `
+      <div class="el-head">
+        <span class="el-label">${k.label}</span>
+        <div class="el-tools">
+          <button class="icon-btn roll" type="button" title="Slumpa ny ${k.label.toLowerCase()}" aria-label="Slumpa ny ${k.label.toLowerCase()}">🎲</button>
+          <button class="icon-btn lock" type="button" aria-pressed="false" title="Lås ${k.label.toLowerCase()}" aria-label="Lås ${k.label.toLowerCase()}">🔓</button>
+        </div>
+      </div>
+      <textarea class="el-value" rows="2" aria-label="${k.label}"></textarea>
+      <div class="alt-title">Andra förslag:</div>
+      <div class="alts"></div>`;
+    el.querySelector('.roll').addEventListener('click', () => slumpa(k.key, true));
+    el.querySelector('.lock').addEventListener('click', e => {
+      state.locked[k.key] = !state.locked[k.key];
+      e.currentTarget.setAttribute('aria-pressed', state.locked[k.key]);
+      e.currentTarget.textContent = state.locked[k.key] ? '🔒' : '🔓';
+    });
+    el.querySelector('.el-value').addEventListener('input', e => {
+      state.valt[k.key] = e.target.value;
+      if (k.key === 'plats') state.prep = gissaPrep(e.target.value);
+      state.synopsisFromAI = false;
+      skrivSynopsis();
+    });
+    wrap.appendChild(el);
+  });
+}
+
+function gissaPrep(text) {
+  const t = text.trim().toLowerCase();
+  // Skriver eleven egen preposition används den; annars blir det ”i”.
+  return /^(på|i|vid|under|bakom|ombord|utanför|inne)\s/.test(t) ? '' : 'i';
+}
+
+function pool(kind) {
+  const bank = KINDS.find(k => k.key === kind).bank;
+  if (state.aiPool) return state.aiPool[bank];
+  return TEMAN[aktivtTema()][bank];
+}
+
+function asText(kind, item) {
+  if (kind === 'plats') return Array.isArray(item) ? item[1] : item;
+  return item;
+}
+
+function slumpa(kind, animate) {
+  const p = pool(kind);
+  if (!p || !p.length) return;
+  const nuv = state.valt[kind];
+  const val = shuffle(p).filter(i => asText(kind, i) !== nuv).slice(0, 4);
+  sattVal(kind, val[0], animate);
+  state.alts[kind] = val.slice(1);
+  ritaAlts(kind);
+  state.synopsisFromAI = false;
+  skrivSynopsis();
+}
+
+function sattVal(kind, item, animate) {
+  if (kind === 'plats') {
+    state.prep = Array.isArray(item) ? item[0] : 'på';
+    state.valt.plats = Array.isArray(item) ? item[1] : item;
+  } else {
+    state.valt[kind] = item;
+  }
+  const el = document.querySelector(`.el[data-kind="${kind}"]`);
+  el.querySelector('.el-value').value = cap(state.valt[kind]);
+  if (animate) {
+    el.classList.remove('spin');
+    void el.offsetWidth;
+    el.classList.add('spin');
+  }
+}
+
+function ritaAlts(kind) {
+  const box = document.querySelector(`.el[data-kind="${kind}"] .alts`);
+  box.innerHTML = '';
+  state.alts[kind].forEach((item, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.textContent = cap(asText(kind, item));
+    b.addEventListener('click', () => {
+      const gammal = kind === 'plats' ? [state.prep, state.valt.plats] : state.valt[kind];
+      sattVal(kind, item, true);
+      state.alts[kind][i] = gammal;
+      ritaAlts(kind);
+      state.synopsisFromAI = false;
+      skrivSynopsis();
+    });
+    box.appendChild(b);
+  });
+}
+
+function slumpaAlla() {
+  KINDS.forEach(k => { if (!state.locked[k.key]) slumpa(k.key, true); });
+  state.mallIndex = Math.floor(Math.random() * MALL_SYNOPSIS.length);
+  state.synopsisFromAI = false;
+  skrivSynopsis();
+}
+
+/* ---------- Synopsis ---------- */
+function delar() {
+  const k = low(state.valt.karaktar.trim()) || 'någon';
+  const platsText = low(state.valt.plats.trim()) || 'någonstans';
+  const p = state.prep ? `${state.prep} ${platsText}` : platsText;
+  const c = low(state.valt.konflikt.trim()) || 'något oväntat';
+  return { k, p, c };
+}
+
+function skrivSynopsis() {
+  if (state.synopsisFromAI) return;
+  const { k, p, c } = delar();
+  let text = MALL_SYNOPSIS[state.mallIndex](k, p, c);
+  const steer = $('steer').value.trim();
+  if (steer && aktivtTema() === 'allmant' && !state.aiPool) {
+    text += `\n\nRamvillkor: ${steer.replace(/\.$/, '')}.`;
+  }
+  $('synopsis').value = text;
+  $('questions').innerHTML = FRAGOR.map(f => `<li>${escapeHtml(f(k))}</li>`).join('');
+  $('synMsg').textContent = '';
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+}
+
+/* ---------- Spara ---------- */
+const HIST_KEY = 'berattelse_sparade';
+function lasHistorik() {
+  try { return JSON.parse(store.get(HIST_KEY)) || []; } catch (e) { return []; }
+}
+function ritaHistorik() {
+  const list = lasHistorik();
+  $('historyPanel').hidden = list.length === 0;
+  $('history').innerHTML = '';
+  list.forEach(r => {
+    const li = document.createElement('li');
+    li.innerHTML = `<strong>${escapeHtml(cap(r.karaktar))}</strong> · ${escapeHtml(r.prep ? r.prep + ' ' : '')}${escapeHtml(r.plats)} · ${escapeHtml(r.konflikt)} <small>(${escapeHtml(r.datum)})</small>`;
+    li.addEventListener('click', () => {
+      state.valt = { karaktar: r.karaktar, plats: r.plats, konflikt: r.konflikt };
+      state.prep = r.prep;
+      KINDS.forEach(k => {
+        document.querySelector(`.el[data-kind="${k.key}"] .el-value`).value = cap(state.valt[k.key]);
+      });
+      state.synopsisFromAI = true;
+      $('synopsis').value = r.synopsis;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    $('history').appendChild(li);
+  });
+}
+function sparaRam() {
+  const list = lasHistorik();
+  list.unshift({
+    karaktar: state.valt.karaktar, plats: state.valt.plats, prep: state.prep,
+    konflikt: state.valt.konflikt, synopsis: $('synopsis').value,
+    datum: new Date().toLocaleDateString('sv-SE')
+  });
+  store.set(HIST_KEY, JSON.stringify(list.slice(0, 20)));
+  ritaHistorik();
+  toast('Ramen är sparad');
+}
+
+/* ---------- AI (Claude, egen nyckel) ---------- */
+const KEY_STORE = 'berattelse_apikey';
+let apiKey = store.get(KEY_STORE) || store.get('ai_provtraning_apikey') || '';
+const harNyckel = () => !!apiKey;
+
+function uppdateraNyckel() {
+  const on = harNyckel();
+  $('aiPill').textContent = on ? 'På' : 'Av';
+  $('aiPill').classList.toggle('on', on);
+  $('keyInput').hidden = on;
+  $('keySave').hidden = on;
+  $('keyClear').hidden = !on;
+  $('keyStatus').hidden = !on;
+  if (on) $('keyStatus').textContent = apiKey.slice(0, 7) + '…' + apiKey.slice(-4);
+  $('aiRoll').hidden = !on;
+  $('aiSynopsis').hidden = !on;
+  uppdateraStatus();
+}
+
+async function claude(system, user, maxTokens) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-5',
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: 'user', content: user }]
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    if (res.status === 401) throw new Error('Ogiltig API-nyckel. Kontrollera att hela nyckeln är inklistrad.');
+    if (res.status === 429) throw new Error('För många förfrågningar. Vänta en stund och försök igen.');
+    throw new Error('API-fel: ' + (err.error?.message || 'HTTP ' + res.status));
+  }
+  const data = await res.json();
+  return data.content.map(b => b.text || '').join('');
+}
+
+async function aiSlumpa() {
+  const steer = $('steer').value.trim() || (state.temaVal ? TEMAN[state.temaVal].namn : 'valfritt, gärna oväntat och lekfullt');
+  const btn = $('aiRoll');
+  btn.disabled = true;
+  btn.textContent = '✨ Tänker…';
+  $('aiMsg').textContent = '';
+  try {
+    const system = 'Du hjälper elever i grundskola och gymnasium att hitta idéer till kreativt skrivande på svenska. Förslagen ska vara fantasifulla, konkreta, ofta lite humoristiska och lämpliga för skolan. Svara ENDAST med giltig JSON, utan kodblock eller annan text.';
+    const user = `Riktning för berättelsen: "${steer}"
+
+Ge 8 förslag i varje kategori som följer riktningen och skiljer sig tydligt från varandra.
+- karaktarer: skrivna som de står mitt i en mening, med liten bokstav om det inte är ett namn. Exempel: "en 67-årig man", "tusenfotingen Marianne".
+- platser: objekt med "prep" (prepositionen, t.ex. "på", "i", "vid") och "plats". Exempel: {"prep":"på","plats":"den lokala korvkiosken"}.
+- konflikter: substantivfraser som passar efter ordet "genom". Exempel: "ett oväntat möte som leder till kärlek", "en tragisk olycka".
+
+Format: {"karaktarer":[...],"platser":[{"prep":"...","plats":"..."}],"konflikter":[...]}`;
+    const raw = await claude(system, user, 1500);
+    const json = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1));
+    state.aiPool = {
+      karaktarer: json.karaktarer,
+      platser: json.platser.map(p => [p.prep || '', p.plats]),
+      konflikter: json.konflikter
+    };
+    uppdateraStatus();
+    slumpaAlla();
+  } catch (e) {
+    $('aiMsg').className = 'msg err';
+    $('aiMsg').textContent = e instanceof SyntaxError ? 'AI:ns svar gick inte att läsa. Försök igen.' : e.message;
+    $('aiDetails').open = true;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Slumpa med AI';
+  }
+}
+
+async function aiSynopsis() {
+  const { k, p, c } = delar();
+  const steer = $('steer').value.trim();
+  const btn = $('aiSynopsis');
+  btn.disabled = true;
+  btn.textContent = '✨ Skriver…';
+  $('synMsg').textContent = '';
+  try {
+    const system = 'Du skriver korta, inspirerande synopsisar på svenska som startpunkt för elevers berättelser. Skriv i presens, 4–6 meningar, utan rubrik. Presentera karaktären, platsen och konflikten och sluta med en öppen fråga eller cliffhanger så att eleven själv får skriva fortsättningen. Avslöja inte slutet.';
+    const user = `Karaktär: ${k}\nPlats: ${p}\nKonflikt: ${c}${steer ? '\nRiktning: ' + steer : ''}`;
+    const text = await claude(system, user, 600);
+    $('synopsis').value = text.trim();
+    state.synopsisFromAI = true;
+  } catch (e) {
+    $('synMsg').className = 'msg err';
+    $('synMsg').textContent = e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Skriv synopsis med AI';
+  }
+}
+
+/* ---------- Övrigt ---------- */
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function initTema() {
+  const saved = store.get('berattelse_tema');
+  if (saved) document.documentElement.dataset.theme = saved;
+  $('themeBtn').addEventListener('click', () => {
+    const dark = document.documentElement.dataset.theme
+      ? document.documentElement.dataset.theme === 'dark'
+      : matchMedia('(prefers-color-scheme: dark)').matches;
+    const next = dark ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    store.set('berattelse_tema', next);
+  });
+}
+
+let steerTimer;
+$('steer').addEventListener('input', () => {
+  state.temaVal = null;
+  state.aiPool = null;
+  clearTimeout(steerTimer);
+  steerTimer = setTimeout(() => { uppdateraStatus(); skrivSynopsis(); }, 250);
+});
+$('steer').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); harNyckel() ? aiSlumpa() : slumpaAlla(); }
+});
+$('rollAll').addEventListener('click', () => { state.aiPool = null; uppdateraStatus(); slumpaAlla(); });
+$('aiRoll').addEventListener('click', aiSlumpa);
+$('aiSynopsis').addEventListener('click', aiSynopsis);
+$('reword').addEventListener('click', () => {
+  state.mallIndex = (state.mallIndex + 1) % MALL_SYNOPSIS.length;
+  state.synopsisFromAI = false;
+  skrivSynopsis();
+});
+$('copy').addEventListener('click', async () => {
+  const text = `Karaktär: ${cap(state.valt.karaktar)}\nPlats: ${cap(state.valt.plats)}\nKonflikt: ${cap(state.valt.konflikt)}\n\n${$('synopsis').value}`;
+  try { await navigator.clipboard.writeText(text); toast('Kopierat!'); }
+  catch (e) { $('synopsis').select(); toast('Markerat – tryck Ctrl+C'); }
+});
+$('print').addEventListener('click', () => window.print());
+$('save').addEventListener('click', sparaRam);
+$('clearHistory').addEventListener('click', () => { store.del(HIST_KEY); ritaHistorik(); });
+$('synopsis').addEventListener('input', () => { state.synopsisFromAI = true; });
+$('keySave').addEventListener('click', () => {
+  const v = $('keyInput').value.trim();
+  if (!v.startsWith('sk-ant-')) {
+    $('aiMsg').className = 'msg err';
+    $('aiMsg').textContent = 'Nyckeln ska börja med sk-ant-';
+    return;
+  }
+  apiKey = v;
+  store.set(KEY_STORE, v);
+  $('keyInput').value = '';
+  $('aiMsg').className = 'msg ok';
+  $('aiMsg').textContent = 'Nyckeln är sparad. Nu finns ”Slumpa med AI” under riktningsrutan.';
+  uppdateraNyckel();
+});
+$('keyClear').addEventListener('click', () => {
+  apiKey = '';
+  store.del(KEY_STORE);
+  state.aiPool = null;
+  $('aiMsg').textContent = '';
+  uppdateraNyckel();
+});
+
+initTema();
+byggChips();
+byggKort();
+uppdateraNyckel();
+ritaHistorik();
+slumpaAlla();
+</script>
+</body>
+</html>
