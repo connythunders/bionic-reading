@@ -250,6 +250,21 @@ ul.issues li.sent { border-left-color: var(--err); }
 .selfcheck label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
 .selfcheck input { margin-top: 0.45em; width: 18px; height: 18px; accent-color: var(--pc); flex: 0 0 auto; }
 
+.coach { margin-top: 10px; border: 2px dashed var(--pc); border-radius: 14px; padding: 12px; background: var(--surface); }
+.coach-head { font-weight: 700; color: var(--pc); margin-bottom: 6px; }
+.coach-log { display: grid; gap: 8px; }
+.coach-log:empty { display: none; }
+.bubble { background: var(--pcs); border-radius: 12px 12px 12px 4px; padding: 10px 12px; font-size: 0.95em; }
+.bubble p + p { margin-top: 4px; }
+.bubble.me { background: var(--surface-2); border-radius: 12px 12px 4px 12px; justify-self: end; max-width: 85%; font-style: italic; }
+.bubble.thinking { color: var(--muted); font-style: italic; }
+.bubble.error { background: var(--err-soft); color: var(--err); }
+.bubble-tools { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+.coach-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.coach-ask { display: flex; gap: 6px; margin-top: 8px; }
+.coach-ask input { padding: 6px 10px; border-radius: 10px; font-size: 0.9em; }
+.small-btn:disabled { opacity: 0.5; cursor: default; }
+
 .fulltext { background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: 20px; white-space: pre-wrap; }
 .fulltext .ft-title { font-size: 1.3em; font-weight: 700; margin-bottom: 10px; display: block; }
 .empty { color: var(--muted); font-style: italic; }
@@ -412,6 +427,9 @@ footer { color: var(--muted); font-size: 0.8em; padding: 20px 0 40px; text-align
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var root = document.documentElement;
+
+  // Adress till skrivcoachens serverdel på Vercel (se skrivcoach/README.md). Tom = coachen visas inte.
+  var COACH_URL = '';
 
   // Sparar i localStorage, men håller även allt i minnet om lagring är blockerad.
   var mem = {};
@@ -1064,6 +1082,7 @@ footer { color: var(--muted); font-size: 0.8em; padding: 20px 0 40px; text-align
     } else {
       var d = getDraft();
       html += '<p class="intro rd">Skriv ett stycke i taget. Klicka på orden under ”Så kan du börja” för att få in dem i rutan. Din text sparas automatiskt i den här webbläsaren.</p>';
+      if (COACH_URL) html += '<div class="tip rd"><strong>🧭 Skrivcoachen</strong> finns under varje stycke. Den ställer frågor och ger tips, men den skriver inte åt dig. Skriv inte ditt namn eller andra personliga uppgifter i texten.</div>';
       g.parts.forEach(function (p, i) {
         var val = d[i] || '';
         var checks = (d['c' + i] || []);
@@ -1079,6 +1098,7 @@ footer { color: var(--muted); font-size: 0.8em; padding: 20px 0 40px; text-align
           '<div class="write-meta"><span data-count="' + i + '"></span>' +
           (p.title ? '' : '<span><button type="button" class="small-btn" data-listen="' + i + '">🔊 Läs upp</button> <button type="button" class="small-btn" data-check="' + i + '">🔍 Kolla språket</button></span>') + '</div>' +
           '<div class="inline-check" data-check-box="' + i + '"></div>' +
+          (p.title ? '' : coachHtml(i)) +
           '</div><div class="guide">' +
           '<h4>Har jag med allt?</h4><div class="selfcheck">' + p.must.map(function (m, j) {
             return '<label><input type="checkbox" data-sc="' + i + ':' + j + '"' + (checks.indexOf(j) !== -1 ? ' checked' : '') + '><span class="rd">' + esc(m) + '</span></label>';
@@ -1142,7 +1162,9 @@ footer { color: var(--muted); font-size: 0.8em; padding: 20px 0 40px; text-align
   $('#genreView').addEventListener('click', function (e) {
     var t = e.target.closest('button'); if (!t) return;
     var g = curGenre();
-    if (t.dataset.speak !== undefined) speak(g.parts[+t.dataset.speak].model);
+    if (t.dataset.coachMode) askCoach(+t.dataset.i, t.dataset.coachMode);
+    else if (t.dataset.say !== undefined) speak(t.dataset.say);
+    else if (t.dataset.speak !== undefined) speak(g.parts[+t.dataset.speak].model);
     else if (t.hasAttribute('data-speak-all')) speak(g.parts.map(function (p) { return p.model; }).join('. '));
     else if (t.dataset.modeGo) { mode = t.dataset.modeGo; store.set('mode', mode); renderGenre(); window.scrollTo({ top: $('#genrePick').offsetTop - 70, behavior: 'smooth' }); }
     else if (t.dataset.peek !== undefined) {
@@ -1177,8 +1199,94 @@ footer { color: var(--muted); font-size: 0.8em; padding: 20px 0 40px; text-align
       setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
     }
     else if (t.id === 'clearAll') {
-      if (confirm('Vill du ta bort allt du skrivit i den här texttypen?')) { store.set(draftKey(), {}); renderGenre(); }
+      if (confirm('Vill du ta bort allt du skrivit i den här texttypen?')) { store.set(draftKey(), {}); store.set(coachKey(), {}); renderGenre(); }
     }
+  });
+
+  /* =====================================================
+     Skrivcoachen (AI via egen serverdel, se skrivcoach/README.md)
+     ===================================================== */
+  function coachHtml(i) {
+    if (!COACH_URL) return '';
+    return '<div class="coach">' +
+      '<div class="coach-head">🧭 Skrivcoachen</div>' +
+      '<div class="coach-log" data-coach-log="' + i + '">' + coachLogHtml(i) + '</div>' +
+      '<div class="coach-actions">' +
+      '<button type="button" class="small-btn" data-coach-mode="fastnat" data-i="' + i + '">🤔 Jag har fastnat</button>' +
+      '<button type="button" class="small-btn" data-coach-mode="respons" data-i="' + i + '">👀 Hur går det?</button>' +
+      '</div>' +
+      '<div class="coach-ask"><input type="text" data-coach-q="' + i + '" placeholder="Fråga coachen, t.ex. Hur kan jag förklara mer?" aria-label="Fråga coachen">' +
+      '<button type="button" class="small-btn" data-coach-mode="fraga" data-i="' + i + '">Fråga</button></div>' +
+      '</div>';
+  }
+  function coachKey() { return 'coach:' + genreId; }
+  function coachLog(i) { return (store.get(coachKey(), {})[i] || []); }
+  function saveCoachLog(i, log) { var all = store.get(coachKey(), {}); all[i] = log.slice(-8); store.set(coachKey(), all); }
+  function coachLogHtml(i) {
+    return coachLog(i).map(function (m) {
+      if (m.me) return '<div class="bubble me">' + esc(m.me) + '</div>';
+      var say = [m.bra, m.tips, m.fraga].filter(Boolean).join(' ');
+      return '<div class="bubble">' +
+        (m.bra ? '<p class="rd">✅ ' + esc(m.bra) + '</p>' : '') +
+        (m.tips ? '<p class="rd">💡 ' + esc(m.tips) + '</p>' : '') +
+        (m.fraga ? '<p class="rd"><b>❓ ' + esc(m.fraga) + '</b></p>' : '') +
+        '<div class="bubble-tools">' +
+        (m.start ? '<button type="button" class="chip" data-insert="' + esc(m.start) + ' ">✏️ ' + esc(m.start) + ' …</button>' : '') +
+        '<button type="button" class="small-btn" data-say="' + esc(say) + '">🔊</button></div>' +
+        '</div>';
+    }).join('');
+  }
+  function renderCoachLog(i) {
+    var box = $('[data-coach-log="' + i + '"]'); if (!box) return;
+    box.innerHTML = coachLogHtml(i);
+    refreshBionic(box);
+  }
+  async function askCoach(i, mode) {
+    var g = curGenre(), p = g.parts[i], d = getDraft();
+    var qEl = $('[data-coach-q="' + i + '"]');
+    var question = mode === 'fraga' ? qEl.value.trim() : '';
+    if (mode === 'fraga' && !question) { toast('Skriv din fråga först'); qEl.focus(); return; }
+    if (mode === 'respons' && !(d[i] || '').trim()) { toast('Skriv lite först, så kan coachen svara'); return; }
+
+    var log = coachLog(i);
+    var previous = log.filter(function (m) { return !m.me; }).map(function (m) { return [m.tips, m.fraga].filter(Boolean).join(' '); });
+    if (question) { log.push({ me: question }); qEl.value = ''; }
+    saveCoachLog(i, log);
+    renderCoachLog(i);
+
+    var btns = $$('[data-coach-mode][data-i="' + i + '"]');
+    btns.forEach(function (b) { b.disabled = true; });
+    var box = $('[data-coach-log="' + i + '"]');
+    box.insertAdjacentHTML('beforeend', '<div class="bubble thinking">Coachen läser din text …</div>');
+
+    try {
+      var res = await fetch(COACH_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: mode, question: question,
+          genre: g.name.replace(/^\S+\s/, ''), genreAbout: g.about,
+          partName: p.name, must: p.must, partText: d[i] || '',
+          otherParts: g.parts.map(function (q, j) { return j === i ? null : { name: q.name, text: d[j] || '' }; }).filter(Boolean),
+          previous: previous
+        })
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(data.error || 'Något gick fel. Försök igen.');
+      log = coachLog(i);
+      log.push({ bra: data.bra, tips: data.tips, fraga: data.fraga, start: data.start });
+      saveCoachLog(i, log);
+      renderCoachLog(i);
+    } catch (err) {
+      renderCoachLog(i);
+      var msg = err && err.message && !/fetch/i.test(err.message) ? err.message : 'Coachen går inte att nå just nu. Försök igen om en stund.';
+      $('[data-coach-log="' + i + '"]').insertAdjacentHTML('beforeend', '<div class="bubble error">' + esc(msg) + '</div>');
+    } finally {
+      btns.forEach(function (b) { b.disabled = false; });
+    }
+  }
+  $('#genreView').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target.dataset.coachQ !== undefined) { e.preventDefault(); askCoach(+e.target.dataset.coachQ, 'fraga'); }
   });
 
   /* ================= Start ================= */
