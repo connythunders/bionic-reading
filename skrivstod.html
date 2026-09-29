@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skrivstöd</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root {
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --surface-2: #f1eee7;
+  --text: #1f2330;
+  --muted: #5b6070;
+  --border: #e0dbd0;
+  --accent: #2f5fd0;
+  --accent-soft: #e6edfc;
+  --ok: #217a3c;
+  --ok-soft: #e3f4e8;
+  --err: #b42318;
+  --err-soft: #fdeceb;
+  --warn: #9a6200;
+  --warn-soft: #fff4d6;
+  --p1: #2f5fd0; --p1s: #e8eefc;
+  --p2: #1d7f5c; --p2s: #e3f5ed;
+  --p3: #8a4fc7; --p3s: #f1e9fb;
+  --p4: #c2410c; --p4s: #fdeee4;
+  --p5: #b0306a; --p5s: #fbe7f0;
+  --p6: #0e7490; --p6s: #e1f3f7;
+  --shadow: 0 6px 20px rgba(30, 35, 50, 0.08);
+  --font-fallback: "Segoe UI", Tahoma, Verdana, sans-serif;
+  --font-body: var(--font-fallback);
+  --fs: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14161c; --surface: #1d2029; --surface-2: #252935; --text: #eceef3; --muted: #a3a8b8; --border: #353a48;
+    --accent: #8fb0ff; --accent-soft: #243152;
+    --ok: #6fd28d; --ok-soft: #1b3325; --err: #ff8a80; --err-soft: #3a1f1d; --warn: #f5c451; --warn-soft: #3a3017;
+    --p1: #8fb0ff; --p1s: #212c47; --p2: #6fd2a8; --p2s: #1a332a; --p3: #c49bf2; --p3s: #2c2340;
+    --p4: #ffa270; --p4s: #3a261b; --p5: #f28bb7; --p5s: #3a1f2c; --p6: #6fcde3; --p6s: #17313a;
+    --shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14161c; --surface: #1d2029; --surface-2: #252935; --text: #eceef3; --muted: #a3a8b8; --border: #353a48;
+  --accent: #8fb0ff; --accent-soft: #243152;
+  --ok: #6fd28d; --ok-soft: #1b3325; --err: #ff8a80; --err-soft: #3a1f1d; --warn: #f5c451; --warn-soft: #3a3017;
+  --p1: #8fb0ff; --p1s: #212c47; --p2: #6fd2a8; --p2s: #1a332a; --p3: #c49bf2; --p3s: #2c2340;
+  --p4: #ffa270; --p4s: #3a261b; --p5: #f28bb7; --p5s: #3a1f2c; --p6: #6fcde3; --p6s: #17313a;
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+html[data-font="dyslexi"] { --font-body: "Atkinson Hyperlegible", var(--font-fallback); }
+html[data-size="1"] { --fs: 16px; }
+html[data-size="2"] { --fs: 18px; }
+html[data-size="3"] { --fs: 20px; }
+html[data-size="4"] { --fs: 23px; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--font-body); font-size: var(--fs); line-height: 1.7;
+  letter-spacing: 0.01em; word-spacing: 0.06em;
+}
+b.bx { font-weight: 700; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+
+/* ---------- Topp ---------- */
+header.top { padding: 28px 0 8px; }
+header.top h1 { font-size: 1.9em; line-height: 1.2; }
+header.top p { color: var(--muted); margin-top: 6px; max-width: 60ch; }
+
+.toolbar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin: 16px 0 8px; padding: 10px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 14px;
+}
+.toolbar .lbl { font-size: 0.8em; color: var(--muted); margin-right: 2px; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.seg button, .tbtn {
+  background: var(--surface); border: 0; padding: 6px 11px; font-size: 0.85em; min-height: 38px;
+}
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button[aria-pressed="true"], .tbtn[aria-pressed="true"] { background: var(--accent); color: #fff; }
+:root[data-theme="dark"] .seg button[aria-pressed="true"], :root[data-theme="dark"] .tbtn[aria-pressed="true"] { color: #10131a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .seg button[aria-pressed="true"], :root:not([data-theme="light"]) .tbtn[aria-pressed="true"] { color: #10131a; } }
+.tbtn { border: 1px solid var(--border); border-radius: 10px; }
+
+/* ---------- Flikar ---------- */
+nav.tabs {
+  position: sticky; top: 0; z-index: 10; background: var(--bg);
+  display: flex; gap: 6px; padding: 10px 0; overflow-x: auto; scrollbar-width: thin;
+}
+nav.tabs button {
+  flex: 0 0 auto; border: 2px solid var(--border); background: var(--surface);
+  border-radius: 999px; padding: 8px 16px; font-weight: 700; font-size: 0.92em;
+}
+nav.tabs button[aria-selected="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+section.panel { padding: 8px 0 60px; }
+h2 { font-size: 1.45em; line-height: 1.25; margin: 18px 0 6px; }
+h3 { font-size: 1.12em; line-height: 1.3; margin: 0 0 6px; }
+.intro { color: var(--muted); margin-bottom: 14px; max-width: 65ch; }
+
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+  padding: 18px; margin: 14px 0; box-shadow: var(--shadow);
+}
+.tip {
+  background: var(--warn-soft); border-left: 5px solid var(--warn); border-radius: 10px;
+  padding: 12px 14px; margin: 12px 0;
+}
+.tip strong { color: var(--warn); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 0; background: var(--accent); color: #fff; font-weight: 700;
+  padding: 9px 16px; border-radius: 10px; min-height: 42px; font-size: 0.92em;
+}
+:root[data-theme="dark"] .btn { color: #10131a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn { color: #10131a; } }
+.btn.ghost { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+
+.feedback { margin-top: 12px; padding: 10px 14px; border-radius: 10px; font-weight: 700; }
+.feedback.ok { background: var(--ok-soft); color: var(--ok); }
+.feedback.no { background: var(--err-soft); color: var(--err); }
+.feedback.info { background: var(--accent-soft); color: var(--accent); }
+
+.progress { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
+.progress span { width: 28px; height: 8px; border-radius: 4px; background: var(--border); }
+.progress span.done { background: var(--ok); }
+.progress span.cur { background: var(--accent); }
+
+/* ---------- Meningsövning ---------- */
+.sentence-box { font-size: 1.12em; line-height: 2.4; }
+.word { display: inline; }
+.gap {
+  display: inline-block; min-width: 22px; height: 34px; vertical-align: middle;
+  border: 2px dashed transparent; border-radius: 8px; background: transparent;
+  font-weight: 700; font-size: 1.15em; line-height: 1; padding: 0 3px; margin: 0 1px;
+  color: var(--accent);
+}
+.gap:hover { border-color: var(--border); background: var(--surface-2); }
+.gap.filled { border-color: var(--accent); background: var(--accent-soft); }
+.gap.right { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); border-style: solid; }
+.gap.wrong { border-color: var(--err); background: var(--err-soft); color: var(--err); border-style: solid; }
+.gap.missed { border-color: var(--err); border-style: solid; }
+.legend { font-size: 0.85em; color: var(--muted); }
+
+/* ---------- Sambandsord ---------- */
+.starter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.starter-group { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+.starter-group h3 { font-size: 1em; }
+.starter-group p.what { font-size: 0.85em; color: var(--muted); margin-bottom: 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--border); background: var(--surface-2); border-radius: 999px;
+  padding: 4px 12px; font-size: 0.88em; min-height: 34px;
+}
+.chip:hover { border-color: var(--accent); }
+.choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.choice {
+  border: 2px solid var(--border); background: var(--surface); border-radius: 12px;
+  padding: 8px 16px; font-weight: 700; min-height: 44px;
+}
+.choice.right { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); }
+.choice.wrong { border-color: var(--err); background: var(--err-soft); color: var(--err); }
+.blank { display: inline-block; min-width: 110px; border-bottom: 3px solid var(--accent); text-align: center; font-weight: 700; color: var(--accent); }
+
+/* ---------- Språkkollen ---------- */
+textarea, input[type="text"] {
+  width: 100%; background: var(--surface); border: 2px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; line-height: 1.7;
+}
+textarea { min-height: 140px; resize: vertical; }
+textarea:focus, input[type="text"]:focus { border-color: var(--accent); outline: none; }
+.checked-text { background: var(--surface-2); border-radius: 12px; padding: 14px; margin-top: 12px; white-space: pre-wrap; }
+mark.inf { background: var(--warn-soft); color: inherit; border-bottom: 3px solid var(--warn); border-radius: 3px; padding: 0 2px; cursor: help; }
+mark.long { background: transparent; color: inherit; border-bottom: 3px dotted var(--err); }
+ul.issues { list-style: none; margin-top: 12px; display: grid; gap: 8px; }
+ul.issues li { background: var(--surface-2); border-radius: 10px; padding: 10px 14px; border-left: 5px solid var(--warn); }
+ul.issues li.good { border-left-color: var(--ok); }
+ul.issues li.sent { border-left-color: var(--err); }
+.swap { font-weight: 700; }
+.swap del { color: var(--err); }
+.swap ins { color: var(--ok); text-decoration: none; }
+.stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.stat { background: var(--surface-2); border-radius: 10px; padding: 6px 12px; font-size: 0.88em; }
+.stat b { font-size: 1.15em; }
+
+.compare { display: grid; gap: 8px; margin-top: 10px; }
+.compare .from { color: var(--muted); font-style: italic; }
+.compare .to { background: var(--ok-soft); border-radius: 10px; padding: 10px 14px; }
+
+/* ---------- Texttyper ---------- */
+.genre-pick { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 12px; }
+.genre-pick button {
+  border: 2px solid var(--border); background: var(--surface); border-radius: 14px;
+  padding: 10px 16px; font-weight: 700; text-align: left; min-height: 48px;
+}
+.genre-pick button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.mode-pick { margin: 6px 0 14px; }
+
+.structure { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+.structure span { font-size: 0.82em; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+
+.part {
+  border-radius: 16px; margin: 14px 0; overflow: hidden;
+  border: 2px solid var(--pc); background: var(--surface);
+}
+.part-head {
+  background: var(--pcs); color: var(--pc); padding: 10px 16px;
+  display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.part-head h3 { margin: 0; color: var(--pc); }
+.part-num { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--pc); color: var(--surface); font-size: 0.85em; margin-right: 8px; }
+.part-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.part-body > div { padding: 14px 16px; }
+.part-body .guide { background: var(--surface-2); border-left: 1px solid var(--border); }
+@media (max-width: 720px) {
+  .part-body { grid-template-columns: 1fr; }
+  .part-body .guide { border-left: 0; border-top: 1px solid var(--border); }
+}
+.model-text { font-size: 1.04em; }
+.model-text.title { font-size: 1.3em; font-weight: 700; }
+.guide h4 { font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 4px; }
+.guide h4 + ul { margin-bottom: 12px; }
+.guide ul { padding-left: 0; list-style: none; }
+.guide ul.must li { padding-left: 26px; position: relative; margin: 3px 0; }
+.guide ul.must li::before { content: "✓"; position: absolute; left: 4px; color: var(--pc); font-weight: 700; }
+.small-btn { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 3px 10px; font-size: 0.8em; min-height: 32px; }
+
+.write-area { display: grid; gap: 8px; }
+.write-meta { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 0.85em; color: var(--muted); }
+.peek { background: var(--pcs); border-radius: 10px; padding: 10px 12px; font-size: 0.95em; margin-top: 4px; }
+.peek-label { font-size: 0.75em; font-weight: 700; color: var(--pc); text-transform: uppercase; letter-spacing: 0.05em; }
+.inline-check { margin-top: 6px; }
+.inline-check ul.issues { margin-top: 6px; }
+.selfcheck { display: grid; gap: 4px; margin-top: 4px; }
+.selfcheck label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+.selfcheck input { margin-top: 0.45em; width: 18px; height: 18px; accent-color: var(--pc); flex: 0 0 auto; }
+
+.fulltext { background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: 20px; white-space: pre-wrap; }
+.fulltext .ft-title { font-size: 1.3em; font-weight: 700; margin-bottom: 10px; display: block; }
+.empty { color: var(--muted); font-style: italic; }
+
+footer { color: var(--muted); font-size: 0.8em; padding: 20px 0 40px; text-align: center; }
+
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+  background: var(--text); color: var(--bg); padding: 10px 18px; border-radius: 10px;
+  font-weight: 700; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50;
+}
+.toast.show { opacity: 1; }
+
+@media print {
+  .toolbar, nav.tabs, .row, .btn, .small-btn, .chips, .guide .chips { display: none !important; }
+  body { background: #fff; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>✏️ Skrivstöd</h1>
+    <p class="rd">Här tränar du på att skriva hela meningar, börja nya meningar på ett bra sätt, göra om talspråk till skriftspråk och skriva olika texttyper, stycke för stycke.</p>
+  </header>
+
+  <div class="toolbar" role="toolbar" aria-label="Läsinställningar">
+    <span class="lbl">Text</span>
+    <div class="seg" role="group" aria-label="Textstorlek">
+      <button type="button" id="sizeMinus" aria-label="Mindre text">A−</button>
+      <button type="button" id="sizePlus" aria-label="Större text">A+</button>
+    </div>
+    <button type="button" class="tbtn" id="fontToggle" aria-pressed="false">🔤 Lättläst typsnitt</button>
+    <span class="lbl">Bionic</span>
+    <div class="seg" role="group" aria-label="Bionic Reading-nivå">
+      <button type="button" data-bionic="0" aria-pressed="true">Av</button>
+      <button type="button" data-bionic="1" aria-pressed="false">B1</button>
+      <button type="button" data-bionic="2" aria-pressed="false">B2</button>
+      <button type="button" data-bionic="3" aria-pressed="false">B3</button>
+    </div>
+    <div class="seg" role="group" aria-label="Färgtema">
+      <button type="button" data-theme-btn="light" aria-pressed="false">☀️</button>
+      <button type="button" data-theme-btn="dark" aria-pressed="false">🌙</button>
+    </div>
+    <button type="button" class="tbtn" id="stopSpeak" hidden>⏹ Sluta läsa</button>
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="Delar">
+    <button role="tab" id="tab-texttyper" aria-controls="p-texttyper" aria-selected="true">📄 Texttyper</button>
+    <button role="tab" id="tab-meningar" aria-controls="p-meningar" aria-selected="false">🔵 Punkt och komma</button>
+    <button role="tab" id="tab-borja" aria-controls="p-borja" aria-selected="false">➡️ Börja nästa mening</button>
+    <button role="tab" id="tab-talsprak" aria-controls="p-talsprak" aria-selected="false">🗣️ Talspråk → skriftspråk</button>
+    <button role="tab" id="tab-kollen" aria-controls="p-kollen" aria-selected="false">🔍 Språkkollen</button>
+  </nav>
+
+  <!-- ============ TEXTTYPER ============ -->
+  <section class="panel" id="p-texttyper" role="tabpanel" aria-labelledby="tab-texttyper">
+    <h2>Texttyper stycke för stycke</h2>
+    <p class="intro rd">Välj en texttyp. Läs modelltexten först. Varje stycke har en färg och en lista över vad stycket ska innehålla. Sedan skriver du din egen text med samma mall.</p>
+
+    <div class="genre-pick" id="genrePick"></div>
+
+    <div class="seg mode-pick" role="group" aria-label="Läge">
+      <button type="button" data-mode="model" aria-pressed="true">📖 Läs modelltexten</button>
+      <button type="button" data-mode="write" aria-pressed="false">✍️ Skriv din egen</button>
+    </div>
+
+    <div id="genreView"></div>
+  </section>
+
+  <!-- ============ PUNKT OCH KOMMA ============ -->
+  <section class="panel" id="p-meningar" role="tabpanel" aria-labelledby="tab-meningar" hidden>
+    <h2>Punkt och komma</h2>
+    <p class="intro rd">Texten nedan är skriven utan punkt och komma, ungefär som när man pratar. Klicka mellan orden för att sätta ut tecken. Ett klick ger punkt, två klick ger komma och tre klick tar bort tecknet.</p>
+    <div class="tip rd"><strong>Tänk så här:</strong> En mening är en tanke. Läs högt tyst för dig själv. Där rösten går ner och du gör en paus är det ofta punkt. Efter punkt kommer stor bokstav. Komma sätter du före <em>men</em> och mellan saker i en uppräkning.</div>
+
+    <div class="card">
+      <div class="progress" id="punctProgress"></div>
+      <div class="sentence-box" id="punctBox" aria-live="polite"></div>
+      <p class="legend">Ett klick = punkt · två klick = komma · tre klick = tomt</p>
+      <div class="row">
+        <button class="btn" id="punctCheck">Rätta</button>
+        <button class="btn ghost" id="punctListen">🔊 Lyssna på din text</button>
+        <button class="btn ghost" id="punctShow">Visa facit</button>
+        <button class="btn ghost" id="punctNext">Nästa text →</button>
+      </div>
+      <div id="punctFeedback"></div>
+    </div>
+  </section>
+
+  <!-- ============ BÖRJA NÄSTA MENING ============ -->
+  <section class="panel" id="p-borja" role="tabpanel" aria-labelledby="tab-borja" hidden>
+    <h2>Hur börjar jag nästa mening?</h2>
+    <p class="intro rd">Sambandsord binder ihop meningar och visar hur de hänger ihop. I stället för att skriva <em>och sen … och sen …</em> kan du välja ett ord som passar. Klicka på ett ord för att kopiera det.</p>
+
+    <div class="tip rd"><strong>Viktigt:</strong> Efter ord som <em>Därför, Sedan, Då, Dessutom</em> kommer verbet direkt. Man skriver <em>Därför <u>kunde</u> jag inte komma</em> och inte <em>Därför jag kunde inte komma</em>.</div>
+
+    <div class="starter-grid" id="starterGrid"></div>
+
+    <h2>Öva: välj rätt sambandsord</h2>
+    <div class="card">
+      <div class="progress" id="connProgress"></div>
+      <p class="sentence-box rd" id="connSentence"></p>
+      <div class="choices" id="connChoices"></div>
+      <div id="connFeedback"></div>
+      <div class="row"><button class="btn ghost" id="connNext" disabled>Nästa →</button></div>
+    </div>
+  </section>
+
+  <!-- ============ TALSPRÅK ============ -->
+  <section class="panel" id="p-talsprak" role="tabpanel" aria-labelledby="tab-talsprak" hidden>
+    <h2>Från talspråk till skriftspråk</h2>
+    <p class="intro rd">När du dikterar blir texten ofta som när du pratar. Det är helt okej i ett första utkast. Sedan gör du om den till skriftspråk. Skriv om meningen nedan och klicka på Kolla.</p>
+
+    <div class="card">
+      <div class="progress" id="talProgress"></div>
+      <p class="legend">Så här lät det när det dikterades:</p>
+      <p class="sentence-box" id="talFrom" style="font-style:italic"></p>
+      <label for="talInput" class="legend">Skriv om till skriftspråk:</label>
+      <textarea id="talInput" style="min-height:90px" placeholder="Skriv din mening här …"></textarea>
+      <div class="row">
+        <button class="btn" id="talCheck">Kolla</button>
+        <button class="btn ghost" id="talShow">Visa ett förslag</button>
+        <button class="btn ghost" id="talNext">Nästa →</button>
+      </div>
+      <div id="talFeedback"></div>
+    </div>
+
+    <h2>Vanliga talspråksord</h2>
+    <div class="card">
+      <p class="intro rd">De här orden är vanliga när man pratar. I en skoltext byter du ut dem.</p>
+      <div class="starter-grid" id="wordTable"></div>
+    </div>
+  </section>
+
+  <!-- ============ SPRÅKKOLLEN ============ -->
+  <section class="panel" id="p-kollen" role="tabpanel" aria-labelledby="tab-kollen" hidden>
+    <h2>Språkkollen</h2>
+    <p class="intro rd">Klistra in eller diktera din text här. Språkkollen visar talspråksord, meningar som saknar punkt och meningar som är för långa. Den är ett stöd, men den hittar inte allt.</p>
+    <div class="card">
+      <label for="kollInput" class="legend">Din text:</label>
+      <textarea id="kollInput" style="min-height:200px" placeholder="Skriv, klistra in eller diktera din text här …"></textarea>
+      <div class="row">
+        <button class="btn" id="kollBtn">🔍 Kolla texten</button>
+        <button class="btn ghost" id="kollListen">🔊 Läs upp</button>
+      </div>
+      <div class="tip rd"><strong>Tips:</strong> Lyssna när datorn läser upp din text. Datorn pausar bara vid punkt. Om det låter som en enda lång mening saknas det punkter.</div>
+      <div id="kollResult"></div>
+    </div>
+  </section>
+
+  <footer>Skrivstöd · bionicreading.se</footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var root = document.documentElement;
+
+  // Sparar i localStorage, men håller även allt i minnet om lagring är blockerad.
+  var mem = {};
+  var store = {
+    get: function (k, d) {
+      if (k in mem) return JSON.parse(mem[k]);
+      try { var v = localStorage.getItem('skrivstod:' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; }
+    },
+    set: function (k, v) { mem[k] = JSON.stringify(v); try { localStorage.setItem('skrivstod:' + k, mem[k]); } catch (e) {} }
+  };
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  var toastTimer;
+  function toast(msg) { var t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 1800); }
+  function copy(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast('Kopierat: ' + text.slice(0, 40)); }, function () { toast('Kunde inte kopiera'); });
+    } else { toast('Kunde inte kopiera'); }
+  }
+
+  /* ================= Uppläsning ================= */
+  var synth = window.speechSynthesis;
+  function speak(text) {
+    if (!synth) { toast('Uppläsning fungerar inte i den här webbläsaren'); return; }
+    synth.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'sv-SE'; u.rate = 0.9;
+    var sv = synth.getVoices().filter(function (v) { return /^sv/i.test(v.lang); })[0];
+    if (sv) u.voice = sv;
+    u.onend = u.onerror = function () { $('#stopSpeak').hidden = true; };
+    $('#stopSpeak').hidden = false;
+    synth.speak(u);
+  }
+  $('#stopSpeak').addEventListener('click', function () { if (synth) synth.cancel(); $('#stopSpeak').hidden = true; });
+
+  /* ================= Inställningar ================= */
+  function applySize(n) { n = Math.max(1, Math.min(4, n)); root.setAttribute('data-size', String(n)); store.set('size', n); }
+  applySize(store.get('size', 2));
+  $('#sizeMinus').addEventListener('click', function () { applySize(+root.dataset.size - 1); });
+  $('#sizePlus').addEventListener('click', function () { applySize(+root.dataset.size + 1); });
+
+  function applyFont(f) { root.setAttribute('data-font', f); $('#fontToggle').setAttribute('aria-pressed', String(f === 'dyslexi')); store.set('font', f); }
+  applyFont(store.get('font', 'system'));
+  $('#fontToggle').addEventListener('click', function () { applyFont(root.dataset.font === 'dyslexi' ? 'system' : 'dyslexi'); });
+
+  function applyTheme(t) {
+    if (t) root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+    $$('[data-theme-btn]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.themeBtn === t)); });
+    store.set('theme', t || '');
+  }
+  applyTheme(store.get('theme', ''));
+  $$('[data-theme-btn]').forEach(function (b) {
+    b.addEventListener('click', function () { applyTheme(root.dataset.theme === b.dataset.themeBtn ? '' : b.dataset.themeBtn); });
+  });
+
+  /* ================= Bionic Reading ================= */
+  var bionicLevel = 0;
+  var WORD_RE = /^([^a-zA-ZåäöÅÄÖéèüÉÈÜ0-9]*)([a-zA-ZåäöÅÄÖéèüÉÈÜ]+)([\s\S]*)$/;
+  function fixation(len, level) {
+    if (len <= 1) return len;
+    if (len <= 3) return 1;
+    var ratio = level === 1 ? 0.35 : level === 2 ? 0.5 : 0.65;
+    return Math.max(1, Math.min(len - 1, Math.round(len * ratio)));
+  }
+  function bionifyNode(node, level) {
+    var frag = document.createDocumentFragment();
+    node.nodeValue.split(/(\s+)/).forEach(function (chunk) {
+      if (!chunk) return;
+      var m = chunk.match(WORD_RE);
+      if (!m) { frag.appendChild(document.createTextNode(chunk)); return; }
+      var cut = fixation(m[2].length, level);
+      if (m[1]) frag.appendChild(document.createTextNode(m[1]));
+      var b = document.createElement('b'); b.className = 'bx'; b.textContent = m[2].slice(0, cut);
+      frag.appendChild(b);
+      frag.appendChild(document.createTextNode(m[2].slice(cut) + m[3]));
+    });
+    node.parentNode.replaceChild(frag, node);
+  }
+  function bionify(el, level) {
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    var nodes = [], n;
+    while ((n = walker.nextNode())) {
+      if (n.nodeValue.trim() && !(n.parentElement && n.parentElement.closest('button, textarea, input'))) nodes.push(n);
+    }
+    nodes.forEach(function (node) { bionifyNode(node, level); });
+  }
+  // Alla element med klassen .rd är ren lästext och får Bionic Reading.
+  function refreshBionic(scope) {
+    $$('.rd', scope || document).forEach(function (el) {
+      if (el.dataset.orig === undefined) el.dataset.orig = el.innerHTML;
+      el.innerHTML = el.dataset.orig;
+      if (bionicLevel > 0) bionify(el, bionicLevel);
+    });
+  }
+  function applyBionic(level) {
+    bionicLevel = Math.max(0, Math.min(3, level));
+    $$('[data-bionic]').forEach(function (b) { b.setAttribute('aria-pressed', String(+b.dataset.bionic === bionicLevel)); });
+    store.set('bionic', bionicLevel);
+    refreshBionic();
+  }
+  $$('[data-bionic]').forEach(function (b) { b.addEventListener('click', function () { applyBionic(+b.dataset.bionic); }); });
+
+  /* ================= Flikar ================= */
+  function showTab(id) {
+    $$('nav.tabs [role="tab"]').forEach(function (t) {
+      var on = t.id === 'tab-' + id;
+      t.setAttribute('aria-selected', String(on));
+      $('#' + t.getAttribute('aria-controls')).hidden = !on;
+    });
+    store.set('tab', id);
+  }
+  $$('nav.tabs [role="tab"]').forEach(function (t) {
+    t.addEventListener('click', function () { showTab(t.id.replace('tab-', '')); });
+  });
+
+  /* =====================================================
+     DATA: Talspråksord
+     ===================================================== */
+  var INFORMAL = {
+    'typ':     { s: 'ta bort ordet, eller: ungefär', w: 'Utfyllnadsord' },
+    'liksom':  { s: 'ta bort ordet', w: 'Utfyllnadsord' },
+    'lixom':   { s: 'ta bort ordet', w: 'Utfyllnadsord' },
+    'asså':    { s: 'ta bort ordet', w: 'Utfyllnadsord' },
+    'ba':      { s: 'sa, eller: bara', w: 'Talspråk' },
+    'dom':     { s: 'de eller dem', w: 'Talspråk' },
+    'mej':     { s: 'mig', w: 'Talspråk' },
+    'dej':     { s: 'dig', w: 'Talspråk' },
+    'sej':     { s: 'sig', w: 'Talspråk' },
+    'sen':     { s: 'sedan, eller: därefter', w: 'Talspråk' },
+    'nån':     { s: 'någon', w: 'Talspråk' },
+    'nåt':     { s: 'något', w: 'Talspråk' },
+    'nåra':    { s: 'några', w: 'Talspråk' },
+    'nånting': { s: 'någonting', w: 'Talspråk' },
+    'nåns':    { s: 'någons', w: 'Talspråk' },
+    'å':       { s: 'och, eller: att', w: 'Talspråk' },
+    'va':      { s: 'var, eller: vad', w: 'Talspråk' },
+    'int':     { s: 'inte', w: 'Talspråk' },
+    'sjukt':   { s: 'mycket, eller: väldigt', w: 'Slang' },
+    'fett':    { s: 'mycket, eller: väldigt', w: 'Slang' },
+    'grym':    { s: 'mycket bra', w: 'Slang' },
+    'grymt':   { s: 'mycket bra', w: 'Slang' },
+    'najs':    { s: 'bra, eller: trevlig', w: 'Slang' },
+    'nice':    { s: 'bra, eller: trevlig', w: 'Slang' },
+    'cringe':  { s: 'pinsam', w: 'Slang' },
+    'random':  { s: 'slumpmässig, eller: vilken som helst', w: 'Slang' },
+    'chilla':  { s: 'slappna av, eller: vila', w: 'Slang' },
+    'chillade':{ s: 'slappnade av, eller: vilade', w: 'Slang' },
+    'grej':    { s: 'sak', w: 'Vardagligt' },
+    'grejen':  { s: 'saken', w: 'Vardagligt' },
+    'grejer':  { s: 'saker', w: 'Vardagligt' },
+    'kolla':   { s: 'titta på, eller: undersöka', w: 'Vardagligt' },
+    'kollade': { s: 'tittade på, eller: undersökte', w: 'Vardagligt' },
+    'kollar':  { s: 'tittar på, eller: undersöker', w: 'Vardagligt' },
+    'fatta':   { s: 'förstå', w: 'Vardagligt' },
+    'fattar':  { s: 'förstår', w: 'Vardagligt' },
+    'fattade': { s: 'förstod', w: 'Vardagligt' },
+    'snacka':  { s: 'prata', w: 'Vardagligt' },
+    'snackade':{ s: 'pratade', w: 'Vardagligt' },
+    'käka':    { s: 'äta', w: 'Vardagligt' },
+    'käkade':  { s: 'åt', w: 'Vardagligt' },
+    'massa':   { s: 'många, eller: mycket', w: 'Vardagligt' },
+    'jättebra':{ s: 'mycket bra', w: 'Vardagligt' },
+    'jättekul':{ s: 'mycket roligt', w: 'Vardagligt' },
+    'jättemånga': { s: 'väldigt många', w: 'Vardagligt' },
+    'kul':     { s: 'roligt', w: 'Vardagligt' },
+    'okej':    { s: 'bra, eller: godtagbart', w: 'Vardagligt' },
+    'ok':      { s: 'bra, eller: godtagbart', w: 'Vardagligt' },
+    'mkt':     { s: 'mycket', w: 'Förkortning' },
+    'pga':     { s: 'på grund av', w: 'Förkortning' },
+    'iaf':     { s: 'i alla fall', w: 'Förkortning' },
+    'bla':     { s: 'bland annat', w: 'Förkortning' },
+    'dvs':     { s: 'det vill säga', w: 'Förkortning' },
+    'typen':   { s: 'personen, eller: killen', w: 'Slang' },
+    'såhär':   { s: 'så här, eller: på det här sättet', w: 'Stavning' }
+  };
+  var WORD_TABLE = [
+    { t: 'Utfyllnadsord', d: 'Ord som man säger när man tänker. Ta bort dem.', w: [['typ', '–'], ['liksom', '–'], ['asså', '–'], ['han ba', 'han sa']] },
+    { t: 'Talspråk', d: 'Så låter det, men så skrivs det inte.', w: [['dom', 'de / dem'], ['mej, dej, sej', 'mig, dig, sig'], ['sen', 'sedan'], ['nån, nåt', 'någon, något'], ['å', 'och / att']] },
+    { t: 'Slang', d: 'Passar i sms, men inte i en skoltext.', w: [['sjukt, fett', 'mycket, väldigt'], ['grym', 'mycket bra'], ['najs', 'bra, trevlig'], ['chilla', 'slappna av'], ['cringe', 'pinsam']] },
+    { t: 'Vardagliga ord', d: 'Byt till ett mer exakt ord.', w: [['grejer', 'saker'], ['kolla', 'titta på, undersöka'], ['fatta', 'förstå'], ['snacka', 'prata'], ['massa', 'många, mycket'], ['kul', 'roligt']] }
+  ];
+
+  /* =====================================================
+     Språkkollen – analys
+     ===================================================== */
+  var LETTER = 'A-Za-zÅÄÖåäöÉéÜü';
+  var TOKEN_RE = new RegExp('[' + LETTER + ']+', 'g');
+
+  function splitSentences(text) {
+    var out = [], re = /[^.!?]+(?:[.!?]+|$)/g, m;
+    while ((m = re.exec(text))) {
+      var s = m[0];
+      if (!s.trim()) continue;
+      var lead = s.length - s.replace(/^\s+/, '').length;
+      out.push({ text: s.trim(), start: m.index + lead, end: m.index + s.replace(/\s+$/, '').length, closed: /[.!?]$/.test(s.trim()) });
+    }
+    return out;
+  }
+  function words(s) { return s.match(TOKEN_RE) || []; }
+
+  function analyze(text) {
+    var res = { marks: [], issues: [], sentences: 0, words: 0 };
+    var m;
+    TOKEN_RE.lastIndex = 0;
+    while ((m = TOKEN_RE.exec(text))) {
+      res.words++;
+      var key = m[0].toLowerCase();
+      if (INFORMAL[key]) res.marks.push({ start: m.index, end: m.index + m[0].length, cls: 'inf', word: m[0], info: INFORMAL[key] });
+    }
+    // "och sen" som meningsstart
+    var ochsen = (text.match(/\boch sen\b/gi) || []).length;
+
+    var sents = splitSentences(text);
+    res.sentences = sents.length;
+    var prevFirst = [], lowerStarts = [], longOnes = [], manyOch = [], noEnd = false, commaMen = 0;
+    sents.forEach(function (s, i) {
+      var w = words(s.text);
+      if (!w.length) return;
+      var first = w[0];
+      if (first[0] !== first[0].toUpperCase()) lowerStarts.push(s.text);
+      if (w.length > 25) { longOnes.push(s.text); res.marks.push({ start: s.start, end: s.end, cls: 'long' }); }
+      var och = w.filter(function (x) { return x.toLowerCase() === 'och'; }).length;
+      if (och >= 3) manyOch.push(s.text);
+      prevFirst.push(first.toLowerCase());
+      if (i === sents.length - 1 && !s.closed) noEnd = true;
+      commaMen += (s.text.match(new RegExp('[' + LETTER + ']\\s+men\\s', 'g')) || []).length;
+    });
+    var repeat = null;
+    for (var i = 2; i < prevFirst.length; i++) {
+      if (prevFirst[i] === prevFirst[i - 1] && prevFirst[i] === prevFirst[i - 2]) { repeat = prevFirst[i]; break; }
+    }
+
+    function short(s) { return s.length > 90 ? s.slice(0, 90) + ' …' : s; }
+    if (noEnd) res.issues.push({ cls: 'sent', html: '<b>Punkt i slutet:</b> Den sista meningen saknar punkt.' });
+    if (lowerStarts.length) res.issues.push({ cls: 'sent', html: '<b>Stor bokstav:</b> ' + lowerStarts.length + ' mening' + (lowerStarts.length > 1 ? 'ar' : '') + ' börjar med liten bokstav, till exempel: <em>”' + esc(short(lowerStarts[0])) + '”</em>' });
+    if (longOnes.length) res.issues.push({ cls: 'sent', html: '<b>Lång mening:</b> ' + longOnes.length + ' mening' + (longOnes.length > 1 ? 'ar har' : ' har') + ' fler än 25 ord (prickig linje). Kan du dela upp den med en punkt?' });
+    if (manyOch.length) res.issues.push({ cls: 'sent', html: '<b>Många ”och”:</b> Här finns många <em>och</em> i samma mening. Prova att sätta punkt och börja nästa mening med ett sambandsord, till exempel <em>Sedan, Därför</em> eller <em>Dessutom</em>.' });
+    if (ochsen) res.issues.push({ cls: '', html: '<b>”och sen”:</b> Du skriver <em>och sen</em> ' + ochsen + ' gång' + (ochsen > 1 ? 'er' : '') + '. Sätt punkt och skriv <em>Sedan</em>, <em>Därefter</em> eller <em>Efter en stund</em>.' });
+    if (repeat) res.issues.push({ cls: '', html: '<b>Variera början:</b> Tre meningar i rad börjar med <em>”' + esc(repeat) + '”</em>. Prova att börja en av dem på ett annat sätt.' });
+    if (commaMen) res.issues.push({ cls: '', html: '<b>Komma före men:</b> Sätt gärna komma före <em>men</em>: <em>Jag ville gå ut<b>,</b> men det regnade.</em>' });
+    var seen = {};
+    res.marks.filter(function (x) { return x.cls === 'inf'; }).forEach(function (x) {
+      var k = x.word.toLowerCase();
+      if (seen[k]) return; seen[k] = 1;
+      res.issues.push({ cls: '', html: '<span class="swap"><del>' + esc(x.word) + '</del> → <ins>' + esc(x.info.s) + '</ins></span> <span class="legend">(' + x.info.w + ')</span>' });
+    });
+    if (!res.issues.length && res.words > 0) res.issues.push({ cls: 'good', html: '<b>Snyggt!</b> Språkkollen hittade inget att ändra. Läs ändå igenom texten en gång till.' });
+    return res;
+  }
+
+  function highlight(text, marks) {
+    // Talspråksord (inf) ligger inuti långa meningar (long). Bygg upp med händelser.
+    var ev = [];
+    marks.forEach(function (mk) {
+      ev.push({ pos: mk.start, open: true, mk: mk });
+      ev.push({ pos: mk.end, open: false, mk: mk });
+    });
+    ev.sort(function (a, b) { return a.pos - b.pos || (a.open === b.open ? (a.open ? (a.mk.cls === 'long' ? -1 : 1) : (a.mk.cls === 'long' ? 1 : -1)) : (a.open ? 1 : -1)); });
+    var out = '', last = 0;
+    ev.forEach(function (e) {
+      out += esc(text.slice(last, e.pos)); last = e.pos;
+      if (e.open) {
+        out += e.mk.cls === 'inf'
+          ? '<mark class="inf" title="' + esc('Byt till: ' + e.mk.info.s) + '">'
+          : '<mark class="long" title="Lång mening">';
+      } else out += '</mark>';
+    });
+    return out + esc(text.slice(last));
+  }
+
+  function renderCheck(text, target, withStats) {
+    if (!text.trim()) { target.innerHTML = '<p class="feedback info">Skriv något först.</p>'; return; }
+    var r = analyze(text);
+    var avg = r.sentences ? Math.round(r.words / r.sentences) : 0;
+    target.innerHTML =
+      (withStats ? '<div class="stats"><span class="stat"><b>' + r.words + '</b> ord</span><span class="stat"><b>' + r.sentences + '</b> meningar</span><span class="stat"><b>' + avg + '</b> ord per mening</span></div>' : '') +
+      (withStats ? '<div class="checked-text">' + highlight(text, r.marks) + '</div>' : '') +
+      '<ul class="issues">' + r.issues.map(function (i) { return '<li class="' + i.cls + '">' + i.html + '</li>'; }).join('') + '</ul>';
+  }
+
+  $('#kollBtn').addEventListener('click', function () { renderCheck($('#kollInput').value, $('#kollResult'), true); });
+  $('#kollListen').addEventListener('click', function () { var t = $('#kollInput').value.trim(); if (t) speak(t); else toast('Skriv något först'); });
+  $('#kollInput').value = store.get('koll', '');
+  $('#kollInput').addEventListener('input', function () { store.set('koll', this.value); });
+
+  /* =====================================================
+     Punkt och komma
+     ===================================================== */
+  var PUNCT = [
+    { text: 'Igår var jag på fotbollsträning. Det regnade hela tiden, men vi fortsatte ändå. Efter träningen var jag väldigt trött.' },
+    { text: 'Min bror heter Ali. Han är fjorton år och går i åttan. Varje morgon cyklar han till skolan, även när det snöar.', names: ['Ali'] },
+    { text: 'Vi åkte till Stockholm i somras. Där besökte vi Gröna Lund, Skansen och Vasamuseet. Det bästa var att åka karuseller.', names: ['Stockholm', 'Gröna', 'Lund', 'Skansen', 'Vasamuseet'] },
+    { text: 'Jag tycker att skolan borde ha längre raster. Eleverna behöver röra på sig, annars blir det svårt att koncentrera sig. Dessutom mår man bättre av frisk luft.' },
+    { text: 'När jag kom hem var huset tomt. Jag ropade på mamma, men ingen svarade. Då såg jag en lapp på köksbordet.' },
+    { text: 'På lördag ska vi ha kalas. Jag har bjudit Sara, Noah, Liam och Ella. Vi ska äta pizza och titta på film.', names: ['Sara', 'Noah', 'Liam', 'Ella'] },
+    { text: 'Många ungdomar sover för lite. De ligger vaken med mobilen, och sedan är de trötta i skolan. Därför borde man lägga undan mobilen i tid.' }
+  ];
+  var punctIdx = 0, punctState = [], punctTokens = [], punctChecked = false, punctDone = store.get('punctDone', []);
+
+  function buildPunct() {
+    var ex = PUNCT[punctIdx];
+    var names = ex.names || [];
+    punctTokens = ex.text.split(/\s+/).map(function (tok, i) {
+      var m = tok.match(/^(.*?)([.,]?)$/);
+      return { word: m[1], punct: m[2], name: i === 0 || names.indexOf(m[1]) !== -1 };
+    });
+    punctState = punctTokens.map(function () { return ''; });
+    punctChecked = false;
+    renderPunct();
+    $('#punctFeedback').innerHTML = '';
+    var pr = '';
+    for (var i = 0; i < PUNCT.length; i++) pr += '<span class="' + (i === punctIdx ? 'cur' : (punctDone.indexOf(i) !== -1 ? 'done' : '')) + '"></span>';
+    $('#punctProgress').innerHTML = pr;
+  }
+  function displayWord(i) {
+    var t = punctTokens[i], w = t.word;
+    var afterPeriod = i === 0 || punctState[i - 1] === '.';
+    if (t.name) return w;
+    var low = w.charAt(0).toLowerCase() + w.slice(1);
+    return afterPeriod ? low.charAt(0).toUpperCase() + low.slice(1) : low;
+  }
+  function renderPunct(showKey) {
+    var html = '';
+    punctTokens.forEach(function (t, i) {
+      html += '<span class="word">' + esc(displayWord(i)) + '</span>';
+      var st = punctState[i], cls = 'gap' + (st ? ' filled' : '');
+      if (punctChecked || showKey) {
+        if (st && st === t.punct) cls = 'gap right';
+        else if (st && st !== t.punct) cls = 'gap wrong';
+        else if (!st && t.punct) cls = 'gap missed';
+      }
+      var label = st === '.' ? 'punkt' : st === ',' ? 'komma' : 'inget tecken';
+      html += '<button type="button" class="' + cls + '" data-i="' + i + '" aria-label="Mellanrum efter ' + esc(t.word) + ': ' + label + '">' + (st || '') + '</button> ';
+    });
+    $('#punctBox').innerHTML = html;
+  }
+  $('#punctBox').addEventListener('click', function (e) {
+    var b = e.target.closest('.gap'); if (!b) return;
+    var i = +b.dataset.i;
+    punctState[i] = punctState[i] === '' ? '.' : punctState[i] === '.' ? ',' : '';
+    punctChecked = false;
+    $('#punctFeedback').innerHTML = '';
+    renderPunct();
+    var nb = $('#punctBox .gap[data-i="' + i + '"]'); if (nb) nb.focus();
+  });
+  $('#punctCheck').addEventListener('click', function () {
+    punctChecked = true; renderPunct();
+    var right = 0, wrongP = 0, missedP = 0, total = 0;
+    punctTokens.forEach(function (t, i) {
+      if (t.punct) total++;
+      if (t.punct && punctState[i] === t.punct) right++;
+      else if (t.punct && !punctState[i]) missedP++;
+      else if (punctState[i] && punctState[i] !== t.punct) wrongP++;
+    });
+    var fb = $('#punctFeedback');
+    if (right === total && !wrongP) {
+      fb.innerHTML = '<div class="feedback ok">🎉 Helt rätt! Alla ' + total + ' tecken sitter där de ska.</div>';
+      if (punctDone.indexOf(punctIdx) === -1) { punctDone.push(punctIdx); store.set('punctDone', punctDone); }
+    } else {
+      fb.innerHTML = '<div class="feedback no">Du har ' + right + ' av ' + total + ' rätt.' +
+        (missedP ? ' Röd ram = här saknas ett tecken.' : '') + (wrongP ? ' Rött tecken = fel tecken eller inget tecken här.' : '') +
+        ' Klicka för att ändra och rätta igen.</div>';
+    }
+  });
+  $('#punctShow').addEventListener('click', function () {
+    punctState = punctTokens.map(function (t) { return t.punct; });
+    punctChecked = true; renderPunct();
+    $('#punctFeedback').innerHTML = '<div class="feedback info">Så här ser texten ut med punkt och komma. Läs den högt och hör var pauserna kommer.</div>';
+  });
+  $('#punctNext').addEventListener('click', function () { punctIdx = (punctIdx + 1) % PUNCT.length; buildPunct(); });
+  $('#punctListen').addEventListener('click', function () {
+    var s = punctTokens.map(function (t, i) { return displayWord(i) + punctState[i]; }).join(' ');
+    speak(s);
+  });
+
+  /* =====================================================
+     Börja nästa mening
+     ===================================================== */
+  var STARTERS = [
+    { t: '🟦 Börja texten', d: 'För första meningen.', w: ['Jag anser att …', 'Har du någonsin …?', 'Många tycker att …', 'Den här texten handlar om …', 'Det var en …'] },
+    { t: '➕ Lägga till', d: 'När du vill säga mer om samma sak.', w: ['Dessutom', 'Även', 'Utöver det', 'För det första', 'För det andra', 'Ett annat skäl är att'] },
+    { t: '⏱️ Tid och ordning', d: 'När något händer efter något annat.', w: ['Först', 'Sedan', 'Därefter', 'Efter en stund', 'Samtidigt', 'Till slut', 'Plötsligt'] },
+    { t: '❓ Orsak – varför?', d: 'När du förklarar varför.', w: ['Eftersom', 'Det beror på att', 'Anledningen är att', 'På grund av'] },
+    { t: '➡️ Följd – vad händer då?', d: 'När du visar vad något leder till.', w: ['Därför', 'Det leder till att', 'Det betyder att', 'Alltså', 'På så sätt'] },
+    { t: '↔️ Motsats', d: 'När något är tvärtom eller annorlunda.', w: ['Men', 'Däremot', 'Å andra sidan', 'Trots att', 'Ändå', 'Vissa menar att'] },
+    { t: '💡 Exempel', d: 'När du visar hur du menar.', w: ['Till exempel', 'Ett exempel är', 'Tänk dig att', 'Som när'] },
+    { t: '🏁 Avsluta', d: 'För sista stycket.', w: ['Sammanfattningsvis', 'Avslutningsvis', 'Till sist', 'Därför anser jag att', 'Slutsatsen är att'] }
+  ];
+  $('#starterGrid').innerHTML = STARTERS.map(function (g) {
+    return '<div class="starter-group"><h3>' + esc(g.t) + '</h3><p class="what rd">' + esc(g.d) + '</p><div class="chips">' +
+      g.w.map(function (w) { return '<button type="button" class="chip" data-copy="' + esc(w.replace(' …', '').replace('…', '')) + '">' + esc(w) + '</button>'; }).join('') + '</div></div>';
+  }).join('');
+  document.addEventListener('click', function (e) {
+    var c = e.target.closest('[data-copy]'); if (c) copy(c.dataset.copy);
+  });
+
+  var CONN = [
+    { a: 'Jag var sjuk igår.', b: 'kunde jag inte gå till skolan.', o: ['Därför', 'Men', 'Till exempel'], why: '<em>Därför</em> visar en följd: jag var sjuk, och det ledde till att jag stannade hemma.' },
+    { a: 'Jag ville gå ut.', b: 'regnade det för mycket.', o: ['Men', 'Dessutom', 'Därför'], why: '<em>Men</em> visar en motsats: jag ville gå ut, men något hindrade mig.' },
+    { a: 'Först åt vi middag.', b: 'spelade vi kort.', o: ['Sedan', 'Däremot', 'Eftersom'], why: '<em>Sedan</em> visar ordningen: det ena hände efter det andra.' },
+    { a: 'Tonåringar behöver mycket sömn.', b: 'kroppen växer mycket under de åren.', o: ['Det beror på att', 'Sedan', 'Men'], why: '<em>Det beror på att</em> förklarar orsaken, alltså varför.' },
+    { a: 'Det finns många sätt att röra på sig.', b: 'kan man cykla till skolan.', o: ['Till exempel', 'Därför', 'Däremot'], why: '<em>Till exempel</em> visar att du ger ett exempel på det du nyss skrev.' },
+    { a: 'Vissa tycker att läxor är onödiga.', b: 'menar andra att läxor hjälper en att minnas.', o: ['Däremot', 'Sedan', 'Plötsligt'], why: '<em>Däremot</em> visar att det finns en annan åsikt.' },
+    { a: 'Skolmaten är nyttig.', b: 'är den billig för skolan att laga.', o: ['Dessutom', 'Trots att', 'Till sist'], why: '<em>Dessutom</em> lägger till ett argument till.' },
+    { a: 'Allt var tyst i huset.', b: 'hördes en smäll från övervåningen.', o: ['Plötsligt', 'Därför', 'Dessutom'], why: '<em>Plötsligt</em> visar att något oväntat händer. Bra i berättelser!' },
+    { a: 'Jag har nu visat tre argument.', b: 'anser jag att skolan borde ha längre raster.', o: ['Sammanfattningsvis', 'Först', 'Plötsligt'], why: '<em>Sammanfattningsvis</em> visar att texten närmar sig slutet.' }
+  ];
+  var connIdx = 0, connDone = [];
+  function setConnSentence(fill) {
+    var q = CONN[connIdx], el = $('#connSentence');
+    el.innerHTML = esc(q.a) + ' <span class="blank">' + esc(fill) + '</span> ' + esc(q.b);
+    delete el.dataset.orig;
+    refreshBionic(el.parentNode);
+  }
+  function buildConn() {
+    var q = CONN[connIdx];
+    setConnSentence('?');
+    $('#connChoices').innerHTML = shuffle(q.o).map(function (o) { return '<button type="button" class="choice">' + esc(o) + '</button>'; }).join('');
+    $('#connFeedback').innerHTML = '';
+    $('#connNext').disabled = true;
+    var pr = '';
+    for (var i = 0; i < CONN.length; i++) pr += '<span class="' + (i === connIdx ? 'cur' : (connDone.indexOf(i) !== -1 ? 'done' : '')) + '"></span>';
+    $('#connProgress').innerHTML = pr;
+  }
+  $('#connChoices').addEventListener('click', function (e) {
+    var b = e.target.closest('.choice'); if (!b || b.disabled) return;
+    var q = CONN[connIdx];
+    if (b.textContent === q.o[0]) {
+      b.classList.add('right');
+      $$('.choice', $('#connChoices')).forEach(function (x) { x.disabled = true; });
+      setConnSentence(q.o[0]);
+      $('#connFeedback').innerHTML = '<div class="feedback ok">✓ Rätt! ' + q.why + '</div>';
+      $('#connNext').disabled = false;
+      if (connDone.indexOf(connIdx) === -1) connDone.push(connIdx);
+    } else {
+      b.classList.add('wrong'); b.disabled = true;
+      $('#connFeedback').innerHTML = '<div class="feedback no">Inte riktigt. Läs meningen med ordet i och hör hur det låter. Prova igen!</div>';
+    }
+  });
+  $('#connNext').addEventListener('click', function () { connIdx = (connIdx + 1) % CONN.length; buildConn(); });
+
+  /* =====================================================
+     Talspråk → skriftspråk
+     ===================================================== */
+  var TAL = [
+    { f: 'asså vi var typ jättetrötta å sen gick vi hem', t: 'Vi var mycket trötta. Sedan gick vi hem.' },
+    { f: 'dom sa att vi skulle kolla på filmen innan lektionen', t: 'De sa att vi skulle titta på filmen före lektionen.' },
+    { f: 'han ba nej å gick därifrån', t: 'Han sa nej och gick därifrån.' },
+    { f: 'det var sjukt kul på lägret och vi gjorde massa grejer', t: 'Det var väldigt roligt på lägret, och vi gjorde många saker.' },
+    { f: 'jag tycker mobiler är dåligt för man fattar inget på lektionerna', t: 'Jag anser att mobiler är dåliga, eftersom de gör det svårt att förstå lektionerna.' },
+    { f: 'nån hade tagit min jacka så jag fick låna en av en kompis', t: 'Någon hade tagit min jacka, så jag fick låna en av en kompis.' },
+    { f: 'vi snackade om klimatet och sen kollade vi en film och sen skrev vi', t: 'Vi pratade om klimatet. Därefter tittade vi på en film. Till sist skrev vi en text.' },
+    { f: 'det är liksom så att folk slänger grejer i naturen och det är fett dåligt', t: 'Många slänger skräp i naturen, och det är mycket dåligt.' }
+  ];
+  var talIdx = 0, talDone = [];
+  function buildTal() {
+    $('#talFrom').textContent = '”' + TAL[talIdx].f + '”';
+    $('#talInput').value = '';
+    $('#talFeedback').innerHTML = '';
+    var pr = '';
+    for (var i = 0; i < TAL.length; i++) pr += '<span class="' + (i === talIdx ? 'cur' : (talDone.indexOf(i) !== -1 ? 'done' : '')) + '"></span>';
+    $('#talProgress').innerHTML = pr;
+  }
+  function showTalModel() {
+    return '<div class="compare"><div class="legend">Ett förslag på skriftspråk:</div><div class="to rd">' + esc(TAL[talIdx].t) + '</div></div>';
+  }
+  $('#talCheck').addEventListener('click', function () {
+    var v = $('#talInput').value;
+    var fb = $('#talFeedback');
+    if (!v.trim()) { fb.innerHTML = '<p class="feedback info">Skriv om meningen först.</p>'; return; }
+    renderCheck(v, fb, false);
+    var r = analyze(v);
+    var clean = r.issues.length === 1 && r.issues[0].cls === 'good';
+    if (clean) {
+      fb.innerHTML = '<div class="feedback ok">✓ Bra! Inga talspråksord, stor bokstav och punkt finns.</div>' + showTalModel();
+      if (talDone.indexOf(talIdx) === -1) talDone.push(talIdx);
+    } else {
+      fb.insertAdjacentHTML('afterbegin', '<div class="feedback no">Nästan! Titta på tipsen nedan och försök igen.</div>');
+    }
+    refreshBionic(fb);
+  });
+  $('#talShow').addEventListener('click', function () { $('#talFeedback').innerHTML = showTalModel(); refreshBionic($('#talFeedback')); });
+  $('#talNext').addEventListener('click', function () { talIdx = (talIdx + 1) % TAL.length; buildTal(); });
+
+  $('#wordTable').innerHTML = WORD_TABLE.map(function (g) {
+    return '<div class="starter-group"><h3>' + esc(g.t) + '</h3><p class="what rd">' + esc(g.d) + '</p><ul style="list-style:none;display:grid;gap:4px">' +
+      g.w.map(function (p) { return '<li class="swap"><del>' + esc(p[0]) + '</del> → <ins>' + esc(p[1]) + '</ins></li>'; }).join('') + '</ul></div>';
+  }).join('');
+
+  /* =====================================================
+     Texttyper – modelltexter
+     ===================================================== */
+  var GENRES = [
+    {
+      id: 'arg', name: '💬 Argumenterande text',
+      about: 'I en argumenterande text vill du övertyga läsaren om något. Du har en åsikt (tes) och stöder den med argument.',
+      parts: [
+        { name: 'Rubrik', c: 1, title: true,
+          must: ['Visar vad texten handlar om', 'Visar gärna din åsikt direkt'],
+          start: ['Därför borde …', 'Låt oss …', 'Ja till …', 'Nej till …'],
+          model: 'Låt oss sova – skolan borde börja klockan nio',
+          prompt: 'Skriv en rubrik som visar din åsikt.' },
+        { name: 'Inledning', c: 2,
+          must: ['Väck läsarens intresse med en fråga eller en vardagsbild', 'Berätta vad ämnet är', 'Skriv din tes: din åsikt i en tydlig mening'],
+          start: ['Har du någonsin …?', 'Tänk dig att …', 'Många elever …', 'Jag anser att …'],
+          model: 'Klockan är sju på morgonen och väckarklockan ringer. Du är så trött att du knappt kan öppna ögonen. Så ser morgonen ut för många elever i Sverige. Jag anser att skoldagen borde börja klockan nio i stället för klockan åtta.',
+          prompt: 'Börja med en fråga eller en bild. Avsluta stycket med din åsikt.' },
+        { name: 'Argument 1', c: 3,
+          must: ['Skriv argumentet i första meningen', 'Förklara varför det stämmer', 'Ge ett exempel eller ett fakta'],
+          start: ['För det första …', 'Mitt första argument är att …', 'Det viktigaste skälet är att …'],
+          model: 'För det första behöver tonåringar mer sömn än vuxna. Kroppen hos en tonåring vill somna senare på kvällen och vakna senare på morgonen. Det är alltså inte lathet när en elev har svårt att somna klockan tio. Om skolan började en timme senare skulle eleverna få den sömn som kroppen behöver.',
+          prompt: 'Skriv ditt starkaste argument. Förklara och ge ett exempel.' },
+        { name: 'Argument 2', c: 4,
+          must: ['Ett nytt argument i första meningen', 'Förklara varför det stämmer', 'Ge ett exempel eller ett fakta'],
+          start: ['För det andra …', 'Ett annat skäl är att …', 'Dessutom …'],
+          model: 'För det andra skulle eleverna lära sig mer. Den som är utvilad kan koncentrera sig bättre och komma ihåg det som läraren säger. Tänk dig en mattelektion klockan åtta där halva klassen gäspar. Samma lektion klockan nio skulle troligen gå mycket bättre. En senare start är därför bra både för eleverna och för lärarna.',
+          prompt: 'Skriv ett argument till. Förklara och ge ett exempel.' },
+        { name: 'Motargument', c: 5,
+          must: ['Skriv vad någon som tycker annorlunda skulle säga', 'Visa att du förstår den åsikten', 'Förklara varför du ändå tycker att du har rätt'],
+          start: ['Vissa menar att …', 'Någon kanske tycker att …', 'Det stämmer att … men …'],
+          model: 'Vissa menar att en senare start gör att skoldagen slutar senare, och att det blir mindre tid för fritidsaktiviteter. Det stämmer att dagen skulle sluta lite senare. Men en elev som är utvilad orkar mer, både i skolan och på träningen. Därför väger fördelarna tyngre än nackdelarna.',
+          prompt: 'Vad skulle någon som inte håller med säga? Svara på det.' },
+        { name: 'Avslutning', c: 6,
+          must: ['Sammanfatta dina argument kort', 'Upprepa din åsikt med andra ord', 'Avsluta gärna med en uppmaning'],
+          start: ['Sammanfattningsvis …', 'Avslutningsvis vill jag säga att …', 'Därför anser jag att …', 'Jag uppmanar …'],
+          model: 'Sammanfattningsvis skulle en senare skolstart ge eleverna mer sömn och bättre möjligheter att lära sig. Jag är övertygad om att det skulle göra skolan bättre för alla. Därför uppmanar jag politikerna att låta skoldagen börja klockan nio.',
+          prompt: 'Sammanfatta, upprepa din åsikt och avsluta med en uppmaning. Skriv inga nya argument här.' }
+      ]
+    },
+    {
+      id: 'utr', name: '🔎 Utredande text',
+      about: 'I en utredande text undersöker du en fråga. Du förklarar orsaker och följder på ett sakligt sätt. Du skriver inte vad du tycker förrän i slutsatsen.',
+      parts: [
+        { name: 'Rubrik', c: 1, title: true,
+          must: ['Visar vilken fråga texten undersöker', 'Kan gärna vara en fråga'],
+          start: ['Varför …?', 'Hur påverkar …?', 'Vad händer när …?'],
+          model: 'Varför är det så svårt att sluta scrolla?',
+          prompt: 'Skriv en rubrik, gärna som en fråga.' },
+        { name: 'Inledning', c: 2,
+          must: ['Presentera ämnet', 'Skriv frågan som texten ska besvara', 'Berätta kort vad texten tar upp'],
+          start: ['De flesta …', 'I den här texten undersöker jag …', 'Frågan är …'],
+          model: 'De flesta ungdomar i Sverige har en mobiltelefon, och många använder den flera timmar varje dag. Ofta tar man upp mobilen för att titta på en sak, men blir sittande länge. I den här texten undersöker jag varför det är så svårt att sluta scrolla och vilka följder det kan få.',
+          prompt: 'Presentera ämnet och skriv vilken fråga du ska undersöka.' },
+        { name: 'Orsak 1', c: 3,
+          must: ['Skriv orsaken i första meningen', 'Förklara hur det fungerar', 'Ge ett exempel'],
+          start: ['En orsak är att …', 'Det beror delvis på att …', 'Först och främst …'],
+          model: 'En orsak är att apparna är byggda för att hålla kvar användaren. Flödet tar aldrig slut, och det finns alltid ett nytt klipp att titta på. Därför finns det ingen naturlig punkt där man slutar, som när en bok tar slut.',
+          prompt: 'Skriv en orsak och förklara den.' },
+        { name: 'Orsak 2', c: 4,
+          must: ['En ny orsak i första meningen', 'Förklara hur det fungerar', 'Använd sambandsord som visar orsak och följd'],
+          start: ['En annan orsak är att …', 'Dessutom …', 'Det leder till att …'],
+          model: 'En annan orsak har med belöning att göra. När man får en gilla-markering eller ser ett roligt klipp blir man glad för en stund. Hjärnan vill uppleva den känslan igen. Det leder till att man fortsätter att scrolla i hopp om nästa belöning.',
+          prompt: 'Skriv en orsak till och förklara den.' },
+        { name: 'Följder och perspektiv', c: 5,
+          must: ['Visa vad det leder till', 'Visa både för- och nackdelar', 'Håll dig saklig – inga ”jag tycker”'],
+          start: ['Det kan leda till att …', 'Å ena sidan …', 'Å andra sidan …', 'En följd är att …'],
+          model: 'Scrollandet kan få flera följder. Å ena sidan kan mobilen vara ett sätt att koppla av och hålla kontakten med vänner. Å andra sidan kan den ta tid från sömn, läxor och andra aktiviteter. Många märker också att det blir svårare att koncentrera sig.',
+          prompt: 'Vad leder det till? Skriv om både bra och dåliga följder.' },
+        { name: 'Avslutning', c: 6,
+          must: ['Svara på frågan från inledningen', 'Sammanfatta orsakerna kort', 'Skriv en slutsats – här får du tycka'],
+          start: ['Sammanfattningsvis …', 'Slutsatsen är att …', 'Min slutsats är att …'],
+          model: 'Sammanfattningsvis är det svårt att sluta scrolla eftersom apparna saknar ett naturligt slut och eftersom hjärnan söker belöningar. Mobilen har både fördelar och nackdelar. Min slutsats är att det blir lättare att själv bestämma över sin tid när man förstår hur mobilen påverkar en.',
+          prompt: 'Svara på frågan och skriv din slutsats. Skriv inga nya fakta här.' }
+      ]
+    },
+    {
+      id: 'ber', name: '📚 Berättande text',
+      about: 'En berättelse har en tydlig början, ett problem som gör den spännande och ett slut. Visa hur personerna känner sig, i stället för att bara säga det.',
+      parts: [
+        { name: 'Rubrik', c: 1, title: true,
+          must: ['Gör läsaren nyfiken', 'Avslöjar inte slutet'],
+          start: ['Den …', 'När …', 'Hemligheten i …'],
+          model: 'Lappen på dörren',
+          prompt: 'Skriv en rubrik som gör läsaren nyfiken.' },
+        { name: 'Inledning', c: 2,
+          must: ['Vem? Presentera huvudpersonen', 'Var? Beskriv platsen', 'När? Tid på dagen eller året'],
+          start: ['Det var en …', 'En kall morgon …', 'Ingen visste att …'],
+          model: 'Det var en grå tisdag i november. Elias gick hem från skolan med händerna djupt nere i jackfickorna. Gatlyktorna hade redan tänts, fast klockan bara var fyra.',
+          prompt: 'Presentera vem, var och när.' },
+        { name: 'Problemet', c: 3,
+          must: ['Något händer som ändrar allt', 'Visa hur personen reagerar', 'Läsaren ska undra: vad händer nu?'],
+          start: ['Plötsligt …', 'Då såg han …', 'Men när hon kom fram …'],
+          model: 'När han kom fram till lägenheten stannade han. På dörren satt en gul lapp. Med darriga bokstäver stod det: ”Kom till källaren. Genast.” Elias kände hur hjärtat började slå snabbare.',
+          prompt: 'Vad händer som gör berättelsen spännande?' },
+        { name: 'Spänningen ökar', c: 4,
+          must: ['Personen gör något för att lösa problemet', 'Använd sinnen: vad hör, ser och känner man?', 'Korta meningar gör det spännande'],
+          start: ['Sedan …', 'Långsamt …', 'Efter en stund …', 'Samtidigt …'],
+          model: 'Han tittade sig omkring, men trapphuset var tomt. Sedan gick han långsamt nedför trappan. Varje steg ekade mellan väggarna. Källardörren stod på glänt, och därinne lyste en svag lampa. Elias andades djupt och sköt upp dörren.',
+          prompt: 'Vad gör personen? Vad hör och ser hen?' },
+        { name: 'Höjdpunkten', c: 5,
+          must: ['Det mest spännande ögonblicket', 'Visa känslor genom kroppen: hjärtat, händerna, andningen', 'Något avgörande händer'],
+          start: ['Plötsligt …', 'I samma ögonblick …', 'Just då …'],
+          model: 'Plötsligt hördes ett skrapande ljud bakom förrådsväggen. Elias frös till. Något rörde sig i mörkret, och han var nära att springa därifrån. Då kom en liten grå katt fram och jamade.',
+          prompt: 'Skriv det mest spännande ögonblicket.' },
+        { name: 'Lösning och slut', c: 6,
+          must: ['Problemet löses', 'Visa hur personen känner sig nu', 'Knyt gärna ihop med början'],
+          start: ['Till slut …', 'Efteråt …', 'När han gick hem …'],
+          model: 'Bakom katten dök grannen fru Lind upp med en ficklampa. ”Äntligen!” sa hon. ”Jag har letat efter någon som kan ta hand om henne i helgen.” Elias skrattade av lättnad. När han gick uppför trappan igen hade han en katt i famnen och ett helt nytt helgäventyr framför sig.',
+          prompt: 'Hur löses problemet? Hur känner sig personen?' }
+      ]
+    }
+  ];
+
+  var genreId = store.get('genre', 'arg');
+  var mode = store.get('mode', 'model');
+  function curGenre() { return GENRES.filter(function (g) { return g.id === genreId; })[0] || GENRES[0]; }
+  function pc(n) { return '--pc:var(--p' + n + ');--pcs:var(--p' + n + 's)'; }
+
+  $('#genrePick').innerHTML = GENRES.map(function (g) {
+    return '<button type="button" data-genre="' + g.id + '" aria-pressed="false">' + esc(g.name) + '</button>';
+  }).join('');
+  $('#genrePick').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-genre]'); if (!b) return;
+    genreId = b.dataset.genre; store.set('genre', genreId); renderGenre();
+  });
+  $$('[data-mode]').forEach(function (b) {
+    b.addEventListener('click', function () { mode = b.dataset.mode; store.set('mode', mode); renderGenre(); });
+  });
+
+  function draftKey() { return 'draft:' + genreId; }
+  function getDraft() { return store.get(draftKey(), {}); }
+
+  function guideHtml(p, withStarters) {
+    return '<h4>Det här ska stycket innehålla</h4><ul class="must">' + p.must.map(function (m) { return '<li class="rd">' + esc(m) + '</li>'; }).join('') + '</ul>' +
+      '<h4>Så kan du börja</h4><div class="chips">' + p.start.map(function (s) {
+        return '<button type="button" class="chip" ' + (withStarters ? 'data-insert="' + esc(s.replace(/ …\??$/, ' ').replace(/…/, '')) + '"' : 'data-copy="' + esc(s.replace(/ …\??$/, '').replace(/…/, '')) + '"') + '>' + esc(s) + '</button>';
+      }).join('') + '</div>';
+  }
+
+  function renderGenre() {
+    var g = curGenre();
+    $$('#genrePick [data-genre]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.genre === g.id)); });
+    $$('[data-mode]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === mode)); });
+
+    var html = '<div class="tip rd"><strong>' + esc(g.name.replace(/^\S+\s/, '')) + ':</strong> ' + esc(g.about) + '</div>';
+    html += '<div class="structure" aria-label="Textens delar">' + g.parts.map(function (p, i) {
+      return '<span style="' + pc(p.c) + ';background:var(--pcs);color:var(--pc)">' + (i + 1) + '. ' + esc(p.name) + '</span>';
+    }).join('') + '</div>';
+
+    if (mode === 'model') {
+      html += '<div class="row"><button class="btn ghost" data-speak-all>🔊 Lyssna på hela texten</button></div>';
+      g.parts.forEach(function (p, i) {
+        html += '<article class="part" style="' + pc(p.c) + '">' +
+          '<div class="part-head"><h3><span class="part-num">' + (i + 1) + '</span>' + esc(p.name) + '</h3>' +
+          '<button type="button" class="small-btn" data-speak="' + i + '">🔊 Lyssna</button></div>' +
+          '<div class="part-body"><div><p class="model-text rd' + (p.title ? ' title' : '') + '">' + esc(p.model) + '</p></div>' +
+          '<div class="guide">' + guideHtml(p, false) + '</div></div></article>';
+      });
+      html += '<div class="row"><button class="btn" data-mode-go="write">✍️ Skriv din egen text med samma mall →</button></div>';
+    } else {
+      var d = getDraft();
+      html += '<p class="intro rd">Skriv ett stycke i taget. Klicka på orden under ”Så kan du börja” för att få in dem i rutan. Din text sparas automatiskt i den här webbläsaren.</p>';
+      g.parts.forEach(function (p, i) {
+        var val = d[i] || '';
+        var checks = (d['c' + i] || []);
+        html += '<article class="part" style="' + pc(p.c) + '" data-part="' + i + '">' +
+          '<div class="part-head"><h3><span class="part-num">' + (i + 1) + '</span>' + esc(p.name) + '</h3>' +
+          '<button type="button" class="small-btn" data-peek="' + i + '">👀 Visa modellstycket</button></div>' +
+          '<div class="part-body"><div class="write-area">' +
+          '<div class="peek" data-peek-box="' + i + '" hidden><div class="peek-label">Modellstycke</div><p class="rd">' + esc(p.model) + '</p></div>' +
+          '<label class="legend rd" for="w' + i + '">' + esc(p.prompt) + '</label>' +
+          (p.title
+            ? '<input type="text" id="w' + i + '" data-w="' + i + '" value="' + esc(val) + '" placeholder="Din rubrik …">'
+            : '<textarea id="w' + i + '" data-w="' + i + '" placeholder="Skriv ditt stycke här …">' + esc(val) + '</textarea>') +
+          '<div class="write-meta"><span data-count="' + i + '"></span>' +
+          (p.title ? '' : '<span><button type="button" class="small-btn" data-listen="' + i + '">🔊 Läs upp</button> <button type="button" class="small-btn" data-check="' + i + '">🔍 Kolla språket</button></span>') + '</div>' +
+          '<div class="inline-check" data-check-box="' + i + '"></div>' +
+          '</div><div class="guide">' +
+          '<h4>Har jag med allt?</h4><div class="selfcheck">' + p.must.map(function (m, j) {
+            return '<label><input type="checkbox" data-sc="' + i + ':' + j + '"' + (checks.indexOf(j) !== -1 ? ' checked' : '') + '><span class="rd">' + esc(m) + '</span></label>';
+          }).join('') + '</div><br>' +
+          '<h4>Så kan du börja</h4><div class="chips">' + p.start.map(function (s) {
+            return '<button type="button" class="chip" data-insert="' + esc(s.replace(/ …\??$/, ' ').replace(/…/, '')) + '">' + esc(s) + '</button>';
+          }).join('') + '</div>' +
+          '</div></div></article>';
+      });
+      html += '<h2>Hela din text</h2><div class="fulltext" id="fullText"></div>' +
+        '<div class="row">' +
+        '<button class="btn" id="copyAll">📋 Kopiera texten</button>' +
+        '<button class="btn ghost" id="listenAll">🔊 Läs upp hela</button>' +
+        '<button class="btn ghost" id="checkAll">🔍 Kolla hela texten</button>' +
+        '<button class="btn ghost" id="downloadAll">💾 Spara som fil</button>' +
+        '<button class="btn ghost" id="clearAll">🗑️ Börja om</button>' +
+        '</div><div id="checkAllBox"></div>';
+    }
+    $('#genreView').innerHTML = html;
+    if (mode === 'write') { updateCounts(); updateFull(); }
+    refreshBionic($('#genreView'));
+  }
+
+  function countWords(s) { return (s.match(TOKEN_RE) || []).length; }
+  function updateCounts() {
+    $$('[data-w]').forEach(function (el) {
+      var n = countWords(el.value), c = $('[data-count="' + el.dataset.w + '"]');
+      var sents = splitSentences(el.value).length;
+      if (c) c.textContent = el.tagName === 'INPUT' ? '' : n + ' ord · ' + sents + ' mening' + (sents === 1 ? '' : 'ar');
+    });
+  }
+  function fullText() {
+    var g = curGenre(), d = getDraft(), parts = [];
+    g.parts.forEach(function (p, i) { var v = (d[i] || '').trim(); if (v) parts.push(v); });
+    return parts.join('\n\n');
+  }
+  function updateFull() {
+    var g = curGenre(), d = getDraft(), box = $('#fullText'); if (!box) return;
+    var title = g.parts[0].title ? (d[0] || '').trim() : '';
+    var body = g.parts.map(function (p, i) { return p.title ? '' : (d[i] || '').trim(); }).filter(Boolean);
+    if (!title && !body.length) { box.innerHTML = '<span class="empty">Här växer din text fram när du skriver i rutorna ovan.</span>'; return; }
+    box.innerHTML = (title ? '<span class="ft-title">' + esc(title) + '</span>' : '') + esc(body.join('\n\n'));
+  }
+
+  $('#genreView').addEventListener('input', function (e) {
+    var el = e.target;
+    if (el.dataset.w !== undefined) {
+      var d = getDraft(); d[el.dataset.w] = el.value;
+      store.set(draftKey(), d);
+      updateCounts(); updateFull();
+    }
+  });
+  $('#genreView').addEventListener('change', function (e) {
+    var el = e.target;
+    if (el.dataset.sc) {
+      var ij = el.dataset.sc.split(':'), d = getDraft(), k = 'c' + ij[0], arr = d[k] || [], j = +ij[1];
+      if (el.checked) { if (arr.indexOf(j) === -1) arr.push(j); } else arr = arr.filter(function (x) { return x !== j; });
+      d[k] = arr; store.set(draftKey(), d);
+    }
+  });
+  $('#genreView').addEventListener('click', function (e) {
+    var t = e.target.closest('button'); if (!t) return;
+    var g = curGenre();
+    if (t.dataset.speak !== undefined) speak(g.parts[+t.dataset.speak].model);
+    else if (t.hasAttribute('data-speak-all')) speak(g.parts.map(function (p) { return p.model; }).join('. '));
+    else if (t.dataset.modeGo) { mode = t.dataset.modeGo; store.set('mode', mode); renderGenre(); window.scrollTo({ top: $('#genrePick').offsetTop - 70, behavior: 'smooth' }); }
+    else if (t.dataset.peek !== undefined) {
+      var pb = $('[data-peek-box="' + t.dataset.peek + '"]');
+      pb.hidden = !pb.hidden;
+      t.textContent = pb.hidden ? '👀 Visa modellstycket' : '🙈 Dölj modellstycket';
+    }
+    else if (t.dataset.insert !== undefined) {
+      var part = t.closest('[data-part]'), ta = part && $('[data-w]', part);
+      if (!ta) return;
+      var ins = t.dataset.insert;
+      var pos = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
+      var before = ta.value.slice(0, pos), after = ta.value.slice(pos);
+      var pre = before && !/\s$/.test(before) ? ' ' : '';
+      ta.value = before + pre + ins + after;
+      ta.focus();
+      var np = (before + pre + ins).length;
+      ta.setSelectionRange(np, np);
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    else if (t.dataset.listen !== undefined) { var v = $('[data-w="' + t.dataset.listen + '"]').value.trim(); if (v) speak(v); else toast('Skriv något först'); }
+    else if (t.dataset.check !== undefined) { renderCheck($('[data-w="' + t.dataset.check + '"]').value, $('[data-check-box="' + t.dataset.check + '"]'), false); }
+    else if (t.id === 'copyAll') { var ft = fullText(); if (ft) copy(ft); else toast('Du har inte skrivit något än'); }
+    else if (t.id === 'listenAll') { var ft2 = fullText(); if (ft2) speak(ft2); else toast('Du har inte skrivit något än'); }
+    else if (t.id === 'checkAll') { var body = g.parts.map(function (p, i) { return p.title ? '' : (getDraft()[i] || '').trim(); }).filter(Boolean).join('\n\n'); renderCheck(body, $('#checkAllBox'), true); }
+    else if (t.id === 'downloadAll') {
+      var txt = fullText(); if (!txt) { toast('Du har inte skrivit något än'); return; }
+      var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = g.name.replace(/^\S+\s/, '').toLowerCase().replace(/\s+/g, '-') + '.txt';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    }
+    else if (t.id === 'clearAll') {
+      if (confirm('Vill du ta bort allt du skrivit i den här texttypen?')) { store.set(draftKey(), {}); renderGenre(); }
+    }
+  });
+
+  /* ================= Start ================= */
+  renderGenre();
+  buildPunct();
+  buildConn();
+  buildTal();
+  showTab(store.get('tab', 'texttyper'));
+  applyBionic(store.get('bionic', 0));
+  if (synth && synth.onvoiceschanged !== undefined) synth.onvoiceschanged = function () {};
+})();
+</script>
+</body>
+</html>
