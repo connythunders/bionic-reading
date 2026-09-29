@@ -15,6 +15,7 @@ Den här serverfunktionen används av coachen på `skrivstod.html`. Coachen stä
 
 | Variabel | Standard | Vad den gör |
 |---|---|---|
+| `ANTHROPIC_WORKSPACE_ID` | – | Behövs om nyckeln inte är knuten till en workspace. Id:t börjar med `wrkspc_` och finns i Anthropic Console under Settings → Workspaces. |
 | `DAILY_LIMIT` | `80` | Max antal coachfrågor per IP-adress och dygn. |
 | `ALLOWED_ORIGINS` | `https://bionicreading.se,https://www.bionicreading.se` | Sidor som får använda coachen. |
 

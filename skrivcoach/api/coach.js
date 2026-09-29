@@ -1,6 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const client = new Anthropic(); // läser ANTHROPIC_API_KEY från Vercels miljövariabler
+// Läser ANTHROPIC_API_KEY från Vercels miljövariabler. ANTHROPIC_WORKSPACE_ID behövs bara
+// om nyckeln inte är knuten till en workspace i Anthropic Console.
+const client = new Anthropic(
+  process.env.ANTHROPIC_WORKSPACE_ID
+    ? { defaultHeaders: { 'anthropic-workspace-id': process.env.ANTHROPIC_WORKSPACE_ID } }
+    : {}
+);
 
 // Vilka sidor som får anropa coachen. Kan ändras med miljövariabeln ALLOWED_ORIGINS (kommaseparerad).
 const ALLOWED = (process.env.ALLOWED_ORIGINS || 'https://bionicreading.se,https://www.bionicreading.se')
