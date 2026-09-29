@@ -24,3 +24,12 @@ Gränsen per dygn räknas i funktionens minne och nollställs när Vercel starta
 ## Modell
 
 Claude Opus 5.5 med låg effort. Om en fråga stoppas av säkerhetsfiltret skickas den automatiskt vidare till en reservmodell (`fallbacks: "default"`).
+
+## Mattestöd
+
+`api/matte.js` är serverdelen till `mattestod.html`. Den ligger i samma Vercel-projekt, så den driftsätts automatiskt med resten och använder samma nyckel och miljövariabler. Efter en ny driftsättning finns den på `https://…/api/matte`.
+
+- Läge `las`: läser en bild eller text med en mattuppgift, skriver av den och delar upp den i "Det här vet vi" och "Det här ska vi ta reda på". Den löser aldrig uppgiften.
+- Läge `coach`: sokratiskt samtal. Modellen räknar ut facit privat för att kunna bedöma elevens svar, men facit skickas aldrig till eleven.
+
+Fotot förminskas i webbläsaren, skickas till Anthropic för avläsning och sparas inte.
