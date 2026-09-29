@@ -104,16 +104,24 @@ export default async function handler(req, res) {
   if (!MODES[b.mode]) return res.status(400).json({ error: 'Okänt läge.' });
   if (b.mode === 'fraga' && !String(b.question || '').trim()) return res.status(400).json({ error: 'Skriv en fråga först.' });
 
+  const params = {
+    model: 'claude-opus-5-5',
+    max_tokens: 4000,
+    output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
+    system: SYSTEM,
+    messages: [{ role: 'user', content: buildUserMessage(b) }]
+  };
+
   try {
-    const response = await client.beta.messages.create({
-      model: 'claude-opus-5-5',
-      max_tokens: 4000,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-      output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
-      system: SYSTEM,
-      messages: [{ role: 'user', content: buildUserMessage(b) }]
-    });
+    let response;
+    try {
+      response = await client.beta.messages.create({ ...params, betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' });
+    } catch (err) {
+      // Om kontot inte har tillgång till reservmodellen: försök en gång till utan den.
+      if (!(err instanceof Anthropic.BadRequestError)) throw err;
+      console.warn('Försöker utan fallbacks:', err.message);
+      response = await client.messages.create(params);
+    }
 
     if (response.stop_reason === 'refusal') {
       return res.status(200).json({ bra: '', tips: 'Det där kan jag inte hjälpa till med. Prata gärna med din lärare.', fraga: '', start: '' });
