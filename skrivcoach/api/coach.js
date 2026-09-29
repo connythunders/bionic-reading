@@ -138,7 +138,6 @@ export default async function handler(req, res) {
     if (err instanceof Anthropic.RateLimitError) return res.status(429).json({ error: 'Coachen är upptagen just nu. Vänta en minut och försök igen.' });
     if (err instanceof Anthropic.AuthenticationError) return res.status(500).json({ error: 'Coachen är inte rätt inställd (API-nyckeln). Säg till din lärare.' });
     console.error(err);
-    const detail = clip((err && (err.status ? err.status + ' ' : '') + err.message) || '', 300);
-    return res.status(500).json({ error: 'Något gick fel. Försök igen om en stund.', detail });
+    return res.status(500).json({ error: 'Något gick fel. Försök igen om en stund.' });
   }
 }
