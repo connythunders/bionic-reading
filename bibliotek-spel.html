@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Biblioteksrallyt för åk 4–6: ett spel om skolbiblioteket, böcker, faktaböcker, sökord och källkritik.">
+<title>Biblioteksrallyt – åk 4–6</title>
+<style>
+:root{
+  --bg:#fff7ec; --surface:#ffffff; --surface-2:#fbf1e2;
+  --text:#2a2118; --soft:#6a5b4c; --line:#e6d6bf;
+  --accent:#b4440f; --accent-weak:#fde9d8;
+  --good:#1f7a43; --good-weak:#e2f4e8; --bad:#b3261e; --bad-weak:#fde8e6;
+  --gold:#f5b400; --shadow:0 2px 4px rgba(60,30,0,.08),0 10px 30px rgba(60,30,0,.10);
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1d1812; --surface:#2a231a; --surface-2:#352c20;
+    --text:#f5ece0; --soft:#c9b9a3; --line:#4a3d2c;
+    --accent:#ff9a62; --accent-weak:#3d2a1b;
+    --good:#7fd29b; --good-weak:#1b3326; --bad:#f19a94; --bad-weak:#3a2220;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:18px/1.55 "Segoe UI",system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+header.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0 16px}
+header.top h1{font-size:1.5rem;margin:0;margin-right:auto}
+.pill{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:4px 14px;font-weight:700}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:12px;padding:10px 20px;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+@media (prefers-color-scheme: dark){.btn{color:#1d1812}}
+.btn:hover{filter:brightness(1.1)} .btn:active{transform:translateY(2px);box-shadow:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:var(--surface);color:var(--text);border:2px solid var(--line);box-shadow:none}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.world{margin-top:18px}
+.world h3{margin:0 0 8px;padding-left:10px;border-left:8px solid var(--c)}
+.hub{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.lvl{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);transition:transform .15s}
+.lvl:hover{transform:translateY(-3px);border-color:var(--c)}
+.lvl .ico{font-size:2.2rem}.lvl h4{margin:.2rem 0;font-size:1.1rem}.lvl p{margin:0;color:var(--soft);font-size:.9rem}
+.lvl.done{border-color:var(--good);background:linear-gradient(var(--good-weak),var(--surface))}
+.stars{letter-spacing:2px;color:var(--gold);min-height:1.5em}
+.intro{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.intro .big{font-size:3rem}
+.bar{height:14px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--line);margin:8px 0}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#e8590c,#f5b400);transition:width .4s}
+.back{margin-bottom:10px}
+h2{margin:.2rem 0 .4rem}
+.tip{background:var(--accent-weak);border-left:5px solid var(--accent);padding:10px 14px;border-radius:8px;margin:12px 0;font-size:.95rem}
+.opts{display:grid;gap:10px;margin:14px 0}
+.opt{text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:12px;padding:12px 16px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--good-weak);border-color:var(--good)}
+.opt.wrong{background:var(--bad-weak);border-color:var(--bad);animation:shake .3s}
+.opt:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{min-height:1.6em;font-weight:600}.fb.good{color:var(--good)}.fb.bad{color:var(--bad)}
+mark{background:#ffe27a;color:#222;padding:0 5px;border-radius:5px;font-weight:700}
+.sent{font-size:1.25rem;background:var(--surface-2);border-radius:12px;padding:14px 16px;margin:10px 0}
+.steps{counter-reset:s;list-style:none;padding:0}
+.mem{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0}
+.mc{min-height:90px;border-radius:12px;border:2px solid var(--line);background:linear-gradient(135deg,#e8590c,#f5b400);color:transparent;font-size:.9rem;padding:6px;line-height:1.25}
+.mc.open{background:var(--surface-2);color:var(--text)}
+.mc.ok{background:var(--good-weak);color:var(--text);border-color:var(--good)}
+.tok{display:inline-block;margin:3px;padding:6px 12px;border-radius:10px;border:2px solid var(--line);background:var(--surface-2);font-size:1.1rem}
+.tok:hover:not(:disabled){border-color:var(--accent)}
+.tok:disabled{opacity:.35}
+.build{min-height:56px;background:var(--surface-2);border:2px dashed var(--line);border-radius:12px;padding:8px;margin:10px 0;font-size:1.2rem}
+.err{cursor:pointer;display:inline-block;padding:2px 6px;margin:1px;border-radius:6px;border:2px solid transparent;background:none;font-size:1.25rem}
+.err:hover{background:var(--accent-weak)}
+.err.bad{background:var(--bad-weak);border-color:var(--bad)}
+.err.ok{background:var(--good-weak);border-color:var(--good)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.big-btn{border:0;border-radius:12px;padding:16px 6px;color:#fff;font-weight:700;font-size:1.1rem;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.hearts{font-size:1.4rem}
+.cert{text-align:center;border:6px double var(--gold);background:var(--surface);padding:30px;border-radius:12px}
+.cert h2{font-size:2rem;color:var(--accent)}
+.cert .name{font-size:2rem;font-weight:800;border-bottom:3px solid var(--gold);display:inline-block;padding:0 20px}
+input[type=text]{font:inherit;padding:8px 12px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);width:100%;max-width:300px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:99}
+@media print{body{background:#fff}.no-print{display:none!important}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top no-print">
+    <h1>📚 Biblioteksrallyt <small style="font-weight:400;color:var(--soft)">· åk 4–6</small></h1>
+    <span class="pill" id="xp">⭐ 0 poäng</span>
+    <button class="btn ghost" id="resetBtn">Börja om</button>
+  </header>
+  <main id="app"></main>
+</div>
+<script>
+'use strict';
+const KEY='bibliotek-spel:v1';
+let S={name:'',lv:{}};
+try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.lv) S=s; }catch(e){}
+const save=()=>{ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} };
+const $=(s,r=document)=>r.querySelector(s);
+const app=$('#app');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+const total=()=>Object.values(S.lv).reduce((n,l)=>n+l.xp,0);
+const stars=m=>m===0?3:m<=2?2:1;
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const c=$('#fx'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const p=Array.from({length:120},()=>({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:-Math.random()*12-3,c:`hsl(${Math.random()*360},90%,60%)`,s:5+Math.random()*6}));
+  let t=0;(function f(){x.clearRect(0,0,c.width,c.height);p.forEach(a=>{a.x+=a.vx;a.y+=a.vy;a.vy+=.35;x.fillStyle=a.c;x.fillRect(a.x,a.y,a.s,a.s);});
+    if(++t<110)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height);})();
+}
+
+/* Quiz: första alternativet är rätt. Q.s = valfri mening som visas (HTML). */
+function quiz(box,questions,done){
+  let i=0,mistakes=0;const q=shuffle(questions);
+  (function show(){
+    const Q=q[i];
+    box.innerHTML=`<div class="bar"><i style="width:${i/q.length*100}%"></i></div>
+      <p><b>Fråga ${i+1} av ${q.length}</b></p><h3>${Q.q}</h3>${Q.s?`<div class="sent">${Q.s}</div>`:''}
+      <div class="opts">${shuffle(Q.o.map((t,k)=>({t,k}))).map(o=>`<button class="opt" data-k="${o.k}">${o.t}</button>`).join('')}</div>
+      <div class="fb" aria-live="polite"></div><div id="nx"></div>`;
+    const fb=$('.fb',box);
+    box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(+b.dataset.k===0){
+        b.classList.add('right');box.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+        fb.className='fb good';fb.textContent='✅ Rätt! '+Q.why;
+        $('#nx').innerHTML=`<button class="btn">${i+1<q.length?'Nästa →':'Klart! 🎉'}</button>`;
+        $('#nx .btn').onclick=()=>{ if(++i<q.length)show(); else done(mistakes); };
+        $('#nx .btn').focus();
+      }else{mistakes++;b.classList.add('wrong');b.disabled=true;fb.className='fb bad';fb.textContent='❌ Inte riktigt – försök igen!';}
+    });
+  })();
+}
+
+/* Memory */
+function memory(box,pairs,done){
+  const cards=shuffle(pairs.flatMap((p,k)=>[{k,t:p[0]},{k,t:p[1]}]));
+  let first=null,lock=false,found=0,mistakes=0;
+  box.innerHTML=`<div class="mem">${cards.map((c,n)=>`<button class="mc" data-n="${n}" aria-label="Kort ${n+1}">❓</button>`).join('')}</div><div class="fb" aria-live="polite"></div>`;
+  const fb=$('.fb',box);
+  box.querySelectorAll('.mc').forEach(b=>b.onclick=()=>{
+    if(lock||b.classList.contains('open')||b.classList.contains('ok'))return;
+    const c=cards[+b.dataset.n];b.classList.add('open');b.textContent=c.t;
+    if(!first){first=b;return;}
+    const a=cards[+first.dataset.n];
+    if(a.k===c.k){first.className=b.className='mc ok';first=null;fb.className='fb good';fb.textContent='✅ Ett par!';
+      if(++found===pairs.length)setTimeout(()=>done(Math.floor(mistakes/2)),600);}
+    else{mistakes++;lock=true;fb.className='fb bad';fb.textContent='❌ Inte ett par – titta noga.';
+      const f=first;first=null;setTimeout(()=>{[f,b].forEach(x=>{x.classList.remove('open');x.textContent='❓';});lock=false;},900);}
+  });
+}
+
+/* Bygg en mening: klicka orden i rätt ordning */
+const norm=s=>s.toLowerCase().replace(/[.,!?]/g,'').replace(/\s+/g,' ').trim();
+function build(box,items,done){
+  const P=shuffle(items);let i=0,mistakes=0;
+  (function show(){
+    const it=P[i];let chosen=[];
+    box.innerHTML=`<div class="bar"><i style="width:${i/P.length*100}%"></i></div><p><b>Uppgift ${i+1} av ${P.length}</b> – ${it.hint}</p>
+     <div class="build" id="bd" aria-live="polite"></div><div id="tk"></div>
+     <div class="row"><button class="btn" id="ck" disabled>Kolla</button><button class="btn ghost" id="cl">Rensa</button></div><div class="fb" aria-live="polite"></div><div id="nx"></div>`;
+    const tk=$('#tk',box),bd=$('#bd',box),ck=$('#ck',box),fb=$('.fb',box);
+    const draw=()=>{
+      bd.textContent=chosen.map(c=>c.t).join(' ');
+      tk.innerHTML='';
+      it.w.map((t,k)=>({t,k})).forEach(o=>{
+        const b=document.createElement('button');b.className='tok';b.textContent=o.t;b.disabled=chosen.some(c=>c.k===o.k);
+        b.onclick=()=>{chosen.push(o);draw();};tk.appendChild(b);
+      });
+      ck.disabled=chosen.length!==it.w.length;
+    };
+    $('#cl',box).onclick=()=>{chosen=[];fb.textContent='';draw();};
+    ck.onclick=()=>{
+      const s=norm(chosen.map(c=>c.t).join(' '));
+      if(it.ok.map(norm).includes(s)){
+        fb.className='fb good';fb.textContent='✅ Rätt! '+it.why;ck.disabled=true;tk.querySelectorAll('button').forEach(b=>b.disabled=true);
+        $('#nx',box).innerHTML=`<button class="btn">${i+1<P.length?'Nästa →':'Klart! 🎉'}</button>`;
+        $('#nx .btn',box).onclick=()=>{ if(++i<P.length)show(); else done(mistakes); };
+      }else{mistakes++;fb.className='fb bad';fb.textContent='❌ Inte rätt ordning – tryck Rensa och försök igen.';}
+    };
+    draw();
+  })();
+}
+
+/* Hitta felet */
+function findError(box,items,done){
+  const P=shuffle(items);let i=0,mistakes=0;
+  (function show(){
+    const it=P[i];
+    box.innerHTML=`<div class="bar"><i style="width:${i/P.length*100}%"></i></div><p><b>Uppgift ${i+1} av ${P.length}</b> – klicka på ordet som är fel.</p>
+     <div class="sent">${it.t.map((w,k)=>`<button class="err" data-k="${k}">${esc(w)}</button>`).join(' ')}</div><div class="fb" aria-live="polite"></div><div id="nx"></div>`;
+    const fb=$('.fb',box);
+    box.querySelectorAll('.err').forEach(b=>b.onclick=()=>{
+      if(it.e.includes(+b.dataset.k)){
+        it.e.forEach(k=>box.querySelector(`.err[data-k="${k}"]`).classList.add('ok'));
+        box.querySelectorAll('.err').forEach(x=>x.disabled=true);
+        fb.className='fb good';fb.textContent='✅ Rätt! '+it.why;
+        $('#nx',box).innerHTML=`<button class="btn">${i+1<P.length?'Nästa →':'Klart! 🎉'}</button>`;
+        $('#nx .btn',box).onclick=()=>{ if(++i<P.length)show(); else done(mistakes); };
+      }else{mistakes++;b.classList.add('bad');b.disabled=true;fb.className='fb bad';fb.textContent='❌ Det ordet är rätt – leta vidare!';}
+    });
+  })();
+}
+
+/* Två val, valfritt med liv */
+function classify(box,items,labels,done,lives=0){
+  const P=shuffle(items);let i=0,L=lives,mistakes=0;
+  (function show(){
+    box.innerHTML=`${lives?`<p class="hearts" aria-label="${L} liv kvar">${'❤️'.repeat(L)}${'🖤'.repeat(lives-L)}</p>`:''}
+     <div class="bar"><i style="width:${i/P.length*100}%"></i></div>
+     <h3 style="margin-bottom:0">${P[i][0]}</h3>
+     <div class="two">${labels.map(l=>`<button class="big-btn" style="background:${l[1]}">${l[0]}</button>`).join('')}</div><div class="fb" aria-live="polite"></div>`;
+    box.querySelectorAll('.big-btn').forEach((b,k)=>b.onclick=()=>{
+      if(labels[k][0]===P[i][1]){ if(++i===P.length)return done(mistakes); show(); }
+      else{mistakes++;
+        if(lives&&--L===0){box.innerHTML=`<p class="fb bad">💀 Slut på liv! Försök igen.</p><button class="btn" id="re">Försök igen</button>`;$('#re',box).onclick=()=>{i=0;L=lives;mistakes=0;show();};return;}
+        show();$('.fb',box).className='fb bad';$('.fb',box).textContent='❌ Fel! '+(P[i][2]||'');}
+    });
+  })();
+}
+
+const ch=(q,r,w,why)=>({q,o:[r,...w],why});
+const W={bibliotek:['Biblioteket','#e8590c'],bocker:['Böcker','#2b7de9'],sok:['Sök & källkritik','#2f9e44']};
+const LEVELS=[
+{w:'bibliotek',ico:'🏫',title:'Bibliotekskoll',sub:'Låna, lämna och fråga',
+ intro:'Hur fungerar skolbiblioteket? Välj rätt svar.',tip:'Skolbiblioteket är till för alla. Du kan låna böcker gratis och få hjälp av bibliotekarien.',
+ run:(b,d)=>quiz(b,[
+  ch('Vad kostar det att låna en bok på skolbiblioteket?','Ingenting – det är gratis',['10 kronor per bok','Det beror på boken'],'Biblioteket är gratis att använda.'),
+  ch('Vem kan hjälpa dig att hitta en bra bok?','Bibliotekarien',['Vaktmästaren','Ingen – du måste klara dig själv'],'Bibliotekarien kan tipsa och hjälpa dig söka.'),
+  ch('Du har läst ut boken. Vad gör du?','Lämnar tillbaka den i tid',['Behåller den för alltid','Lägger den i fel hylla'],'Då kan någon annan låna den.'),
+  ch('Boken du vill ha är utlånad. Vad kan du göra?','Reservera den',['Ta den från kompisen','Glömma den'],'Du kan reservera boken så får du den när den är tillbaka.'),
+  ch('Hur ska man vara i biblioteket?','Lugn och tyst, så alla kan läsa',['Högljudd och snabb','Springa runt'],'Alla ska kunna läsa och tänka i fred.'),
+  ch('Du har tappat bort en lånad bok. Vad gör du?','Berättar för bibliotekarien',['Låtsas att inget har hänt','Lånar en ny utan att säga något'],'Berätta direkt, så kan ni hitta en lösning.')
+ ],d)},
+{w:'bibliotek',ico:'📕',title:'Saga eller fakta?',sub:'Skönlitteratur och faktaböcker',
+ intro:'Är boken <b>skönlitteratur</b> (påhittad berättelse) eller en <b>faktabok</b> (sann information)?',tip:'Skönlitteratur = berättelser, sagor, romaner. Faktaböcker = lär dig något sant: lexikon, atlas, böcker om djur och rymden.',
+ run:(b,d)=>classify(b,[
+  ['Pippi Långstrump','Skönlitteratur'],['Allt om rymden','Fakta'],['En detektivroman','Skönlitteratur'],['Djur i Sverige','Fakta'],
+  ['Sagan om Bockarna Bruse','Skönlitteratur'],['Så fungerar kroppen','Fakta'],['Ett lexikon','Fakta'],['En fantasyroman om drakar','Skönlitteratur'],['En atlas med kartor','Fakta']
+ ].map(x=>[...x,'Tänk: är det påhittat eller sant?']),[['Skönlitteratur','#9c36b5'],['Fakta','#2b7de9']],d)},
+{w:'bibliotek',ico:'🔤',title:'ABC-hyllan',sub:'Ställ böckerna i rätt ordning',
+ intro:'Skönlitteratur står i <b>alfabetisk ordning efter författarens efternamn</b>. Klicka namnen i rätt ordning, från A till Ö.',tip:'Å, Ä och Ö kommer sist i alfabetet, efter Z. Är första bokstaven lika – titta på nästa!',
+ run:(b,d)=>build(b,[
+  {w:['Svensson','Ek','Berg','Lund'],hint:'Börja med den som kommer först i alfabetet.',ok:['Berg Ek Lund Svensson'],why:'B – E – L – S.'},
+  {w:['Nilsson','Rowling','Andersson','Lindgren'],hint:'A kommer först.',ok:['Andersson Lindgren Nilsson Rowling'],why:'A – L – N – R.'},
+  {w:['Karlsson','Åkesson','Zetterberg','Öberg'],hint:'Å, Ä, Ö kommer efter Z.',ok:['Karlsson Zetterberg Åkesson Öberg'],why:'K – Z – Å – Ö.'},
+  {w:['Pettersson','Persson','Paulsson'],hint:'Alla börjar på P. Titta på andra bokstaven!',ok:['Paulsson Persson Pettersson'],why:'Pa – Pe(r) – Pe(t).'}
+ ],d)},
+{w:'bocker',ico:'🧩',title:'Delarna i en bok',sub:'Hitta par',
+ intro:'Vänd två kort i taget och para ihop <b>begrepp</b> med <b>förklaring</b>.',tip:'Titeln står på omslaget. Baksidestexten hjälper dig att välja bok.',
+ run:(b,d)=>memory(b,[['Titel','Bokens namn'],['Författare','Den som har skrivit boken'],['Illustratör','Den som har ritat bilderna'],['Baksidestext','Kort text som berättar vad boken handlar om'],['Innehållsförteckning','Lista över kapitel och sidor'],['Register','Sökordslista längst bak i en faktabok']],d)},
+{w:'bocker',ico:'🔎',title:'Hitta i faktaboken',sub:'Innehåll, register och lexikon',
+ intro:'Vad använder du för att <b>hitta rätt information</b>?',tip:'Innehållsförteckningen hittar du <b>först</b> i boken, registret <b>sist</b>. Ett lexikon är ordnat i ABC-ordning.',
+ run:(b,d)=>quiz(b,[
+  ch('Du vill se vilka kapitel boken har. Var tittar du?','I innehållsförteckningen',['I registret','På baksidan'],'Innehållsförteckningen visar kapitlen och sidnummer.'),
+  ch('Du letar efter ordet "lava" i en faktabok. Var tittar du?','I registret längst bak',['På titelsidan','I bokens första mening'],'Registret är en lista med ord och sidor.'),
+  ch('Du vill se var Peru ligger. Vilken bok är bäst?','En atlas',['En sagobok','En ordbok'],'En atlas har kartor.'),
+  ch('Du vill veta vad ordet "kolonn" betyder. Vilken bok är bäst?','Ett lexikon eller en ordbok',['En atlas','En kokbok'],'Lexikon och ordböcker förklarar ord.'),
+  ch('Du vill snabbt veta vad boken handlar om. Vad läser du?','Baksidestexten',['Sista sidan','Sidnumren'],'Baksidestexten berättar kort om boken.'),
+  ch('Hur är ett lexikon ordnat?','I alfabetisk ordning',['Efter färg','Efter bokens längd'],'A kommer först, Ö sist.')
+ ],d)},
+{w:'bocker',ico:'🖐️',title:'Välj en bra bok',sub:'Hitta en bok som passar dig',
+ intro:'Hur väljer du en bok som passar <b>dig</b>?',tip:'<b>Femfingerregeln:</b> Läs en sida. Stöter du på fler än fem svåra ord är boken kanske för svår just nu.',
+ run:(b,d)=>quiz(b,[
+  ch('Vad är femfingerregeln?','Läs en sida – fler än fem svåra ord betyder att boken kan vara för svår',['Man får bara läsa fem böcker','Man ska hålla boken med fem fingrar'],'Ett enkelt sätt att testa om en bok passar.'),
+  ch('Du gillar spänning. Vad kan du leta efter?','Deckare eller äventyrsböcker',['Telefonkataloger','Ordböcker'],'Bibliotekarien kan tipsa om fler.'),
+  ch('Du tycker att läsa är svårt. Vad kan hjälpa?','Lättlästa böcker och ljudböcker',['Sluta läsa','Bara titta på omslaget'],'Ljudböcker och lättläst är riktiga böcker!'),
+  ch('Du har gillat första boken i en serie. Vad kan du göra?','Läsa nästa del i serien',['Aldrig läsa igen','Läsa den baklänges'],'Böcker i serier har ofta samma figurer.'),
+  ch('Vad kan baksidestexten hjälpa dig med?','Att avgöra om boken verkar spännande',['Att hitta sidnummer','Att veta vem som lånat den'],'Den är som en liten reklam för boken.')
+ ],d)},
+{w:'sok',ico:'⌨️',title:'Sökordsmästaren',sub:'Välj bra sökord',
+ intro:'Du ska söka på internet. Vilket <b>sökord</b> ger bäst träff?',tip:'Använd få, tydliga <b>nyckelord</b>: vad handlar det om, och vad vill du veta? Skriv inte hela frågan.',
+ run:(b,d)=>quiz(b,[
+  ch('Du vill veta hur högt Mount Everest är.','Mount Everest höjd',['Berg','Jag vill veta lite saker'],'Tydliga nyckelord ger bäst träff.'),
+  ch('Du vill veta vad en panda äter.','panda mat',['djur','mat'],'Ämnet (panda) + det du vill veta (mat).'),
+  ch('Du ska skriva om vikingar. Vilket sökord är bäst?','vikingar leva',['gammalt','människor'],'Mer specifikt = bättre träffar.'),
+  ch('Du får för många träffar. Vad gör du?','Lägger till ett sökord som gör sökningen mer exakt',['Ger upp','Skriver bara stora bokstäver'],'Fler nyckelord gör sökningen smalare.'),
+  ch('Du får inga bra träffar. Vad kan du prova?','Andra ord som betyder samma sak',['Samma ord igen och igen','Skriva väldigt långa meningar'],'Synonymer kan ge nya träffar.'),
+  ch('Vem kan också hjälpa dig att söka rätt?','Bibliotekarien',['Ingen','Främmande personer på nätet'],'Bibliotekarien är expert på att söka information.')
+ ],d)},
+{w:'sok',ico:'🕵️',title:'Källkritik-detektiven',sub:'Går källan att lita på?',
+ intro:'Är källan <b>pålitlig</b> eller <b>tveksam</b>?',tip:'Fråga dig: <b>Vem</b> har skrivit det? <b>Varför</b>? <b>När</b>? Finns det <b>fler källor</b> som säger samma sak?',
+ run:(b,d)=>classify(b,[
+  ['Ett uppslagsverk skrivet av experter','Pålitlig'],['Ett inlägg av en okänd person som inte visar några källor','Tveksam'],
+  ['En myndighets webbplats, t.ex. Folkhälsomyndigheten','Pålitlig'],['En reklamfilm som säger att produkten är bäst','Tveksam'],
+  ['En artikel där författare och datum syns','Pålitlig'],['Ett kedjemeddelande: "Skicka vidare till 10 kompisar!"','Tveksam'],
+  ['En video med rubriken "Du kommer INTE tro det här!!!"','Tveksam'],['En faktabok från biblioteket','Pålitlig']
+ ].map(x=>[...x,'Kolla vem som skrivit det och varför.']),[['Pålitlig','#2f9e44'],['Tveksam','#c92a2a']],d)},
+{w:'sok',ico:'🧐',title:'Sant eller falskt på nätet?',sub:'Vad gör du?',
+ intro:'Du hittar information på nätet. Vad gör du <b>smartast</b>?',tip:'Kolla <b>minst två</b> källor. Dela inte något du inte vet är sant.',
+ run:(b,d)=>quiz(b,[
+  ch('En kompis delar ett läskigt rykte. Vad gör du?','Kollar om det stämmer innan jag delar',['Delar direkt','Tror på det för att många delat'],'Dela först när du vet att det är sant.'),
+  ch('Du hittar en sida utan namn och datum. Vad tänker du?','Jag är försiktig – jag kollar en annan källa',['Det måste vara sant','Det är säkert skrivet av en expert'],'Utan avsändare är det svårt att lita på.'),
+  ch('Varför ska man kolla fler än en källa?','Så man ser om de säger samma sak',['För att det är roligt','För att man får fler poäng'],'Om flera pålitliga källor är överens är det troligare sant.'),
+  ch('Vad betyder "Annons" ovanför en sökträff?','Att någon har betalat för att visas där',['Att sidan är bäst','Att den är gjord av skolan'],'Annonser vill ofta sälja något.'),
+  ch('En bild ser helt otrolig ut. Vad kan det bero på?','Den kan vara redigerad eller gjord med AI',['Den är alltid äkta','Bilder kan inte ändras'],'Man kan redigera bilder, så var kritisk.'),
+  ch('Wikipedia kan redigeras av många. Vad är smart?','Använda det som start och kolla fler källor',['Lita blint på allt','Aldrig titta där'],'Kolla gärna källorna längst ner och jämför.')
+ ],d)},
+{w:'sok',ico:'👑',title:'Bossen: Biblioteket & källor',sub:'Rätt eller fel – 3 liv',
+ intro:'Är påståendet <b>rätt</b> eller <b>fel</b>? Du har tre liv!',tip:'Titta tillbaka på tipsen från de andra banorna.',
+ run:(b,d)=>classify(b,[
+  ['Det är gratis att låna böcker på skolbiblioteket.','Rätt'],
+  ['Skönlitteratur är påhittade berättelser.','Rätt'],
+  ['Registret finns först i boken.','Fel','Registret finns längst bak.'],
+  ['Bibliotekarien kan hjälpa dig att hitta böcker.','Rätt'],
+  ['Allt som står på internet är sant.','Fel','Vem som helst kan skriva på nätet.'],
+  ['Man bör kolla minst två källor.','Rätt'],
+  ['I alfabetet kommer Ö före A.','Fel','A kommer först, Ö sist.'],
+  ['En källa utan avsändare är lika bra som en med känd författare.','Fel','Man vill veta vem som skrivit.'],
+  ['Ett lexikon är ordnat i alfabetisk ordning.','Rätt'],
+  ['Ljudböcker räknas som riktiga böcker.','Rätt'],
+  ['Bilder på nätet är alltid äkta.','Fel','De kan vara redigerade eller AI-gjorda.'],
+  ['Sökord ska vara få och tydliga.','Rätt']
+ ],[['Rätt','#2f9e44'],['Fel','#c92a2a']],d,3)}
+];
+LEVELS.forEach((l,n)=>l.id='l'+n);
+
+function updXP(){ $('#xp').textContent='⭐ '+total()+' poäng'; }
+function hub(){
+  updXP();
+  const doneN=LEVELS.filter(l=>S.lv[l.id]).length;
+  app.innerHTML=`<div class="card intro"><div class="big">📚</div><div style="flex:1;min-width:220px"><h2>Välkommen till biblioteket!</h2>
+    <p style="margin:0">Lär dig mer om <b>skolbiblioteket</b>, böcker, att söka information och att vara <b>källkritisk</b>. Klara alla ${LEVELS.length} banor och få ett diplom.</p>
+    <div class="bar"><i style="width:${doneN/LEVELS.length*100}%"></i></div><small>${doneN} av ${LEVELS.length} banor klara</small></div></div>
+    ${Object.keys(W).map(w=>`<section class="world" style="--c:${W[w][1]}"><h3>${W[w][0]}</h3><div class="hub">${LEVELS.filter(l=>l.w===w).map(l=>`<button class="lvl ${S.lv[l.id]?'done':''}" data-id="${l.id}"><div class="ico">${l.ico}</div><h4>${l.title}</h4><p>${l.sub}</p><div class="stars">${S.lv[l.id]?'★'.repeat(S.lv[l.id].st)+'☆'.repeat(3-S.lv[l.id].st):'☆☆☆'}</div></button>`).join('')}</div></section>`).join('')}
+    ${doneN===LEVELS.length?'<p style="text-align:center;margin-top:20px"><button class="btn" id="cert">🏆 Visa mitt diplom</button></p>':''}`;
+  app.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>play(LEVELS.find(l=>l.id===b.dataset.id)));
+  const c=$('#cert');if(c)c.onclick=certificate;
+}
+function play(L){
+  app.innerHTML=`<button class="btn ghost back" id="bk">← Tillbaka till kartan</button>
+   <div class="card"><h2>${L.ico} ${L.title}</h2><p>${L.intro}</p><div class="tip">💡 ${L.tip}</div><div id="game"></div></div>`;
+  $('#bk').onclick=hub;scrollTo(0,0);
+  L.run($('#game'),m=>finish(L,m));
+}
+function finish(L,m){
+  const st=stars(m),xp=Math.max(40,100-m*10),old=S.lv[L.id];
+  if(!old||xp>old.xp)S.lv[L.id]={st,xp};save();updXP();confetti();
+  const next=LEVELS[LEVELS.indexOf(L)+1],all=LEVELS.every(l=>S.lv[l.id]);
+  $('#game').innerHTML=`<div style="text-align:center"><div style="font-size:4rem">🎉</div><h2>Bana klar!</h2>
+   <div class="stars" style="font-size:2.2rem">${'★'.repeat(st)+'☆'.repeat(3-st)}</div><p>+${xp} poäng · ${m} misstag</p>
+   <div class="row" style="justify-content:center"><button class="btn ghost" id="again">Spela om</button>
+   ${all?'<button class="btn" id="cert">🏆 Se ditt diplom</button>':next?'<button class="btn" id="nxt">Nästa bana →</button>':'<button class="btn" id="mp">Till kartan</button>'}</div></div>`;
+  $('#again').onclick=()=>play(L);
+  const a=$('#nxt');if(a)a.onclick=()=>play(next);
+  const b=$('#cert');if(b)b.onclick=certificate;
+  const c=$('#mp');if(c)c.onclick=hub;
+}
+function certificate(){
+  if(!S.name){
+    app.innerHTML=`<div class="card"><h2>🏆 Nästan klart!</h2><p>Skriv ditt namn till diplomet:</p><div class="row"><input type="text" id="nm" placeholder="Förnamn Efternamn" aria-label="Ditt namn"><button class="btn" id="ok">Visa diplom</button></div></div>`;
+    $('#ok').onclick=()=>{const v=$('#nm').value.trim();if(v){S.name=v;save();certificate();}};return;
+  }
+  const xp=total(),max=LEVELS.length*100;
+  const rank=xp>=max*.9?'Bibliotekskung eller drottning 👑':xp>=max*.75?'Biblioteksproffs 🚀':'Biblioteksnyfiken 📖';
+  app.innerHTML=`<div class="cert"><div style="font-size:3rem">🏆</div><h2>Diplom</h2><p>Detta diplom tilldelas</p>
+   <p><span class="name">${esc(S.name)}</span></p><p>som klarade alla ${LEVELS.length} banor i Biblioteksrallyt<br>med <b>${xp} av ${max} poäng</b></p><h3>${rank}</h3></div>
+   <p class="no-print" style="text-align:center"><button class="btn" onclick="print()">🖨️ Skriv ut</button> <button class="btn ghost" id="bk">Till kartan</button></p>`;
+  $('#bk').onclick=hub;confetti();
+}
+$('#resetBtn').onclick=()=>{ if(confirm('Börja om och nollställa alla poäng?')){S={name:'',lv:{}};save();hub();} };
+hub();
+</script>
+</body>
+</html>
