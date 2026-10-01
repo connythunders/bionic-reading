@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Grammatikrallyt: ett spel där elever i svenska åk 7–9 tränar ordklasser, satsdelar, ordföljd, särskrivning, skiljetecken, språkriktighet och register.">
+<title>Grammatikrallyt – åk 7–9</title>
+<style>
+:root{
+  --bg:#fff7ec; --surface:#ffffff; --surface-2:#fbf1e2;
+  --text:#2a2118; --soft:#6a5b4c; --line:#e6d6bf;
+  --accent:#b4440f; --accent-weak:#fde9d8;
+  --good:#1f7a43; --good-weak:#e2f4e8; --bad:#b3261e; --bad-weak:#fde8e6;
+  --gold:#f5b400; --shadow:0 2px 4px rgba(60,30,0,.08),0 10px 30px rgba(60,30,0,.10);
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1d1812; --surface:#2a231a; --surface-2:#352c20;
+    --text:#f5ece0; --soft:#c9b9a3; --line:#4a3d2c;
+    --accent:#ff9a62; --accent-weak:#3d2a1b;
+    --good:#7fd29b; --good-weak:#1b3326; --bad:#f19a94; --bad-weak:#3a2220;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:18px/1.55 "Segoe UI",system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+header.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0 16px}
+header.top h1{font-size:1.5rem;margin:0;margin-right:auto}
+.pill{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:4px 14px;font-weight:700}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:12px;padding:10px 20px;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+@media (prefers-color-scheme: dark){.btn{color:#1d1812}}
+.btn:hover{filter:brightness(1.1)} .btn:active{transform:translateY(2px);box-shadow:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:var(--surface);color:var(--text);border:2px solid var(--line);box-shadow:none}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.world{margin-top:18px}
+.world h3{margin:0 0 8px;padding-left:10px;border-left:8px solid var(--c)}
+.hub{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.lvl{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);transition:transform .15s}
+.lvl:hover{transform:translateY(-3px);border-color:var(--c)}
+.lvl .ico{font-size:2.2rem}.lvl h4{margin:.2rem 0;font-size:1.1rem}.lvl p{margin:0;color:var(--soft);font-size:.9rem}
+.lvl.done{border-color:var(--good);background:linear-gradient(var(--good-weak),var(--surface))}
+.stars{letter-spacing:2px;color:var(--gold);min-height:1.5em}
+.intro{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.intro .big{font-size:3rem}
+.bar{height:14px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--line);margin:8px 0}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#e8590c,#f5b400);transition:width .4s}
+.back{margin-bottom:10px}
+h2{margin:.2rem 0 .4rem}
+.tip{background:var(--accent-weak);border-left:5px solid var(--accent);padding:10px 14px;border-radius:8px;margin:12px 0;font-size:.95rem}
+.opts{display:grid;gap:10px;margin:14px 0}
+.opt{text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:12px;padding:12px 16px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--good-weak);border-color:var(--good)}
+.opt.wrong{background:var(--bad-weak);border-color:var(--bad);animation:shake .3s}
+.opt:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{min-height:1.6em;font-weight:600}.fb.good{color:var(--good)}.fb.bad{color:var(--bad)}
+mark{background:#ffe27a;color:#222;padding:0 5px;border-radius:5px;font-weight:700}
+.sent{font-size:1.25rem;background:var(--surface-2);border-radius:12px;padding:14px 16px;margin:10px 0}
+.steps{counter-reset:s;list-style:none;padding:0}
+.mem{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0}
+.mc{min-height:90px;border-radius:12px;border:2px solid var(--line);background:linear-gradient(135deg,#e8590c,#f5b400);color:transparent;font-size:.9rem;padding:6px;line-height:1.25}
+.mc.open{background:var(--surface-2);color:var(--text)}
+.mc.ok{background:var(--good-weak);color:var(--text);border-color:var(--good)}
+.tok{display:inline-block;margin:3px;padding:6px 12px;border-radius:10px;border:2px solid var(--line);background:var(--surface-2);font-size:1.1rem}
+.tok:hover:not(:disabled){border-color:var(--accent)}
+.tok:disabled{opacity:.35}
+.build{min-height:56px;background:var(--surface-2);border:2px dashed var(--line);border-radius:12px;padding:8px;margin:10px 0;font-size:1.2rem}
+.err{cursor:pointer;display:inline-block;padding:2px 6px;margin:1px;border-radius:6px;border:2px solid transparent;background:none;font-size:1.25rem}
+.err:hover{background:var(--accent-weak)}
+.err.bad{background:var(--bad-weak);border-color:var(--bad)}
+.err.ok{background:var(--good-weak);border-color:var(--good)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.big-btn{border:0;border-radius:12px;padding:16px 6px;color:#fff;font-weight:700;font-size:1.1rem;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.hearts{font-size:1.4rem}
+.cert{text-align:center;border:6px double var(--gold);background:var(--surface);padding:30px;border-radius:12px}
+.cert h2{font-size:2rem;color:var(--accent)}
+.cert .name{font-size:2rem;font-weight:800;border-bottom:3px solid var(--gold);display:inline-block;padding:0 20px}
+input[type=text]{font:inherit;padding:8px 12px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);width:100%;max-width:300px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:99}
+@media print{body{background:#fff}.no-print{display:none!important}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top no-print">
+    <h1>✍️ Grammatikrallyt <small style="font-weight:400;color:var(--soft)">· åk 7–9</small></h1>
+    <span class="pill" id="xp">⭐ 0 poäng</span>
+    <button class="btn ghost" id="resetBtn">Börja om</button>
+  </header>
+  <main id="app"></main>
+</div>
+<script>
+'use strict';
+const KEY='grammatik-hogstadiet:v1';
+let S={name:'',lv:{}};
+try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.lv) S=s; }catch(e){}
+const save=()=>{ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} };
+const $=(s,r=document)=>r.querySelector(s);
+const app=$('#app');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+const total=()=>Object.values(S.lv).reduce((n,l)=>n+l.xp,0);
+const stars=m=>m===0?3:m<=2?2:1;
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const c=$('#fx'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const p=Array.from({length:120},()=>({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:-Math.random()*12-3,c:`hsl(${Math.random()*360},90%,60%)`,s:5+Math.random()*6}));
+  let t=0;(function f(){x.clearRect(0,0,c.width,c.height);p.forEach(a=>{a.x+=a.vx;a.y+=a.vy;a.vy+=.35;x.fillStyle=a.c;x.fillRect(a.x,a.y,a.s,a.s);});
+    if(++t<110)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height);})();
+}
+
+/* Quiz: första alternativet är rätt. Q.s = valfri mening som visas (HTML). */
+function quiz(box,questions,done){
+  let i=0,mistakes=0;const q=shuffle(questions);
+  (function show(){
+    const Q=q[i];
+    box.innerHTML=`<div class="bar"><i style="width:${i/q.length*100}%"></i></div>
+      <p><b>Fråga ${i+1} av ${q.length}</b></p><h3>${Q.q}</h3>${Q.s?`<div class="sent">${Q.s}</div>`:''}
+      <div class="opts">${shuffle(Q.o.map((t,k)=>({t,k}))).map(o=>`<button class="opt" data-k="${o.k}">${o.t}</button>`).join('')}</div>
+      <div class="fb" aria-live="polite"></div><div id="nx"></div>`;
+    const fb=$('.fb',box);
+    box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(+b.dataset.k===0){
+        b.classList.add('right');box.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+        fb.className='fb good';fb.textContent='✅ Rätt! '+Q.why;
+        $('#nx').innerHTML=`<button class="btn">${i+1<q.length?'Nästa →':'Klart! 🎉'}</button>`;
+        $('#nx .btn').onclick=()=>{ if(++i<q.length)show(); else done(mistakes); };
+        $('#nx .btn').focus();
+      }else{mistakes++;b.classList.add('wrong');b.disabled=true;fb.className='fb bad';fb.textContent='❌ Inte riktigt – försök igen!';}
+    });
+  })();
+}
+
+/* Memory */
+function memory(box,pairs,done){
+  const cards=shuffle(pairs.flatMap((p,k)=>[{k,t:p[0]},{k,t:p[1]}]));
+  let first=null,lock=false,found=0,mistakes=0;
+  box.innerHTML=`<div class="mem">${cards.map((c,n)=>`<button class="mc" data-n="${n}" aria-label="Kort ${n+1}">❓</button>`).join('')}</div><div class="fb" aria-live="polite"></div>`;
+  const fb=$('.fb',box);
+  box.querySelectorAll('.mc').forEach(b=>b.onclick=()=>{
+    if(lock||b.classList.contains('open')||b.classList.contains('ok'))return;
+    const c=cards[+b.dataset.n];b.classList.add('open');b.textContent=c.t;
+    if(!first){first=b;return;}
+    const a=cards[+first.dataset.n];
+    if(a.k===c.k){first.className=b.className='mc ok';first=null;fb.className='fb good';fb.textContent='✅ Ett par!';
+      if(++found===pairs.length)setTimeout(()=>done(Math.floor(mistakes/2)),600);}
+    else{mistakes++;lock=true;fb.className='fb bad';fb.textContent='❌ Inte ett par – titta noga.';
+      const f=first;first=null;setTimeout(()=>{[f,b].forEach(x=>{x.classList.remove('open');x.textContent='❓';});lock=false;},900);}
+  });
+}
+
+/* Bygg en mening: klicka orden i rätt ordning */
+const norm=s=>s.toLowerCase().replace(/[.,!?]/g,'').replace(/\s+/g,' ').trim();
+function build(box,items,done){
+  const P=shuffle(items);let i=0,mistakes=0;
+  (function show(){
+    const it=P[i];let chosen=[];
+    box.innerHTML=`<div class="bar"><i style="width:${i/P.length*100}%"></i></div><p><b>Mening ${i+1} av ${P.length}</b> – ${it.hint}</p>
+     <div class="build" id="bd" aria-live="polite"></div><div id="tk"></div>
+     <div class="row"><button class="btn" id="ck" disabled>Kolla</button><button class="btn ghost" id="cl">Rensa</button></div><div class="fb" aria-live="polite"></div><div id="nx"></div>`;
+    const tk=$('#tk',box),bd=$('#bd',box),ck=$('#ck',box),fb=$('.fb',box);
+    const draw=()=>{
+      bd.textContent=chosen.map(c=>c.t).join(' ');
+      tk.innerHTML='';
+      it.w.map((t,k)=>({t,k})).forEach(o=>{
+        const b=document.createElement('button');b.className='tok';b.textContent=o.t;b.disabled=chosen.some(c=>c.k===o.k);
+        b.onclick=()=>{chosen.push(o);draw();};tk.appendChild(b);
+      });
+      ck.disabled=chosen.length!==it.w.length;
+    };
+    $('#cl',box).onclick=()=>{chosen=[];fb.textContent='';draw();};
+    ck.onclick=()=>{
+      const s=norm(chosen.map(c=>c.t).join(' '));
+      if(it.ok.map(norm).includes(s)){
+        fb.className='fb good';fb.textContent='✅ Rätt! '+it.why;ck.disabled=true;tk.querySelectorAll('button').forEach(b=>b.disabled=true);
+        $('#nx',box).innerHTML=`<button class="btn">${i+1<P.length?'Nästa →':'Klart! 🎉'}</button>`;
+        $('#nx .btn',box).onclick=()=>{ if(++i<P.length)show(); else done(mistakes); };
+      }else{mistakes++;fb.className='fb bad';fb.textContent='❌ Inte rätt ordföljd – tänk på verbet och på "inte". Rensa och försök igen.';}
+    };
+    draw();
+  })();
+}
+
+/* Hitta felet */
+function findError(box,items,done){
+  const P=shuffle(items);let i=0,mistakes=0;
+  (function show(){
+    const it=P[i];
+    box.innerHTML=`<div class="bar"><i style="width:${i/P.length*100}%"></i></div><p><b>Mening ${i+1} av ${P.length}</b> – klicka på ordet som är fel.</p>
+     <div class="sent">${it.t.map((w,k)=>`<button class="err" data-k="${k}">${esc(w)}</button>`).join(' ')}</div><div class="fb" aria-live="polite"></div><div id="nx"></div>`;
+    const fb=$('.fb',box);
+    box.querySelectorAll('.err').forEach(b=>b.onclick=()=>{
+      if(it.e.includes(+b.dataset.k)){
+        it.e.forEach(k=>box.querySelector(`.err[data-k="${k}"]`).classList.add('ok'));
+        box.querySelectorAll('.err').forEach(x=>x.disabled=true);
+        fb.className='fb good';fb.textContent='✅ Rätt! '+it.why;
+        $('#nx',box).innerHTML=`<button class="btn">${i+1<P.length?'Nästa →':'Klart! 🎉'}</button>`;
+        $('#nx .btn',box).onclick=()=>{ if(++i<P.length)show(); else done(mistakes); };
+      }else{mistakes++;b.classList.add('bad');b.disabled=true;fb.className='fb bad';fb.textContent='❌ Det ordet är rätt – leta vidare!';}
+    });
+  })();
+}
+
+/* Två val, valfritt med liv */
+function classify(box,items,labels,done,lives=0){
+  const P=shuffle(items);let i=0,L=lives,mistakes=0;
+  (function show(){
+    box.innerHTML=`${lives?`<p class="hearts" aria-label="${L} liv kvar">${'❤️'.repeat(L)}${'🖤'.repeat(lives-L)}</p>`:''}
+     <div class="bar"><i style="width:${i/P.length*100}%"></i></div>
+     <h3 style="margin-bottom:0">${P[i][0]}</h3>
+     <div class="two">${labels.map(l=>`<button class="big-btn" style="background:${l[1]}">${l[0]}</button>`).join('')}</div><div class="fb" aria-live="polite"></div>`;
+    box.querySelectorAll('.big-btn').forEach((b,k)=>b.onclick=()=>{
+      if(labels[k][0]===P[i][1]){ if(++i===P.length)return done(mistakes); show(); }
+      else{mistakes++;
+        if(lives&&--L===0){box.innerHTML=`<p class="fb bad">💀 Slut på liv! Försök igen.</p><button class="btn" id="re">Försök igen</button>`;$('#re',box).onclick=()=>{i=0;L=lives;mistakes=0;show();};return;}
+        show();$('.fb',box).className='fb bad';$('.fb',box).textContent='❌ Fel! '+(P[i][2]||'');}
+    });
+  })();
+}
+
+const wc=(s,m,right,wrong,why)=>({q:'Vilken ordklass är det markerade ordet?',s:s.replace(m,`<mark>${m}</mark>`),o:[right,...wrong],why});
+const sd=(s,m,right,why)=>({q:'Vilken satsdel är det markerade?',s:s.replace(m,`<mark>${m}</mark>`),o:[right,...['Subjekt','Predikat','Objekt','Adverbial'].filter(x=>x!==right)],why});
+const sp=(r,w,why)=>({q:'Vilken mening är rätt skriven?',o:[r,w],why});
+const bj=(q,r,w,why)=>({q,o:[r,...w],why});
+
+const W={ord:['Ord','#e8590c'],mening:['Meningar','#2b7de9'],rattskrivet:['Rätt skrivet','#2f9e44'],stil:['Språk & stil','#9c36b5']};
+const LEVELS=[
+{w:'ord',ico:'🏷️',title:'Ordklasserna',sub:'Substantiv, verb, adjektiv m.fl.',
+ intro:'Vilken <b>ordklass</b> har det markerade ordet?',tip:'Substantiv = person, sak, plats · Verb = göra/vara · Adjektiv = beskriver · Adverb = berättar hur, när, var.',
+ run:(b,d)=>quiz(b,[
+  wc('Katten sover på soffan.','sover','Verb',['Substantiv','Adjektiv','Adverb'],'"Sover" beskriver vad katten gör.'),
+  wc('En snabb bil körde förbi.','snabb','Adjektiv',['Adverb','Substantiv','Verb'],'"Snabb" beskriver substantivet bil.'),
+  wc('Hon läser en bok.','Hon','Pronomen',['Substantiv','Adjektiv','Verb'],'Pronomen ersätter substantiv: hon, han, den, vi.'),
+  wc('Boken ligger på bordet.','på','Preposition',['Konjunktion','Adverb','Pronomen'],'Prepositioner visar läge: på, under, i, bakom.'),
+  wc('Jag gillar kaffe och te.','och','Konjunktion',['Preposition','Adverb','Verb'],'Konjunktioner binder ihop ord eller satser: och, men, eller.'),
+  wc('Han springer fort.','fort','Adverb',['Adjektiv','Substantiv','Preposition'],'"Fort" berättar hur han springer.'),
+  wc('Vi åkte till Göteborg.','Göteborg','Substantiv',['Verb','Pronomen','Adverb'],'Namn på platser är substantiv.'),
+  wc('Hon har tre syskon.','tre','Räkneord',['Substantiv','Adjektiv','Pronomen'],'Räkneord anger antal.')
+ ],d)},
+{w:'ord',ico:'🧩',title:'Begreppsmemory',sub:'Hitta par: begrepp och förklaring',
+ intro:'Vänd två kort i taget och para ihop <b>begrepp</b> med <b>förklaring</b>.',tip:'Du ska kunna prata om språket med rätt ord.',
+ run:(b,d)=>memory(b,[['Substantiv','Ord för personer, saker och platser'],['Verb','Ord som visar vad någon gör eller är'],['Adjektiv','Ord som beskriver ett substantiv'],['Pronomen','Ord som ersätter ett substantiv: hon, den'],['Preposition','Ord som visar läge: på, under, i'],['Konjunktion','Ord som binder ihop: och, men, eller']],d)},
+{w:'ord',ico:'🔄',title:'Böjning',sub:'Plural, tempus och mer',
+ intro:'Välj <b>rätt böjd form</b> av ordet.',tip:'Substantiv böjs i plural (bok → böcker). Verb böjs i tempus: presens (springer), preteritum (sprang), perfekt (har sprungit).',
+ run:(b,d)=>quiz(b,[
+  bj('Vad är plural av <b>bok</b>?','böcker',['bokar','boker'],'Bok → böcker (omljud).'),
+  bj('Vad är plural av <b>flicka</b>?','flickor',['flickar','flicker'],'Ord på -a får oftast -or.'),
+  bj('Vad är plural av <b>pojke</b>?','pojkar',['pojkor','pojker'],'Pojke → pojkar.'),
+  bj('Vad är dåtid (preteritum) av <b>springa</b>?','sprang',['springde','sprungit'],'Starkt verb: springer – sprang – har sprungit.'),
+  bj('Fyll i: Jag har <b>_____</b> ett brev. (skriva)','skrivit',['skrivet','skrev'],'Efter "har" används supinum: skrivit.'),
+  bj('Vad är dåtid av <b>äta</b>?','åt',['åtte','ätit'],'Äta – åt – har ätit.'),
+  bj('Vad är bestämd form av <b>ett äpple</b>?','äpplet',['äppelet','äpplen'],'Ett äpple → äpplet.'),
+  bj('Vad är komparativ av <b>stor</b>?','större',['storare','mer stor'],'Stor – större – störst.')
+ ],d)},
+{w:'mening',ico:'🔍',title:'Satsdelar',sub:'Subjekt, predikat, objekt, adverbial',
+ intro:'Vilken <b>satsdel</b> är det markerade?',tip:'Hitta predikatet (verbet) först. Fråga sedan <i>vem/vad</i> + predikatet för att hitta subjektet.',
+ run:(b,d)=>quiz(b,[
+  sd('Eleverna skrev ett prov.','Eleverna','Subjekt','Eleverna gör något – de skriver.'),
+  sd('Eleverna skrev ett prov.','skrev','Predikat','Predikatet är satsens verb.'),
+  sd('Eleverna skrev ett prov.','ett prov','Objekt','Vad skrev de? Ett prov – objektet.'),
+  sd('Eleverna skrev provet i går.','i går','Adverbial','Adverbial svarar på när, var, hur eller varför.'),
+  sd('Hunden jagade katten.','katten','Objekt','Katten blir jagad – objekt.'),
+  sd('I morgon börjar lovet.','I morgon','Adverbial','Tid = adverbial.')
+ ],d)},
+{w:'mening',ico:'🧱',title:'Ordföljd',sub:'Bygg meningar som blir rätt',
+ intro:'Klicka orden i en <b>rätt</b> ordning. Ibland finns flera rätta svar!',tip:'I en vanlig mening står <b>verbet på plats två</b>. Börjar du med tid blir det: <i>Idag <u>spelar</u> vi fotboll.</i>',
+ run:(b,d)=>build(b,[
+  {w:['vi','spelar','fotboll','idag'],hint:'Börja gärna med vem eller med tid.',ok:['Vi spelar fotboll idag','Idag spelar vi fotboll','Fotboll spelar vi idag'],why:'Verbet står på plats två i alla varianter.'},
+  {w:['jag','gick','hem','därför'],hint:'Prova både att börja med "jag" och med "därför".',ok:['Jag gick hem därför','Därför gick jag hem'],why:'När "därför" kommer först byter subjekt och verb plats.'},
+  {w:['igår','läste','hon','boken'],hint:'Börja med tid eller med subjekt.',ok:['Igår läste hon boken','Hon läste boken igår'],why:'Verbet "läste" står på plats två.'},
+  {w:['jag','vet','att','han','inte','kommer'],hint:'Det finns en bisats ("att …") i meningen.',ok:['Jag vet att han inte kommer'],why:'I bisatsen står "inte" före verbet.'}
+ ],d)},
+{w:'rattskrivet',ico:'✂️',title:'Särskrivning',sub:'Isär eller ihop?',
+ intro:'Välj den mening som är <b>rätt skriven</b>.',tip:'Sammansatta ord skrivs <b>ihop</b>: cykelhjälm. Adjektiv + substantiv skrivs <b>isär</b>: gammal kvinna.',
+ run:(b,d)=>quiz(b,[
+  sp('Hon köpte en cykelhjälm.','Hon köpte en cykel hjälm.','Substantiv + substantiv bildar ett ord.'),
+  sp('Vi har en stor skolgård.','Vi har en stor skol gård.','Skolgård är ett sammansatt ord.'),
+  sp('Det var en jättegod glass.','Det var en jätte god glass.','Jättegod skrivs ihop.'),
+  sp('Vår bussförare var snäll.','Vår buss förare var snäll.','Bussförare skrivs ihop.'),
+  sp('Jag kommer i alla fall.','Jag kommer ialla fall.','"I alla fall" skrivs i tre ord.'),
+  sp('Det hände på grund av regnet.','Det hände pågrund av regnet.','"På grund av" skrivs isär.')
+ ],d)},
+{w:'rattskrivet',ico:'❗',title:'Skiljetecken & stor bokstav',sub:'Punkt, komma, apostrof',
+ intro:'Välj den mening som är <b>rätt skriven</b>.',tip:'Svenska genitiv skrivs <b>utan</b> apostrof: Annas bil. Veckodagar och månader har <b>liten</b> bokstav.',
+ run:(b,d)=>quiz(b,[
+  sp('Jag ville gå, men det regnade.','Jag ville, gå men det regnade.','Komma sätts normalt före "men".'),
+  sp('Annas bil är röd.',"Anna's bil är röd.",'Apostrof används inte för genitiv på svenska.'),
+  sp('Jag köpte mjölk, bröd och ost.','Jag köpte mjölk bröd, och ost.','Komma mellan orden i en uppräkning, men inte före "och".'),
+  sp('På måndag åker vi till Stockholm.','På Måndag åker vi till Stockholm.','Veckodagar skrivs med liten bokstav.'),
+  sp('Vad gör du ikväll?','Vad gör du ikväll.','En fråga avslutas med frågetecken.'),
+  sp('Hon sa: "Kom hit!"','Hon sa Kom hit.','Det som sägs sätts inom citattecken.')
+ ],d)},
+{w:'rattskrivet',ico:'🕵️',title:'Felfångaren',sub:'Hitta felet i meningen',
+ intro:'Varje mening innehåller ett fel. <b>Klicka på det felaktiga ordet.</b>',tip:'I skriven svenska används <b>de/dem</b> – inte "dom". Ordet <b>än</b> jämför, <b>en</b> är artikel.',
+ run:(b,d)=>findError(b,[
+  {t:'Jag såg dom i affären.'.split(' '),e:[2],why:'I skrift: "dem".'},
+  {t:'Dem kom för sent till bussen.'.split(' '),e:[0],why:'Subjekt ska vara "de".'},
+  {t:'Hon är längre en mig.'.split(' '),e:[3],why:'Vid jämförelse: "än".'},
+  {t:'Jag har aldrig sätt den filmen.'.split(' '),e:[3],why:'Rätt form är "sett".'},
+  {t:'Det var jätte roligt på festen.'.split(' '),e:[2,3],why:'Ska skrivas ihop: "jätteroligt".'},
+  {t:'Jag har ett hund som heter Bella.'.split(' '),e:[2],why:'Hund är ett en-ord: "en hund".'},
+  {t:'Jag har skrivet ett brev till farmor.'.split(' '),e:[2],why:'Efter "har" används "skrivit".'}
+ ],d)},
+{w:'stil',ico:'🎩',title:'Formellt eller vardagligt?',sub:'Hur du låter i olika situationer',
+ intro:'Är uttrycket <b>formellt</b> eller <b>vardagligt</b>?',tip:'Språket ändras beroende på vem du pratar med. I skolan och i texter du lämnar in använder du ett <b>formellt</b> språk.',
+ run:(b,d)=>classify(b,[
+  ['Jag skulle vilja ställa en fråga.','Formellt'],['Asså det var typ skitbra.','Vardagligt'],['Med vänlig hälsning','Formellt'],
+  ['Nämen hallå, läget?','Vardagligt'],['Härmed meddelas att mötet är inställt.','Formellt'],['Orkar inte, fattar du?','Vardagligt'],
+  ['Jag ber om ursäkt för förseningen.','Formellt'],['Chilla, det löser sig.','Vardagligt']
+ ].map(x=>[...x,'Tänk på vem du pratar med och i vilken situation.']),[['Formellt','#2b7de9'],['Vardagligt','#e8590c']],d)},
+{w:'stil',ico:'👑',title:'Grammatikbossen',sub:'Rätt eller fel – 3 liv',
+ intro:'Är påståendet <b>rätt</b> eller <b>fel</b>? Du har tre liv!',tip:'Titta tillbaka på tipsen från de andra banorna.',
+ run:(b,d)=>classify(b,[
+  ['Ett substantiv är ett ord som namnger en person, sak eller plats.','Rätt'],
+  ['Ett verb visar vad någon gör eller är.','Rätt'],
+  ['"Dom" är rätt form i en text du lämnar in i skolan.','Fel','Skriv "de" eller "dem".'],
+  ['Veckodagar skrivs med stor bokstav på svenska.','Fel','De skrivs med liten bokstav.'],
+  ['Adjektiv beskriver substantiv.','Rätt'],
+  ['Särskrivning betyder att ord som hör ihop felaktigt skrivs isär.','Rätt'],
+  ['Plural av pojke är pojkor.','Fel','Det är pojkar.'],
+  ['En mening ska börja med stor bokstav.','Rätt'],
+  ['Alla substantiv skrivs med stor bokstav på svenska.','Fel','Bara namn och meningens första ord.'],
+  ['Preteritum betyder dåtid.','Rätt']
+ ],[['Rätt','#2f9e44'],['Fel','#c92a2a']],d,3)}
+];
+LEVELS.forEach((l,n)=>l.id='l'+n);
+
+function updXP(){ $('#xp').textContent='⭐ '+total()+' poäng'; }
+function hub(){
+  updXP();
+  const doneN=LEVELS.filter(l=>S.lv[l.id]).length;
+  app.innerHTML=`<div class="card intro"><div class="big">📚</div><div style="flex:1;min-width:220px"><h2>Välkommen, språkmästare!</h2>
+    <p style="margin:0">Träna <b>grammatik och språkriktighet</b> för åk 7–9: ordklasser, böjning, satsdelar, stavning och skiljetecken. Klara alla ${LEVELS.length} banor och få ett diplom.</p>
+    <div class="bar"><i style="width:${doneN/LEVELS.length*100}%"></i></div><small>${doneN} av ${LEVELS.length} banor klara</small></div></div>
+    ${Object.keys(W).map(w=>`<section class="world" style="--c:${W[w][1]}"><h3>${W[w][0]}</h3><div class="hub">${LEVELS.filter(l=>l.w===w).map(l=>`<button class="lvl ${S.lv[l.id]?'done':''}" data-id="${l.id}"><div class="ico">${l.ico}</div><h4>${l.title}</h4><p>${l.sub}</p><div class="stars">${S.lv[l.id]?'★'.repeat(S.lv[l.id].st)+'☆'.repeat(3-S.lv[l.id].st):'☆☆☆'}</div></button>`).join('')}</div></section>`).join('')}
+    ${doneN===LEVELS.length?'<p style="text-align:center;margin-top:20px"><button class="btn" id="cert">🏆 Visa mitt diplom</button></p>':''}`;
+  app.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>play(LEVELS.find(l=>l.id===b.dataset.id)));
+  const c=$('#cert');if(c)c.onclick=certificate;
+}
+function play(L){
+  app.innerHTML=`<button class="btn ghost back" id="bk">← Tillbaka till kartan</button>
+   <div class="card"><h2>${L.ico} ${L.title}</h2><p>${L.intro}</p><div class="tip">💡 ${L.tip}</div><div id="game"></div></div>`;
+  $('#bk').onclick=hub;scrollTo(0,0);
+  L.run($('#game'),m=>finish(L,m));
+}
+function finish(L,m){
+  const st=stars(m),xp=Math.max(40,100-m*10),old=S.lv[L.id];
+  if(!old||xp>old.xp)S.lv[L.id]={st,xp};save();updXP();confetti();
+  const next=LEVELS[LEVELS.indexOf(L)+1],all=LEVELS.every(l=>S.lv[l.id]);
+  $('#game').innerHTML=`<div style="text-align:center"><div style="font-size:4rem">🎉</div><h2>Bana klar!</h2>
+   <div class="stars" style="font-size:2.2rem">${'★'.repeat(st)+'☆'.repeat(3-st)}</div><p>+${xp} poäng · ${m} misstag</p>
+   <div class="row" style="justify-content:center"><button class="btn ghost" id="again">Spela om</button>
+   ${all?'<button class="btn" id="cert">🏆 Se ditt diplom</button>':next?'<button class="btn" id="nxt">Nästa bana →</button>':'<button class="btn" id="mp">Till kartan</button>'}</div></div>`;
+  $('#again').onclick=()=>play(L);
+  const a=$('#nxt');if(a)a.onclick=()=>play(next);
+  const b=$('#cert');if(b)b.onclick=certificate;
+  const c=$('#mp');if(c)c.onclick=hub;
+}
+function certificate(){
+  if(!S.name){
+    app.innerHTML=`<div class="card"><h2>🏆 Nästan klart!</h2><p>Skriv ditt namn till diplomet:</p><div class="row"><input type="text" id="nm" placeholder="Förnamn Efternamn" aria-label="Ditt namn"><button class="btn" id="ok">Visa diplom</button></div></div>`;
+    $('#ok').onclick=()=>{const v=$('#nm').value.trim();if(v){S.name=v;save();certificate();}};return;
+  }
+  const xp=total(),max=LEVELS.length*100;
+  const rank=xp>=max*.9?'Grammatikmästare 👑':xp>=max*.75?'Språkproffs 🚀':'Språklärling ✏️';
+  app.innerHTML=`<div class="cert"><div style="font-size:3rem">🏆</div><h2>Diplom</h2><p>Detta diplom tilldelas</p>
+   <p><span class="name">${esc(S.name)}</span></p><p>som klarade alla ${LEVELS.length} banor i Grammatikrallyt<br>med <b>${xp} av ${max} poäng</b></p><h3>${rank}</h3></div>
+   <p class="no-print" style="text-align:center"><button class="btn" onclick="print()">🖨️ Skriv ut</button> <button class="btn ghost" id="bk">Till kartan</button></p>`;
+  $('#bk').onclick=hub;confetti();
+}
+$('#resetBtn').onclick=()=>{ if(confirm('Börja om och nollställa alla poäng?')){S={name:'',lv:{}};save();hub();} };
+hub();
+</script>
+</body>
+</html>
