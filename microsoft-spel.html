@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Microsoft-rallyt: ett enkelt spel där eleverna tränar på Teams, PowerPoint och OneDrive.">
+<title>Microsoft-rallyt – spelet</title>
+<style>
+:root{
+  --bg:#eef6ff; --surface:#ffffff; --surface-2:#eef1fb;
+  --text:#1b2236; --soft:#56607a; --line:#cfd8ee;
+  --accent:#4b53bc; --accent-2:#0f6cbd; --accent-weak:#e6ecf8;
+  --good:#1f7a43; --good-weak:#e2f4e8; --bad:#b3261e; --bad-weak:#fde8e6;
+  --gold:#f5b400; --shadow:0 2px 4px rgba(20,30,80,.08),0 10px 30px rgba(20,30,80,.10);
+  --teams:#5b5fc7; --ppt:#c43e1c; --one:#0f6cbd;
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#13172b; --surface:#1d2240; --surface-2:#272d52;
+    --text:#eceefb; --soft:#aab0cf; --line:#394066;
+    --accent:#9aa0f5; --accent-2:#6cb6ff; --accent-weak:#222f4d;
+    --good:#7fd29b; --good-weak:#1b3326; --bad:#f19a94; --bad-weak:#3a2220;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:18px/1.55 "Segoe UI",system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+header.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0 16px}
+header.top h1{font-size:1.5rem;margin:0;margin-right:auto}
+.pill{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:4px 14px;font-weight:700}
+.btn{background:var(--accent-2);color:#fff;border:0;border-radius:12px;padding:10px 20px;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.btn:hover{filter:brightness(1.1)} .btn:active{transform:translateY(2px);box-shadow:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:var(--surface);color:var(--text);border:2px solid var(--line);box-shadow:none}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.world{margin-top:18px}
+.world h3{margin:0 0 8px;padding-left:10px;border-left:8px solid var(--c)}
+.hub{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.lvl{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);transition:transform .15s}
+.lvl:hover{transform:translateY(-3px);border-color:var(--c)}
+.lvl .ico{font-size:2.2rem}.lvl h4{margin:.2rem 0;font-size:1.1rem}.lvl p{margin:0;color:var(--soft);font-size:.9rem}
+.lvl.done{border-color:var(--good);background:linear-gradient(var(--good-weak),var(--surface))}
+.stars{letter-spacing:2px;color:var(--gold);min-height:1.5em}
+.intro{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.intro .big{font-size:3rem}
+.bar{height:14px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--line);margin:8px 0}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--teams),var(--one));transition:width .4s}
+.back{margin-bottom:10px}
+h2{margin:.2rem 0 .4rem}
+.tip{background:var(--accent-weak);border-left:5px solid var(--accent-2);padding:10px 14px;border-radius:8px;margin:12px 0;font-size:.95rem}
+.opts{display:grid;gap:10px;margin:14px 0}
+.opt{text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:12px;padding:12px 16px}
+.opt:hover:not(:disabled){border-color:var(--accent-2)}
+.opt.right{background:var(--good-weak);border-color:var(--good)}
+.opt.wrong{background:var(--bad-weak);border-color:var(--bad);animation:shake .3s}
+.opt:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{min-height:1.6em;font-weight:600}.fb.good{color:var(--good)}.fb.bad{color:var(--bad)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;background:var(--good-weak);border:2px solid var(--good);border-radius:10px;padding:8px 14px;margin:6px 0}
+.steps li::before{content:counter(s)". ";font-weight:800}
+.mem{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:12px 0}
+.mc{min-height:84px;border-radius:12px;border:2px solid var(--line);background:linear-gradient(135deg,var(--teams),var(--one));color:transparent;font-size:.9rem;padding:6px;line-height:1.25}
+.mc.open{background:var(--surface-2);color:var(--text)}
+.mc.ok{background:var(--good-weak);color:var(--text);border-color:var(--good)}
+.slide{background:#fff;color:#111;border:1px solid #999;border-radius:6px;aspect-ratio:16/9;padding:8px 12px;overflow:hidden;width:100%}
+.slide.bad{background:#ffe600;color:#b00;font-family:"Comic Sans MS",cursive;font-size:.62rem;line-height:1.2}
+.slide.good{background:#fff;font-size:.95rem}
+.slide.good h5{margin:0 0 4px;font-size:1.25rem;color:#c43e1c}
+.slide ul{margin:2px 0;padding-left:18px}
+.apps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+.app{border:0;border-radius:12px;padding:14px 6px;color:#fff;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.hearts{font-size:1.4rem}
+.cert{text-align:center;border:6px double var(--gold);background:var(--surface);padding:30px;border-radius:12px}
+.cert h2{font-size:2rem;color:var(--accent)}
+.cert .name{font-size:2rem;font-weight:800;border-bottom:3px solid var(--gold);display:inline-block;padding:0 20px}
+input[type=text]{font:inherit;padding:8px 12px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);width:100%;max-width:300px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:99}
+@media print{body{background:#fff}.no-print{display:none!important}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top no-print">
+    <h1>🎮 Microsoft-rallyt</h1>
+    <span class="pill" id="xp">⭐ 0 poäng</span>
+    <button class="btn ghost" id="resetBtn">Börja om</button>
+  </header>
+  <main id="app"></main>
+</div>
+<script>
+'use strict';
+const KEY='microsoft-spel:v1';
+let S={name:'',lv:{}};
+try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.lv) S=s; }catch(e){}
+const save=()=>{ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} };
+const $=(s,r=document)=>r.querySelector(s);
+const app=$('#app');
+const el=h=>{const d=document.createElement('div');d.innerHTML=h.trim();return d.firstChild;};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+const total=()=>Object.values(S.lv).reduce((n,l)=>n+l.xp,0);
+const stars=m=>m===0?3:m<=2?2:1;
+
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const c=$('#fx'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const p=Array.from({length:120},()=>({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:-Math.random()*12-3,c:`hsl(${Math.random()*360},90%,60%)`,s:5+Math.random()*6}));
+  let t=0;(function f(){x.clearRect(0,0,c.width,c.height);p.forEach(a=>{a.x+=a.vx;a.y+=a.vy;a.vy+=.35;x.fillStyle=a.c;x.fillRect(a.x,a.y,a.s,a.s);});
+    if(++t<110)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height);})();
+}
+
+/* Quiz: första alternativet är rätt */
+function quiz(box,questions,done){
+  let i=0,mistakes=0;const q=shuffle(questions);
+  (function show(){
+    const Q=q[i];
+    box.innerHTML=`<div class="bar"><i style="width:${i/q.length*100}%"></i></div>
+      <p><b>Fråga ${i+1} av ${q.length}</b></p><h3>${Q.q}</h3>
+      <div class="opts">${shuffle(Q.o.map((t,k)=>({t,k}))).map(o=>`<button class="opt" data-k="${o.k}">${o.t}</button>`).join('')}</div>
+      <div class="fb" aria-live="polite"></div><div id="nx"></div>`;
+    const fb=$('.fb',box);
+    box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(+b.dataset.k===0){
+        b.classList.add('right');box.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+        fb.className='fb good';fb.textContent='✅ Rätt! '+Q.why;
+        $('#nx').innerHTML=`<button class="btn">${i+1<q.length?'Nästa →':'Klart! 🎉'}</button>`;
+        $('#nx .btn').onclick=()=>{ if(++i<q.length)show(); else done(mistakes); };
+        $('#nx .btn').focus();
+      }else{mistakes++;b.classList.add('wrong');b.disabled=true;fb.className='fb bad';fb.textContent='❌ Inte riktigt – försök igen!';}
+    });
+  })();
+}
+
+/* Ordna steg */
+function order(box,steps,done){
+  let n=0,mistakes=0;
+  box.innerHTML=`<ol class="steps"></ol><div class="opts"></div><div class="fb" aria-live="polite"></div>`;
+  const fb=$('.fb',box);
+  shuffle(steps.map((t,k)=>({t,k}))).forEach(s=>{
+    const b=el(`<button class="opt">${s.t}</button>`);
+    b.onclick=()=>{
+      if(s.k===n){b.remove();$('.steps',box).insertAdjacentHTML('beforeend',`<li>${s.t}</li>`);n++;fb.className='fb good';fb.textContent='✅ Rätt steg!';
+        if(n===steps.length)setTimeout(()=>done(mistakes),700);}
+      else{mistakes++;b.classList.add('wrong');setTimeout(()=>b.classList.remove('wrong'),400);fb.className='fb bad';fb.textContent='❌ Inte nu – vad måste göras först?';}
+    };
+    $('.opts',box).appendChild(b);
+  });
+}
+
+/* Memory: hitta par */
+function memory(box,pairs,done){
+  const cards=shuffle(pairs.flatMap((p,k)=>[{k,t:p[0]},{k,t:p[1]}]));
+  let first=null,lock=false,found=0,mistakes=0;
+  box.innerHTML=`<div class="mem">${cards.map((c,n)=>`<button class="mc" data-n="${n}" aria-label="Kort ${n+1}">❓</button>`).join('')}</div><div class="fb" aria-live="polite"></div>`;
+  const fb=$('.fb',box);
+  box.querySelectorAll('.mc').forEach(b=>b.onclick=()=>{
+    if(lock||b.classList.contains('open')||b.classList.contains('ok'))return;
+    const c=cards[+b.dataset.n];b.classList.add('open');b.textContent=c.t;
+    if(!first){first=b;return;}
+    const a=cards[+first.dataset.n];
+    if(a.k===c.k){first.className=b.className='mc ok';first=null;fb.className='fb good';fb.textContent='✅ Ett par!';
+      if(++found===pairs.length)setTimeout(()=>done(Math.floor(mistakes/2)),600);}
+    else{mistakes++;lock=true;fb.className='fb bad';fb.textContent='❌ Inte ett par – titta noga.';
+      const f=first;first=null;setTimeout(()=>{[f,b].forEach(x=>{x.classList.remove('open');x.textContent='❓';});lock=false;},900);}
+  });
+}
+
+/* Vilken app? – tre liv */
+function whichApp(box,items,done){
+  const apps=[['Teams','var(--teams)'],['PowerPoint','var(--ppt)'],['OneDrive','var(--one)']];
+  const P=shuffle(items);let i=0,lives=3,mistakes=0;
+  (function show(){
+    box.innerHTML=`<p class="hearts" aria-label="${lives} liv kvar">${'❤️'.repeat(lives)}${'🖤'.repeat(3-lives)}</p>
+     <div class="bar"><i style="width:${i/P.length*100}%"></i></div>
+     <h3>${P[i][0]}</h3><div class="apps">${apps.map(a=>`<button class="app" style="background:${a[1]}">${a[0]}</button>`).join('')}</div><div class="fb" aria-live="polite"></div>`;
+    box.querySelectorAll('.app').forEach((b,k)=>b.onclick=()=>{
+      if(apps[k][0]===P[i][1]){ if(++i===P.length)return done(mistakes); show(); }
+      else{mistakes++;lives--;
+        if(!lives){box.innerHTML=`<p class="fb bad">💀 Slut på liv! Försök igen.</p><button class="btn" id="re">Försök igen</button>`;$('#re',box).onclick=()=>{i=0;lives=3;mistakes=0;show();};}
+        else{show();$('.fb',box).className='fb bad';$('.fb',box).textContent='❌ Fel app! Du förlorade ett liv.';}}
+    });
+  })();
+}
+
+const W={teams:['Teams','var(--teams)'],one:['OneDrive','var(--one)'],ppt:['PowerPoint','var(--ppt)'],boss:['Slutbossen','var(--accent)']};
+const slide=(cls,h)=>`<div class="slide ${cls}">${h}</div>`;
+const BAD=slide('bad','Klimatförändringarna är ett stort problem som påverkar hela jorden och alla människor och djur och växter och det finns många orsaker till detta såsom utsläpp av koldioxid från bilar och fabriker och mycket mer text här som är jättesvår att läsa på en bild.');
+
+const LEVELS=[
+{w:'teams',ico:'💬',title:'Teams-koll',sub:'Chatt, möten och kanaler',
+ intro:'Teams använder du varje dag. Visa att du kan det!',tip:'Teams = chatta, ha möten och lämna in uppgifter.',
+ run:(b,d)=>quiz(b,[
+  {q:'Var hittar du dina uppgifter att lämna in?',o:['I Teams under "Uppgifter"','I Kalkylblad','I Papperskorgen','På skärmsläckaren'],why:'Uppgifter finns i klassens team.'},
+  {q:'Du vill ha ett möte med klassen. Vad gör du?',o:['Går med i mötet i Teams','Skickar ett brev','Ringer med snöre och burkar','Ingenting'],why:'Möten ligger i Kalender eller i kanalen.'},
+  {q:'Du pratar i mötet men ingen hör dig. Vad kollar du först?',o:['Att mikrofonen inte är avstängd','Att det finns pizza','Skärmens färg','Tangentbordets storlek'],why:'Mikrofonikonen ska inte vara överstruken.'},
+  {q:'Vad är en kanal i Teams?',o:['Ett ämnesområde i ett team','En TV-kanal','Ett bildspel','En mapp på skrivbordet'],why:'Kanaler delar upp samtal efter ämne.'},
+  {q:'Hur ska du skriva i chatten?',o:['Snällt och respektfullt','Med versaler och skällsord','Bara med emojis','Aldrig – man får inte'],why:'Regler för bra uppförande gäller även online.'}
+ ],d)},
+{w:'teams',ico:'📤',title:'Lämna in i Teams',sub:'Rätt ordning',
+ intro:'Klicka stegen i <b>rätt ordning</b> för att lämna in en uppgift.',tip:'Glöm inte klicka på <b>Lämna in</b> – annars ser inte läraren din fil!',
+ run:(b,d)=>order(b,['Öppna Teams och klassens team','Klicka på Uppgifter','Öppna uppgiften du ska lämna in','Klicka på Lägg till arbete och välj din fil','Klicka på Lämna in'],d)},
+{w:'one',ico:'☁️',title:'Molnparet',sub:'Hitta par – ord och betydelse',
+ intro:'Vänd två kort i taget och hitta orden som hör ihop.',tip:'OneDrive är ditt <b>moln</b>: filerna ligger på nätet och följer med.',
+ run:(b,d)=>memory(b,[['Moln','Filer som ligger på internet'],['Ladda upp','Skicka en fil till OneDrive'],['Dela','Låta någon annan se filen'],['Mapp','Plats där filer sorteras'],['Papperskorg','Raderade filer hamnar här först']],d)},
+{w:'one',ico:'📁',title:'OneDrive-quiz',sub:'Spara, mappar och dela',
+ intro:'Visa att du kan hålla ordning i OneDrive.',tip:'Spara i OneDrive – då försvinner inte filen om datorn går sönder.',
+ run:(b,d)=>quiz(b,[
+  {q:'Varför är OneDrive bra?',o:['Filerna finns kvar även om datorn går sönder','Det gör datorn snabbare','Man slipper skriva','Det är ett spel'],why:'Filerna ligger i molnet.'},
+  {q:'Du vill att läraren ska se din fil. Vad gör du?',o:['Delar den med läraren','Skriver ut den','Raderar den','Gömmer den'],why:'Knappen Dela ger läraren åtkomst.'},
+  {q:'Hur ska en fil heta?',o:['Ett tydligt namn, t.ex. Svensson_Anna_Rapport','Dokument1','asdf','Ny ny ny 3 final'],why:'Bra namn gör att man hittar filen.'},
+  {q:'Du raderade en fil av misstag. Vad gör du?',o:['Kollar i Papperskorgen och återställer','Ger upp','Köper ny dator','Skyller på kompisen'],why:'Raderade filer ligger kvar en tid i papperskorgen.'},
+  {q:'Hur sorterar du dina filer bäst?',o:['I mappar, t.ex. en per ämne','Allt på en hög','På skrivbordet','I chatten'],why:'Mappar ger ordning.'}
+ ],d)},
+{w:'ppt',ico:'🖼️',title:'Bästa bilden',sub:'Bra eller dålig PowerPoint?',
+ intro:'Välj den bild som är <b>bäst</b> att visa för klassen.',tip:'Bra bild: <b>kort rubrik</b>, <b>få ord</b>, stor text och en bild.',
+ run:(b,d)=>quiz(b,[
+  {q:'Vilken bild är bäst?',o:[slide('good','<h5>Klimat</h5><ul><li>Värmen ökar</li><li>Isen smälter</li></ul>🌍'),BAD],why:'Kort text och en bild är lätt att ta in.'},
+  {q:'Vilken bild är bäst?',o:[slide('good','<h5>Mitt husdjur</h5><ul><li>Katten Misse</li><li>3 år gammal</li></ul>🐱'),BAD],why:'Du berättar resten med din röst!'},
+  {q:'Vilken bild är bäst?',o:[slide('good','<h5>Fotboll</h5><ul><li>11 spelare</li><li>90 minuter</li></ul>⚽'),BAD],why:'Läsaren hinner läsa medan du pratar.'}
+ ],d)},
+{w:'ppt',ico:'🛠️',title:'Bygg presentationen',sub:'Rätt ordning',
+ intro:'Klicka stegen i <b>rätt ordning</b> när du gör en presentation.',tip:'Tryck <b>F5</b> för att visa bildspelet från början.',
+ run:(b,d)=>order(b,['Öppna PowerPoint och välj Ny presentation','Välj en enkel design','Skriv rubrik och några få ord på varje bild','Infoga en bild (Infoga → Bilder)','Spara i OneDrive','Visa bildspelet med F5'],d)},
+{w:'boss',ico:'👑',title:'Vilken app?',sub:'Slutbossen – 3 liv',
+ intro:'Vilken app använder du? <b>Teams</b>, <b>PowerPoint</b> eller <b>OneDrive</b>? Du har tre liv!',tip:'Chatta/möte/uppgift = Teams · Bilder/bildspel = PowerPoint · Filer/moln/dela = OneDrive.',
+ run:(b,d)=>whichApp(b,[
+  ['Du vill ha ett videomöte med klassen','Teams'],['Du ska göra bilder till en redovisning','PowerPoint'],['Du vill spara en fil i molnet','OneDrive'],
+  ['Du ska chatta med din lärare','Teams'],['Du vill visa ett bildspel med F5','PowerPoint'],['Du vill dela en fil med en kompis','OneDrive'],
+  ['Du ska lämna in en uppgift','Teams'],['Du vill välja en design och övergångar','PowerPoint'],['Du letar efter en raderad fil i papperskorgen','OneDrive']],d)}
+];
+LEVELS.forEach((l,n)=>l.id='l'+n);
+
+function updXP(){ $('#xp').textContent='⭐ '+total()+' poäng'; }
+function hub(){
+  updXP();
+  const doneN=LEVELS.filter(l=>S.lv[l.id]).length;
+  const worlds=['teams','one','ppt','boss'];
+  app.innerHTML=`<div class="card intro"><div class="big">🚀</div><div style="flex:1;min-width:220px"><h2>Välkommen!</h2>
+    <p style="margin:0">Klara alla ${LEVELS.length} banor i <b>Teams</b>, <b>OneDrive</b> och <b>PowerPoint</b> och få ett diplom.</p>
+    <div class="bar"><i style="width:${doneN/LEVELS.length*100}%"></i></div><small>${doneN} av ${LEVELS.length} banor klara</small></div></div>
+    ${worlds.map(w=>`<section class="world" style="--c:${W[w][1]}"><h3>${W[w][0]}</h3><div class="hub">${LEVELS.filter(l=>l.w===w).map(l=>`<button class="lvl ${S.lv[l.id]?'done':''}" data-id="${l.id}"><div class="ico">${l.ico}</div><h4>${l.title}</h4><p>${l.sub}</p><div class="stars">${S.lv[l.id]?'★'.repeat(S.lv[l.id].st)+'☆'.repeat(3-S.lv[l.id].st):'☆☆☆'}</div></button>`).join('')}</div></section>`).join('')}
+    ${doneN===LEVELS.length?'<p style="text-align:center;margin-top:20px"><button class="btn" id="cert">🏆 Visa mitt diplom</button></p>':''}`;
+  app.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>play(LEVELS.find(l=>l.id===b.dataset.id)));
+  const c=$('#cert');if(c)c.onclick=certificate;
+}
+function play(L){
+  app.innerHTML=`<button class="btn ghost back" id="bk">← Tillbaka till kartan</button>
+   <div class="card"><h2>${L.ico} ${L.title}</h2><p>${L.intro}</p><div class="tip">💡 ${L.tip}</div><div id="game"></div></div>`;
+  $('#bk').onclick=hub;scrollTo(0,0);
+  L.run($('#game'),m=>finish(L,m));
+}
+function finish(L,m){
+  const st=stars(m),xp=Math.max(40,100-m*10),old=S.lv[L.id];
+  if(!old||xp>old.xp)S.lv[L.id]={st,xp};save();updXP();confetti();
+  const next=LEVELS[LEVELS.indexOf(L)+1],all=LEVELS.every(l=>S.lv[l.id]);
+  $('#game').innerHTML=`<div style="text-align:center"><div style="font-size:4rem">🎉</div><h2>Bana klar!</h2>
+   <div class="stars" style="font-size:2.2rem">${'★'.repeat(st)+'☆'.repeat(3-st)}</div><p>+${xp} poäng · ${m} misstag</p>
+   <div class="row" style="justify-content:center"><button class="btn ghost" id="again">Spela om</button>
+   ${all?'<button class="btn" id="cert">🏆 Se ditt diplom</button>':next?'<button class="btn" id="nxt">Nästa bana →</button>':'<button class="btn" id="mp">Till kartan</button>'}</div></div>`;
+  $('#again').onclick=()=>play(L);
+  const a=$('#nxt');if(a)a.onclick=()=>play(next);
+  const b=$('#cert');if(b)b.onclick=certificate;
+  const c=$('#mp');if(c)c.onclick=hub;
+}
+function certificate(){
+  if(!S.name){
+    app.innerHTML=`<div class="card"><h2>🏆 Nästan klart!</h2><p>Skriv ditt namn till diplomet:</p><div class="row"><input type="text" id="nm" placeholder="Förnamn Efternamn" aria-label="Ditt namn"><button class="btn" id="ok">Visa diplom</button></div></div>`;
+    $('#ok').onclick=()=>{const v=$('#nm').value.trim();if(v){S.name=v;save();certificate();}};return;
+  }
+  const xp=total(),max=LEVELS.length*100;
+  const rank=xp>=max*.9?'Microsoft-mästare 👑':xp>=max*.75?'Microsoft-proffs 🚀':'Microsoft-lärling 📄';
+  const safe=S.name.replace(/[<>&"]/g,'');
+  app.innerHTML=`<div class="cert"><div style="font-size:3rem">🏆</div><h2>Diplom</h2><p>Detta diplom tilldelas</p>
+   <p><span class="name">${safe}</span></p><p>som klarade alla ${LEVELS.length} banor i Microsoft-rallyt<br>(Teams, OneDrive och PowerPoint)<br>med <b>${xp} av ${max} poäng</b></p><h3>${rank}</h3></div>
+   <p class="no-print" style="text-align:center"><button class="btn" onclick="print()">🖨️ Skriv ut</button> <button class="btn ghost" id="bk">Till kartan</button></p>`;
+  $('#bk').onclick=hub;confetti();
+}
+$('#resetBtn').onclick=()=>{ if(confirm('Börja om och nollställa alla poäng?')){S={name:'',lv:{}};save();hub();} };
+hub();
+</script>
+</body>
+</html>
