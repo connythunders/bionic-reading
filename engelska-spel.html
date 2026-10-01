@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="English Rally: a game for English 5 where students practise tenses, prepositions, word order, vocabulary, collocations, linking words and formal or informal style.">
+<title>English Rally – English 5</title>
+<style>
+:root{
+  --bg:#fff7ec; --surface:#ffffff; --surface-2:#fbf1e2;
+  --text:#2a2118; --soft:#6a5b4c; --line:#e6d6bf;
+  --accent:#b4440f; --accent-weak:#fde9d8;
+  --good:#1f7a43; --good-weak:#e2f4e8; --bad:#b3261e; --bad-weak:#fde8e6;
+  --gold:#f5b400; --shadow:0 2px 4px rgba(60,30,0,.08),0 10px 30px rgba(60,30,0,.10);
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1d1812; --surface:#2a231a; --surface-2:#352c20;
+    --text:#f5ece0; --soft:#c9b9a3; --line:#4a3d2c;
+    --accent:#ff9a62; --accent-weak:#3d2a1b;
+    --good:#7fd29b; --good-weak:#1b3326; --bad:#f19a94; --bad-weak:#3a2220;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:18px/1.55 "Segoe UI",system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+header.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 0 16px}
+header.top h1{font-size:1.5rem;margin:0;margin-right:auto}
+.pill{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:4px 14px;font-weight:700}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:12px;padding:10px 20px;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+@media (prefers-color-scheme: dark){.btn{color:#1d1812}}
+.btn:hover{filter:brightness(1.1)} .btn:active{transform:translateY(2px);box-shadow:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:var(--surface);color:var(--text);border:2px solid var(--line);box-shadow:none}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.world{margin-top:18px}
+.world h3{margin:0 0 8px;padding-left:10px;border-left:8px solid var(--c)}
+.hub{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.lvl{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);transition:transform .15s}
+.lvl:hover{transform:translateY(-3px);border-color:var(--c)}
+.lvl .ico{font-size:2.2rem}.lvl h4{margin:.2rem 0;font-size:1.1rem}.lvl p{margin:0;color:var(--soft);font-size:.9rem}
+.lvl.done{border-color:var(--good);background:linear-gradient(var(--good-weak),var(--surface))}
+.stars{letter-spacing:2px;color:var(--gold);min-height:1.5em}
+.intro{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.intro .big{font-size:3rem}
+.bar{height:14px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--line);margin:8px 0}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#e8590c,#f5b400);transition:width .4s}
+.back{margin-bottom:10px}
+h2{margin:.2rem 0 .4rem}
+.tip{background:var(--accent-weak);border-left:5px solid var(--accent);padding:10px 14px;border-radius:8px;margin:12px 0;font-size:.95rem}
+.opts{display:grid;gap:10px;margin:14px 0}
+.opt{text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:12px;padding:12px 16px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--good-weak);border-color:var(--good)}
+.opt.wrong{background:var(--bad-weak);border-color:var(--bad);animation:shake .3s}
+.opt:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{min-height:1.6em;font-weight:600}.fb.good{color:var(--good)}.fb.bad{color:var(--bad)}
+mark{background:#ffe27a;color:#222;padding:0 5px;border-radius:5px;font-weight:700}
+.sent{font-size:1.25rem;background:var(--surface-2);border-radius:12px;padding:14px 16px;margin:10px 0}
+.steps{counter-reset:s;list-style:none;padding:0}
+.mem{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0}
+.mc{min-height:90px;border-radius:12px;border:2px solid var(--line);background:linear-gradient(135deg,#e8590c,#f5b400);color:transparent;font-size:.9rem;padding:6px;line-height:1.25}
+.mc.open{background:var(--surface-2);color:var(--text)}
+.mc.ok{background:var(--good-weak);color:var(--text);border-color:var(--good)}
+.tok{display:inline-block;margin:3px;padding:6px 12px;border-radius:10px;border:2px solid var(--line);background:var(--surface-2);font-size:1.1rem}
+.tok:hover:not(:disabled){border-color:var(--accent)}
+.tok:disabled{opacity:.35}
+.build{min-height:56px;background:var(--surface-2);border:2px dashed var(--line);border-radius:12px;padding:8px;margin:10px 0;font-size:1.2rem}
+.err{cursor:pointer;display:inline-block;padding:2px 6px;margin:1px;border-radius:6px;border:2px solid transparent;background:none;font-size:1.25rem}
+.err:hover{background:var(--accent-weak)}
+.err.bad{background:var(--bad-weak);border-color:var(--bad)}
+.err.ok{background:var(--good-weak);border-color:var(--good)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.big-btn{border:0;border-radius:12px;padding:16px 6px;color:#fff;font-weight:700;font-size:1.1rem;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.hearts{font-size:1.4rem}
+.cert{text-align:center;border:6px double var(--gold);background:var(--surface);padding:30px;border-radius:12px}
+.cert h2{font-size:2rem;color:var(--accent)}
+.cert .name{font-size:2rem;font-weight:800;border-bottom:3px solid var(--gold);display:inline-block;padding:0 20px}
+input[type=text]{font:inherit;padding:8px 12px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);width:100%;max-width:300px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:99}
+@media print{body{background:#fff}.no-print{display:none!important}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top no-print">
+    <h1>🇬🇧 English Rally <small style="font-weight:400;color:var(--soft)">· English 5</small></h1>
+    <span class="pill" id="xp">⭐ 0 points</span>
+    <button class="btn ghost" id="resetBtn">Start over</button>
+  </header>
+  <main id="app"></main>
+</div>
+<script>
+'use strict';
+const KEY='engelska-spel:v1';
+let S={name:'',lv:{}};
+try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.lv) S=s; }catch(e){}
+const save=()=>{ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} };
+const $=(s,r=document)=>r.querySelector(s);
+const app=$('#app');
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+const total=()=>Object.values(S.lv).reduce((n,l)=>n+l.xp,0);
+const stars=m=>m===0?3:m<=2?2:1;
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const c=$('#fx'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const p=Array.from({length:120},()=>({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:-Math.random()*12-3,c:`hsl(${Math.random()*360},90%,60%)`,s:5+Math.random()*6}));
+  let t=0;(function f(){x.clearRect(0,0,c.width,c.height);p.forEach(a=>{a.x+=a.vx;a.y+=a.vy;a.vy+=.35;x.fillStyle=a.c;x.fillRect(a.x,a.y,a.s,a.s);});
+    if(++t<110)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height);})();
+}
+
+/* Quiz: första alternativet är rätt. Q.s = valfri mening som visas (HTML). */
+function quiz(box,questions,done){
+  let i=0,mistakes=0;const q=shuffle(questions);
+  (function show(){
+    const Q=q[i];
+    box.innerHTML=`<div class="bar"><i style="width:${i/q.length*100}%"></i></div>
+      <p><b>Question ${i+1} of ${q.length}</b></p><h3>${Q.q}</h3>${Q.s?`<div class="sent">${Q.s}</div>`:''}
+      <div class="opts">${shuffle(Q.o.map((t,k)=>({t,k}))).map(o=>`<button class="opt" data-k="${o.k}">${o.t}</button>`).join('')}</div>
+      <div class="fb" aria-live="polite"></div><div id="nx"></div>`;
+    const fb=$('.fb',box);
+    box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(+b.dataset.k===0){
+        b.classList.add('right');box.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+        fb.className='fb good';fb.textContent='✅ Correct! '+Q.why;
+        $('#nx').innerHTML=`<button class="btn">${i+1<q.length?'Next →':'Done! 🎉'}</button>`;
+        $('#nx .btn').onclick=()=>{ if(++i<q.length)show(); else done(mistakes); };
+        $('#nx .btn').focus();
+      }else{mistakes++;b.classList.add('wrong');b.disabled=true;fb.className='fb bad';fb.textContent='❌ Not quite – try again!';}
+    });
+  })();
+}
+
+/* Memory */
+function memory(box,pairs,done){
+  const cards=shuffle(pairs.flatMap((p,k)=>[{k,t:p[0]},{k,t:p[1]}]));
+  let first=null,lock=false,found=0,mistakes=0;
+  box.innerHTML=`<div class="mem">${cards.map((c,n)=>`<button class="mc" data-n="${n}" aria-label="Card ${n+1}">❓</button>`).join('')}</div><div class="fb" aria-live="polite"></div>`;
+  const fb=$('.fb',box);
+  box.querySelectorAll('.mc').forEach(b=>b.onclick=()=>{
+    if(lock||b.classList.contains('open')||b.classList.contains('ok'))return;
+    const c=cards[+b.dataset.n];b.classList.add('open');b.textContent=c.t;
+    if(!first){first=b;return;}
+    const a=cards[+first.dataset.n];
+    if(a.k===c.k){first.className=b.className='mc ok';first=null;fb.className='fb good';fb.textContent='✅ A match!';
+      if(++found===pairs.length)setTimeout(()=>done(Math.floor(mistakes/2)),600);}
+    else{mistakes++;lock=true;fb.className='fb bad';fb.textContent='❌ Not a match – look carefully.';
+      const f=first;first=null;setTimeout(()=>{[f,b].forEach(x=>{x.classList.remove('open');x.textContent='❓';});lock=false;},900);}
+  });
+}
+
+/* Bygg en mening: klicka orden i rätt ordning */
+const norm=s=>s.toLowerCase().replace(/[.,!?]/g,'').replace(/\s+/g,' ').trim();
+function build(box,items,done){
+  const P=shuffle(items);let i=0,mistakes=0;
+  (function show(){
+    const it=P[i];let chosen=[];
+    box.innerHTML=`<div class="bar"><i style="width:${i/P.length*100}%"></i></div><p><b>Sentence ${i+1} of ${P.length}</b> – ${it.hint}</p>
+     <div class="build" id="bd" aria-live="polite"></div><div id="tk"></div>
+     <div class="row"><button class="btn" id="ck" disabled>Check</button><button class="btn ghost" id="cl">Clear</button></div><div class="fb" aria-live="polite"></div><div id="nx"></div>`;
+    const tk=$('#tk',box),bd=$('#bd',box),ck=$('#ck',box),fb=$('.fb',box);
+    const draw=()=>{
+      bd.textContent=chosen.map(c=>c.t).join(' ');
+      tk.innerHTML='';
+      it.w.map((t,k)=>({t,k})).forEach(o=>{
+        const b=document.createElement('button');b.className='tok';b.textContent=o.t;b.disabled=chosen.some(c=>c.k===o.k);
+        b.onclick=()=>{chosen.push(o);draw();};tk.appendChild(b);
+      });
+      ck.disabled=chosen.length!==it.w.length;
+    };
+    $('#cl',box).onclick=()=>{chosen=[];fb.textContent='';draw();};
+    ck.onclick=()=>{
+      const s=norm(chosen.map(c=>c.t).join(' '));
+      if(it.ok.map(norm).includes(s)){
+        fb.className='fb good';fb.textContent='✅ Correct! '+it.why;ck.disabled=true;tk.querySelectorAll('button').forEach(b=>b.disabled=true);
+        $('#nx',box).innerHTML=`<button class="btn">${i+1<P.length?'Next →':'Done! 🎉'}</button>`;
+        $('#nx .btn',box).onclick=()=>{ if(++i<P.length)show(); else done(mistakes); };
+      }else{mistakes++;fb.className='fb bad';fb.textContent='❌ Not the right order – clear and try again.';}
+    };
+    draw();
+  })();
+}
+
+/* Hitta felet */
+function findError(box,items,done){
+  const P=shuffle(items);let i=0,mistakes=0;
+  (function show(){
+    const it=P[i];
+    box.innerHTML=`<div class="bar"><i style="width:${i/P.length*100}%"></i></div><p><b>Sentence ${i+1} of ${P.length}</b> – click the wrong word.</p>
+     <div class="sent">${it.t.map((w,k)=>`<button class="err" data-k="${k}">${esc(w)}</button>`).join(' ')}</div><div class="fb" aria-live="polite"></div><div id="nx"></div>`;
+    const fb=$('.fb',box);
+    box.querySelectorAll('.err').forEach(b=>b.onclick=()=>{
+      if(it.e.includes(+b.dataset.k)){
+        it.e.forEach(k=>box.querySelector(`.err[data-k="${k}"]`).classList.add('ok'));
+        box.querySelectorAll('.err').forEach(x=>x.disabled=true);
+        fb.className='fb good';fb.textContent='✅ Correct! '+it.why;
+        $('#nx',box).innerHTML=`<button class="btn">${i+1<P.length?'Next →':'Done! 🎉'}</button>`;
+        $('#nx .btn',box).onclick=()=>{ if(++i<P.length)show(); else done(mistakes); };
+      }else{mistakes++;b.classList.add('bad');b.disabled=true;fb.className='fb bad';fb.textContent='❌ That word is fine – keep looking!';}
+    });
+  })();
+}
+
+/* Två val, valfritt med liv */
+function classify(box,items,labels,done,lives=0){
+  const P=shuffle(items);let i=0,L=lives,mistakes=0;
+  (function show(){
+    box.innerHTML=`${lives?`<p class="hearts" aria-label="${L} lives left">${'❤️'.repeat(L)}${'🖤'.repeat(lives-L)}</p>`:''}
+     <div class="bar"><i style="width:${i/P.length*100}%"></i></div>
+     <h3 style="margin-bottom:0">${P[i][0]}</h3>
+     <div class="two">${labels.map(l=>`<button class="big-btn" style="background:${l[1]}">${l[0]}</button>`).join('')}</div><div class="fb" aria-live="polite"></div>`;
+    box.querySelectorAll('.big-btn').forEach((b,k)=>b.onclick=()=>{
+      if(labels[k][0]===P[i][1]){ if(++i===P.length)return done(mistakes); show(); }
+      else{mistakes++;
+        if(lives&&--L===0){box.innerHTML=`<p class="fb bad">💀 Out of lives! Try again.</p><button class="btn" id="re">Try again</button>`;$('#re',box).onclick=()=>{i=0;L=lives;mistakes=0;show();};return;}
+        show();$('.fb',box).className='fb bad';$('.fb',box).textContent='❌ Wrong! '+(P[i][2]||'');}
+    });
+  })();
+}
+const ch=(q,r,w,why)=>({q,o:[r,...w],why});
+const gap=(s,r,w,why)=>({q:'Choose the correct word(s).',s,o:[r,...w],why});
+
+const W={grammar:['Grammar','#2b7de9'],words:['Words','#e8590c'],writing:['Writing','#2f9e44']};
+const LEVELS=[
+{w:'grammar',ico:'⏰',title:'Tenses',sub:'Present, past, perfect, future',
+ intro:'Choose the correct <b>verb form</b>.',tip:'Present perfect (<i>have lived</i>) connects the past with now. Use past simple with finished times (<i>yesterday</i>).',
+ run:(b,d)=>quiz(b,[
+  gap('She <mark>___</mark> to school every day.','goes',['go','going'],'Present simple, third person: she goes.'),
+  gap('I <mark>___</mark> TV when you called.','was watching',['watched','have watched'],'Past continuous: an action in progress when something else happened.'),
+  gap('They <mark>___</mark> in Stockholm since 2015.','have lived',['lived','are living'],'"Since" + a point in time → present perfect.'),
+  gap('Yesterday we <mark>___</mark> a great film.','saw',['have seen','see'],'"Yesterday" is a finished time → past simple.'),
+  gap('When we arrived, the film <mark>___</mark> already.','had started',['has started','was start'],'Past perfect: it happened before another past event.'),
+  gap('I <mark>___</mark> to the gym tomorrow.','am going',['went','have gone'],'Future plan: am going to / will go.'),
+  gap('If it rains, we <mark>___</mark> inside.','will stay',['would stay','stayed'],'First conditional: if + present, will + verb.')
+ ],d)},
+{w:'grammar',ico:'📍',title:'Prepositions & articles',sub:'in, on, at, a, an, the',
+ intro:'Choose the correct <b>small word</b>.',tip:'<b>in</b> + year/month · <b>on</b> + day · <b>at</b> + clock time. <b>an</b> before a vowel <i>sound</i>.',
+ run:(b,d)=>quiz(b,[
+  gap('She is <mark>___</mark> engineer.','an',['a','the'],'"Engineer" starts with a vowel sound → an.'),
+  gap('I am interested <mark>___</mark> music.','in',['on','at'],'Interested in.'),
+  gap('He is good <mark>___</mark> maths.','at',['in','on'],'Good at.'),
+  gap('I was born <mark>___</mark> 2008.','in',['on','at'],'Years use in.'),
+  gap('See you <mark>___</mark> Monday.','on',['in','at'],'Days use on.'),
+  gap('She depends <mark>___</mark> her parents.','on',['of','from'],'Depend on.'),
+  gap('<mark>___</mark> moon goes around the Earth.','The',['A','An'],'There is only one moon → the.')
+ ],d)},
+{w:'grammar',ico:'🧱',title:'Build the sentence',sub:'Word order in English',
+ intro:'Click the words in the <b>correct order</b>. Sometimes there is more than one answer!',tip:'Questions use <b>do/does/did</b>. Adverbs like <i>never</i> and <i>usually</i> go before the main verb.',
+ run:(b,d)=>build(b,[
+  {w:['she','has','never','been','to','London'],hint:'Present perfect with "never".',ok:['She has never been to London'],why:'Never goes after has.'},
+  {w:['why','did','you','leave','early'],hint:'It is a question.',ok:['Why did you leave early'],why:'Question word + did + subject + verb.'},
+  {w:['if','I','had','more','time','I','would','travel'],hint:'Second conditional – start with "if" or end with it.',ok:['If I had more time I would travel','I would travel if I had more time'],why:'If + past simple, would + verb.'},
+  {w:['although','it','rained','we','played','outside'],hint:'Try starting with "although" or with "we".',ok:['Although it rained we played outside','We played outside although it rained'],why:'"Although" introduces a contrast.'},
+  {w:['they','do not','usually','eat','breakfast'],hint:'Adverb of frequency.',ok:['They do not usually eat breakfast'],why:'Usually goes before the main verb.'},
+  {w:['the','book','that','I','read','was','great'],hint:'A relative clause with "that".',ok:['The book that I read was great'],why:'The book [that I read] was great.'}
+ ],d)},
+{w:'words',ico:'🧩',title:'Vocabulary memory',sub:'Match the word and its meaning',
+ intro:'Turn two cards at a time and match each <b>word</b> with its <b>meaning</b>.',tip:'Try to explain words in English instead of translating them.',
+ run:(b,d)=>memory(b,[['reliable','you can depend on it'],['improve','get better'],['essential','absolutely necessary'],['achieve','succeed in reaching a goal'],['challenge','something difficult to do'],['opinion','what you think about something']],d)},
+{w:'words',ico:'🤝',title:'Collocations',sub:'Words that go together',
+ intro:'Choose the word that <b>naturally goes with</b> the other word.',tip:'Collocations are word pairs that English speakers just use: <i>make a decision</i>, <i>heavy rain</i>.',
+ run:(b,d)=>quiz(b,[
+  gap('I need to <mark>___</mark> a decision.','make',['do','take'],'We make decisions.'),
+  gap('Please <mark>___</mark> your homework.','do',['make','take'],'We do homework.'),
+  gap('Let us <mark>___</mark> a break.','take',['make','do'],'Take a break.'),
+  gap('It was <mark>___</mark> rain.','heavy',['strong','big'],'Heavy rain.'),
+  gap('I like <mark>___</mark> coffee.','strong',['heavy','big'],'Strong coffee.'),
+  gap('Please <mark>___</mark> attention.','pay',['make','do'],'Pay attention.'),
+  gap('Everyone can <mark>___</mark> a mistake.','make',['do','take'],'Make a mistake.')
+ ],d)},
+{w:'words',ico:'🪤',title:'Tricky words',sub:'False friends and mix-ups',
+ intro:'Some English words look like Swedish words but mean something different. Choose the best answer.',tip:'<i>Gift</i> in English is a present. <i>Actually</i> means "in fact".',
+ run:(b,d)=>quiz(b,[
+  ch('What does <b>actually</b> mean?','in fact',['at the moment','in the end'],'Swedish "faktiskt/egentligen" – not "just nu".'),
+  ch('What does <b>eventually</b> mean?','in the end',['possibly','sometimes'],'Eventually = i slutändan.'),
+  ch('What does <b>sensible</b> mean?','practical and reasonable',['easily upset','having strong feelings'],'Sensible = förnuftig.'),
+  ch('I want to <b>___</b> a doctor.','become',['get','be'],'Become = bli.'),
+  ch('A <b>gift</b> in English is...','a present',['poison','a marriage'],'Beware: Swedish "gift" is a different word.'),
+  ch('Can I <b>___</b> your pen for a minute?','borrow',['lend','loan'],'Borrow = take for a while; lend = give for a while.'),
+  ch('Pollution can <b>___</b> our health.','affect',['effect','effects'],'Affect is a verb; effect is a noun.'),
+  ch('There are <b>___</b> students today.','fewer',['less','little'],'Fewer + countable nouns.')
+ ],d)},
+{w:'writing',ico:'🔗',title:'Linking words',sub:'Because, although, however...',
+ intro:'Choose the best <b>linking word</b>.',tip:'<b>because</b> = reason · <b>so/therefore</b> = result · <b>but/however/although</b> = contrast · <b>first/then/finally</b> = order.',
+ run:(b,d)=>quiz(b,[
+  gap('I stayed home <mark>___</mark> it was raining.','because',['although','however'],'Because gives a reason.'),
+  gap('<mark>___</mark> it was cold, we went swimming.','Although',['Because','Therefore'],'Although shows contrast.'),
+  gap('She studied hard. <mark>___</mark>, she passed the exam.','Therefore',['However','Although'],'Therefore shows a result.'),
+  gap('I like football. <mark>___</mark>, my brother prefers chess.','However',['Because','So'],'However shows contrast.'),
+  gap('First we ate. <mark>___</mark>, we went for a walk.','Afterwards',['Because','Although'],'Afterwards shows time order.'),
+  gap('<mark>___</mark>, school should start later. (end of an essay)','In conclusion',['For example','However'],'In conclusion ends a text.')
+ ],d)},
+{w:'writing',ico:'🕵️',title:'Spot the mistake',sub:'Click the wrong word',
+ intro:'Every sentence has a mistake. <b>Click the wrong word.</b>',tip:'Watch out for <b>their/there/they’re</b>, <b>its/it’s</b>, and verbs after <b>he/she</b>.',
+ run:(b,d)=>findError(b,[
+  {t:'Their going to the cinema tonight.'.split(' '),e:[0],why:'They’re = they are.'},
+  {t:'The dog wagged it’s tail.'.split(' '),e:[3],why:'Its (no apostrophe) shows possession.'},
+  {t:'He don’t like football.'.split(' '),e:[1],why:'He doesn’t.'},
+  {t:'I have seen that film yesterday.'.split(' '),e:[1,2],why:'Yesterday needs past simple: I saw.'},
+  {t:'There are less people here today.'.split(' '),e:[2],why:'Fewer + countable nouns.'},
+  {t:'She is more taller than me.'.split(' '),e:[2,3],why:'Taller (not "more taller").'},
+  {t:'I need some informations about the course.'.split(' '),e:[3],why:'Information is uncountable.'},
+  {t:'We discussed about the problem.'.split(' '),e:[2],why:'Discuss has no preposition.'}
+ ],d)},
+{w:'writing',ico:'🎩',title:'Formal or informal?',sub:'Adapt to the reader',
+ intro:'Is the expression <b>formal</b> or <b>informal</b>?',tip:'Use formal language in letters, reports and essays. Avoid slang and short forms like <i>gonna</i>.',
+ run:(b,d)=>classify(b,[
+  ['I would like to enquire about the course.','Formal'],['Gonna grab some food, you coming?','Informal'],['Dear Sir or Madam,','Formal'],
+  ['Hey guys, what’s up?','Informal'],['Yours faithfully,','Formal'],['Cheers, mate!','Informal'],
+  ['I regret to inform you that the event is cancelled.','Formal'],['No worries, it’s all good.','Informal']
+ ].map(x=>[...x,'Think about who reads it and why.']),[['Formal','#2b7de9'],['Informal','#e8590c']],d)},
+{w:'writing',ico:'👑',title:'Boss: True or false?',sub:'3 lives',
+ intro:'Is the statement <b>true</b> or <b>false</b>? You have three lives!',tip:'Look back at the tips from the other levels.',
+ run:(b,d)=>classify(b,[
+  ['“Information” is uncountable, so we do not say “informations”.','True'],
+  ['We use “fewer” with countable nouns.','True'],
+  ['“It’s” (with an apostrophe) shows possession.','False','It’s = it is; its = possession.'],
+  ['“Although” shows contrast.','True'],
+  ['Adjectives take a plural -s in English: “blues cars”.','False','Adjectives do not change.'],
+  ['Present perfect is used with “yesterday”.','False','Use past simple with finished times.'],
+  ['“Their” shows possession.','True'],
+  ['Slang is normally avoided in formal texts.','True'],
+  ['A question in English often uses do/does/did: “Why did you leave?”','True'],
+  ['“Affect” is usually a verb and “effect” is usually a noun.','True'],
+  ['“Gonna” fits well in a formal letter.','False','Use “going to”.']
+ ],[['True','#2f9e44'],['False','#c92a2a']],d,3)}
+];
+LEVELS.forEach((l,n)=>l.id='l'+n);
+
+function updXP(){ $('#xp').textContent='⭐ '+total()+' points'; }
+function hub(){
+  updXP();
+  const doneN=LEVELS.filter(l=>S.lv[l.id]).length;
+  app.innerHTML=`<div class="card intro"><div class="big">🇬🇧</div><div style="flex:1;min-width:220px"><h2>Welcome to English Rally!</h2>
+    <p style="margin:0">Practise the language skills in <b>English 5</b>: grammar, vocabulary, collocations, linking words and choosing the right style. Finish all ${LEVELS.length} levels to get a certificate.</p>
+    <div class="bar"><i style="width:${doneN/LEVELS.length*100}%"></i></div><small>${doneN} of ${LEVELS.length} levels completed</small></div></div>
+    ${Object.keys(W).map(w=>`<section class="world" style="--c:${W[w][1]}"><h3>${W[w][0]}</h3><div class="hub">${LEVELS.filter(l=>l.w===w).map(l=>`<button class="lvl ${S.lv[l.id]?'done':''}" data-id="${l.id}"><div class="ico">${l.ico}</div><h4>${l.title}</h4><p>${l.sub}</p><div class="stars">${S.lv[l.id]?'★'.repeat(S.lv[l.id].st)+'☆'.repeat(3-S.lv[l.id].st):'☆☆☆'}</div></button>`).join('')}</div></section>`).join('')}
+    ${doneN===LEVELS.length?'<p style="text-align:center;margin-top:20px"><button class="btn" id="cert">🏆 Show my certificate</button></p>':''}`;
+  app.querySelectorAll('.lvl').forEach(b=>b.onclick=()=>play(LEVELS.find(l=>l.id===b.dataset.id)));
+  const c=$('#cert');if(c)c.onclick=certificate;
+}
+function play(L){
+  app.innerHTML=`<button class="btn ghost back" id="bk">← Back to the map</button>
+   <div class="card"><h2>${L.ico} ${L.title}</h2><p>${L.intro}</p><div class="tip">💡 ${L.tip}</div><div id="game"></div></div>`;
+  $('#bk').onclick=hub;scrollTo(0,0);
+  L.run($('#game'),m=>finish(L,m));
+}
+function finish(L,m){
+  const st=stars(m),xp=Math.max(40,100-m*10),old=S.lv[L.id];
+  if(!old||xp>old.xp)S.lv[L.id]={st,xp};save();updXP();confetti();
+  const next=LEVELS[LEVELS.indexOf(L)+1],all=LEVELS.every(l=>S.lv[l.id]);
+  $('#game').innerHTML=`<div style="text-align:center"><div style="font-size:4rem">🎉</div><h2>Level complete!</h2>
+   <div class="stars" style="font-size:2.2rem">${'★'.repeat(st)+'☆'.repeat(3-st)}</div><p>+${xp} points · ${m} mistakes</p>
+   <div class="row" style="justify-content:center"><button class="btn ghost" id="again">Play again</button>
+   ${all?'<button class="btn" id="cert">🏆 See your certificate</button>':next?'<button class="btn" id="nxt">Next level →</button>':'<button class="btn" id="mp">To the map</button>'}</div></div>`;
+  $('#again').onclick=()=>play(L);
+  const a=$('#nxt');if(a)a.onclick=()=>play(next);
+  const b=$('#cert');if(b)b.onclick=certificate;
+  const c=$('#mp');if(c)c.onclick=hub;
+}
+function certificate(){
+  if(!S.name){
+    app.innerHTML=`<div class="card"><h2>🏆 Almost there!</h2><p>Write your name for the certificate:</p><div class="row"><input type="text" id="nm" placeholder="First name Last name" aria-label="Your name"><button class="btn" id="ok">Show certificate</button></div></div>`;
+    $('#ok').onclick=()=>{const v=$('#nm').value.trim();if(v){S.name=v;save();certificate();}};return;
+  }
+  const xp=total(),max=LEVELS.length*100;
+  const rank=xp>=max*.9?'English Master 👑':xp>=max*.75?'English Pro 🚀':'English Learner ✏️';
+  app.innerHTML=`<div class="cert"><div style="font-size:3rem">🏆</div><h2>Certificate</h2><p>This certificate is awarded to</p>
+   <p><span class="name">${esc(S.name)}</span></p><p>for completing all ${LEVELS.length} levels of English Rally<br>with <b>${xp} out of ${max} points</b></p><h3>${rank}</h3></div>
+   <p class="no-print" style="text-align:center"><button class="btn" onclick="print()">🖨️ Print</button> <button class="btn ghost" id="bk">To the map</button></p>`;
+  $('#bk').onclick=hub;confetti();
+}
+$('#resetBtn').onclick=()=>{ if(confirm('Start over and reset all points?')){S={name:'',lv:{}};save();hub();} };
+hub();
+</script>
+</body>
+</html>
