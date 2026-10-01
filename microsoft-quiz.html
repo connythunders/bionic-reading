@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft 365 – examinationsquiz</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px 16px;
+            color: #333;
+        }
+        .container { max-width: 820px; margin: 0 auto; }
+        .back-link {
+            display: inline-block; color: white; text-decoration: none;
+            margin-bottom: 16px; opacity: 0.9;
+        }
+        .back-link:hover { opacity: 1; text-decoration: underline; }
+        .card {
+            background: white; border-radius: 20px; padding: 36px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { font-size: 2em; color: #2c5aa0; text-align: center; margin-bottom: 10px; }
+        .lead { text-align: center; color: #666; line-height: 1.6; margin-bottom: 24px; }
+        .info {
+            background: #f5f7fa; border-radius: 12px; padding: 16px 20px;
+            margin-bottom: 24px; line-height: 1.7; color: #555;
+        }
+        .info ul { padding-left: 20px; }
+        label.name { display: block; font-weight: 600; margin-bottom: 6px; }
+        input[type=text] {
+            width: 100%; padding: 12px 14px; font-size: 1.05em;
+            border: 2px solid #ddd; border-radius: 10px; margin-bottom: 20px;
+        }
+        input[type=text]:focus { outline: none; border-color: #667eea; }
+        .btn {
+            padding: 12px 30px; font-size: 1.1em; border: none; border-radius: 10px;
+            cursor: pointer; font-weight: bold; color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,.4); }
+        .btn.secondary { background: #888; }
+        .btn.center { display: block; margin: 0 auto; }
+        .hidden { display: none !important; }
+        .topbar { display: flex; justify-content: space-between; color: #666; margin-bottom: 8px; font-size: .95em; }
+        .tag {
+            display: inline-block; background: #eef1fb; color: #4a5bc4; font-size: .8em;
+            font-weight: 600; padding: 4px 12px; border-radius: 14px; margin-bottom: 12px;
+        }
+        .progress-bar { height: 12px; background: #e0e0e0; border-radius: 6px; overflow: hidden; margin-bottom: 24px; }
+        .progress-fill { height: 100%; width: 0; background: linear-gradient(90deg, #667eea, #764ba2); transition: width .3s; }
+        h2.q { font-size: 1.35em; line-height: 1.45; margin-bottom: 20px; }
+        .options { display: flex; flex-direction: column; gap: 12px; }
+        .option {
+            background: #f8f8f8; border: 2px solid #ddd; border-radius: 10px;
+            padding: 14px 18px; font-size: 1.05em; text-align: left; cursor: pointer;
+            font-family: inherit; color: inherit; transition: all .2s;
+        }
+        .option:hover:not(:disabled) { background: #eef1fb; border-color: #667eea; }
+        .option.correct { background: #d4edda; border-color: #28a745; }
+        .option.wrong { background: #f8d7da; border-color: #dc3545; }
+        .option:disabled { cursor: default; }
+        .explain {
+            margin-top: 18px; padding: 14px 18px; background: #f5f7fa;
+            border-left: 5px solid #667eea; border-radius: 8px; line-height: 1.6;
+        }
+        .explain a { color: #2c5aa0; font-weight: 600; }
+        .next-wrap { margin-top: 24px; text-align: center; }
+        .score-big { font-size: 3em; font-weight: 800; color: #2c5aa0; text-align: center; }
+        .grade {
+            text-align: center; font-size: 1.3em; font-weight: 700; margin: 8px 0 20px;
+            padding: 12px; border-radius: 12px;
+        }
+        .grade.pass { background: #d4edda; color: #1d6b32; }
+        .grade.mid { background: #fff3cd; color: #7a5b00; }
+        .grade.fail { background: #f8d7da; color: #8a1f2b; }
+        h3 { margin: 24px 0 10px; color: #2c5aa0; }
+        .area-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .review-item { padding: 12px 0; border-bottom: 1px solid #eee; line-height: 1.55; }
+        .review-item .your { color: #a02030; }
+        .review-item .right { color: #1d6b32; }
+        .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
+        @media (max-width: 600px) {
+            .card { padding: 22px; }
+            h1 { font-size: 1.6em; }
+            h2.q { font-size: 1.15em; }
+        }
+        @media print {
+            body { background: white; padding: 0; }
+            .back-link, .actions { display: none; }
+            .card { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="microsoft-manualer.html" class="back-link">← Tillbaka till Microsoft 365-manualerna</a>
+    <div class="card">
+
+        <!-- Startsida -->
+        <section id="start">
+            <h1>📝 Microsoft 365 – examinationsquiz</h1>
+            <p class="lead">Visa att du kan använda Office i skolan: Word, PowerPoint, Teams, OneDrive och kortkommandon.</p>
+            <div class="info">
+                <ul>
+                    <li><strong>20 frågor</strong> med ett rätt svar var.</li>
+                    <li>Du ser direkt om du svarat rätt och får en förklaring.</li>
+                    <li>Frågorna bygger på <a href="microsoft-manualer.html">skolans Microsoft 365-manualer</a> – läs dem gärna först.</li>
+                    <li>Godkänd: minst 14 rätt (70 %). Väl godkänd: minst 18 rätt (90 %).</li>
+                    <li>Svarsalternativen kommer i slumpad ordning varje gång.</li>
+                </ul>
+            </div>
+            <label class="name" for="student">Ditt namn (visas på resultatet)</label>
+            <input type="text" id="student" placeholder="Förnamn Efternamn" autocomplete="name">
+            <button class="btn center" id="start-btn">Starta quizet</button>
+        </section>
+
+        <!-- Fråga -->
+        <section id="quiz" class="hidden">
+            <div class="topbar"><span>Fråga <span id="cur">1</span> av <span id="tot">20</span></span><span id="score-live"></span></div>
+            <div class="progress-bar"><div class="progress-fill" id="bar"></div></div>
+            <span class="tag" id="area"></span>
+            <h2 class="q" id="qtext"></h2>
+            <div class="options" id="options"></div>
+            <div class="explain hidden" id="explain"></div>
+            <div class="next-wrap"><button class="btn hidden" id="next-btn">Nästa fråga →</button></div>
+        </section>
+
+        <!-- Resultat -->
+        <section id="result" class="hidden">
+            <h1>Resultat</h1>
+            <p class="lead" id="who"></p>
+            <div class="score-big"><span id="r-score"></span> / <span id="r-total"></span></div>
+            <p class="lead" id="r-pct"></p>
+            <div class="grade" id="grade"></div>
+            <h3>Resultat per område</h3>
+            <div id="areas"></div>
+            <h3>Det här kan du repetera</h3>
+            <div id="review"></div>
+            <div class="actions">
+                <button class="btn" id="print-btn">🖨️ Skriv ut / spara som PDF</button>
+                <button class="btn secondary" id="again-btn">Gör om quizet</button>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<script>
+const DATA = [
+    // ---------- Word ----------
+    {
+        area: "Word", link: "word-manual.html",
+        q: "Du vill att Word ska kunna skapa en innehållsförteckning automatiskt. Vad måste du göra med dina rubriker?",
+        o: ["Göra dem stora och fetmarkerade för hand", "Använda rubrikformaten Rubrik 1, Rubrik 2 osv.", "Understryka dem", "Skriva dem med versaler"],
+        c: 1,
+        e: "Innehållsförteckningen bygger på Words färdiga rubrikformat. Text som bara är fetad och stor för hand räknas inte som rubrik."
+    },
+    {
+        area: "Word", link: "word-manual.html",
+        q: "Du har lagt till fler rubriker i uppsatsen, men innehållsförteckningen visar inte dem. Vad gör du?",
+        o: ["Skriver in rubrikerna för hand i listan", "Raderar innehållsförteckningen och sparar om dokumentet", "Högerklickar på innehållsförteckningen och väljer Uppdatera fält", "Byter teckensnitt på hela dokumentet"],
+        c: 2,
+        e: "Högerklicka på innehållsförteckningen och välj Uppdatera fält så stämmer rubriker och sidnummer igen."
+    },
+    {
+        area: "Word", link: "word-manual.html",
+        q: "Du vill att nästa avsnitt ska börja på en ny sida. Vad är det bästa sättet?",
+        o: ["Trycka Enter tills texten hamnar på nästa sida", "Använda en sidbrytning (Ctrl + Enter)", "Trycka mellanslag tills raden tar slut", "Göra marginalerna större"],
+        c: 1,
+        e: "Med en sidbrytning flyttas inte texten om du redigerar tidigare i dokumentet. Kortkommando: Ctrl + Enter."
+    },
+    {
+        area: "Word", link: "word-manual.html",
+        q: "Du källhänvisar enligt APA i en uppsats. Hur ser en korrekt hänvisning direkt i texten ut?",
+        o: ["(Andersson, 2021)", "[1]", "Andersson - bok - sida 4", "www.skolverket.se"],
+        c: 0,
+        e: "APA anger författarens efternamn och årtal inom parentes i texten, t.ex. (Andersson, 2021). Alla källor listas sedan i en källförteckning i bokstavsordning."
+    },
+    {
+        area: "Word", link: "word-manual.html",
+        q: "Word stavningskontroll visar inga fel i din text, men du har skrivit \"dem\" där det ska vara \"den\". Vad är rätt slutsats?",
+        o: ["Texten är säkert korrekt, Word hittar alla fel", "Stavningskontrollen hittar inte alla fel – jag måste läsa igenom texten själv", "Jag ska stänga av stavningskontrollen", "Det spelar ingen roll i skolarbeten"],
+        c: 1,
+        e: "Om ordet i sig är rättstavat men har fel betydelse markerar Word det inte. Läs alltid igenom texten själv innan du lämnar in."
+    },
+    {
+        area: "Word", link: "word-manual.html",
+        q: "Du ska lämna in en rapport och vill vara säker på att formateringen ser likadan ut på alla datorer. Vilket format väljer du?",
+        o: ["PDF (Arkiv → Spara en kopia/Exportera)", ".txt", "Skärmdump av dokumentet", "Skicka bara en länk till Word-programmet"],
+        c: 0,
+        e: "En PDF ser exakt likadan ut oavsett dator eller enhet."
+    },
+
+    // ---------- PowerPoint ----------
+    {
+        area: "PowerPoint", link: "powerpoint-manual.html",
+        q: "Var skriver du det du ska säga under redovisningen, utan att publiken ser det?",
+        o: ["I en textruta på bilden", "I anteckningsfältet under bilden (talarstöd)", "I filnamnet", "På en dold bild sist i presentationen"],
+        c: 1,
+        e: "Anteckningarna/talarstödet syns bara för dig, till exempel i presentatörsvyn. Skriv hellre korta stödord än ett fullt manus."
+    },
+    {
+        area: "PowerPoint", link: "powerpoint-manual.html",
+        q: "Hur startar du bildspelet från första bilden?",
+        o: ["Bildspel → Från början (eller F5)", "Arkiv → Skriv ut", "Design → Varianter", "Tryck Ctrl + S"],
+        c: 0,
+        e: "Fliken Bildspel → Från början, eller tryck F5. Esc avslutar bildspelet."
+    },
+    {
+        area: "PowerPoint", link: "powerpoint-manual.html",
+        q: "Du vill ge hela presentationen ett enhetligt utseende med färger och typsnitt på en gång. Vilken flik använder du?",
+        o: ["Infoga", "Övergångar", "Design", "Granska"],
+        c: 2,
+        e: "Under Design väljer du ett färdigt tema som ändrar färger, typsnitt och layout på alla bilder. Håll dig till ett tema genom hela presentationen."
+    },
+    {
+        area: "PowerPoint", link: "powerpoint-manual.html",
+        q: "Vilket av följande är ett exempel på en bra bild enligt manualen?",
+        o: ["Hela texten du ska säga skriven på bilden", "Många olika typsnitt och flashiga animationer för att väcka intresse", "En huvudtanke med korta punkter – resten berättar du muntligt", "Så mycket text som får plats, med liten stil"],
+        c: 2,
+        e: "Mindre är mer: max en huvudtanke per bild, korta punkter, och använd övergångar och animationer sparsamt."
+    },
+
+    // ---------- Teams ----------
+    {
+        area: "Teams", link: "teams-manual-gy.html",
+        q: "Du har laddat upp din fil i en uppgift i Teams. Vad måste du mer göra för att uppgiften ska räknas som inlämnad?",
+        o: ["Ingenting, filen räknas automatiskt", "Klicka på Lämna in och kontrollera att statusen blir Inlämnad", "Chatta till läraren att du är klar", "Starta om Teams"],
+        c: 1,
+        e: "Det räcker inte att bara lägga till filen. Klicka på Lämna in och kontrollera att uppgiften har fått status Inlämnad."
+    },
+    {
+        area: "Teams", link: "teams-manual-gy.html",
+        q: "Du ser inte en av dina kurser i Team-listan. Vem kontaktar du först?",
+        o: ["Skolans IT-support", "Läraren eller mentorn – du har troligen inte lagts till i teamet än", "Rektorn", "Ingen, kursen dyker upp av sig själv"],
+        c: 1,
+        e: "Saknas ett team har läraren troligen inte lagt till dig. Kontakta läraren eller mentorn, inte IT-support."
+    },
+    {
+        area: "Teams", link: "teams-manual-gy.html",
+        q: "Ett team eller en chatt står med fetstil i listan till vänster. Vad betyder det?",
+        o: ["Att den är viktigast av alla", "Att den är arkiverad", "Att det finns nytt, oläst innehåll", "Att läraren har betygsatt dig"],
+        c: 2,
+        e: "Fetstil betyder nytt, oläst innehåll. Fetstilen försvinner när du öppnat och läst det."
+    },
+    {
+        area: "Teams", link: "teams-manual-gy.html",
+        q: "Du vill ställa en fråga om en uppgift som alla i klassen kan ha nytta av att se svaret på. Vad gör du?",
+        o: ["Skriver ett inlägg i rätt kanal i teamet", "Skickar en privat chatt till en klasskamrat", "Väntar och frågar på lunchen", "Skriver frågan i ett Word-dokument"],
+        c: 0,
+        e: "Inlägg i en kanal används för sådant som hör till kursen och kan läsas av hela gruppen. Privata eller känsliga uppgifter ska inte skrivas i en öppen kanal."
+    },
+
+    // ---------- OneDrive ----------
+    {
+        area: "OneDrive", link: "onedrive-manual.html",
+        q: "Vilket filnamn är bäst för en bokrecension i Svenska 1?",
+        o: ["Dokument1.docx", "ny(3).docx", "Svenska1_Bokrecension_Kalle.docx", "asdasd.docx"],
+        c: 2,
+        e: "Ett bra filnamn innehåller kurs, uppgift och gärna datum eller namn, så att både du och läraren hittar rätt fil."
+    },
+    {
+        area: "OneDrive", link: "onedrive-manual.html",
+        q: "Du har råkat radera en fil i OneDrive. Vad gör du?",
+        o: ["Inget – filen är borta för alltid direkt", "Öppnar Papperskorgen, högerklickar på filen och väljer Återställ", "Skriver om filen från början", "Ber IT-support köpa en ny licens"],
+        c: 1,
+        e: "Raderade filer hamnar i Papperskorgen. Återställ dem snart – de tas bort permanent efter ungefär 30 dagar."
+    },
+    {
+        area: "OneDrive", link: "onedrive-manual.html",
+        q: "Du delar ett dokument med din lärare men vill att läraren bara ska kunna läsa det, inte ändra. Vilken behörighet väljer du?",
+        o: ["Redigera", "Visa", "Radera", "Ägare"],
+        c: 1,
+        e: "Visa = bara läsa. Redigera = kunna ändra i dokumentet. Välj rätt behörighet när du delar."
+    },
+    {
+        area: "OneDrive", link: "onedrive-manual.html",
+        q: "Du hittar inte filen du sparade igår bland alla mappar. Vad är det smartaste att göra först?",
+        o: ["Bläddra igenom alla mappar en och en", "Söka på filnamnet i sökfältet högst upp", "Skapa filen på nytt", "Byta till en annan dator"],
+        c: 1,
+        e: "Sök på filnamnet i sökfältet – det hittar filen oavsett mapp. Kontrollera också att du är inloggad med skolkontot."
+    },
+
+    // ---------- Kortkommandon ----------
+    {
+        area: "Kortkommandon", link: "kortkommandon.html",
+        q: "Vilket kortkommando använder du för att ångra det senaste du gjorde?",
+        o: ["Ctrl + Y", "Ctrl + Z", "Ctrl + S", "Ctrl + X"],
+        c: 1,
+        e: "Ctrl + Z ångrar. Ctrl + Y gör om något du ångrat. Ctrl + S sparar och Ctrl + X klipper ut."
+    },
+    {
+        area: "Kortkommandon", link: "kortkommandon.html",
+        q: "Vilket kortkommando tar en skärmklipp av valfri del av skärmen?",
+        o: ["Alt + Tab", "Ctrl + F", "Win + Shift + S", "Ctrl + A"],
+        c: 2,
+        e: "Win + Shift + S låter dig markera och spara en bild av valfri del av skärmen. Alt + Tab växlar mellan program."
+    }
+];
+
+const $ = id => document.getElementById(id);
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+let questions, idx, score, answered, log, student;
+
+function start() {
+    student = $('student').value.trim();
+    questions = DATA.map(d => {
+        const opts = shuffle(d.o.map((text, i) => ({ text, ok: i === d.c })));
+        return { ...d, opts };
+    });
+    idx = 0; score = 0; log = [];
+    $('start').classList.add('hidden');
+    $('result').classList.add('hidden');
+    $('quiz').classList.remove('hidden');
+    $('tot').textContent = questions.length;
+    show();
+}
+
+function show() {
+    const d = questions[idx];
+    answered = false;
+    $('cur').textContent = idx + 1;
+    $('bar').style.width = (idx / questions.length * 100) + '%';
+    $('score-live').textContent = 'Poäng: ' + score;
+    $('area').textContent = d.area;
+    $('qtext').textContent = d.q;
+    $('explain').classList.add('hidden');
+    $('next-btn').classList.add('hidden');
+    const box = $('options');
+    box.innerHTML = '';
+    d.opts.forEach((o, i) => {
+        const b = document.createElement('button');
+        b.className = 'option';
+        b.textContent = o.text;
+        b.addEventListener('click', () => answer(i));
+        box.appendChild(b);
+    });
+}
+
+function answer(i) {
+    if (answered) return;
+    answered = true;
+    const d = questions[idx];
+    const btns = $('options').querySelectorAll('.option');
+    btns.forEach((b, k) => {
+        b.disabled = true;
+        if (d.opts[k].ok) b.classList.add('correct');
+        else if (k === i) b.classList.add('wrong');
+    });
+    const ok = d.opts[i].ok;
+    if (ok) score++;
+    log.push({ d, ok, chosen: d.opts[i].text, right: d.opts.find(o => o.ok).text });
+    $('score-live').textContent = 'Poäng: ' + score;
+    const ex = $('explain');
+    ex.innerHTML = '';
+    const strong = document.createElement('strong');
+    strong.textContent = ok ? '✅ Rätt! ' : '❌ Inte riktigt. ';
+    ex.appendChild(strong);
+    ex.appendChild(document.createTextNode(d.e + ' '));
+    const a = document.createElement('a');
+    a.href = d.link; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = 'Läs mer i manualen';
+    ex.appendChild(a);
+    ex.classList.remove('hidden');
+    const nb = $('next-btn');
+    nb.textContent = idx === questions.length - 1 ? 'Se resultat' : 'Nästa fråga →';
+    nb.classList.remove('hidden');
+    nb.focus();
+}
+
+function next() {
+    idx++;
+    if (idx >= questions.length) return finish();
+    show();
+}
+
+function finish() {
+    $('quiz').classList.add('hidden');
+    $('result').classList.remove('hidden');
+    const total = questions.length;
+    const pct = Math.round(score / total * 100);
+    $('who').textContent = (student ? student + ' · ' : '') + new Date().toLocaleDateString('sv-SE');
+    $('r-score').textContent = score;
+    $('r-total').textContent = total;
+    $('r-pct').textContent = pct + ' % rätt';
+    const g = $('grade');
+    if (score >= 18) { g.className = 'grade pass'; g.textContent = '🌟 Väl godkänt – du behärskar Microsoft 365!'; }
+    else if (score >= 14) { g.className = 'grade pass'; g.textContent = '✅ Godkänt – bra grundkunskaper i Office.'; }
+    else if (score >= 10) { g.className = 'grade mid'; g.textContent = '📚 Nästan där – repetera manualerna nedan och försök igen.'; }
+    else { g.className = 'grade fail'; g.textContent = '💪 Ej godkänt än – läs manualerna och gör om quizet.'; }
+
+    const stats = {};
+    log.forEach(l => { const s = stats[l.d.area] = stats[l.d.area] || { ok: 0, n: 0, link: l.d.link }; s.n++; if (l.ok) s.ok++; });
+    const areas = $('areas');
+    areas.innerHTML = '';
+    Object.entries(stats).forEach(([name, s]) => {
+        const row = document.createElement('div');
+        row.className = 'area-row';
+        const l = document.createElement('span'); l.textContent = name;
+        const r = document.createElement('span'); r.textContent = s.ok + ' / ' + s.n;
+        row.append(l, r);
+        areas.appendChild(row);
+    });
+
+    const rev = $('review');
+    rev.innerHTML = '';
+    const wrong = log.filter(l => !l.ok);
+    if (!wrong.length) { rev.textContent = 'Inget – du hade alla rätt! 🎉'; }
+    wrong.forEach(l => {
+        const it = document.createElement('div');
+        it.className = 'review-item';
+        const q = document.createElement('strong'); q.textContent = l.d.q;
+        const y = document.createElement('div'); y.className = 'your'; y.textContent = 'Ditt svar: ' + l.chosen;
+        const rt = document.createElement('div'); rt.className = 'right'; rt.textContent = 'Rätt svar: ' + l.right;
+        const a = document.createElement('a'); a.href = l.d.link; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Repetera i manualen';
+        it.append(q, y, rt, a);
+        rev.appendChild(it);
+    });
+    window.scrollTo(0, 0);
+}
+
+function again() {
+    $('result').classList.add('hidden');
+    $('start').classList.remove('hidden');
+}
+
+$('start-btn').addEventListener('click', start);
+$('next-btn').addEventListener('click', next);
+$('again-btn').addEventListener('click', again);
+$('print-btn').addEventListener('click', () => window.print());
+$('student').addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
+</script>
+</body>
+</html>
