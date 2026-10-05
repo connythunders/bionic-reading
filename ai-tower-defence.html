@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Försvara Demokratin – Tower Defence om AI i samhället</title>
+<meta name="description" content="Tower defence-spel till kapitel 2, AI i samhället. Placera ut försvar mot deepfakes, desinformation, bias och andra AI-hot. Svara på frågor mellan vågorna för bonuspoäng.">
+<style>
+:root{
+  --bg:#0b0f1a;
+  --bg-card:#141a2b;
+  --bg-card2:#1b2338;
+  --border:#2a3350;
+  --text:#e7ecf7;
+  --text-muted:#93a1c4;
+  --accent:#7c5cff;
+  --accent2:#22d3ee;
+  --green:#2ea043;
+  --amber:#d9a02c;
+  --red:#e5484d;
+  --radius:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
+button{font-family:inherit;color:inherit}
+.topbar{background:rgba(11,15,26,.9);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+.topbar-inner{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:1.05rem}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:5px 12px;font-weight:700;font-size:.9rem;white-space:nowrap}
+.stat small{color:var(--text-muted);font-weight:600;margin-right:4px}
+.btn{background:var(--bg-card2);border:1px solid var(--border);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:.88rem;font-weight:600}
+.btn:hover:not(:disabled){border-color:var(--accent2);color:var(--accent2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:linear-gradient(135deg,var(--accent),#5b8cff);border:none;color:#fff}
+.btn.primary:hover:not(:disabled){color:#fff;filter:brightness(1.12)}
+.layout{max-width:1180px;margin:0 auto;padding:16px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+.board{position:relative}
+canvas{width:100%;height:auto;display:block;border-radius:var(--radius);border:1px solid var(--border);background:#0f1524;touch-action:none;cursor:crosshair}
+.controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.controls .grow{flex:1}
+.side{display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.panel h2{font-size:.95rem;margin-bottom:8px}
+.towers{display:grid;gap:6px}
+.tower-btn{display:grid;grid-template-columns:36px 1fr auto;gap:8px;align-items:center;text-align:left;background:var(--bg-card2);border:2px solid var(--border);border-radius:10px;padding:7px 9px;cursor:pointer}
+.tower-btn .ic{font-size:1.5rem;text-align:center}
+.tower-btn .nm{font-weight:700;font-size:.88rem}
+.tower-btn .ds{font-size:.74rem;color:var(--text-muted);line-height:1.3}
+.tower-btn .co{font-weight:800;color:var(--amber);font-size:.9rem}
+.tower-btn.sel{border-color:var(--accent2);background:#16304a}
+.tower-btn.poor .co{color:var(--red)}
+.info{font-size:.84rem;color:var(--text-muted)}
+.info b{color:var(--text)}
+.info .row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.threat{display:grid;grid-template-columns:30px 1fr;gap:8px;margin-top:8px;font-size:.8rem}
+.threat .ic{font-size:1.4rem;text-align:center}
+.threat b{font-size:.84rem}
+.threat span{color:var(--text-muted)}
+.overlay{position:fixed;inset:0;background:rgba(5,8,16,.82);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;overflow:auto}
+.overlay.show{display:flex}
+.modal{background:var(--bg-card);border:1px solid var(--border);border-radius:18px;max-width:560px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.modal h1{font-size:1.4rem;margin-bottom:8px}
+.modal p{color:var(--text-muted);margin-bottom:10px;font-size:.93rem}
+.modal ul{margin:0 0 12px 18px;color:var(--text-muted);font-size:.9rem}
+.modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.opt{display:block;width:100%;text-align:left;background:var(--bg-card2);border:2px solid var(--border);border-radius:10px;padding:10px 12px;margin-top:8px;cursor:pointer;font-size:.92rem}
+.opt:hover:not(:disabled){border-color:var(--accent2)}
+.opt.ok{border-color:var(--green);background:rgba(46,160,67,.18)}
+.opt.bad{border-color:var(--red);background:rgba(229,72,77,.18)}
+.opt:disabled{cursor:default}
+.expl{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--bg-card2);font-size:.88rem;display:none}
+.tag{display:inline-block;background:rgba(124,92,255,.15);border:1px solid rgba(124,92,255,.35);color:#b8a9ff;padding:2px 10px;border-radius:20px;font-size:.74rem;font-weight:700;margin-bottom:8px}
+.toast{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:rgba(20,26,43,.95);border:1px solid var(--accent2);padding:8px 16px;border-radius:10px;font-size:.88rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;max-width:92%;text-align:center}
+.toast.show{opacity:1}
+.back{color:var(--text-muted);text-decoration:none;font-size:.85rem}
+.back:hover{color:var(--accent2)}
+@media (max-width:900px){.layout{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="topbar-inner">
+  <div class="brand">🏛️ Försvara Demokratin <a class="back" href="start.html">← Startsidan</a></div>
+  <div class="stats">
+    <div class="stat"><small>Förtroende</small>❤️ <span id="lives">20</span></div>
+    <div class="stat"><small>Poäng</small>🪙 <span id="money">0</span></div>
+    <div class="stat"><small>Våg</small><span id="wave">0</span>/10</div>
+  </div>
+</div></div>
+
+<div class="layout">
+  <div>
+    <div class="board">
+      <canvas id="cv" width="768" height="480" aria-label="Spelplan"></canvas>
+      <div class="toast" id="toast"></div>
+    </div>
+    <div class="controls">
+      <button class="btn primary" id="btnWave">▶ Starta våg 1</button>
+      <button class="btn" id="btnSpeed">Fart: 1×</button>
+      <button class="btn" id="btnPause">⏸ Paus</button>
+      <span class="grow"></span>
+      <button class="btn" id="btnHelp">Hur spelar jag?</button>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="panel">
+      <h2>Försvar (tangent 1–5)</h2>
+      <div class="towers" id="towers"></div>
+    </div>
+    <div class="panel info" id="selPanel"><b>Tips:</b> Välj ett försvar och klicka på spelplanen för att placera det. Klicka på ett placerat försvar för att uppgradera eller sälja det.</div>
+    <div class="panel">
+      <h2 id="threatTitle">Kommande hot</h2>
+      <div class="info" id="threats">Starta första vågen för att se vilka hot som närmar sig.</div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay show" id="ov"><div class="modal" id="modal"></div></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Konstanter & data ---------- */
+const COLS=16, ROWS=10, CS=48, W=COLS*CS, H=ROWS*CS;
+const START_LIVES=20, START_MONEY=170, QUIZ_BONUS=40;
+
+const WAYPOINTS=[[-1,1],[12,1],[12,4],[3,4],[3,7],[16,7]]
+  .map(function(p){return [p[0]*CS+CS/2, p[1]*CS+CS/2];});
+
+const TOWERS={
+  kallkritik:{name:'Källkritik',icon:'🔍',cost:50,range:115,dmg:10,rate:.5,desc:'Billig allround. Extra effektiv mot desinformation och AI-slop.'},
+  markning:{name:'Märkning (AI Act)',icon:'🏷️',cost:70,range:105,dmg:7,rate:.7,slow:.5,desc:'Saktar ner hot. Extra effektiv mot deepfakes, som ska märkas enligt AI Act.'},
+  gdpr:{name:'GDPR-skölden',icon:'🛡️',cost:85,range:110,dmg:16,rate:.65,desc:'Skyddar personuppgifter. Extra effektiv mot röstkloning och promptinjektion.'},
+  mangfald:{name:'Mångfaldig data',icon:'🌈',cost:110,range:100,dmg:14,rate:1.0,splash:55,desc:'Skadar flera hot i ett område. Extra effektiv mot bias och filterbubblor.'},
+  tillsyn:{name:'Mänsklig tillsyn',icon:'👁️',cost:160,range:170,dmg:70,rate:1.5,desc:'Långsam men kraftfull, lång räckvidd. Extra effektiv mot maktkoncentration.'}
+};
+const TOWER_KEYS=Object.keys(TOWERS);
+TOWERS.kallkritik.strong='desinfo,slop';
+TOWERS.markning.strong='deepfake';
+TOWERS.gdpr.strong='klon,prompt';
+TOWERS.mangfald.strong='bias,filter';
+TOWERS.tillsyn.strong='makt';
+
+const ENEMIES={
+  desinfo:{name:'Desinformation',icon:'📰',hp:30,speed:55,reward:6,weak:'kallkritik',info:'Avsiktligt felaktig information som sprids planerat för att vilseleda.'},
+  slop:{name:'AI-slop',icon:'🗑️',hp:12,speed:72,reward:3,weak:'kallkritik',info:'Massor av lågkvalitativt AI-innehåll som dränker det som är sant.'},
+  deepfake:{name:'Deepfake',icon:'🎭',hp:65,speed:46,reward:9,weak:'markning',info:'AI-manipulerat material som ser verkligt ut men är påhittat.'},
+  bias:{name:'Bias',icon:'⚖️',hp:85,speed:40,reward:10,weak:'mangfald',info:'Skev träningsdata gör att AI-system behandlar människor orättvist.'},
+  filter:{name:'Filterbubbla',icon:'🫧',hp:115,speed:38,reward:12,weak:'mangfald',info:'Algoritmer visar bara det du redan gillar och ökar polariseringen.'},
+  klon:{name:'Röstkloning',icon:'📞',hp:38,speed:98,reward:8,weak:'gdpr',info:'Några sekunders inspelning räcker för att härma en röst i bedrägerier.'},
+  prompt:{name:'Promptinjektion',icon:'💉',hp:75,speed:55,reward:10,weak:'gdpr',info:'Dolda instruktioner som får en AI-assistent att läcka eller göra fel.'},
+  makt:{name:'Maktkoncentration',icon:'🏢',hp:2100,speed:24,reward:250,weak:'tillsyn',boss:true,info:'Ett fåtal jättar kontrollerar tekniken, datan och reglerna.'}
+};
+
+// [typ, antal, tid mellan, starttid]
+const WAVES=[
+  {title:'Rykten sprids',groups:[['desinfo',8,1.3,0]]},
+  {title:'Informationsbrus',groups:[['desinfo',6,1.1,0],['slop',12,.55,8]]},
+  {title:'Falska videor',groups:[['deepfake',6,1.5,0],['desinfo',6,.9,10]]},
+  {title:'Skev data',groups:[['slop',16,.5,0],['bias',6,1.5,6]]},
+  {title:'Bedragarna ringer',groups:[['klon',9,.8,0],['deepfake',7,1.1,8]]},
+  {title:'Bubblor och dolda kommandon',groups:[['bias',8,1.2,0],['filter',6,1.5,6],['prompt',5,1.1,16]]},
+  {title:'Attack från alla håll',groups:[['prompt',9,.9,0],['klon',9,.7,6],['slop',22,.4,12]]},
+  {title:'Polarisering',groups:[['filter',11,1.1,0],['deepfake',11,.9,6],['bias',9,1.0,14]]},
+  {title:'Sista stormen',groups:[['desinfo',16,.5,0],['deepfake',10,.8,4],['prompt',10,.8,8],['klon',12,.5,14],['filter',8,1.0,18]]},
+  {title:'Maktkoncentrationen',groups:[['makt',1,1,0],['bias',10,1.1,3],['filter',8,1.2,10],['klon',12,.6,18],['slop',25,.3,24]]}
+];
+
+const QUIZ=[
+  {q:'Vilka fem etiska dimensioner lyfts fram för ansvarsfull AI-användning?',o:['Hastighet, kostnad, design, säkerhet och effektivitet','Integritet, desinformation, förklarbarhet, partiskhet/rättvisa och plagiering','Autonomi, kreativitet, intelligens, medvetande och språk','Programmering, data, träning, test och utvärdering'],a:1,e:'Integritet och säkerhet, desinformation, förklarbarhet och transparens, partiskhet och rättvisa samt plagiering.'},
+  {q:'Vad är ett deepfake?',o:['En AI-modell som lär sig av falsk träningsdata','AI-genererat eller AI-manipulerat material som ser verkligt ut men är påhittat','En sorts spam-mejl skapat av en bot','En fejkad användaridentitet i ett socialt medium'],a:1,e:'Ett deepfake är bild, ljud eller video som ser äkta ut men är fabricerat eller manipulerat med AI.'},
+  {q:'Vad innebär transparens (förklarbarhet) som etisk dimension?',o:['Att systemet alltid ger korrekta svar','Att man kan förstå och förklara hur systemet fattar sina beslut','Att systemet är gratis att använda','Att systemet inte samlar in några personuppgifter'],a:1,e:'Transparens betyder insyn i principerna bakom besluten, inte att alla måste förstå matematiken.'},
+  {q:'Vilket syfte har EU:s AI-förordning (AI Act)?',o:['Att förbjuda all användning av AI i Europa','Att reglera AI-system utifrån riskklasser och skydda grundläggande rättigheter','Att ge EU-företag monopol på AI-utveckling','Att påskynda militär AI-forskning i Europa'],a:1,e:'AI Act delar in AI i riskklasser (oacceptabel, hög, begränsad, minimal) med krav per nivå.'},
+  {q:'Varför kan träning av stora AI-modeller kräva mycket vatten?',o:['Vatten används som bränsle i grafikkorten','Datacentren behöver kylas för att hårdvaran inte ska överhettas','Vatten krävs för att skriva ut träningsdata på papper','AI-modeller simulerar vattenflöden som en del av träningen'],a:1,e:'Datacenter genererar mycket värme och kyls ofta med stora mängder vatten.'},
+  {q:'Vilket är ett exempel på ekonomisk maktkoncentration inom AI?',o:['Att fler länder samarbetar om öppen AI-forskning','Att ett fåtal stora teknikföretag har råd att träna de mest kraftfulla modellerna','Att AI gör vissa yrken mer effektiva','Att EU inför AI Act'],a:1,e:'Träning är extremt kapitalkrävande, så bara ett fåtal aktörer ligger i framkant.'},
+  {q:'Vad är en proxyvariabel?',o:['En variabel som indirekt representerar en annan, till exempel postnummer i stället för etnicitet','En krypterad variabel i en databas','En variabel som alltid är sann','En variabel som tas bort före träning'],a:0,e:'Även om känslig data tas bort kan AI:n komma åt den via omvägar och diskriminera indirekt.'},
+  {q:'Vad är skillnaden mellan desinformation och oavsiktligt felaktig information?',o:['Ingen skillnad','Desinformation sprids avsiktligt för att vilseleda, den andra sprids av personer som inte vet att den är fel','Desinformation är alltid text, den andra alltid bild','Desinformation skapas bara av AI'],a:1,e:'Avsikten avgör: desinformation är medvetet vilseledande.'},
+  {q:'Hur skyddar du dig bäst mot ett samtal med en klonad röst som ber om pengar?',o:['Svarar snabbt så att personen inte ger upp','Ringer tillbaka på ett nummer du redan har och använder ett överenskommet kodord','Ber personen skicka en selfie','Ignorerar alla samtal från okända nummer för alltid'],a:1,e:'Verifiera via en annan kanal och var misstänksam vid brådska och pengakrav.'},
+  {q:'Vilken riskklass har social poängsättning av medborgare enligt AI Act?',o:['Minimal risk','Begränsad risk','Hög risk','Oacceptabel risk, förbjuds helt'],a:3,e:'Oacceptabel risk förbjuds. Medicinska diagnosverktyg är hög risk och chattbottar begränsad risk.'},
+  {q:'Hur uppstår en filterbubbla?',o:['Algoritmer visar mer av det du redan gillar så att du ser färre perspektiv','Webbläsaren blockerar alla reklam','Man använder för många flikar','Nyhetssajter slutar publicera'],a:0,e:'Engagemangsdrivna algoritmer premierar laddat innehåll och kan öka polariseringen.'},
+  {q:'Vad gäller om du skriver in personuppgifter i ett AI-verktyg i skolan?',o:['Inget särskilt, det är bara text','GDPR gäller och skolan ansvarar för att uppgifterna hanteras säkert','Då blir uppgifterna anonyma automatiskt','Det är tillåtet om verktyget är gratis'],a:1,e:'Skriv inget i ett AI-verktyg som du inte skulle kunna säga högt i klassrummet.'}
+];
+
+/* ---------- Tillstånd ---------- */
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const $=function(id){return document.getElementById(id);};
+const blocked=[]; for(let r=0;r<ROWS;r++){blocked.push(new Array(COLS).fill(false));}
+(function markPath(){
+  for(let i=0;i<WAYPOINTS.length-1;i++){
+    const a=WAYPOINTS[i], b=WAYPOINTS[i+1];
+    const n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/8);
+    for(let k=0;k<=n;k++){
+      const x=a[0]+(b[0]-a[0])*k/n, y=a[1]+(b[1]-a[1])*k/n;
+      const c=Math.floor(x/CS), r=Math.floor(y/CS);
+      if(c>=0&&c<COLS&&r>=0&&r<ROWS) blocked[r][c]=true;
+    }
+  }
+})();
+const SEG=[]; let PATH_LEN=0;
+for(let i=0;i<WAYPOINTS.length-1;i++){
+  const a=WAYPOINTS[i], b=WAYPOINTS[i+1], l=Math.hypot(b[0]-a[0],b[1]-a[1]);
+  SEG.push({a:a,b:b,l:l,start:PATH_LEN}); PATH_LEN+=l;
+}
+function posAt(d){
+  for(let i=0;i<SEG.length;i++){
+    const s=SEG[i];
+    if(d<=s.start+s.l||i===SEG.length-1){
+      const t=Math.min(1,Math.max(0,(d-s.start)/s.l));
+      return {x:s.a[0]+(s.b[0]-s.a[0])*t, y:s.a[1]+(s.b[1]-s.a[1])*t};
+    }
+  }
+}
+
+let G;
+function newGame(){
+  G={
+    lives:START_LIVES, money:START_MONEY, wave:0, state:'idle', // idle | wave | quiz | over | won
+    enemies:[], towers:[], shots:[], floats:[], queue:[], t:0,
+    selType:'kallkritik', selTower:null, hover:null,
+    speed:1, paused:false, quizOrder:shuffle(QUIZ.map(function(_,i){return i;})), quizIdx:0, quizRight:0, quizTotal:0
+  };
+  refreshAll();
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+/* ---------- Spelmekanik ---------- */
+function startWave(){
+  if(G.state!=='idle'||G.wave>=WAVES.length) return;
+  const w=WAVES[G.wave]; G.wave++;
+  const hpMul=1+0.08*(G.wave-1);
+  G.queue=[];
+  w.groups.forEach(function(g){
+    for(let i=0;i<g[1];i++) G.queue.push({type:g[0],at:g[3]+i*g[2],hpMul:hpMul});
+  });
+  G.queue.sort(function(a,b){return a.at-b.at;});
+  G.t=0; G.state='wave';
+  refreshAll();
+}
+function spawn(q){
+  const d=ENEMIES[q.type];
+  G.enemies.push({type:q.type,d:0,hp:d.hp*q.hpMul,max:d.hp*q.hpMul,slow:0,x:WAYPOINTS[0][0],y:WAYPOINTS[0][1]});
+}
+function towerStats(t){
+  const b=TOWERS[t.type], m=1+(t.level-1)*0.5;
+  return {dmg:b.dmg*m, range:b.range*(1+(t.level-1)*0.1), rate:b.rate*(1-(t.level-1)*0.1), splash:b.splash?b.splash*(1+(t.level-1)*0.15):0, slow:b.slow||0};
+}
+function upgradeCost(t){return Math.round(TOWERS[t.type].cost*0.7*t.level);}
+function sellValue(t){
+  let v=TOWERS[t.type].cost; for(let l=1;l<t.level;l++) v+=Math.round(TOWERS[t.type].cost*0.7*l);
+  return Math.round(v*0.6);
+}
+function multFor(towerType,enemy){return ENEMIES[enemy.type].weak===towerType?2:1;}
+
+function hit(enemy,dmg,towerType,slow){
+  const mult=multFor(towerType,enemy);
+  enemy.hp-=dmg*mult;
+  if(slow&&!ENEMIES[enemy.type].boss) enemy.slow=1.6;
+  else if(slow) enemy.slow=0.8;
+  if(mult>1) G.floats.push({x:enemy.x,y:enemy.y-14,t:.6,txt:'2×'});
+}
+
+function update(dt){
+  G.t+=dt;
+  // spawn
+  while(G.queue.length&&G.queue[0].at<=G.t) spawn(G.queue.shift());
+  // enemies
+  for(let i=G.enemies.length-1;i>=0;i--){
+    const e=G.enemies[i], d=ENEMIES[e.type];
+    if(e.slow>0) e.slow-=dt;
+    e.d+=d.speed*(e.slow>0?0.5:1)*dt;
+    const p=posAt(e.d); e.x=p.x; e.y=p.y;
+    if(e.hp<=0){G.money+=d.reward; G.floats.push({x:e.x,y:e.y,t:.8,txt:'+'+d.reward,gold:true}); G.enemies.splice(i,1); continue;}
+    if(e.d>=PATH_LEN){
+      G.lives-=d.boss?10:1; G.enemies.splice(i,1);
+      toast(d.boss?'Maktkoncentrationen slog hårt mot förtroendet!':'Ett hot nådde Demokratin. Förtroendet sjunker.');
+    }
+  }
+  // towers
+  G.towers.forEach(function(t){
+    t.cd-=dt;
+    const s=towerStats(t);
+    if(t.cd>0) return;
+    let best=null;
+    G.enemies.forEach(function(e){
+      if(e.hp<=0) return;
+      if(Math.hypot(e.x-t.x,e.y-t.y)<=s.range&&(!best||e.d>best.d)) best=e;
+    });
+    if(best){
+      t.cd=s.rate;
+      G.shots.push({x:t.x,y:t.y,target:best,tx:best.x,ty:best.y,dmg:s.dmg,splash:s.splash,slow:s.slow,type:t.type});
+    }
+  });
+  // shots
+  for(let i=G.shots.length-1;i>=0;i--){
+    const s=G.shots[i];
+    if(s.target&&s.target.hp>0){s.tx=s.target.x;s.ty=s.target.y;}
+    const dx=s.tx-s.x, dy=s.ty-s.y, dist=Math.hypot(dx,dy), step=460*dt;
+    if(dist<=step){
+      if(s.splash){
+        G.enemies.forEach(function(e){if(Math.hypot(e.x-s.tx,e.y-s.ty)<=s.splash) hit(e,s.dmg,s.type,s.slow);});
+        G.floats.push({x:s.tx,y:s.ty,t:.25,ring:s.splash});
+      } else if(s.target&&s.target.hp>0){
+        hit(s.target,s.dmg,s.type,s.slow);
+      }
+      G.shots.splice(i,1);
+    } else {s.x+=dx/dist*step; s.y+=dy/dist*step;}
+  }
+  for(let i=G.floats.length-1;i>=0;i--){G.floats[i].t-=dt; if(G.floats[i].t<=0) G.floats.splice(i,1); else if(G.floats[i].txt) G.floats[i].y-=18*dt;}
+
+  if(G.lives<=0){G.lives=0; G.state='over'; refreshAll(); showEnd(false); return;}
+  if(G.state==='wave'&&!G.queue.length&&!G.enemies.length) waveCleared();
+}
+
+function waveCleared(){
+  const bonus=20+G.wave*6;
+  G.money+=bonus;
+  G.shots=[];
+  if(G.wave>=WAVES.length){G.state='won'; refreshAll(); showEnd(true); return;}
+  G.state='quiz'; refreshAll();
+  showQuiz(bonus);
+}
+
+/* ---------- Ritning ---------- */
+function drawBoard(){
+  ctx.clearRect(0,0,W,H);
+  // gräs
+  ctx.fillStyle='#10192b'; ctx.fillRect(0,0,W,H);
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+    if(!blocked[r][c]){ctx.fillStyle=(r+c)%2?'#12203a':'#142343'; ctx.fillRect(c*CS,r*CS,CS,CS);}
+  }
+  // stig
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.beginPath(); WAYPOINTS.forEach(function(p,i){i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]);});
+  ctx.strokeStyle='#2b3556'; ctx.lineWidth=CS-6; ctx.stroke();
+  ctx.strokeStyle='#3b4770'; ctx.lineWidth=CS-18; ctx.stroke();
+  ctx.setLineDash([6,12]); ctx.strokeStyle='rgba(255,255,255,.16)'; ctx.lineWidth=2; ctx.stroke(); ctx.setLineDash([]);
+
+  // bas
+  ctx.font='34px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('🏛️',W-24,7*CS+CS/2);
+
+  // hover/placeringsförhandsvisning
+  if(G.hover&&G.selType&&!G.selTower){
+    const c=G.hover.c, r=G.hover.r, ok=canPlace(c,r)&&G.money>=TOWERS[G.selType].cost;
+    ctx.fillStyle=ok?'rgba(34,211,238,.2)':'rgba(229,72,77,.25)'; ctx.fillRect(c*CS,r*CS,CS,CS);
+    if(c>=0&&c<COLS&&r>=0&&r<ROWS){
+      ctx.beginPath(); ctx.arc(c*CS+CS/2,r*CS+CS/2,TOWERS[G.selType].range,0,7);
+      ctx.strokeStyle=ok?'rgba(34,211,238,.5)':'rgba(229,72,77,.5)'; ctx.lineWidth=1.5; ctx.stroke();
+    }
+  }
+  // försvar
+  G.towers.forEach(function(t){
+    const s=towerStats(t);
+    if(G.selTower===t){
+      ctx.beginPath(); ctx.arc(t.x,t.y,s.range,0,7); ctx.fillStyle='rgba(124,92,255,.14)'; ctx.fill();
+      ctx.strokeStyle='rgba(124,92,255,.7)'; ctx.lineWidth=1.5; ctx.stroke();
+    }
+    ctx.beginPath(); ctx.arc(t.x,t.y,19,0,7); ctx.fillStyle='#1b2338'; ctx.fill();
+    ctx.strokeStyle=G.selTower===t?'#22d3ee':'#5b6ba0'; ctx.lineWidth=2; ctx.stroke();
+    ctx.font='22px serif'; ctx.fillStyle='#fff'; ctx.fillText(TOWERS[t.type].icon,t.x,t.y+1);
+    for(let l=0;l<t.level;l++){ctx.beginPath();ctx.arc(t.x-8+l*8,t.y+21,2.6,0,7);ctx.fillStyle='#d9a02c';ctx.fill();}
+  });
+  // fiender
+  G.enemies.forEach(function(e){
+    const d=ENEMIES[e.type], size=d.boss?44:26;
+    if(e.slow>0){ctx.beginPath();ctx.arc(e.x,e.y,size*.62,0,7);ctx.strokeStyle='#22d3ee';ctx.lineWidth=2;ctx.stroke();}
+    ctx.font=size+'px serif'; ctx.fillStyle='#fff'; ctx.fillText(d.icon,e.x,e.y+1);
+    const bw=d.boss?50:26, bx=e.x-bw/2, by=e.y-size*.7-4;
+    ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(bx,by,bw,4);
+    ctx.fillStyle=e.hp/e.max>.5?'#2ea043':(e.hp/e.max>.25?'#d9a02c':'#e5484d'); ctx.fillRect(bx,by,bw*Math.max(0,e.hp/e.max),4);
+  });
+  // skott
+  G.shots.forEach(function(s){ctx.beginPath();ctx.arc(s.x,s.y,s.splash?5:3.5,0,7);ctx.fillStyle=s.splash?'#ff9df5':'#fff59a';ctx.fill();});
+  // effekter
+  G.floats.forEach(function(f){
+    if(f.ring){ctx.beginPath();ctx.arc(f.x,f.y,f.ring*(1-f.t/.25),0,7);ctx.strokeStyle='rgba(255,157,245,.7)';ctx.lineWidth=2;ctx.stroke();}
+    else{ctx.font='bold 13px sans-serif';ctx.fillStyle=f.gold?'#ffd45a':'#ff6b6b';ctx.fillText(f.txt,f.x,f.y);}
+  });
+}
+
+/* ---------- Gränssnitt ---------- */
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(function(){t.classList.remove('show');},2200);}
+
+function buildTowerButtons(){
+  const box=$('towers'); box.innerHTML='';
+  TOWER_KEYS.forEach(function(k,i){
+    const t=TOWERS[k], b=document.createElement('button');
+    b.className='tower-btn'; b.dataset.k=k;
+    b.innerHTML='<span class="ic">'+t.icon+'</span><span><span class="nm">'+(i+1)+'. '+t.name+'</span><br><span class="ds">'+t.desc+'</span></span><span class="co">🪙'+t.cost+'</span>';
+    b.onclick=function(){G.selType=k;G.selTower=null;refreshAll();};
+    box.appendChild(b);
+  });
+}
+function refreshAll(){
+  $('lives').textContent=G.lives; $('money').textContent=G.money; $('wave').textContent=G.wave;
+  document.querySelectorAll('.tower-btn').forEach(function(b){
+    b.classList.toggle('sel',!G.selTower&&b.dataset.k===G.selType);
+    b.classList.toggle('poor',G.money<TOWERS[b.dataset.k].cost);
+  });
+  const bw=$('btnWave');
+  if(G.state==='idle'&&G.wave<WAVES.length){bw.disabled=false;bw.textContent='▶ Starta våg '+(G.wave+1);}
+  else{bw.disabled=true;bw.textContent=G.state==='wave'?'Våg '+G.wave+' pågår …':'▶ Starta våg';}
+  $('btnPause').textContent=G.paused?'▶ Fortsätt':'⏸ Paus';
+  $('btnSpeed').textContent='Fart: '+G.speed+'×';
+  renderSel(); renderThreats();
+}
+function renderSel(){
+  const p=$('selPanel'), t=G.selTower;
+  if(!t){p.innerHTML='<b>Tips:</b> Välj ett försvar och klicka på spelplanen för att placera det. Klicka på ett placerat försvar för att uppgradera eller sälja det.';return;}
+  const b=TOWERS[t.type], s=towerStats(t), up=upgradeCost(t);
+  const strong=b.strong.split(',').map(function(k){return ENEMIES[k].icon+' '+ENEMIES[k].name;}).join(', ');
+  p.innerHTML='<b>'+b.icon+' '+b.name+' (nivå '+t.level+'/3)</b><br>Skada '+Math.round(s.dmg)+', räckvidd '+Math.round(s.range)+'<br>Stark mot: '+strong+
+    '<div class="row"><button class="btn" id="btnUp"'+(t.level>=3||G.money<up?' disabled':'')+'>'+(t.level>=3?'Max nivå':'Uppgradera 🪙'+up)+'</button><button class="btn" id="btnSell">Sälj 🪙'+sellValue(t)+'</button></div>';
+  const bu=$('btnUp'); if(bu) bu.onclick=function(){
+    if(t.level<3&&G.money>=up){G.money-=up;t.level++;refreshAll();}
+  };
+  $('btnSell').onclick=function(){G.money+=sellValue(t);G.towers.splice(G.towers.indexOf(t),1);G.selTower=null;refreshAll();};
+}
+function renderThreats(){
+  const idx=G.state==='idle'||G.state==='quiz'?G.wave:G.wave-1, w=WAVES[idx];
+  const title=$('threatTitle'), box=$('threats');
+  if(!w){title.textContent='Hot';box.textContent='Alla vågor är avklarade.';return;}
+  title.textContent=(G.state==='wave'?'Pågår: ':'Nästa: ')+'Våg '+(idx+1)+' – '+w.title;
+  const seen={}, html=[];
+  w.groups.forEach(function(g){
+    if(seen[g[0]]) return; seen[g[0]]=1;
+    const d=ENEMIES[g[0]], t=TOWERS[d.weak];
+    html.push('<div class="threat"><div class="ic">'+d.icon+'</div><div><b>'+d.name+'</b> ×'+w.groups.filter(function(x){return x[0]===g[0];}).reduce(function(a,x){return a+x[1];},0)+'<br><span>'+d.info+'</span><br><span>Svag mot: <b style="color:#22d3ee">'+t.icon+' '+t.name+'</b></span></div></div>');
+  });
+  box.innerHTML=html.join('');
+}
+
+/* ---------- Dialogrutor ---------- */
+function openModal(html){$('modal').innerHTML=html;$('ov').classList.add('show');}
+function closeModal(){$('ov').classList.remove('show');}
+
+function showIntro(){
+  openModal('<span class="tag">Kapitel 2 – AI i samhället</span><h1>🏛️ Försvara Demokratin</h1>'+
+  '<p>AI-hoten marscherar mot demokratin. Bygg försvar längs vägen och skydda förtroendet i samhället. Varje hot är kopplat till något du lärt dig i kapitlet.</p>'+
+  '<ul><li>Placera <b>försvar</b> på rutorna bredvid stigen. Använd poängen 🪙 för att köpa och uppgradera.</li>'+
+  '<li>Varje hot har en <b>svag punkt</b>: rätt försvar gör dubbel skada (<b>2×</b>).</li>'+
+  '<li>Efter varje våg får du en <b>fråga</b>. Svarar du rätt får du '+QUIZ_BONUS+' bonuspoäng.</li>'+
+  '<li>Klarar du 10 vågor och besegrar Maktkoncentrationen vinner du.</li>'+
+  '<li>Tangenter: 1–5 väljer försvar, mellanslag startar våg, P pausar.</li></ul>'+
+  '<div class="actions"><button class="btn primary" id="go">Starta spelet</button></div>');
+  $('go').onclick=function(){closeModal();};
+}
+function showQuiz(bonus){
+  G.paused=false;
+  const qi=G.quizOrder[G.quizIdx%G.quizOrder.length]; G.quizIdx++;
+  const q=QUIZ[qi];
+  const order=shuffle(q.o.map(function(_,i){return i;}));
+  openModal('<span class="tag">Våg '+G.wave+' avklarad – +'+bonus+' 🪙</span><h1 style="font-size:1.1rem">🎓 Bonusfråga (+'+QUIZ_BONUS+' 🪙)</h1><p style="color:var(--text);font-weight:600">'+q.q+'</p><div id="opts"></div><div class="expl" id="expl"></div><div class="actions"><button class="btn primary" id="cont" style="display:none">Fortsätt</button></div>');
+  const opts=$('opts');
+  order.forEach(function(oi){
+    const b=document.createElement('button'); b.className='opt'; b.textContent=q.o[oi];
+    b.onclick=function(){
+      const right=oi===q.a; G.quizTotal++;
+      opts.querySelectorAll('.opt').forEach(function(x){x.disabled=true;});
+      b.classList.add(right?'ok':'bad');
+      if(!right) opts.querySelectorAll('.opt').forEach(function(x){if(x.textContent===q.o[q.a]) x.classList.add('ok');});
+      if(right){G.money+=QUIZ_BONUS;G.quizRight++;}
+      const ex=$('expl'); ex.style.display='block'; ex.innerHTML=(right?'✅ <b>Rätt!</b> +'+QUIZ_BONUS+' 🪙. ':'❌ <b>Inte riktigt.</b> ')+q.e;
+      $('cont').style.display='inline-block'; refreshAll();
+    };
+    opts.appendChild(b);
+  });
+  $('cont').onclick=function(){closeModal();G.state='idle';refreshAll();};
+}
+function showEnd(won){
+  openModal('<span class="tag">'+(won?'Seger':'Förlust')+'</span><h1>'+(won?'🏛️ Demokratin klarade sig!':'💥 Förtroendet försvann')+'</h1>'+
+  '<p>'+(won?'Du stoppade alla hot och besegrade Maktkoncentrationen. Kritiskt tänkande, regler och mänsklig tillsyn är det som skyddar demokratin.':'Du nådde våg '+G.wave+' av 10. Testa en annan kombination av försvar och kolla vilka hot som är svaga mot vilka försvar.')+'</p>'+
+  '<p>Kunskapsfrågor: <b>'+G.quizRight+' av '+G.quizTotal+'</b> rätt.</p>'+
+  '<ul><li>Källkritik slår desinformation och AI-slop.</li><li>Märkning (AI Act) slår deepfakes.</li><li>GDPR slår röstkloning och promptinjektion.</li><li>Mångfaldig data slår bias och filterbubblor.</li><li>Mänsklig tillsyn slår maktkoncentration.</li></ul>'+
+  '<div class="actions"><button class="btn primary" id="again">Spela igen</button></div>');
+  $('again').onclick=function(){closeModal();newGame();};
+}
+
+/* ---------- Inmatning ---------- */
+function canPlace(c,r){
+  if(c<0||c>=COLS||r<0||r>=ROWS) return false;
+  if(blocked[r][c]) return false;
+  return !G.towers.some(function(t){return t.c===c&&t.r===r;});
+}
+function cellFromEvent(ev){
+  const rect=cv.getBoundingClientRect();
+  const x=(ev.clientX-rect.left)*W/rect.width, y=(ev.clientY-rect.top)*H/rect.height;
+  return {c:Math.floor(x/CS),r:Math.floor(y/CS)};
+}
+cv.addEventListener('pointermove',function(ev){G.hover=cellFromEvent(ev);});
+cv.addEventListener('pointerleave',function(){G.hover=null;});
+cv.addEventListener('pointerdown',function(ev){
+  if(G.state==='over'||G.state==='won'||G.paused) return;
+  const cell=cellFromEvent(ev); G.hover=cell;
+  const existing=G.towers.find(function(t){return t.c===cell.c&&t.r===cell.r;});
+  if(existing){G.selTower=existing;refreshAll();return;}
+  if(G.selTower){G.selTower=null;refreshAll();return;}
+  if(!G.selType) return;
+  const def=TOWERS[G.selType];
+  if(!canPlace(cell.c,cell.r)){toast('Det går inte att bygga där. Bygg på rutorna bredvid stigen.');return;}
+  if(G.money<def.cost){toast('Du har inte råd. Det kostar 🪙'+def.cost+'.');return;}
+  G.money-=def.cost;
+  G.towers.push({type:G.selType,c:cell.c,r:cell.r,x:cell.c*CS+CS/2,y:cell.r*CS+CS/2,level:1,cd:0});
+  refreshAll();
+});
+$('btnWave').onclick=startWave;
+$('btnSpeed').onclick=function(){G.speed=G.speed%3+1;refreshAll();};
+$('btnPause').onclick=function(){if(G.state==='over'||G.state==='won')return;G.paused=!G.paused;refreshAll();};
+$('btnHelp').onclick=function(){G.paused=true;showIntro();$('go').onclick=function(){closeModal();G.paused=false;refreshAll();};refreshAll();};
+document.addEventListener('keydown',function(ev){
+  if($('ov').classList.contains('show')) return;
+  const n=parseInt(ev.key,10);
+  if(n>=1&&n<=TOWER_KEYS.length){G.selType=TOWER_KEYS[n-1];G.selTower=null;refreshAll();}
+  else if(ev.key===' '){ev.preventDefault();startWave();}
+  else if(ev.key==='p'||ev.key==='P'){$('btnPause').click();}
+  else if(ev.key==='Escape'){G.selTower=null;refreshAll();}
+});
+
+/* ---------- Spelloop ---------- */
+let last=performance.now();
+function frame(now){
+  let dt=Math.min(.05,(now-last)/1000); last=now;
+  if(G.state==='wave'&&!G.paused){
+    for(let i=0;i<G.speed&&G.state==='wave';i++) update(dt);
+  } else if(!G.paused){
+    // visuella effekter även mellan vågor
+    for(let i=G.floats.length-1;i>=0;i--){G.floats[i].t-=dt;if(G.floats[i].t<=0)G.floats.splice(i,1);}
+  }
+  drawBoard();
+  requestAnimationFrame(frame);
+}
+
+buildTowerButtons();
+newGame();
+showIntro();
+requestAnimationFrame(frame);
+window.__G=function(){return G;};
+})();
+</script>
+</body>
+</html>
