@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Copilot Chefsworkshop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: sticky del-navigation överst, en läsbar kolumn, funktionskort i rutnät, kopierbara promptar */
+:root{
+  --bg:#f5f6fb; --surface:#ffffff; --fg:#1a1d33; --muted:#5a5f7d; --line:#dfe2f0;
+  --accent:#5030e0; --accent-soft:#ebe7fe; --teal:#0b7f7a; --teal-soft:#dff4f2;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#13152a; --surface:#1c1f3a; --fg:#eceefb; --muted:#a2a7c9; --line:#2f3359;
+  --accent:#a99bff; --accent-soft:#2a2554; --teal:#5fd3cb; --teal-soft:#16393b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13152a; --surface:#1c1f3a; --fg:#eceefb; --muted:#a2a7c9; --line:#2f3359;
+  --accent:#a99bff; --accent-soft:#2a2554; --teal:#5fd3cb; --teal-soft:#16393b; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:17px;line-height:1.6}
+*{box-sizing:border-box}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:0 64px}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;text-wrap:balance;margin:0}
+header.hero{padding-block:48px 28px}
+.eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600}
+h1{font-size:clamp(32px,6vw,54px);font-weight:700;margin-top:10px;max-width:18ch}
+.lead{max-width:62ch;color:var(--muted);margin:16px 0 0;font-size:19px}
+.facts{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:22px;font-size:15px}
+.facts b{display:block;font-family:var(--font-display);font-size:20px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-block:1px solid var(--line);margin-inline:-20px;padding:10px 20px;display:flex;gap:8px;overflow-x:auto}
+nav a{white-space:nowrap;text-decoration:none;color:var(--fg);font-size:15px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--surface)}
+nav a:hover,nav a:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+section{padding-top:48px;scroll-margin-top:60px}
+h2{font-size:clamp(25px,4vw,34px);font-weight:700}
+.tag{display:inline-block;font-size:13px;font-weight:600;color:var(--teal);background:var(--teal-soft);padding:2px 10px;border-radius:99px;margin-bottom:8px}
+.intro{max-width:64ch;color:var(--muted);margin:10px 0 22px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15.5px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td:first-child{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card h3{font-size:20px;display:flex;gap:10px;align-items:baseline}
+.card h3 span{font-size:14px;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:1px 8px;font-variant-numeric:tabular-nums}
+.card p{margin:0}
+.lbl{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;display:block}
+.try{border-top:1px dashed var(--line);padding-top:10px;margin-top:auto}
+.tip,.disc{margin-top:20px;max-width:70ch;padding:14px 18px;border-radius:10px}
+.tip{background:var(--accent-soft)}
+.disc{background:var(--teal-soft)}
+.tip b,.disc b{font-family:var(--font-display)}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;margin-top:16px}
+.ex h3{font-size:20px}
+.ex .meta{color:var(--muted);font-size:15px;margin:4px 0 12px}
+.prompt{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:8px}
+.prompt code{flex:1;min-width:0;font:15px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+button{font:600 14px var(--font-body);color:var(--accent);background:var(--surface);border:1px solid var(--accent);border-radius:6px;padding:5px 12px;cursor:pointer}
+button:hover,button:focus-visible{background:var(--accent-soft);outline:none}
+.check{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:10px}
+.check label{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer}
+.check input{width:20px;height:20px;margin-top:3px;accent-color:var(--accent);flex:none}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">Workshopmanual för chefer</div>
+  <h1>20 nyheter i Microsoft 365 Copilot</h1>
+  <p class="lead">Efter workshopen ska du ha valt ut tre funktioner som sparar tid i din vardag och ha provat dem på riktigt arbete. Manualen följer översikten med 20 funktioner och är till för både den som leder och den som deltar.</p>
+  <div class="facts">
+    <div><b>3 timmar</b>inklusive paus</div>
+    <div><b>8–16 chefer</b>inga förkunskaper</div>
+    <div><b>20 funktioner</b>i fem delar</div>
+  </div>
+</header>
+
+<nav aria-label="Innehåll">
+  <a href="#upplagg">Upplägg</a><a href="#forberedelser">Förberedelser</a>
+  <a href="#del-a">A Agenter</a><a href="#del-b">B Chatt och sök</a><a href="#del-c">C Skapa</a>
+  <a href="#del-d">D Vardag</a><a href="#del-e">E Trygghet</a><a href="#ovningar">Övningar</a><a href="#efter">Efter workshopen</a>
+</nav>
+
+<section id="upplagg">
+  <h2>Upplägg</h2>
+  <p class="intro">Varje del följer samma rytm: 5 minuter visa, 10–15 minuter göra själv med egen data, 5 minuter dela vad som fungerade.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Tid</th><th>Moment</th><th>Innehåll</th></tr>
+    <tr><td>0:00–0:15</td><td>Intro</td><td>Syfte, spelregler, vad Copilot är och inte är</td></tr>
+    <tr><td>0:15–0:45</td><td>Del A</td><td>Arbetsyta och agenter (funktion 1–5)</td></tr>
+    <tr><td>0:45–1:10</td><td>Del B</td><td>Chatt, sök och kunskap (6, 9, 10, 13)</td></tr>
+    <tr><td>1:10–1:20</td><td>Paus</td><td></td></tr>
+    <tr><td>1:20–1:50</td><td>Del C</td><td>Skapa innehåll (7, 8, 11, 12)</td></tr>
+    <tr><td>1:50–2:20</td><td>Del D</td><td>Vardagsflöden (14, 15, 16, 17)</td></tr>
+    <tr><td>2:20–2:40</td><td>Del E</td><td>Trygghet och anpassning (18, 19, 20)</td></tr>
+    <tr><td>2:40–3:00</td><td>Avslut</td><td>Min plan: tre funktioner och en första vecka</td></tr>
+  </table></div>
+</section>
+
+<section id="forberedelser">
+  <h2>Förberedelser</h2>
+  <p class="intro">Tillgången beror på licens och vad IT har aktiverat. Vissa funktioner rullas ut stegvis, så kontrollera en vecka innan.</p>
+  <ul class="check" data-key="prep">
+    <li><label><input type="checkbox"><span>Alla deltagare har Microsoft 365 Copilot-licens och kan logga in.</span></label></li>
+    <li><label><input type="checkbox"><span>IT har bekräftat vilka av de 20 funktionerna som är aktiverade hos er, till exempel agenter, Cowork, Code och Multi-model.</span></label></li>
+    <li><label><input type="checkbox"><span>Varje deltagare tar med tre verkliga uppgifter: ett möte, ett dokument och en mejltråd.</span></label></li>
+    <li><label><input type="checkbox"><span>En SharePoint-mapp med icke-känsliga övningsfiler finns (policy, budget, presentation).</span></label></li>
+    <li><label><input type="checkbox"><span>Varumärkesmall och regler för datasäkerhet är framtagna för Del C och E.</span></label></li>
+    <li><label><input type="checkbox"><span>Du har testkört alla övningar och noterat vad som skiljer sig från manualen.</span></label></li>
+    <li><label><input type="checkbox"><span>Rum med bildskärm och Wi-Fi är bokat. Deltagarna använder egen dator.</span></label></li>
+  </ul>
+  <div class="disc"><b>Spelregel:</b> Inga personuppgifter eller sekretessbelagd information i övningarna, om inte IT har godkänt det.</div>
+</section>
+
+<div id="parts"></div>
+
+<section id="ovningar">
+  <h2>Övningar med färdiga promptar</h2>
+  <p class="intro">Kopiera prompten, byt ut det som står inom hakparentes mot ditt eget material och granska svaret kritiskt.</p>
+  <div class="ex"><h3>1. Delegera ett uppdrag</h3><div class="meta">Del A · 15 min · funktion 2, 4, 5</div>
+    <div class="prompt"><code>Sammanställ status för [projekt] utifrån mina mejl, möten och filer de senaste två veckorna. Ge: läge, risker, beslut som behövs från mig. Max en halv sida.</code><button type="button">Kopiera</button></div></div>
+  <div class="ex"><h3>2. Hitta och sammanfatta</h3><div class="meta">Del B · 15 min · funktion 6, 9, 10</div>
+    <div class="prompt"><code>Hitta vår senaste [policy/avtal/rapport] i SharePoint. Sammanfatta på fem punkter och ange vilka avsnitt du baserar det på.</code><button type="button">Kopiera</button></div></div>
+  <div class="ex"><h3>3. Från rådata till presentation</h3><div class="meta">Del C · 20 min · funktion 7, 8, 11</div>
+    <div class="prompt"><code>Analysera den här filen och visa de tre största avvikelserna mot budget med ett diagram per avvikelse.</code><button type="button">Kopiera</button></div>
+    <div class="prompt"><code>Gör en presentation på fem bilder för ledningsgruppen av analysen, med vår varumärkesmall.</code><button type="button">Kopiera</button></div></div>
+  <div class="ex"><h3>4. Möte till handling</h3><div class="meta">Del D · 20 min · funktion 14, 15, 16</div>
+    <div class="prompt"><code>Lista beslut, åtgärder och ansvariga från mötet. Skriv ett uppföljningsmejl till deltagarna i en tydlig och vänlig ton.</code><button type="button">Kopiera</button></div></div>
+</section>
+
+<section id="efter">
+  <h2>Efter workshopen</h2>
+  <p class="intro">Ett par korta åtaganden gör att det du provat blir en vana.</p>
+  <ul class="check" data-key="after">
+    <li><label><input type="checkbox"><span>Jag har valt tre funktioner och vet vilken uppgift jag använder var och en till.</span></label></li>
+    <li><label><input type="checkbox"><span>Jag använder Copilot på ett återkommande möte eller mejlflöde under veckan.</span></label></li>
+    <li><label><input type="checkbox"><span>Jag granskar alltid resultatet innan det delas vidare och anger när AI har använts.</span></label></li>
+    <li><label><input type="checkbox"><span>Jag delar en bra prompt med mitt team i nästa teamträff.</span></label></li>
+    <li><label><input type="checkbox"><span>Om fyra veckor följer jag upp: vad sparade tid, vad fungerade inte?</span></label></li>
+  </ul>
+  <footer>Källa: översikten "20 nya funktioner i Microsoft 365 Copilot" (Paul Hylenski). Tillgänglighet kan skilja sig mellan organisationer.</footer>
+</section>
+</div>
+
+<script>
+var parts=[
+{id:'del-a',tag:'Del A · 30 min',title:'Arbetsyta och agenter',intro:'Börja med att gå från att ställa frågor till att delegera arbete. Visa Copilot Home först, låt sedan deltagarna prova en agent.',
+ f:[
+ [1,'Copilot Home','Ny arbetsyta där filer, appar och agenter samlas på ett ställe.','Ett enklare och snabbare sätt att komma igång varje dag.','Öppna Home och be om en sammanfattning av veckans viktigaste.'],
+ [2,'Autopilot','En agent som tar flerstegsuppgifter och fortsätter arbeta i bakgrunden.','Mindre promptande och mer delegering.','Ge en uppgift och följ stegen: undersök, analysera, ta fram resultat.'],
+ [3,'Code','En plats att bygga appar, flöden och lösningar med naturligt språk.','Idéer blir fungerande lösningar snabbare.','Beskriv en enkel intern checklista och granska förslaget.'],
+ [4,'Cowork','En samarbetande agent för större jobb över era verktyg och data.','Tar hand om den tunga delen så att du fokuserar på det som räknas.','Be om marknadsunderlag, presentation och uppföljningsmejl i ett flöde.'],
+ [5,'Agenter i prompter','Anropa agenter eller färdigheter direkt i prompten med / eller @.','Rätt expertis direkt, utan att byta verktyg.','Skriv @ och välj en agent, till exempel en analysagent.']],
+ disc:'Vilka tre återkommande uppgifter i din vecka skulle du delegera till en agent, och vad måste du granska själv?',
+ tip:'Delegera som till en kollega: mål, underlag, format och deadline. Granska alltid resultatet innan det delas vidare.'},
+{id:'del-b',tag:'Del B · 25 min',title:'Chatt, sök och kunskap',intro:'Här handlar det om att hitta rätt information snabbt och göra den användbar.',
+ f:[
+ [6,'Copilot Chat','Bättre svar, mer personliga, med bättre kontext och djupare integration i Microsoft 365.','Svaren blir mer korrekta, relevanta och användbara.','Fråga vad du har missat den här veckan och be om källor.'],
+ [9,'Better Search','Förbättrad matchning för skannade PDF:er, bilder och filer i OneDrive och SharePoint.','Du hittar rätt information oavsett format.','Sök efter innehåll som bara finns i en inskannad PDF.'],
+ [10,'OneDrive och SharePoint','Fler sätt att sammanfatta, analysera och agera på era filer och sajter.','Organisationens kunskap blir till resultat.','Markera ett dokument, be om en sammanfattning och tre beslutspunkter.'],
+ [13,'Ljud och röst','Prata med Copilot med naturligt språk, hands-free och med svar i realtid.','Du arbetar snabbare var du än är.','Ställ en fråga med rösten inför nästa möte.']],
+ disc:'Vilken information letar ditt team efter varje vecka, och var finns den i dag?',
+ tip:'Be alltid om källor och kontrollera mot originalet när svaret ska ligga till grund för ett beslut.'},
+{id:'del-c',tag:'Del C · 30 min',title:'Skapa innehåll',intro:'Gå från rådata och idéer till färdiga presentationer, sidor och bilder.',
+ f:[
+ [7,'PowerPoint Brand Kit','Använd företagets godkända mallar och varumärkeselement direkt i Copilot.','Professionella presentationer i rätt stil på minuter.','Skapa en presentation på fem bilder med er mall.'],
+ [8,'Excel + Python','Python för avancerad analys, datatransformering, statistik och visualisering.','Djupare insikter utan att lämna Excel.','Ladda en budgetfil och be om avvikelseanalys med diagram.'],
+ [11,'Pages','Förvandla idéer till delbara, redigerbara sidor.','Skapa, redigera och dela färdigt innehåll enkelt.','Gör en sida med teamets veckobrev.'],
+ [12,'Bildskapande','Generera bilder av hög kvalitet med bättre realism och varumärkeskonsistens.','Bättre visuellt stöd i presentationer, planer och marknadsföring.','Skapa en illustration till en intranätnyhet.']],
+ disc:'Vilka dokument tar mest tid att producera hos dig, och vilken del är egentligen mekanisk?',
+ tip:'Låt Copilot ta första utkastet. Din tid går åt till innehållet, tonen och beslutet.'},
+{id:'del-d',tag:'Del D · 30 min',title:'Vardagsflöden',intro:'Möten, mejl och dokument är där chefens tid går. Här märks vinsten snabbast.',
+ f:[
+ [14,'Möten','Automatiska sammanfattningar, åtgärder och uppföljningar från Teams-möten.','Du har koll på varje möte utan extra arbete.','Öppna ett möte och be om beslut, åtgärder och ansvariga.'],
+ [15,'Outlook','Skriv utkast, sammanfatta trådar och förvandla mejl till uppgifter och planer.','Tydligare kommunikation och snabbare svar.','Sammanfatta en lång tråd och skriv ett svar i din ton.'],
+ [16,'Teams','En AI-mötesassistent: sammanfattningar, svar och åtgärder direkt i Teams.','Mer produktiva och fokuserade möten.','Fråga under ett möte: sammanfatta diskussionen hittills.'],
+ [17,'Microsoft 365-appar','Fler Copilot-funktioner i Word, Excel, PowerPoint, Outlook och fler.','AI-hjälp i verktygen du redan använder.','Be Word sammanfatta ett långt dokument och föreslå ändringar.']],
+ disc:'Vilket återkommande möte eller mejlflöde ska du använda Copilot i redan denna vecka?',
+ tip:'Skicka aldrig ett utkast oläst. Kontrollera namn, siffror och ton.'},
+{id:'del-e',tag:'Del E · 20 min',title:'Trygghet och anpassning',intro:'Avsluta med det som avgör om ni vågar använda Copilot brett: säkerhet, anpassning och rätt modell för uppgiften.',
+ f:[
+ [18,'Säkerhet och integritet','Byggt på Microsofts säkerhet, regelefterlevnad och datakontroller.','Du använder AI med förtroende i en säker miljö.','Gå igenom vilka uppgifter som aldrig ska matas in och vem som äger frågan.'],
+ [19,'Anpassa Copilot','Gör Copilot personlig: skapa egna agenter och definiera färdigheter.','Copilot arbetar som du gör.','Skriv en instruktion för en teamagent: roll, källor, format.'],
+ [20,'Multimodell-intelligens','Copilot kan välja bland Microsofts och partners modeller efter uppgiften.','Bättre resultat för varje typ av arbete.','Diskutera vilka uppgifter som kräver snabbhet och vilka som kräver djup.']],
+ disc:'Vilka regler behöver ni i teamet för vad som får användas, granskas och delas?',
+ tip:'Börja med tydliga regler och en ansvarig. Det gör det lättare att säga ja till fler användningar.'}
+];
+var out='';
+parts.forEach(function(p){
+ out+='<section id="'+p.id+'"><span class="tag">'+p.tag+'</span><h2>'+p.title+'</h2><p class="intro">'+p.intro+'</p><div class="grid">';
+ p.f.forEach(function(f){
+  out+='<article class="card"><h3><span>'+f[0]+'</span>'+f[1]+'</h3>'
+   +'<p><span class="lbl">Vad den gör</span>'+f[2]+'</p>'
+   +'<p><span class="lbl">Varför det spelar roll</span>'+f[3]+'</p>'
+   +'<p class="try"><span class="lbl">Prova</span>'+f[4]+'</p></article>';
+ });
+ out+='</div><div class="disc"><b>Diskutera:</b> '+p.disc+'</div><div class="tip"><b>Chefstips:</b> '+p.tip+'</div></section>';
+});
+document.getElementById('parts').innerHTML=out;
+
+document.querySelectorAll('.prompt button').forEach(function(b){
+ b.addEventListener('click',function(){
+  var code=b.parentNode.querySelector('code');
+  function done(){b.textContent='Kopierat';setTimeout(function(){b.textContent='Kopiera'},1500)}
+  try{navigator.clipboard.writeText(code.textContent).then(done,function(){sel(code)})}catch(e){sel(code)}
+ });
+});
+function sel(el){var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r)}
+
+document.querySelectorAll('.check').forEach(function(ul){
+ var key='cw-'+ul.dataset.key, saved=[];
+ try{saved=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){}
+ ul.querySelectorAll('input').forEach(function(cb,i){
+  cb.checked=!!saved[i];
+  cb.addEventListener('change',function(){
+   var a=[].map.call(ul.querySelectorAll('input'),function(c){return c.checked});
+   try{localStorage.setItem(key,JSON.stringify(a))}catch(e){}
+  });
+ });
+});
+</script>
+
+</body>
+</html>

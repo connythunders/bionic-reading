@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>20 nyheter i Copilot</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: affisch-lik översikt med rubrikband och ett rutnät om 4 kolumner med färgkodade kort, som i förlagan */
+:root{
+  --bg:#eef0fa; --surface:#ffffff; --fg:#1a1d33; --muted:#555a78; --line:#d9dcee;
+  --title-from:#2b3cff; --title-to:#7a2cf0;
+  --c-pink:#c4177a; --c-violet:#6a3fe0; --c-green:#12803f; --c-orange:#d2600a;
+  --c-blue:#1f5fd6; --c-teal:#0b7f7a; --c-red:#c8312f; --c-indigo:#3c3fb8;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11132a; --surface:#1b1e3b; --fg:#eceefb; --muted:#a6abcc; --line:#31355e;
+  --title-from:#7f8cff; --title-to:#c08bff;
+  --c-pink:#ff7cc4; --c-violet:#a99bff; --c-green:#57d38a; --c-orange:#ffa159;
+  --c-blue:#7fb0ff; --c-teal:#5fd3cb; --c-red:#ff8a86; --c-indigo:#98a0ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11132a; --surface:#1b1e3b; --fg:#eceefb; --muted:#a6abcc; --line:#31355e;
+  --title-from:#7f8cff; --title-to:#c08bff;
+  --c-pink:#ff7cc4; --c-violet:#a99bff; --c-green:#57d38a; --c-orange:#ffa159;
+  --c-blue:#7fb0ff; --c-teal:#5fd3cb; --c-red:#ff8a86; --c-indigo:#98a0ff; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:16px;padding-block:32px 48px}
+header{text-align:center;display:grid;gap:10px;justify-items:center;margin-bottom:28px}
+.kicker{font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--font-display);font-weight:800;font-size:clamp(34px,7vw,68px);line-height:1.05;margin:0;text-wrap:balance;
+  background:linear-gradient(90deg,var(--title-from),var(--title-to));-webkit-background-clip:text;background-clip:text;color:transparent}
+h1 small{display:block;font-size:.42em;letter-spacing:.04em;color:var(--fg);-webkit-text-fill-color:var(--fg);margin-top:6px}
+.sub{max-width:60ch;color:var(--muted);margin:0;font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.grid{grid-template-columns:1fr}}
+.card{--c:var(--c-violet);min-width:0;display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:14px;
+  background:color-mix(in srgb,var(--c) 9%,var(--surface));border:2px solid color-mix(in srgb,var(--c) 45%,var(--surface))}
+.top{display:flex;gap:10px;align-items:center}
+.num{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:var(--surface);
+  font:800 20px var(--font-display);font-variant-numeric:tabular-nums}
+.name{font:800 18px/1.1 var(--font-display);text-transform:uppercase;letter-spacing:.01em;color:var(--c);overflow-wrap:anywhere}
+.tagline{font:500 15px/1.25 var(--font-display);margin:0;color:var(--fg)}
+.desc{margin:0;font-size:15.5px}
+.why{margin-top:auto;border-radius:10px;padding:9px 11px;background:color-mix(in srgb,var(--c) 14%,var(--surface));font-size:14.5px}
+.why b{display:block;color:var(--c);font-size:13px;letter-spacing:.04em;margin-bottom:2px}
+footer{margin-top:28px;text-align:center;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="kicker">Microsoft 365 Copilot</div>
+  <h1>20 nyheter<small>du behöver känna till</small></h1>
+  <p class="sub">Ett kraftfullare, mer personligt och mer proaktivt Copilot. Här är alla 20 funktionerna kort förklarade.</p>
+</header>
+<main class="grid" id="grid"></main>
+<footer>Sammanställd utifrån en översiktsbild över Copilots nyheter. Vilka funktioner du har beror på licens och vad din IT-avdelning har aktiverat.</footer>
+</div>
+<script>
+var items=[
+['Copilot Home','Din nya AI-arbetsyta','Chatt, filer, appar och agenter samlas på ett ställe.','Ett enklare och snabbare sätt att få mer gjort varje dag.'],
+['Autopilot','AI som håller arbetet igång','En agent som tar flerstegsuppgifter och fortsätter arbeta i bakgrunden.','Mindre promptande, mer delegering.'],
+['Code','Bygg med AI','En ny plats att bygga appar, flöden och lösningar med naturligt språk.','Gör idéer till fungerande lösningar snabbare.'],
+['Cowork','Delegera större jobb','En samarbetande agent som hanterar komplexa, flerstegsuppgifter över dina verktyg och din data.','Tar hand om det stora arbetet så att du kan fokusera på det som är viktigt.'],
+['Agenter i prompter','Skriv / eller @ för att ta in agenter','Lägg till agenter eller färdigheter direkt i din prompt med / eller @.','Du får rätt expertis direkt.'],
+['Copilot Chat','Smartare och mer personlig','Bättre svar, bättre kontext och djupare integration i Microsoft 365.','Mer korrekta, relevanta och hjälpsamma svar.'],
+['PowerPoint Brand Kit','Bilder som matchar ditt varumärke','Använd företagets godkända mallar och varumärkeselement direkt i Copilot.','Professionella presentationer i rätt stil på några minuter.'],
+['Excel + Python','Avancerad analys inbyggd','Använd Python för avancerad analys, datatransformering, statistik och visualisering.','Djupare insikter utan att lämna Excel.'],
+['Bättre sök','Hitta det du behöver snabbare','Bättre träffar i skannade PDF:er, bilder och filer i OneDrive och SharePoint.','Hitta rätt information oavsett format.'],
+['OneDrive och SharePoint','Djupare integration','Fler sätt att sammanfatta, analysera och agera på dina filer och sajter.','Gör organisationens kunskap till resultat.'],
+['Pages','Skapa och dela AI-innehåll','Ett nytt sätt att förvandla idéer till delbara, redigerbara sidor.','Skapa, redigera och dela färdigt innehåll enkelt.'],
+['Bildskapande','Bättre och mer träffsäkra bilder','Generera högkvalitativa bilder med bättre realism och varumärkeskonsistens.','Visuellt stöd till presentationer, planer och marknadsföring.'],
+['Ljud och röst','Prata med Copilot','Använd naturligt tal, hands-free och få svar i realtid.','Arbeta snabbare, var du än är.'],
+['Möten','Smartare sammanfattningar och åtgärder','Få automatiska sammanfattningar, åtgärder och uppföljningar från Teams-möten.','Håll koll på varje möte utan extra arbete.'],
+['Outlook','Skriv, sammanfatta och planera','Skriv utkast, sammanfatta trådar och gör om mejl till uppgifter och planer.','Tydligare kommunikation och snabbare svar.'],
+['Teams','Din AI-mötesassistent','Få sammanfattningar, svar och åtgärder direkt i Teams.','Mer produktiva och fokuserade möten.'],
+['Microsoft 365-appar','Inbyggt överallt','Copilot i Word, Excel, PowerPoint, Outlook med flera.','AI-hjälp i verktygen du redan använder.'],
+['Säkerhet och integritet','Din data är trygg','Byggt på Microsofts säkerhet, regelefterlevnad och datakontroller.','Använd AI tryggt i en säker miljö.'],
+['Anpassa Copilot','Skräddarsy efter ditt arbete','Anpassa upplevelsen, skapa egna agenter och definiera färdigheter.','Få Copilot att arbeta som du gör.'],
+['Multimodell-intelligens','Bästa AI:n för jobbet','Copilot väljer dynamiskt bland de bästa modellerna från Microsoft och partners efter din uppgift.','Bättre resultat för varje typ av arbete.']
+];
+var cols=['pink','violet','green','orange','blue','teal','red','indigo'], h='';
+items.forEach(function(f,i){
+ h+='<article class="card" style="--c:var(--c-'+cols[i%8]+')"><div class="top"><div class="num">'+(i+1)+'</div><div class="name">'+f[0]+'</div></div>'
+  +'<p class="tagline">'+f[1]+'</p><p class="desc">'+f[2]+'</p><div class="why"><b>Därför spelar det roll</b>'+f[3]+'</div></article>';
+});
+document.getElementById('grid').innerHTML=h;
+</script>
+
+</body>
+</html>
