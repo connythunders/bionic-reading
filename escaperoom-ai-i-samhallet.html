@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Escaperoom till kapitlet AI i samhället: åtta rum om etik, desinformation, bias, AI Act, skolregler, demokrati, säkerhet, miljö och ekonomi.">
+<title>Escaperoom – AI i samhället</title>
+<style>
+:root{
+  --bg:#eef3fb; --surface:#ffffff; --surface-2:#e6edf8;
+  --text:#14213a; --soft:#4d5b78; --line:#c5d2e8;
+  --accent:#1f5fd6; --accent-weak:#dce8ff;
+  --good:#17703d; --good-weak:#dcf3e5; --bad:#b3261e; --bad-weak:#fde8e6;
+  --gold:#e0a100; --shadow:0 2px 4px rgba(10,30,70,.08),0 10px 30px rgba(10,30,70,.10);
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0c1220; --surface:#162038; --surface-2:#1e2b4a;
+    --text:#e9eefb; --soft:#a9b6d3; --line:#31426a;
+    --accent:#7aa8ff; --accent-weak:#1c2e57;
+    --good:#7fd29b; --good-weak:#143323; --bad:#f19a94; --bad-weak:#3a1f1d;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:18px/1.55 "Segoe UI",system-ui,sans-serif}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:960px;margin:0 auto;padding:16px}
+header.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0 14px}
+header.top h1{font-size:1.45rem;margin:0;margin-right:auto}
+.pill{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:4px 14px;font-weight:700;white-space:nowrap}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:12px;padding:10px 20px;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+@media (prefers-color-scheme: dark){.btn{color:#0c1220}}
+.btn:hover{filter:brightness(1.1)} .btn:active{transform:translateY(2px);box-shadow:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:var(--surface);color:var(--text);border:2px solid var(--line);box-shadow:none}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+h2{margin:.2rem 0 .4rem} h3{margin:.2rem 0 .5rem;font-size:1.1rem}
+.story{border-left:8px solid var(--accent)}
+.story p{margin:.4rem 0}
+.orakel{font-family:ui-monospace,Consolas,monospace;background:#0b1224;color:#7dffb0;border-radius:12px;padding:12px 16px;margin:10px 0;font-size:.95rem}
+.hub{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin:14px 0}
+.door{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);transition:transform .15s}
+.door:hover{transform:translateY(-3px);border-color:var(--accent)}
+.door .ico{font-size:2.1rem}.door .nr{font-size:.8rem;color:var(--soft);font-weight:700;letter-spacing:.05em}
+.door h4{margin:.1rem 0;font-size:1.05rem}.door p{margin:0;color:var(--soft);font-size:.88rem}
+.door .state{margin-top:8px;font-weight:700;font-size:.9rem}
+.door.done{border-color:var(--good);background:linear-gradient(var(--good-weak),var(--surface))}
+.door.done .state{color:var(--good)}
+.letters{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.tile{width:46px;height:54px;display:flex;align-items:center;justify-content:center;border-radius:10px;border:2px solid var(--line);background:var(--surface-2);font-weight:800;font-size:1.5rem}
+.tile.on{background:var(--good-weak);border-color:var(--good);color:var(--good)}
+.final{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.final input{flex:1;min-width:200px;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);font-size:1.2rem;letter-spacing:.1em;text-transform:uppercase}
+.fb{min-height:1.6em;font-weight:600}.fb.good{color:var(--good)}.fb.bad{color:var(--bad)}
+.back{margin-bottom:10px}
+.task{border:2px solid var(--line);border-radius:14px;padding:14px 16px;margin:14px 0;background:var(--surface-2)}
+.task.ok{border-color:var(--good);background:var(--good-weak)}
+.task .q{font-weight:700;margin:0 0 8px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row .t{flex:1 1 320px}
+select{max-width:100%;padding:8px 10px;border-radius:10px;border:2px solid var(--line);background:var(--surface)}
+select:disabled{opacity:.9}
+.cloze{line-height:2.4}
+.opts{display:grid;gap:8px;margin:8px 0}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:.35em;accent-color:var(--accent)}
+.ord{list-style:none;padding:0;margin:8px 0;display:grid;gap:8px}
+.ord li{display:flex;gap:10px;align-items:center;background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:8px 12px}
+.ord li span{flex:1}
+.ord button{border:2px solid var(--line);background:var(--surface-2);border-radius:8px;width:36px;height:36px}
+.ord button:hover:not(:disabled){border-color:var(--accent)}
+.res{font-weight:700;margin-top:6px}
+.res.good{color:var(--good)}.res.bad{color:var(--bad)}
+.why{margin-top:6px;font-size:.95rem;color:var(--soft)}
+.hintbox{background:var(--accent-weak);border-left:5px solid var(--accent);padding:10px 14px;border-radius:8px;margin:12px 0;font-size:.95rem}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.facit{margin-top:8px;font-size:.9rem;color:var(--soft)}
+.unlock{text-align:center}
+.unlock .big{font-size:4rem;font-weight:800;color:var(--good)}
+.stars{font-size:2rem;color:var(--gold);letter-spacing:4px}
+.diploma{border:6px double var(--accent);text-align:center;padding:28px}
+footer{color:var(--soft);font-size:.85rem;text-align:center;padding:20px 0}
+.hidden{display:none!important}
+@media print{
+  body{background:#fff;color:#000}
+  .no-print,header.top,footer{display:none!important}
+  .card{box-shadow:none}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top no-print">
+    <h1>🔐 Escaperoom: AI i samhället</h1>
+    <span class="pill" title="Tid, inklusive tidstillägg för ledtrådar">⏱ <span id="time">00:00</span></span>
+    <span class="pill" title="Använda ledtrådar">💡 <span id="hintc">0</span></span>
+    <span class="pill" title="Upplåsta rum">🔓 <span id="solvedc">0</span>/8</span>
+    <button class="btn ghost" id="reset" type="button">Börja om</button>
+  </header>
+
+  <main id="app" aria-live="polite"></main>
+
+  <footer class="no-print">Escaperoom till Kapitel 2 – AI i samhället. Allt sparas bara i din egen webbläsare. Lärare: lägg till <code>?larare</code> i adressen för facit.</footer>
+</div>
+
+<script>
+"use strict";
+
+/* ====================== DATA ====================== */
+const WORD = "ANSVARET";
+const TILE_ORDER = [5, 2, 7, 0, 3, 6, 1, 4]; // slumpad ordning av bokstäverna så att ordet inte syns direkt
+const HINT_PENALTY = 90; // sekunder
+const TEACHER = new URLSearchParams(location.search).has("larare");
+
+const DIM = ["Integritet och säkerhet","Desinformation","Förklarbarhet och transparens","Partiskhet och rättvisa","Plagiering"];
+const RISK = ["Oacceptabel risk","Hög risk","Begränsad risk","Minimal risk"];
+
+const ROOMS = [
+ {
+  name:"Etikkorridoren", ico:"⚖️", blurb:"De fem etiska dimensionerna",
+  intro:"Dörren har fem lås – ett för varje etisk dimension. Dra slutsatsen om vilket lås varje exempel hör till.",
+  hint:"Läs avsnittet ”Etiska principer för AI”. Fundera på vad exemplet egentligen handlar om: vem som kan se datan, om något är falskt, om ingen kan förklara, om någon behandlas orättvist eller om någon tar åt sig äran för andras arbete.",
+  outro:"Låset klickar upp. På väggen lyser en bokstav.",
+  tasks:[
+   {type:"pairs", q:"Vilken etisk dimension hör exemplet till?", opts:DIM, items:[
+     {t:"Ansiktsigenkänning fungerar sämre för personer med mörkare hudtoner.", a:3},
+     {t:"Ingen kan förklara varför AI-systemet avslog en låneansökan.", a:2},
+     {t:"En elev lämnar in en AI-skriven uppsats utan att berätta det.", a:4},
+     {t:"En AI-leksak spelar in barns röster och skickar datan till ett företag.", a:0},
+     {t:"En fabricerad AI-bild av en haj på en översvämmad motorväg sprids som ”nyhet”.", a:1},
+     {t:"En bildgenerator tränad på en konstnärs verk skapar bilder som knappt går att skilja från originalen.", a:4}
+   ]}
+  ]
+ },
+ {
+  name:"Fejkfabriken", ico:"🎭", blurb:"Desinformation och deepfakes",
+  intro:"Här tillverkas falska nyheter på löpande band. Sortera produkterna innan de når allmänheten.",
+  hint:"Läs ”Desinformation”. Nyckelordet är avsiktligt: bara information som sprids planerat för att vilseleda är desinformation. Den som delar något i god tro sprider oavsiktligt felaktig information.",
+  outro:"Löpande bandet stannar. En bokstav lyser på kontrollpanelen.",
+  tasks:[
+   {type:"pairs", q:"Vad är det här?", opts:["Desinformation","Oavsiktligt felaktig information","Deepfake","AI slop","Troligen äkta"], items:[
+     {t:"En stat skapar tusentals falska konton som sprider påhittade påståenden inför ett val.", a:0},
+     {t:"Din moster delar hajbilden på motorvägen. Hon tror att den är äkta.", a:1},
+     {t:"En video där en politiker säger saker hen aldrig har sagt, skapad med AI.", a:2},
+     {t:"Sökresultat fulla av automatgenererade artiklar som låter trovärdiga men saknar faktagrund.", a:3},
+     {t:"Ett uttalande som du hittar i flera oberoende nyhetsmedier och i originalinspelningen.", a:4},
+     {t:"Ett ljudklipp där en politikers röst har kopierats med AI och fått säga något påhittat.", a:2}
+   ]},
+   {type:"quiz", q:"Vad kräver EU:s AI-förordning av den som sprider AI-genererade bilder, ljud eller videor som ser äkta ut?",
+    o:["Att materialet tydligt märks som skapat eller manipulerat med AI","Att materialet raderas inom 24 timmar","Att avsändaren ber om lov av alla som syns","Ingenting – det är bara en rekommendation"], a:0,
+    why:"Märkningskravet gäller sedan augusti 2026."},
+   {type:"quiz", q:"Varför löser märkningen ändå inte hela problemet?",
+    o:["Den som vill vilseleda struntar i regeln – men det blir lättare att ställa avsändare till svars","Märkning är förbjudet i Sverige","AI-bilder går alltid att avslöja med blotta ögat","Märkningen gäller bara bilder på djur"], a:0,
+    why:"Därför är källkritik viktigare än någonsin."}
+  ]
+ },
+ {
+  name:"Bias-labbet", ico:"🧪", blurb:"Partiskhet och proxydata",
+  intro:"I labbet står en AI som sorterar ansökningar. Någon har tagit bort etnicitet ur datan – ändå blir resultatet orättvist. Reda ut hur det går till.",
+  hint:"Läs ”Hur uppstår algoritmisk bias?” och ”Proxydata – diskriminering via omvägar”. AI:n ”vill” aldrig något – problemet sitter i datan, i konstruktionen, i proxyvariablerna eller i hur resultatet används.",
+  outro:"Provröret blir grönt. En bokstav visas på skärmen.",
+  tasks:[
+   {type:"order", q:"Lägg stegen i rätt ordning – hur uppstår diskriminering via proxydata?", items:[
+     "Utvecklarna tar bort etnicitet ur träningsdatan.",
+     "AI:n tränas i stället bland annat på postnummer.",
+     "Postnumret blir en proxyvariabel: i vissa områden bor fler ur en viss grupp, till exempel på grund av bostadssegregation.",
+     "AI:n lär sig mönster som hänger ihop med postnumret i den historiska datan.",
+     "Systemet diskriminerar indirekt – trots att etnicitet aldrig fanns med."
+   ]},
+   {type:"multi", q:"Vilka av dessa kan ge algoritmisk bias? (Flera rätt)", o:[
+     "Skev eller ofullständig träningsdata",
+     "Utvecklarens medvetna eller omedvetna antaganden i algoritmen",
+     "Proxydata som avslöjar känsliga egenskaper",
+     "Att en neutral modell används och tolkas partiskt",
+     "Att AI:n ”vill” gynna vissa grupper",
+     "Att modellen har för få grafikkort"
+   ], a:[0,1,2,3]},
+   {type:"quiz", q:"Amazons rekryterings-AI gav lägre poäng till CV:n med uttryck som ”women’s chess club captain”. Varför?",
+    o:["Den hade tränats på tio års CV-data där de flesta sökande var män","Programmerarna hade skrivit en regel mot kvinnor","Kvinnor skriver sämre CV:n","Systemet kunde inte läsa engelska"], a:0,
+    why:"Amazon kunde inte garantera att nya snedvridningar inte skulle uppstå, så systemet lades ner."}
+  ]
+ },
+ {
+  name:"Lagrummet", ico:"🏛️", blurb:"UNESCO, AI Act och riskklasser",
+  intro:"Lagrummet är fullt av pärmar. Bara den som kan skillnaden mellan rekommendationer och lag kommer vidare.",
+  hint:"Läs ”Riktlinjer kring etisk AI” och tabellerna. Tänk: förbjuds helt = oacceptabel, strikt reglering = hög, måste berätta/märkas = begränsad, inga krav = minimal.",
+  outro:"Pärmarna fäller ut en bokstav.",
+  tasks:[
+   {type:"cloze", q:"Fyll i luckorna.", text:"EU:s AI-förordning kallas ofta AI {0}. Den delar in AI-system i {1} riskklasser. System med {2} risk, som social poängsättning av medborgare, förbjuds helt. System med {3} risk, som medicinska diagnosverktyg, regleras strikt. Chattbottar har begränsad risk och måste vara {4} med att de är AI. AI i spel räknas som {5} risk.",
+    blanks:[
+     {o:["Act","Rules","Law"],a:0},
+     {o:["två","fyra","sex"],a:1},
+     {o:["minimal","hög","oacceptabel"],a:2},
+     {o:["oacceptabel","hög","minimal"],a:1},
+     {o:["hemliga","tydliga","tysta"],a:1},
+     {o:["minimal","hög","oacceptabel"],a:0}
+    ]},
+   {type:"pairs", q:"Vilken riskklass?", opts:RISK, items:[
+     {t:"AI som läser av elevers känslor i klassrummet", a:0},
+     {t:"AI som sorterar jobbansökningar", a:1},
+     {t:"En chattbot som måste berätta att den är AI", a:2},
+     {t:"Ett spamfilter", a:3},
+     {t:"AI som avgör antagning till en utbildning", a:1}
+   ]},
+   {type:"pairs", q:"UNESCO eller EU:s AI Act?", opts:["UNESCO:s rekommendationer","EU:s AI Act"], items:[
+     {t:"Juridiskt bindande för alla som verkar inom EU", a:1},
+     {t:"Första världsomspännande etiska rekommendationerna (2021) – inte bindande", a:0},
+     {t:"Riskklasser med olika krav per nivå", a:1},
+     {t:"Globalt ”samvete” med fokus på mänskliga rättigheter, hållbarhet och inkludering", a:0}
+   ]}
+  ]
+ },
+ {
+  name:"Klassrummet", ico:"🏫", blurb:"Regler för AI i svensk skola",
+  intro:"Ett helt vanligt klassrum – men dörren öppnas bara av den som kan skolans AI-regler.",
+  hint:"Läs ”AI i Sverige – vad gäller i skolan?”. Tre saker är särskilt viktiga: personuppgifter (GDPR), risker och upphovsrätt – plus åldersgränser och betyg.",
+  outro:"Tavlan suddas av sig själv och en bokstav skrivs upp.",
+  tasks:[
+   {type:"quiz", q:"Vilken tumregel gäller för vad du skriver in i ett öppet AI-verktyg?", o:["Inget som du inte skulle kunna säga högt i klassrummet","Allt som läraren har godkänt i förväg","Bara det som är på engelska","Vad som helst, eftersom verktyget är gratis"], a:0, why:"Det du skriver kan sparas och användas för träning."},
+   {type:"quiz", q:"Du skriver en text där en klasskamrat går att känna igen och klistrar in den i en öppen AI-tjänst. Vad gäller?", o:["Det räknas som personuppgifter och GDPR gäller","Det är tillåtet eftersom det är din egen text","Det är bara ett problem om bilden är med","GDPR gäller bara företag"], a:0},
+   {type:"quiz", q:"Vem sätter betyget?", o:["Alltid läraren – ett AI-verktyg får aldrig avgöra bedömningen","AI-verktyget om läraren har lite tid","Eleven själv tillsammans med AI:n","Skolans it-avdelning"], a:0, why:"Det går inte att avgöra säkert om en text är skriven av AI, så en del av bedömningen sker i klassrummet, muntligt eller på prov."},
+   {type:"quiz", q:"Vilken AI-användning räknas som hög risk enligt AI-förordningen?", o:["AI som bedömer elever eller avgör antagning","AI som ger dig idéer inför en text","AI som hjälper dig öva glosor","AI i ett spel på rasten"], a:0},
+   {type:"quiz", q:"Ett verktyg har 13 års åldersgräns och du är 12. Vad gäller?", o:["Skolan kan inte kräva att du använder en tjänst du inte får ha konto på – använd skolans verktyg","Du får skapa konto om du skriver en annan ålder","Åldersgränser gäller bara på fritiden","Du måste använda tjänsten annars blir det underkänt"], a:0},
+   {type:"quiz", q:"Du har använt AI som hjälp i en uppgift. Vad är rätt sätt att agera?", o:["Vara öppen med hur du har använt den, precis som när du anger källor","Strunta i att nämna det – AI-text är ändå ”din”","Be AI:n skriva om texten så att det inte syns","Skylla på kompisen"], a:0, why:"AI-material kan likna någon annans verk, och då kan du råka använda något skyddat utan att veta det."}
+  ]
+ },
+ {
+  name:"Demokratisalen", ico:"🗳️", blurb:"Demokrati, filterbubblor och relationer",
+  intro:"I salen hänger porträtt av folkvalda – men flera ser konstiga ut. Läs av rummet och lös frågorna.",
+  hint:"Läs ”AI och demokrati” och ”AI och sociala relationer”. Fundera på vem som tjänar på att du stannar kvar, och på skillnaden mellan hur en bild ser ut och vilken skada den gör.",
+  outro:"Talarstolen fäller upp en bokstav.",
+  tasks:[
+   {type:"quiz", q:"Varför uppstår filterbubblor?", o:["Plattformar använder AI för att visa det som håller oss engagerade – ofta mer av det vi redan gillar","Användare väljer själva att blockera alla andra åsikter","Nyheter är bara tillgängliga på ett språk","Sociala medier visar alltid exakt lika mycket av allt"], a:0},
+   {type:"quiz", q:"Vilket exempel är en positiv demokratieffekt av AI?", o:["Översättning, talsyntes och automatiska sammanfattningar gör politisk information mer tillgänglig","Fler deepfakes inför val","Att ett fåtal företag styr de kraftfullaste modellerna","Algoritmer som visar mer polariserande innehåll"], a:0},
+   {type:"quiz", q:"När AI används i offentliga beslut, till exempel i förvaltning eller skola, krävs för att rättssäkerheten ska hålla:", o:["Transparens och möjlighet att förstå och överklaga besluten","Att beslutet fattas så snabbt som möjligt","Att ingen får veta vilken modell som används","Att beslutet aldrig kan ändras"], a:0},
+   {type:"quiz", q:"Vad är en risk med AI-kompisar?", o:["De är ofta designade för att hålla kvar dig, håller nästan alltid med och saknar omdöme i en kris","De kan aldrig svara på frågor","De kostar alltid mer än en riktig kompis","De är olagliga i Sverige"], a:0, why:"En relation som aldrig ställer krav kan göra det svårare att hantera riktiga relationer."},
+   {type:"quiz", q:"En fabricerad sexuell bild på en klasskamrat sprids i en grupp. Vad stämmer?", o:["Det kan vara brottsligt trots att bilden är ”fejk” – skadan är verklig","Det är inte brottsligt eftersom bilden inte är äkta","Det är bara brottsligt om bilden är på en kändis","Det löser sig om man tar bort chatten"], a:0, why:"Det kan vara olaga integritetsintrång, förtal eller – om personen är under 18 – barnpornografibrott."},
+   {type:"quiz", q:"Vad ska den som drabbas av en sådan deepfake göra?", o:["Spara bevis, inte skämmas och berätta för en vuxen, skolan eller polisen","Radera allt och aldrig prata om det","Själv sprida bilden vidare för att visa hur falsk den är","Vänta tills det går över av sig självt"], a:0}
+  ]
+ },
+ {
+  name:"Säkerhetsvalvet", ico:"🛡️", blurb:"Bedrägerier och angrepp",
+  intro:"Valvet vaktas av ORAKEL. Den släpper bara förbi den som känner igen hoten – och vet hur man skyddar sig.",
+  hint:"Läs ”AI och säkerhet”. Tänk på vad som manipuleras: instruktionen i texten, träningsdatan, bilden, det du själv skrev in – eller en röst.",
+  outro:"Valvdörren glider upp en bit. En bokstav blinkar.",
+  tasks:[
+   {type:"pairs", q:"Vilket hot beskrivs?", opts:["Promptinjektion","Dataförgiftning","Vilseledande indata","Läcka","Röstkloning"], items:[
+     {t:"Dolda instruktioner i en webbsida får en AI-assistent att läcka information.", a:0},
+     {t:"Någon manipulerar träningsdatan så att ett spamfilter lär sig släppa igenom vissa mejl.", a:1},
+     {t:"Några klistermärken på en stoppskylt får ett system att läsa den som en hastighetsskylt.", a:2},
+     {t:"Elevtexter med personuppgifter skrivs in i en öppen tjänst och sparas för träning.", a:3},
+     {t:"Några sekunders inspelning från sociala medier används för att ringa ”från barnet” och be om pengar.", a:4}
+   ]},
+   {type:"quiz", q:"Någon som låter exakt som din mamma ringer och ber dig föra över pengar direkt. Vad gör du?", o:["Frågar efter familjens kodord och ringer tillbaka på ett nummer du redan har","För över pengarna – det är ju mammas röst","Svarar på ett SMS som kommer direkt efter samtalet","Ber personen skicka en bild som bevis"], a:0, why:"Var extra misstänksam vid brådska, hemlighetsmakeri och krav på pengar."},
+   {type:"pairs", q:"Sant eller falskt?", opts:["Sant","Falskt"], items:[
+     {t:"Promptinjektion innebär att någon hackar sig in i AI-företagets servrar.", a:1},
+     {t:"AI används bara av angripare, aldrig för att skydda system.", a:1},
+     {t:"AI som styr kritisk infrastruktur, som elnät, räknas som hög risk i AI-förordningen.", a:0},
+     {t:"Många stater driver på för att en människa alltid ska ha meningsfull kontroll över beslut om liv och död.", a:0}
+   ]}
+  ]
+ },
+ {
+  name:"Serverhallen", ico:"🌍", blurb:"Miljö, ekonomi och makt",
+  intro:"Servrarna brusar och hallen är varm som en bastu. ORAKEL kräver att du förstår vad den kostar – för miljön och för världen.",
+  hint:"Läs ”AI och miljön” och ”Konkurrens, kostnader och global ojämlikhet”. Kom ihåg: både träning och användning (inferens) drar energi, och nettoeffekten är svår att räkna ut.",
+  outro:"Fläktarna tystnar. Den sista bokstaven lyser upp.",
+  tasks:[
+   {type:"pairs", q:"Sant eller falskt?", opts:["Sant","Falskt"], items:[
+     {t:"Datacenter kan använda stora mängder vatten för att kyla hårdvaran.", a:0},
+     {t:"AI-modellers energiförbrukning handlar bara om träningen – att använda modellen kostar ingen energi.", a:1},
+     {t:"AI kan användas för att optimera energianvändning i elnät och byggnader.", a:0},
+     {t:"AI:s miljöpåverkan är enkel att räkna ut eftersom alla företag redovisar exakt hur mycket energi deras modeller drar.", a:1},
+     {t:"Bara ett fåtal företag och länder har råd att träna de mest avancerade modellerna.", a:0},
+     {t:"AI kan aldrig sänka trösklarna för mindre aktörer.", a:1}
+   ]},
+   {type:"quiz", q:"Vad avgör AI:s nettoeffekt på miljön?", o:["Hur mycket energi systemen drar, hur energin produceras och om miljövinsterna i andra sektorer väger upp förbrukningen","Bara hur många användare som finns","Bara vilket land datacentret ligger i","Ingenting – effekten är alltid noll"], a:0},
+   {type:"quiz", q:"Vilket exempel visar maktkoncentration och global AI-ojämlikhet?", o:["Ett fåtal företag och länder med kapital, datacenter och kompetens drar ifrån medan andra får svårt att delta","Att fler länder delar öppen AI-forskning","Att AI gör vissa yrken mer effektiva","Att EU har infört AI Act"], a:0},
+   {type:"quiz", q:"Vad är e-avfall i AI-sammanhang?", o:["Uttjänta grafikkort och specialhårdvara som snabbt blir föråldrad och byts ut","Gamla e-postmeddelanden","Överblivna träningsdata","Raderade AI-konton"], a:0}
+  ]
+ }
+];
+
+/* ====================== STATE ====================== */
+const KEY = "escape-ai-kap2-v1";
+let S = {solved:[], seconds:0, hints:0, wrong:0, finished:false, hinted:[]};
+function load(){ try{ const j=JSON.parse(localStorage.getItem(KEY)); if(j&&Array.isArray(j.solved)) S=Object.assign(S,j); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+let view = "hub";
+let tick = null;
+function fmt(s){ const m=Math.floor(s/60), r=s%60; return String(m).padStart(2,"0")+":"+String(r).padStart(2,"0"); }
+function updateBar(){
+  document.getElementById("time").textContent = fmt(S.seconds);
+  document.getElementById("hintc").textContent = S.hints;
+  document.getElementById("solvedc").textContent = S.solved.length;
+}
+function startTimer(){
+  if(tick) return;
+  tick = setInterval(()=>{
+    if(S.finished || document.hidden) return;
+    S.seconds++; updateBar();
+    if(S.seconds%10===0) save();
+  },1000);
+}
+
+/* ====================== HJÄLPARE ====================== */
+const $ = (sel,root=document)=>root.querySelector(sel);
+function el(tag, attrs={}, ...kids){
+  const e=document.createElement(tag);
+  for(const k in attrs){
+    if(attrs[k]==null) continue;
+    if(k==="class") e.className=attrs[k];
+    else if(k==="html") e.innerHTML=attrs[k];
+    else if(k.startsWith("on")) e.addEventListener(k.slice(2),attrs[k]);
+    else e.setAttribute(k,attrs[k]);
+  }
+  kids.flat().forEach(c=>{ if(c!=null) e.append(c.nodeType?c:document.createTextNode(c)); });
+  return e;
+}
+function shuffled(n){ const a=[...Array(n).keys()]; for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function shuffledNot(n, ident){ let a; do{ a=shuffled(n); }while(n>1 && a.every((v,i)=>v===ident[i])); return a; }
+
+/* ====================== UPPGIFTSTYPER ======================
+   Varje byggare returnerar {el, check()} där check() ger {ok, got, total, lock()} */
+function mkTask(q){ return el("div",{class:"task"}, q?el("p",{class:"q"},q):null); }
+
+function buildPairs(t){
+  const box = mkTask(t.q), selects=[];
+  t.items.forEach(it=>{
+    const sel = el("select",{"aria-label":it.t},
+      el("option",{value:""},"Välj …"),
+      t.opts.map((o,i)=>el("option",{value:i},o)));
+    selects.push(sel);
+    box.append(el("div",{class:"row"}, el("div",{class:"t"},it.t), sel));
+  });
+  return {el:box, check(){
+    let got=0; selects.forEach((s,i)=>{ if(+s.value===t.items[i].a && s.value!=="") got++; });
+    return {got,total:t.items.length,ok:got===t.items.length, lock(){ selects.forEach(s=>s.disabled=true); }};
+  }, facit:()=>t.items.map(it=>it.t+" → "+t.opts[it.a]).join(" | ")};
+}
+
+function buildCloze(t){
+  const box = mkTask(t.q), selects=[];
+  const p = el("p",{class:"cloze"});
+  t.text.split(/(\{\d+\})/).forEach(part=>{
+    const m = part.match(/^\{(\d+)\}$/);
+    if(!m){ p.append(part); return; }
+    const b=t.blanks[+m[1]];
+    const sel = el("select",{"aria-label":"Lucka "+(+m[1]+1)},
+      el("option",{value:""},"…"), b.o.map((o,i)=>el("option",{value:i},o)));
+    selects.push(sel); p.append(sel);
+  });
+  box.append(p);
+  return {el:box, check(){
+    let got=0; selects.forEach((s,i)=>{ if(s.value!=="" && +s.value===t.blanks[i].a) got++; });
+    return {got,total:t.blanks.length,ok:got===t.blanks.length, lock(){ selects.forEach(s=>s.disabled=true); }};
+  }, facit:()=>t.blanks.map(b=>b.o[b.a]).join(", ")};
+}
+
+function buildQuiz(t){
+  const box = mkTask(t.q);
+  const order = shuffled(t.o.length), name="q"+Math.random().toString(36).slice(2);
+  const inputs=[];
+  const list = el("div",{class:"opts"});
+  order.forEach(i=>{
+    const inp = el("input",{type:"radio",name,value:i}); inputs.push(inp);
+    list.append(el("label",{class:"opt"}, inp, el("span",{},t.o[i])));
+  });
+  box.append(list);
+  return {el:box, check(){
+    const sel = inputs.find(x=>x.checked);
+    const ok = !!sel && +sel.value===t.a;
+    return {got:ok?1:0,total:1,ok, lock(){ inputs.forEach(x=>x.disabled=true); if(t.why) box.append(el("p",{class:"why"},"💡 "+t.why)); }};
+  }, facit:()=>t.o[t.a]};
+}
+
+function buildMulti(t){
+  const box = mkTask(t.q);
+  const order = shuffled(t.o.length), inputs=[];
+  const list = el("div",{class:"opts"});
+  order.forEach(i=>{
+    const inp = el("input",{type:"checkbox",value:i}); inputs.push(inp);
+    list.append(el("label",{class:"opt"}, inp, el("span",{},t.o[i])));
+  });
+  box.append(list);
+  return {el:box, check(){
+    const picked = inputs.filter(x=>x.checked).map(x=>+x.value).sort((a,b)=>a-b);
+    const want = [...t.a].sort((a,b)=>a-b);
+    const ok = picked.length===want.length && picked.every((v,i)=>v===want[i]);
+    // antal korrekta val (rätt ikryssade + rätt ej ikryssade)
+    let got=0; t.o.forEach((_,i)=>{ if(picked.includes(i)===want.includes(i)) got++; });
+    return {got,total:t.o.length,ok, lock(){ inputs.forEach(x=>x.disabled=true); }};
+  }, facit:()=>t.a.map(i=>t.o[i]).join(" | ")};
+}
+
+function buildOrder(t){
+  const box = mkTask(t.q);
+  const ident=[...t.items.keys()];
+  let cur = shuffledNot(t.items.length, ident);
+  const ul = el("ol",{class:"ord"});
+  let locked=false;
+  function paint(){
+    ul.innerHTML="";
+    cur.forEach((idx,pos)=>{
+      ul.append(el("li",{},
+        el("b",{},(pos+1)+"."), el("span",{},t.items[idx]),
+        el("button",{type:"button","aria-label":"Flytta upp",disabled:locked||pos===0?"":null,onclick:()=>{[cur[pos-1],cur[pos]]=[cur[pos],cur[pos-1]];paint();}},"↑"),
+        el("button",{type:"button","aria-label":"Flytta ner",disabled:locked||pos===cur.length-1?"":null,onclick:()=>{[cur[pos+1],cur[pos]]=[cur[pos],cur[pos+1]];paint();}},"↓")));
+    });
+    ul.querySelectorAll("button").forEach(b=>{ if(b.getAttribute("disabled")==null) b.removeAttribute("disabled"); });
+  }
+  paint(); box.append(ul);
+  return {el:box, check(){
+    let got=0; cur.forEach((v,i)=>{ if(v===i) got++; });
+    return {got,total:t.items.length,ok:got===t.items.length, lock(){ locked=true; paint(); }};
+  }, facit:()=>t.items.map((x,i)=>(i+1)+". "+x).join(" ")};
+}
+const BUILD={pairs:buildPairs,cloze:buildCloze,quiz:buildQuiz,multi:buildMulti,order:buildOrder};
+
+/* ====================== VYER ====================== */
+const app = document.getElementById("app");
+
+function renderHub(){
+  view="hub"; app.innerHTML="";
+  if(!S.solved.length && S.seconds===0){
+    app.append(el("section",{class:"card story"},
+      el("h2",{},"🚨 Utelåsta i Server 7"),
+      el("p",{},"Du och ditt team har följt med på ett studiebesök i ett datacenter. När ni går mot utgången låser sig alla dörrar."),
+      el("div",{class:"orakel"},"ORAKEL> Hej. Jag är systemet som styr den här byggnaden. Åtta dörrar är låsta. Varje dörr öppnas av den som förstår AI:s roll i samhället. Samla bokstäverna. Ordna dem. Säg ordet. Lycka till – jag räknar tiden."),
+      el("p",{},el("b",{},"Så funkar det: "),"Öppna ett rum, lös alla uppgifter och tryck ”Kontrollera”. Fastnar ni kan ni använda en ledtråd – men den kostar "+HINT_PENALTY+" sekunder. Rummen kan klaras i valfri ordning. Spela i par eller grupper om 3–4."),
+      el("button",{class:"btn",type:"button",onclick:()=>{startTimer();renderHub();}},"Starta klockan")
+    ));
+    startTimerOnFirstOpen = true;
+  }
+  app.append(el("h2",{},"Dörrarna"));
+  const hub = el("div",{class:"hub"});
+  ROOMS.forEach((r,i)=>{
+    const done = S.solved.includes(i);
+    hub.append(el("button",{class:"door"+(done?" done":""),type:"button",onclick:()=>{startTimer();renderRoom(i);}},
+      el("div",{class:"ico"},done?"🔓":"🔒"),
+      el("div",{class:"nr"},"RUM "+(i+1)+" "+r.ico),
+      el("h4",{},r.name), el("p",{},r.blurb),
+      el("div",{class:"state"},done?"Upplåst – bokstav "+WORD[i]:"Låst")));
+  });
+  app.append(hub);
+
+  const card = el("section",{class:"card"});
+  card.append(el("h3",{},"🔑 Utgångsdörren"));
+  card.append(el("p",{},"Bokstäverna du hittar visas här i blandad ordning. Ordna dem till ett ord med 8 bokstäver. ",el("b",{},"Ledtråd: "),"enligt kapitlet ligger det alltid hos oss människor."));
+  const L = el("div",{class:"letters"});
+  TILE_ORDER.forEach(i=>{ const on=S.solved.includes(i); L.append(el("div",{class:"tile"+(on?" on":"")},on?WORD[i]:"?")); });
+  card.append(L);
+  const open = S.solved.length===ROOMS.length;
+  const inp = el("input",{type:"text",maxlength:"20",placeholder:open?"Skriv ordet …":"Lås upp alla rum först","aria-label":"Slutordet",disabled:open?null:""});
+  if(open) inp.removeAttribute("disabled");
+  const fb = el("div",{class:"fb"});
+  const go = ()=>{
+    const v = inp.value.trim().toLowerCase().replace(/[^a-zåäö]/g,"");
+    if(v===WORD.toLowerCase()){ S.finished=true; save(); renderFinish(); }
+    else { S.wrong++; save(); fb.className="fb bad"; fb.textContent="ORAKEL> Fel ord. Dörren förblir låst."; }
+  };
+  const btn = el("button",{class:"btn",type:"button",onclick:go},"Öppna dörren");
+  if(!open) btn.disabled=true;
+  inp.addEventListener("keydown",e=>{ if(e.key==="Enter"&&open) go(); });
+  card.append(el("div",{class:"final"},inp,btn), fb);
+  app.append(card);
+  updateBar();
+}
+let startTimerOnFirstOpen=false;
+
+function renderRoom(i){
+  view="room"; app.innerHTML="";
+  const r = ROOMS[i], done=S.solved.includes(i);
+  app.append(el("button",{class:"btn ghost back",type:"button",onclick:renderHub},"← Tillbaka till dörrarna"));
+  const card = el("section",{class:"card"});
+  card.append(el("h2",{},r.ico+" Rum "+(i+1)+": "+r.name), el("p",{},r.intro));
+  const built = r.tasks.map(t=>BUILD[t.type](t));
+  built.forEach((b,k)=>{
+    card.append(b.el);
+    if(TEACHER) b.el.append(el("details",{class:"facit"},el("summary",{},"Facit (lärare)"),b.facit()));
+  });
+  const fb = el("div",{class:"fb"});
+  const hintBox = el("div",{class:"hintbox hidden"},"💡 "+r.hint);
+  if(S.hinted.includes(i)) hintBox.classList.remove("hidden");
+
+  function check(){
+    let all=true, got=0, total=0;
+    built.forEach(b=>{
+      const c=b.check();
+      got+=c.got; total+=c.total;
+      if(c.ok){ b.el.classList.add("ok"); c.lock(); b.done=true; }
+      else { all=false; }
+      let res=b.el.querySelector(".res");
+      if(!res){ res=el("div",{class:"res"}); b.el.append(res); }
+      res.className="res "+(c.ok?"good":"bad");
+      res.textContent = c.ok ? "✅ Rätt!" : (c.total>1 ? "❌ "+c.got+" av "+c.total+" rätt – försök igen." : "❌ Inte riktigt – försök igen.");
+    });
+    if(all){
+      if(!S.solved.includes(i)) S.solved.push(i);
+      save(); updateBar(); renderUnlocked(i);
+    } else {
+      S.wrong++; save();
+      fb.className="fb bad"; fb.textContent="ORAKEL> Dörren rör sig inte. Kolla rutorna som är markerade med ❌.";
+    }
+  }
+  const bar = el("div",{class:"bar no-print"});
+  bar.append(el("button",{class:"btn",type:"button",onclick:check},"Kontrollera"));
+  bar.append(el("button",{class:"btn ghost",type:"button",onclick:()=>{
+    if(!S.hinted.includes(i)){
+      if(!confirm("En ledtråd kostar "+HINT_PENALTY+" sekunder. Vill ni ha den?")) return;
+      S.hinted.push(i); S.hints++; S.seconds+=HINT_PENALTY; save(); updateBar();
+    }
+    hintBox.classList.remove("hidden");
+  }},"💡 Ledtråd (+"+HINT_PENALTY+" s)"));
+  if(TEACHER) bar.append(el("button",{class:"btn ghost",type:"button",onclick:()=>{ if(!S.solved.includes(i)) S.solved.push(i); save(); updateBar(); renderUnlocked(i); }},"Hoppa över (lärare)"));
+  card.append(hintBox, bar, fb);
+  if(done) card.prepend(el("div",{class:"hintbox"},"🔓 Det här rummet är redan upplåst. Du kan öva igen om du vill."));
+  app.append(card);
+  window.scrollTo({top:0});
+}
+
+function renderUnlocked(i){
+  app.innerHTML="";
+  const r=ROOMS[i];
+  app.append(el("section",{class:"card unlock"},
+    el("div",{class:"ico",style:"font-size:3rem"},"🔓"),
+    el("h2",{},"Rum "+(i+1)+" är upplåst!"),
+    el("p",{},r.outro),
+    el("div",{class:"big","aria-label":"Bokstav "+WORD[i]},WORD[i]),
+    el("p",{},"Skriv upp bokstaven – den behövs till slutordet."),
+    el("div",{class:"orakel"},"ORAKEL> "+(S.solved.length<ROOMS.length
+       ? "Imponerande. "+(ROOMS.length-S.solved.length)+" dörrar kvar."
+       : "...Alla dörrar är öppna utom en. Säg ordet.")),
+    el("button",{class:"btn",type:"button",onclick:renderHub},S.solved.length<ROOMS.length?"Till nästa dörr":"Till utgångsdörren")
+  ));
+  window.scrollTo({top:0});
+}
+
+function renderFinish(){
+  view="finish"; app.innerHTML="";
+  const stars = (S.hints<=1 && S.wrong<=8) ? 3 : (S.hints<=4 && S.wrong<=20) ? 2 : 1;
+  app.append(el("section",{class:"card diploma"},
+    el("div",{style:"font-size:3.5rem"},"🏆"),
+    el("h2",{},"Ni har tagit er ut!"),
+    el("p",{},"Ordet var ",el("b",{},WORD),": enligt kapitlet ligger ansvaret för hur AI används alltid hos oss människor."),
+    el("div",{class:"stars","aria-label":stars+" av 3 stjärnor"},"★".repeat(stars)+"☆".repeat(3-stars)),
+    el("p",{},"Tid: ",el("b",{},fmt(S.seconds))," (inklusive tidstillägg) · Ledtrådar: ",el("b",{},String(S.hints))," · Felförsök: ",el("b",{},String(S.wrong))),
+    el("div",{class:"orakel"},"ORAKEL> Dörren är öppen. Kom ihåg: AI är varken god eller ond – det avgörs av hur och av vem den används.")
+  ));
+  app.append(el("section",{class:"card no-print"},
+    el("h3",{},"Samtala i gruppen"),
+    el("ul",{},
+      el("li",{},"Vilket rum var svårast – och vad lärde ni er?"),
+      el("li",{},"Vilken av de fem etiska dimensionerna tycker ni är viktigast i skolan? Varför?"),
+      el("li",{},"Vem bär ansvaret när en AI gör fel: användaren, företaget eller lagstiftaren?")),
+    el("div",{class:"bar"},
+      el("button",{class:"btn",type:"button",onclick:()=>window.print()},"Skriv ut"),
+      el("button",{class:"btn ghost",type:"button",onclick:resetAll},"Spela igen"))
+  ));
+  updateBar();
+}
+
+function resetAll(){
+  S={solved:[],seconds:0,hints:0,wrong:0,finished:false,hinted:[]};
+  save(); updateBar(); renderHub();
+}
+document.getElementById("reset").addEventListener("click",()=>{
+  if(confirm("Börja om från början? Tid och upplåsta rum nollställs.")) resetAll();
+});
+
+/* ====================== START ====================== */
+load();
+updateBar();
+if(S.finished) renderFinish(); else { if(S.seconds>0||S.solved.length) startTimer(); renderHub(); }
+</script>
+</body>
+</html>
