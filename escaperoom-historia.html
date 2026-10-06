@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Escape room i Historia 1a1 (50 p): medeltiden, upptäcktsfärderna, reformationen, slavhandeln och Asien – lös gåtorna och ta dig ut ur tidsportalen.">
+<title>Tidsportalen – Escape room Historia</title>
+<style>
+:root{
+  --bg:#f6efe1; --surface:#fffdf8; --surface-2:#f1e6d0; --text:#2b2218; --soft:#6b5a45; --line:#d9c7a4;
+  --accent:#8a3b12; --accent-weak:#f7e1cf; --good:#1f7a43; --good-weak:#e2f4e8; --bad:#b3261e; --bad-weak:#fde8e6;
+  --gold:#d79a00; --shadow:0 2px 4px rgba(60,30,0,.08),0 10px 30px rgba(60,30,0,.12); --r:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#17120c; --surface:#241c12; --surface-2:#30261a; --text:#f4ead8; --soft:#c7b697; --line:#4d3e29;
+    --accent:#ffb27a; --accent-weak:#3b2819; --good:#7fd29b; --good-weak:#1b3326; --bad:#f19a94; --bad-weak:#3a2220; --gold:#f2c14e;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:18px/1.55 "Segoe UI",system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:920px;margin:0 auto;padding:16px}
+header.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0 16px}
+header.top h1{font-size:1.45rem;margin:0;margin-right:auto}
+.pill{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:4px 14px;font-weight:700;white-space:nowrap}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:12px;padding:10px 20px;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+@media (prefers-color-scheme: dark){.btn{color:#17120c}}
+.btn:hover{filter:brightness(1.1)} .btn:active{transform:translateY(2px);box-shadow:none}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:var(--surface);color:var(--text);border:2px solid var(--line);box-shadow:none}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+h2{margin:.2rem 0 .4rem} h3{margin:.4rem 0}
+.tip{background:var(--accent-weak);border-left:5px solid var(--accent);padding:10px 14px;border-radius:8px;margin:12px 0;font-size:.95rem}
+.hall{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}
+.door{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);transition:transform .15s}
+.door:hover:not(:disabled){transform:translateY(-3px);border-color:var(--accent)}
+.door .ico{font-size:2.3rem}.door h4{margin:.2rem 0;font-size:1.1rem}.door p{margin:0;color:var(--soft);font-size:.9rem}
+.door.open{border-color:var(--good);background:linear-gradient(var(--good-weak),var(--surface))}
+.door:disabled{opacity:.55;cursor:not-allowed}
+.keys{font-size:1.8rem;letter-spacing:6px}
+.bar{height:14px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--line);margin:8px 0}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#8a3b12,#d79a00);transition:width .4s}
+.scene{border-radius:14px;padding:18px;margin:0 0 14px;color:#fff;background:linear-gradient(135deg,var(--c1),var(--c2));text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.scene .art{font-size:2.6rem;letter-spacing:8px}
+.scene p{margin:.3rem 0 0}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:12px 0}
+.item{text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:12px;padding:12px}
+.item:hover{border-color:var(--accent)} .item .ico{font-size:1.8rem}.item b{display:block}.item small{color:var(--soft)}
+.item.done{background:var(--good-weak);border-color:var(--good)}
+details.notes{background:var(--surface-2);border:2px solid var(--line);border-radius:12px;padding:10px 14px;margin:10px 0}
+details.notes summary{cursor:pointer;font-weight:700}
+details.notes ul{margin:.5rem 0 .2rem;padding-left:1.2rem}
+.book{font-size:.9rem;color:var(--soft)}
+.opts{display:grid;gap:10px;margin:14px 0}
+.opt{text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:12px;padding:12px 16px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right,.opt.sel.right{background:var(--good-weak);border-color:var(--good)}
+.opt.wrong{background:var(--bad-weak);border-color:var(--bad);animation:shake .3s}
+.opt.sel{border-color:var(--accent);background:var(--accent-weak)}
+.opt:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{min-height:1.6em;font-weight:600}.fb.good{color:var(--good)}.fb.bad{color:var(--bad)}
+.tok{display:inline-block;margin:3px;padding:6px 12px;border-radius:10px;border:2px solid var(--line);background:var(--surface-2);font-size:1rem;text-align:left}
+.tok:hover:not(:disabled){border-color:var(--accent)} .tok:disabled{opacity:.35}
+.build{min-height:56px;background:var(--surface-2);border:2px dashed var(--line);border-radius:12px;padding:8px;margin:10px 0}
+.build ol{margin:0;padding-left:1.4rem}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+@media (max-width:560px){.cols{grid-template-columns:1fr}}
+.m{display:block;width:100%;margin:0 0 8px;text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:10px;padding:8px 12px;font-size:.95rem}
+.m:hover:not(:disabled){border-color:var(--accent)} .m.sel{border-color:var(--accent);background:var(--accent-weak)}
+.m.ok{background:var(--good-weak);border-color:var(--good)} .m.bad{background:var(--bad-weak);border-color:var(--bad)}
+.m:disabled{cursor:default}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.big-btn{border:0;border-radius:12px;padding:14px 8px;color:#fff;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.25);text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.sent{font-size:1.2rem;background:var(--surface-2);border-radius:12px;padding:14px 16px;margin:10px 0}
+.lock{border:3px solid var(--gold);border-radius:14px;padding:14px;margin-top:16px;background:linear-gradient(var(--surface-2),var(--surface))}
+input[type=text]{font:inherit;padding:8px 12px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);width:100%;max-width:300px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0;align-items:center}
+.cert{text-align:center;border:6px double var(--gold);background:var(--surface);padding:30px;border-radius:12px}
+.cert h2{font-size:2rem;color:var(--accent)}
+.cert .name{font-size:2rem;font-weight:800;border-bottom:3px solid var(--gold);display:inline-block;padding:0 20px}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:99}
+@media print{body{background:#fff}.no-print{display:none!important}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top no-print">
+    <h1>⏳ Tidsportalen <small style="font-weight:400;color:var(--soft)">· Historia 1a1</small></h1>
+    <span class="pill" id="tm" aria-label="Tid">⏱️ 00:00</span>
+    <span class="pill" id="ky">🗝️ 0/5</span>
+    <button class="btn ghost" id="resetBtn">Börja om</button>
+  </header>
+  <main id="app"></main>
+</div>
+<script>
+'use strict';
+const KEY='escaperoom-historia:v1';
+const GOAL=60*60;          // målsättning: 60 minuter
+const HINT_COST=120;       // sekunder per ledtråd
+let S={name:'',t:0,pen:0,miss:0,hints:0,hinted:{},rooms:{},final:false};
+try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.rooms) S=Object.assign(S,s); }catch(e){}
+const save=()=>{ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} };
+const $=(s,r=document)=>r.querySelector(s);
+const app=$('#app');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+let FINISHED=false;
+
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const c=$('#fx'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const p=Array.from({length:140},()=>({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:-Math.random()*12-3,c:`hsl(${Math.random()*360},85%,58%)`,s:5+Math.random()*6}));
+  let t=0;(function f(){x.clearRect(0,0,c.width,c.height);p.forEach(a=>{a.x+=a.vx;a.y+=a.vy;a.vy+=.35;x.fillStyle=a.c;x.fillRect(a.x,a.y,a.s,a.s);});
+    if(++t<120)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height);})();
+}
+
+/* ---------- tid och nycklar ---------- */
+function upd(){
+  $('#tm').textContent='⏱️ '+fmt(S.t+S.pen);
+  $('#ky').textContent='🗝️ '+keysN()+'/'+ROOMS.length;
+}
+const keysN=()=>ROOMS.filter(r=>S.rooms[r.id]&&S.rooms[r.id].lock).length;
+setInterval(()=>{ if(document.hidden||FINISHED)return; S.t++; upd(); if(S.t%5===0)save(); },1000);
+
+/* ---------- pusseltyper ---------- */
+const miss=()=>{S.miss++;save();};
+const nextBtn=(box,label,fn)=>{ const n=$('.nx',box); n.innerHTML=`<button class="btn">${label}</button>`; $('.btn',n).onclick=fn; $('.btn',n).focus(); };
+
+/* mc: första alternativet är rätt */
+function mc(box,P,done){
+  const Q=shuffle(P.qs);let i=0;
+  (function show(){
+    const q=Q[i];
+    box.innerHTML=`<div class="bar"><i style="width:${i/Q.length*100}%"></i></div><p><b>Fråga ${i+1} av ${Q.length}</b></p><h3>${q.q}</h3>
+      <div class="opts">${shuffle(q.o.map((t,k)=>({t,k}))).map(o=>`<button class="opt" data-k="${o.k}">${o.t}</button>`).join('')}</div><div class="fb" aria-live="polite"></div><div class="nx"></div>`;
+    const fb=$('.fb',box);
+    box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(+b.dataset.k===0){
+        b.classList.add('right');box.querySelectorAll('.opt').forEach(x=>x.disabled=true);
+        fb.className='fb good';fb.textContent='✅ Rätt! '+q.why;
+        nextBtn(box,i+1<Q.length?'Nästa →':'Pusslet löst! 🎉',()=>{ if(++i<Q.length)show(); else done(); });
+      }else{miss();b.classList.add('wrong');b.disabled=true;fb.className='fb bad';fb.textContent='❌ Inte riktigt – försök igen.';}
+    });
+  })();
+}
+
+/* order: P.items i rätt ordning, visas blandade */
+function order(box,P,done){
+  let sh;do{sh=shuffle(P.items.map((t,k)=>({t,k})));}while(sh.every((o,i)=>o.k===i));
+  let ch=[];
+  box.innerHTML=`<p>${P.prompt}</p><div class="build" aria-live="polite"></div><div class="tk"></div>
+    <div class="row"><button class="btn" data-a="ck">Kolla ordningen</button><button class="btn ghost" data-a="un">↩ Ångra</button><button class="btn ghost" data-a="cl">Rensa</button></div><div class="fb" aria-live="polite"></div><div class="nx"></div>`;
+  const bd=$('.build',box),tk=$('.tk',box),fb=$('.fb',box),ck=$('[data-a=ck]',box);
+  const draw=()=>{
+    bd.innerHTML=ch.length?`<ol>${ch.map(c=>`<li>${c.t}</li>`).join('')}</ol>`:'<span style="color:var(--soft)">Klicka på händelserna i tidsordning – äldst först.</span>';
+    tk.innerHTML='';
+    sh.forEach(o=>{const b=document.createElement('button');b.className='tok';b.innerHTML=o.t;b.disabled=ch.includes(o);b.onclick=()=>{ch.push(o);draw();};tk.appendChild(b);});
+    ck.disabled=ch.length!==sh.length;
+  };
+  $('[data-a=un]',box).onclick=()=>{ch.pop();draw();};
+  $('[data-a=cl]',box).onclick=()=>{ch=[];fb.textContent='';draw();};
+  ck.onclick=()=>{
+    if(ch.every((o,i)=>o.k===i)){
+      fb.className='fb good';fb.textContent='✅ Rätt ordning! '+(P.why||'');ck.disabled=true;box.querySelectorAll('.tok,[data-a]').forEach(b=>b.disabled=true);
+      nextBtn(box,'Pusslet löst! 🎉',done);
+    }else{
+      miss();const wrong=ch.findIndex((o,i)=>o.k!==i);
+      fb.className='fb bad';fb.textContent=`❌ Inte riktigt. Plats ${wrong+1} stämmer inte – ångra eller rensa och försök igen.`;
+    }
+  };
+  draw();
+}
+
+/* match: P.pairs [[vänster,höger]] */
+function match(box,P,done){
+  const L=P.pairs.map((p,k)=>({t:p[0],k})),R=shuffle(P.pairs.map((p,k)=>({t:p[1],k})));
+  let sel=null,found=0;
+  box.innerHTML=`<p>${P.prompt}</p><div class="cols"><div class="l">${L.map((o,n)=>`<button class="m" data-n="${n}">${o.t}</button>`).join('')}</div>
+    <div class="r">${R.map((o,n)=>`<button class="m" data-n="${n}">${o.t}</button>`).join('')}</div></div><div class="fb" aria-live="polite"></div><div class="nx"></div>`;
+  const fb=$('.fb',box),lb=[...box.querySelectorAll('.l .m')],rb=[...box.querySelectorAll('.r .m')];
+  lb.forEach((b,n)=>b.onclick=()=>{ lb.forEach(x=>x.classList.remove('sel')); sel=n; b.classList.add('sel'); });
+  rb.forEach((b,n)=>b.onclick=()=>{
+    if(sel===null){fb.className='fb bad';fb.textContent='Välj först något i vänster kolumn.';return;}
+    if(L[sel].k===R[n].k){
+      lb[sel].className='m ok';lb[sel].disabled=true;b.className='m ok';b.disabled=true;sel=null;found++;
+      fb.className='fb good';fb.textContent='✅ Rätt par!';
+      if(found===L.length)nextBtn(box,'Pusslet löst! 🎉',done);
+    }else{
+      miss();b.classList.add('bad');setTimeout(()=>b.classList.remove('bad'),600);
+      fb.className='fb bad';fb.textContent='❌ Det hör inte ihop – tänk efter och prova igen.';
+    }
+  });
+}
+
+/* sort: P.cats [[namn,färg]], P.items [[text,kategori,förklaring]] */
+function sort(box,P,done){
+  const Q=shuffle(P.items);let i=0;
+  (function show(){
+    box.innerHTML=`<p>${P.prompt}</p><div class="bar"><i style="width:${i/Q.length*100}%"></i></div><h3>${Q[i][0]}</h3>
+      <div class="cats">${P.cats.map(c=>`<button class="big-btn" style="background:${c[1]}">${c[0]}</button>`).join('')}</div><div class="fb" aria-live="polite"></div>`;
+    box.querySelectorAll('.big-btn').forEach((b,k)=>b.onclick=()=>{
+      if(P.cats[k][0]===Q[i][1]){
+        if(++i===Q.length){box.innerHTML=`<div class="fb good">✅ Alla rätt!</div><div class="nx"></div>`;nextBtn(box,'Pusslet löst! 🎉',done);return;}
+        show();$('.fb',box).className='fb good';$('.fb',box).textContent='✅ Rätt! '+(Q[i-1][2]||'');
+      }else{miss();$('.fb',box).className='fb bad';$('.fb',box).textContent='❌ Fel – tänk efter. '+(Q[i][2]?'Ledning: '+Q[i][2]:'');}
+    });
+  })();
+}
+
+/* multi: P.opts [[text,sant]] */
+function multi(box,P,done){
+  const O=shuffle(P.opts);const on=new Set();
+  box.innerHTML=`<p>${P.prompt}</p><div class="opts">${O.map((o,n)=>`<button class="opt" data-n="${n}" aria-pressed="false">${o[0]}</button>`).join('')}</div>
+    <button class="btn" id="ck">Kolla</button><div class="fb" aria-live="polite"></div><div class="nx"></div>`;
+  const fb=$('.fb',box);
+  box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{const n=+b.dataset.n;on.has(n)?on.delete(n):on.add(n);b.classList.toggle('sel');b.setAttribute('aria-pressed',on.has(n));});
+  $('#ck',box).onclick=()=>{
+    const ok=O.every((o,n)=>!!o[1]===on.has(n));
+    if(ok){box.querySelectorAll('.opt,#ck').forEach(b=>b.disabled=true);box.querySelectorAll('.opt').forEach((b,n)=>{if(O[n][1])b.classList.add('right');});
+      fb.className='fb good';fb.textContent='✅ Rätt! '+(P.why||'');nextBtn(box,'Pusslet löst! 🎉',done);}
+    else{miss();fb.className='fb bad';fb.textContent='❌ Inte helt rätt – någon ruta är med eller saknas. Försök igen.';}
+  };
+}
+const TYPES={mc,order,match,sort,multi};
+
+/* ---------- innehåll ---------- */
+const ch=(q,r,w,why)=>({q,o:[r,...w],why});
+const ROOMS=[
+{id:'r1',ico:'⛪',title:'Klostret',era:'Medeltiden',pages:'Historien epok för epok, s. 44–45',c:['#4a3a2a','#8a6a3a'],
+ art:'🕯️📜⛪🐀',
+ story:'Du vaknar i ett kloster år 1376. Utanför ringer pestklockorna. Munkarna har låst in sig i biblioteket – och du med. Bara den som förstår medeltiden kan öppna dörren.',
+ notes:[
+  'Efter romarrikets fall stred lokala stormän och krigarfolk om makten. Den äldre medeltiden var orolig: handeln minskade, städerna förföll.',
+  'Kulturarvet från antiken fördes vidare av den katolska kyrkan och av det arabiska väldet (islam grundades av Muhammed år 610).',
+  'På 800-talet tog handel och jordbruk fart igen. Under högmedeltiden (1000–1200-talet) samlade kyrkan och adeln större rikedomar. Bönderna var ofta livegna: de fick inte flytta.',
+  'Under 1100- och 1200-talen genomfördes korståg mot det arabiska väldet. Initiativet kom från kyrkan.',
+  'På 1300-talet drabbades Europa av digerdöden. Befolkningen minskade med över en tredjedel. Arbetskraft blev bristvara och bönderna kunde kräva bättre villkor.'],
+ puzzles:[
+  {ico:'📜',name:'Tidslinjen på väggen',sub:'Sätt händelserna i ordning',type:'order',
+   prompt:'Stenplattorna har ramlat ner från väggen. Sätt tillbaka dem i rätt tidsordning – <b>äldst först</b>.',
+   items:['Romarriket faller samman','Muhammed grundar islam (år 610)','Handel och jordbruk tar fart igen (800-talet)','Högmedeltiden: kyrkan och adeln samlar större rikedomar (1000–1200-talet)','Korstågen mot det arabiska väldet (1100- och 1200-talet)','Digerdöden drabbar Europa (1300-talet)'],
+   why:'Från ett sönderfallet romarike till pest och förändring.',
+   hint:'Börja med det som händer när romarriket faller. Digerdöden hör till 1300-talet – långt fram.'},
+  {ico:'🧩',name:'Begreppsstenarna',sub:'Para ihop begrepp och förklaring',type:'match',
+   prompt:'Para ihop varje begrepp med rätt förklaring.',
+   pairs:[['Livegen','Fick inte flytta från godset'],['Korstågen','Angrepp på det arabiska väldet för att erövra Jerusalem'],['Digerdöden','Pestepidemier då befolkningen minskade med över en tredjedel'],['Äldre medeltiden','Orolig period: minskad handel och förfallande städer'],['Bayeuxtapeten','70 meter lång broderad bonad som skildrar slaget vid Hastings']],
+   hint:'Livegna är ett ord för bönder som var bundna till godset.'},
+  {ico:'🔑',name:'Munkens frågor',sub:'Orsaker och följder',type:'mc',
+   qs:[
+    ch('Vilka förde det kulturella arvet från antiken vidare under den äldre medeltiden?','Den katolska kyrkan och det arabiska väldet',['Kungarna i norra Europa','De lokala stormännen och krigarfolken','Bönderna på godsen'],'Kyrkan och det arabiska väldet bevarade kunskap från antiken.'),
+    ch('Vad betyder det att bönderna var livegna?','De fick inte flytta från godset',['De ägde sin egen jord','De behövde inte betala något','De fick bli adelsmän'],'Bönderna måste dessutom lämna en del av skörden och arbeta åt godset.'),
+    ch('Vem tog initiativet till korstågen?','Kyrkan',['Bönderna','Det arabiska väldet','De europeiska köpmännen'],'Kyrkan ville att Europas krigare skulle sluta slåss inbördes och istället erövra Jerusalem.'),
+    ch('Hur kunde digerdöden leda till att böndernas liv förbättrades?','Arbetskraft blev bristvara, så bönderna kunde kräva bättre villkor',['Kungen avskaffade adeln','Kyrkan gav bort sin jord','Sjukdomen försvann på en gång och skördarna blev större'],'Det blev ont om arbetskraft på godsen, och mat fanns det så det räckte till alla.')],
+   hint:'Tänk på vad som händer med lönen och villkoren när många arbetare dör och de som finns kvar behövs.'}],
+ lock:{q:'Dörren har ett kodlås med ett årtal. På bonaden på sid 44 skildras slaget vid Hastings. Vilket år stod det? <small>(fyra siffror)</small>',ok:s=>/\b1066\b/.test(s),ans:'1066',key:'Klosternyckeln',after:'Låset klickar. Från trädgården hör du kyrkklockorna tystna – och ett skepp som lägger ut…'}},
+
+{id:'r2',ico:'⛵',title:'Skeppet Victoria',era:'Upptäcktsfärderna',pages:'Historien epok för epok, s. 46–47',c:['#0b4a6f','#2b8ab8'],
+ art:'⛵🧭🗺️🌊',
+ story:'Du står på däck på »Victoria« år 1522. Kaptenen är död, kartorna är sönderrivna och mannarna vet inte var de är. Hjälp dem att reda ut färderna – annars blir du aldrig kvitt skeppet.',
+ notes:[
+  'Mot slutet av medeltiden växte handeln. Lönsammast var siden, kryddor och andra lyxvaror från Indien och Kina – men vägen dit kontrollerades av araber och turkar. Därför sökte européerna nya handelsleder.',
+  'Portugisen Vasco da Gama seglade runt Afrikas sydspets till Indien. Columbus valde västerut över Atlanten och stötte 1492 på Amerika.',
+  'Magellans skepp »Victoria« var det första som seglade jorden runt (1519–1522). Magellan själv dog under färden.',
+  'Spanjorerna besegrade aztekerna och inkariket under 1500-talet. Européernas sjukdomar gjorde att folkmängden i Amerika minskade med cirka 90 procent under drygt 100 år.'],
+ puzzles:[
+  {ico:'🗺️',name:'Sjökortet',sub:'Färderna i tidsordning',type:'order',
+   prompt:'Kartan på sid 47 visar fyra färdvägar. Sätt färderna i rätt ordning efter <b>startår</b> – äldst först.',
+   items:['Diaz 1487–88','Columbus 1492–93','da Gama 1497–99','Magellan 1519–22'],why:'Portugiserna sökte sig söderut längs Afrika, Columbus västerut och Magellan runt jorden.',
+   hint:'Titta på kartan på sid 47: årtalen står vid varje färdväg.'},
+  {ico:'🧭',name:'Besättningslistan',sub:'Vem gjorde vad?',type:'match',
+   prompt:'Para ihop personen eller gestalten med rätt händelse.',
+   pairs:[['Vasco da Gama','Seglade runt Afrikas sydspets till Indien'],['Christofer Columbus','Seglade västerut och stötte 1492 på Amerika'],['Ferdinand Magellan','Hans skepp »Victoria« seglade först jorden runt – men han dog under färden'],['Hernán Cortés','Spansk erövrare som landsteg i Mexiko 1519'],['Quetzalcóatl','Aztekfolkets högsta gud – många trodde att Cortés var han']],
+   hint:'Texten under bilderna på sid 46–47 avslöjar mycket.'},
+  {ico:'⚓',name:'Kaptenens frågor',sub:'Varför seglade man?',type:'mc',
+   qs:[
+    ch('Varför började européerna söka nya handelsleder?','Vägen till Indien och Kina kontrollerades av araber och turkar',['Medelhavet hade torkat ut','Kyrkan förbjöd handel med landvägen','Det fanns inga varor kvar i Europa'],'De ville komma åt siden och kryddor på egen hand.'),
+    ch('Vilka varor var mest lönsamma att handla med?','Siden, kryddor och andra lyxvaror från Indien och Kina',['Spannmål och ved','Fisk och salt','Järn och kol'],'Lyxvarorna gav stor vinst i Europa.'),
+    ch('Vad var den viktigaste orsaken till att befolkningen i Amerika minskade efter 1492?','Sjukdomar som européerna förde med sig',['Hungersnöd efter dåliga skördar','Att alla flyttade till Europa','Ett inbördeskrig mellan ursprungsfolken'],'Invånarna saknade motståndskraft.'),
+    ch('Med hur mycket minskade folkmängden i Amerika under drygt 100 år?','Cirka 90 procent',['Cirka en tredjedel','Cirka hälften','Ungefär 10 procent'],'En tredjedel är digerdöden i Europa – katastrofen i Amerika var mycket värre.')],
+   hint:'Digerdöden minskade befolkningen med över en tredjedel. Jämför – katastrofen i Amerika var större.'}],
+ lock:{q:'Roderhuset har ett kodlås. Vilket år nådde Columbus Amerika? <small>(fyra siffror)</small>',ok:s=>/\b1492\b/.test(s),ans:'1492',key:'Kompassnyckeln',after:'Skeppet gungar till och landstiger vid en stor katedral där nya tankar sprids…'}},
+
+{id:'r3',ico:'🔭',title:'Observatoriet',era:'Nya tankar och reformationen',pages:'Historien epok för epok, s. 46–47',c:['#2b2a5c','#6a4fa8'],
+ art:'🔭🌍☀️✝️',
+ story:'Ett torn fullt av kikare, ritningar och kyrkliga skrifter. En lapp på bordet: »Den som ändrar sättet att tänka ändrar världen.« Lös tidens stora tankepussel för att komma ut.',
+ notes:[
+  'Copernicus (polsk astronom, mitten av 1500-talet) visade att jorden inte är universums medelpunkt – jorden och planeterna rör sig kring solen.',
+  'Isaac Newtons tyngdlag (1687) fick universum att framstå som ett jättelikt maskineri där samma krafter styr i himlen och på jorden.',
+  'Leonardo da Vinci var konstnär, vetenskapsman och ingenjör på samma gång.',
+  '1517 gick den tyske munken Martin Luther till angrepp mot den katolska kyrkan och inledde reformationen. Kungar stödde honom eftersom de ville minska kyrkans makt och komma åt dess rikedomar. Protestanterna var starkast i norra Europa där statskyrkor underordnade kungen bildades.',
+  'Under 1500–1600-talet blev kungarna mäktigare: de ökade kontrollen över skatter och befolkning och införde tullar. Pengarna finansierade större arméer – krigen blev fler och större.'],
+ puzzles:[
+  {ico:'🧠',name:'Tänkarnas bord',sub:'Vem tänkte vad?',type:'match',
+   prompt:'Para ihop personen med rätt idé eller gärning.',
+   pairs:[['Copernicus','Jorden rör sig kring solen – den är inte universums medelpunkt'],['Isaac Newton','Tyngdlagen 1687: samma krafter styr i himlen och på jorden'],['Martin Luther','Angrep den katolska kyrkan 1517 och inledde reformationen'],['Leonardo da Vinci','Samtidigt konstnär, vetenskapsman och ingenjör'],['Protestanterna','Starkast i norra Europa – där bildades statskyrkor']],
+   hint:'Ordet »reformation« hör ihop med en munk och en kyrka.'},
+  {ico:'👑',name:'Maktens kedja',sub:'Orsak och följd',type:'order',
+   prompt:'Sätt orsakskedjan i rätt ordning – <b>först → sist</b>.',
+   items:['Kungarna ökade kontrollen över skatter och befolkning och införde tullar på handeln','Kungarna kunde finansiera allt större arméer','Krigen blev fler och större'],
+   why:'Pengar gav arméer, och arméer gav större krig.',
+   hint:'Tänk: pengar → soldater → krig.'},
+  {ico:'⚖️',name:'Reformationens frågor',sub:'Tro och makt',type:'mc',
+   qs:[
+    ch('Varför stödde kungar Luther?','De ville minska kyrkans makt och komma åt dess rikedomar',['De ville att kyrkan skulle bli rikare','De var själva munkar','De ville avskaffa all religion'],'Reformationen gav kungarna både makt och pengar.'),
+    ch('Vad hände i de protestantiska länderna i norra Europa?','Statskyrkor underordnade kungen bildades',['Kyrkan blev starkare än kungen','Alla kloster byggdes ut','Påven blev kung'],'Kyrkan kom att lyda under kungen.'),
+    ch('Vilken tanke i Newtons tyngdlag var ny?','Samma krafter styr både i himlen och på jorden',['Att jorden är platt','Att solen kretsar kring jorden','Att kungen har gudomlig makt'],'Universum framstod som ett jättelikt maskineri.')],
+   hint:'Luther fick stöd av kungar – vad hade de att vinna?'}],
+ lock:{q:'Observatoriets portar har ett kodlås: året då Luther inledde reformationen. <small>(fyra siffror)</small>',ok:s=>/\b1517\b/.test(s),ans:'1517',key:'Reformationsnyckeln',after:'Ett skepp lastat med människor och varor lägger till i en hamn långt borta…'}},
+
+{id:'r4',ico:'⚖️',title:'Hamnen i Charleston',era:'Slavhandeln och plantagerna',pages:'Det moderna samhällets framväxt, s. 60–63',c:['#3a1f1a','#7d4b3a'],
+ art:'📜⚓🌾🔗',
+ serious:true,
+ story:'Det här rummet handlar om ett av världshistoriens värsta övergrepp. Du är historiker och har fått tillgång till ett arkiv från 1700-talet. Läs källorna noga och med respekt – bakom varje siffra fanns människor.',
+ notes:[
+  'Triangelhandeln: vapen, tyger och metallföremål skeppades från Europa till Västafrika och byttes mot slavar, som fördes över Atlanten till Amerika. Därifrån såldes socker, tobak och pälsar till Europa.',
+  'I Nordamerika startade invandrare från England det första nybyggarsamhället i Virginia 1607. Längre söderut anlade man plantager som specialiserade sig på en gröda för export: tobak och sockerrör.',
+  'Plantagerna krävde mycket arbete. Europeerna ville inte själva arbeta i hettan och ursprungsbefolkningen i kusttrakterna hade dött av sjukdomar – därför importerades människor från Afrika som slavar.',
+  'Slavhandeln fick stora konsekvenser i Afrika: hövdingar som samarbetade med européerna fick vapen och kunde röva fler slavar; folkslag som inte deltog gick under. Totalt skeppades över 12 miljoner människor över Atlanten 1525–1870.',
+  'Få protesterade eftersom många tjänade på affären: hövdingar, slavhandlare, plantageägare och konsumenter i Europa.'],
+ puzzles:[
+  {ico:'🔺',name:'Triangelhandelns lastlista',sub:'Vad fraktades vart?',type:'sort',
+   prompt:'Hamnkontoret har blandat ihop lastlistorna. Vilken sträcka i triangelhandeln hör varje last till?',
+   cats:[['Europa → Västafrika','#8a3b12'],['Västafrika → Amerika','#5c2d91'],['Amerika → Europa','#1f7a43']],
+   items:[['Vapen','Europa → Västafrika','Europeiska varor som byttes mot slavar.'],['Tyger','Europa → Västafrika','Textilier skeppades från Europa.'],['Metallföremål','Europa → Västafrika','Europeiska varor.'],['Glaspärlor','Europa → Västafrika','Europeerna bytte bland annat glaspärlor mot guld eller slavar.'],['Förslavade människor','Västafrika → Amerika','Människor som tvingades över Atlanten till plantagerna.'],['Socker','Amerika → Europa','Från plantagerna.'],['Tobak','Amerika → Europa','Från plantagerna.'],['Pälsar','Amerika → Europa','Köptes av handelsmän och var på modet i Europa.']],
+   hint:'Det är en triangel: Europa → Afrika → Amerika → tillbaka till Europa.'},
+  {ico:'🌾',name:'Plantageägarens bokföring',sub:'Orsaker och följder',type:'mc',
+   qs:[
+    ch('Vilka grödor odlades främst på plantagerna?','Tobak och sockerrör',['Råg och vete','Potatis och majs','Ris och te'],'Man specialiserade sig på en enda gröda för export.'),
+    ch('Varför skötte man plantagerna med slavar från Afrika?','Grödorna krävde mycket arbete, européerna ville inte själva arbeta i hettan och ursprungsbefolkningen i kusttrakterna hade dött av sjukdomar',['Afrikaner ville flytta till Amerika','Slavar var billigare än maskiner','Kyrkan krävde det'],'Européerna drog in Afrika i världsekonomin med tvång.'),
+    ch('Vilken konsekvens hade slavhandeln i Afrika?','Hövdingar fick vapen och kunde röva fler slavar, och folkslag som inte deltog gick under',['Afrikanska riken blev rikare och fredligare','Européerna grundade många kolonier på kusten','Slavhandeln minskade snabbt'],'Vapen gav mer slavjakt, vilket gav mer vapen.'),
+    ch('Varför protesterade så få när slavhandeln växte?','Många tjänade på affären',['Ingen visste om den','Den var ny och oprövad','Alla ansåg att den var rätt'],'Hövdingar, slavhandlare, plantageägare och konsumenter tjänade på den. Slaveri fanns också sedan tidigare i Sydeuropa och Afrika.'),
+    ch('Hur många människor skeppades över Atlanten 1525–1870?','Över 12 miljoner',['Cirka 1 miljon','Cirka 60 000','Över 100 miljoner'],'Siffran 60 000 gäller antalet <i>per år</i> mot slutet av 1700-talet.')],
+   hint:'Texten »Afrika under slavhandeln« på sid 62 svarar på alla frågor.'},
+  {ico:'🔍',name:'Annonsen från 1769',sub:'Källkritik',type:'mc',
+   qs:[
+    ch('Vad är det för typ av källa: en annons från Charleston 24 juli 1769 om att en »last« människor ska säljas?','En samtida källa, skriven av säljarna',['Ett brev från de förslavade själva','En modern forskningsrapport','Ett lagförslag mot slaveri'],'Den berättar hur slavhandlarna ville marknadsföra sin »vara«.'),
+    ch('Vad säger ordet »last« i annonsen om säljarnas syn på människorna?','De behandlades och beskrevs som varor',['De sågs som jämlikar','De sågs som anställda','De sågs som gäster'],'Annonsen reducerar människor till handelsvaror.'),
+    ch('Vilken begränsning har annonsen som källa?','Vi får bara säljarnas perspektiv – inte de förslavades egna röster',['Den är för ny för att vara tillförlitlig','Den har inga datum','Den är skriven på latin'],'Man behöver fler källor för att få en helhetsbild.'),
+    ch('Annonsen visar människor som svarta siluetter. Är det troligt att bilden visar hur de verkliga människorna såg ut?','Nej – det är en stiliserad schablonbild som säljarna valde, inte ett porträtt',['Ja, den är en exakt avbildning','Ja, den är ett fotografi','Det går inte att veta något om bilder'],'Bilden säger mer om säljarnas syn än om människorna.')],
+   hint:'Fråga dig: Vem har skrivit annonsen? Varför? Vems röst saknas?'}],
+ lock:{q:'Annonsen erbjöd människor till försäljning: <b>39 män, 15 pojkar, 24 kvinnor och 16 flickor</b>. Hur många människor bjöds ut sammanlagt?',ok:s=>/\b94\b/.test(s),ans:'94',key:'Arkivnyckeln',after:'Låset klickar. Vi går vidare till en handelsplats på andra sidan jorden…'}},
+
+{id:'r5',ico:'🏮',title:'Handelskontoret i Kanton',era:'Asien – den gamla världens centrum',pages:'Det moderna samhällets framväxt, s. 64',c:['#7a1f1f','#c8741f'],
+ art:'🏮🍵📦🐉',
+ story:'En tulltjänsteman i Kina pekar på kistorna med te och viftar bort dig: »Utan rätt papper kommer du inte ut!« Förstå handeln mellan Europa och Kina så får du stämpeln.',
+ notes:[
+  'På 1500-talet var kryddor och siden de viktigaste varorna från Asien. Senare växte importen av te, bomullstyger och porslin. I utbyte erbjöd européerna silver från gruvorna i Sydamerika.',
+  'I Asien mötte européerna stater och kulturer som på flera sätt var mer avancerade än deras egna. Under kejsaren i Kina lydde en fjärdedel av jordens befolkning. Från Kina kom papper, krut, tryckkonsten och kompassen.',
+  'Europeerna hade inga egna varor som intresserade kineserna – utan silvret från Amerika hade det varit svårt att få tillgång till Kinas rikedomar.',
+  'Asien påverkades minst av de globala kontakterna. Ännu vid mitten av 1700-talet svarade Asien för två tredjedelar av världsekonomin – men Europas ekonomiska styrka växte, och Västeuropa blev det nya »världens nav«.'],
+ puzzles:[
+  {ico:'📦',name:'Uppfinningarnas kistor',sub:'Vad kom från Kina?',type:'multi',
+   prompt:'Tulltjänstemannen frågar: <b>Vilka uppfinningar kom från Kina?</b> Markera alla rätta.',
+   opts:[['Papper',true],['Krut',true],['Tryckkonsten',true],['Kompassen',true],['Ångmaskinen',false],['Tyngdlagen',false]],
+   why:'Papper, krut, tryckkonst och kompass – Kina låg långt före Europa.',
+   hint:'Det finns fyra rätta. Två av alternativen är uppfinningar/teorier från Europa.'},
+  {ico:'🍵',name:'Varulistan',sub:'Vad handlade man med?',type:'mc',
+   qs:[
+    ch('Vilka varor hämtade européerna i Asien under 1500-talet?','Kryddor och siden',['Silver och guld','Bomull och pälsar','Socker och tobak'],'Senare tillkom även te, bomullstyger och porslin.'),
+    ch('Vad erbjöd européerna i utbyte?','Silver från gruvorna i Sydamerika',['Vapen och krut','Spannmål från Europa','Te och porslin'],'Europeerna hade inga egna varor som kineserna ville ha.'),
+    ch('På vilket sätt var koloniseringen av Amerika viktig för handeln mellan Europa och Kina?','Silvret från Amerika gjorde det möjligt att köpa kinesiska varor',['Kineserna flyttade till Amerika','Amerika blev en kinesisk koloni','Det fanns ingen koppling'],'Utan silvret hade det varit svårt att få tillgång till Kinas rikedomar.')],
+   hint:'Europeerna behövde något som kineserna ville ha – och det fanns i Sydamerikas gruvor.'},
+  {ico:'🌏',name:'Den gamla och den nya världen',sub:'Centrum och nav',type:'mc',
+   qs:[
+    ch('Hur såg den kinesiska kejsaren länge på européerna?','Som ett spännande men obetydligt folkslag från världens utkant',['Som farliga erövrare','Som ett överlägset folk','Som sina närmaste allierade'],'Asien påverkades minst av de globala kontakterna.'),
+    ch('Vilket var den gamla världens centrum enligt texten?','Asien – Kina var »Mittens rike«',['Europa','Amerika','Afrika'],'Det var i Asien rikedomarna fanns.'),
+    ch('Vad menas med att Västeuropa blev »världens nav«?','Rikedomar, kunskaper och handelskontakter samlades i Västeuropa',['Att Europa blev en ö','Att all handel stoppades','Att Europa erövrade hela Asien'],'Navet är mitten av ett hjul – allt möttes i Europa.'),
+    ch('Vad bidrog till att Europas ekonomiska styrka växte?','De globala kontakterna samt ett intellektuellt och vetenskapligt uppsving',['Att européerna slutade handla','Att Kina stängde alla hamnar','Att Afrika blev rikast'],'Upptäckterna gav både rikedom och nya kunskaper.')],
+   hint:'Tänk på ett hjul: vad sitter i mitten?'}],
+ lock:{q:'Stämpeln kräver ett årtal: vid mitten av vilket sekel svarade Asien <b>ännu</b> för två tredjedelar av världsekonomin? <small>(skriv t.ex. 1700-talet eller årtalet)</small>',ok:s=>/\b17\d\d\b/.test(s)||/sjutton/.test(s),ans:'1700-talet',key:'Stämpelnyckeln',after:'Hela kontoret skakar. Genom fönstret ser du ett lysande skimmer – tidsportalen öppnar sig!'}}
+];
+
+const FINAL={ico:'🌀',title:'Tidsportalen',
+ puzzles:[
+  {ico:'🕰️',name:'Tidens pelare',sub:'Sex vändpunkter',type:'order',
+   prompt:'Portalen kräver att du ordnar historiens vändpunkter. Sätt dem i rätt tidsordning – <b>äldst först</b>.',
+   items:['Slaget vid Hastings (1066)','Digerdöden i Europa (1300-talet)','Columbus når Amerika (1492)','Luther inleder reformationen (1517)','Newtons tyngdlag (1687)','Annonsen om slavförsäljning i Charleston (1769)'],
+   why:'Från medeltiden genom upptäckterna till slavhandelns höjdpunkt.',hint:'Här räcker det att jämföra årtalen.'},
+  {ico:'🔗',name:'Orsak och verkan',sub:'Hur hänger allt ihop?',type:'match',
+   prompt:'Para ihop orsak med verkan.',
+   pairs:[['Araber och turkar kontrollerade handelsvägarna','Européerna sökte nya handelsleder'],['Digerdöden','Bönderna kunde kräva bättre villkor'],['Sjukdomar fördes från Europa till Amerika','Folkmängden minskade med cirka 90 %'],['Plantager med krävande grödor','Efterfrågan på slavar från Afrika'],['Silver från Amerika','Européerna kunde köpa varor i Kina'],['Skatter och tullar till kungarna','Större arméer och fler krig']],
+   hint:'Varje rum i spelet har gett dig något av detta.'}],
+ lock:{q:'Sista låset! Texten säger att Västeuropa etablerade sig som <b>världens ___</b>. Vilket ord fattas?',ok:s=>/\bnav\b/.test(s),ans:'nav'}};
+
+/* ---------- vyer ---------- */
+function roomState(id){ return S.rooms[id]||(S.rooms[id]={p:[],lock:false}); }
+
+function hall(){
+  upd();FINISHED=false;
+  const k=keysN(),all=k===ROOMS.length;
+  app.innerHTML=`<div class="card">
+    <h2>Välkommen till tidsportalen ⏳</h2>
+    <p>Du har fastnat i tiden! För att ta dig tillbaka måste du ta dig igenom <b>${ROOMS.length} rum</b>, samla alla <b>nycklar</b> och till sist öppna <b>tidsportalen</b>. Varje rum har tre pussel och ett kodlås. Svaren finns i läroboken – så ha den nära.</p>
+    <div class="tip">💡 <b>Regler:</b> Du får göra fel hur många gånger du vill, men felsvar räknas. En ledtråd kostar <b>2 minuter</b> i tidstillägg. Målet är att komma ut på under <b>60 minuter</b>. Rummen kan tas i valfri ordning. Spelet sparas automatiskt.</div>
+    <p class="keys" aria-label="${k} av ${ROOMS.length} nycklar">${ROOMS.map(r=>S.rooms[r.id]&&S.rooms[r.id].lock?'🗝️':'▫️').join('')}</p>
+    <div class="bar"><i style="width:${k/ROOMS.length*100}%"></i></div>
+  </div>
+  <div class="hall">
+    ${ROOMS.map(r=>{const st=S.rooms[r.id]||{p:[]},n=st.p.filter(Boolean).length;
+      return `<button class="door ${st.lock?'open':''}" data-id="${r.id}"><div class="ico">${st.lock?'🔓':r.ico}</div><h4>${r.title}</h4><p>${r.era}</p><p>${st.lock?'✅ Klarat':`${n} av ${r.puzzles.length} pussel`}</p></button>`;}).join('')}
+    <button class="door ${S.final?'open':''}" id="fin" ${all?'':'disabled'}><div class="ico">${all?'🌀':'🔒'}</div><h4>${FINAL.title}</h4><p>${all?'Alla nycklar samlade – gå in!':'Kräver alla '+ROOMS.length+' nycklar'}</p></button>
+  </div>`;
+  app.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>room(ROOMS.find(r=>r.id===b.dataset.id)));
+  const f=$('#fin');if(all)f.onclick=finalRoom;
+}
+
+function hintBtn(box,key,P){
+  const wrap=document.createElement('div');wrap.className='row';
+  wrap.innerHTML=`<button class="btn ghost" type="button">💡 Ledtråd (+2 min)</button><span class="hint-t" aria-live="polite"></span>`;
+  const t=$('.hint-t',wrap);
+  const show=()=>{t.innerHTML=`<i>Ledtråd:</i> ${P.hint}`;};
+  if(S.hinted[key])show();
+  $('button',wrap).onclick=()=>{ if(!S.hinted[key]){S.hinted[key]=1;S.hints++;S.pen+=HINT_COST;save();upd();} show(); };
+  box.parentNode.insertBefore(wrap,box.nextSibling);
+}
+
+function openPuzzle(R,idx,back,isFinal){
+  const P=R.puzzles[idx],st=isFinal?finalState():roomState(R.id),key=(isFinal?'final':R.id)+':'+idx;
+  app.innerHTML=`<button class="btn ghost back no-print" id="bk" style="margin-bottom:10px">← Tillbaka till rummet</button>
+    <div class="card"><h2>${P.ico} ${P.name}</h2><div id="pz"></div></div>`;
+  $('#bk').onclick=back;scrollTo(0,0);
+  const box=$('#pz');
+  TYPES[P.type](box,P,()=>{ st.p[idx]=true;save();confetti();back(); });
+  hintBtn(box,key,P);
+}
+const finalState=()=>S.rooms.final||(S.rooms.final={p:[],lock:false});
+
+function room(R){
+  const st=roomState(R.id),solvedAll=R.puzzles.every((_,i)=>st.p[i]);
+  app.innerHTML=`<button class="btn ghost no-print" id="bk" style="margin-bottom:10px">← Tillbaka till korridoren</button>
+   <div class="card">
+    <div class="scene" style="--c1:${R.c[0]};--c2:${R.c[1]}"><div class="art" aria-hidden="true">${R.art}</div><h2 style="margin:.2rem 0">${R.ico} ${R.title} <small style="font-weight:400">· ${R.era}</small></h2><p>${R.story}</p></div>
+    <p class="book">📚 Läs i boken: <b>${R.pages}</b></p>
+    <details class="notes"><summary>📖 Anteckningsblock (sammanfattning av texten)</summary><ul>${R.notes.map(n=>`<li>${n}</li>`).join('')}</ul></details>
+    <h3>Föremål i rummet</h3>
+    <div class="items">${R.puzzles.map((p,i)=>`<button class="item ${st.p[i]?'done':''}" data-i="${i}"><span class="ico">${st.p[i]?'✅':p.ico}</span><b>${p.name}</b><small>${p.sub}</small></button>`).join('')}</div>
+    <div class="lock" id="lk">${lockHTML(R,st,solvedAll)}</div>
+   </div>`;
+  $('#bk').onclick=hall;scrollTo(0,0);
+  app.querySelectorAll('.item').forEach(b=>b.onclick=()=>openPuzzle(R,+b.dataset.i,()=>room(R)));
+  bindLock(R,st,solvedAll,$('#lk'),hall);
+}
+
+function lockHTML(R,st,solved){
+  const L=R.lock;
+  if(st.lock)return `<h3>🔓 Dörren är öppen</h3><p>Du har tagit <b>🗝️ ${L.key||'nyckeln'}</b>.</p>${L.after?`<p><i>${L.after}</i></p>`:''}<button class="btn" id="go">Till korridoren →</button>`;
+  if(!solved)return `<h3>🔒 Kodlås</h3><p>Lös alla pussel i rummet för att få tillgång till kodlåset.</p>`;
+  return `<h3>🔒 Kodlås</h3><p>${L.q}</p><div class="row"><input type="text" id="cd" autocomplete="off" aria-label="Svar på kodlåset"><button class="btn" id="try">Öppna</button></div><div class="fb" aria-live="polite"></div>`;
+}
+function bindLock(R,st,solved,box,after){
+  if(st.lock){ $('#go',box).onclick=after; return; }
+  if(!solved)return;
+  const inp=$('#cd',box),fb=$('.fb',box);
+  const go=()=>{
+    const s=inp.value.trim().toLowerCase();
+    if(R.lock.ok(s)){ st.lock=true;save();upd();confetti();box.innerHTML=lockHTML(R,st,true);bindLock(R,st,true,box,after); }
+    else{ miss();fb.className='fb bad';fb.textContent='❌ Låset rör sig inte. Kolla boken och försök igen.'; }
+  };
+  $('#try',box).onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go();};inp.focus();
+}
+
+function finalRoom(){
+  const st=finalState(),solvedAll=FINAL.puzzles.every((_,i)=>st.p[i]);
+  app.innerHTML=`<button class="btn ghost no-print" id="bk" style="margin-bottom:10px">← Tillbaka till korridoren</button>
+   <div class="card">
+    <div class="scene" style="--c1:#1a1a40;--c2:#7a2fb0"><div class="art" aria-hidden="true">🌀⏳🌍✨</div><h2 style="margin:.2rem 0">🌀 Tidsportalen</h2><p>Alla fem nycklar glöder i din hand. Portalen kräver att du visar att du förstått <b>hur allt hänger ihop</b> – från medeltidens kloster till världsekonomin.</p></div>
+    <h3>Portalens pussel</h3>
+    <div class="items">${FINAL.puzzles.map((p,i)=>`<button class="item ${st.p[i]?'done':''}" data-i="${i}"><span class="ico">${st.p[i]?'✅':p.ico}</span><b>${p.name}</b><small>${p.sub}</small></button>`).join('')}</div>
+    <div class="lock" id="lk">${solvedAll?`<h3>🔒 Sista låset</h3><p>${FINAL.lock.q}</p><div class="row"><input type="text" id="cd" autocomplete="off" aria-label="Sista ordet"><button class="btn" id="try">Öppna portalen</button></div><div class="fb" aria-live="polite"></div>`:'<h3>🔒 Sista låset</h3><p>Lös båda pusslen för att nå det sista låset.</p>'}</div>
+   </div>`;
+  $('#bk').onclick=hall;scrollTo(0,0);
+  app.querySelectorAll('.item').forEach(b=>b.onclick=()=>openPuzzle(FINAL,+b.dataset.i,finalRoom,true));
+  if(solvedAll){
+    const inp=$('#cd'),fb=$('.fb',$('#lk'));
+    const go=()=>{ if(FINAL.lock.ok(inp.value.trim().toLowerCase())){ S.final=true;FINISHED=true;save();confetti();escaped(); } else { miss();fb.className='fb bad';fb.textContent='❌ Portalen vägrar. Tänk på sista stycket på sid 64.'; } };
+    $('#try').onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go();};inp.focus();
+  }
+}
+
+function rank(total){
+  return total<=GOAL*.6?'Tidsresenär i världsklass 🚀':total<=GOAL?'Historiker på rätt spår ⭐':'Uthållig utforskare 🧭';
+}
+function escaped(){
+  const total=S.t+S.pen;
+  app.innerHTML=`<div class="card" style="text-align:center"><div style="font-size:4rem">🎉</div><h2>Ni tog er ut!</h2>
+    <p>Tid: <b>${fmt(S.t)}</b> + <b>${fmt(S.pen)}</b> i tillägg för ${S.hints} ledtråd${S.hints===1?'':'ar'} = <b>${fmt(total)}</b><br>Felsvar: <b>${S.miss}</b></p><h3>${rank(total)}</h3>
+    ${S.name?'':'<p>Skriv ditt namn till diplomet:</p><div class="row" style="justify-content:center"><input type="text" id="nm" placeholder="Förnamn Efternamn" aria-label="Ditt namn"><button class="btn" id="ok">Visa diplom</button></div>'}
+    ${S.name?'<button class="btn" id="dp">🏆 Visa diplom</button>':''}
+    <p><button class="btn ghost" id="hl">Till korridoren</button></p></div>`;
+  const ok=$('#ok');if(ok)ok.onclick=()=>{const v=$('#nm').value.trim();if(v){S.name=v;save();diploma();}};
+  const dp=$('#dp');if(dp)dp.onclick=diploma;
+  $('#hl').onclick=hall;
+}
+function diploma(){
+  const total=S.t+S.pen;
+  app.innerHTML=`<div class="cert"><div style="font-size:3rem">🏆</div><h2>Diplom</h2><p>Detta diplom tilldelas</p>
+   <p><span class="name">${esc(S.name)}</span></p>
+   <p>som tog sig ur Tidsportalen i Historia 1a1<br>efter att ha löst pussel om medeltiden, upptäcktsfärderna, reformationen, slavhandeln och Asiens roll i världsekonomin</p>
+   <p>Tid <b>${fmt(total)}</b> · ledtrådar <b>${S.hints}</b> · felsvar <b>${S.miss}</b></p><h3>${rank(total)}</h3></div>
+   <p class="no-print" style="text-align:center"><button class="btn" onclick="print()">🖨️ Skriv ut</button> <button class="btn ghost" id="bk">Tillbaka</button></p>`;
+  $('#bk').onclick=hall;confetti();
+}
+
+$('#resetBtn').onclick=()=>{ if(confirm('Börja om och nollställa alla rum, tid och nycklar?')){ S={name:'',t:0,pen:0,miss:0,hints:0,hinted:{},rooms:{},final:false};FINISHED=false;save();hall(); } };
+hall();
+</script>
+</body>
+</html>
