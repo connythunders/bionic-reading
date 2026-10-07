@@ -90,6 +90,11 @@ details>summary{cursor:pointer;font-weight:700}
 .notes li.on{border-color:var(--accent)}
 .notes li b{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--soft);display:block}
 .empty{color:var(--soft);font-style:italic}
+.tag{display:inline-block;font:700 .68rem "Segoe UI",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.05em;background:var(--accent-weak);color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:0 6px;margin-right:8px;vertical-align:1px}
+.krh{font-size:1rem;margin:14px 0 4px}
+.crit b:first-child{font-size:1.05rem}
+.crit div b{color:var(--text)}
+.src{color:var(--soft);font-size:.85rem;margin:8px 0 0}
 .foot{color:var(--soft);font-size:.88rem;margin:18px 0 30px}
 .sel{background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:6px 10px}
 </style>
@@ -132,28 +137,52 @@ details>summary{cursor:pointer;font-weight:700}
 
 <div class="cmp" id="out"></div>
 
-<p class="foot">Exempeltexterna är färdigskrivna och konstruerade för undervisning, och går därför inte att generera om eller anpassa till en egen uppgift. Nivåbeskrivningarna är förenklade tolkningar av kunskapskraven. Läraren och Skolverkets ämnesplaner avgör alltid vad som gäller för just din kurs. Faktauppgifterna i texterna är hållna allmänna, men granska gärna dem innan texterna används i bedömningssammanhang.</p>
+<p class="foot">Exempeltexterna är färdigskrivna och konstruerade för undervisning, och går därför inte att generera om eller anpassa till en egen uppgift. Kunskapskraven är hämtade från Skolverkets ämnesplaner (Svenska 2, Historia 1a1, Religionskunskap 1 och Samhällskunskap 1b), men betyg sätts av läraren på ett helhetsunderlag och ingen exempeltext avgör ett betyg på egen hand. Faktauppgifterna i texterna är hållna allmänna, men granska gärna dem innan texterna används i bedömningssammanhang.</p>
 </div>
 
 <script>
 /* Markering i texterna: «a|text|kommentar» = innehåll, «l|text|kommentar» = språk. Stycken skiljs av tom rad, "# " i början = rubrik. */
 
-const LANG = {
-  E: 'Språket är begripligt och fungerar i huvudsak. Meningarna är korta och enkla, bindeorden få (och, men, för att) och vardagliga uttryck eller upprepningar förekommer. Stavning och skiljetecken ska stämma så att läsaren förstår.',
-  C: 'Språket är ändamålsenligt: meningarna varierar, bindeord visar samband (därför, medan, trots att), ämnesord används och stilen passar texttypen.',
-  A: 'Språket är precist och varierat, med välbyggda meningar, träffsäkra ämnesbegrepp, försiktiga och nyanserade formuleringar (tenderar, snarare än, kan) och tydlig sammanhållning mellan styckena. Stilen är genomtänkt för texttypen.'
+/* Skolverkets kunskapskrav (utdrag, hämtade ur Skolverkets öppna Syllabus-API 2026-10-07). Fetstil = det som skiljer nivåerna åt. */
+const KR = {
+ 'sv2.skriv':{course:'Svenska 2', label:'Utredande och argumenterande texter',
+  E:'Eleven kan med viss säkerhet samla, sovra och sammanställa information från olika källor. Med utgångspunkt från detta kan eleven skriva utredande och argumenterande texter som är <b>sammanhängande</b> och har <b>tydligt urskiljbar disposition</b>. Texterna är <b>till viss del</b> anpassade till syfte, mottagare och kommunikationssituation. […] Språket är varierat och innehåller goda formuleringar.',
+  C:'Eleven kan med viss säkerhet samla, sovra och sammanställa information från olika källor. Med utgångspunkt från detta kan eleven skriva utredande och argumenterande texter som är sammanhängande, <b>väldisponerade</b> och ger <b>vidgade perspektiv</b> på informationen från källorna. Dessutom <b>resonerar och drar eleven slutsatser</b> utifrån sina resonemang. Texterna är anpassade till syfte, mottagare och kommunikationssituation. […] Språket är <b>klart</b> och varierat samt innehåller goda formuleringar.',
+  A:'Eleven kan <b>med säkerhet</b> samla, sovra och sammanställa information från olika källor och kan med utgångspunkt från detta skriva utredande och argumenterande texter som är sammanhängande och väldisponerade. Texterna innehåller <b>belysande exempel</b> och ger vidgade perspektiv på informationen från källorna. Dessutom resonerar och drar eleven <b>välgrundade och nyanserade slutsatser</b> utifrån sina resonemang. […] Språket är <b>träffsäkert</b>, klart och varierat och innehåller goda formuleringar.'},
+ 'sv2.tes':{course:'Svenska 2', label:'Argumentation',
+  E:'Eleven kan i skriftlig eller muntlig argumentation formulera en tes och ge välgrundade argument till stöd för den.',
+  C:'Eleven kan i skriftlig eller muntlig argumentation formulera en tes, <b>hålla sig konsekvent till den</b> och ge välgrundade argument till stöd för den.',
+  A:'Eleven kan i skriftlig eller muntlig argumentation formulera en tes, hålla sig konsekvent till den och ge välgrundade argument till stöd för den. Dessutom kan eleven <b>på ett relevant sätt bemöta tänkta motargument</b>.'},
+ 'sv2.lit':{course:'Svenska 2', label:'Skönlitteratur och epoker',
+  E:'Eleven diskuterar <b>översiktligt</b> stil, innehåll och bärande tankar i skönlitterära verk och författarskap från olika tider och epoker utifrån några centrala litteraturvetenskapliga begrepp. Eleven ger exempel på och diskuterar <b>översiktligt</b> samband mellan skönlitteratur och idéströmningar i samhället.',
+  C:'Eleven diskuterar översiktligt stil, innehåll och bärande tankar i skönlitterära verk och författarskap från olika tider och epoker utifrån några centrala litteraturvetenskapliga begrepp. Eleven ger exempel på <b>litterära verkningsmedel</b> och diskuterar <b>utförligt</b> hur de skönlitterära verken förmedlar idéer och känslor samt sätter dessa verk och författarskap i relation till förhållanden och idéströmningar i samhället.',
+  A:'Eleven diskuterar översiktligt stil, innehåll och bärande tankar i skönlitterära verk och författarskap från olika tider och epoker utifrån några centrala litteraturvetenskapliga begrepp. Eleven ger exempel på litterära verkningsmedel, <b>resonerar nyanserat</b> om dessa och diskuterar <b>utförligt och nyanserat</b> hur de skönlitterära verken förmedlar idéer och känslor samt sätter dessa verk och författarskap i relation till förhållanden och idéströmningar i samhället.'},
+ 'sv2.sprak':{course:'Svenska 2', label:'Språk i skrift',
+  E:'Eleven följer i huvudsak skriftspråkets normer för språkriktighet. Språket är varierat och innehåller goda formuleringar.',
+  C:'Eleven följer i huvudsak skriftspråkets normer för språkriktighet. Språket är <b>klart</b> och varierat samt innehåller goda formuleringar.',
+  A:'Eleven följer i huvudsak skriftspråkets normer för språkriktighet. Språket är <b>träffsäkert</b>, klart och varierat och innehåller goda formuleringar.'},
+ 'hi.proc':{course:'Historia 1a1', label:'Förändringsprocesser, orsaker och konsekvenser',
+  E:'Eleven kan <b>översiktligt</b> redogöra för förändringsprocesser, händelser och personer under olika tidsperioder samt för olika tolkningar av dem. Dessutom kan eleven översiktligt redogöra för förloppen […] samt deras orsaker och konsekvenser. […] Eleven ger <b>enkla</b> exempel på, och förklarar översiktligt, samband mellan skeenden i det förflutna och förhållanden i nutiden. Dessutom kan eleven dra några <b>enkla</b> slutsatser om vad skeenden i det förflutna och förhållanden i nutiden kan ha för betydelse för framtiden.',
+  C:'Eleven kan <b>utförligt</b> redogöra för förändringsprocesser, händelser och personer under olika tidsperioder samt för olika tolkningar av dem. Eleven <b>jämför de olika tolkningarna, förordar en av dem och motiverar med enkla omdömen</b> sitt val. Dessutom kan eleven utförligt redogöra för förloppen […] samt deras orsaker och konsekvenser. […] Eleven ger enkla exempel på, och förklarar utförligt, samband mellan skeenden i det förflutna och förhållanden i nutiden. Dessutom kan eleven dra några <b>välgrundade</b> slutsatser […].',
+  A:'Eleven kan <b>utförligt och nyanserat</b> redogöra för förändringsprocesser, händelser och personer under olika tidsperioder samt för olika tolkningar av dem. Eleven jämför de olika tolkningarna, förordar en av dem och motiverar med <b>nyanserade omdömen</b> sitt val. […] Eleven ger <b>komplexa</b> exempel på, och förklarar utförligt och nyanserat, samband mellan skeenden i det förflutna och förhållanden i nutiden samt <b>argumenterar för och emot olika sätt att se på dessa samband</b>. Dessutom kan eleven dra några välgrundade och nyanserade slutsatser […].'},
+ 're.rel':{course:'Religionskunskap 1', label:'Analys av världsreligionerna',
+  E:'Eleven kan <b>översiktligt</b> redogöra för och analysera världsreligionerna och några livsåskådningar samt översiktligt redogöra för deras kännetecken och uttryck historiskt, i samtiden, i Sverige och i omvärlden. I sin analys förklarar eleven <b>enkla samband</b> och drar <b>enkla slutsatser</b> om världsreligioner och livsåskådningar i relation till individer, grupper och samhällen utifrån olika tolkningar och perspektiv.',
+  C:'Eleven kan <b>utförligt</b> redogöra för och analysera världsreligionerna och några livsåskådningar samt utförligt redogöra för deras kännetecken och uttryck historiskt, i samtiden, i Sverige och i omvärlden. I sin analys förklarar eleven <b>samband</b> och drar <b>välgrundade slutsatser</b> om världsreligioner och livsåskådningar i relation till individer, grupper och samhällen utifrån olika tolkningar och perspektiv.',
+  A:'Eleven kan <b>utförligt och nyanserat</b> redogöra för och analysera världsreligionerna och några livsåskådningar samt utförligt och nyanserat redogöra för deras kännetecken och uttryck historiskt, i samtiden, i Sverige och i omvärlden. I sin analys förklarar eleven <b>komplexa samband</b> och drar välgrundade och nyanserade slutsatser om världsreligioner och livsåskådningar i relation till individer, grupper och samhällen utifrån olika tolkningar och perspektiv.'},
+ 'sa.sam':{course:'Samhällskunskap 1b', label:'Analys av samhällsfrågor',
+  E:'Eleven kan analysera samhällsfrågor och identifiera <b>någon orsak och konsekvens</b>. I analysen använder eleven med viss säkerhet samhällsvetenskapliga begrepp, teorier, modeller och metoder. Eleven diskuterar <b>översiktligt</b> orsakerna och konsekvenserna samt möjliga lösningar på samhällsfrågorna. Eleven kan ge <b>enkla argument</b> för sina ståndpunkter och värderar med enkla omdömen andras ståndpunkter.',
+  C:'Eleven kan analysera samhällsfrågor och identifiera <b>några orsaker och konsekvenser</b>. I analysen använder eleven med viss säkerhet samhällsvetenskapliga begrepp, teorier, modeller och metoder samt värderar dem med enkla omdömen. Eleven diskuterar <b>utförligt</b> orsakerna och konsekvenserna samt möjliga lösningar på samhällsfrågorna. Eleven kan ge <b>välgrundade argument</b> för sina ståndpunkter och värderar med enkla omdömen andras ståndpunkter.',
+  A:'Eleven kan analysera samhällsfrågor och identifierar <b>flera orsaker och konsekvenser</b>. I analysen använder eleven med säkerhet samhällsvetenskapliga begrepp, teorier, modeller och metoder samt värderar dem med nyanserade omdömen. Eleven diskuterar <b>utförligt och nyanserat</b> orsakerna och konsekvenserna samt möjliga lösningar på samhällsfrågorna. Eleven kan ge <b>nyanserade argument</b> för sina ståndpunkter och värderar med <b>nyanserade omdömen</b> andras ståndpunkter.'}
 };
 
 const SUBJECTS = [
 { id:'sv', name:'Svenska', icon:'📖', topics:[
 { title:'Litterära epoker: romantik och realism', type:'Jämförande text',
   task:'Jämför romantiken och realismen och exemplifiera med verk. Förklara vad som kännetecknar epokerna och hur de skiljer sig åt.',
-  crit:{E:'Epokernas drag nämns översiktligt och exemplifieras med ett verk vardera. Jämförelsen är enkel.',
-        C:'Epokerna förklaras utförligt och sätts i samband med sin tid. Verken används för att visa epokernas drag och jämförelsen är tydlig.',
-        A:'Epokerna förklaras utförligt och nyanserat. Verk och samhällskontext används för att dra egna slutsatser, och gränsdragningen mellan epokerna problematiseras.'},
+  kr:['sv2.lit','sv2.sprak'],
   E:`«a|Romantiken och realismen är två litterära epoker. Romantiken kom först och realismen kom senare.|Epokerna placeras bara i tid med orden "först" och "senare". Årtal och samhällsbakgrund saknas.» «l|Under romantiken skrev författarna mycket om känslor och natur.|Korta, likartade huvudsatser. Texten är begriplig men rytmen blir enformig.» Ett exempel är Frithiofs saga av Tegnér, som handlar om en man som älskar en kvinna men inte får henne. «a|Det är en kärlekshistoria och den utspelar sig i gammal tid.|Verket beskrivs kort. Eleven visar att hen känner till handlingen men kopplar inte till epokens idéer, till exempel längtan till forntiden.»
 
-Realismen är annorlunda. «a|Då ville författarna skriva om hur samhället verkligen var.|Rätt drag, men det förklaras inte vilket samhälle det gällde eller varför författarna ville det.» Strindbergs Röda rummet handlar om en man som heter Arvid Falk och som kritiserar samhället. «a|Det är alltså en skillnad mellan epokerna, för i romantiken är det mer känslor och i realismen är det mer verkligheten.|Jämförelsen finns, men den är ytlig: ett enda skillnadspar utan förklaring av varför.» «l|Jag tycker att realismen är lättare att förstå eftersom den är mer som nu.|Personligt omdöme och vardagligt uttryck ("mer som nu") passar inte i en jämförande text.»`,
+Realismen är annorlunda. «a|Då ville författarna skriva om hur samhället verkligen var.|Rätt drag, men det förklaras inte vilket samhälle det gällde eller varför författarna ville det.» Strindbergs Röda rummet handlar om en man som heter Arvid Falk och som kritiserar samhället. «a|Det är alltså en skillnad mellan epokerna, för i romantiken är det mer känslor och i realismen är det mer verkligheten.|Jämförelsen finns, men den är ytlig: ett enda skillnadspar utan förklaring av varför.» «a|Romantiken hade också med nationalism att göra, och realismen med att samhället förändrades.|Ett samband mellan litteratur och idéströmningar i samhället nämns, men det förklaras inte. Det är vad "översiktligt" innebär i kunskapskravet.» «l|Jag tycker att realismen är lättare att förstå eftersom den är mer som nu.|Personligt omdöme och vardagligt uttryck ("mer som nu") passar inte i en jämförande text.»`,
   C:`Romantiken (ungefär 1800–1850) och realismen (ungefär 1870–1890) är två epoker som i mycket är varandras motsatser. «a|Romantikerna reagerade mot upplysningens tro på förnuft och kunskap och lyfte i stället fram känslan, fantasin och naturen.|Epoken förklaras utifrån vad den reagerade mot. Det ger sammanhang och inte bara en lista med drag.» I Tegnérs Frithiofs saga från 1825 hämtas stoffet ur den nordiska forntiden, «a|som skildras som en storslagen och ärorik tid.|Verket används för att visa ett epokdrag (idealisering av forntiden) och inte bara för att återge handlingen.» Kärleken mellan Frithiof och Ingeborg sätts på prov av ståndsskillnader, och huvudpersonens inre känslor står i centrum.
 
 Realismen växte fram i ett samhälle som «l|förändrades snabbt genom industrialiseringen.|Ämnesord och en sammanhängande orsakskedja: samhällsförändring leder till nytt litterärt intresse.» «a|Författarna ville därför skildra verkligheten sådan den var, inklusive fattigdom och orättvisor.|Bindeordet "därför" visar samband mellan samhälle och litteratur.» Strindbergs Röda rummet från 1879 är ett exempel: journalisten Arvid Falk möter hycklare i både press, riksdag och affärsliv, och romanen blir en satir över samhällets institutioner. «l|Medan romantikerna flyr till forntiden och idealiserar, vänder alltså realisterna blicken mot samtiden för att kritisera den.|Konjunktionen "medan" ställer epokerna mot varandra i en och samma mening. Det är mer sammanhållet än ett skillnadspar i separata meningar.» «a|Båda epokerna handlar om människan, men de skiljer sig i vad de anser att litteraturen ska göra: väcka känslor eller väcka debatt.|En sammanfattande slutsats som svarar på uppgiften. Jämförelsen leder fram till något.»`,
@@ -161,28 +190,74 @@ Realismen växte fram i ett samhälle som «l|förändrades snabbt genom industr
 
 Realismen (ca 1870–1890) formades av industrialisering, urbanisering och Georg Brandes krav att litteraturen skulle sätta problem under debatt. «l|Strindbergs Röda rummet (1879) lever upp till kravet genom sin satiriska skildring av Stockholms press, byråkrati och konstnärsliv.|Precist ämnesspråk ("lever upp till kravet", "satirisk skildring") i en välbyggd mening som rymmer flera led.» Samtidigt är gränsen inte absolut. «a|Arvid Falks längtan efter något sant och bättre bär romantiska drag, och Strindberg använder både humor och symbolik som sträcker sig bortom ren verklighetsskildring.|Här nyanseras bilden: realismen innehåller romantiska inslag. Det är kärnan i den högsta nivån.» «l|Det som verkligen skiljer epokerna är därför inte att den ena skildrar känslor och den andra fakta, utan vad författarna vill uppnå:|Nominaliseringar och konstruktionen "inte … utan …" ger ett argumenterande, nyanserat tonfall. Stycket knyts ihop med "därför".» «a|romantikerna ville skapa tillhörighet och identitet, realisterna ville väcka debatt och förändring. Båda ser litteraturen som en kraft i samhället.|Slutsatsen går bortom jämförelsen: den lyfter det som epokerna har gemensamt och som en elev på lägre nivå inte hade sett.»`
 },
-{ title:'Argumenterande text: mobilen i klassrummet', type:'Argumenterande text',
+{ title:'Argumenterande text: mobilen i klassrummet', type:'Argumenterande text (klassisk disposition)',
   task:'Skriv en argumenterande text där du driver en tydlig tes i frågan om mobiler ska vara förbjudna under lektionstid.',
-  crit:{E:'Tesen är tydlig och stöds av några argument, men argumenten är enkla och belägg saknas.',
-        C:'Tesen stöds av välutvecklade argument med belägg. Ett motargument bemöts.',
-        A:'Tesen stöds av välutvecklade, väl underbyggda argument. Motargument bemöts med eftertanke och texten har retorisk medvetenhet.'},
-  E:`«a|Jag tycker att mobilen ska förbjudas i klassrummet.|Tesen är tydlig, vilket är en styrka. Men den är bara ett påstående utan problematisering.» «l|Det finns flera anledningar till det.|Standardfras som inte tillför något. På E-nivå fungerar den som en enkel inledning.»
+  note:'Texterna följer den klassiska dispositionen: inledning, bakgrund, argument 1, argument 2, motargument med bemötande, argument 3 och avslutning. De gröna etiketterna visar delarna. Se hur varje del förändras mellan nivåerna, och särskilt hur tesen hålls fast och hur motargumentet bemöts.',
+  kr:['sv2.skriv','sv2.tes'],
+  E:`## Inledning
+«a|Ska mobilen vara förbjuden i klassrummet? Jag tycker att den ska vara det.|Tesen är tydlig och formulerad redan i inledningen. Det är vad E kräver här.» «l|I den här texten tänker jag förklara varför.|Metaspråk som inte tillför något. Det fyller ut utan att ge läsaren ny information.»
 
-«a|För det första blir man distraherad av mobilen. Man tittar på den hela tiden och då lyssnar man inte på läraren.|Argumentet är rimligt men generaliserande ("hela tiden") och stöds varken av exempel eller belägg.» «l|För det andra blir man sämre på att koncentrera sig.|Upprepade "man" och uppräkning med "för det första/andra". Språket är begripligt men enformigt.» Det är därför mobilen bör vara förbjuden. «a|Alla borde därför vara överens om att mobilen ska bort. Det är bara bra för alla.|Ingen hänsyn tas till andra synsätt. Slutsatsen blir en överdrift ("bara bra för alla") och inte en följd av argumenten.»`,
-  C:`«a|Mobilen bör förbjudas under lektionstid, eftersom den gör mer skada än nytta i klassrummet.|Tesen formuleras tydligt och får direkt en motivering.» «a|Det främsta skälet är att mobilen stjäl uppmärksamhet. Forskning om multitasking visar att människor har svårt att dela sin uppmärksamhet mellan två uppgifter, och därför räcker det att mobilen ligger framme för att koncentrationen ska sjunka.|Argumentet har ett belägg och en förklaring av orsak och verkan. Källan kunde dock anges tydligare.» Ett förbud skulle dessutom minska konflikter, eftersom lärare slipper tjata om mobilanvändning.
+## Bakgrund
+Nästan alla elever har en mobil, och många har den på bänken under lektionerna. «a|Idag bestämmer varje lärare själv om mobilen får användas.|Bakgrunden är kort och utan källa eller siffror. Läsaren får en bild av läget men inte av hur stort problemet är.»
 
-«a|Visst finns det en motsatt åsikt: mobilen kan användas som ett hjälpmedel, till exempel för att slå upp ord eller söka fakta.|Ett motargument presenteras. Det är det som skiljer C från E.» «l|Det är ett rimligt argument, men skolans datorer och läroböcker fyller redan samma funktion.|Eftergift följd av "men" är ett klassiskt argumentationsmönster. Texten visar att skribenten har vägt andra synsätt.» «a|Därför är nackdelarna större än fördelarna, och mobilen bör förbjudas under lektionerna.|Slutsatsen följer av resonemanget och återknyter till tesen.»`,
-  A:`«l|Skolan ska vara en plats för fördjupning, och just därför bör mobilen som huvudregel vara förbjuden under lektionstid.|Inledningen anknyter till ett värde som läsaren kan dela, vilket stärker tesen retoriskt. "Som huvudregel" visar att skribenten redan nu tänker på undantag.» «a|Frågan är dock mer komplicerad än vad förespråkare på båda sidor ofta låter påskina.|Texten tar avstånd från förenklingar på båda sidor. Det skapar trovärdighet (ethos).»
+## Argument 1
+«a|Det första skälet är att mobilen distraherar. När det plingar i mobilen tittar man på den i stället för på läraren, och då missar man det som sägs.|Ett argument med en enkel orsakskedja. Det är rimligt men saknar belägg och exempel, vilket är typiskt för E.»
 
-Det tyngsta skälet är uppmärksamheten. «a|Flera studier tyder på att redan en mobil som ligger synlig på bänken minskar förmågan att koncentrera sig, även när ägaren inte rör den.|Belägget är konkret och formuleringen försiktig ("tyder på"). Skribenten överdriver inte vad forskningen kan säga.» «a|Unesco rekommenderade 2023 att länder inför regler som begränsar mobiler i skolan, och det understryker att problemet är gemensamt snarare än individuellt.|En extern auktoritet används, och beläggen tolkas. De bara radas inte upp.» «a|Dessutom drabbas inte bara den som använder mobilen: avbrott och ljud stör hela gruppen, vilket gör frågan till en rättvisefråga för dem som vill arbeta.|Argumentet flyttas från individ till grupp. Det är en egen vinkel som lyfter texten.»
+## Argument 2
+Det andra skälet är att mobilen stör andra. «l|Om en elev tittar på film kan de som sitter bredvid också börja titta, och då blir det oroligt i hela klassrummet.|Meningen är begriplig men löst sammanfogad med "och då … och då". Språket är inte oklart, men heller inte särskilt träffsäkert.»
 
-«a|Motståndarna menar att ett förbud är ett överdrivet ingrepp och att eleverna måste lära sig självkontroll.|Motargumentet återges rättvist innan det bemöts.» «l|Det är en poäng, men självkontroll är en färdighet som tränas bäst när omgivningen stöttar den, inte när frestelsen ligger på bänken.|Bild och kontrast ("stöttar den, inte när frestelsen ligger på bänken") ger texten retorisk kraft utan att språket blir svulstigt.» «a|Undantag bör därför göras för elever som behöver mobilen som hjälpmedel, och för tillfällen då läraren uttryckligen tillåter den. Med de undantagen blir förbudet både rimligt och rättvist.|Skribenten visar att tesen tål verkligheten genom att föreslå ett undantag. Det gör argumentationen nyanserad och starkare.»`
+## Motargument och bemötande
+«a|Vissa tycker att man behöver mobilen för att slå upp saker. Men det tycker inte jag eftersom man kan använda boken.|Motargumentet nämns men bemöts bara med en motsatt åsikt. Ett relevant bemötande (som på A) skulle förklara varför motargumentet inte håller.»
+
+## Argument 3
+«a|Det tredje skälet är att det finns andra saker som stör lika mycket, till exempel att elever pratar. Mobilen är kanske inte det största problemet.|Det här argumentet stödjer inte tesen utan undergräver den. Texten håller inte fast vid sin tes, och det är den tydliga skillnaden mot C ("hålla sig konsekvent till den").»
+
+## Avslutning
+«a|Sammanfattningsvis tycker jag att mobilen bör förbjudas, men det är inte hela lösningen.|Tesen upprepas men försvagas. Avslutningen följer därför inte av argumenten.» «l|Det är mitt svar på frågan.|Tom avslutande mening som inte tillför något.»`,
+  C:`## Inledning
+«a|Ska mobilen vara förbjuden under lektionstid? Min tes är att den ska det, eftersom ett förbud ger bättre koncentration, mer studiero och färre konflikter.|Tesen formuleras och de tre skälen förebådas. Läsaren vet vad texten ska göra, och dispositionen är tydligt urskiljbar.»
+
+## Bakgrund
+Mobilen har blivit en naturlig del av vardagen, och i skolan bestämmer oftast varje lärare eller skola själv över användningen. «a|Unesco rekommenderade 2023 att länder inför regler som begränsar mobiler i skolan, och flera länder, till exempel Nederländerna, har infört förbud i klassrummen.|Bakgrunden sätter frågan i ett större sammanhang och visar att den är aktuell.»
+
+## Argument 1
+«a|Det främsta skälet är koncentrationen. Forskning om multitasking visar att människor har svårt att dela sin uppmärksamhet mellan två uppgifter, och därför räcker det att mobilen ligger framme för att uppmärksamheten ska sjunka.|Argumentet har både belägg och förklaring (orsak och verkan). Det är mer utvecklat än på E.»
+
+## Argument 2
+Ett annat skäl är studiero. «l|Ljud, ljus och avbrott från en enda mobil drabbar hela gruppen, och därför blir frågan en rättvisefråga för dem som vill arbeta.|Bindeordet "därför" och begreppet "rättvisefråga" gör språket klart och sammanhållet.»
+
+## Motargument och bemötande
+Visst kan mobilen också vara ett hjälpmedel, till exempel för att slå upp ord eller söka fakta. «a|Det är en rimlig invändning, men skolans datorer och läroböcker fyller redan samma funktion.|Motargumentet bemöts och bemötandet är rimligt. Det tar dock inte hänsyn till elever som behöver mobilen som hjälpmedel, vilket ett A-svar skulle göra.»
+
+## Argument 3
+«a|Slutligen minskar ett förbud konflikterna. Lärare slipper tjata, och eleverna får en tydlig regel att förhålla sig till i stället för att varje lärare gör olika.|Argumentet stödjer tesen och kopplar till inledningens tredje skäl. Texten håller konsekvent fast vid sin tes.»
+
+## Avslutning
+«l|Sammanfattningsvis ger ett förbud bättre koncentration, mer studiero och färre konflikter. Därför bör mobilen vara förbjuden under lektionstid.|Avslutningen knyter ihop texten genom att upprepa de tre skälen från inledningen. Det är tydligt men tillför ingen ny tanke (jämför A).»`,
+  A:`## Inledning
+«l|Skolan ska vara en plats för fördjupning, och just därför bör mobilen som huvudregel vara förbjuden under lektionstid.|Tesen kopplas till ett värde som läsaren kan dela, vilket gör den retoriskt starkare. "Som huvudregel" förebådar undantag.» «a|Frågan är dock mer komplicerad än vad förespråkare på båda sidor ofta låter påskina.|Skribenten tar avstånd från förenklingar och skapar förtroende (ethos) redan i inledningen.»
+
+## Bakgrund
+«a|Unesco rekommenderade 2023 att länder begränsar mobiler i skolan, och flera länder, till exempel Nederländerna, har gått från rekommendation till förbud i klassrummen. Samtidigt har svenska skolor hittills haft olika regler, vilket gör att eleverna möter olika villkor.|Bakgrunden är kort men sammanför internationellt perspektiv och svensk situation, och visar varför frågan spelar roll.»
+
+## Argument 1
+Det tyngsta skälet är uppmärksamheten. «a|Flera studier tyder på att redan en mobil som ligger synlig på bänken minskar förmågan att koncentrera sig, även när ägaren inte rör den.|Belägget är konkret och formuleringen försiktig ("tyder på"). Skribenten överdriver inte vad forskningen kan visa.»
+
+## Argument 2
+«a|Dessutom drabbas inte bara den som använder mobilen: avbrott och ljud stör hela gruppen, vilket gör frågan till en rättvisefråga för dem som vill arbeta.|Argumentet flyttas från individ till grupp och ger en egen vinkel som lyfter texten.»
+
+## Motargument och bemötande
+«a|Motståndarna menar att ett förbud är ett överdrivet ingrepp och att eleverna måste lära sig självkontroll. Det är en poäng, men självkontroll tränas bäst när omgivningen stöttar den, inte när frestelsen ligger på bänken.|Motargumentet återges rättvist och bemöts relevant, med en motivering som utgår från motståndarnas eget värde. Det är detta som kännetecknar A ("bemöta tänkta motargument").» «l|Att mobilen också kan vara ett hjälpmedel är riktigt, men det motiverar undantag och inte avsaknad av regel.|Kort, precis formulering med tydlig kontrast. Mycket sägs med få ord.»
+
+## Argument 3
+«a|Slutligen tjänar en gemensam regel både lärare och elever: den flyttar diskussionen från enskilda konflikter till en förutsättning som gäller alla.|Argumentet stödjer tesen och lyfter blicken från det praktiska till en princip, vilket ger texten djup.»
+
+## Avslutning
+«a|Undantag bör därför göras för elever som behöver mobilen som hjälpmedel, och för tillfällen då läraren uttryckligen tillåter den. Med de undantagen blir förbudet både rimligt och rättvist.|Avslutningen återvänder till tesen och tillför en ny, genomtänkt slutsats (undantagen). Därmed fullföljs inledningens "som huvudregel".»`
 },
 { title:'Resonerande text: sociala medier och ensamhet', type:'Resonerande text (som nationella provet)',
   task:'Resonera kring frågan: Har sociala medier gjort oss mer ensamma? Belys frågan från flera håll.',
-  crit:{E:'Frågan belyses från ett par håll, men resonemanget är kort och slutsatsen allmänt hållen.',
-        C:'Frågan belyses från flera håll med förklaringar och exempel. Skribenten drar en rimlig slutsats.',
-        A:'Frågan belyses från flera håll och problematiseras. Resonemanget är nyanserat och leder fram till en genomtänkt slutsats.'},
+  kr:['sv2.skriv'],
   E:`«a|Sociala medier används av nästan alla idag.|Inledningen konstaterar något men problematiserar inte frågan.» «l|Vissa tycker att man blir mer ensam av dem och andra tycker att man blir mindre ensam.|Upprepad konstruktion ("vissa tycker … andra tycker") och orden "man" och "dem" gör språket allmänt.»
 
 «a|Det som är bra är att man kan prata med vänner som bor långt bort.|Ett perspektiv lyfts fram men inte förklaras: varför minskar det ensamheten?» «a|Det som är dåligt är att man kan sitta själv framför skärmen i stället för att träffa folk.|Det andra perspektivet är kort, utan exempel eller orsakskedja.» «l|Jag tror att det beror på hur man använder det.|Slutsatsen är rimlig men svävande ("det") och inte uppbyggd av resonemanget ovan. Obestämda pronomen gör texten mindre exakt.»`,
@@ -200,61 +275,52 @@ Mot detta står risken för jämförelse och passivitet. «a|Den som främst skr
 «l|Sammantaget framstår sociala medier varken som orsak till eller lösning på ensamhet. De förstärker snarare det som redan finns:|Försiktig, avvägd formulering ("framstår", "snarare") och en tydlig konstruktion med "varken … eller". Stilen passar en resonerande text.» «a|den som har ett stabilt nätverk får ett verktyg, och den som saknar ett riskerar att få en skärm att gömma sig bakom.|Slutsatsen är genomtänkt och sammanfattar resonemanget i en bild. Den är skribentens egen.»`
 },
 { title:'Utredande text: PM om sömn och skolresultat', type:'Utredande text (PM)',
-  task:'Skriv ett PM som utreder hur sömn påverkar skolresultat. Använd källor och redovisa dem.',
-  crit:{E:'PM:et har syfte och sakinnehåll, men strukturen är enkel och källhänvisningar saknas eller är bristfälliga.',
-        C:'PM:et har tydlig struktur med syfte, bakgrund och slutsats. Källor används och anges. Innehållet är utförligt.',
-        A:'PM:et har tydlig struktur och används av flera källor som värderas. Slutsatserna är nyanserade och utredningens begränsningar redovisas.'},
-  E:`# PM om sömn och skolresultat
+  task:'Skriv ett PM som utreder hur sömn påverkar skolresultat. Använd källor och redovisa dem löpande i texten.',
+  note:'Titta på ordantalet i rubriken över varje text. E-texten är längst och A-texten kortast. Ett precist språk kan betyda färre ord och ändå mer innehåll, eftersom varje mening gör ett jobb. Disposition: inledning med frågeställning, utredning med löpande källhänvisning och slutsats. Källhänvisningarna [1]–[4] är platshållare för riktiga källor.',
+  kr:['sv2.skriv'],
+  E:`# Sömn och skolresultat
 
-# Syfte
-«a|Syftet med detta PM är att ta reda på om sömn påverkar hur bra elever klarar skolan.|Syftet finns, men det är brett och leder inte till avgränsade frågor.»
+## Inledning och frågeställning
+«l|Sömn är något som alla människor behöver och som är mycket viktigt för både kroppen och hjärnan.|Allmänt och ordrikt påstående som alla redan känner till. Det avgränsar inte ämnet.» «a|I den här utredningen kommer jag att undersöka sömn och hur sömn kan påverka skolresultat hos elever som går på gymnasiet. Frågeställningen som jag ska försöka besvara är: Hur påverkar det skolresultaten hos gymnasieelever om de sover för lite?|Frågeställningen finns, vilket gör dispositionen urskiljbar. Men den sägs två gånger ("undersöka … frågeställningen är …") och är vid: vilka skolresultat, och genom vilka mekanismer?»
 
-# Fakta
-Ungdomar behöver sova ungefär 8–10 timmar per natt. «a|Många sover mindre än så.|Påståendet står utan siffror och utan källa. I ett PM ska fakta kunna kontrolleras.» «l|När man sover för lite blir man trött och har svårt att koncentrera sig. Då kan betygen bli sämre.|Enkel och vardaglig framställning ("blir man trött"). Korta meningar utan bindeord som visar orsak och verkan på ett exakt sätt.»
+## Utredning
+«a|Enligt en källa [1] är det så att ungdomar i åldern 13 till 18 år behöver sova ungefär 8 till 10 timmar varje natt för att kroppen ska må bra.|Källhänvisningen är löpande, vilket är bra. Men "en källa" säger inte vem som står bakom uppgiften, och det försvårar värderingen.» «l|Samtidigt visar en annan källa [2] att det är många ungdomar som i själva verket inte får så mycket sömn som de behöver, utan sover mycket mindre än vad som rekommenderas, vilket kan bero på många olika saker.|En lång mening där samma sak sägs tre gånger. Den kunde kortas till "Många sover mindre [2]".» «a|När man sover för lite blir man trött, och när man är trött har man svårt att koncentrera sig. Enligt källa [2] kan det därför bli svårare att lyssna på lektionerna och komma ihåg det man har lärt sig.|Orsakskedjan är riktig men allmän. Informationen från källorna återges utan att sättas in i något nytt perspektiv.»
 
-# Slutsats
-«a|Det verkar som att sömn är viktigt för skolan. Man borde sova mer.|Slutsatsen är bara en allmän uppmaning och inte en slutsats som följer av en utredning. Källor och egen bedömning saknas.»`,
-  C:`# PM: Sömn och skolresultat hos gymnasieelever
+## Slutsats
+«l|Sammanfattningsvis kan man säga att sömn är mycket viktigt för skolresultaten. Elever som sover för lite får det svårare i skolan eftersom de blir trötta och har svårt att koncentrera sig och komma ihåg. Därför är det viktigt att ungdomar sover tillräckligt mycket så att de kan få bra resultat i skolan.|Slutsatsen svarar på frågan men upprepar det som redan sagts, i tre meningar. Det finns ingen reflektion över hur säkra källorna är.»
 
-# Syfte och frågeställning
-«a|Syftet med PM:et är att undersöka hur sömn påverkar gymnasieelevers skolresultat. Frågeställningarna är: Hur mycket sömn behöver ungdomar? Vilka effekter har sömnbrist på koncentration och minne?|Syftet är avgränsat och bryts ned i frågeställningar som strukturerar PM:et.»
+## Källor
+[1] Rekommendation om ungdomars sömn. [2] Studie om sömn och koncentration. (Platshållare)`,
+  C:`# Sömn och skolresultat
 
-# Bakgrund
-Enligt en rapport från en hälsomyndighet (källa 1) behöver ungdomar mellan 13 och 18 år normalt 8–10 timmar sömn per natt, men många sover betydligt mindre, bland annat på grund av sena kvällar framför skärmen. «a|Under sömnen bearbetar hjärnan intryck från dagen och lagrar dem i minnet, vilket är en förutsättning för inlärning (källa 2).|Faktan förklaras och inte bara redovisas, och en källa anges. (Källa 1 och 2 står här som platshållare för riktiga källor.)»
+## Inledning och frågeställning
+«a|Hur påverkar sömnbrist gymnasieelevers skolresultat? Frågan är aktuell eftersom många ungdomar sover mindre än rekommenderat. Utredningen bygger på en rekommendation från en hälsomyndighet [1] och på forskning om sömn och minne [2, 3].|Frågeställningen är avgränsad och inledningen redovisar vilka källor utredningen bygger på. Mycket information på få rader.»
 
-# Resultat och diskussion
-«l|Sömnbrist leder därför till att eleven får svårare att koncentrera sig och att minnas det som tagits upp på lektionerna. Detta kan i sin tur påverka betygen negativt.|Bindeord ("därför", "i sin tur") visar orsakskedjor. Det är mer exakt än "då kan betygen bli sämre".»
+## Utredning
+Ungdomar i åldern 13–18 år rekommenderas 8–10 timmars sömn per natt [1], men enkätstudier visar att en stor andel sover mindre, ofta på grund av sena kvällar framför skärmen [2]. «a|Under sömnen bearbetas dagens intryck och lagras i minnet, vilket gör sömnen till en förutsättning för inlärning [3]. Sömnbrist försämrar dessutom koncentrationen, och eleven får därför svårare att följa en lektion [2].|Källorna sammanställs till en orsakskedja (sömn, minne, inlärning). Det är mer än att återge dem var för sig.» «l|Båda förmågorna behövs vid prov, vilket gör sambandet relevant för betygen.|Egen koppling som vidgar perspektivet bortom källorna, uttryckt kort och klart.»
 
-# Slutsats
-«a|Sammantaget tyder källorna på att tillräcklig sömn är en viktig förutsättning för goda skolresultat. Eftersom sömnbrist påverkar både koncentration och minne bör skolan och eleverna ta frågan på allvar.|Slutsatsen bygger på det som utretts i PM:et.»
+## Slutsats
+«a|Källorna talar för att sömnbrist försämrar både koncentration och minne och därmed troligen skolresultaten. Skolan bör därför uppmärksamma elevernas sömn.|Slutsatsen följer av utredningen och är försiktig ("troligen"). Den pekar ut en konsekvens men diskuterar inte hur säkert sambandet är.»
 
-# Källor
-«a|Källa 1: (hälsomyndighet, rapport). Källa 2: (artikel om sömn och minne).|Källor förtecknas. Här ska fullständiga referenser stå.»`,
-  A:`# PM: Sömn och skolresultat hos gymnasieelever
+## Källor
+[1] Hälsomyndighetens rekommendation. [2] Enkätstudie om ungdomars sömn. [3] Översikt om sömn och minne. (Platshållare)`,
+  A:`# Sömn och skolresultat
 
-# Syfte och frågeställning
-Syftet är att undersöka vad som är känt om sambandet mellan sömn och skolresultat hos gymnasieelever samt hur säkert detta samband är. «a|Frågeställningar: (1) Hur mycket sömn behöver ungdomar? (2) Hur påverkar sömnbrist koncentration, minne och betyg? (3) Hur väl belagt är sambandet?|Den tredje frågan ställer krav på källvärdering och skiljer ut PM:et från ett som bara samlar fakta.»
+## Inledning och frågeställning
+«a|Hur påverkar sömnbrist gymnasieelevers skolresultat, och hur säkert är sambandet? Utredningen bygger på en rekommendation [1], enkätstudier [2], forskning om sömn och minne [3] samt studier av senare skolstart [4].|Frågeställningen har två led: effekten och hur säker den är. Det är en källkritisk fråga som styr hela utredningen.»
 
-# Bakgrund
-Hälsomyndigheters rekommendationer ligger på 8–10 timmars sömn för åldersgruppen 13–18 år (källa 1). «a|Samtidigt visar enkätstudier att en stor andel ungdomar sover mindre, vilket delvis förklaras av biologiska förändringar i dygnsrytmen under puberteten och delvis av kvälls- och skärmvanor (källa 2).|Flera förklaringar vägs och olika typer av orsaker (biologiska och beteendemässiga) skiljs åt.»
+## Utredning
+Ungdomar rekommenderas 8–10 timmars sömn [1], men många sover mindre, dels på grund av en biologiskt förskjuten dygnsrytm i puberteten, dels på grund av skärmvanor [2]. «l|Sömnen konsoliderar minnen [3]. Sömnbrist försvårar därmed både uppmärksamhet och inlärning.|Två korta meningar där "därmed" bär orsakssambandet. Exakta ord ("konsoliderar", "försvårar") ersätter hela satser. Det är träffsäkert språk.» «a|Sambandet med betyg är dock främst observerat, inte experimentellt prövat [2]: stressade elever kan både sova och prestera sämre.|Källornas begränsning problematiseras med ett konkret exempel på en tredje faktor. Det är detta som lyfter texten till A.» «a|När skolor flyttat fram starttiden har eleverna i flera studier sovit längre [4], vilket stärker orsakstolkningen.|Ett belysande exempel som tillför ny information och som leder till en slutsats.»
 
-# Resultat
-Forskning om sömn och minne visar att viktiga delar av inlärningen konsolideras under sömnen (källa 3). «a|Flera källor pekar dessutom på samband mellan sömnbrist och sämre studieresultat (källa 2 och 4), men sambandet är i regel visat genom observation och inte genom experiment, och går därför inte automatiskt att tolka som orsakssamband.|Källornas begränsningar redovisas. Det är ett kännetecken för en utredning på hög nivå.»
+## Slutsats
+«a|Sömnbrist försämrar sannolikt skolresultaten via koncentration och minne, men effektens storlek är osäker. Senare skolstart vore en rimlig åtgärd att pröva.|Slutsatsen är nyanserad ("sannolikt", "osäker"), svarar på båda leden i frågeställningen och pekar ut en åtgärd.»
 
-# Diskussion
-«l|Ett orsakssamband är rimligt eftersom mekanismen är känd, men andra faktorer kan också spela in: elever som har det stressigt kan både sova sämre och prestera sämre.|Modala uttryck ("är rimligt", "kan spela in") och en precis, nyanserad konstruktion. Det är typiskt för A-nivåns språk.»
-
-# Slutsats
-«a|Sammantaget talar källorna för att tillräcklig sömn bidrar till bättre studieresultat, men effektens storlek är osäker. Fler studier med kontroll för andra faktorer skulle behövas. För skolans del är det rimligt att ta hänsyn till elevernas sömn, till exempel vid val av starttider.|Slutsatsen är försiktig, motiveras med tidigare resultat och pekar ut vad som återstår att undersöka samt vad som kan göras i praktiken.»
-
-# Källor
-(Här förtecknas källorna 1–4 med fullständiga referenser. I detta exempel är de platshållare.)`
+## Källor
+[1] Rekommendation. [2] Enkätstudier. [3] Forskning om sömn och minne. [4] Studier av senare skolstart. (Platshållare)`
 },
 { title:'Utredande text: dikttolkning (Karin Boye)', type:'Utredande text (dikt eller boktolkning)',
   task:'Analysera och tolka dikten “Ja visst gör det ont” av Karin Boye (ur samlingen För trädets skull, 1935). Visa hur form och innehåll samverkar.',
-  crit:{E:'Dikten beskrivs och tolkas på ett enkelt sätt. Några stildrag nämns utan att förklaras fullt ut.',
-        C:'Dikten tolkas utförligt. Stildrag och bildspråk kopplas till innebörden och tolkningen motiveras med citat.',
-        A:'Dikten tolkas utförligt och nyanserat. Form, bildspråk och sammanhang vävs ihop, och flera möjliga tolkningar prövas.'},
+  kr:['sv2.lit','sv2.sprak'],
   E:`I dikten “Ja visst gör det ont” av Karin Boye handlar det om att knoppar brister. «a|Dikten börjar med raden “Ja visst gör det ont när knoppar brister”. Det betyder att det gör ont.|Citatet återges men "tolkas" bara genom att upprepas i andra ord. Det finns ingen analys av vad ordet knopp kan stå för.» «a|Dikten handlar om våren och träd.|Rätt, men det är dikten på ytan. Texten går inte vidare till vad naturen kan symbolisera.»
 
 «l|Diktjaget tycker att det är jobbigt men att det är bra.|Meningen är vag ("det är jobbigt men att det är bra") och tankegången hänger inte ihop. Sådant syns särskilt i en tolkande text, där exakta ord behövs.» «a|Jag tror att dikten vill säga att man måste ha ont för att växa.|Här finns en liten tolkning, vilket är bra, men den motiveras inte med något i dikten.»`,
@@ -271,25 +337,21 @@ Forskning om sömn och minne visar att viktiga delar av inlärningen konsolidera
 { id:'hi', name:'Historia', icon:'🏛️', topics:[
 { title:'Slavhandeln och triangelhandeln', type:'Historia 1a1 – orsaker och konsekvenser',
   task:'Förklara orsakerna till den transatlantiska slavhandeln och vilka konsekvenser den fick, både i Afrika, Amerika och Europa.',
-  crit:{E:'Eleven beskriver enkelt några orsaker och konsekvenser och visar enkla samband.',
-        C:'Eleven förklarar orsaker och konsekvenser utvecklat och visar samband mellan dem. Eleven kopplar till sin tids förhållanden.',
-        A:'Eleven förklarar välutvecklat och nyanserat, på kort och lång sikt, och kan ange att historien har tolkats olika.'},
-  E:`«a|Triangelhandeln var en handel mellan Europa, Afrika och Amerika.|Rätt grundfakta, men handeln beskrivs bara. Orsaken till att den uppstod saknas.» «a|Slavar fördes från Afrika till Amerika där de arbetade på plantager. Där odlades socker, bomull och tobak som skickades till Europa.|Förloppet återges i en enkel kedja. Det är ett samband, men inte förklarat.» «l|Slavhandeln var grym. Många dog på resan.|Värderande ord ("grym") utan sakligt stöd. I en historisk framställning behöver sådana omdömen underbyggas.» «a|Handeln gjorde Europa rikt.|Konsekvensen är riktig men starkt förenklad: vilka i Europa, och hur?|Konsekvenserna i Afrika och Amerika saknas.»`,
+  kr:['hi.proc'],
+  E:`«a|Triangelhandeln var en handel mellan Europa, Afrika och Amerika.|Rätt grundfakta, men handeln beskrivs bara. Orsaken till att den uppstod saknas.» «a|Slavar fördes från Afrika till Amerika där de arbetade på plantager. Där odlades socker, bomull och tobak som skickades till Europa.|Förloppet återges i en enkel kedja. Det är ett samband, men inte förklarat.» «l|Slavhandeln var grym. Många dog på resan.|Värderande ord ("grym") utan sakligt stöd. I en historisk framställning behöver sådana omdömen underbyggas.» «a|Handeln gjorde Europa rikt.|Konsekvensen är riktig men starkt förenklad: vilka i Europa, och hur? Konsekvenserna i Afrika och Amerika saknas.» «a|Än idag finns det spår av detta, till exempel rasism.|Ett enkelt samband mellan det förflutna och nutiden, men utan förklaring. Det motsvarar "enkla exempel" och "enkla slutsatser" i kunskapskravet.»`,
   C:`Den transatlantiska slavhandeln pågick från 1500-talet till 1800-talet, och drygt 12 miljoner afrikaner fördes mot sin vilja över Atlanten. «a|Orsaken var framför allt en stor efterfrågan på arbetskraft på plantagerna i Amerika. När den ursprungliga befolkningen minskat kraftigt på grund av sjukdomar och övergrepp såg européerna slavar från Afrika som en lösning.|Orsaker förklaras som en kedja. Eleven visar varför europeerna gjorde som de gjorde och inte bara vad de gjorde.» Det som odlades, som socker och tobak, såldes sedan i Europa med stor vinst. «a|Handeln fick därför formen av en triangel: tillverkade varor från Europa byttes mot människor i Afrika, människorna såldes i Amerika, och råvaror fördes tillbaka till Europa.|Triangelns tre led förklaras med hjälp av varor och människor. Det är en tydlig och sammanhängande framställning.»
 
-«a|Konsekvenserna blev mycket olika. I Afrika förlorade många samhällen unga människor och drabbades av våld och oro, men vissa afrikanska härskare tjänade på att sälja fångar. I Amerika byggdes samhällen på tvångsarbete och rasism, och i Europa bidrog vinsterna till att hamnstäder och handelshus växte.|Konsekvenserna beskrivs för tre världsdelar och skillnaderna förklaras. Det är utvecklat resonemang.» «l|Handeln fortsatte tills motståndet växte och slavhandeln förbjöds, till exempel av Storbritannien 1807.|Tidsbundna bindeord och konkret årtal. Språket är sakligt och undviker värderande ord.»`,
+«a|Konsekvenserna blev mycket olika. I Afrika förlorade många samhällen unga människor och drabbades av våld och oro, men vissa afrikanska härskare tjänade på att sälja fångar. I Amerika byggdes samhällen på tvångsarbete och rasism, och i Europa bidrog vinsterna till att hamnstäder och handelshus växte.|Konsekvenserna beskrivs för tre världsdelar och skillnaderna förklaras. Det är utvecklat resonemang.» «l|Handeln fortsatte tills motståndet växte och slavhandeln förbjöds, till exempel av Storbritannien 1807.|Tidsbundna bindeord och konkret årtal. Språket är sakligt och undviker värderande ord.» «a|Historiker har tolkat handelns betydelse för Europas rikedom olika: vissa menar att vinsterna var avgörande för industrialiseringen, andra att de var små i förhållande till hela ekonomin. Jag anser att den första tolkningen är mindre övertygande, eftersom Europas ekonomi växte på många sätt som inte hängde ihop med slavhandeln.|Eleven jämför två tolkningar, förordar en och motiverar sitt val med ett enkelt omdöme. Det är kravet på C.»`,
   A:`Den transatlantiska slavhandeln, som från 1500-talet till 1800-talet förde drygt 12 miljoner afrikaner över Atlanten, kan inte förklaras med en enda orsak. «a|På kort sikt handlade det om efterfrågan på arbetskraft i Amerikas plantageekonomi när den ursprungliga befolkningen decimerats av sjukdomar och övergrepp. På längre sikt gjorde europeiska staters merkantilistiska politik, där kolonierna skulle ge råvaror och vinster åt moderlandet, slavarbete lönsamt och politiskt önskvärt.|Eleven skiljer på orsaker på kort och lång sikt och kopplar dem till tidens ekonomiska tänkande (merkantilism).» «a|Slavhandeln bygger också på ideer om rasistisk överlägsenhet, som växte fram delvis för att rättfärdiga det som redan pågick.|Idéhistoriska orsaker vägs in. Eleven ser att idéerna både orsakade och följde av handeln.»
 
-Konsekvenserna var lika sammansatta. I Afrika drabbades många samhällen av befolkningsförluster och våld, «a|men det är viktigt att komma ihåg att vissa afrikanska stater och handlare var aktiva deltagare och tjänade på handeln. Bilden av Afrika som enbart offer är därför förenklad.|Eleven ifrågasätter en förenklad bild och visar flera aktörers perspektiv.» I Amerika lade slaveriet grunden till rasbaserade samhällsstrukturer vars följder syns än idag, och i Europa, inklusive Sverige som ägde kolonin Saint-Barthélemy 1784–1878, «l|bidrog vinsterna från slavhandel och plantager till att finansiera handelshus och hamnstäder, även om forskare diskuterar hur stor betydelse det hade för industrialiseringen.|Försiktig formulering ("bidrog … även om forskare diskuterar") visar att historien har tolkats på olika sätt. Det är typiskt för språket på A-nivå.» «a|Det visar att slavhandeln inte bara är en historia om Afrika och Amerika, utan en del av Europas och därmed Sveriges egen historia.|Egen slutsats där det förflutna kopplas till ett närmare perspektiv. Det är en historiemedvetenhet som lyfter svaret.»`
+Konsekvenserna var lika sammansatta. I Afrika drabbades många samhällen av befolkningsförluster och våld, «a|men det är viktigt att komma ihåg att vissa afrikanska stater och handlare var aktiva deltagare och tjänade på handeln. Bilden av Afrika som enbart offer är därför förenklad.|Eleven ifrågasätter en förenklad bild och visar flera aktörers perspektiv.» I Amerika lade slaveriet grunden till rasbaserade samhällsstrukturer vars följder syns än idag, och i Europa, inklusive Sverige som ägde kolonin Saint-Barthélemy 1784–1878, «l|bidrog vinsterna från slavhandel och plantager till att finansiera handelshus och hamnstäder, även om forskare diskuterar hur stor betydelse det hade för industrialiseringen.|Försiktig formulering ("bidrog … även om forskare diskuterar") visar att historien har tolkats på olika sätt. Det är typiskt för språket på A-nivå.» «a|Det visar att slavhandeln inte bara är en historia om Afrika och Amerika, utan en del av Europas och därmed Sveriges egen historia.|Egen slutsats där det förflutna kopplas till ett närmare perspektiv. Det är en historiemedvetenhet som lyfter svaret.» «a|Om dagens ekonomiska skillnader mellan världsdelar delvis har rötter i denna tid är dock omstritt: den som svarar ja pekar på hur resurser och institutioner byggdes upp, medan den som svarar nej framhåller att senare faktorer, som kolonialism, krig och handelspolitik, väger tyngre. Mot bakgrund av båda argumenten framstår ett delvis jakande svar som mest rimligt, eftersom slavhandeln både försvagade samhällen i Afrika och stärkte de som tjänade på den.|Eleven argumenterar för och emot olika sätt att se på sambandet mellan det förflutna och nutiden, och förordar ett med nyanserat omdöme. Det är det som kunskapskravet för A beskriver.»`
 }
 ]},
 { id:'re', name:'Religionskunskap', icon:'🕌', topics:[
 { title:'Fastan under ramadan', type:'Religionskunskap 1 – religion och individ',
   task:'Beskriv och förklara vad fastan under ramadan innebär och vilken betydelse den kan ha för enskilda muslimer och för gemenskapen.',
-  crit:{E:'Eleven beskriver enkelt vad fastan innebär och visar enkelt vilken betydelse den har.',
-        C:'Eleven förklarar utvecklat vad fastan innebär och hur den kan ha olika betydelse. Eleven använder religionsvetenskapliga begrepp.',
-        A:'Eleven förklarar välutvecklat och nyanserat, visar att muslimer tolkar och lever fastan olika, och drar egna slutsatser.'},
-  E:`«a|Ramadan är en månad då muslimer fastar. Det betyder att de inte äter och dricker från när solen går upp tills den går ner.|Grundfakta är rätt, men fastan beskrivs bara utifrån vad man inte gör.» «a|Fastan är en av islams fem pelare.|Ett begrepp nämns men förklaras inte. Vad är en pelare och varför just fastan?» «a|Många muslimer tycker att ramadan är viktig. De äter tillsammans på kvällen när fastan bryts.|Betydelsen antyds, men det finns ingen förklaring till varför den är viktig.» «l|Det är bra för att man blir mer tacksam.|Vag formulering ("det är bra") och det framgår inte vem som tycker så. Är det eleven, eller muslimer? I religionskunskap är avsändaren viktig.»`,
+  kr:['re.rel'],
+  E:`«a|Ramadan är en månad då muslimer fastar. Det betyder att de inte äter och dricker från när solen går upp tills den går ner.|Grundfakta är rätt, men fastan beskrivs bara utifrån vad man inte gör.» «a|Fastan är en av islams fem pelare.|Ett begrepp nämns men förklaras inte. Vad är en pelare och varför just fastan?» «a|Många muslimer tycker att ramadan är viktig. De äter tillsammans på kvällen när fastan bryts.|Betydelsen antyds, men det finns ingen förklaring till varför den är viktig.» «l|Det är bra för att man blir mer tacksam.|Vag formulering ("det är bra") och det framgår inte vem som tycker så. Är det eleven, eller muslimer? I religionskunskap är avsändaren viktig.» «a|Fastan påverkar alltså både den enskilde och familjen, eftersom man fastar tillsammans.|En enkel slutsats om hur religion hänger ihop med individ och grupp, men utan förklaring av hur. Det motsvarar "enkla samband" och "enkla slutsatser" i kunskapskravet.»`,
   C:`Ramadan är den månad i den islamiska kalendern då muslimer fastar från gryning till solnedgång. «a|Fastan, sawm, är en av islams fem pelare och ses som en plikt för vuxna och friska muslimer. Den som är sjuk, gravid eller på resa kan vara undantagen.|Begreppen sawm och pelare förklaras och undantag nämns. Det visar kunskap och inte bara upprepning.»
 
 «a|För den enskilde kan fastan ha flera betydelser. Många uppger att den ger en möjlighet att öva självbehärskning och känna tacksamhet för det man har. Fastan kopplas också till att minnas dem som lider brist på mat.|Flera betydelser förklaras. Eleven går från "vad" till "varför".» «l|Dessutom stärker ramadan gemenskapen, eftersom familjer och vänner samlas för att bryta fastan tillsammans (iftar) och många ger gåvor till behövande (zakat).|Religionsvetenskapliga begrepp (iftar, zakat) används på rätt sätt, och bindeordet "eftersom" förklarar sambandet.» «a|Ramadan har alltså både en personlig och en social betydelse.|Slutsatsen sammanfattar de två nivåerna: individen och gemenskapen.»`,
@@ -301,10 +363,8 @@ Konsekvenserna var lika sammansatta. I Afrika drabbades många samhällen av bef
 { id:'sh', name:'Samhällskunskap', icon:'⚖️', topics:[
 { title:'Yttrandefrihetens gränser', type:'Samhällskunskap 1b – demokrati och rättigheter',
   task:'Förklara vad yttrandefrihet innebär i Sverige och diskutera var gränserna bör gå.',
-  crit:{E:'Eleven beskriver enkelt vad yttrandefrihet är och ger några enkla exempel på begränsningar.',
-        C:'Eleven förklarar utvecklat vad yttrandefrihet är och varför det finns begränsningar. Eleven använder begrepp och exempel.',
-        A:'Eleven förklarar välutvecklat och nyanserat, väger olika intressen mot varandra och drar egna slutsatser.'},
-  E:`«a|Yttrandefrihet betyder att man får säga vad man vill.|Beskrivningen är förenklad och delvis felaktig. I Sverige finns det gränser.» «a|I Sverige har vi yttrandefrihet i lagen. Men man får inte säga vad som helst. Man får till exempel inte hota någon.|Eleven rättar i praktiken sig själv och ger ett exempel på en begränsning. Det är en enkel beskrivning.» «l|Det är viktigt att vi har yttrandefrihet, för annars hade vi inte haft demokrati.|Samband antyds men förklaras inte: varför är yttrandefrihet nödvändig för demokrati? Orden är dessutom stora ("annars hade vi inte haft").» «a|Jag tycker att man ska få säga det man tycker.|Åsikten kommer utan motivering, och eleven svarar inte på frågan om var gränserna bör gå.»`,
+  kr:['sa.sam'],
+  E:`«a|Yttrandefrihet betyder att man får säga vad man vill.|Beskrivningen är förenklad och delvis felaktig. I Sverige finns det gränser.» «a|I Sverige har vi yttrandefrihet i lagen. Men man får inte säga vad som helst. Man får till exempel inte hota någon.|Eleven rättar i praktiken sig själv och ger ett exempel på en begränsning. Det är en enkel beskrivning.» «l|Det är viktigt att vi har yttrandefrihet, för annars hade vi inte haft demokrati.|Samband antyds men förklaras inte: varför är yttrandefrihet nödvändig för demokrati? Orden är dessutom stora ("annars hade vi inte haft").» «a|Gränser finns eftersom ord kan skada andra. Om det inte fanns några gränser skulle fler kunna bli hotade eller kränkta.|Eleven pekar ut en orsak (ord kan skada) och en konsekvens (hot och kränkningar). Det är vad E kräver: "någon orsak och konsekvens".» «a|Jag tycker att man ska få säga det man tycker.|Åsikten kommer utan motivering, och eleven svarar inte på frågan om var gränserna bör gå.»`,
   C:`Yttrandefrihet innebär rätten att uttrycka sina åsikter och tankar utan att behöva frukta straff från staten. «a|Den är skyddad i Sveriges grundlagar, bland annat i regeringsformen, tryckfrihetsförordningen och yttrandefrihetsgrundlagen.|Eleven nämner rätt rättskälla. Det är ett exempel på ämneskunskap.» «a|Yttrandefriheten är en förutsättning för demokrati, eftersom medborgarna måste kunna kritisera makthavare och ta del av olika åsikter för att kunna rösta på ett genomtänkt sätt.|Sambandet mellan yttrandefrihet och demokrati förklaras. Det är ett C-drag.»
 
 «a|Samtidigt är yttrandefriheten inte obegränsad. Hets mot folkgrupp, förtal och olaga hot är exempel på uttalanden som kan straffas, eftersom de kränker andra människors rättigheter.|Begränsningarna förklaras utifrån en princip (andras rättigheter). De bara listas inte.» «l|Frågan är därför var gränsen ska gå: för sällan begränsas yttrandefriheten, desto större är risken att människor kränks, men för ofta begränsas den, desto större är risken att kritiska röster tystas.|Parallella konstruktioner ("för … desto …") visar hur två intressen står mot varandra. Språket stödjer resonemanget.»`,
@@ -326,6 +386,9 @@ function renderText(raw, pi){
     p = p.trim();
     const isH = p.startsWith('# ');
     if(isH) p = p.slice(2);
+    const part = p.match(/^## (.+)\n([\s\S]*)$/) || p.match(/^## (.+)$()/);
+    let tag = '';
+    if(part){ tag = `<span class="tag">${esc(part[1])}</span>`; p = part[2]; }
     const body = p.split(/(«[al]\|[^|«»]*\|[^«»]*»)/).map(part=>{
       const m = part.match(/^«([al])\|([^|«»]*)\|([^«»]*)»$/);
       if(!m) return esc(part);
@@ -335,18 +398,20 @@ function renderText(raw, pi){
       notes.push({n,k,c});
       return `<mark class="${k}" data-id="${pi}-${n}" tabindex="0">${esc(t)}<sup>${n}</sup></mark>`;
     }).join('');
-    return isH ? `<h4>${body}</h4>` : `<p>${body}</p>`;
+    return isH ? `<h4>${body}</h4>` : `<p>${tag}${body}</p>`;
   }).join('');
-  return { html, notes };
+  const plain = raw.replace(/«[al]\|([^|«»]*)\|[^«»]*»/g,'$1').replace(/^#+ /gm,'');
+  const words = plain.trim().split(/\s+/).length;
+  return { html, notes, words };
 }
 
 function panel(lvl, pi, topic){
-  const { html, notes } = renderText(topic[lvl], pi);
+  const { html, notes, words } = renderText(topic[lvl], pi);
   const label = {E:'E-nivå',C:'C-nivå',A:'A-nivå'}[lvl];
   const list = notes.length
     ? `<ol>${notes.map(x=>`<li class="${x.k}" data-id="${pi}-${x.n}"><b>${x.n} · ${x.k==='a'?'Innehåll och resonemang':'Språk och stil'}</b>${esc(x.c)}</li>`).join('')}</ol>`
     : '<p class="empty">Inga kommentarer visas. Slå på en av markeringarna ovan.</p>';
-  return `<article class="panel"><div class="ph ${lvl}"><span>${label}</span><span>${notes.length} kommentarer</span></div>
+  return `<article class="panel"><div class="ph ${lvl}"><span>${label}</span><span>${words} ord · ${notes.length} kommentarer</span></div>
   <div class="pgrid"><div class="txt">${html}</div><aside class="notes" aria-label="Kommentarer">${list}</aside></div></article>`;
 }
 
@@ -360,8 +425,11 @@ function render(){
 
   $('#info').innerHTML = `<h2 style="margin:0 0 4px">${esc(topic.title)}</h2>
     <div class="task"><b>Uppgift:</b> ${esc(topic.task)}</div>
-    <details><summary>Vad skiljer nivåerna åt? (förenklad nivåbeskrivning)</summary>
-    <div class="crit">${['E','C','A'].map(l=>`<div class="lv-${l}"><b>${l}:</b> ${esc(topic.crit[l])}<br><span style="color:var(--soft)"><b>Språk:</b> ${esc(LANG[l])}</span></div>`).join('')}</div></details>`;
+    ${topic.note ? `<div class="task note"><b>Att lägga märke till:</b> ${esc(topic.note)}</div>` : ''}
+    <details open><summary>Skolverkets kunskapskrav: vad skiljer nivåerna åt?</summary>
+    ${topic.kr.map(k=>`<h3 class="krh">${esc(KR[k].course)}: ${esc(KR[k].label)}</h3>
+    <div class="crit">${['E','C','A'].map(l=>`<div class="lv-${l}"><b>${l}</b> ${KR[k][l]}</div>`).join('')}</div>`).join('')}
+    <p class="src">Utdrag ur Skolverkets kunskapskrav (hämtade ur Skolverkets öppna API 2026-10-07). Fetstil är markerad här för att visa vad som skiljer nivåerna åt. Se Skolverkets ämnesplan för hela texten.</p></details>`;
 
   document.querySelectorAll('#lvl button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.l===state.lvl)));
   $('#up').disabled = state.cmp || state.lvl==='A';
