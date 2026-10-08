@@ -15,14 +15,14 @@ Risknivå: **Hög** = personuppgifter eller känsliga uppgifter om elever kan l�
 |---|---|
 | Adminlösenord | `workshop-app` har inget förvalt lösenord längre. `ADMIN_PASSWORD` måste sättas i `.env`, annars är adminvyn avstängd. Jämförelsen är tidskonstant. **Om appen någonsin körts publikt med det gamla lösenordet (`workshop2025`) ska det betraktas som röjt, eftersom det finns kvar i git-historiken.** |
 | Typsnitt | Google Fonts och cdnfonts/jsDelivr-typsnitt ligger nu i `fonts/` (latin + latin-ext, samt OpenDyslexic). 38 sidor och två CSS-filer pekar på de lokala filerna, och preconnect till Google är borttagna. Eleverna skickar inte längre sin IP-adress till Google för typsnitt. |
-| Bibliotek | pdf.js (inkl. worker), mammoth, JSZip, FileSaver, docx, pptxgenjs, Leaflet och MarkerCluster ligger i `vendor/`. Testat: `studera.html` gör inga anrop till externa värdar. |
+| Bibliotek | pdf.js (inkl. worker), mammoth, JSZip, FileSaver, docx, pptxgenjs och Leaflet ligger i `vendor/`. Testat: `studera.html` gör inga anrop till externa värdar. |
 | Integritetsruta och maskering | `js/privacy.js` är inlagd på 22 AI-sidor. Den visar en påminnelse (kan stängas) och maskerar personnummer, e-postadresser och svenska mobilnummer i texten innan den skickas till AI-tjänsten. Den kan inte maskera namn. |
 | Nyckel i URL | `ai-language-coach`, `adaptivt-prov` och `rattvik-presentation-generator` skickar nu Gemini-nyckeln i headern i stället för i URL:en (där den kunde hamna i loggar). |
 
 ### Det som återstår av punkt 4 (tredje part)
 - `pdf-till-word.html` och `recept-app/index.html` hämtar Tesseract.js (OCR) från jsDelivr, och Tesseract hämtar dessutom språkdata vid körning. Självhosting kräver att man pekar ut `workerPath`, `corePath` och `langPath`.
 - `avskrift.html` hämtar Transformers.js och talmodeller från jsDelivr/Hugging Face. Kräver separat arbete (stora modeller).
-- Kartbrickor från OpenStreetMap/Carto i `rattvik-atervinning` och `litterara-stockholm` är en del av tjänsten och går inte att ta bort.
+- Kartbrickor från OpenStreetMap/Carto i `litterara-stockholm` är en del av tjänsten och går inte att ta bort.
 - Väder från SMHI/Open-Meteo i `vader-rattvik` hämtas av webbläsaren.
 - Bilder från `source.unsplash.com` i `ai-language-coach`.
 
@@ -71,7 +71,7 @@ Delade skoldatorer: en sparad nyckel i `localStorage` kan läsas av nästa anvä
 När en sida laddar resurser från en annan domän får den domänen elevens IP-adress. IP-adress är personuppgift. Det har prövats i EU (bland annat Google Fonts i tysk domstol 2022).
 - **Google Fonts:** `ai-laromedel/*`, `religion-laromedel/*`, `copilot-*`, `mattestod`, `retorikverkstaden`, `skrivstod`, `uf-idementor`, `lashjalpen`.
 - **cdnfonts.com:** manualerna (`copilot-manual-*`, `excel-manual`, `word-manual`, `powerpoint-manual`, `onedrive-manual`, `teams-manual-gy`, `notebooklm-manual`), `ai-provtraning`, `studera`.
-- **CDN för bibliotek (cdnjs, jsDelivr, unpkg):** `index`, `avskrift`, `pdf-till-word`, `studera`, `ai-provtraning`, `recept-app`, `litterara-stockholm`, `lashjalpen`, `rattvik-presentation-generator`, `rattvik-atervinning`.
+- **CDN för bibliotek (cdnjs, jsDelivr, unpkg):** `index`, `avskrift`, `pdf-till-word`, `studera`, `ai-provtraning`, `recept-app`, `litterara-stockholm`, `lashjalpen`, `rattvik-presentation-generator`.
 - **Kartor och bilder:** OpenStreetMap, Carto, Google (Rättvik återvinning, litterära Stockholm), Unsplash (`ai-language-coach`).
 - **Väder:** SMHI och Open-Meteo (`vader-rattvik`).
 - Inga spårningsskript (Google Analytics, Tag Manager eller liknande) hittades i värdlistan.
