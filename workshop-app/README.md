@@ -30,13 +30,7 @@ npm run dev
 
 ## Adminvy
 
-Gå till [http://localhost:3000/admin](http://localhost:3000/admin) och logga in med lösenordet:
-
-```
-workshop2025
-```
-
-Du kan ändra lösenordet genom att sätta miljövariabeln `ADMIN_PASSWORD` i `.env`:
+Gå till [http://localhost:3000/admin](http://localhost:3000/admin). Adminvyn kräver ett lösenord som du själv sätter. Det finns inget förvalt lösenord, och utan det är adminvyn avstängd. Skapa en fil `.env` (den checkas inte in) och välj ett långt, unikt lösenord:
 
 ```
 ADMIN_PASSWORD=ditt-eget-lösenord
