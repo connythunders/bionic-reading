@@ -48,7 +48,7 @@
     return { body: state.changed ? out : body, changed: state.changed };
   }
   // Egna serverrutter som vidarebefordrar text till en AI-tjänst (t.ex. UF-idémentorn)
-  var AI_PATHS = /^\/api\/(chat|generera|generate|tts)\/?$/;
+  var AI_PATHS = /^\/api\/[a-z-]*(chat|generera|generate|tts|feedback)\/?$/;
   function isAiUrl(u) {
     try {
       var x = new URL(u, location.href);
