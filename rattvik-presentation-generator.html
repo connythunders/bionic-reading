@@ -6,9 +6,9 @@
 <title>Presentationsgenerator – Rättviks kommun</title>
 <meta name="description" content="Skapa automatiskt PowerPoint-presentationer i Rättviks kommuns grafiska profil med hjälp av AI.">
 <!-- Externa bibliotek -->
-<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<script src="vendor/pptxgen.bundle.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script src="vendor/mammoth.browser.min.js"></script>
 <style>
   :root{
     --r-primar:#1565c0;      /* Siljanblå */
@@ -187,6 +187,7 @@
   .gomd{display:none !important}
   @media(max-width:600px){.ingress h1{font-size:1.4rem}.steg{min-width:0;font-size:0}.steg .num{margin:0 auto}}
 </style>
+<script src="js/privacy.js"></script>
 </head>
 <body>
 
@@ -340,7 +341,7 @@ let uppladdadeFiler = [];
 let genereradePunkter = null; // {titel, undertitel, slides:[{rubrik, punkter[], not}]}
 
 if (window.pdfjsLib) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdf.worker.min.js";
 }
 
 /* ====== API-nyckel ====== */
@@ -535,10 +536,10 @@ Svara ENBART med giltig JSON enligt detta schema, utan förklarande text och uta
 }
 
 async function anropaGemini(prompt){
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiNyckel}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
   const res = await fetch(url, {
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{'Content-Type':'application/json','x-goog-api-key':apiNyckel},
     body: JSON.stringify({
       contents:[{parts:[{text:prompt}]}],
       generationConfig:{temperature:0.7, maxOutputTokens:4096, responseMimeType:"application/json"}
