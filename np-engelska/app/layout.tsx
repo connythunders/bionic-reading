@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,7 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="sv">
-      <body className="antialiased min-h-screen bg-white">{children}</body>
+      <body className="antialiased min-h-screen bg-white">
+        <Script src="/privacy.js" strategy="beforeInteractive" />
+        {children}
+      </body>
     </html>
   );
 }
