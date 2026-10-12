@@ -19,15 +19,15 @@ window.MATTE_DATA.omraden = [
     id: 'tal', namn: 'Tal och räkning', ikon: '🔢',
     beskrivning: 'Hur tal fungerar och hur man räknar med dem.',
     moment: [
-      { id: 'position', namn: 'Positionssystemet' },
-      { id: 'raknesatt', namn: 'De fyra räknesätten' },
-      { id: 'negativa', namn: 'Negativa tal' },
+      { id: 'position', namn: 'Positionssystemet', fil: 'position' },
+      { id: 'raknesatt', namn: 'De fyra räknesätten', fil: 'raknesatt' },
+      { id: 'negativa', namn: 'Negativa tal', fil: 'negativa' },
       { id: 'brak', namn: 'Bråk', fil: 'brak' },
-      { id: 'decimal', namn: 'Decimaltal' },
-      { id: 'procent', namn: 'Procent' },
-      { id: 'forhallande', namn: 'Förhållanden' },
-      { id: 'overslag', namn: 'Överslag och rimlighet' },
-      { id: 'potenser', namn: 'Potenser' }
+      { id: 'decimal', namn: 'Decimaltal', fil: 'decimal' },
+      { id: 'procent', namn: 'Procent', fil: 'procent' },
+      { id: 'forhallande', namn: 'Förhållanden', fil: 'forhallande' },
+      { id: 'overslag', namn: 'Överslag och rimlighet', fil: 'overslag' },
+      { id: 'potenser', namn: 'Potenser', fil: 'potenser' }
     ],
     formelblad: [
       { rubrik: 'Bråk', rader: [
@@ -56,12 +56,12 @@ window.MATTE_DATA.omraden = [
     id: 'algebra', namn: 'Algebra', ikon: '🔤',
     beskrivning: 'Bokstäver som står för tal, uttryck och ekvationer.',
     moment: [
-      { id: 'variabel', namn: 'Variabler' },
-      { id: 'uttryck', namn: 'Uttryck' },
-      { id: 'forenkla', namn: 'Förenkla uttryck' },
-      { id: 'ekvationer', namn: 'Enkla ekvationer' },
-      { id: 'monster', namn: 'Mönster' },
-      { id: 'algoritmer', namn: 'Steg-för-steg-instruktioner' }
+      { id: 'variabel', namn: 'Variabler', fil: 'variabel' },
+      { id: 'uttryck', namn: 'Uttryck', fil: 'uttryck' },
+      { id: 'forenkla', namn: 'Förenkla uttryck', fil: 'forenkla' },
+      { id: 'ekvationer', namn: 'Enkla ekvationer', fil: 'ekvationer' },
+      { id: 'monster', namn: 'Mönster', fil: 'monster' },
+      { id: 'algoritmer', namn: 'Steg-för-steg-instruktioner', fil: 'algoritmer' }
     ],
     formelblad: [
       { rubrik: 'Algebra', rader: [
@@ -75,14 +75,14 @@ window.MATTE_DATA.omraden = [
     id: 'geometri', namn: 'Geometri', ikon: '📏',
     beskrivning: 'Figurer, mått, area, volym och vinklar.',
     moment: [
-      { id: 'figurer', namn: 'Begrepp och figurer' },
-      { id: 'omkrets', namn: 'Omkrets' },
-      { id: 'area', namn: 'Area' },
-      { id: 'volym', namn: 'Volym' },
-      { id: 'enheter', namn: 'Enheter och omvandlingar' },
-      { id: 'skala', namn: 'Skala' },
-      { id: 'vinklar', namn: 'Vinklar' },
-      { id: 'pythagoras', namn: 'Pythagoras sats' }
+      { id: 'figurer', namn: 'Begrepp och figurer', fil: 'figurer' },
+      { id: 'omkrets', namn: 'Omkrets', fil: 'omkrets' },
+      { id: 'area', namn: 'Area', fil: 'area' },
+      { id: 'volym', namn: 'Volym', fil: 'volym' },
+      { id: 'enheter', namn: 'Enheter och omvandlingar', fil: 'enheter' },
+      { id: 'skala', namn: 'Skala', fil: 'skala' },
+      { id: 'vinklar', namn: 'Vinklar', fil: 'vinklar' },
+      { id: 'pythagoras', namn: 'Pythagoras sats', fil: 'pythagoras' }
     ],
     formelblad: [
       { rubrik: 'Omkrets och area', rader: [
@@ -102,9 +102,9 @@ window.MATTE_DATA.omraden = [
     id: 'statistik', namn: 'Statistik och sannolikhet', ikon: '📊',
     beskrivning: 'Tabeller, diagram, medelvärde och chans.',
     moment: [
-      { id: 'tabeller', namn: 'Tabeller och diagram' },
-      { id: 'lagesmatt', namn: 'Medelvärde, median och typvärde' },
-      { id: 'sannolikhet', namn: 'Sannolikhet' }
+      { id: 'tabeller', namn: 'Tabeller och diagram', fil: 'tabeller' },
+      { id: 'lagesmatt', namn: 'Medelvärde, median och typvärde', fil: 'lagesmatt' },
+      { id: 'sannolikhet', namn: 'Sannolikhet', fil: 'sannolikhet' }
     ],
     formelblad: [
       { rubrik: 'Lägesmått', rader: [
@@ -119,10 +119,10 @@ window.MATTE_DATA.omraden = [
     id: 'samband', namn: 'Samband och förändring', ikon: '📈',
     beskrivning: 'Proportionalitet, procentuell förändring och grafer.',
     moment: [
-      { id: 'proportionalitet', namn: 'Proportionalitet' },
-      { id: 'procentforandring', namn: 'Procentuell förändring' },
-      { id: 'koordinater', namn: 'Koordinatsystem' },
-      { id: 'funktioner', namn: 'Linjära funktioner och grafer' }
+      { id: 'proportionalitet', namn: 'Proportionalitet', fil: 'proportionalitet' },
+      { id: 'procentforandring', namn: 'Procentuell förändring', fil: 'procentforandring' },
+      { id: 'koordinater', namn: 'Koordinatsystem', fil: 'koordinater' },
+      { id: 'funktioner', namn: 'Linjära funktioner och grafer', fil: 'funktioner' }
     ],
     formelblad: [
       { rubrik: 'Samband', rader: [
@@ -136,11 +136,11 @@ window.MATTE_DATA.omraden = [
     id: 'problem', namn: 'Problemlösning', ikon: '🧩',
     beskrivning: 'Textuppgifter om pengar, mat, jobb och resor.',
     moment: [
-      { id: 'pengar', namn: 'Pengar och handla' },
-      { id: 'mat', namn: 'Mat och recept' },
-      { id: 'jobb', namn: 'Jobb och lön' },
-      { id: 'resor', namn: 'Resor och tid' },
-      { id: 'mobil', namn: 'Mobilabonnemang' }
+      { id: 'pengar', namn: 'Pengar och handla', fil: 'pengar' },
+      { id: 'mat', namn: 'Mat och recept', fil: 'mat' },
+      { id: 'jobb', namn: 'Jobb och lön', fil: 'jobb' },
+      { id: 'resor', namn: 'Resor och tid', fil: 'resor' },
+      { id: 'mobil', namn: 'Mobilabonnemang', fil: 'mobil' }
     ],
     formelblad: [
       { rubrik: 'Så löser du en textuppgift', rader: [

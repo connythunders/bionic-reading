@@ -88,9 +88,13 @@
     else if (v.typ === 'tallinje') box.appendChild(tallinje(n, t));
     else if (v.typ === 'jamfor') box.appendChild(jamfor(Math.round(v.n1), Math.round(v.t1), Math.round(v.n2), Math.round(v.t2)));
     else if (v.typ === 'brakverkstad') box.appendChild(brakverkstad());
+    else if (M.visTyper && M.visTyper[v.typ]) { var e = M.visTyper[v.typ](v); if (!e) return null; box.appendChild(e); }
     else return null;
     return box;
   };
+  M.svgEl = el;
+  M.svg = svg;
+  M.stav = stav;
 
   /* ================= Bråkverkstaden =================
      Eleven väljer antal delar, klickar för att färga och kan jämföra med en andra stav. */

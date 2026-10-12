@@ -1,11 +1,19 @@
 /* Gör att Matteträning fungerar offline. Höj VERSION när du ändrar filer, så hämtas de nya. */
-var VERSION = 'mattetraning-v1';
+var VERSION = 'mattetraning-v2';
 var FILER = [
   './', 'index.html', 'app.css', 'manifest.webmanifest',
   'fonts/atkinson-400.woff2', 'fonts/atkinson-700.woff2',
-  'js/motor.js', 'js/visual.js', 'js/verktyg.js', 'js/app.js',
-  'data/omraden.js', 'data/moment/brak.js'
+  'js/motor.js', 'js/visual.js', 'js/visual2.js', 'js/verktyg.js', 'js/app.js',
+  'data/omraden.js', 'data/diagnos.js'
 ];
+// Momentfilerna läses från data/omraden.js, så listan behöver inte ändras för hand.
+self.window = self;
+try {
+  importScripts('data/omraden.js');
+  self.MATTE_DATA.omraden.forEach(function (o) {
+    o.moment.forEach(function (m) { if (m.fil) FILER.push('data/moment/' + m.fil + '.js'); });
+  });
+} catch (e) {}
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(FILER); }).then(function () { return self.skipWaiting(); }));

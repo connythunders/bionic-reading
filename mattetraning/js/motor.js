@@ -23,8 +23,8 @@
   }
   function sgd(a, b) { a = Math.abs(Math.round(a)); b = Math.abs(Math.round(b)); while (b) { var t = b; b = a % b; a = t; } return a || 1; }
   var FUNKS = {
-    sgd: sgd, min: Math.min, max: Math.max, abs: Math.abs,
-    avrunda: function (x, d) { var f = Math.pow(10, d || 0); return Math.round(x * f) / f; }
+    sgd: sgd, min: Math.min, max: Math.max, abs: Math.abs, rot: Math.sqrt, golv: Math.floor, tak: Math.ceil,
+    avrunda: function (x, d) { var f = Math.pow(10, d || 0); return Math.round((x + 1e-9 * Math.sign(x)) * f) / f; }
   };
   function evaluate(src, vars) {
     var toks = tokenize(src), p = 0;
@@ -58,6 +58,7 @@
           if (!FUNKS[tk.v]) throw new Error('Okänd funktion: ' + tk.v);
           return FUNKS[tk.v].apply(null, args);
         }
+        if (tk.v === 'pi' && !(vars && 'pi' in vars)) return Math.PI;
         if (!vars || !(tk.v in vars)) throw new Error('Okänd variabel: ' + tk.v);
         var v = vars[tk.v];
         return typeof v === 'number' ? v : parseFloat(v);
@@ -103,8 +104,19 @@
 
   function varde(x, vars) { return typeof x === 'number' ? x : evaluate(x, vars); }
 
+  // Villkor som "p % 100 == 0" blir steglängd för p, så att bara sådana tal slumpas.
+  function stegFranVillkor(mall) {
+    var steg = {}, re = /(^|[^\w])([A-Za-z_]\w*)\s*%\s*(\d+)\s*==\s*0/g, m;
+    while (mall.villkor && (m = re.exec(mall.villkor))) {
+      var spec = mall.var && mall.var[m[2]];
+      if (Array.isArray(spec) && spec.length === 2) steg[m[2]] = +m[3];
+    }
+    return steg;
+  }
+
   function genVars(mall) {
-    for (var forsok = 0; forsok < 300; forsok++) {
+    var autoSteg = stegFranVillkor(mall);
+    for (var forsok = 0; forsok < 500; forsok++) {
       var vars = {}, fall = null, ok = true;
       if (mall.fall && mall.fall.length) {
         fall = mall.fall[Math.floor(Math.random() * mall.fall.length)];
@@ -115,9 +127,11 @@
       for (var i = 0; i < keys.length; i++) {
         var k = keys[i], s = spec[k];
         if (Array.isArray(s)) {
-          var lo = Math.ceil(varde(s[0], vars)), hi = Math.floor(varde(s[1], vars));
+          // [min, max] eller [min, max, steg], t.ex. [100, 900, 50] ger 100, 150, 200 …
+          var steg = s.length > 2 ? varde(s[2], vars) : (autoSteg[k] || 1);
+          var lo = Math.ceil(varde(s[0], vars) / steg) * steg, hi = Math.floor(varde(s[1], vars) / steg) * steg;
           if (hi < lo) { ok = false; break; }
-          vars[k] = slump(lo, hi);
+          vars[k] = Math.round((lo + steg * slump(0, Math.round((hi - lo) / steg))) * 1e9) / 1e9;
         } else if (s && s.bland) {
           vars[k] = varde(s.bland[Math.floor(Math.random() * s.bland.length)], vars);
         } else if (s && s.ber !== undefined) {
@@ -139,6 +153,16 @@
     return { t: parseFloat(m[1]), n: parseFloat(m[2]) };
   }
 
+  // Fyller i värden i en bild-beskrivning. Tal blir tal, text blir text, listor fylls i element för element.
+  function fyllVis(v, vars) {
+    if (Array.isArray(v)) return v.map(function (x) { return fyllVis(x, vars); });
+    if (v && typeof v === 'object') { var o = {}; Object.keys(v).forEach(function (k) { o[k] = fyllVis(v[k], vars); }); return o; }
+    if (typeof v !== 'string') return v;
+    var f = fyll(v, vars, '.');
+    return /^\s*-?(\d+\.?\d*|\.\d+)\s*$/.test(f) ? parseFloat(f) : fyll(v, vars);
+  }
+  function mkVars(namn, x) { var o = {}; o[namn] = x; return o; }
+
   function skapaUppgift(mall) {
     var g = genVars(mall), vars = g.vars;
     var svarMall = (g.fall && g.fall.svar) || mall.svar;
@@ -151,13 +175,24 @@
     } else if (svar.typ === 'tal') {
       svar.varde = parseFloat(fyll(svarMall.varde, vars, '.'));
       rattText = talText(svar.varde) + (svar.enhet ? ' ' + svar.enhet : '');
+      svar.tolerans = svarMall.tolerans ? parseFloat(fyll(String(svarMall.tolerans), vars, '.')) : 0;
     } else if (svar.typ === 'val') {
       var alt = svarMall.alternativ.map(function (a) { return fyll(a, vars); });
       var ratt = parseInt(fyll(String(svarMall.ratt), vars, '.'), 10);
-      var ordning = blanda(alt.map(function (_, i) { return i; }));
-      svar.alternativ = ordning.map(function (i) { return { text: alt[i], orig: i } });
+      var ordning = svarMall.fast ? alt.map(function (_, i) { return i; }) : blanda(alt.map(function (_, i) { return i; }));
+      svar.alternativ = ordning.map(function (i) { return { text: alt[i], orig: i }; });
       svar.ratt = ratt;
       rattText = alt[ratt];
+    } else if (svar.typ === 'uttryck') {
+      svar.varde = fyll(svarMall.varde, vars, '.');
+      svar.variabel = svarMall.variabel || 'x';
+      rattText = fyll(svarMall.visa || svarMall.varde, vars);
+      evaluate(svar.varde, mkVars(svar.variabel, 1)); // kontroll att facit går att räkna
+    } else if (svar.typ === 'par') {
+      svar.a = parseFloat(fyll(svarMall.a, vars, '.'));
+      svar.b = parseFloat(fyll(svarMall.b, vars, '.'));
+      svar.etiketter = svarMall.etiketter || ['x', 'y'];
+      rattText = '(' + talText(svar.a) + '; ' + talText(svar.b) + ')';
     } else {
       throw new Error('Okänd svarstyp i ' + mall.id);
     }
@@ -165,10 +200,7 @@
     var vis = null;
     if (mall.vis) {
       vis = {};
-      Object.keys(mall.vis).forEach(function (k) {
-        var v = mall.vis[k];
-        vis[k] = typeof v === 'string' && k !== 'typ' ? parseFloat(fyll(v, vars, '.')) : v;
-      });
+      Object.keys(mall.vis).forEach(function (k) { vis[k] = k === 'typ' ? mall.vis[k] : fyllVis(mall.vis[k], vars); });
     }
     return {
       id: mall.id, niva: mall.niva, vars: allaVars,
@@ -194,6 +226,19 @@
   }
   M.lasTal = lasTal;
 
+  // Tolkar elevens uttryck, t.ex. "3x+2", "2(x+1)", "x·4". Returnerar en funktion av variabeln eller null.
+  function tolkaUttryck(str, v) {
+    var s = String(str || '').toLowerCase().replace(/\s+/g, '').replace(/−/g, '-').replace(/[·×]/g, '*').replace(/,/g, '.')
+      .replace(/^[a-zåäö]=/, ''); // "y = 2x + 1" godkänns också
+    if (!s || !new RegExp('^[0-9.+\\-*/()^' + v + ']+$').test(s)) return null;
+    s = s.replace(new RegExp('(\\d)(' + v + '|\\()', 'g'), '$1*$2')
+         .replace(new RegExp('(' + v + '|\\))(\\d|' + v + '|\\()', 'g'), '$1*$2')
+         .replace(new RegExp('(' + v + '|\\))(\\d|' + v + '|\\()', 'g'), '$1*$2');
+    try { evaluate(s, mkVars(v, 1)); } catch (e) { return null; }
+    return function (x) { return evaluate(s, mkVars(v, x)); };
+  }
+  M.tolkaUttryck = tolkaUttryck;
+
   function lika(a, b) { return Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(b)); }
 
   function ratta(u, input) {
@@ -210,6 +255,7 @@
       var x = lasTal(input);
       if (isNaN(x)) return { ratt: false, mjuk: true, text: 'Skriv bara ett tal, till exempel 15 eller 0,5.' };
       if (lika(x, s.varde)) return { ratt: true };
+      if (s.tolerans && Math.abs(x - s.varde) <= s.tolerans + 1e-9) return { ratt: true };
       for (i = 0; i < u.vanligaFel.length; i++) {
         var f = u.vanligaFel[i];
         if (f.svar !== undefined && !isNaN(parseFloat(f.svar)) && lika(x, parseFloat(f.svar))) return { ratt: false, text: f.text };
@@ -219,6 +265,33 @@
       if (lika(x, -s.varde)) return { ratt: false, text: 'Talet stämmer, men kolla om det ska vara plus eller minus.' };
       if (s.varde !== 0 && Math.abs(x - s.varde) / Math.abs(s.varde) <= 0.1) return { ratt: false, text: 'Du är nära! Räkna en gång till, steg för steg.' };
       return { ratt: false, text: 'Tänk på vilket räknesätt som passar, och testa om svaret är rimligt.' };
+    }
+
+    if (s.typ === 'par') {
+      var pa = lasTal(input && input.a), pb = lasTal(input && input.b);
+      if (isNaN(pa) || isNaN(pb)) return { ratt: false, mjuk: true, text: 'Skriv ett tal i varje ruta.' };
+      if (lika(pa, s.a) && lika(pb, s.b)) return { ratt: true };
+      if (lika(pa, s.b) && lika(pb, s.a)) return { ratt: false, text: 'Du har bytt plats på talen. ' + s.etiketter[0] + ' kommer först, sedan ' + s.etiketter[1] + '.' };
+      if (lika(pa, s.a)) return { ratt: false, text: s.etiketter[0] + ' stämmer! Kolla ' + s.etiketter[1] + ' en gång till.' };
+      if (lika(pb, s.b)) return { ratt: false, text: s.etiketter[1] + ' stämmer! Kolla ' + s.etiketter[0] + ' en gång till.' };
+      return { ratt: false, text: 'Ta ett tal i taget. Börja med ' + s.etiketter[0] + '.' };
+    }
+
+    if (s.typ === 'uttryck') {
+      var fx = tolkaUttryck(input, s.variabel);
+      if (!fx) return { ratt: false, mjuk: true, text: 'Skriv ett uttryck, till exempel 3x + 2.' };
+      var testa = [1.3, 2.7, -1.1, 0.4], alla = true;
+      for (i = 0; i < testa.length; i++) {
+        var va = fx(testa[i]), vb = evaluate(s.varde, mkVars(s.variabel, testa[i]));
+        if (!lika(va, vb)) { alla = false; break; }
+      }
+      if (alla) return { ratt: true };
+      for (i = 0; i < u.vanligaFel.length; i++) {
+        var fe2 = u.vanligaFel[i];
+        if (fe2.svar === undefined) continue;
+        try { if (lika(fx(1.3), evaluate(fe2.svar, mkVars(s.variabel, 1.3))) && lika(fx(2.7), evaluate(fe2.svar, mkVars(s.variabel, 2.7)))) return { ratt: false, text: fe2.text }; } catch (e) {}
+      }
+      return { ratt: false, text: 'Räkna ' + s.variabel + ' för sig och vanliga tal för sig.' };
     }
 
     if (s.typ === 'brak') {
@@ -263,6 +336,10 @@
       .replace(/\[(-?\d+|\?)\/(\d+|\?)\]/g, function (_, t, n) { return t === '?' || n === '?' ? (t === '?' ? 'frågetecken' : t) + ' delat med ' + (n === '?' ? 'frågetecken' : n) : brakOrd(t, n); })
       .replace(/\s·\s/g, ' gånger ').replace(/\s\/\s/g, ' delat med ').replace(/\s[−-]\s/g, ' minus ')
       .replace(/\s\+\s/g, ' plus ').replace(/\s=\s/g, ' är lika med ').replace(/(\d)\s?%/g, '$1 procent')
-      .replace(/−(\d)/g, 'minus $1');
+      .replace(/−(\d)/g, 'minus $1')
+      .replace(/(\S)\^2\b/g, '$1 i kvadrat').replace(/(\S)\^3\b/g, '$1 i kubik').replace(/\^(-?\d+)/g, ' upphöjt till $1')
+      .replace(/√/g, 'roten ur ').replace(/°/g, ' grader').replace(/cm²|cm\^2/g, 'kvadratcentimeter').replace(/m²/g, 'kvadratmeter')
+      .replace(/cm³/g, 'kubikcentimeter').replace(/dm³/g, 'kubikdecimeter').replace(/m³/g, 'kubikmeter')
+      .replace(/\bkm\/h\b/g, 'kilometer i timmen').replace(/\bkr\/st\b/g, 'kronor styck');
   };
 })();

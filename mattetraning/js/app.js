@@ -17,7 +17,7 @@
     return esc(s).replace(/\[(-?\d+|\?)\/(\d+|\?)\]/g, function (_, t, n) {
       var lbl = (t === '?' || n === '?') ? t + ' delat med ' + n : M.brakOrd(t, n);
       return '<span class="frac" role="img" aria-label="' + esc(lbl) + '"><span class="t">' + t + '</span><span class="n">' + n + '</span></span>';
-    });
+    }).replace(/([0-9a-zA-Z)])\^(-?\d+)/g, '$1<sup>$2</sup>');
   }
   M.html = html;
   function lasKnapp(text, etikett) {
@@ -101,7 +101,7 @@
   function route() {
     if (synth) synth.cancel();
     if (M.stangVerktyg) M.stangVerktyg();
-    main.onclick = null; // varje vy sätter sin egen klick-lyssnare
+    main.onclick = null; main.onkeydown = null; // varje vy sätter sina egna lyssnare
     var h = location.hash.replace(/^#\/?/, '').split('/');
     aktuelltOmradeId = null;
     if (h[0] === 'omrade' && h[1]) vyOmrade(h[1]);
@@ -109,6 +109,7 @@
     else if (h[0] === 'installningar') vyInstallningar();
     else if (h[0] === 'framsteg') vyFramsteg();
     else if (h[0] === 'larare') vyLarare();
+    else if (h[0] === 'diagnos') vyDiagnos();
     else vyStart();
     window.scrollTo(0, 0);
     main.focus({ preventScroll: true });
@@ -142,7 +143,12 @@
         (finns.length ? '<div class="mätare" aria-hidden="true"><span style="width:' + pct + '%"></span></div><span class="liten-info">' + klara + ' av ' + finns.length + ' moment klarade</span>'
           : '<span class="liten-info">Kommer snart</span>') + '</a>';
     }).join('') + '</div>';
-    h += '<div class="kort"><h3>🧭 Var ska jag börja?</h3><p class="dampad">Ett kort test med ungefär 10 frågor som föreslår var du kan börja. Testet kommer när fler moment är klara.</p></div>';
+    var dRek = (P.diagnos && P.diagnos.forslag || []).filter(function (id) { var f = hittaMoment(id); return f && f.data && !P.larare.last[id] && !(P.moment[id] && P.moment[id].klarat); });
+    h += '<div class="kort"><h3>🧭 Var ska jag börja?</h3>' +
+      (P.diagnos ? '<p class="dampad">Testet föreslog att du börjar med:</p>' + (dRek.length ? '<div class="knapp-rad">' + dRek.slice(0, 3).map(function (id) {
+        return '<a class="knapp sekundar liten" href="#/moment/' + id + '/forsta">' + esc(hittaMoment(id).info.namn) + '</a>';
+      }).join('') + '</div>' : '<p>Du har klarat allt som testet föreslog. Välj fritt bland områdena!</p>') + '<div class="knapp-rad"><a class="lank-knapp" href="#/diagnos">Gör testet igen</a></div>'
+        : '<p class="dampad">Ett kort test med ' + D.diagnos.length + ' frågor. Det föreslår var du kan börja. Det är inget prov, och ingen ser hur det går.</p><div class="knapp-rad"><a class="knapp sekundar" href="#/diagnos">Gör testet</a></div>') + '</div>';
     h += '<div class="sidfot-lankar"><a class="knapp sekundar liten" href="#/framsteg">📈 Mina framsteg</a><a class="knapp sekundar liten" href="#/installningar">⚙️ Inställningar</a><a class="knapp sekundar liten" href="#/larare">👩‍🏫 Lärarvy</a></div>';
     main.innerHTML = h;
   }
@@ -238,6 +244,41 @@
     return val;
   }
 
+  // Svarsrutor för en uppgift. Används av träningen och det diagnostiska testet.
+  function svarHtml(u) {
+    if (u.svar.typ === 'val') {
+      return '<div class="val-lista" role="group" aria-label="Svarsalternativ">' + u.svar.alternativ.map(function (a, i) {
+        return '<button type="button" class="val-knapp" data-val="' + i + '" aria-pressed="false">' + html(a.text) + '</button>';
+      }).join('') + '</div>';
+    }
+    if (u.svar.typ === 'brak') {
+      return '<div class="svar-omrade"><label class="frac-input"><span class="hoppa">Täljare</span>' +
+        '<input class="svar-input" data-t inputmode="numeric" autocomplete="off" aria-label="Täljare, talet överst">' +
+        '<span class="frac-linje" aria-hidden="true"></span>' +
+        '<input class="svar-input" data-n inputmode="numeric" autocomplete="off" aria-label="Nämnare, talet underst"></label></div>';
+    }
+    if (u.svar.typ === 'par') {
+      return '<div class="svar-omrade">' + u.svar.etiketter.map(function (e, i) {
+        return '<label class="par-falt"><span class="enhet">' + esc(e) + ' =</span><input class="svar-input kort-input" data-par="' + i + '" inputmode="decimal" autocomplete="off" aria-label="' + esc(e) + '"></label>';
+      }).join('') + '</div>';
+    }
+    if (u.svar.typ === 'uttryck') {
+      return '<div class="svar-omrade"><input class="svar-input bred-input" data-uttryck inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Ditt uttryck" placeholder="t.ex. 3x + 2"></div>';
+    }
+    return '<div class="svar-omrade"><input class="svar-input" data-tal inputmode="decimal" autocomplete="off" aria-label="Ditt svar">' +
+      (u.svar.enhet ? '<span class="enhet">' + esc(u.svar.enhet) + '</span>' : '') + '</div>';
+  }
+  function svarFran(u, box, valt) {
+    if (u.svar.typ === 'val') return valt;
+    if (u.svar.typ === 'brak') return { t: $('[data-t]', box).value, n: $('[data-n]', box).value };
+    if (u.svar.typ === 'par') return { a: $('[data-par="0"]', box).value, b: $('[data-par="1"]', box).value };
+    if (u.svar.typ === 'uttryck') return $('[data-uttryck]', box).value;
+    return $('[data-tal]', box).value;
+  }
+  function lasTextFor(u) {
+    return u.text + (u.svar.typ === 'val' ? ' Svaren du kan välja: ' + u.svar.alternativ.map(function (a) { return a.text; }).join('. Eller: ') + '.' : '');
+  }
+
   function delTrana(box, f) {
     var s = ms(f.info.id);
     var T = { u: null, fel: 0, ledtradar: 0, losning: false, losSteg: 0, klar: false, valt: null, fardig: false };
@@ -259,22 +300,6 @@
         '<span class="liten-info">Mot målet: ' + Math.min(k.ratt, INST.klaratAntal) + ' av ' + INST.klaratAntal + ' rätt, varav ' + Math.min(k.svarare, INST.klaratNiva2) + ' av ' + INST.klaratNiva2 + ' på nivå 2 eller 3</span></div>';
     }
 
-    function svarHtml(u) {
-      if (u.svar.typ === 'val') {
-        return '<div class="val-lista" role="group" aria-label="Svarsalternativ">' + u.svar.alternativ.map(function (a, i) {
-          return '<button type="button" class="val-knapp" data-val="' + i + '" aria-pressed="false">' + html(a.text) + '</button>';
-        }).join('') + '</div>';
-      }
-      if (u.svar.typ === 'brak') {
-        return '<div class="svar-omrade"><label class="frac-input"><span class="hoppa">Täljare</span>' +
-          '<input class="svar-input" data-t inputmode="numeric" autocomplete="off" aria-label="Täljare, talet överst">' +
-          '<span class="frac-linje" aria-hidden="true"></span>' +
-          '<input class="svar-input" data-n inputmode="numeric" autocomplete="off" aria-label="Nämnare, talet underst"></label></div>';
-      }
-      return '<div class="svar-omrade"><input class="svar-input" data-tal inputmode="decimal" autocomplete="off" aria-label="Ditt svar">' +
-        (u.svar.enhet ? '<span class="enhet">' + esc(u.svar.enhet) + '</span>' : '') + '</div>';
-    }
-
     function rita() {
       var u = T.u;
       M._aktuellUppgift = u; // för automatiska tester
@@ -282,7 +307,7 @@
         '<div class="niva-rad"><span>Nivå ' + s.niva + ' av 3<span class="niva-prickar" aria-hidden="true">' +
         [1, 2, 3].map(function (n) { return '<span class="' + (n <= s.niva ? 'pa' : '') + '"></span>'; }).join('') + '</span></span></div>' +
         '<div class="las-rad"><p class="uppg-text">' + html(u.text) + '</p>' +
-        lasKnapp(u.text + (u.svar.typ === 'val' ? ' Svaren du kan välja: ' + u.svar.alternativ.map(function (a) { return a.text; }).join('. Eller: ') + '.' : ''), 'Läs upp uppgiften') + '</div>' +
+        lasKnapp(lasTextFor(u), 'Läs upp uppgiften') + '</div>' +
         '<div data-vis></div>' + svarHtml(u) +
         '<div class="knapp-rad" data-knappar>' +
         (u.svar.typ !== 'val' ? '<button type="button" class="knapp" data-kolla>Kolla svaret</button>' : '') +
@@ -369,12 +394,7 @@
       var mal = $('.mal', box); if (mal) mal.outerHTML = malHtml();
     }
 
-    function hamtaSvar() {
-      var u = T.u;
-      if (u.svar.typ === 'val') return T.valt;
-      if (u.svar.typ === 'brak') return { t: $('[data-t]', box).value, n: $('[data-n]', box).value };
-      return $('[data-tal]', box).value;
-    }
+    function hamtaSvar() { return svarFran(T.u, box, T.valt); }
 
     function kolla() {
       if (T.klar || T.losning) return;
@@ -417,9 +437,79 @@
       if (e.key !== 'Enter' || !e.target.matches('.svar-input')) return;
       e.preventDefault();
       if (e.target.hasAttribute('data-t')) { $('[data-n]', box).focus(); return; }
+      if (e.target.getAttribute('data-par') === '0') { $('[data-par="1"]', box).focus(); return; }
       kolla();
     });
     nyUppgift();
+  }
+
+  /* ================= Diagnostiskt test ================= */
+  function vyDiagnos() {
+    document.title = 'Var ska jag börja? – Matteträning';
+    var fragor = (D.diagnos || []).filter(function (q) { var f = hittaMoment(q.moment); return f && f.data; });
+    var st = { i: -1, resultat: [], u: null, valt: null };
+    function intro() {
+      main.innerHTML = '<a href="#/" class="lank-knapp">← Start</a><h1>🧭 Var ska jag börja?</h1>' +
+        '<div class="kort"><div class="las-rad"><div><p>Du får ' + fragor.length + ' frågor från olika delar av matten. Svara så gott du kan.</p>' +
+        '<p>Det är inget prov. Det gör inget om du inte kan alla. Testet hjälper dig bara att hitta ett bra ställe att börja på.</p>' +
+        '<p>Om du inte vet svaret trycker du på <strong>Jag vet inte</strong>.</p></div>' +
+        lasKnapp('Du får ' + fragor.length + ' frågor. Det är inget prov. Om du inte vet svaret trycker du på Jag vet inte.') + '</div>' +
+        '<div class="knapp-rad"><button type="button" class="knapp" data-d-start>Börja</button></div></div>';
+    }
+    function fraga() {
+      var q = fragor[st.i], f = hittaMoment(q.moment);
+      var mall = f.data.uppgifter.filter(function (x) { return x.id === q.uppgift; })[0] || f.data.uppgifter[0];
+      st.u = M.skapaUppgift(mall); st.valt = null;
+      var u = st.u;
+      main.innerHTML = '<h1>🧭 Fråga ' + (st.i + 1) + ' av ' + fragor.length + '</h1>' +
+        '<div class="mätare" aria-hidden="true"><span style="width:' + Math.round(100 * st.i / fragor.length) + '%"></span></div>' +
+        '<div class="kort uppgift-kort"><div class="niva-rad"><span>' + esc(f.omrade.namn) + ' · ' + esc(f.info.namn) + '</span></div>' +
+        '<div class="las-rad"><p class="uppg-text">' + html(u.text) + '</p>' + lasKnapp(lasTextFor(u), 'Läs upp frågan') + '</div>' +
+        '<div data-vis></div>' + svarHtml(u) +
+        '<div class="knapp-rad">' + (u.svar.typ !== 'val' ? '<button type="button" class="knapp" data-d-svar>Svara</button>' : '') +
+        '<button type="button" class="knapp sekundar" data-d-vetinte>Jag vet inte</button></div></div>';
+      var v = M.ritaVis(u.vis); if (v) $('[data-vis]', main).appendChild(v);
+      var forst = $('.svar-input, .val-knapp', main); if (forst) forst.focus({ preventScroll: true });
+    }
+    function registrera(ratt) {
+      var r = ratt ? M.ratta(st.u, svarFran(st.u, main, st.valt)) : null;
+      if (r && r.mjuk && !r.ratt) { toast(r.text); return; }
+      st.resultat.push({ moment: fragor[st.i].moment, ratt: !!(r && r.ratt) });
+      nasta();
+    }
+    function nasta() {
+      st.i++;
+      if (st.i < fragor.length) fraga(); else resultat();
+    }
+    function resultat() {
+      var kan = st.resultat.filter(function (x) { return x.ratt; }).map(function (x) { return x.moment; });
+      var ova = st.resultat.filter(function (x) { return !x.ratt; }).map(function (x) { return x.moment; });
+      P.diagnos = { datum: new Date().toISOString().slice(0, 10), kan: kan, forslag: ova };
+      sparaP();
+      var namn = function (id) { return esc(hittaMoment(id).info.namn); };
+      main.innerHTML = '<h1>🧭 Klart!</h1>' +
+        '<div class="kort"><p><strong>Bra jobbat som gjorde hela testet.</strong></p>' +
+        (kan.length ? '<h3>Det här verkar du redan kunna</h3><ul class="prova">' + kan.map(function (id) { return '<li>✓ ' + namn(id) + '</li>'; }).join('') + '</ul>' : '') +
+        (ova.length ? '<h3 style="margin-top:16px">Börja gärna här</h3><div class="knapp-rad">' + ova.map(function (id, i) {
+          return '<a class="knapp ' + (i ? 'sekundar' : '') + '" href="#/moment/' + id + '/forsta">' + (i ? '' : '⭐ ') + namn(id) + '</a>';
+        }).join('') + '</div>' : '<p>Du klarade alla frågor! Välj fritt bland områdena, eller prova nivå 2 och 3.</p>') +
+        '<div class="knapp-rad"><a class="lank-knapp" href="#/">Till startsidan</a></div></div>';
+    }
+    main.onclick = function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.hasAttribute('data-d-start')) nasta();
+      else if (b.hasAttribute('data-d-vetinte')) registrera(false);
+      else if (b.hasAttribute('data-d-svar')) registrera(true);
+      else if (b.dataset.val !== undefined) { st.valt = +b.dataset.val; registrera(true); }
+    };
+    main.onkeydown = function (e) {
+      if (e.key !== 'Enter' || !e.target.matches('.svar-input')) return;
+      e.preventDefault();
+      if (e.target.hasAttribute('data-t')) { $('[data-n]', main).focus(); return; }
+      if (e.target.getAttribute('data-par') === '0') { $('[data-par="1"]', main).focus(); return; }
+      registrera(true);
+    };
+    intro();
   }
 
   /* ================= Inställningar ================= */

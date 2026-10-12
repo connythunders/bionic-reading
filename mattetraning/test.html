@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testa uppgifterna</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<main style="max-width:900px">
+  <h1>Testa uppgifterna</h1>
+  <p class="inledning">Sidan skapar varje uppgift 150 gånger med nya tal och kontrollerar att rätt svar godkänns, att texterna blir hela och att bilderna går att rita. Kör den efter att du har ändrat eller lagt till uppgifter.</p>
+  <div class="knapp-rad"><button class="knapp" id="kor">Kör testet</button></div>
+  <div id="resultat"></div>
+</main>
+<div id="huvud" hidden></div>
+<script src="data/omraden.js"></script>
+<script>
+  // Läser in alla moment som har fil: i data/omraden.js. Inget mer behöver ändras här.
+  window.MATTE_DATA.omraden.forEach(function (o) { o.moment.forEach(function (m) { if (m.fil) document.write('<script src="data/moment/' + m.fil + '.js"><\/script>'); }); });
+</script>
+<script src="data/diagnos.js"></script>
+<script src="js/motor.js"></script>
+<script src="js/visual.js"></script>
+<script src="js/visual2.js"></script>
+<script>
+  // Det som app.js annars tillhandahåller och som bilderna behöver.
+  (function () {
+    var M = window.MATTE;
+    M.esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+    M.html = function (s) { return M.esc(s); };
+    M.lasKnapp = function () { return ''; };
+  })();
+</script>
+<script src="js/test.js"></script>
+<script>
+  document.getElementById('kor').addEventListener('click', function () {
+    var out = document.getElementById('resultat');
+    out.innerHTML = '<p>Testar …</p>';
+    setTimeout(function () {
+      var r = window.MATTE.testaAllt(150);
+      var antal = r.info.reduce(function (s, x) { return s + x.per[0] + x.per[1] + x.per[2]; }, 0);
+      out.innerHTML = '<div class="kort"><h2 style="margin-top:0">' + (r.fel.length ? '⚠️ ' + r.fel.length + ' problem' : '✅ Allt fungerar') + '</h2>' +
+        '<p>' + r.info.length + ' moment och ' + antal + ' uppgiftsmallar.</p>' +
+        (r.fel.length ? '<ul>' + r.fel.map(function (f) { return '<li>' + window.MATTE.esc(f) + '</li>'; }).join('') + '</ul>' : '') + '</div>' +
+        '<div class="kort tabell-wrap"><table><tr><th>Moment</th><th>Nivå 1</th><th>Nivå 2</th><th>Nivå 3</th></tr>' +
+        r.info.map(function (x) { return '<tr><td>' + x.namn + '</td><td>' + x.per[0] + '</td><td>' + x.per[1] + '</td><td>' + x.per[2] + '</td></tr>'; }).join('') + '</table></div>';
+    }, 30);
+  });
+</script>
+</body>
+</html>
