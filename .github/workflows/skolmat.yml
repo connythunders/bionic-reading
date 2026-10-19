@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   update:
@@ -44,3 +45,11 @@ jobs:
           git add skolmat-data.json
           git diff --staged --quiet || git commit -m "Auto: Skolmat $(date -u '+%Y-%m-%d %H:%M') UTC"
           git push
+
+      # Commits gjorda med GITHUB_TOKEN triggar inte andra workflows, så
+      # sajten måste driftsättas explicit för att den nya matsedeln ska synas.
+      - name: Driftsätt sajten
+        if: steps.gate.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy-larplattform.yml --ref Main
