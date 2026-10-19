@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skolmat Stiernhööksgymnasiet</title>
+<style>
+  :root {
+    --green: #0b6b4d; --green-d: #064e38; --mint: #d9f7ea; --mint-l: #effbf6;
+    --ink: #1c1917; --mute: #57534e; --line: #e7e5e4; --bg: #fff; --card: #fafaf9;
+    --amber: #92400e; --heart: #e11d48;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.5; }
+  header { border-bottom: 1px solid var(--line); background: #fff; position: sticky; top: 0; z-index: 5; }
+  .bar { max-width: 1200px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.3rem; }
+  .logo { width: 40px; height: 40px; border-radius: 10px; background: var(--green); color: #fff; display: grid; place-items: center; font-size: 1.3rem; }
+  nav { display: flex; gap: 22px; flex: 1; flex-wrap: wrap; }
+  nav button { background: none; border: 0; font: inherit; font-size: 1rem; color: var(--mute); padding: 8px 0; cursor: pointer; border-bottom: 3px solid transparent; }
+  nav button[aria-selected="true"] { color: var(--green); font-weight: 600; border-color: var(--green); }
+  .favcount { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; font-size: .95rem; }
+  .favcount b { background: var(--green); color: #fff; border-radius: 999px; padding: 1px 9px; margin-left: 6px; }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px 20px 60px; }
+  .status { background: var(--mint-l); border: 1px solid var(--mint); border-radius: 16px; padding: 14px 20px; color: var(--green-d); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: .95rem; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #16a34a; flex: none; }
+  .status.old .dot { background: #d97706; }
+  .hero { display: flex; justify-content: space-between; gap: 24px; align-items: flex-end; flex-wrap: wrap; margin: 32px 0 24px; }
+  .eyebrow { color: var(--green-d); text-transform: uppercase; font-weight: 600; letter-spacing: .03em; font-size: .9rem; }
+  h1 { font-size: clamp(2.2rem, 6vw, 4rem); line-height: 1.05; margin: 6px 0 10px; letter-spacing: -.03em; }
+  .sub { color: var(--mute); font-size: 1.1rem; margin: 0; }
+  .hours { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 18px 24px; min-width: 280px; }
+  .hours small { text-transform: uppercase; letter-spacing: .04em; font-weight: 700; color: var(--mute); }
+  .hours strong { display: block; font-size: 1.4rem; }
+  .open { color: #15803d; font-size: .95rem; } .closed { color: var(--amber); font-size: .95rem; }
+  .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: 28px; margin-bottom: 20px; }
+  .card.veg { background: var(--mint-l); border-color: var(--mint); }
+  .card.dinner { background: #fffbeb; border-color: #fde68a; }
+  .tag { font-weight: 700; font-size: .95rem; }
+  .veg .tag { color: var(--green); }
+  .card h2 { font-size: clamp(1.4rem, 3vw, 2rem); margin: 18px 0 4px; line-height: 1.2; }
+  .row { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+  .like { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 10px 16px; font: inherit; color: var(--mute); cursor: pointer; white-space: nowrap; }
+  .like[aria-pressed="true"] { color: var(--heart); border-color: #fda4af; background: #fff1f2; }
+  .side h3 { margin: 0 0 8px; font-size: 1.2rem; }
+  .side p { color: var(--mute); margin: 0 0 14px; font-size: .95rem; }
+  .mini { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .mini small { color: var(--mute); display: block; }
+  .mini b { font-size: .98rem; }
+  .note { background: #fff; border-radius: 16px; padding: 14px 18px; color: var(--mute); }
+  .days { display: grid; gap: 16px; }
+  .day { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 20px 24px; }
+  .day.today { border-color: var(--green); box-shadow: 0 0 0 3px var(--mint); }
+  .day h3 { margin: 0 0 12px; text-transform: capitalize; font-size: 1.2rem; }
+  .meal { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+  .meal.fav { background: #fff1f2; margin: 0 -10px; padding: 8px 10px; border-radius: 10px; }
+  .meal small { color: var(--mute); display: block; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
+  .empty { text-align: center; color: var(--mute); padding: 60px 0; }
+  .info h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -.02em; }
+  footer { background: #1c1917; color: #d6d3d1; padding: 40px 20px; }
+  footer .in { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 1fr; gap: 30px; }
+  @media (max-width: 760px) { footer .in { grid-template-columns: 1fr; } }
+  footer h4 { color: #fff; margin: 0 0 10px; } footer a { color: #6ee7b7; }
+  .hidden { display: none; }
+  .back { display: inline-block; margin-top: 16px; color: var(--green); }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand"><span class="logo" aria-hidden="true">🍴</span> Stiernhööks Skolmat</div>
+    <nav role="tablist" aria-label="Sidor">
+      <button role="tab" data-tab="today" aria-selected="true">Dagens lunch</button>
+      <button role="tab" data-tab="week" aria-selected="false">Veckomeny</button>
+      <button role="tab" data-tab="info" aria-selected="false">Restaurang Masen</button>
+    </nav>
+    <div class="favcount">Mina favoriter <b id="favn">0</b></div>
+  </div>
+</header>
+
+<main>
+  <div class="status" id="status"><span class="dot"></span><span>Laddar matsedel …</span></div>
+
+  <section id="tab-today">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Stiernhööksgymnasiet · Restaurang Masen / Matsalen</div>
+        <h1>Dagens lunch i Rättvik</h1>
+        <p class="sub" id="daysub"></p>
+      </div>
+      <div class="hours">
+        <small>Matsalens öppettider</small>
+        <strong>11:00 – 13:00</strong>
+        <span id="openstate"></span>
+      </div>
+    </div>
+    <div class="grid">
+      <div id="todaycards"></div>
+      <aside class="card side">
+        <h3>❤️ Gilla dagens rätter</h3>
+        <p>Klicka på hjärtat för att gilla dina favoriter. De markeras i hela veckomenyn. Sparas bara i din webbläsare.</p>
+        <div id="sidefavs"></div>
+        <div class="note" id="sidenote"></div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="tab-week" class="hidden">
+    <div class="hero"><div><div class="eyebrow">Stiernhööksgymnasiet</div><h1 id="weektitle">Veckomeny</h1></div></div>
+    <div class="days" id="weekdays"></div>
+  </section>
+
+  <section id="tab-info" class="hidden info">
+    <h2>Restaurang Masen – Skolköket i Rättvik</h2>
+    <p class="sub">På Stiernhööksgymnasiet lagas maten från grunden av engagerade kockar, med naturbruk och lantbruk som en naturlig del av skolan.</p>
+    <div class="card" style="margin-top:24px">
+      <p><strong>Varje dag:</strong> <span id="allways">salladsbuffé, dryck, bröd och smör.</span></p>
+      <p>Har du födoämnesallergi eller behöver specialkost? Kontakta matsalen i god tid.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="in">
+    <div>
+      <h4>Stiernhööksgymnasiet · Restaurang Masen / Matsalen</h4>
+      <p>Masvägen 17, 795 32 Rättvik<br>Telefon matsal: 0248-70 000 (vxl)<br>E-post: <a href="mailto:stiernhoek@rattvik.se">stiernhoek@rattvik.se</a></p>
+    </div>
+    <div>
+      <h4>Matsalstider</h4>
+      <p>Måndag–fredag: 11:00 – 13:00<br>Frukost / fika: 08:00 – 09:30</p>
+      <p style="font-size:.85rem">Matsedeln hämtas från <a href="https://menu.matildaplatform.com/meals/week/6800a1f1ccac6167260ae1c3_stiernhooksgymnasiet" target="_blank" rel="noopener">Matilda Menu</a> och uppdateras automatiskt varje måndag kl 07:00. Ändringar kan förekomma.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var FAV_KEY = 'skolmat-favoriter';
+  var favs = [];
+  try { favs = JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch (e) {}
+  var days = [];      // [{iso, label, meals:[{kind, option, name}]}]
+  var allways = '';
+
+  function saveFavs() { try { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); } catch (e) {} }
+  function norm(s) { return String(s || '').replace(/\s+/g, ' ').trim(); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function isFav(n) { return favs.indexOf(n.toLowerCase()) > -1; }
+  function toggle(n) {
+    var k = n.toLowerCase(), i = favs.indexOf(k);
+    if (i > -1) favs.splice(i, 1); else favs.push(k);
+    saveFavs(); render();
+  }
+  function fmtDate(iso, opts) { return new Date(iso + 'T12:00:00').toLocaleDateString('sv-SE', opts); }
+  function todayIso() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function parse(data) {
+    var map = {};
+    (data.weeks || []).forEach(function (w) {
+      (w.meals || []).forEach(function (m) {
+        var iso = String(m.date).slice(0, 10);
+        if (!allways && m.description) allways = norm(m.description);
+        var d = map[iso] || (map[iso] = { iso: iso, meals: [] });
+        (m.courses || []).forEach(function (c) {
+          var name = norm(c.name);
+          if (!name) return;
+          d.meals.push({ kind: m.name, order: c.order || 0, option: norm(c.optionName), name: name });
+        });
+      });
+    });
+    days = Object.keys(map).sort().map(function (k) { map[k].meals.sort(function (a, b) { return a.order - b.order; }); return map[k]; });
+  }
+
+  function likeBtn(name) {
+    return '<button class="like" aria-pressed="' + isFav(name) + '" data-fav="' + esc(name) + '">' + (isFav(name) ? '♥ Gillad' : '♡ Gilla') + '</button>';
+  }
+
+  function pickDay() {
+    var t = todayIso();
+    var cur = days.filter(function (d) { return d.iso === t; })[0];
+    if (cur) return { day: cur, isToday: true };
+    var next = days.filter(function (d) { return d.iso > t; })[0];
+    return { day: next || days[days.length - 1], isToday: false };
+  }
+
+  function renderToday() {
+    var el = document.getElementById('todaycards');
+    if (!days.length) { el.innerHTML = '<div class="empty">Ingen matsedel publicerad ännu.</div>'; return; }
+    var p = pickDay(), d = p.day;
+    document.getElementById('daysub').textContent =
+      (p.isToday ? '' : 'Nästa serveringsdag: ') + fmtDate(d.iso, { weekday: 'long', day: 'numeric', month: 'long' }) + ' · Serveras i Restaurang Masen mellan 11:00 – 13:00.';
+    var lunch = d.meals.filter(function (m) { return m.kind === 'Lunch'; });
+    var other = d.meals.filter(function (m) { return m.kind !== 'Lunch'; });
+    var html = '';
+    lunch.forEach(function (m, i) {
+      var veg = lunch.length > 1 && i === lunch.length - 1;
+      html += '<div class="card' + (veg ? ' veg' : '') + '"><div class="row"><span class="tag">' + esc(m.option || 'Lunch') + '</span>' + likeBtn(m.name) + '</div><h2>' + esc(m.name) + '</h2>' +
+        '<p class="sub">Serveras med salladsbuffé, bröd och smör.</p></div>';
+    });
+    other.forEach(function (m) {
+      html += '<div class="card dinner"><div class="row"><span class="tag">' + esc(m.kind) + '</span>' + likeBtn(m.name) + '</div><h2>' + esc(m.name) + '</h2></div>';
+    });
+    el.innerHTML = html || '<div class="empty">Ingen mat registrerad för dagen.</div>';
+
+    var side = document.getElementById('sidefavs');
+    side.innerHTML = d.meals.map(function (m) {
+      return '<div class="mini"><div><small>' + esc(m.option || m.kind) + '</small><b>' + esc(m.name) + '</b></div>' + likeBtn(m.name) + '</div>';
+    }).join('');
+    document.getElementById('sidenote').textContent = allways || '';
+
+    // öppet/stängt
+    var os = document.getElementById('openstate'), now = new Date(), mins = now.getHours() * 60 + now.getMinutes(), wd = now.getDay();
+    if (!p.isToday || wd === 0 || wd === 6) { os.innerHTML = '<span class="closed">Stängt idag</span>'; }
+    else if (mins < 660) { os.innerHTML = '<span class="closed">Öppnar kl. 11:00</span>'; }
+    else if (mins < 780) { os.innerHTML = '<span class="open">Öppet nu</span>'; }
+    else { os.innerHTML = '<span class="closed">Stängt för i dag</span>'; }
+  }
+
+  function renderWeek() {
+    var el = document.getElementById('weekdays');
+    if (!days.length) { el.innerHTML = '<div class="empty">Ingen matsedel publicerad ännu.</div>'; return; }
+    var t = todayIso();
+    el.innerHTML = days.filter(function (d) { return d.iso >= mondayOf(t); }).map(function (d) {
+      return '<div class="day' + (d.iso === t ? ' today' : '') + '"><h3>' + fmtDate(d.iso, { weekday: 'long', day: 'numeric', month: 'long' }) + '</h3>' +
+        d.meals.map(function (m) {
+          return '<div class="meal' + (isFav(m.name) ? ' fav' : '') + '"><div><small>' + esc(m.option ? m.kind + ' · ' + m.option : m.kind) + '</small>' + esc(m.name) + '</div>' + likeBtn(m.name) + '</div>';
+        }).join('') + '</div>';
+    }).join('');
+  }
+
+  function mondayOf(iso) {
+    var d = new Date(iso + 'T12:00:00'), wd = (d.getDay() + 6) % 7;
+    d.setDate(d.getDate() - wd);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function render() {
+    document.getElementById('favn').textContent = favs.length;
+    renderToday(); renderWeek();
+    if (allways) document.getElementById('allways').textContent = allways.replace(/^Varje dag serveras /, '').replace(/^./, function (c) { return c; });
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-fav]');
+    if (b) { toggle(b.getAttribute('data-fav')); return; }
+    var t = e.target.closest('[data-tab]');
+    if (!t) return;
+    document.querySelectorAll('[data-tab]').forEach(function (x) { x.setAttribute('aria-selected', x === t); });
+    ['today', 'week', 'info'].forEach(function (n) { document.getElementById('tab-' + n).classList.toggle('hidden', n !== t.getAttribute('data-tab')); });
+  });
+
+  fetch('skolmat-data.json?v=' + Date.now()).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (data) {
+    parse(data);
+    var st = document.getElementById('status');
+    var upd = new Date(data.updated);
+    var ageDays = (Date.now() - upd.getTime()) / 864e5;
+    if (ageDays > 9) st.classList.add('old');
+    st.innerHTML = '<span class="dot"></span><strong>Automatisk veckouppdatering aktiv</strong> · Synkas från Matilda Menu (Stiernhööksgymnasiet) · Senast hämtad ' +
+      upd.toLocaleDateString('sv-SE', { day: 'numeric', month: 'long' }) + ' kl. ' + upd.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) +
+      (ageDays > 9 ? ' – <strong>datan kan vara gammal</strong>' : '');
+    var wk = days.length ? days[0].iso : null;
+    if (wk) document.getElementById('weektitle').textContent = 'Veckomeny';
+    render();
+  }).catch(function () {
+    var st = document.getElementById('status'); st.classList.add('old');
+    st.innerHTML = '<span class="dot"></span>Kunde inte läsa matsedeln just nu. Försök igen senare.';
+    render();
+  });
+})();
+</script>
+</body>
+</html>
