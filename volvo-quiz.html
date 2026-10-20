@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volvo-quiz 1975–2015</title>
+<style>
+  :root { --bg:#f4f6f8; --card:#fff; --ink:#14212e; --mute:#5b6b7a; --line:#d9e0e7; --blue:#003057; --blue2:#1d5a8e; --ok:#15803d; --okbg:#e8f7ee; --bad:#b91c1c; --badbg:#fdecec; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0e1620; --card:#16222f; --ink:#e8eef4; --mute:#9fb0c0; --line:#2a3a4a; --blue:#8fc3ee; --blue2:#6aa9dc; --okbg:#10301c; --badbg:#3a1618; --ok:#4ade80; --bad:#f87171; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
+  header { text-align:center; margin: 12px 0 24px; }
+  h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); margin: 0 0 6px; color: var(--blue); letter-spacing: -.02em; }
+  .sub { color: var(--mute); margin: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+  .meta { display:flex; justify-content:space-between; gap:12px; color: var(--mute); font-size:.9rem; margin-bottom:8px; flex-wrap:wrap; }
+  .bar { height: 8px; background: var(--line); border-radius: 99px; overflow:hidden; margin-bottom: 20px; }
+  .bar i { display:block; height:100%; background: var(--blue2); width:0; transition: width .3s; }
+  .tag { display:inline-block; font-size:.78rem; font-weight:700; padding:2px 10px; border-radius:99px; background: var(--bg); border:1px solid var(--line); color: var(--mute); }
+  h2 { font-size: 1.3rem; line-height:1.35; margin: 12px 0 18px; }
+  .opts { display:grid; gap:10px; }
+  .opt { text-align:left; font: inherit; color: var(--ink); background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 13px 16px; cursor:pointer; display:flex; gap:12px; align-items:center; }
+  .opt:hover:not(:disabled) { border-color: var(--blue2); }
+  .opt b { flex:none; width:28px; height:28px; border-radius:50%; background: var(--bg); display:grid; place-items:center; font-size:.85rem; }
+  .opt:disabled { cursor: default; }
+  .opt.right { border-color: var(--ok); background: var(--okbg); }
+  .opt.wrong { border-color: var(--bad); background: var(--badbg); }
+  .fb { margin-top: 16px; padding: 14px 16px; border-radius: 14px; background: var(--bg); border-left: 5px solid var(--line); }
+  .fb.ok { border-color: var(--ok); } .fb.no { border-color: var(--bad); }
+  .fb strong { display:block; margin-bottom: 2px; }
+  button.main { margin-top: 18px; font: inherit; font-weight:700; background: var(--blue); color:#fff; border:0; border-radius: 12px; padding: 12px 22px; cursor:pointer; }
+  @media (prefers-color-scheme: dark) { button.main { color:#06121d; } }
+  .hidden { display:none; }
+  .score { text-align:center; }
+  .big { font-size: 3.4rem; font-weight: 800; color: var(--blue); line-height:1; margin: 8px 0; }
+  .rev { text-align:left; margin-top: 22px; }
+  .rev h3 { margin: 0 0 8px; }
+  .rev .it { border-top: 1px solid var(--line); padding: 12px 0; }
+  .rev .it small { color: var(--mute); display:block; }
+  footer { text-align:center; color: var(--mute); font-size:.82rem; margin-top: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Volvo-quiz 1975–2015</h1>
+    <p class="sub">25 svåra frågor om Volvos personbilsmodeller. Svaren rättas direkt.</p>
+  </header>
+
+  <div class="card" id="start">
+    <p>Testa dig på årtal, designers, motorer och tekniska nyheter från 40 år av Volvo. Frågorna är medvetet svåra, så räkna inte med full pott.</p>
+    <p style="color:var(--mute);font-size:.95rem">Frågorna är fördelade på tre perioder: 1975–86, 1987–2000 och 2001–15.</p>
+    <button class="main" id="go">Starta quizet</button>
+  </div>
+
+  <div class="card hidden" id="play">
+    <div class="meta"><span id="count"></span><span id="pts"></span></div>
+    <div class="bar"><i id="prog"></i></div>
+    <span class="tag" id="period"></span>
+    <h2 id="q"></h2>
+    <div class="opts" id="opts"></div>
+    <div class="fb hidden" id="fb"></div>
+    <button class="main hidden" id="next">Nästa fråga</button>
+  </div>
+
+  <div class="card score hidden" id="end">
+    <div>Ditt resultat</div>
+    <div class="big" id="final"></div>
+    <p id="verdict"></p>
+    <button class="main" id="again">Gör om quizet</button>
+    <div class="rev" id="rev"></div>
+  </div>
+
+  <footer>Uppgifterna är hämtade från Volvo Cars pressmaterial och Wikipedia. Specifikationer kan skilja sig åt mellan marknader.</footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var Q = [
+    {p:'1975–86', q:'Vid en vält från 2,4 meters höjd skulle taket på Volvos experimentbil VESC (visad i Genève 1972) deformeras högst hur mycket?', o:['50 mm','75 mm','100 mm','150 mm'], a:1, e:'VESC hade som mål att taket högst fick deformeras 75 mm vid vält från 2,4 m, och att klara en frontalkrock i 80 km/h.'},
+    {p:'1975–86', q:'Volvo och Bosch presenterade 1976 (1977 års modell) världens första system med trevägskatalysator och lambdasond. Vilken kombination av marknad och motor gällde för de första bilarna (242/244/245)?', o:['Kalifornien, B21','Sverige, B21','Kalifornien, B27','Västtyskland, B19'], a:0, e:'Systemet kom först på den kaliforniska marknaden. Från 1978 fick alla Volvo på USA:s västkust det.'},
+    {p:'1975–86', q:'Vilken motor och effekt (Europa) hade 240 Turbo, den första turbo-Volvon?', o:['B21ET, 135 hk','B23ET, 155 hk','B21ET, 155 hk','B19ET, 170 hk'], a:2, e:'Första turbo-Volvon, 240 Turbo, hade motorn B21ET med 155 hk i Europa.'},
+    {p:'1975–86', q:'Vilket år vann Volvo 240 Turbo Europamästerskapet för standardvagnar (ETC)?', o:['1983','1984','1986','1985'], a:3, e:'240 Turbo vann ETC 1985. I engelskspråkiga källor kallas bilen ibland "Flying Brick".'},
+    {p:'1975–86', q:'Volvo 264 TE var en sjusitsig förlängd limousin (1976–1981) med karossen byggd av Bertone. Hur lång var hjulbasen?', o:['3 030 mm','3 230 mm','3 430 mm','3 630 mm'], a:2, e:'264 TE hade hjulbasen 3 430 mm, en PRV V6-motor och kaross byggd av Bertone i Grugliasco.'},
+    {p:'1975–86', q:'Volvo 262C Bertone fick från 1980 motorn B28 i stället för B27 (2 664 cc). Hur stor slagvolym hade B28?', o:['2 785 cc','2 849 cc','2 979 cc','3 019 cc'], a:1, e:'B28 hade slagvolymen 2 849 cc. 262C byggdes 1977–1981 i Turin med ett tak sänkt cirka 100 mm.'},
+    {p:'1975–86', q:'Volvo 66 (1975) bygger på DAF 66. Vem formgav ursprungligen DAF 66?', o:['Giovanni Michelotti','Nuccio Bertone','Jan Wilsgaard','John de Vries'], a:0, e:'DAF 66 ritades ursprungligen av Giovanni Michelotti. Volvo 66 byggdes i Born i Nederländerna med Renault-motorer.'},
+    {p:'1975–86', q:'Hur stor andel av DAF:s personbilsverksamhet köpte Volvo 1973, vilket ledde fram till Volvo 343 (lanserad 1976)?', o:['Hälften','En fjärdedel','Två tredjedelar','En tredjedel'], a:3, e:'Volvo köpte en tredjedel 1973 och fick majoritet 1975. 343 utvecklades som DAF:s Project P900 och lanserades med den steglösa Variomatic-lådan.'},
+    {p:'1987–2000', q:'Vilket år introducerade Volvo SIPS (Side Impact Protection System), sidokrockskyddet, på 700-, 900- och 850-serien?', o:['1989','1990','1991','1993'], a:2, e:'SIPS introducerades 1991, samma år som 850 presenterades.'},
+    {p:'1987–2000', q:'Vilket land var den största marknaden för den begränsade upplagan 850 T-5R (6 964 byggda)?', o:['Tyskland','Italien','USA','Storbritannien'], a:0, e:'Tyskland var största marknad med 1 433 bilar, före Italien (914) och USA (876). Motorn utvecklades tillsammans med Porsche.'},
+    {p:'1987–2000', q:'Hur placerade sig Volvo i tillverkarmästerskapet i BTCC 1994 med 850 Estate, byggd tillsammans med TWR?', o:['4:a','6:a','8:a','10:a'], a:2, e:'Volvo blev 8:a i tillverkarmästerskapet. Bästa kvalplacering var 3:a och bästa raceplacering 5:a.'},
+    {p:'1987–2000', q:'Vilken effekt hade 2,5-liters turbomotorn i Volvo 850 AWD (kombi, 1997 års modell)?', o:['170 hk','193 hk','225 hk','240 hk'], a:1, e:'850 AWD hade 193 hk och fanns bara som kombi med enbart 5-växlad manuell låda.'},
+    {p:'1987–2000', q:'Vilken modell delade golvplatta med Volvo 440/460, som tillverkades i Born 1988–1996?', o:['343','480','850','S40'], a:1, e:'440/460 delade golvplatta med Volvo 480, den första framhjulsdrivna Volvon och den enda med uppfällbara strålkastare.'},
+    {p:'1987–2000', q:'Volvo 960 kom hösten 1990 med en ny 24-ventils aluminiumsexa. Från vilket år hette den S90 (sedan) och V90 (kombi) på vissa marknader?', o:['1994','1995','1996','1997'], a:2, e:'Från 1996 fick 960 namnen S90/V90. 940 behöll sitt namn och byggdes till februari 1998.'},
+    {p:'1987–2000', q:'Vilken bil delade plattform med Volvo S40/V40 (1995)?', o:['Renault Laguna','Ford Mondeo','Mazda 626','Mitsubishi Carisma'], a:3, e:'S40/V40 delade plattform med Mitsubishi Carisma och byggdes hos NedCar i Born.'},
+    {p:'1987–2000', q:'Volvo C70 visades på Paris Motor Show 1996. Vem formgav exteriören tillsammans med designchefen Peter Horbury?', o:['Ian Callum','Jan Wilsgaard','John de Vries','Steve Mattin'], a:0, e:'Exteriören ritades av Ian Callum (TWR) och Peter Horbury. Båda karosserna byggdes i Uddevalla.'},
+    {p:'2001–15', q:'Vilken plattform delar andra generationens Volvo S40/V50 (2003) med Mazda3 och Ford Focus Mk2?', o:['P2','P3','P1','SPA'], a:2, e:'S40/V50 byggdes på plattformen P1, delad med Mazda3 och Ford Focus Mk2. Produktionen startade i oktober 2003 i Gent.'},
+    {p:'2001–15', q:'Vem var interiörchef för andra generationens XC90, som presenterades i Stockholm 2014?', o:['Thomas Ingenlath','Steve Mattin','Pontus Fontaeus','Robin Page'], a:3, e:'Interiören leddes av Robin Page. Thomas Ingenlath var designchef. Bilen byggde på plattformen SPA.'},
+    {p:'2001–15', q:'Geelys köp av Volvo avtalades den 28 mars 2010 för 1,8 miljarder USD. När slutfördes affären?', o:['2 augusti 2010','28 september 2010','1 januari 2011','2 augusti 2011'], a:0, e:'Affären slutfördes den 2 augusti 2010. SPA-plattformen togs fram under Geelys ägande.'},
+    {p:'2001–15', q:'Vilken motor och effekt hade den seriebyggda S60 Polestar 2015?', o:['2,0 L fyra, 350 hk','3,0 L sexa, 350 hk','3,0 L sexa, 304 hk','4,4 L V8, 350 hk'], a:1, e:'S60 Polestar hade en 3,0 L sexa på 350 hk och gick 0–60 mph på 4,7 s.'},
+    {p:'2001–15', q:'Hur många sensorer används i fotgängarairbagsystemet i Volvo V40 (2012), världens första bil med fotgängarairbag?', o:['Fem','Tre','Nio','Sju'], a:3, e:'Systemet har sju sensorer, och pyrotekniska lås på motorhuvens gångjärn lyfter huvens bakkant innan luftkudden fylls.'},
+    {p:'2001–15', q:'Hur stora var koldioxidutsläppen i g/km för Volvo V60 Plug-in Hybrid (2012) med D5-motor fram och elmotor bak?', o:['35 g/km','42 g/km','49 g/km','58 g/km'], a:2, e:'V60 Plug-in Hybrid släppte ut 49 g CO₂/km och klarade upp till 50 km på enbart el.'},
+    {p:'2001–15', q:'Hur stort var litiumjonbatteriet (EnerDel) i Volvo C30 Electric?', o:['24 kWh','16 kWh','32 kWh','40 kWh'], a:0, e:'C30 Electric hade ett 24 kWh EnerDel-batteri, motor på 110 PS och en räckvidd på upp till 150 km (NEDC).'},
+    {p:'2001–15', q:'Andra generationens C70 med infällbart plåttak byggdes i Uddevalla i ett joint venture. Med vilken partner?', o:['Bertone','Pininfarina Sverige','Karmann','Magna Steyr'], a:1, e:'C70 byggdes av Pininfarina Sverige AB, ett joint venture mellan Pininfarina (60 %) och Volvo (40 %).'},
+    {p:'2001–15', q:'Volvo S80 (2006) fick en V8 (B8444S, 315 PS). Vilket företag byggde motorn i Japan åt Volvo?', o:['Honda','Mitsubishi','Mazda','Yamaha'], a:3, e:'V8:an utvecklades tillsammans med Yamaha och byggdes av Yamaha i Japan. S80 byggde på plattformen P3.'}
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var cur, score, wrong, locked, shown;
+
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  function show(id) { ['start', 'play', 'end'].forEach(function (x) { $(x).classList.toggle('hidden', x !== id); }); window.scrollTo(0, 0); }
+
+  function begin() { cur = 0; score = 0; wrong = []; show('play'); render(); }
+
+  function render() {
+    var item = Q[cur]; locked = false;
+    $('count').textContent = 'Fråga ' + (cur + 1) + ' av ' + Q.length;
+    $('pts').textContent = score + ' rätt';
+    $('prog').style.width = (cur / Q.length * 100) + '%';
+    $('period').textContent = item.p;
+    $('q').textContent = item.q;
+    var right = item.o[item.a];
+    shown = shuffle(item.o);
+    $('opts').innerHTML = shown.map(function (t, i) {
+      return '<button class="opt" data-i="' + i + '"><b>' + 'ABCD'[i] + '</b><span>' + esc(t) + '</span></button>';
+    }).join('');
+    $('fb').className = 'fb hidden'; $('next').classList.add('hidden');
+    $('next').textContent = cur === Q.length - 1 ? 'Visa resultat' : 'Nästa fråga';
+    item._right = right;
+  }
+
+  function answer(i) {
+    if (locked) return; locked = true;
+    var item = Q[cur], picked = shown[i], ok = picked === item._right;
+    if (ok) score++; else wrong.push({ n: cur + 1, q: item.q, picked: picked, right: item._right, e: item.e });
+    Array.prototype.forEach.call($('opts').children, function (b, k) {
+      b.disabled = true;
+      if (shown[k] === item._right) b.classList.add('right');
+      else if (k === i) b.classList.add('wrong');
+    });
+    $('pts').textContent = score + ' rätt';
+    $('fb').className = 'fb ' + (ok ? 'ok' : 'no');
+    $('fb').innerHTML = '<strong>' + (ok ? 'Rätt!' : 'Fel. Rätt svar: ' + esc(item._right)) + '</strong>' + esc(item.e);
+    $('next').classList.remove('hidden');
+    $('prog').style.width = ((cur + 1) / Q.length * 100) + '%';
+  }
+
+  function finish() {
+    show('end');
+    $('final').textContent = score + ' / ' + Q.length;
+    var pct = score / Q.length;
+    $('verdict').textContent = pct >= .9 ? 'Fenomenalt! Du är en riktig Volvo-expert.' : pct >= .7 ? 'Mycket bra, du kan din Volvo-historia.' : pct >= .45 ? 'Helt okej på ett svårt quiz. Försök igen!' : 'Det här var knepigt. Läs förklaringarna nedan och testa igen.';
+    $('rev').innerHTML = wrong.length ? '<h3>Frågor du missade</h3>' + wrong.map(function (w) {
+      return '<div class="it"><b>' + w.n + '. ' + esc(w.q) + '</b><small>Ditt svar: ' + esc(w.picked) + '</small><small>Rätt svar: ' + esc(w.right) + '</small><small>' + esc(w.e) + '</small></div>';
+    }).join('') : '';
+  }
+
+  $('go').onclick = begin;
+  $('again').onclick = begin;
+  $('opts').addEventListener('click', function (e) { var b = e.target.closest('.opt'); if (b) answer(+b.getAttribute('data-i')); });
+  $('next').onclick = function () { if (cur === Q.length - 1) finish(); else { cur++; render(); } };
+})();
+</script>
+</body>
+</html>
