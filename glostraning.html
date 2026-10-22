@@ -5,109 +5,191 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Glosträning</title>
 <style>
-  :root { --bg:#f4f6f8; --card:#fff; --ink:#14212e; --mute:#5b6b7a; --line:#d9e0e7; --accent:#1d4ed8; --accent2:#2563eb; --ok:#15803d; --okbg:#e8f7ee; --bad:#b91c1c; --badbg:#fdecec; --warn:#92400e; --warnbg:#fef3c7; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0e1620; --card:#16222f; --ink:#e8eef4; --mute:#9fb0c0; --line:#2a3a4a; --accent:#8fb4f5; --accent2:#6b9cf0; --okbg:#10301c; --badbg:#3a1618; --ok:#4ade80; --bad:#f87171; --warn:#fcd34d; --warnbg:#3a2e0e; } }
+  :root {
+    --bg:#f5f7fa; --card:#ffffff; --ink:#1b2733; --mute:#546474; --line:#d5dde5;
+    --accent:#2f5fd0; --accent-ink:#ffffff; --soft:#e9eff9;
+    --ok:#17663a; --okbg:#e5f5ea; --soft-bad:#8a4b00; --softbg:#fff1dc; --warn:#7a4a00; --warnbg:#fff4d6;
+    --fs:1; --lh:1.65; --ls:0em; --font: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  :root[data-theme=varm]  { --bg:#fbf4e4; --card:#fffaf0; --ink:#2e2a22; --mute:#645b4b; --line:#e2d6bb; --accent:#8a4a12; --soft:#f5e8cc; --okbg:#e6f1da; --ok:#2f5e12; --softbg:#fde9d0; }
+  :root[data-theme=bla]   { --bg:#e6f0f7; --card:#f6fafd; --ink:#16303f; --mute:#4a6475; --line:#bfd3e0; --accent:#1c5d85; --soft:#d6e7f3; }
+  :root[data-theme=gron]  { --bg:#e9f3ec; --card:#f7fbf8; --ink:#1b2f23; --mute:#4b6556; --line:#c4d8ca; --accent:#2a6b47; --soft:#d9ebe0; }
+  :root[data-theme=mork]  { --bg:#10171f; --card:#18222d; --ink:#e9eff5; --mute:#a2b2c1; --line:#2f3f4f; --accent:#8db3f7; --accent-ink:#0b1420; --soft:#1e2d40; --ok:#6be19a; --okbg:#12301f; --soft-bad:#ffc27a; --softbg:#3a2a12; --warn:#ffd98a; --warnbg:#3a3012; }
+  @media (prefers-color-scheme: dark) {
+    :root[data-theme=auto] { --bg:#10171f; --card:#18222d; --ink:#e9eff5; --mute:#a2b2c1; --line:#2f3f4f; --accent:#8db3f7; --accent-ink:#0b1420; --soft:#1e2d40; --ok:#6be19a; --okbg:#12301f; --soft-bad:#ffc27a; --softbg:#3a2a12; --warn:#ffd98a; --warnbg:#3a3012; }
+  }
+  :root[data-font=las]  { --font: Verdana, Tahoma, "Trebuchet MS", sans-serif; }
+  :root[data-font=mjuk] { --font: "Comic Sans MS", "Chalkboard SE", "Trebuchet MS", sans-serif; }
+  :root[data-space=luftig] { --lh:1.95; --ls:.04em; }
+  html { font-size: calc(100% * var(--fs)); }
   * { box-sizing: border-box; }
-  body { margin:0; font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
-  header { margin: 8px 0 20px; }
-  h1 { font-size: clamp(1.7rem, 5vw, 2.3rem); margin: 0 0 4px; color: var(--accent); letter-spacing: -.02em; cursor: pointer; }
-  .sub { color: var(--mute); margin: 0; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; box-shadow: 0 2px 10px rgba(0,0,0,.04); margin-bottom: 16px; }
-  h2 { font-size: 1.25rem; margin: 0 0 12px; }
-  h3 { font-size: 1.05rem; margin: 18px 0 8px; }
-  label { display:block; font-weight:600; font-size:.92rem; margin: 14px 0 4px; }
-  input[type=text], select, textarea { width:100%; font: inherit; color: var(--ink); background: var(--bg); border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; }
-  textarea { min-height: 220px; resize: vertical; font-family: ui-monospace, Consolas, monospace; font-size: .95rem; }
-  input:focus, select:focus, textarea:focus, button:focus-visible { outline: 3px solid var(--accent2); outline-offset: 1px; }
-  button { font: inherit; cursor: pointer; }
-  .btn { font-weight:700; background: var(--accent); color:#fff; border:0; border-radius: 12px; padding: 11px 20px; }
-  @media (prefers-color-scheme: dark) { .btn { color:#06121d; } }
-  .btn.sec { background: transparent; color: var(--accent); border: 2px solid var(--line); }
-  .btn.sm { padding: 6px 12px; font-size: .88rem; }
-  .btn:disabled { opacity:.5; cursor: default; }
+  body { margin:0; font-family: var(--font); background:var(--bg); color:var(--ink); line-height:var(--lh); letter-spacing:var(--ls); }
+  .rm *, .rm *::before { transition:none !important; animation:none !important; scroll-behavior:auto !important; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 70px; }
+  header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px; }
+  h1 { font-size: 1.7rem; margin: 0; line-height:1.2; }
+  h1 a { color: var(--accent); text-decoration:none; }
+  .sub { color: var(--mute); margin: 2px 0 0; font-size:.95rem; }
+  [data-view=run] .sub { display:none; }
+  h2 { font-size: 1.35rem; margin: 0 0 8px; line-height:1.3; }
+  h3 { font-size: 1.1rem; margin: 22px 0 8px; }
+  p { margin: 0 0 10px; }
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 20px; padding: 22px; margin-bottom: 16px; }
+  .mute { color: var(--mute); font-size:.95rem; }
+  .hidden { display:none !important; }
+  label { display:block; font-weight:700; margin: 16px 0 6px; }
+  input[type=text], select, textarea { width:100%; font: inherit; letter-spacing:inherit; color: var(--ink); background: var(--bg); border: 2px solid var(--line); border-radius: 12px; padding: 12px 14px; min-height:48px; }
+  textarea { min-height: 130px; resize: vertical; }
+  :focus-visible { outline: 4px solid var(--accent); outline-offset: 2px; }
+  button { font: inherit; letter-spacing:inherit; cursor:pointer; }
+  .btn { font-weight:700; background: var(--accent); color:var(--accent-ink); border:2px solid var(--accent); border-radius: 14px; padding: 12px 22px; min-height:50px; }
+  .btn.sec { background: transparent; color: var(--accent); border-color: var(--line); }
+  .btn.sm { padding: 6px 14px; min-height:42px; font-size:.95rem; }
+  .btn.big { font-size:1.15rem; padding:16px 28px; min-height:58px; }
+  .btn:hover:not(:disabled) { filter:brightness(1.07); }
+  .btn.sec:hover:not(:disabled) { border-color: var(--accent); }
+  .btn:disabled { opacity:.45; cursor:default; }
   .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-  .mute { color: var(--mute); font-size:.92rem; }
-  .hidden { display:none; }
-  .set { display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; padding: 12px 0; border-top: 1px solid var(--line); }
+  .row.c { justify-content:center; } .row.sb { justify-content:space-between; }
+  .steps { display:grid; gap:12px; margin:14px 0 18px; }
+  .step { display:flex; gap:14px; align-items:center; background:var(--soft); border-radius:14px; padding:12px 16px; }
+  .step i { flex:none; font-style:normal; width:38px; height:38px; border-radius:50%; background:var(--accent); color:var(--accent-ink); display:grid; place-items:center; font-weight:800; }
+  .set { border-top:2px solid var(--line); padding:16px 0; }
   .set:first-of-type { border-top:0; }
-  .set b { display:block; }
-  .drop { border: 2px dashed var(--line); border-radius: 14px; padding: 16px; text-align:center; margin-top: 8px; }
-  .drop.over { border-color: var(--accent2); background: var(--bg); }
-  .note { background: var(--warnbg); color: var(--warn); border-radius: 12px; padding: 10px 14px; font-size: .9rem; margin-top: 10px; }
-  .modes { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); margin-top: 8px; }
-  .mode { text-align:left; background: var(--bg); border: 2px solid var(--line); border-radius: 14px; padding: 14px 16px; color: var(--ink); }
-  .mode:hover:not(:disabled) { border-color: var(--accent2); }
-  .mode:disabled { opacity:.5; cursor:default; }
-  .mode b { display:block; font-size:1.05rem; color: var(--accent); }
-  .mode span { font-size:.88rem; color: var(--mute); }
-  .radios { display:flex; gap:8px; flex-wrap:wrap; }
-  .radios label { display:flex; align-items:center; gap:6px; margin:0; font-weight:500; border:2px solid var(--line); border-radius: 99px; padding: 6px 14px; cursor:pointer; }
-  .radios input { accent-color: var(--accent2); }
-  .meta { display:flex; justify-content:space-between; gap:12px; color: var(--mute); font-size:.9rem; margin-bottom:8px; }
-  .bar { height: 8px; background: var(--line); border-radius: 99px; overflow:hidden; margin-bottom: 20px; }
-  .bar i { display:block; height:100%; background: var(--accent2); transition: width .3s; }
-  .q { font-size: 1.7rem; font-weight: 700; margin: 8px 0 20px; line-height: 1.3; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-  .q small { display:block; width:100%; font-size:.8rem; font-weight:600; color: var(--mute); text-transform: uppercase; letter-spacing:.05em; }
-  .opts { display:grid; gap:10px; }
-  .opt { text-align:left; color: var(--ink); background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 13px 16px; display:flex; gap:12px; align-items:center; }
-  .opt:hover:not(:disabled) { border-color: var(--accent2); }
-  .opt b { flex:none; width:28px; height:28px; border-radius:50%; background: var(--bg); display:grid; place-items:center; font-size:.85rem; }
-  .opt:disabled { cursor: default; color: var(--ink); }
+  .meter { display:flex; height:12px; border-radius:99px; overflow:hidden; background:var(--line); margin:8px 0 4px; }
+  .meter i { display:block; height:100%; }
+  .meter .m3 { background:var(--ok); } .meter .m2 { background:#e0a43a; }
+  .legend { font-size:.88rem; color:var(--mute); }
+  .modes { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  .mode { text-align:left; background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 16px; color: var(--ink); display:flex; gap:12px; align-items:flex-start; }
+  .mode:hover:not(:disabled) { border-color: var(--accent); }
+  .mode:disabled { opacity:.45; cursor:default; }
+  .mode .ic { font-size:1.8rem; line-height:1; }
+  .mode b { display:block; color: var(--accent); }
+  .mode span { font-size:.9rem; color: var(--mute); display:block; line-height:1.4; }
+  .mode.star { grid-column: 1 / -1; background: var(--soft); border-color: var(--accent); }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .chips label { display:flex; align-items:center; gap:8px; margin:0; font-weight:600; border:2px solid var(--line); border-radius:99px; padding:8px 16px; cursor:pointer; min-height:46px; background:var(--card); }
+  .chips input { accent-color: var(--accent); width:18px; height:18px; }
+  .chips label:has(input:checked) { border-color:var(--accent); background:var(--soft); }
+  .meta { display:flex; justify-content:space-between; align-items:center; gap:12px; color: var(--mute); margin-bottom:10px; }
+  .bar { height: 12px; background: var(--line); border-radius: 99px; overflow:hidden; margin-bottom: 22px; }
+  .bar i { display:block; height:100%; background: var(--accent); transition: width .35s; }
+  .q { font-size: 1.9rem; font-weight: 800; margin: 4px 0 22px; line-height: 1.3; display:flex; gap:12px; align-items:center; flex-wrap:wrap; overflow-wrap:anywhere; }
+  .q small { display:block; width:100%; font-size:.85rem; font-weight:700; color: var(--mute); }
+  .opts { display:grid; gap:12px; }
+  .opt { text-align:left; color: var(--ink); background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 14px 16px; display:flex; gap:14px; align-items:center; min-height:58px; font-size:1.1rem; }
+  .opt:hover:not(:disabled) { border-color: var(--accent); background:var(--soft); }
+  .opt b { flex:none; width:32px; height:32px; border-radius:50%; background: var(--soft); display:grid; place-items:center; font-size:.9rem; }
+  .opt:disabled { cursor:default; color:var(--ink); }
   .opt.right { border-color: var(--ok); background: var(--okbg); }
-  .opt.wrong { border-color: var(--bad); background: var(--badbg); }
-  .fb { margin-top: 16px; padding: 12px 16px; border-radius: 14px; background: var(--bg); border-left: 5px solid var(--line); }
-  .fb.ok { border-color: var(--ok); background: var(--okbg); } .fb.no { border-color: var(--bad); background: var(--badbg); }
-  .flash { width:100%; min-height: 200px; background: var(--bg); border: 2px solid var(--line); border-radius: 18px; padding: 24px; font-size: 1.6rem; font-weight:700; color: var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center; }
-  .flash small { font-size:.78rem; font-weight:600; color: var(--mute); text-transform: uppercase; letter-spacing:.05em; }
-  .flash.back { border-color: var(--accent2); }
-  .say { background: transparent; border: 2px solid var(--line); border-radius: 50%; width: 38px; height: 38px; font-size: 1.05rem; color: var(--ink); }
+  .opt.miss { border-color: var(--soft-bad); background: var(--softbg); }
+  .fb { margin-top: 18px; padding: 14px 18px; border-radius: 14px; border-left: 8px solid var(--line); background: var(--soft); }
+  .fb.ok { border-color: var(--ok); background: var(--okbg); }
+  .fb.no { border-color: var(--soft-bad); background: var(--softbg); }
+  .fb b.big2 { font-size:1.15rem; display:block; }
+  .ans { font-size:1.4rem; font-weight:800; }
+  .flash { width:100%; min-height: 240px; background: var(--soft); border: 3px solid var(--line); border-radius: 22px; padding: 26px; font-size: 1.9rem; font-weight:800; color: var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; overflow-wrap:anywhere; }
+  .flash small { font-size:.85rem; font-weight:700; color: var(--mute); }
+  .flash.back { border-color: var(--accent); background: var(--card); }
+  .say { background: var(--card); border: 2px solid var(--line); border-radius: 99px; min-width:48px; height:48px; padding:0 14px; font-size:1.1rem; color: var(--ink); }
+  .say:hover { border-color: var(--accent); }
+  .hint { font-size:1.6rem; letter-spacing:.2em; font-family: ui-monospace, Consolas, monospace; margin: 4px 0 8px; font-weight:700; }
+  .match { display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; }
+  .mt { text-align:left; color: var(--ink); background: var(--card); border:2px solid var(--line); border-radius:14px; padding:12px 14px; min-height:56px; font-size:1.05rem; overflow-wrap:anywhere; }
+  .mt:hover:not(:disabled) { border-color: var(--accent); }
+  .mt[aria-pressed=true] { border-color: var(--accent); background: var(--soft); outline:3px solid var(--accent); }
+  .mt.done { border-color: var(--ok); background: var(--okbg); }
+  .mt:disabled { cursor:default; color:var(--ink); }
+  @media (max-width:480px) { .match { gap:8px; } .mt { padding:10px; font-size:.98rem; } }
+  .slots, .tiles { display:flex; gap:8px; flex-wrap:wrap; margin: 8px 0 18px; }
+  .slot, .tile { width:50px; height:56px; border-radius:12px; display:grid; place-items:center; font-size:1.5rem; font-weight:800; }
+  .slot { border:3px dashed var(--line); background:var(--card); color:var(--ink); padding:0; }
+  .slot.f { border-style:solid; border-color:var(--accent); background:var(--soft); }
+  .slot.sp { border:0; width:22px; background:none; }
+  .tile { border:2px solid var(--accent); background:var(--accent); color:var(--accent-ink); padding:0; }
+  .tile:disabled { opacity:.2; cursor:default; }
   .score { text-align:center; }
-  .big { font-size: 3.4rem; font-weight: 800; color: var(--accent); line-height:1; margin: 8px 0; }
-  .rev { text-align:left; margin-top: 18px; }
-  .rev .it { border-top: 1px solid var(--line); padding: 10px 0; }
-  .rev small { color: var(--mute); display:block; }
-  progress { width:100%; height: 10px; }
-  details { margin-top: 8px; font-size:.9rem; }
-  code { background: var(--bg); padding: 1px 6px; border-radius: 6px; }
+  .stars { font-size:2.4rem; letter-spacing:.2em; margin:4px 0; }
+  .num { font-size: 3.6rem; font-weight: 800; color: var(--accent); line-height:1.1; }
+  .rev { text-align:left; margin-top: 20px; }
+  .rev .it { border-top: 2px solid var(--line); padding: 10px 0; }
+  .note { background: var(--warnbg); color: var(--warn); border-radius: 12px; padding: 10px 14px; font-size:.92rem; margin-top: 10px; }
+  .drop { border: 3px dashed var(--line); border-radius: 16px; padding: 16px; text-align:center; margin: 8px 0; }
+  .drop.over { border-color: var(--accent); background: var(--soft); }
+  table.words { width:100%; border-collapse:collapse; margin-top:6px; }
+  table.words td { padding:4px 4px 4px 0; vertical-align:middle; }
+  table.words td.n { width:28px; color:var(--mute); font-size:.85rem; }
+  table.words td.x { width:46px; }
+  table.words input { padding:8px 10px; min-height:44px; }
+  table.words button { width:44px; height:44px; background:transparent; border:2px solid var(--line); border-radius:10px; color:var(--mute); }
+  progress { width:100%; height:12px; margin-top:6px; }
+  details { margin-top:8px; }
+  code { background: var(--soft); padding: 1px 6px; border-radius: 6px; }
+  .field { display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+  @media (max-width:560px) { .field { grid-template-columns:1fr; } .q { font-size:1.6rem; } }
+  .pause { text-align:center; padding:30px 10px; }
+  .breath { width:110px; height:110px; border-radius:50%; background:var(--soft); border:3px solid var(--accent); margin:18px auto; animation: br 8s ease-in-out infinite; }
+  @keyframes br { 0%,100% { transform:scale(.8); } 50% { transform:scale(1.1); } }
+  .gear { background:var(--card); border:2px solid var(--line); border-radius:99px; height:46px; padding:0 16px; color:var(--ink); white-space:nowrap; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1 id="home" title="Till startsidan">Glosträning</h1>
-    <p class="sub">Fota eller klistra in glosor och begrepp – öva med flerval, flashcards och stavning.</p>
+    <div>
+      <h1><a href="#" id="home" title="Till mina listor">Glosträning</a></h1>
+      <p class="sub">Lägg in glosor och begrepp – öva i din egen takt.</p>
+    </div>
+    <button class="gear" data-act="settings" aria-label="Inställningar för utseende och läsning">⚙ Anpassa</button>
   </header>
-  <div id="app"></div>
+  <main id="app" aria-live="polite"></main>
 </div>
 
 <script>
-const KEY = 'glostraning.v1';
+const KEY = 'glostraning.v2', KEY1 = 'glostraning.v1', SKEY = 'glostraning.s2';
 const TYPES = {
   eng: { label:'Engelska', ocr:'eng+swe', tts:'en-GB', a:'Engelska', b:'Svenska', lang:true },
   spa: { label:'Spanska', ocr:'spa+swe', tts:'es-ES', a:'Spanska', b:'Svenska', lang:true },
   deu: { label:'Tyska', ocr:'deu+swe', tts:'de-DE', a:'Tyska', b:'Svenska', lang:true },
   fra: { label:'Franska', ocr:'fra+swe', tts:'fr-FR', a:'Franska', b:'Svenska', lang:true },
   ita: { label:'Italienska', ocr:'ita+swe', tts:'it-IT', a:'Italienska', b:'Svenska', lang:true },
-  term:{ label:'Begrepp (andra ämnen)', ocr:'swe+eng', tts:'sv-SE', a:'Begrepp', b:'Förklaring', lang:false }
+  term:{ label:'Begrepp (alla ämnen)', ocr:'swe+eng', tts:'sv-SE', a:'Begrepp', b:'Förklaring', lang:false }
 };
+const HAS_TTS = 'speechSynthesis' in window;
 
-let sets = [];
-try { sets = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) {}
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(sets)); } catch (e) {} };
+/* ---------- Lagring ---------- */
+const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+const store = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+let sets = load(KEY, null);
+if (!sets) {
+  sets = load(KEY1, []).map(s => ({ id:s.id, name:s.name, type:s.type, pairs: parse(s.text || '').pairs.map(p => ({ ...p, box:0 })) }));
+  store(KEY, sets);
+}
+const save = () => store(KEY, sets);
+const S = Object.assign({ theme:'auto', font:'std', size:1, space:'normal', motion: matchMedia('(prefers-reduced-motion: reduce)').matches, autoread:false, rate:.9, day:'', today:0 }, load(SKEY, {}));
+const saveS = () => store(SKEY, S);
+function applyS() {
+  const r = document.documentElement;
+  r.dataset.theme = S.theme; r.dataset.font = S.font; r.dataset.space = S.space; r.style.setProperty('--fs', S.size);
+  r.classList.toggle('rm', !!S.motion);
+}
+applyS();
 
-let view = 'home', cur = null, run = null, ocrMsg = '', ocrBusy = false, isNew = false;
+/* ---------- Hjälpfunktioner ---------- */
+let view = 'home', cur = null, run = null, isNew = false, impText = '', ocrMsg = '', ocrBusy = false, pending = null;
 const app = document.getElementById('app');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const key = p => p.a + '|' + p.b;
 const T = () => TYPES[cur.type];
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const stage = p => (p.box >= 4 ? 3 : p.box >= 1 ? 2 : 1);
 
-/* ---------- Tolkning av text till glosor ---------- */
+/* ---------- Tolkning av text ---------- */
 function parse(text) {
   const pairs = [], skipped = [];
-  text.split(/\r?\n/).forEach(raw => {
-    let l = raw.replace(/[|¦]/g, '\t').replace(/^\s*(\d+[.)]|[-•*·])\s+/, '').trim();
+  String(text).split(/\r?\n/).forEach(raw => {
+    const l = raw.replace(/[|¦]/g, '\t').replace(/^\s*(\d+[.)]|[-•*·])\s+/, '').trim();
     if (!l) return;
     const m = l.match(/^(.+?)(?:\t+|\s{2,}|\s[-–—]\s|\s*[=;]\s*|:\s+)(.+)$/);
     if (m && m[1].trim() && m[2].trim()) pairs.push({ a: m[1].trim(), b: m[2].trim() });
@@ -115,17 +197,12 @@ function parse(text) {
   });
   return { pairs, skipped };
 }
-function summary(text) {
-  const { pairs, skipped } = parse(text);
-  let h = `<b>${pairs.length}</b> par tolkade`;
-  if (skipped.length) h += ` · <span style="color:var(--bad)">${skipped.length} rad${skipped.length > 1 ? 'er' : ''} saknar skiljetecken och hoppas över</span><details><summary>Visa</summary>${skipped.map(esc).join('<br>')}</details>`;
-  return h;
-}
 
 /* ---------- Rättning ---------- */
 const norm = s => s.toLowerCase().normalize('NFC').replace(/\([^)]*\)/g, ' ').replace(/[.!?]+$/, '').replace(/\s+/g, ' ').trim();
 const flat = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
 const variants = s => { const v = [norm(s)]; s.split(/[\/,;]/).forEach(x => { const n = norm(x); if (n && !v.includes(n)) v.push(n); }); return v; };
+const firstAns = s => s.split(/[\/,;]/)[0].replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
 function lev(a, b) {
   const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
   for (let j = 1; j <= b.length; j++) d[0][j] = j;
@@ -142,23 +219,23 @@ function judge(given, answer) {
 }
 
 /* ---------- Uppläsning ---------- */
-function speak(text, lang) {
-  if (!('speechSynthesis' in window)) return;
+function speak(text, lang, slow) {
+  if (!HAS_TTS) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text.replace(/\([^)]*\)/g, ''));
-  u.lang = lang; u.rate = .9;
+  u.lang = lang; u.rate = slow ? .55 : S.rate;
   speechSynthesis.speak(u);
 }
-const sayBtn = (text, side) => (TYPES[cur.type].lang && side === 'a' && 'speechSynthesis' in window)
-  ? `<button class="say" data-act="say" data-t="${esc(text)}" aria-label="Lyssna">🔊</button>` : '';
+const langOf = side => (side === 'a' ? T().tts : 'sv-SE');
+const sayBtn = (text, side) => HAS_TTS ? `<button class="say" data-act="say" data-t="${esc(text)}" data-l="${langOf(side)}" aria-label="Lyssna på ${esc(text)}">🔊</button>` : '';
 
-/* ---------- OCR (körs i webbläsaren, bilden lämnar aldrig enheten) ---------- */
+/* ---------- OCR (körs lokalt i webbläsaren) ---------- */
 async function loadTess() {
   if (window.Tesseract) return;
   await new Promise((res, rej) => {
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
-    s.onload = res; s.onerror = () => rej(new Error('Kunde inte ladda OCR-biblioteket – kontrollera internetanslutningen.'));
+    s.onload = res; s.onerror = () => rej(new Error('Kunde inte ladda OCR – kolla internetanslutningen.'));
     document.head.appendChild(s);
   });
 }
@@ -185,226 +262,455 @@ async function doOcr(file) {
   try {
     setOcr('Förbereder bilden…', 0);
     const canvas = await prep(file);
-    setOcr('Laddar OCR (första gången kan ta en stund)…', 0);
+    setOcr('Laddar textläsaren (första gången kan det ta en stund)…', 0);
     await loadTess();
-    worker = await Tesseract.createWorker(T().ocr, 1, {
-      logger: m => { if (m.status === 'recognizing text') setOcr('Läser text…', Math.round(m.progress * 100)); }
-    });
+    worker = await Tesseract.createWorker(T().ocr, 1, { logger: m => { if (m.status === 'recognizing text') setOcr('Läser texten…', Math.round(m.progress * 100)); } });
     await worker.setParameters({ tessedit_pageseg_mode: '6', preserve_interword_spaces: '1' });
     const { data } = await worker.recognize(canvas);
     const text = data.text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 2 && /\p{L}/u.test(l)).join('\n');
-    if (!text) { setOcr('Hittade ingen text. Prova en skarpare bild tagen rakt uppifrån.'); }
+    if (!text) setOcr('Hittade ingen text. Prova en skarpare bild tagen rakt uppifrån.');
     else {
-      cur.text = (cur.text ? cur.text.replace(/\s+$/, '') + '\n' : '') + text;
-      const ta = document.getElementById('txt'); if (ta) { ta.value = cur.text; document.getElementById('sum').innerHTML = summary(cur.text); }
-      setOcr('Klart! Kontrollera listan nedan och rätta felläsningar innan du sparar.');
+      impText = (impText ? impText.replace(/\s+$/, '') + '\n' : '') + text;
+      const ta = document.getElementById('imp'); if (ta) ta.value = impText;
+      setOcr('Klart! Läs igenom texten, rätta fel och tryck sedan "Lägg till i listan".');
     }
   } catch (e) { setOcr('Något gick fel: ' + e.message); }
   finally { ocrBusy = false; if (worker) worker.terminate(); }
 }
+function readFile(f) {
+  if (!f) return;
+  if (f.type.startsWith('image/')) return doOcr(f);
+  const r = new FileReader();
+  r.onload = () => {
+    let t = String(r.result);
+    if (/\.csv$/i.test(f.name)) t = t.split(/\r?\n/).map(l => l.includes('\t') ? l : l.replace(/^("?[^";,]*"?)[;,]\s*/, '$1\t').replace(/"/g, '')).join('\n');
+    impText = (impText ? impText + '\n' : '') + t;
+    const ta = document.getElementById('imp'); if (ta) ta.value = impText;
+    setOcr('Filen är inläst. Kontrollera och tryck "Lägg till i listan".');
+  };
+  r.readAsText(f);
+}
+
+/* ---------- Delning ---------- */
+const enc = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+const dec = s => JSON.parse(decodeURIComponent(escape(atob(s))));
+const payload = s => ({ n: s.name, t: s.type, p: s.pairs.map(p => [p.a, p.b]) });
+function shareLink(s) { return location.href.split('#')[0] + '#lista=' + encodeURIComponent(enc(payload(s))); }
+function fromPayload(o) { return { id: uid(), name: o.n, type: TYPES[o.t] ? o.t : 'eng', pairs: o.p.map(([a, b]) => ({ a, b, box:0 })) }; }
+function checkHash() {
+  const m = location.hash.match(/^#lista=(.+)$/);
+  if (!m) return;
+  try { pending = fromPayload(dec(decodeURIComponent(m[1]))); view = 'import'; } catch (e) { pending = null; }
+  history.replaceState(null, '', location.pathname + location.search);
+}
 
 /* ---------- Vyer ---------- */
 function render() {
-  speechSynthesis && speechSynthesis.cancel && speechSynthesis.cancel();
-  if (view === 'home') return renderHome();
-  if (view === 'edit') return renderEdit();
-  if (view === 'menu') return renderMenu();
-  if (view === 'run') return renderRun();
-  if (view === 'done') return renderDone();
+  document.body.dataset.view = view;
+  if (HAS_TTS) speechSynthesis.cancel();
+  ({ home:renderHome, edit:renderEdit, menu:renderMenu, run:renderRun, done:renderDone, settings:renderSettings, import:renderImport })[view]();
 }
+const goHome = () => { view = 'home'; render(); window.scrollTo(0, 0); };
 
+function meter(s) {
+  const c = [0, 0, 0, 0]; s.pairs.forEach(p => c[stage(p)]++);
+  const n = s.pairs.length || 1;
+  return `<div class="meter" role="img" aria-label="${c[3]} av ${s.pairs.length} ord sitter"><i class="m3" style="width:${c[3]/n*100}%"></i><i class="m2" style="width:${c[2]/n*100}%"></i></div>
+    <div class="legend">${c[3]} av ${s.pairs.length} ord sitter · ${c[2]} övas · ${c[1]} nya</div>`;
+}
 function renderHome() {
-  app.innerHTML = `<div class="card">
-    <div class="row" style="justify-content:space-between"><h2 style="margin:0">Mina listor</h2><button class="btn" data-act="new">+ Ny lista</button></div>
-    ${sets.length ? sets.map(s => `<div class="set"><div><b>${esc(s.name)}</b><span class="mute">${TYPES[s.type].label} · ${parse(s.text).pairs.length} glosor</span></div>
-      <div class="row"><button class="btn sm" data-act="open" data-id="${s.id}">Öva</button><button class="btn sm sec" data-act="edit" data-id="${s.id}">Redigera</button><button class="btn sm sec" data-act="del" data-id="${s.id}">Ta bort</button></div></div>`).join('')
-      : `<p class="mute">Inga listor än. Skapa en ny, fota glosorna eller klistra in dem som text.</p>`}
-  </div>
-  <p class="mute">Listorna sparas bara i den här webbläsaren. Foton läses av i din egen webbläsare och skickas inte någonstans.</p>`;
+  const intro = `<div class="card"><h2>Så här funkar det</h2>
+    <div class="steps">
+      <div class="step"><i>1</i><span>Lägg in dina ord – skriv, klistra in, ladda upp en fil eller <b>fota</b> glosboken.</span></div>
+      <div class="step"><i>2</i><span>Välj hur du vill öva: flerval, kort, skriva, lyssna, pussel eller para ihop.</span></div>
+      <div class="step"><i>3</i><span>Du får direkt svar. Orden du missar kommer tillbaka tills de sitter.</span></div>
+    </div>
+    <div class="row"><button class="btn big" data-act="new">+ Skapa min första lista</button><button class="btn sec" data-act="example">Prova med en exempellista</button></div>
+    <p class="mute" style="margin-top:12px">Har du fått en länk av din lärare? Öppna den så dyker listan upp här.</p></div>`;
+  app.innerHTML = sets.length ? `<div class="card">
+    <div class="row sb"><h2 style="margin:0">Mina listor</h2><button class="btn" data-act="new">+ Ny lista</button></div>
+    ${sets.map(s => `<div class="set"><b style="font-size:1.15rem">${esc(s.name)}</b>
+      <div class="mute">${TYPES[s.type].label} · ${s.pairs.length} ord</div>${meter(s)}
+      <div class="row" style="margin-top:12px"><button class="btn" data-act="open" data-id="${s.id}">Öva</button>
+      <button class="btn sec sm" data-act="edit" data-id="${s.id}">Redigera</button>
+      <button class="btn sec sm" data-act="share" data-id="${s.id}">Dela</button>
+      <button class="btn sec sm" data-act="del" data-id="${s.id}">Ta bort</button></div></div>`).join('')}
+    </div>
+    <div class="card"><h3 style="margin-top:0">Importera en delad lista</h3><p class="mute">Klistra in en länk du fått, eller välj en listfil.</p>
+      <div class="row"><input type="text" id="lnk" placeholder="Klistra in länk här" style="flex:1;min-width:200px"><button class="btn sec" data-act="importlink">Hämta</button><button class="btn sec" data-act="importfile">Välj fil</button></div>
+      <input type="file" id="fimp" accept=".json,application/json" class="hidden"></div>
+    <p class="mute">Allt sparas bara i den här webbläsaren. Inget skickas till någon server, inte heller fotona.</p>` : intro;
 }
 
-function renderEdit() {
+function renderImport() {
+  app.innerHTML = `<div class="card"><h2>Ny delad lista</h2>
+    <p><b>${esc(pending.name)}</b> · ${TYPES[pending.type].label} · ${pending.pairs.length} ord</p>
+    <div class="row"><button class="btn big" data-act="acceptimport">Lägg till och börja öva</button><button class="btn sec" data-act="home">Inte nu</button></div></div>`;
+}
+
+function listTable() {
   const t = T();
+  return `<table class="words"><thead><tr><td></td><th scope="col" style="text-align:left">${t.a}</th><th scope="col" style="text-align:left">${t.b}</th><td></td></tr></thead><tbody>
+    ${cur.pairs.map((p, i) => `<tr><td class="n">${i + 1}</td><td><input type="text" data-r="${i}" data-s="a" value="${esc(p.a)}" aria-label="${t.a} rad ${i + 1}"></td>
+      <td><input type="text" data-r="${i}" data-s="b" value="${esc(p.b)}" aria-label="${t.b} rad ${i + 1}"></td>
+      <td class="x"><button data-act="delrow" data-r="${i}" aria-label="Ta bort rad ${i + 1}">✕</button></td></tr>`).join('')}</tbody></table>`;
+}
+function renderEdit() {
+  const t = T(), sk = parse(impText).skipped.length;
   app.innerHTML = `<div class="card">
     <h2>${isNew ? 'Ny lista' : 'Redigera lista'}</h2>
-    <label for="nm">Namn</label>
-    <input type="text" id="nm" value="${esc(cur.name)}" placeholder="t.ex. Kapitel 4 – Spanska">
-    <label for="ty">Typ</label>
-    <select id="ty">${Object.entries(TYPES).map(([k, v]) => `<option value="${k}"${k === cur.type ? ' selected' : ''}>${v.label}</option>`).join('')}</select>
+    <div class="field"><div><label for="nm" style="margin-top:6px">Namn</label><input type="text" id="nm" value="${esc(cur.name)}" placeholder="t.ex. Kapitel 4"></div>
+    <div><label for="ty" style="margin-top:6px">Typ av lista</label><select id="ty">${Object.entries(TYPES).map(([k, v]) => `<option value="${k}"${k === cur.type ? ' selected' : ''}>${v.label}</option>`).join('')}</select></div></div>
 
-    <h3>1. Lägg in från foto (valfritt)</h3>
+    <h3>1. Lägg till ord</h3>
+    <p class="mute" style="margin-bottom:6px">Välj det sätt som passar dig. Du kan blanda.</p>
     <div class="drop" id="drop">
-      <div class="row" style="justify-content:center">
-        <button class="btn" data-act="pick">Välj bild</button>
-        <button class="btn sec" data-act="cam">Ta foto</button>
-      </div>
-      <p class="mute" style="margin:8px 0 0">Du kan också dra in en bild här eller klistra in en skärmdump (Ctrl+V).</p>
-      <input type="file" id="f1" accept="image/*" class="hidden">
-      <input type="file" id="f2" accept="image/*" capture="environment" class="hidden">
-      <div id="ocrstat" class="mute" style="margin-top:8px">${esc(ocrMsg)}</div>
+      <div class="row c"><button class="btn" data-act="cam">📷 Ta foto</button><button class="btn sec" data-act="pick">🖼 Välj bild</button><button class="btn sec" data-act="file">📄 Ladda upp fil</button></div>
+      <input type="file" id="f1" accept="image/*,.txt,.csv,text/plain" class="hidden"><input type="file" id="f2" accept="image/*" capture="environment" class="hidden">
+      <p class="mute" style="margin:8px 0 0">Du kan också dra in en bild eller fil hit, eller klistra in en skärmdump (Ctrl+V).</p>
+      <div id="ocrstat" class="mute" style="margin-top:6px">${esc(ocrMsg)}</div>
     </div>
-    <div class="note">Textigenkänningen är inte perfekt – särskilt med två kolumner eller sned bild. Kontrollera alltid listan i steg 2.</div>
+    <label for="imp">Eller skriv/klistra in text – ett ord per rad</label>
+    <textarea id="imp" spellcheck="false" placeholder="${t.lang ? 'la madre – mamma\nel libro – boken' : 'Inflation – Prisökning över tid\nBNP – Värdet av allt som produceras i ett land'}">${esc(impText)}</textarea>
+    <p class="mute" id="impsum" style="margin:6px 0">${impText.trim() ? summaryImp() : `Skriv <code>${esc(t.a.toLowerCase())} – ${esc(t.b.toLowerCase())}</code>. Du kan använda bindestreck, kolon, = eller tabb. Flera rätta svar: <code>hus / hem</code>.`}</p>
+    <div class="row"><button class="btn" data-act="addimp">⬇ Lägg till i listan</button><button class="btn sec" data-act="addrow">+ Tom rad</button></div>
+    <div class="note">Fotoläsning är inte perfekt. Kontrollera alltid orden i listan nedan.</div>
 
-    <h3>2. Kontrollera och rätta</h3>
-    <p class="mute" style="margin-top:0">En rad per par: <code>${esc(t.a.toLowerCase())} – ${esc(t.b.toLowerCase())}</code>. Skilj åt med bindestreck, kolon, = eller tabb. Flera rätta svar: <code>hus / hem</code>.</p>
-    <textarea id="txt" spellcheck="false" placeholder="${t.lang ? 'la madre – mamma\nel libro – boken\nel cuaderno – anteckningsboken' : 'Inflation – Generell prisökning över tid\nBNP – Värdet av alla varor och tjänster som produceras i ett land under ett år'}">${esc(cur.text)}</textarea>
-    <p id="sum" class="mute">${summary(cur.text)}</p>
-    <div class="row"><button class="btn" data-act="saveedit">Spara och öva</button><button class="btn sec" data-act="cancel">Avbryt</button></div>
+    <h3>2. Din lista (${cur.pairs.length} ord)</h3>
+    ${cur.pairs.length ? listTable() : '<p class="mute">Inga ord än.</p>'}
+    <div class="row" style="margin-top:22px"><button class="btn big" data-act="saveedit">Spara och öva</button><button class="btn sec" data-act="cancel">Avbryt</button></div>
   </div>`;
+}
+function summaryImp() {
+  const { pairs, skipped } = parse(impText);
+  return `<b>${pairs.length}</b> ord hittades` + (skipped.length ? ` · <span style="color:var(--soft-bad)">${skipped.length} rad${skipped.length > 1 ? 'er' : ''} saknar skiljetecken och hoppas över</span>` : '');
 }
 
 function renderMenu() {
-  const t = T(), n = parse(cur.text).pairs.length, weak = parse(cur.text).pairs.filter(p => (cur.weak || []).includes(key(p))).length;
+  const t = T(), n = cur.pairs.length, weak = cur.pairs.filter(p => p.box <= 2).length, last = cur._cfg || { len:10, dir:'ab' };
+  const lang = t.lang;
   app.innerHTML = `<div class="card">
-    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(cur.name)}</h2><button class="btn sm sec" data-act="home">← Mina listor</button></div>
-    <p class="mute">${n} glosor</p>
-    <label>Riktning</label>
-    <div class="radios">
-      <label><input type="radio" name="dir" value="ab" checked> ${t.a} → ${t.b}</label>
-      <label><input type="radio" name="dir" value="ba"> ${t.b} → ${t.a}</label>
-      <label><input type="radio" name="dir" value="mix"> Blandat</label>
+    <div class="row sb"><h2 style="margin:0">${esc(cur.name)}</h2><button class="btn sm sec" data-act="home">← Mina listor</button></div>
+    <p class="mute">${n} ord</p>${meter(cur)}
+    <h3>Så vill jag öva</h3>
+    <div class="chips" role="group" aria-label="Antal ord">
+      <label><input type="radio" name="len" value="5"${last.len == 5 ? ' checked' : ''}> Kort · 5 ord (ca 2 min)</label>
+      <label><input type="radio" name="len" value="10"${last.len == 10 ? ' checked' : ''}> Lagom · 10 ord</label>
+      <label><input type="radio" name="len" value="0"${last.len == 0 ? ' checked' : ''}> Alla · ${n} ord</label>
     </div>
-    ${weak ? `<label style="display:flex;gap:8px;align-items:center;font-weight:500;margin-top:14px"><input type="checkbox" id="weak"> Bara ord jag missat senast (${weak})</label>` : ''}
+    <div class="chips" style="margin-top:10px" role="group" aria-label="Riktning">
+      <label><input type="radio" name="dir" value="ab"${last.dir === 'ab' ? ' checked' : ''}> ${t.a} → ${t.b}</label>
+      <label><input type="radio" name="dir" value="ba"${last.dir === 'ba' ? ' checked' : ''}> ${t.b} → ${t.a}</label>
+      <label><input type="radio" name="dir" value="mix"${last.dir === 'mix' ? ' checked' : ''}> Blandat</label>
+    </div>
+    <div class="chips" style="margin-top:10px"><label><input type="checkbox" id="weak"${weak ? '' : ' disabled'}> Bara ord jag behöver öva (${weak})</label></div>
     <h3>Välj övning</h3>
     <div class="modes">
-      <button class="mode" data-act="start" data-mode="mc"${n < 2 ? ' disabled' : ''}><b>1. Flerval</b><span>Välj rätt svar bland fyra alternativ.</span></button>
-      <button class="mode" data-act="start" data-mode="flash"><b>2. Flashcards</b><span>Vänd kortet och bedöm själv.</span></button>
-      <button class="mode" data-act="start" data-mode="spell"><b>3. Stavning</b><span>${t.lang ? 'Skriv svaret själv.' : 'Skriv begreppet utifrån förklaringen.'}</span></button>
+      <button class="mode star" data-act="start" data-mode="smart"><span class="ic">✨</span><div><b>Smart träning – rekommenderas</b><span>Börjar lätt och blir svårare när du lär dig. Ord du kan ses mer sällan.</span></div></button>
+      <button class="mode" data-act="start" data-mode="mc"${n < 2 ? ' disabled' : ''}><span class="ic">🎯</span><div><b>Flerval</b><span>Välj rätt svar bland fyra. Lugnt och enkelt.</span></div></button>
+      <button class="mode" data-act="start" data-mode="flash"><span class="ic">🃏</span><div><b>Flashcards</b><span>Titta, vänd kortet och säg själv om du kunde.</span></div></button>
+      <button class="mode" data-act="start" data-mode="match"${n < 2 ? ' disabled' : ''}><span class="ic">🧩</span><div><b>Para ihop</b><span>Koppla ihop ord och betydelse, fem åt gången.</span></div></button>
+      <button class="mode" data-act="start" data-mode="spell"><span class="ic">⌨️</span><div><b>Skriv</b><span>${lang ? 'Skriv svaret. Du kan få en hjälpbokstav.' : 'Skriv begreppet utifrån förklaringen.'}</span></div></button>
+      <button class="mode" data-act="start" data-mode="scramble"${lang ? '' : ' disabled'}><span class="ic">🔤</span><div><b>Bokstavspussel</b><span>${lang ? 'Lägg bokstäverna i rätt ordning.' : 'Finns bara för språklistor.'}</span></div></button>
+      <button class="mode" data-act="start" data-mode="listen"${lang && HAS_TTS ? '' : ' disabled'}><span class="ic">🎧</span><div><b>Lyssna och skriv</b><span>${lang ? (HAS_TTS ? 'Lyssna på ordet och skriv det.' : 'Din webbläsare saknar uppläsning.') : 'Finns bara för språklistor.'}</span></div></button>
     </div>
-    ${n < 2 ? '<p class="mute">Flerval kräver minst två glosor.</p>' : ''}
+    ${n < 2 ? '<p class="mute" style="margin-top:12px">Lägg till fler ord för att låsa upp alla övningar.</p>' : ''}
+    <p class="mute" style="margin-top:14px">Inget har tidsgräns och du kan pausa när du vill. Fel svar är bara en chans att lära sig.</p>
   </div>`;
 }
 
-function qOf(it) { return it.d === 'ab' ? { q: it.p.a, ans: it.p.b, qs: 'a', as: 'b' } : { q: it.p.b, ans: it.p.a, qs: 'b', as: 'a' }; }
+const qOf = it => it.d === 'ab' ? { q: it.p.a, ans: it.p.b, qs: 'a', as: 'b' } : { q: it.p.b, ans: it.p.a, qs: 'b', as: 'a' };
 const side = s => T()[s];
 
+function renderPause() {
+  app.innerHTML = `<div class="card pause"><h2>Paus</h2><p>Ta den tid du behöver. Ingenting räknas medan du pausar.</p><div class="breath" aria-hidden="true"></div>
+    <div class="row c"><button class="btn big" data-act="resume">Jag är redo – fortsätt</button><button class="btn sec" data-act="menu">Avsluta övningen</button></div></div>`;
+}
 function renderRun() {
-  const it = run.items[run.i], x = qOf(it), t = T();
-  const head = `<div class="meta"><span>${run.i + 1} / ${run.items.length}</span><button class="btn sm sec" data-act="menu">Avsluta</button></div>
-    <div class="bar"><i style="width:${(run.i / run.items.length) * 100}%"></i></div>`;
-  let body = '';
-  if (run.mode === 'mc') {
-    if (!it.opts) {
-      const pool = shuffle([...new Set(run.all.filter(p => p !== it.p).map(p => x.as === 'a' ? p.a : p.b))].filter(o => norm(o) !== norm(x.ans)));
-      it.opts = shuffle([x.ans, ...pool.slice(0, 3)]);
+  if (run.paused) return renderPause();
+  const it = run.items[run.i], m = it.m;
+  const head = `<div class="meta"><span>Fråga ${run.i + 1} av ${run.items.length}</span><span class="row"><button class="btn sm sec" data-act="pause">⏸ Paus</button><button class="btn sm sec" data-act="menu">Avsluta</button></span></div>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${run.items.length}" aria-valuenow="${run.i}"><i style="width:${(run.i / run.items.length) * 100}%"></i></div>`;
+  let body = '', after = '';
+  if (m === 'match') body = bodyMatch(it);
+  else {
+    const x = qOf(it);
+    if (m === 'mc') body = bodyMC(it, x);
+    else if (m === 'flash') body = bodyFlash(it, x);
+    else if (m === 'scramble') body = bodyScramble(it, x);
+    else body = bodySpell(it, x, m === 'listen');
+    if (run.state === 'fb' && m !== 'flash') {
+      const v = it.verdict, good = v === 'ok' || v === 'near' || v === 'hint';
+      const head2 = v === 'ok' ? '✓ Rätt!' : v === 'near' ? '✓ Nästan rätt!' : v === 'hint' ? '✓ Rätt – med lite hjälp!' : 'Inte riktigt än';
+      const extra = v === 'ok' ? '' : `<span>${v === 'near' ? 'Så stavas det' : 'Rätt svar är'}: <span class="ans">${esc(x.ans)}</span></span>`;
+      after = `<div class="fb ${good ? 'ok' : 'no'}" role="status"><b class="big2">${head2}</b>${extra}</div>
+        ${m !== 'spell' && m !== 'listen' ? `<button class="btn big" style="margin-top:16px" data-act="next">${run.i + 1 === run.items.length ? 'Se resultat' : 'Nästa'}</button>` : ''}`;
     }
-    body = `<div class="q"><small>${side(x.qs)}</small><span>${esc(x.q)}</span>${sayBtn(x.q, x.qs)}</div>
-      <div class="opts">${it.opts.map((o, i) => {
-        let c = ''; if (run.state === 'fb') c = o === x.ans ? ' right' : (o === it.given ? ' wrong' : '');
-        return `<button class="opt${c}" data-act="opt" data-i="${i}"${run.state === 'fb' ? ' disabled' : ''}><b>${i + 1}</b>${esc(o)}</button>`;
-      }).join('')}</div>`;
-  } else if (run.mode === 'flash') {
-    body = `<button class="flash${run.flip ? ' back' : ''}" data-act="flip" aria-live="polite"><small>${side(run.flip ? x.as : x.qs)}</small>${esc(run.flip ? x.ans : x.q)}</button>
-      <div class="row" style="justify-content:center;margin-top:10px">${sayBtn(run.flip ? x.ans : x.q, run.flip ? x.as : x.qs)}</div>
-      <p class="mute" style="text-align:center">${run.flip ? '' : 'Tryck på kortet (eller mellanslag) för att vända det.'}</p>
-      ${run.flip ? `<div class="row" style="justify-content:center"><button class="btn sec" data-act="flash" data-ok="0">✗ Kunde inte (←)</button><button class="btn" data-act="flash" data-ok="1">✓ Kunde (→)</button></div>` : ''}`;
-  } else {
-    body = `<form id="sp"><div class="q"><small>${side(x.qs)}</small><span>${esc(x.q)}</span>${sayBtn(x.q, x.qs)}</div>
-      <label for="ans">Skriv på ${side(x.as).toLowerCase()}</label>
-      <input type="text" id="ans" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"${run.state === 'fb' ? ' readonly' : ''} value="${esc(it.given || '')}">
-      <div class="row" style="margin-top:14px"><button class="btn" type="submit">${run.state === 'fb' ? (run.i + 1 === run.items.length ? 'Visa resultat' : 'Nästa') : 'Svara'}</button></div></form>`;
   }
-  let fb = '';
-  if (run.state === 'fb' && run.mode !== 'flash') {
-    const v = it.verdict;
-    fb = `<div class="fb ${v === 'ok' ? 'ok' : 'no'}" aria-live="polite"><strong>${v === 'ok' ? 'Rätt!' : v === 'near' ? 'Nästan – kolla stavning/accenter' : 'Fel'}</strong>${v === 'ok' ? '' : `Rätt svar: <b>${esc(x.ans)}</b>`}</div>
-      ${run.mode === 'mc' ? `<button class="btn" style="margin-top:16px" data-act="next">${run.i + 1 === run.items.length ? 'Visa resultat' : 'Nästa'} (Enter)</button>` : ''}`;
+  app.innerHTML = `<div class="card">${head}${body}${after}</div>`;
+  if ((m === 'spell' || m === 'listen') && run.state === 'ask') { const a = document.getElementById('ans'); if (a) a.focus(); }
+  if (m === 'listen' && run.state === 'ask') setTimeout(() => speak(it.p.a, T().tts), 250);
+  else if (S.autoread && T().lang && run.state === 'ask' && (m === 'mc' || m === 'spell')) { const x = qOf(it); if (x.qs === 'a') setTimeout(() => speak(x.q, T().tts), 250); }
+}
+function bodyMC(it, x) {
+  if (!it.opts) {
+    const pool = shuffle([...new Set(run.all.filter(p => p !== it.p).map(p => x.as === 'a' ? p.a : p.b))].filter(o => norm(o) !== norm(x.ans)));
+    it.opts = shuffle([x.ans, ...pool.slice(0, 3)]);
   }
-  app.innerHTML = `<div class="card">${head}${body}${fb}</div>`;
-  if (run.mode === 'spell') { const a = document.getElementById('ans'); if (a && run.state === 'ask') a.focus(); }
+  return `<div class="q"><small>${side(x.qs)}</small><span>${esc(x.q)}</span>${sayBtn(x.q, x.qs)}</div>
+    <div class="opts">${it.opts.map((o, i) => {
+      let c = ''; if (run.state === 'fb') c = o === x.ans ? ' right' : (o === it.given ? ' miss' : '');
+      return `<button class="opt${c}" data-act="opt" data-i="${i}"${run.state === 'fb' ? ' disabled' : ''}><b>${i + 1}</b><span>${esc(o)}</span></button>`;
+    }).join('')}</div>`;
+}
+function bodyFlash(it, x) {
+  return `<button class="flash${run.flip ? ' back' : ''}" data-act="flip"><small>${side(run.flip ? x.as : x.qs)}</small>${esc(run.flip ? x.ans : x.q)}</button>
+    <div class="row c" style="margin-top:12px">${sayBtn(run.flip ? x.ans : x.q, run.flip ? x.as : x.qs)}</div>
+    ${run.flip ? `<p class="mute" style="text-align:center">Kunde du den?</p><div class="row c"><button class="btn sec big" data-act="flash" data-ok="0">Behöver öva</button><button class="btn big" data-act="flash" data-ok="1">Jag kunde ✓</button></div>`
+               : `<p class="mute" style="text-align:center">Tänk först – tryck sedan på kortet (eller mellanslag).</p>`}`;
+}
+function hintOf(ans, k) { return ans.split('').map((c, i) => c === ' ' ? '  ' : i < k ? c : '_').join(' '); }
+function bodySpell(it, x, listen) {
+  const fb = run.state === 'fb', ans = firstAns(x.ans);
+  const prompt = listen
+    ? `<div class="q"><small>Lyssna och skriv ordet på ${T().a.toLowerCase()}</small></div><div class="row" style="margin-bottom:16px"><button class="btn big" data-act="hear">🔊 Lyssna</button><button class="btn sec big" data-act="hear" data-slow="1">🐢 Långsamt</button></div>`
+    : `<div class="q"><small>${side(x.qs)}</small><span>${esc(x.q)}</span>${sayBtn(x.q, x.qs)}</div>`;
+  return `<form id="sp">${prompt}
+    ${it.hints && !fb ? `<div class="hint" aria-label="Ledtråd">${esc(hintOf(ans, it.hints))}</div>` : ''}
+    <label for="ans" style="margin-top:0">${listen ? 'Skriv det du hör' : 'Skriv på ' + side(x.as).toLowerCase()}</label>
+    <input type="text" id="ans" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"${fb ? ' readonly' : ''} value="${esc(it.given != null ? it.given : it.draft || '')}">
+    <div class="row" style="margin-top:16px"><button class="btn big" type="submit">${fb ? (run.i + 1 === run.items.length ? 'Se resultat' : 'Nästa') : 'Svara'}</button>
+    ${!fb && !listen && ans.length > 1 && (it.hints || 0) < ans.length - 1 ? `<button class="btn sec" type="button" data-act="hint">💡 Hjälp mig</button>` : ''}</div></form>`;
+}
+function bodyScramble(it, x) {
+  const ans = firstAns(x.ans);
+  if (!it.tl) {
+    const letters = ans.replace(/ /g, '').split('');
+    let tl; let tries = 0;
+    do { tl = shuffle(letters.slice()); tries++; } while (letters.length > 1 && tl.join('') === letters.join('') && tries < 10);
+    it.tl = tl.map(ch => ({ ch, used:false })); it.sl = ans.split('').map(c => c === ' ' ? ' ' : null); it.ans = ans; it.tries = 0;
+  }
+  const fb = run.state === 'fb';
+  return `<div class="q"><small>Lägg bokstäverna i rätt ordning – ${T().a.toLowerCase()}</small><span>${esc(x.q)}</span>${sayBtn(x.q, x.qs)}</div>
+    <div class="slots" aria-label="Ditt svar">${it.sl.map((v, i) => v === ' ' ? '<span class="slot sp"></span>' : `<button class="slot${v != null ? ' f' : ''}" data-act="unslot" data-i="${i}"${fb || v == null ? ' disabled' : ''} aria-label="${v != null ? 'Ta bort ' + it.tl[v].ch : 'Tom ruta'}">${v != null ? esc(it.tl[v].ch) : ''}</button>`).join('')}</div>
+    ${fb ? '' : `<div class="tiles" aria-label="Bokstäver">${it.tl.map((t, i) => `<button class="tile" data-act="tile" data-i="${i}"${t.used ? ' disabled' : ''}>${esc(t.ch)}</button>`).join('')}</div>`}
+    ${it.msg && !fb ? `<div class="fb no" role="status">${it.msg}</div>` : ''}
+    ${fb ? '' : `<div class="row" style="margin-top:14px"><button class="btn sec" data-act="reset">Börja om</button><button class="btn sec" data-act="giveup">Visa svaret</button></div>`}`;
+}
+function bodyMatch(it) {
+  const x = it.d === 'ab' ? ['a', 'b'] : ['b', 'a'];
+  return `<p class="q" style="font-size:1.2rem;margin-bottom:12px"><span>Koppla ihop ${side(x[0]).toLowerCase()} med ${side(x[1]).toLowerCase()}. Tryck på ett ord till vänster, sedan på dess par till höger.</span></p>
+    <div class="match"><div style="display:grid;gap:10px">${it.L.map(i => { const dn = it.done.includes(i); return `<button class="mt${dn ? ' done' : ''}" data-act="ml" data-i="${i}" aria-pressed="${it.sel === i}"${dn ? ' disabled' : ''}>${dn ? '✓ ' : ''}${esc(it.ps[i][x[0]])}</button>`; }).join('')}</div>
+    <div style="display:grid;gap:10px">${it.R.map(i => { const dn = it.done.includes(i); return `<button class="mt${dn ? ' done' : ''}" data-act="mr" data-i="${i}"${dn ? ' disabled' : ''}>${dn ? '✓ ' : ''}${esc(it.ps[i][x[1]])}</button>`; }).join('')}</div></div>
+    ${it.msg ? `<div class="fb no" role="status" style="margin-top:14px">${it.msg}</div>` : ''}
+    ${it.done.length === it.ps.length ? `<div class="fb ok" role="status"><b class="big2">✓ Alla par klara!</b></div><button class="btn big" style="margin-top:16px" data-act="next">${run.i + 1 === run.items.length ? 'Se resultat' : 'Nästa'}</button>` : ''}`;
 }
 
 function renderDone() {
   const ok = run.res.filter(r => r.ok).length, n = run.res.length, miss = run.res.filter(r => !r.ok);
+  const pct = Math.round(ok / n * 100), stars = pct === 100 ? 3 : pct >= 70 ? 2 : 1;
+  const msg = pct === 100 ? 'Alla rätt – fantastiskt!' : pct >= 70 ? 'Mycket bra jobbat!' : 'Bra kämpat! Det är så man lär sig.';
   app.innerHTML = `<div class="card score">
-    <h2>Resultat</h2><div class="big">${ok} / ${n}</div>
-    <p class="mute">${ok === n ? 'Alla rätt – snyggt!' : Math.round(ok / n * 100) + ' % rätt'}</p>
-    <div class="row" style="justify-content:center">
-      ${miss.length ? '<button class="btn" data-act="again" data-weak="1">Öva missade</button>' : ''}
-      <button class="btn sec" data-act="again">Kör igen</button>
-      <button class="btn sec" data-act="menu">Välj övning</button>
+    <h2>Du klarade en omgång!</h2><div class="stars" aria-label="${stars} stjärnor">${'⭐'.repeat(stars)}</div>
+    <div class="num">${ok} / ${n}</div><p>${msg}</p>
+    <p class="mute">Omgångar idag: ${S.today}</p>
+    <div class="row c">
+      ${miss.length ? '<button class="btn big" data-act="again" data-weak="1">Öva det jag missade</button>' : ''}
+      <button class="btn sec" data-act="again">En omgång till</button>
+      <button class="btn sec" data-act="menu">Välj annan övning</button>
+      <button class="btn sec" data-act="home">Mina listor</button>
     </div>
-    ${miss.length ? `<div class="rev"><h3>Missade</h3>${miss.map(r => { const x = qOf(r.it); return `<div class="it"><b>${esc(x.q)}</b> → ${esc(x.ans)}${r.given ? `<small>Du svarade: ${esc(r.given)}</small>` : ''}</div>`; }).join('')}</div>` : ''}
+    ${miss.length ? `<div class="rev"><h3>Värt att repetera</h3>${miss.map(r => `<div class="it"><b>${esc(r.p.a)}</b> – ${esc(r.p.b)}</div>`).join('')}</div>` : ''}
+    <p class="mute" style="margin-top:16px">Tips: pausa en stund innan nästa omgång. Hjärnan lagrar bäst med korta pass.</p>
   </div>`;
 }
 
-/* ---------- Övningslogik ---------- */
-function start(mode, dir, onlyWeak) {
-  let pairs = parse(cur.text).pairs;
-  const all = pairs.slice();
-  if (onlyWeak) pairs = pairs.filter(p => (cur.weak || []).includes(key(p)));
-  if (!pairs.length) return;
-  const isTerm = !T().lang;
-  const items = shuffle(pairs.slice()).map(p => ({ p, d: (mode === 'spell' && isTerm) ? 'ba' : dir === 'mix' ? (Math.random() < .5 ? 'ab' : 'ba') : dir }));
-  run = { mode, dir, onlyWeak, items, all, i: 0, res: [], state: 'ask', flip: false };
-  view = 'run'; render();
+function renderSettings() {
+  const opt = (n, v, l) => `<label><input type="radio" name="${n}" value="${v}"${String(S[n]) === String(v) ? ' checked' : ''}> ${l}</label>`;
+  app.innerHTML = `<div class="card"><h2>Anpassa så det passar dig</h2><p class="mute">Ändringarna syns direkt och sparas.</p>
+    <label>Färger</label><div class="chips">${opt('theme','auto','Automatisk')}${opt('theme','ljus','Ljus')}${opt('theme','varm','Varm (gul)')}${opt('theme','bla','Lugn blå')}${opt('theme','gron','Mjuk grön')}${opt('theme','mork','Mörk')}</div>
+    <label>Typsnitt</label><div class="chips">${opt('font','std','Standard')}${opt('font','las','Läsvänlig')}${opt('font','mjuk','Mjuk')}</div>
+    <label>Textstorlek</label><div class="chips">${opt('size','1','Normal')}${opt('size','1.15','Stor')}${opt('size','1.3','Extra stor')}</div>
+    <label>Radavstånd och luft</label><div class="chips">${opt('space','normal','Normal')}${opt('space','luftig','Extra luftig')}</div>
+    <label>Rörelse</label><div class="chips"><label><input type="checkbox" id="mo"${S.motion ? ' checked' : ''}> Minska animationer (lugnare)</label></div>
+    <label>Uppläsning</label><div class="chips"><label><input type="checkbox" id="ar"${S.autoread ? ' checked' : ''}> Läs upp orden automatiskt</label></div>
+    <div class="chips" style="margin-top:8px">${opt('rate','0.9','Normal uppläsningsfart')}${opt('rate','0.7','Långsam uppläsning')}</div>
+    <div class="row" style="margin-top:24px"><button class="btn big" data-act="closesettings">Klar</button></div></div>`;
 }
-function record(it, ok, given) {
-  run.res.push({ it, ok, given });
-  cur.weak = cur.weak || [];
-  const k = key(it.p), i = cur.weak.indexOf(k);
-  if (ok && i >= 0) cur.weak.splice(i, 1);
-  if (!ok && i < 0) cur.weak.push(k);
+
+/* ---------- Övningslogik ---------- */
+function start(mode, cfg) {
+  cur._cfg = cfg;
+  let pairs = cur.pairs.slice();
+  if (cfg.weak) { const w = pairs.filter(p => p.box <= 2); if (w.length) pairs = w; }
+  const lang = T().lang;
+  if (cfg.only) pairs = cfg.only.filter(p => cur.pairs.includes(p));
+  const all = cur.pairs.slice();
+  const cnt = cfg.len && cfg.len < pairs.length ? cfg.len : pairs.length;
+  if (mode === 'smart') pairs = pairs.sort((a, b) => (a.box - b.box) || (Math.random() - .5));
+  else shuffle(pairs);
+  pairs = shuffle(pairs.slice(0, cnt));
+  if (!pairs.length) return;
+  const dirOf = () => cfg.dir === 'mix' ? (Math.random() < .5 ? 'ab' : 'ba') : cfg.dir;
+  let items;
+  if (mode === 'match') {
+    items = [];
+    for (let i = 0; i < pairs.length; i += 5) {
+      let ps = pairs.slice(i, i + 5);
+      if (ps.length < 2 && items.length) { items[items.length - 1].ps.push(...ps); items[items.length - 1].reinit = true; break; }
+      items.push({ m:'match', ps, d: dirOf() });
+    }
+    items.forEach(initMatch);
+  } else {
+    items = pairs.map(p => {
+      let m = mode;
+      if (mode === 'smart') m = p.box <= 1 ? 'mc' : p.box <= 3 ? 'spell' : (lang && HAS_TTS && Math.random() < .5 ? 'listen' : 'spell');
+      if (m === 'mc' && all.length < 2) m = 'flash';
+      let d = dirOf();
+      if (m === 'spell' && !lang) d = 'ba';
+      if (m === 'scramble') d = 'ab';
+      if (mode === 'smart' && m === 'spell' && lang && cfg.dir === 'ab' && p.box >= 3) d = 'ba';
+      return { p, d, m };
+    });
+  }
+  run = { mode, cfg, items, all, i: 0, res: [], state: 'ask', flip: false, paused: false };
+  view = 'run'; render(); window.scrollTo(0, 0);
+}
+function initMatch(it) {
+  it.L = shuffle(it.ps.map((_, i) => i)); it.R = shuffle(it.ps.map((_, i) => i));
+  it.done = []; it.sel = null; it.missed = new Set(); it.msg = '';
+}
+function record(p, ok, level) {
+  run.res.push({ p, ok });
+  p.seen = 1;
+  if (level === 'up') p.box = Math.min(5, (p.box || 0) + 1);
+  else if (level === 'down') p.box = Math.max(0, (p.box || 0) - 1);
   save();
 }
 function next() {
   run.i++; run.state = 'ask'; run.flip = false;
-  if (run.i >= run.items.length) { view = 'done'; }
-  render();
+  if (run.i >= run.items.length) {
+    const d = new Date().toDateString();
+    if (S.day !== d) { S.day = d; S.today = 0; }
+    S.today++; saveS(); view = 'done';
+  }
+  render(); window.scrollTo(0, 0);
 }
-function answerMC(i) {
-  const it = run.items[run.i], x = qOf(it);
-  it.given = it.opts[i]; it.verdict = it.given === x.ans ? 'ok' : 'wrong';
-  record(it, it.verdict === 'ok', it.given); run.state = 'fb'; render();
+function finish(it, verdict) {
+  it.verdict = verdict;
+  record(it.p, verdict !== 'wrong', verdict === 'ok' ? 'up' : verdict === 'wrong' ? 'down' : 'keep');
+  run.state = 'fb'; render();
 }
 function answerSpell(val) {
   const it = run.items[run.i], x = qOf(it);
-  it.given = val; it.verdict = judge(val, x.ans);
-  record(it, it.verdict === 'ok', val); run.state = 'fb'; render();
+  it.given = val;
+  let v = judge(val, x.ans);
+  if (v === 'ok' && it.hints) v = 'hint';
+  finish(it, v);
+}
+function tileClick(i) {
+  const it = run.items[run.i], t = it.tl[i]; if (t.used) return;
+  const s = it.sl.indexOf(null); if (s < 0) return;
+  it.sl[s] = i; t.used = true; it.msg = '';
+  if (it.sl.indexOf(null) < 0) {
+    const built = it.sl.map(v => v === ' ' ? ' ' : it.tl[v].ch).join('');
+    if (built.toLowerCase() === it.ans.toLowerCase()) { it.given = built; finish(it, it.tries ? 'hint' : 'ok'); return; }
+    it.tries++; it.msg = 'Inte riktigt – tryck på en bokstav i svaret för att ta bort den, eller välj "Börja om".';
+  }
+  render();
+}
+function matchLeft(i) { const it = run.items[run.i]; it.sel = it.sel === i ? null : i; it.msg = ''; render(); }
+function matchRight(j) {
+  const it = run.items[run.i];
+  if (it.sel == null) { it.msg = 'Välj först ett ord i vänstra kolumnen.'; render(); return; }
+  if (it.sel === j) {
+    it.done.push(j); it.sel = null; it.msg = '';
+    if (it.done.length === it.ps.length) it.ps.forEach((p, k) => record(p, !it.missed.has(k), it.missed.has(k) ? 'down' : 'up'));
+  } else { it.missed.add(it.sel); it.msg = 'Det paret stämde inte – prova igen, det går bra.'; it.sel = null; }
+  render();
 }
 
 /* ---------- Händelser ---------- */
-const openSet = id => { cur = sets.find(s => s.id === id); view = 'menu'; render(); };
+const openSet = id => { cur = sets.find(s => s.id === id); view = 'menu'; render(); window.scrollTo(0, 0); };
+const syncEdit = () => { const nm = document.getElementById('nm'); if (nm) cur.name = nm.value; };
 document.addEventListener('click', e => {
-  if (e.target.id === 'home') { view = 'home'; render(); return; }
+  if (e.target.id === 'home') { e.preventDefault(); goHome(); return; }
   const b = e.target.closest('[data-act]'); if (!b) return;
-  const act = b.dataset.act;
-  if (act === 'new') { cur = { id: Date.now().toString(36), name: '', type: 'eng', text: '', weak: [] }; isNew = true; ocrMsg = ''; view = 'edit'; render(); }
-  else if (act === 'open') openSet(b.dataset.id);
-  else if (act === 'edit') { cur = sets.find(s => s.id === b.dataset.id); isNew = false; ocrMsg = ''; view = 'edit'; render(); }
-  else if (act === 'del') { const s = sets.find(x => x.id === b.dataset.id); if (confirm(`Ta bort "${s.name}"?`)) { sets = sets.filter(x => x !== s); save(); render(); } }
-  else if (act === 'home') { view = 'home'; render(); }
-  else if (act === 'menu') { view = 'menu'; render(); }
-  else if (act === 'cancel') { view = 'home'; render(); }
-  else if (act === 'pick') document.getElementById('f1').click();
-  else if (act === 'cam') document.getElementById('f2').click();
-  else if (act === 'saveedit') {
-    if (ocrBusy) { alert('Vänta tills bilden är färdigläst.'); return; }
-    const n = parse(cur.text).pairs.length;
-    if (!n) { alert('Listan har inga tolkade glosor än.'); return; }
-    cur.name = cur.name.trim() || 'Namnlös lista';
-    if (isNew) sets.unshift(cur);
-    save(); view = 'menu'; render();
-  }
-  else if (act === 'start') {
-    const dir = document.querySelector('input[name=dir]:checked').value;
-    start(b.dataset.mode, dir, !!(document.getElementById('weak') || {}).checked);
-  }
-  else if (act === 'again') start(run.mode, run.dir, !!b.dataset.weak);
-  else if (act === 'opt') answerMC(+b.dataset.i);
-  else if (act === 'next') next();
-  else if (act === 'flip') { run.flip = !run.flip; render(); }
-  else if (act === 'flash') { record(run.items[run.i], b.dataset.ok === '1', ''); next(); }
-  else if (act === 'say') speak(b.dataset.t, T().tts);
+  const act = b.dataset.act, id = b.dataset.id;
+  const A = {
+    new: () => { cur = { id: uid(), name: '', type: 'eng', pairs: [] }; isNew = true; impText = ''; ocrMsg = ''; view = 'edit'; render(); },
+    example: () => { const s = { id: uid(), name: 'Exempel: Spanska i klassrummet', type: 'spa', pairs: [['la mesa','bordet'],['la silla','stolen'],['el libro','boken'],['el lápiz','pennan'],['la ventana','fönstret'],['la puerta','dörren'],['el profesor','läraren'],['la escuela','skolan']].map(([a, b]) => ({ a, b, box:0 })) }; sets.unshift(s); save(); openSet(s.id); },
+    open: () => openSet(id),
+    edit: () => { cur = JSON.parse(JSON.stringify(sets.find(s => s.id === id))); isNew = false; impText = ''; ocrMsg = ''; view = 'edit'; render(); },
+    del: () => { const s = sets.find(x => x.id === id); if (confirm(`Ta bort "${s.name}"?`)) { sets = sets.filter(x => x !== s); save(); render(); } },
+    share: () => { const s = sets.find(x => x.id === id), link = shareLink(s);
+      (navigator.clipboard ? navigator.clipboard.writeText(link).then(() => alert('Länken är kopierad! Skicka den till eleverna (t.ex. i Teams eller Classroom). Listan följer med i länken.'), () => prompt('Kopiera länken:', link)) : prompt('Kopiera länken:', link)); },
+    importlink: () => { const v = document.getElementById('lnk').value, m = v.match(/#lista=(.+)$/); if (!m) { alert('Det där ser inte ut som en listlänk.'); return; } try { pending = fromPayload(dec(decodeURIComponent(m[1]))); view = 'import'; render(); } catch (er) { alert('Länken gick inte att läsa.'); } },
+    importfile: () => document.getElementById('fimp').click(),
+    acceptimport: () => { sets.unshift(pending); save(); const id2 = pending.id; pending = null; openSet(id2); },
+    home: goHome,
+    menu: () => { view = 'menu'; render(); },
+    cancel: goHome,
+    settings: () => { if (view !== 'settings') { run && view === 'run' && (run.paused = true); window._back = view; view = 'settings'; render(); } },
+    closesettings: () => { view = window._back || 'home'; if (view === 'edit' && !cur) view = 'home'; render(); },
+    pick: () => { syncEdit(); document.getElementById('f1').setAttribute('accept', 'image/*'); document.getElementById('f1').click(); },
+    file: () => { syncEdit(); document.getElementById('f1').setAttribute('accept', '.txt,.csv,text/plain'); document.getElementById('f1').click(); },
+    cam: () => { syncEdit(); document.getElementById('f2').click(); },
+    addimp: () => { syncEdit(); const { pairs, skipped } = parse(impText); if (!pairs.length) { alert('Hittade inga ord. Skriv ett ord per rad med bindestreck, kolon eller = mellan.'); return; }
+      cur.pairs.push(...pairs.map(p => ({ ...p, box:0 }))); impText = skipped.join('\n'); ocrMsg = skipped.length ? 'Raderna som blev kvar saknar skiljetecken – rätta dem och lägg till igen.' : ''; render(); },
+    addrow: () => { syncEdit(); cur.pairs.push({ a:'', b:'', box:0 }); render(); const r = document.querySelectorAll('table.words input'); r[r.length - 2] && r[r.length - 2].focus(); },
+    delrow: () => { syncEdit(); cur.pairs.splice(+b.dataset.r, 1); render(); },
+    saveedit: () => {
+      if (ocrBusy) { alert('Vänta tills bilden är färdigläst.'); return; }
+      syncEdit();
+      if (impText.trim() && parse(impText).pairs.length && confirm('Du har text som inte är tillagd i listan. Lägga till den nu?')) { cur.pairs.push(...parse(impText).pairs.map(p => ({ ...p, box:0 }))); }
+      cur.pairs = cur.pairs.map(p => ({ ...p, a: p.a.trim(), b: p.b.trim() })).filter(p => p.a && p.b);
+      if (!cur.pairs.length) { alert('Listan har inga kompletta ord än.'); return; }
+      cur.name = cur.name.trim() || 'Namnlös lista';
+      if (isNew) sets.unshift(cur); else sets[sets.findIndex(s => s.id === cur.id)] = cur;
+      save(); view = 'menu'; render();
+    },
+    start: () => {
+      const g = n => (document.querySelector(`input[name=${n}]:checked`) || {}).value;
+      start(b.dataset.mode, { len: +g('len'), dir: g('dir'), weak: !!(document.getElementById('weak') || {}).checked });
+    },
+    again: () => start(run.mode, { ...run.cfg, weak: !!b.dataset.weak || run.cfg.weak, only: b.dataset.weak ? run.res.filter(r => !r.ok).map(r => r.p) : null }),
+    pause: () => { run.paused = true; render(); },
+    resume: () => { run.paused = false; render(); },
+    opt: () => { const it = run.items[run.i], x = qOf(it); it.given = it.opts[+b.dataset.i]; finish(it, it.given === x.ans ? 'ok' : 'wrong'); },
+    next, flip: () => { run.flip = !run.flip; render(); },
+    flash: () => { const ok = b.dataset.ok === '1'; record(run.items[run.i].p, ok, ok ? 'up' : 'down'); next(); },
+    say: () => speak(b.dataset.t, b.dataset.l),
+    hear: () => speak(run.items[run.i].p.a, T().tts, !!b.dataset.slow),
+    hint: () => { const it = run.items[run.i], a = document.getElementById('ans'); it.draft = a ? a.value : ''; it.hints = (it.hints || 0) + 1; render(); },
+    tile: () => tileClick(+b.dataset.i),
+    unslot: () => { const it = run.items[run.i], v = it.sl[+b.dataset.i]; if (v != null) { it.tl[v].used = false; it.sl[+b.dataset.i] = null; it.msg = ''; render(); } },
+    reset: () => { const it = run.items[run.i]; it.tl.forEach(t => t.used = false); it.sl = it.sl.map(v => v === ' ' ? ' ' : null); it.msg = ''; render(); },
+    giveup: () => { const it = run.items[run.i]; it.given = ''; finish(it, 'wrong'); },
+    ml: () => matchLeft(+b.dataset.i), mr: () => matchRight(+b.dataset.i)
+  };
+  if (A[act]) A[act]();
 });
 document.addEventListener('input', e => {
-  if (view !== 'edit') return;
-  if (e.target.id === 'nm') cur.name = e.target.value;
-  if (e.target.id === 'txt') { cur.text = e.target.value; document.getElementById('sum').innerHTML = summary(cur.text); }
+  const t = e.target;
+  if (view === 'edit') {
+    if (t.id === 'nm') cur.name = t.value;
+    else if (t.id === 'imp') { impText = t.value; document.getElementById('impsum').innerHTML = impText.trim() ? summaryImp() : ''; }
+    else if (t.dataset.r != null) cur.pairs[+t.dataset.r][t.dataset.s] = t.value;
+  }
 });
 document.addEventListener('change', e => {
-  if (view === 'edit' && e.target.id === 'ty') { cur.type = e.target.value; render(); }
-  if (e.target.id === 'f1' || e.target.id === 'f2') { doOcr(e.target.files[0]); e.target.value = ''; }
+  const t = e.target;
+  if (view === 'edit' && t.id === 'ty') { syncEdit(); cur.type = t.value; render(); }
+  else if (t.id === 'f1' || t.id === 'f2') { [...t.files].forEach(readFile); t.value = ''; }
+  else if (t.id === 'fimp') { const f = t.files[0]; if (f) { const r = new FileReader(); r.onload = () => { try { pending = fromPayload(JSON.parse(r.result)); view = 'import'; render(); } catch (er) { alert('Filen gick inte att läsa.'); } }; r.readAsText(f); } }
+  else if (view === 'settings') {
+    if (t.name === 'theme' || t.name === 'font' || t.name === 'space') S[t.name] = t.value;
+    else if (t.name === 'size' || t.name === 'rate') S[t.name] = +t.value;
+    else if (t.id === 'mo') S.motion = t.checked;
+    else if (t.id === 'ar') S.autoread = t.checked;
+    saveS(); applyS();
+  }
 });
 document.addEventListener('submit', e => {
   if (e.target.id !== 'sp') return;
@@ -412,14 +718,21 @@ document.addEventListener('submit', e => {
   if (run.state === 'fb') next(); else answerSpell(document.getElementById('ans').value);
 });
 document.addEventListener('keydown', e => {
-  if (view !== 'run' || e.target.tagName === 'INPUT' || e.ctrlKey || e.metaKey) return;
-  if (run.mode === 'mc') {
-    if (run.state === 'fb' && e.key === 'Enter') { e.preventDefault(); next(); }
-    else if (run.state === 'ask' && /^[1-4]$/.test(e.key) && run.items[run.i].opts[+e.key - 1] !== undefined) answerMC(+e.key - 1);
-  } else if (run.mode === 'flash') {
-    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); run.flip = !run.flip; render(); }
-    else if (run.flip && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { record(run.items[run.i], e.key === 'ArrowRight', ''); next(); }
+  if (view === 'edit' && e.key === 'Enter' && e.target.dataset && e.target.dataset.s === 'b') {
+    e.preventDefault(); const r = +e.target.dataset.r;
+    if (r === cur.pairs.length - 1) { cur.pairs.push({ a:'', b:'', box:0 }); render(); const ins = document.querySelectorAll('table.words input'); ins[ins.length - 2].focus(); }
+    else document.querySelector(`[data-r="${r + 1}"][data-s="a"]`).focus();
+    return;
   }
+  if (view !== 'run' || run.paused || e.target.tagName === 'INPUT' || e.ctrlKey || e.metaKey) return;
+  const it = run.items[run.i];
+  if (it.m === 'mc') {
+    if (run.state === 'fb' && e.key === 'Enter') { e.preventDefault(); next(); }
+    else if (run.state === 'ask' && /^[1-4]$/.test(e.key) && it.opts[+e.key - 1] !== undefined) { it.given = it.opts[+e.key - 1]; finish(it, it.given === qOf(it).ans ? 'ok' : 'wrong'); }
+  } else if (it.m === 'flash') {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); run.flip = !run.flip; render(); }
+    else if (run.flip && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { const ok = e.key === 'ArrowRight'; record(it.p, ok, ok ? 'up' : 'down'); next(); }
+  } else if (it.m === 'scramble' && run.state === 'fb' && e.key === 'Enter') { e.preventDefault(); next(); }
 });
 document.addEventListener('paste', e => {
   if (view !== 'edit') return;
@@ -431,10 +744,11 @@ document.addEventListener('paste', e => {
   e.preventDefault();
   const d = document.getElementById('drop');
   if (ev === 'dragover') d && d.classList.add('over');
-  else { d && d.classList.remove('over'); doOcr(e.dataTransfer.files[0]); }
+  else { d && d.classList.remove('over'); [...e.dataTransfer.files].forEach(readFile); }
 }));
 document.addEventListener('dragleave', () => { const d = document.getElementById('drop'); d && d.classList.remove('over'); });
 
+checkHash();
 render();
 </script>
 </body>
