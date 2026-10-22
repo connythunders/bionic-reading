@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glosträning</title>
+<style>
+  :root { --bg:#f4f6f8; --card:#fff; --ink:#14212e; --mute:#5b6b7a; --line:#d9e0e7; --accent:#1d4ed8; --accent2:#2563eb; --ok:#15803d; --okbg:#e8f7ee; --bad:#b91c1c; --badbg:#fdecec; --warn:#92400e; --warnbg:#fef3c7; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0e1620; --card:#16222f; --ink:#e8eef4; --mute:#9fb0c0; --line:#2a3a4a; --accent:#8fb4f5; --accent2:#6b9cf0; --okbg:#10301c; --badbg:#3a1618; --ok:#4ade80; --bad:#f87171; --warn:#fcd34d; --warnbg:#3a2e0e; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
+  header { margin: 8px 0 20px; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.3rem); margin: 0 0 4px; color: var(--accent); letter-spacing: -.02em; cursor: pointer; }
+  .sub { color: var(--mute); margin: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; box-shadow: 0 2px 10px rgba(0,0,0,.04); margin-bottom: 16px; }
+  h2 { font-size: 1.25rem; margin: 0 0 12px; }
+  h3 { font-size: 1.05rem; margin: 18px 0 8px; }
+  label { display:block; font-weight:600; font-size:.92rem; margin: 14px 0 4px; }
+  input[type=text], select, textarea { width:100%; font: inherit; color: var(--ink); background: var(--bg); border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  textarea { min-height: 220px; resize: vertical; font-family: ui-monospace, Consolas, monospace; font-size: .95rem; }
+  input:focus, select:focus, textarea:focus, button:focus-visible { outline: 3px solid var(--accent2); outline-offset: 1px; }
+  button { font: inherit; cursor: pointer; }
+  .btn { font-weight:700; background: var(--accent); color:#fff; border:0; border-radius: 12px; padding: 11px 20px; }
+  @media (prefers-color-scheme: dark) { .btn { color:#06121d; } }
+  .btn.sec { background: transparent; color: var(--accent); border: 2px solid var(--line); }
+  .btn.sm { padding: 6px 12px; font-size: .88rem; }
+  .btn:disabled { opacity:.5; cursor: default; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .mute { color: var(--mute); font-size:.92rem; }
+  .hidden { display:none; }
+  .set { display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; padding: 12px 0; border-top: 1px solid var(--line); }
+  .set:first-of-type { border-top:0; }
+  .set b { display:block; }
+  .drop { border: 2px dashed var(--line); border-radius: 14px; padding: 16px; text-align:center; margin-top: 8px; }
+  .drop.over { border-color: var(--accent2); background: var(--bg); }
+  .note { background: var(--warnbg); color: var(--warn); border-radius: 12px; padding: 10px 14px; font-size: .9rem; margin-top: 10px; }
+  .modes { display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); margin-top: 8px; }
+  .mode { text-align:left; background: var(--bg); border: 2px solid var(--line); border-radius: 14px; padding: 14px 16px; color: var(--ink); }
+  .mode:hover:not(:disabled) { border-color: var(--accent2); }
+  .mode:disabled { opacity:.5; cursor:default; }
+  .mode b { display:block; font-size:1.05rem; color: var(--accent); }
+  .mode span { font-size:.88rem; color: var(--mute); }
+  .radios { display:flex; gap:8px; flex-wrap:wrap; }
+  .radios label { display:flex; align-items:center; gap:6px; margin:0; font-weight:500; border:2px solid var(--line); border-radius: 99px; padding: 6px 14px; cursor:pointer; }
+  .radios input { accent-color: var(--accent2); }
+  .meta { display:flex; justify-content:space-between; gap:12px; color: var(--mute); font-size:.9rem; margin-bottom:8px; }
+  .bar { height: 8px; background: var(--line); border-radius: 99px; overflow:hidden; margin-bottom: 20px; }
+  .bar i { display:block; height:100%; background: var(--accent2); transition: width .3s; }
+  .q { font-size: 1.7rem; font-weight: 700; margin: 8px 0 20px; line-height: 1.3; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .q small { display:block; width:100%; font-size:.8rem; font-weight:600; color: var(--mute); text-transform: uppercase; letter-spacing:.05em; }
+  .opts { display:grid; gap:10px; }
+  .opt { text-align:left; color: var(--ink); background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 13px 16px; display:flex; gap:12px; align-items:center; }
+  .opt:hover:not(:disabled) { border-color: var(--accent2); }
+  .opt b { flex:none; width:28px; height:28px; border-radius:50%; background: var(--bg); display:grid; place-items:center; font-size:.85rem; }
+  .opt:disabled { cursor: default; color: var(--ink); }
+  .opt.right { border-color: var(--ok); background: var(--okbg); }
+  .opt.wrong { border-color: var(--bad); background: var(--badbg); }
+  .fb { margin-top: 16px; padding: 12px 16px; border-radius: 14px; background: var(--bg); border-left: 5px solid var(--line); }
+  .fb.ok { border-color: var(--ok); background: var(--okbg); } .fb.no { border-color: var(--bad); background: var(--badbg); }
+  .flash { width:100%; min-height: 200px; background: var(--bg); border: 2px solid var(--line); border-radius: 18px; padding: 24px; font-size: 1.6rem; font-weight:700; color: var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center; }
+  .flash small { font-size:.78rem; font-weight:600; color: var(--mute); text-transform: uppercase; letter-spacing:.05em; }
+  .flash.back { border-color: var(--accent2); }
+  .say { background: transparent; border: 2px solid var(--line); border-radius: 50%; width: 38px; height: 38px; font-size: 1.05rem; color: var(--ink); }
+  .score { text-align:center; }
+  .big { font-size: 3.4rem; font-weight: 800; color: var(--accent); line-height:1; margin: 8px 0; }
+  .rev { text-align:left; margin-top: 18px; }
+  .rev .it { border-top: 1px solid var(--line); padding: 10px 0; }
+  .rev small { color: var(--mute); display:block; }
+  progress { width:100%; height: 10px; }
+  details { margin-top: 8px; font-size:.9rem; }
+  code { background: var(--bg); padding: 1px 6px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="home" title="Till startsidan">Glosträning</h1>
+    <p class="sub">Fota eller klistra in glosor och begrepp – öva med flerval, flashcards och stavning.</p>
+  </header>
+  <div id="app"></div>
+</div>
+
+<script>
+const KEY = 'glostraning.v1';
+const TYPES = {
+  eng: { label:'Engelska', ocr:'eng+swe', tts:'en-GB', a:'Engelska', b:'Svenska', lang:true },
+  spa: { label:'Spanska', ocr:'spa+swe', tts:'es-ES', a:'Spanska', b:'Svenska', lang:true },
+  deu: { label:'Tyska', ocr:'deu+swe', tts:'de-DE', a:'Tyska', b:'Svenska', lang:true },
+  fra: { label:'Franska', ocr:'fra+swe', tts:'fr-FR', a:'Franska', b:'Svenska', lang:true },
+  ita: { label:'Italienska', ocr:'ita+swe', tts:'it-IT', a:'Italienska', b:'Svenska', lang:true },
+  term:{ label:'Begrepp (andra ämnen)', ocr:'swe+eng', tts:'sv-SE', a:'Begrepp', b:'Förklaring', lang:false }
+};
+
+let sets = [];
+try { sets = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(sets)); } catch (e) {} };
+
+let view = 'home', cur = null, run = null, ocrMsg = '', ocrBusy = false, isNew = false;
+const app = document.getElementById('app');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const key = p => p.a + '|' + p.b;
+const T = () => TYPES[cur.type];
+
+/* ---------- Tolkning av text till glosor ---------- */
+function parse(text) {
+  const pairs = [], skipped = [];
+  text.split(/\r?\n/).forEach(raw => {
+    let l = raw.replace(/[|¦]/g, '\t').replace(/^\s*(\d+[.)]|[-•*·])\s+/, '').trim();
+    if (!l) return;
+    const m = l.match(/^(.+?)(?:\t+|\s{2,}|\s[-–—]\s|\s*[=;]\s*|:\s+)(.+)$/);
+    if (m && m[1].trim() && m[2].trim()) pairs.push({ a: m[1].trim(), b: m[2].trim() });
+    else skipped.push(raw.trim());
+  });
+  return { pairs, skipped };
+}
+function summary(text) {
+  const { pairs, skipped } = parse(text);
+  let h = `<b>${pairs.length}</b> par tolkade`;
+  if (skipped.length) h += ` · <span style="color:var(--bad)">${skipped.length} rad${skipped.length > 1 ? 'er' : ''} saknar skiljetecken och hoppas över</span><details><summary>Visa</summary>${skipped.map(esc).join('<br>')}</details>`;
+  return h;
+}
+
+/* ---------- Rättning ---------- */
+const norm = s => s.toLowerCase().normalize('NFC').replace(/\([^)]*\)/g, ' ').replace(/[.!?]+$/, '').replace(/\s+/g, ' ').trim();
+const flat = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+const variants = s => { const v = [norm(s)]; s.split(/[\/,;]/).forEach(x => { const n = norm(x); if (n && !v.includes(n)) v.push(n); }); return v; };
+function lev(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+function judge(given, answer) {
+  const g = norm(given), v = variants(answer);
+  if (!g) return 'wrong';
+  if (v.includes(g)) return 'ok';
+  if (v.some(x => flat(x) === flat(g) || (x.length > 4 && lev(x, g) === 1))) return 'near';
+  return 'wrong';
+}
+
+/* ---------- Uppläsning ---------- */
+function speak(text, lang) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text.replace(/\([^)]*\)/g, ''));
+  u.lang = lang; u.rate = .9;
+  speechSynthesis.speak(u);
+}
+const sayBtn = (text, side) => (TYPES[cur.type].lang && side === 'a' && 'speechSynthesis' in window)
+  ? `<button class="say" data-act="say" data-t="${esc(text)}" aria-label="Lyssna">🔊</button>` : '';
+
+/* ---------- OCR (körs i webbläsaren, bilden lämnar aldrig enheten) ---------- */
+async function loadTess() {
+  if (window.Tesseract) return;
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+    s.onload = res; s.onerror = () => rej(new Error('Kunde inte ladda OCR-biblioteket – kontrollera internetanslutningen.'));
+    document.head.appendChild(s);
+  });
+}
+async function prep(file) {
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(2, 2400 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas');
+  c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+  const ctx = c.getContext('2d');
+  ctx.filter = 'grayscale(1) contrast(1.35)';
+  ctx.drawImage(bmp, 0, 0, c.width, c.height);
+  return c;
+}
+function setOcr(msg, pct) {
+  ocrMsg = msg;
+  const el = document.getElementById('ocrstat'); if (!el) return;
+  el.innerHTML = esc(msg) + (pct != null ? `<progress max="100" value="${pct}"></progress>` : '');
+}
+async function doOcr(file) {
+  if (!file || !file.type.startsWith('image/')) { setOcr('Det där var inte en bild.'); return; }
+  if (ocrBusy) return;
+  ocrBusy = true;
+  let worker;
+  try {
+    setOcr('Förbereder bilden…', 0);
+    const canvas = await prep(file);
+    setOcr('Laddar OCR (första gången kan ta en stund)…', 0);
+    await loadTess();
+    worker = await Tesseract.createWorker(T().ocr, 1, {
+      logger: m => { if (m.status === 'recognizing text') setOcr('Läser text…', Math.round(m.progress * 100)); }
+    });
+    await worker.setParameters({ tessedit_pageseg_mode: '6', preserve_interword_spaces: '1' });
+    const { data } = await worker.recognize(canvas);
+    const text = data.text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 2 && /\p{L}/u.test(l)).join('\n');
+    if (!text) { setOcr('Hittade ingen text. Prova en skarpare bild tagen rakt uppifrån.'); }
+    else {
+      cur.text = (cur.text ? cur.text.replace(/\s+$/, '') + '\n' : '') + text;
+      const ta = document.getElementById('txt'); if (ta) { ta.value = cur.text; document.getElementById('sum').innerHTML = summary(cur.text); }
+      setOcr('Klart! Kontrollera listan nedan och rätta felläsningar innan du sparar.');
+    }
+  } catch (e) { setOcr('Något gick fel: ' + e.message); }
+  finally { ocrBusy = false; if (worker) worker.terminate(); }
+}
+
+/* ---------- Vyer ---------- */
+function render() {
+  speechSynthesis && speechSynthesis.cancel && speechSynthesis.cancel();
+  if (view === 'home') return renderHome();
+  if (view === 'edit') return renderEdit();
+  if (view === 'menu') return renderMenu();
+  if (view === 'run') return renderRun();
+  if (view === 'done') return renderDone();
+}
+
+function renderHome() {
+  app.innerHTML = `<div class="card">
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">Mina listor</h2><button class="btn" data-act="new">+ Ny lista</button></div>
+    ${sets.length ? sets.map(s => `<div class="set"><div><b>${esc(s.name)}</b><span class="mute">${TYPES[s.type].label} · ${parse(s.text).pairs.length} glosor</span></div>
+      <div class="row"><button class="btn sm" data-act="open" data-id="${s.id}">Öva</button><button class="btn sm sec" data-act="edit" data-id="${s.id}">Redigera</button><button class="btn sm sec" data-act="del" data-id="${s.id}">Ta bort</button></div></div>`).join('')
+      : `<p class="mute">Inga listor än. Skapa en ny, fota glosorna eller klistra in dem som text.</p>`}
+  </div>
+  <p class="mute">Listorna sparas bara i den här webbläsaren. Foton läses av i din egen webbläsare och skickas inte någonstans.</p>`;
+}
+
+function renderEdit() {
+  const t = T();
+  app.innerHTML = `<div class="card">
+    <h2>${isNew ? 'Ny lista' : 'Redigera lista'}</h2>
+    <label for="nm">Namn</label>
+    <input type="text" id="nm" value="${esc(cur.name)}" placeholder="t.ex. Kapitel 4 – Spanska">
+    <label for="ty">Typ</label>
+    <select id="ty">${Object.entries(TYPES).map(([k, v]) => `<option value="${k}"${k === cur.type ? ' selected' : ''}>${v.label}</option>`).join('')}</select>
+
+    <h3>1. Lägg in från foto (valfritt)</h3>
+    <div class="drop" id="drop">
+      <div class="row" style="justify-content:center">
+        <button class="btn" data-act="pick">Välj bild</button>
+        <button class="btn sec" data-act="cam">Ta foto</button>
+      </div>
+      <p class="mute" style="margin:8px 0 0">Du kan också dra in en bild här eller klistra in en skärmdump (Ctrl+V).</p>
+      <input type="file" id="f1" accept="image/*" class="hidden">
+      <input type="file" id="f2" accept="image/*" capture="environment" class="hidden">
+      <div id="ocrstat" class="mute" style="margin-top:8px">${esc(ocrMsg)}</div>
+    </div>
+    <div class="note">Textigenkänningen är inte perfekt – särskilt med två kolumner eller sned bild. Kontrollera alltid listan i steg 2.</div>
+
+    <h3>2. Kontrollera och rätta</h3>
+    <p class="mute" style="margin-top:0">En rad per par: <code>${esc(t.a.toLowerCase())} – ${esc(t.b.toLowerCase())}</code>. Skilj åt med bindestreck, kolon, = eller tabb. Flera rätta svar: <code>hus / hem</code>.</p>
+    <textarea id="txt" spellcheck="false" placeholder="${t.lang ? 'la madre – mamma\nel libro – boken\nel cuaderno – anteckningsboken' : 'Inflation – Generell prisökning över tid\nBNP – Värdet av alla varor och tjänster som produceras i ett land under ett år'}">${esc(cur.text)}</textarea>
+    <p id="sum" class="mute">${summary(cur.text)}</p>
+    <div class="row"><button class="btn" data-act="saveedit">Spara och öva</button><button class="btn sec" data-act="cancel">Avbryt</button></div>
+  </div>`;
+}
+
+function renderMenu() {
+  const t = T(), n = parse(cur.text).pairs.length, weak = parse(cur.text).pairs.filter(p => (cur.weak || []).includes(key(p))).length;
+  app.innerHTML = `<div class="card">
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(cur.name)}</h2><button class="btn sm sec" data-act="home">← Mina listor</button></div>
+    <p class="mute">${n} glosor</p>
+    <label>Riktning</label>
+    <div class="radios">
+      <label><input type="radio" name="dir" value="ab" checked> ${t.a} → ${t.b}</label>
+      <label><input type="radio" name="dir" value="ba"> ${t.b} → ${t.a}</label>
+      <label><input type="radio" name="dir" value="mix"> Blandat</label>
+    </div>
+    ${weak ? `<label style="display:flex;gap:8px;align-items:center;font-weight:500;margin-top:14px"><input type="checkbox" id="weak"> Bara ord jag missat senast (${weak})</label>` : ''}
+    <h3>Välj övning</h3>
+    <div class="modes">
+      <button class="mode" data-act="start" data-mode="mc"${n < 2 ? ' disabled' : ''}><b>1. Flerval</b><span>Välj rätt svar bland fyra alternativ.</span></button>
+      <button class="mode" data-act="start" data-mode="flash"><b>2. Flashcards</b><span>Vänd kortet och bedöm själv.</span></button>
+      <button class="mode" data-act="start" data-mode="spell"><b>3. Stavning</b><span>${t.lang ? 'Skriv svaret själv.' : 'Skriv begreppet utifrån förklaringen.'}</span></button>
+    </div>
+    ${n < 2 ? '<p class="mute">Flerval kräver minst två glosor.</p>' : ''}
+  </div>`;
+}
+
+function qOf(it) { return it.d === 'ab' ? { q: it.p.a, ans: it.p.b, qs: 'a', as: 'b' } : { q: it.p.b, ans: it.p.a, qs: 'b', as: 'a' }; }
+const side = s => T()[s];
+
+function renderRun() {
+  const it = run.items[run.i], x = qOf(it), t = T();
+  const head = `<div class="meta"><span>${run.i + 1} / ${run.items.length}</span><button class="btn sm sec" data-act="menu">Avsluta</button></div>
+    <div class="bar"><i style="width:${(run.i / run.items.length) * 100}%"></i></div>`;
+  let body = '';
+  if (run.mode === 'mc') {
+    if (!it.opts) {
+      const pool = shuffle([...new Set(run.all.filter(p => p !== it.p).map(p => x.as === 'a' ? p.a : p.b))].filter(o => norm(o) !== norm(x.ans)));
+      it.opts = shuffle([x.ans, ...pool.slice(0, 3)]);
+    }
+    body = `<div class="q"><small>${side(x.qs)}</small><span>${esc(x.q)}</span>${sayBtn(x.q, x.qs)}</div>
+      <div class="opts">${it.opts.map((o, i) => {
+        let c = ''; if (run.state === 'fb') c = o === x.ans ? ' right' : (o === it.given ? ' wrong' : '');
+        return `<button class="opt${c}" data-act="opt" data-i="${i}"${run.state === 'fb' ? ' disabled' : ''}><b>${i + 1}</b>${esc(o)}</button>`;
+      }).join('')}</div>`;
+  } else if (run.mode === 'flash') {
+    body = `<button class="flash${run.flip ? ' back' : ''}" data-act="flip" aria-live="polite"><small>${side(run.flip ? x.as : x.qs)}</small>${esc(run.flip ? x.ans : x.q)}</button>
+      <div class="row" style="justify-content:center;margin-top:10px">${sayBtn(run.flip ? x.ans : x.q, run.flip ? x.as : x.qs)}</div>
+      <p class="mute" style="text-align:center">${run.flip ? '' : 'Tryck på kortet (eller mellanslag) för att vända det.'}</p>
+      ${run.flip ? `<div class="row" style="justify-content:center"><button class="btn sec" data-act="flash" data-ok="0">✗ Kunde inte (←)</button><button class="btn" data-act="flash" data-ok="1">✓ Kunde (→)</button></div>` : ''}`;
+  } else {
+    body = `<form id="sp"><div class="q"><small>${side(x.qs)}</small><span>${esc(x.q)}</span>${sayBtn(x.q, x.qs)}</div>
+      <label for="ans">Skriv på ${side(x.as).toLowerCase()}</label>
+      <input type="text" id="ans" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"${run.state === 'fb' ? ' readonly' : ''} value="${esc(it.given || '')}">
+      <div class="row" style="margin-top:14px"><button class="btn" type="submit">${run.state === 'fb' ? (run.i + 1 === run.items.length ? 'Visa resultat' : 'Nästa') : 'Svara'}</button></div></form>`;
+  }
+  let fb = '';
+  if (run.state === 'fb' && run.mode !== 'flash') {
+    const v = it.verdict;
+    fb = `<div class="fb ${v === 'ok' ? 'ok' : 'no'}" aria-live="polite"><strong>${v === 'ok' ? 'Rätt!' : v === 'near' ? 'Nästan – kolla stavning/accenter' : 'Fel'}</strong>${v === 'ok' ? '' : `Rätt svar: <b>${esc(x.ans)}</b>`}</div>
+      ${run.mode === 'mc' ? `<button class="btn" style="margin-top:16px" data-act="next">${run.i + 1 === run.items.length ? 'Visa resultat' : 'Nästa'} (Enter)</button>` : ''}`;
+  }
+  app.innerHTML = `<div class="card">${head}${body}${fb}</div>`;
+  if (run.mode === 'spell') { const a = document.getElementById('ans'); if (a && run.state === 'ask') a.focus(); }
+}
+
+function renderDone() {
+  const ok = run.res.filter(r => r.ok).length, n = run.res.length, miss = run.res.filter(r => !r.ok);
+  app.innerHTML = `<div class="card score">
+    <h2>Resultat</h2><div class="big">${ok} / ${n}</div>
+    <p class="mute">${ok === n ? 'Alla rätt – snyggt!' : Math.round(ok / n * 100) + ' % rätt'}</p>
+    <div class="row" style="justify-content:center">
+      ${miss.length ? '<button class="btn" data-act="again" data-weak="1">Öva missade</button>' : ''}
+      <button class="btn sec" data-act="again">Kör igen</button>
+      <button class="btn sec" data-act="menu">Välj övning</button>
+    </div>
+    ${miss.length ? `<div class="rev"><h3>Missade</h3>${miss.map(r => { const x = qOf(r.it); return `<div class="it"><b>${esc(x.q)}</b> → ${esc(x.ans)}${r.given ? `<small>Du svarade: ${esc(r.given)}</small>` : ''}</div>`; }).join('')}</div>` : ''}
+  </div>`;
+}
+
+/* ---------- Övningslogik ---------- */
+function start(mode, dir, onlyWeak) {
+  let pairs = parse(cur.text).pairs;
+  const all = pairs.slice();
+  if (onlyWeak) pairs = pairs.filter(p => (cur.weak || []).includes(key(p)));
+  if (!pairs.length) return;
+  const isTerm = !T().lang;
+  const items = shuffle(pairs.slice()).map(p => ({ p, d: (mode === 'spell' && isTerm) ? 'ba' : dir === 'mix' ? (Math.random() < .5 ? 'ab' : 'ba') : dir }));
+  run = { mode, dir, onlyWeak, items, all, i: 0, res: [], state: 'ask', flip: false };
+  view = 'run'; render();
+}
+function record(it, ok, given) {
+  run.res.push({ it, ok, given });
+  cur.weak = cur.weak || [];
+  const k = key(it.p), i = cur.weak.indexOf(k);
+  if (ok && i >= 0) cur.weak.splice(i, 1);
+  if (!ok && i < 0) cur.weak.push(k);
+  save();
+}
+function next() {
+  run.i++; run.state = 'ask'; run.flip = false;
+  if (run.i >= run.items.length) { view = 'done'; }
+  render();
+}
+function answerMC(i) {
+  const it = run.items[run.i], x = qOf(it);
+  it.given = it.opts[i]; it.verdict = it.given === x.ans ? 'ok' : 'wrong';
+  record(it, it.verdict === 'ok', it.given); run.state = 'fb'; render();
+}
+function answerSpell(val) {
+  const it = run.items[run.i], x = qOf(it);
+  it.given = val; it.verdict = judge(val, x.ans);
+  record(it, it.verdict === 'ok', val); run.state = 'fb'; render();
+}
+
+/* ---------- Händelser ---------- */
+const openSet = id => { cur = sets.find(s => s.id === id); view = 'menu'; render(); };
+document.addEventListener('click', e => {
+  if (e.target.id === 'home') { view = 'home'; render(); return; }
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const act = b.dataset.act;
+  if (act === 'new') { cur = { id: Date.now().toString(36), name: '', type: 'eng', text: '', weak: [] }; isNew = true; ocrMsg = ''; view = 'edit'; render(); }
+  else if (act === 'open') openSet(b.dataset.id);
+  else if (act === 'edit') { cur = sets.find(s => s.id === b.dataset.id); isNew = false; ocrMsg = ''; view = 'edit'; render(); }
+  else if (act === 'del') { const s = sets.find(x => x.id === b.dataset.id); if (confirm(`Ta bort "${s.name}"?`)) { sets = sets.filter(x => x !== s); save(); render(); } }
+  else if (act === 'home') { view = 'home'; render(); }
+  else if (act === 'menu') { view = 'menu'; render(); }
+  else if (act === 'cancel') { view = 'home'; render(); }
+  else if (act === 'pick') document.getElementById('f1').click();
+  else if (act === 'cam') document.getElementById('f2').click();
+  else if (act === 'saveedit') {
+    if (ocrBusy) { alert('Vänta tills bilden är färdigläst.'); return; }
+    const n = parse(cur.text).pairs.length;
+    if (!n) { alert('Listan har inga tolkade glosor än.'); return; }
+    cur.name = cur.name.trim() || 'Namnlös lista';
+    if (isNew) sets.unshift(cur);
+    save(); view = 'menu'; render();
+  }
+  else if (act === 'start') {
+    const dir = document.querySelector('input[name=dir]:checked').value;
+    start(b.dataset.mode, dir, !!(document.getElementById('weak') || {}).checked);
+  }
+  else if (act === 'again') start(run.mode, run.dir, !!b.dataset.weak);
+  else if (act === 'opt') answerMC(+b.dataset.i);
+  else if (act === 'next') next();
+  else if (act === 'flip') { run.flip = !run.flip; render(); }
+  else if (act === 'flash') { record(run.items[run.i], b.dataset.ok === '1', ''); next(); }
+  else if (act === 'say') speak(b.dataset.t, T().tts);
+});
+document.addEventListener('input', e => {
+  if (view !== 'edit') return;
+  if (e.target.id === 'nm') cur.name = e.target.value;
+  if (e.target.id === 'txt') { cur.text = e.target.value; document.getElementById('sum').innerHTML = summary(cur.text); }
+});
+document.addEventListener('change', e => {
+  if (view === 'edit' && e.target.id === 'ty') { cur.type = e.target.value; render(); }
+  if (e.target.id === 'f1' || e.target.id === 'f2') { doOcr(e.target.files[0]); e.target.value = ''; }
+});
+document.addEventListener('submit', e => {
+  if (e.target.id !== 'sp') return;
+  e.preventDefault();
+  if (run.state === 'fb') next(); else answerSpell(document.getElementById('ans').value);
+});
+document.addEventListener('keydown', e => {
+  if (view !== 'run' || e.target.tagName === 'INPUT' || e.ctrlKey || e.metaKey) return;
+  if (run.mode === 'mc') {
+    if (run.state === 'fb' && e.key === 'Enter') { e.preventDefault(); next(); }
+    else if (run.state === 'ask' && /^[1-4]$/.test(e.key) && run.items[run.i].opts[+e.key - 1] !== undefined) answerMC(+e.key - 1);
+  } else if (run.mode === 'flash') {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); run.flip = !run.flip; render(); }
+    else if (run.flip && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { record(run.items[run.i], e.key === 'ArrowRight', ''); next(); }
+  }
+});
+document.addEventListener('paste', e => {
+  if (view !== 'edit') return;
+  const f = [...(e.clipboardData?.files || [])].find(f => f.type.startsWith('image/'));
+  if (f) { e.preventDefault(); doOcr(f); }
+});
+['dragover', 'drop'].forEach(ev => document.addEventListener(ev, e => {
+  if (view !== 'edit') return;
+  e.preventDefault();
+  const d = document.getElementById('drop');
+  if (ev === 'dragover') d && d.classList.add('over');
+  else { d && d.classList.remove('over'); doOcr(e.dataTransfer.files[0]); }
+}));
+document.addEventListener('dragleave', () => { const d = document.getElementById('drop'); d && d.classList.remove('over'); });
+
+render();
+</script>
+</body>
+</html>
