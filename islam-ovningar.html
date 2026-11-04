@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Islam - Gamifierade Övningar | Åk 8</title>
+    <title>Islam – Spelzonen | Religionskunskap åk 8</title>
+    <meta name="description" content="Gamifierade övningar om islam för åk 8: quiz, fem pelare, tidslinje, ordskatt, profeter, jämförelser och etiska vägskäl.">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -855,179 +856,305 @@
             .dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
             h2 { font-size: 1.4em; }
         }
+
+        /* ====== FÖRBÄTTRINGAR: TILLGÄNGLIGHET OCH LÄSBARHET ====== */
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+        }
+
+        a:focus-visible, button:focus-visible, [role="button"]:focus-visible, textarea:focus-visible {
+            outline: 3px solid #0b57d0;
+            outline-offset: 2px;
+        }
+
+        .home-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-size: 0.9em;
+            opacity: 0.95;
+            margin-bottom: 8px;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+        .home-link:hover { border-bottom-color: white; }
+        .header-left p { color: white; opacity: 1; }
+
+        /* Bättre kontrast */
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+        .match-item.selected { background: var(--primary); }
+        .level-btn .level-xp { color: #8a6d00; }
+        .level-btn .level-best { font-size: 0.8em; color: var(--text-light); margin-top: 4px; }
+        .result-xp { font-size: 1.3em; color: #8a6d00; font-weight: bold; }
+        .achievement { opacity: 1; }
+        .achievement .ach-icon { filter: grayscale(1); opacity: 0.5; }
+        .achievement .ach-name { color: var(--text-light); }
+        .achievement.unlocked .ach-icon { filter: none; opacity: 1; }
+        .achievement.unlocked .ach-name { color: var(--text-dark); }
+        .achievement .ach-status { font-size: 0.75em; margin-top: 6px; font-weight: 600; color: var(--text-light); }
+        .achievement.unlocked .ach-status { color: #8a6d00; }
+
+        .nav-tabs { flex-wrap: nowrap; }
+        .btn { font-family: inherit; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .intro-note {
+            background: #fff8e1;
+            border: 1px solid #f0d98a;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.95em;
+            margin: 15px 0;
+            color: #4d3b00;
+        }
+        .intro-note p { margin: 0; font-size: 1em; color: inherit; }
+
+        .hint-text { font-size: 0.95em; color: var(--text-light); }
+
+        /* Sorteringsrader med pilknappar */
+        .sort-text { flex: 1; }
+        .sort-year {
+            background: #fff8e1;
+            border: 1px solid #f0d98a;
+            border-radius: 12px;
+            padding: 2px 10px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #4d3b00;
+            white-space: nowrap;
+        }
+        .sort-controls { display: flex; flex-direction: column; gap: 4px; }
+        .sort-move {
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 8px;
+            width: 40px;
+            height: 28px;
+            font-size: 0.8em;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .sort-move:hover { background: var(--primary); color: white; }
+
+        /* Jämförelsetabell */
+        .table-scroll { overflow-x: auto; margin: 20px 0; }
+        .table-scroll .compare-table { margin: 0; min-width: 640px; }
+        .drag-chip { font-family: inherit; }
+        .drag-chip.chip-selected { background: var(--primary); color: white; }
+        .compare-cell.is-empty { color: var(--text-light); font-size: 0.9em; }
+
+        .match-item.incorrect, .word-card.wrong { border-color: var(--error); }
+
+        .reset-row { text-align: center; margin-top: 30px; }
+
+        @media (max-width: 768px) {
+            .nav-tab { padding: 12px 14px; }
+            .sort-item { padding: 12px; gap: 10px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="sr-only" id="sr-status" role="status" aria-live="polite"></div>
+
     <div class="container">
         <!-- ====== HEADER ====== -->
-        <div class="header">
+        <header class="header">
             <div class="header-content">
                 <div class="header-left">
-                    <h1>&#9770; Islam - Spelzonen</h1>
-                    <p>Gamifierade ovningar for ak 8 | Religionskunskap</p>
+                    <a class="home-link" href="start.html">&larr; Till startsidan</a>
+                    <h1>&#9770; Islam – Spelzonen</h1>
+                    <p>Gamifierade övningar för åk 8 | Religionskunskap</p>
                 </div>
                 <div class="header-right">
-                    <div class="level-display" id="level-display">Niva 1: Nyborjare</div>
-                    <div class="xp-container">
+                    <div class="level-display" id="level-display">Nivå 1: Nybörjare</div>
+                    <div class="xp-container" id="xp-container" role="progressbar" aria-label="Framsteg till nästa nivå" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                         <div class="xp-bar" id="xp-bar" style="width: 0%"></div>
                     </div>
-                    <div class="xp-text" id="xp-text">0 / 100 XP till nasta niva</div>
-                    <div class="streak-badge" id="streak-badge">&#9889; Streak: 0</div>
+                    <div class="xp-text" id="xp-text">0 / 100 XP till nästa nivå</div>
+                    <div class="streak-badge" id="streak-badge">&#9889; Serie: 0</div>
                 </div>
             </div>
-        </div>
+        </header>
 
         <!-- ====== NAVIGATION ====== -->
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showSection('dashboard')">&#127968; Oversikt</button>
-            <button class="nav-tab" onclick="showSection('quiz')">&#127919; Quizzen</button>
-            <button class="nav-tab" onclick="showSection('pelare')">&#127959; Fem Pelarna</button>
-            <button class="nav-tab" onclick="showSection('tidslinje')">&#128197; Tidslinje</button>
-            <button class="nav-tab" onclick="showSection('ordskatt')">&#128218; Ordskatt</button>
-            <button class="nav-tab" onclick="showSection('profeter')">&#128101; Profeterna</button>
-            <button class="nav-tab" onclick="showSection('jamnfor')">&#9878; Jamforelser</button>
-            <button class="nav-tab" onclick="showSection('etik')">&#129300; Etiska Vagskal</button>
-        </div>
+        <nav class="nav-tabs" aria-label="Övningar">
+            <button type="button" class="nav-tab active" data-section="dashboard" onclick="showSection('dashboard')">&#127968; Översikt</button>
+            <button type="button" class="nav-tab" data-section="quiz" onclick="showSection('quiz')">&#127919; Quizen</button>
+            <button type="button" class="nav-tab" data-section="pelare" onclick="showSection('pelare')">&#127959; Fem pelare</button>
+            <button type="button" class="nav-tab" data-section="tidslinje" onclick="showSection('tidslinje')">&#128197; Tidslinje</button>
+            <button type="button" class="nav-tab" data-section="ordskatt" onclick="showSection('ordskatt')">&#128218; Ordskatt</button>
+            <button type="button" class="nav-tab" data-section="profeter" onclick="showSection('profeter')">&#128101; Profeterna</button>
+            <button type="button" class="nav-tab" data-section="jamnfor" onclick="showSection('jamnfor')">&#9878; Jämförelser</button>
+            <button type="button" class="nav-tab" data-section="etik" onclick="showSection('etik')">&#129300; Etiska vägskäl</button>
+        </nav>
 
         <!-- ====== CONTENT ====== -->
-        <div class="content">
+        <main class="content">
 
-            <!-- ===== 1. DASHBOARD ===== -->
+            <!-- ===== 1. ÖVERSIKT ===== -->
             <div id="dashboard" class="section active">
-                <h2>Din spelframgang</h2>
-                <p>Valj en ovning nedan for att borja samla XP och lasa upp achievements!</p>
+                <h2>Din spelframgång</h2>
+                <p>Välj en övning nedan för att börja samla XP och låsa upp prestationer!</p>
+                <div class="intro-note">
+                    <p><strong>Så fungerar poängen:</strong> Du får XP första gången du klarar en uppgift. Du kan öva hur många gånger du vill, men samma uppgift ger bara XP en gång.</p>
+                </div>
 
                 <div class="dashboard-grid">
-                    <div class="dash-card" onclick="showSection('quiz')">
-                        <div class="dash-icon">&#127919;</div>
-                        <h4>Islam-Quizzen</h4>
-                        <div class="dash-score" id="dash-quiz">0/15</div>
-                        <div class="dash-label">Fragor besvarade</div>
+                    <div class="dash-card" role="button" tabindex="0" onclick="showSection('quiz')">
+                        <div class="dash-icon" aria-hidden="true">&#127919;</div>
+                        <h3 class="dash-title">Islam-quizen</h3>
+                        <div class="dash-score" id="dash-quiz">0/18</div>
+                        <div class="dash-label">Bästa resultat (alla nivåer)</div>
                     </div>
-                    <div class="dash-card" onclick="showSection('pelare')">
-                        <div class="dash-icon">&#127959;</div>
-                        <h4>Fem Pelarna</h4>
+                    <div class="dash-card" role="button" tabindex="0" onclick="showSection('pelare')">
+                        <div class="dash-icon" aria-hidden="true">&#127959;</div>
+                        <h3 class="dash-title">Fem pelare</h3>
                         <div class="dash-score" id="dash-pelare">0/5</div>
                         <div class="dash-label">Matchningar</div>
                     </div>
-                    <div class="dash-card" onclick="showSection('tidslinje')">
-                        <div class="dash-icon">&#128197;</div>
-                        <h4>Tidslinje</h4>
-                        <div class="dash-score" id="dash-tidslinje">-</div>
+                    <div class="dash-card" role="button" tabindex="0" onclick="showSection('tidslinje')">
+                        <div class="dash-icon" aria-hidden="true">&#128197;</div>
+                        <h3 class="dash-title">Tidslinje</h3>
+                        <div class="dash-score" id="dash-tidslinje">–</div>
                         <div class="dash-label">Status</div>
                     </div>
-                    <div class="dash-card" onclick="showSection('ordskatt')">
-                        <div class="dash-icon">&#128218;</div>
-                        <h4>Ordskatt</h4>
+                    <div class="dash-card" role="button" tabindex="0" onclick="showSection('ordskatt')">
+                        <div class="dash-icon" aria-hidden="true">&#128218;</div>
+                        <h3 class="dash-title">Ordskatt</h3>
                         <div class="dash-score" id="dash-ordskatt">0/8</div>
-                        <div class="dash-label">Termer matchade</div>
+                        <div class="dash-label">Begrepp matchade</div>
                     </div>
-                    <div class="dash-card" onclick="showSection('profeter')">
-                        <div class="dash-icon">&#128101;</div>
-                        <h4>Profeterna</h4>
-                        <div class="dash-score" id="dash-profeter">-</div>
+                    <div class="dash-card" role="button" tabindex="0" onclick="showSection('profeter')">
+                        <div class="dash-icon" aria-hidden="true">&#128101;</div>
+                        <h3 class="dash-title">Profeterna</h3>
+                        <div class="dash-score" id="dash-profeter">–</div>
                         <div class="dash-label">Status</div>
                     </div>
-                    <div class="dash-card" onclick="showSection('jamnfor')">
-                        <div class="dash-icon">&#9878;</div>
-                        <h4>Jamforelser</h4>
-                        <div class="dash-score" id="dash-jamnfor">0/9</div>
-                        <div class="dash-label">Ratt placerade</div>
+                    <div class="dash-card" role="button" tabindex="0" onclick="showSection('jamnfor')">
+                        <div class="dash-icon" aria-hidden="true">&#9878;</div>
+                        <h3 class="dash-title">Jämförelser</h3>
+                        <div class="dash-score" id="dash-jamnfor">0/15</div>
+                        <div class="dash-label">Rätt placerade</div>
                     </div>
-                    <div class="dash-card" onclick="showSection('etik')">
-                        <div class="dash-icon">&#129300;</div>
-                        <h4>Etiska Vagskal</h4>
+                    <div class="dash-card" role="button" tabindex="0" onclick="showSection('etik')">
+                        <div class="dash-icon" aria-hidden="true">&#129300;</div>
+                        <h3 class="dash-title">Etiska vägskäl</h3>
                         <div class="dash-score" id="dash-etik">0/3</div>
-                        <div class="dash-label">Scenarion avklarade</div>
+                        <div class="dash-label">Scenarier avklarade</div>
                     </div>
-                    <div class="dash-card">
-                        <div class="dash-icon">&#11088;</div>
-                        <h4>Total XP</h4>
+                    <div class="dash-card" style="cursor:default;">
+                        <div class="dash-icon" aria-hidden="true">&#11088;</div>
+                        <h3 class="dash-title">Total XP</h3>
                         <div class="dash-score" id="dash-totalxp">0</div>
-                        <div class="dash-label">Erfarenhetspoang</div>
+                        <div class="dash-label">Erfarenhetspoäng</div>
                     </div>
                 </div>
 
-                <h3>&#127942; Achievements</h3>
+                <h3>&#127942; Prestationer</h3>
                 <div class="achievements-grid" id="achievements-grid">
-                    <div class="achievement" id="ach-first" data-name="Forsta steget">
-                        <div class="ach-icon">&#128118;</div>
-                        <div class="ach-name">Forsta steget</div>
-                        <div class="ach-desc">Klar med din forsta ovning</div>
+                    <div class="achievement" id="ach-first" data-name="Första steget">
+                        <div class="ach-icon" aria-hidden="true">&#128118;</div>
+                        <div class="ach-name">Första steget</div>
+                        <div class="ach-desc">Klar med din första övning</div>
+                        <div class="ach-status">Låst</div>
                     </div>
-                    <div class="achievement" id="ach-quiz" data-name="Quizmaster">
-                        <div class="ach-icon">&#127942;</div>
-                        <div class="ach-name">Quizmaster</div>
-                        <div class="ach-desc">Alla quizfragor ratt</div>
+                    <div class="achievement" id="ach-quiz" data-name="Quizmästare">
+                        <div class="ach-icon" aria-hidden="true">&#127942;</div>
+                        <div class="ach-name">Quizmästare</div>
+                        <div class="ach-desc">Alla frågor rätt på alla tre nivåerna</div>
+                        <div class="ach-status">Låst</div>
                     </div>
                     <div class="achievement" id="ach-pelare" data-name="Pelarbyggare">
-                        <div class="ach-icon">&#127959;</div>
+                        <div class="ach-icon" aria-hidden="true">&#127959;</div>
                         <div class="ach-name">Pelarbyggare</div>
                         <div class="ach-desc">Matcha alla fem pelare</div>
+                        <div class="ach-status">Låst</div>
                     </div>
                     <div class="achievement" id="ach-timeline" data-name="Historiker">
-                        <div class="ach-icon">&#128197;</div>
+                        <div class="ach-icon" aria-hidden="true">&#128197;</div>
                         <div class="ach-name">Historiker</div>
-                        <div class="ach-desc">Tidslinje i ratt ordning</div>
+                        <div class="ach-desc">Tidslinjen i rätt ordning</div>
+                        <div class="ach-status">Låst</div>
                     </div>
-                    <div class="achievement" id="ach-ordskatt" data-name="Sprakvetare">
-                        <div class="ach-icon">&#128218;</div>
-                        <div class="ach-name">Sprakvetare</div>
-                        <div class="ach-desc">Alla termer matchade</div>
+                    <div class="achievement" id="ach-ordskatt" data-name="Språkvetare">
+                        <div class="ach-icon" aria-hidden="true">&#128218;</div>
+                        <div class="ach-name">Språkvetare</div>
+                        <div class="ach-desc">Alla begrepp matchade</div>
+                        <div class="ach-status">Låst</div>
                     </div>
-                    <div class="achievement" id="ach-profeter" data-name="Profetkanare">
-                        <div class="ach-icon">&#128101;</div>
-                        <div class="ach-name">Profetkannare</div>
-                        <div class="ach-desc">Alla profeter i ratt ordning</div>
+                    <div class="achievement" id="ach-profeter" data-name="Profetkännare">
+                        <div class="ach-icon" aria-hidden="true">&#128101;</div>
+                        <div class="ach-name">Profetkännare</div>
+                        <div class="ach-desc">Alla profeter i rätt ordning</div>
+                        <div class="ach-status">Låst</div>
                     </div>
-                    <div class="achievement" id="ach-compare" data-name="Jamforaren">
-                        <div class="ach-icon">&#9878;</div>
-                        <div class="ach-name">Jamforaren</div>
-                        <div class="ach-desc">Alla jamforelser ratt</div>
+                    <div class="achievement" id="ach-compare" data-name="Jämföraren">
+                        <div class="ach-icon" aria-hidden="true">&#9878;</div>
+                        <div class="ach-name">Jämföraren</div>
+                        <div class="ach-desc">Alla jämförelser rätt</div>
+                        <div class="ach-status">Låst</div>
                     </div>
-                    <div class="achievement" id="ach-streak" data-name="Pa rulle">
-                        <div class="ach-icon">&#128293;</div>
-                        <div class="ach-name">Pa rulle!</div>
-                        <div class="ach-desc">5 ratt svar i rad</div>
+                    <div class="achievement" id="ach-streak" data-name="På rull">
+                        <div class="ach-icon" aria-hidden="true">&#128293;</div>
+                        <div class="ach-name">På rull!</div>
+                        <div class="ach-desc">5 rätta svar i rad</div>
+                        <div class="ach-status">Låst</div>
                     </div>
-                    <div class="achievement" id="ach-allclear" data-name="Mastare">
-                        <div class="ach-icon">&#127775;</div>
-                        <div class="ach-name">Islam-mastare</div>
-                        <div class="ach-desc">Klara alla ovningar</div>
+                    <div class="achievement" id="ach-allclear" data-name="Islam-mästare">
+                        <div class="ach-icon" aria-hidden="true">&#127775;</div>
+                        <div class="ach-name">Islam-mästare</div>
+                        <div class="ach-desc">Klara alla övningar</div>
+                        <div class="ach-status">Låst</div>
                     </div>
+                </div>
+
+                <div class="reset-row">
+                    <button type="button" class="btn btn-secondary btn-small" onclick="resetProgress()">Nollställ mina framsteg</button>
                 </div>
             </div>
 
-            <!-- ===== 2. ISLAM-QUIZZEN ===== -->
+            <!-- ===== 2. ISLAM-QUIZEN ===== -->
             <div id="quiz" class="section">
-                <h2>&#127919; Islam-Quizzen</h2>
-                <p>Testa dina kunskaper om islam! Valj svarighetsgrad och samla XP for varje ratt svar.</p>
+                <h2>&#127919; Islam-quizen</h2>
+                <p>Testa dina kunskaper om islam! Välj svårighetsgrad och samla XP för varje rätt svar.</p>
 
                 <div class="quiz-level-selector" id="quiz-level-selector">
-                    <div class="level-btn active" onclick="startQuiz('easy')">
-                        <div class="level-icon">&#11088;</div>
-                        <div class="level-name">Latt</div>
-                        <div class="level-desc">Grundlaggande fakta</div>
-                        <div class="level-xp">+10 XP per ratt svar</div>
+                    <div class="level-btn" role="button" tabindex="0" onclick="startQuiz('easy')">
+                        <div class="level-icon" aria-hidden="true">&#11088;</div>
+                        <div class="level-name">Lätt</div>
+                        <div class="level-desc">Grundläggande fakta</div>
+                        <div class="level-xp">+10 XP per rätt svar</div>
+                        <div class="level-best" id="best-easy"></div>
                     </div>
-                    <div class="level-btn" onclick="startQuiz('medium')">
-                        <div class="level-icon">&#11088;&#11088;</div>
+                    <div class="level-btn" role="button" tabindex="0" onclick="startQuiz('medium')">
+                        <div class="level-icon" aria-hidden="true">&#11088;&#11088;</div>
                         <div class="level-name">Medel</div>
-                        <div class="level-desc">Forstaelse &amp; samband</div>
-                        <div class="level-xp">+20 XP per ratt svar</div>
+                        <div class="level-desc">Förståelse &amp; samband</div>
+                        <div class="level-xp">+20 XP per rätt svar</div>
+                        <div class="level-best" id="best-medium"></div>
                     </div>
-                    <div class="level-btn" onclick="startQuiz('hard')">
-                        <div class="level-icon">&#11088;&#11088;&#11088;</div>
-                        <div class="level-name">Svar</div>
-                        <div class="level-desc">Analys &amp; jamforelse</div>
-                        <div class="level-xp">+30 XP per ratt svar</div>
+                    <div class="level-btn" role="button" tabindex="0" onclick="startQuiz('hard')">
+                        <div class="level-icon" aria-hidden="true">&#11088;&#11088;&#11088;</div>
+                        <div class="level-name">Svår</div>
+                        <div class="level-desc">Analys &amp; jämförelse</div>
+                        <div class="level-xp">+30 XP per rätt svar</div>
+                        <div class="level-best" id="best-hard"></div>
                     </div>
                 </div>
 
                 <div id="quiz-area" class="quiz-area" style="display:none;">
                     <div class="game-header">
                         <div class="game-info">
-                            <span class="game-stat" id="quiz-progress">Fraga 1/5</span>
+                            <span class="game-stat" id="quiz-progress">Fråga 1/6</span>
                             <span class="game-stat points" id="quiz-points">&#11088; 0 XP</span>
                             <span class="game-stat streak" id="quiz-streak">&#128293; 0</span>
                         </div>
@@ -1036,34 +1163,34 @@
                         <div class="progress-bar-fill" id="quiz-progress-bar" style="width:0%"></div>
                     </div>
                     <div id="quiz-content"></div>
-                    <div id="quiz-feedback" class="feedback"></div>
+                    <div id="quiz-feedback" class="feedback" role="status" aria-live="polite"></div>
                     <div style="text-align:center; margin-top:20px;">
-                        <button class="btn btn-primary" id="quiz-next-btn" style="display:none;" onclick="nextQuizQuestion()">Nasta fraga &#8594;</button>
+                        <button type="button" class="btn btn-primary" id="quiz-next-btn" style="display:none;" onclick="nextQuizQuestion()">Nästa fråga &#8594;</button>
                     </div>
                 </div>
 
                 <div id="quiz-result" class="result-screen" style="display:none;">
-                    <div class="result-icon" id="quiz-result-icon">&#127942;</div>
-                    <div class="result-stars" id="quiz-result-stars"></div>
+                    <div class="result-icon" id="quiz-result-icon" aria-hidden="true">&#127942;</div>
+                    <div class="result-stars" id="quiz-result-stars" aria-hidden="true"></div>
                     <div class="result-score" id="quiz-result-score"></div>
                     <div class="result-message" id="quiz-result-message"></div>
-                    <p id="quiz-result-xp" style="font-size:1.3em; color:var(--secondary); font-weight:bold;"></p>
-                    <button class="btn btn-primary" onclick="resetQuiz()" style="margin-top:20px;">Spela igen</button>
-                    <button class="btn btn-secondary" onclick="showSection('dashboard')" style="margin-top:20px; margin-left:10px;">Tillbaka</button>
+                    <p id="quiz-result-xp" class="result-xp"></p>
+                    <button type="button" class="btn btn-primary" onclick="resetQuiz()" style="margin-top:20px;">Spela igen</button>
+                    <button type="button" class="btn btn-secondary" onclick="showSection('dashboard')" style="margin-top:20px; margin-left:10px;">Tillbaka</button>
                 </div>
             </div>
 
             <!-- ===== 3. ISLAMS FEM PELARE ===== -->
             <div id="pelare" class="section">
-                <h2>&#127959; Islams Fem Pelare - Matchning</h2>
-                <p>Para ihop varje pelare med ratt beskrivning. Klicka forst pa en pelare till vanster, sedan pa ratt beskrivning till hoger.</p>
+                <h2>&#127959; Islams fem pelare – matchning</h2>
+                <p>Para ihop varje pelare med rätt beskrivning. Välj först en pelare till vänster och sedan rätt beskrivning till höger.</p>
 
                 <div class="game-header">
                     <div class="game-info">
                         <span class="game-stat" id="pelare-progress">0/5 matchade</span>
                         <span class="game-stat points" id="pelare-points">&#11088; 0 XP</span>
                     </div>
-                    <button class="btn btn-secondary btn-small" onclick="resetPelare()">&#128260; Borja om</button>
+                    <button type="button" class="btn btn-secondary btn-small" onclick="resetPelare()">&#128260; Börja om</button>
                 </div>
 
                 <div class="progress-bar-container">
@@ -1071,40 +1198,36 @@
                 </div>
 
                 <div class="matching-grid">
-                    <div class="match-column" id="pelare-left">
-                        <h4>Pelare</h4>
-                    </div>
-                    <div class="match-column" id="pelare-right">
-                        <h4>Beskrivning</h4>
-                    </div>
+                    <div class="match-column" id="pelare-left"></div>
+                    <div class="match-column" id="pelare-right"></div>
                 </div>
 
-                <div id="pelare-feedback" class="feedback"></div>
+                <div id="pelare-feedback" class="feedback" role="status" aria-live="polite"></div>
             </div>
 
-            <!-- ===== 4. TIDSLINJE: MUHAMMEDS LIV ===== -->
+            <!-- ===== 4. TIDSLINJE ===== -->
             <div id="tidslinje" class="section">
-                <h2>&#128197; Tidslinje: Muhammeds liv och islams historia</h2>
-                <p>Dra handelserna till ratt ordning - fran den aldsta till den senaste. Klicka pa en rad och dra den uppat eller nedat.</p>
+                <h2>&#128197; Tidslinje: Muhammeds liv och islams tidiga historia</h2>
+                <p>Ordna händelserna från äldst till yngst. Dra en rad till rätt plats, eller använd pilknapparna &#9650; &#9660; för att flytta den.</p>
 
                 <div class="game-header">
                     <div class="game-info">
                         <span class="game-stat points" id="tidslinje-points">&#11088; 0 XP</span>
                     </div>
                     <div>
-                        <button class="btn btn-primary btn-small" onclick="checkTimeline()">&#10004; Kontrollera</button>
-                        <button class="btn btn-secondary btn-small" onclick="resetTimeline()" style="margin-left:8px;">&#128260; Slumpa om</button>
+                        <button type="button" class="btn btn-primary btn-small" onclick="checkTimeline()">&#10004; Kontrollera</button>
+                        <button type="button" class="btn btn-secondary btn-small" onclick="resetTimeline()" style="margin-left:8px;">&#128260; Slumpa om</button>
                     </div>
                 </div>
 
                 <div class="timeline-sort-area" id="timeline-items"></div>
-                <div id="tidslinje-feedback" class="feedback"></div>
+                <div id="tidslinje-feedback" class="feedback" role="status" aria-live="polite"></div>
             </div>
 
-            <!-- ===== 5. ISLAMISK ORDSKATT ===== -->
+            <!-- ===== 5. ORDSKATT ===== -->
             <div id="ordskatt" class="section">
-                <h2>&#128218; Islamisk Ordskatt</h2>
-                <p>Matcha de arabiska termerna med ratt svensk forklaring. Valj en term och sedan ratt forklaring!</p>
+                <h2>&#128218; Islamisk ordskatt</h2>
+                <p>Matcha begreppen med rätt svensk förklaring. Välj ett begrepp och sedan dess förklaring!</p>
 
                 <div class="game-header">
                     <div class="game-info">
@@ -1112,7 +1235,7 @@
                         <span class="game-stat points" id="ordskatt-points">&#11088; 0 XP</span>
                         <span class="game-stat streak" id="ordskatt-streak">&#128293; 0</span>
                     </div>
-                    <button class="btn btn-secondary btn-small" onclick="resetOrdskatt()">&#128260; Borja om</button>
+                    <button type="button" class="btn btn-secondary btn-small" onclick="resetOrdskatt()">&#128260; Börja om</button>
                 </div>
 
                 <div class="progress-bar-container">
@@ -1120,70 +1243,73 @@
                 </div>
 
                 <div class="word-grid" id="ordskatt-grid"></div>
-                <div id="ordskatt-feedback" class="feedback"></div>
+                <div id="ordskatt-feedback" class="feedback" role="status" aria-live="polite"></div>
             </div>
 
             <!-- ===== 6. PROFETERNAS KEDJA ===== -->
             <div id="profeter" class="section">
-                <h2>&#128101; Profeternas Kedja</h2>
-                <p>Ordna dessa profeter i kronologisk ordning enligt islamisk tradition. Den aldste forst!</p>
+                <h2>&#128101; Profeternas kedja</h2>
+                <p>Ordna profeterna i kronologisk ordning enligt islamisk tradition – den äldsta först! Dra raderna eller använd pilknapparna &#9650; &#9660;.</p>
 
                 <div class="game-header">
                     <div class="game-info">
                         <span class="game-stat points" id="profeter-points">&#11088; 0 XP</span>
                     </div>
                     <div>
-                        <button class="btn btn-primary btn-small" onclick="checkProphets()">&#10004; Kontrollera</button>
-                        <button class="btn btn-secondary btn-small" onclick="resetProphets()" style="margin-left:8px;">&#128260; Slumpa om</button>
+                        <button type="button" class="btn btn-primary btn-small" onclick="checkProphets()">&#10004; Kontrollera</button>
+                        <button type="button" class="btn btn-secondary btn-small" onclick="resetProphets()" style="margin-left:8px;">&#128260; Slumpa om</button>
                     </div>
                 </div>
 
                 <div class="timeline-sort-area" id="prophet-items"></div>
-                <div id="profeter-feedback" class="feedback"></div>
+                <div id="profeter-feedback" class="feedback" role="status" aria-live="polite"></div>
 
                 <div style="margin-top:30px; background: var(--bg-light); padding: 20px; border-radius: 12px;">
-                    <h4 style="color: var(--primary); margin-bottom:10px;">&#128161; Visste du att...</h4>
-                    <p>Inom islam anses antalet profeter vara 124 000 - ett symboliskt tal som visar att det funnits oandligt manga. Alla fick sprida budskapet om islam. Muhammed ar den siste och storste profeten.</p>
+                    <h3 style="margin-top:0; font-size:1.1em;">&#128161; Visste du att...</h3>
+                    <p>Enligt en islamisk tradition har det funnits 124&nbsp;000 profeter. Talet är symboliskt och visar att Gud enligt islam har sänt ett budskap till alla folk. Av dem nämns ett 25-tal vid namn i Koranen. Muslimer ser Muhammed som den siste profeten.</p>
                 </div>
             </div>
 
-            <!-- ===== 7. ABRAHAMITISKA JÄMFÖRELSER ===== -->
+            <!-- ===== 7. JÄMFÖRELSER ===== -->
             <div id="jamnfor" class="section">
-                <h2>&#9878; Abrahamitiska Religioner - Jamforelse</h2>
-                <p>Dra ratt svar till ratt ruta i tabellen. Jamfor judendom, kristendom och islam!</p>
+                <h2>&#9878; Abrahamitiska religioner – jämförelse</h2>
+                <p>Klicka på ett svar och sedan på rätt ruta i tabellen. Judendom, kristendom och islam har mycket gemensamt – men också viktiga skillnader.</p>
 
                 <div class="game-header">
                     <div class="game-info">
-                        <span class="game-stat" id="jamnfor-progress">0/9 placerade</span>
+                        <span class="game-stat" id="jamnfor-progress">0/15 placerade</span>
                         <span class="game-stat points" id="jamnfor-points">&#11088; 0 XP</span>
                     </div>
                     <div>
-                        <button class="btn btn-primary btn-small" onclick="checkCompare()">&#10004; Kontrollera</button>
-                        <button class="btn btn-secondary btn-small" onclick="resetCompare()" style="margin-left:8px;">&#128260; Borja om</button>
+                        <button type="button" class="btn btn-primary btn-small" onclick="checkCompare()">&#10004; Kontrollera</button>
+                        <button type="button" class="btn btn-secondary btn-small" onclick="resetCompare()" style="margin-left:8px;">&#128260; Börja om</button>
                     </div>
                 </div>
 
-                <div class="draggable-answers" id="compare-answers"></div>
+                <div class="draggable-answers" id="compare-answers" aria-label="Svarsalternativ"></div>
 
-                <table class="compare-table">
-                    <thead>
-                        <tr>
-                            <th style="width:20%">Egenskap</th>
-                            <th style="width:26%">Judendom</th>
-                            <th style="width:27%">Kristendom</th>
-                            <th style="width:27%">Islam</th>
-                        </tr>
-                    </thead>
-                    <tbody id="compare-body"></tbody>
-                </table>
+                <div class="table-scroll">
+                    <table class="compare-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width:16%">Egenskap</th>
+                                <th scope="col" style="width:28%">Judendom</th>
+                                <th scope="col" style="width:28%">Kristendom</th>
+                                <th scope="col" style="width:28%">Islam</th>
+                            </tr>
+                        </thead>
+                        <tbody id="compare-body"></tbody>
+                    </table>
+                </div>
 
-                <div id="jamnfor-feedback" class="feedback"></div>
+                <div id="jamnfor-feedback" class="feedback" role="status" aria-live="polite"></div>
             </div>
 
-            <!-- ===== 8. ETISKA VÄGSKÄLAR ===== -->
+            <!-- ===== 8. ETISKA VÄGSKÄL ===== -->
             <div id="etik" class="section">
-                <h2>&#129300; Etiska Vagskal</h2>
-                <p>Las scenarierna och reflektera over hur islamiska principer kan vagleda. Det finns inte alltid ett enda ratt svar - du far poang for att visa att du kan se flera perspektiv!</p>
+                <h2>&#129300; Etiska vägskäl</h2>
+                <p>Läs scenarierna och reflektera över hur islamiska principer kan vägleda. Det finns inte alltid ett enda rätt svar – du får poäng för att visa att du kan se flera perspektiv.</p>
+                <p class="hint-text">Välj bara de perspektiv du tycker stämmer. Alternativ som missar poängen kan ge avdrag.</p>
 
                 <div class="game-header">
                     <div class="game-info">
@@ -1194,95 +1320,151 @@
 
                 <div id="etik-content"></div>
                 <div id="etik-result" class="result-screen" style="display:none;">
-                    <div class="result-icon">&#129300;</div>
+                    <div class="result-icon" aria-hidden="true">&#129300;</div>
                     <div class="result-score" id="etik-result-score"></div>
                     <div class="result-message" id="etik-result-message"></div>
-                    <button class="btn btn-primary" onclick="resetEtik()" style="margin-top:20px;">Gör om</button>
-                    <button class="btn btn-secondary" onclick="showSection('dashboard')" style="margin-top:20px; margin-left:10px;">Tillbaka</button>
+                    <button type="button" class="btn btn-primary" onclick="resetEtik()" style="margin-top:20px;">Gör om</button>
+                    <button type="button" class="btn btn-secondary" onclick="showSection('dashboard')" style="margin-top:20px; margin-left:10px;">Tillbaka</button>
                 </div>
             </div>
 
-        </div><!-- /content -->
+        </main>
     </div><!-- /container -->
 
-    <!-- XP Popup -->
-    <div class="xp-popup" id="xp-popup">
+    <!-- XP-popup -->
+    <div class="xp-popup" id="xp-popup" role="status" aria-live="polite">
         <div id="xp-popup-text">+10 XP</div>
         <div class="xp-sub" id="xp-popup-sub"></div>
     </div>
 
     <script>
     // ============================================================
-    //  GAMIFICATION SYSTEM
+    //  HJÄLPFUNKTIONER
     // ============================================================
+    function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function announce(msg) {
+        const el = document.getElementById('sr-status');
+        el.textContent = '';
+        setTimeout(function() { el.textContent = msg; }, 50);
+    }
+
+    // Gör div-element med role="button" tangentbordsstyrda (Enter / mellanslag)
+    document.addEventListener('keydown', function(e) {
+        if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[role="button"]')) {
+            e.preventDefault();
+            e.target.click();
+        }
+    });
+
+    function makeButton(el, label) {
+        el.setAttribute('role', 'button');
+        el.tabIndex = 0;
+        if (label) el.setAttribute('aria-label', label);
+    }
+
+    // ============================================================
+    //  SPELSYSTEM (XP, nivåer, prestationer)
+    // ============================================================
+    const STORAGE_KEY = 'islam-game-state';
+
     const gameState = {
         xp: 0,
         level: 1,
         streak: 0,
         maxStreak: 0,
         achievements: new Set(),
-        completedGames: new Set()
+        completedGames: new Set(),   // nycklar för uppgifter som redan gett XP
+        progress: {
+            quizBest: { easy: 0, medium: 0, hard: 0 },
+            pelare: 0, timeline: false, ordskatt: 0, prophets: false, compare: 0, etik: 0
+        }
     };
 
     const LEVELS = [
-        { name: 'Nyborjare', xp: 0 },
+        { name: 'Nybörjare', xp: 0 },
         { name: 'Elev', xp: 100 },
         { name: 'Kunnig', xp: 250 },
         { name: 'Expert', xp: 500 },
-        { name: 'Mastare', xp: 800 }
+        { name: 'Mästare', xp: 800 }
     ];
+
+    // Ger XP bara första gången en viss uppgift klaras. Returnerar true om XP delades ut.
+    function awardOnce(key, amount, reason) {
+        if (gameState.completedGames.has(key)) return false;
+        gameState.completedGames.add(key);
+        addXP(amount, reason);
+        return true;
+    }
 
     function addXP(amount, reason) {
         gameState.xp += amount;
         updateXPDisplay();
-        showXPPopup(amount, reason);
+        showXPPopup('+' + amount + ' XP', reason);
         checkLevelUp();
         saveState();
     }
 
     function updateXPDisplay() {
-        const currentLevel = getCurrentLevel();
-        const nextLevel = LEVELS[currentLevel.index + 1];
-        const prevXP = LEVELS[currentLevel.index].xp;
-        const nextXP = nextLevel ? nextLevel.xp : LEVELS[LEVELS.length - 1].xp;
-        const progress = nextLevel ? ((gameState.xp - prevXP) / (nextXP - prevXP)) * 100 : 100;
+        const cur = getCurrentLevel();
+        const next = LEVELS[cur.index + 1];
+        const prevXP = LEVELS[cur.index].xp;
+        const progress = next ? ((gameState.xp - prevXP) / (next.xp - prevXP)) * 100 : 100;
+        const pct = Math.min(Math.round(progress), 100);
 
-        document.getElementById('level-display').textContent = 'Niva ' + (currentLevel.index + 1) + ': ' + currentLevel.name;
-        document.getElementById('xp-bar').style.width = Math.min(progress, 100) + '%';
-        document.getElementById('xp-text').textContent = nextLevel
-            ? gameState.xp + ' / ' + nextXP + ' XP till nasta niva'
-            : gameState.xp + ' XP - Maxniva!';
-        document.getElementById('streak-badge').innerHTML = '&#9889; Streak: ' + gameState.streak;
+        document.getElementById('level-display').textContent = 'Nivå ' + (cur.index + 1) + ': ' + cur.name;
+        document.getElementById('xp-bar').style.width = pct + '%';
+        document.getElementById('xp-container').setAttribute('aria-valuenow', pct);
+        document.getElementById('xp-text').textContent = next
+            ? gameState.xp + ' / ' + next.xp + ' XP till nästa nivå'
+            : gameState.xp + ' XP – maxnivå!';
+        document.getElementById('streak-badge').innerHTML = '&#9889; Serie: ' + gameState.streak;
         document.getElementById('dash-totalxp').textContent = gameState.xp;
     }
 
     function getCurrentLevel() {
-        let level = LEVELS[0];
-        let index = 0;
         for (let i = LEVELS.length - 1; i >= 0; i--) {
-            if (gameState.xp >= LEVELS[i].xp) {
-                level = LEVELS[i];
-                index = i;
-                break;
-            }
+            if (gameState.xp >= LEVELS[i].xp) return { name: LEVELS[i].name, index: i };
         }
-        return { ...level, index };
+        return { name: LEVELS[0].name, index: 0 };
     }
 
     function checkLevelUp() {
-        const newLevel = getCurrentLevel();
-        if (newLevel.index + 1 > gameState.level) {
-            gameState.level = newLevel.index + 1;
-            showXPPopup(0, 'Niva upp! Du ar nu ' + newLevel.name + '!');
+        const cur = getCurrentLevel();
+        if (cur.index + 1 > gameState.level) {
+            gameState.level = cur.index + 1;
+            showXPPopup('🎉', 'Ny nivå! Du är nu ' + cur.name + '!');
         }
     }
 
-    function showXPPopup(amount, sub) {
+    // Popup-kö så att flera belöningar visas efter varandra istället för att skriva över varandra
+    const popupQueue = [];
+    let popupBusy = false;
+
+    function showXPPopup(text, sub) {
+        if (popupQueue.length < 4) popupQueue.push({ text: text, sub: sub || '' });
+        if (!popupBusy) nextPopup();
+    }
+
+    function nextPopup() {
+        const p = popupQueue.shift();
         const popup = document.getElementById('xp-popup');
-        document.getElementById('xp-popup-text').textContent = amount > 0 ? '+' + amount + ' XP' : '&#127881;';
-        document.getElementById('xp-popup-sub').textContent = sub || '';
+        if (!p) { popupBusy = false; return; }
+        popupBusy = true;
+        document.getElementById('xp-popup-text').textContent = p.text;
+        document.getElementById('xp-popup-sub').textContent = p.sub;
         popup.classList.add('show');
-        setTimeout(() => popup.classList.remove('show'), 1500);
+        setTimeout(function() {
+            popup.classList.remove('show');
+            setTimeout(nextPopup, 350);
+        }, 1400);
     }
 
     function incrementStreak() {
@@ -1297,76 +1479,115 @@
         updateXPDisplay();
     }
 
+    function markAchievementUnlocked(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('unlocked');
+        const status = el.querySelector('.ach-status');
+        if (status) status.textContent = 'Upplåst ✓';
+    }
+
     function unlockAchievement(id) {
         if (gameState.achievements.has(id)) return;
         gameState.achievements.add(id);
+        markAchievementUnlocked(id);
         const el = document.getElementById(id);
-        if (el) {
-            el.classList.add('unlocked');
-            const name = el.dataset.name || '';
-            showXPPopup(25, 'Achievement: ' + name);
-            addXP(25, 'Achievement');
-        }
+        addXP(25, 'Prestation: ' + (el ? el.dataset.name : ''));
         checkAllClear();
         saveState();
     }
 
     function checkAllClear() {
         const required = ['ach-quiz', 'ach-pelare', 'ach-timeline', 'ach-ordskatt', 'ach-profeter', 'ach-compare'];
-        if (required.every(a => gameState.achievements.has(a))) {
+        if (required.every(function(a) { return gameState.achievements.has(a); })) {
             unlockAchievement('ach-allclear');
         }
     }
 
-    function markFirstExercise() {
-        unlockAchievement('ach-first');
-    }
+    function markFirstExercise() { unlockAchievement('ach-first'); }
 
     function saveState() {
         try {
-            const data = {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
                 xp: gameState.xp,
                 level: gameState.level,
-                streak: gameState.streak,
                 maxStreak: gameState.maxStreak,
-                achievements: [...gameState.achievements],
-                completedGames: [...gameState.completedGames]
-            };
-            localStorage.setItem('islam-game-state', JSON.stringify(data));
-        } catch(e) {}
+                achievements: Array.from(gameState.achievements),
+                completedGames: Array.from(gameState.completedGames),
+                progress: gameState.progress
+            }));
+        } catch (e) {}
     }
 
     function loadState() {
         try {
-            const raw = localStorage.getItem('islam-game-state');
-            if (raw) {
-                const data = JSON.parse(raw);
-                gameState.xp = data.xp || 0;
-                gameState.level = data.level || 1;
-                gameState.streak = data.streak || 0;
-                gameState.maxStreak = data.maxStreak || 0;
-                gameState.achievements = new Set(data.achievements || []);
-                gameState.completedGames = new Set(data.completedGames || []);
-                gameState.achievements.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.classList.add('unlocked');
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+            const d = JSON.parse(raw);
+            gameState.xp = d.xp || 0;
+            gameState.level = d.level || 1;
+            gameState.maxStreak = d.maxStreak || 0;
+            gameState.achievements = new Set(d.achievements || []);
+            gameState.completedGames = new Set(d.completedGames || []);
+            if (d.progress) {
+                const p = d.progress;
+                Object.assign(gameState.progress, {
+                    pelare: p.pelare || 0, timeline: !!p.timeline, ordskatt: p.ordskatt || 0,
+                    prophets: !!p.prophets, compare: p.compare || 0, etik: p.etik || 0
                 });
-                updateXPDisplay();
+                Object.assign(gameState.progress.quizBest, p.quizBest || {});
             }
-        } catch(e) {}
+            gameState.achievements.forEach(markAchievementUnlocked);
+        } catch (e) {}
+    }
+
+    function resetProgress() {
+        if (!confirm('Vill du nollställa all din XP och alla prestationer? Det går inte att ångra.')) return;
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        location.reload();
+    }
+
+    // Uppdaterar översikten från sparade framsteg
+    function renderDashboard() {
+        const p = gameState.progress;
+        const quizTotal = quizData.easy.length + quizData.medium.length + quizData.hard.length;
+        const quizSum = p.quizBest.easy + p.quizBest.medium + p.quizBest.hard;
+        document.getElementById('dash-quiz').textContent = quizSum + '/' + quizTotal;
+        document.getElementById('dash-pelare').textContent = p.pelare + '/' + pelareData.length;
+        document.getElementById('dash-tidslinje').textContent = p.timeline ? 'Klar!' : '–';
+        document.getElementById('dash-ordskatt').textContent = p.ordskatt + '/' + ordskattData.length;
+        document.getElementById('dash-profeter').textContent = p.prophets ? 'Klar!' : '–';
+        document.getElementById('dash-jamnfor').textContent = p.compare + '/' + COMPARE_TOTAL;
+        document.getElementById('dash-etik').textContent = p.etik + '/' + etikData.length;
+        ['easy', 'medium', 'hard'].forEach(function(l) {
+            const el = document.getElementById('best-' + l);
+            if (el) el.textContent = p.quizBest[l] > 0 ? 'Ditt bästa: ' + p.quizBest[l] + '/' + quizData[l].length : '';
+        });
+    }
+
+    function setProgressMax(key, value) {
+        if (value > gameState.progress[key]) gameState.progress[key] = value;
+        saveState();
+        renderDashboard();
     }
 
     // ============================================================
-    //  NAVIGATION
+    //  NAVIGERING
     // ============================================================
+    const SECTIONS = ['dashboard', 'quiz', 'pelare', 'tidslinje', 'ordskatt', 'profeter', 'jamnfor', 'etik'];
+
     function showSection(id) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        if (SECTIONS.indexOf(id) === -1) id = 'dashboard';
+        document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+        document.querySelectorAll('.nav-tab').forEach(function(t) {
+            const on = t.dataset.section === id;
+            t.classList.toggle('active', on);
+            if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
+        });
         document.getElementById(id).classList.add('active');
-        const tabs = document.querySelectorAll('.nav-tab');
-        const tabMap = ['dashboard','quiz','pelare','tidslinje','ordskatt','profeter','jamnfor','etik'];
-        const idx = tabMap.indexOf(id);
-        if (idx >= 0 && tabs[idx]) tabs[idx].classList.add('active');
+        renderDashboard();
+        try { history.replaceState(null, '', '#' + id); } catch (e) {}
+        window.scrollTo({ top: 0 });
     }
 
     // ============================================================
@@ -1378,114 +1599,146 @@
                 q: "Vad heter islams heliga skrift?",
                 opts: ["Bibeln", "Tora", "Koranen", "Haditherna"],
                 correct: 2,
-                explain: "Koranen ar islams heliga skrift och innehaller de uppenbarelser som Muhammed fick fran Gud genom angeln Gabriel."
+                explain: "Koranen är islams heliga skrift. Muslimer tror att den innehåller Guds ord, som Muhammed fick genom ängeln Gabriel."
             },
             {
-                q: "Hur manga pelare har islam?",
+                q: "Hur många pelare har islam?",
                 opts: ["Tre", "Fyra", "Fem", "Sju"],
                 correct: 2,
-                explain: "Islam har fem pelare: trosbekannelsen, tidebönen, allmosan, fastan och vallfarden."
+                explain: "Islam har fem pelare: trosbekännelsen, bönen, allmosan, fastan och pilgrimsfärden."
             },
             {
-                q: "I vilken stad foddes profeten Muhammed?",
+                q: "I vilken stad föddes profeten Muhammed?",
                 opts: ["Medina", "Jerusalem", "Mekka", "Damaskus"],
                 correct: 2,
-                explain: "Muhammed foddes omkring ar 570 i Mekka i dagens Saudiarabien."
+                explain: "Muhammed föddes omkring år 570 i Mekka, i nuvarande Saudiarabien."
             },
             {
-                q: "Vad ar det arabiska ordet for Gud?",
+                q: "Vad är det arabiska ordet för Gud?",
                 opts: ["Jahve", "Allah", "Brahma", "Elohim"],
                 correct: 1,
-                explain: "Allah ar det arabiska ordet for Gud. Islam tror pa en enda Gud."
+                explain: "Allah är det arabiska ordet för Gud. Islam tror på en enda Gud. Även arabisktalande kristna och judar använder ordet Allah om Gud."
             },
             {
-                q: "Vilken angel formedlade Guds budskap till Muhammed?",
+                q: "Vilken ängel förmedlade enligt islam Guds budskap till Muhammed?",
                 opts: ["Mikael", "Rafael", "Gabriel", "Israfil"],
                 correct: 2,
-                explain: "Angeln Gabriel (Jibril) formedlade Guds ord till profeten Muhammed."
+                explain: "Ängeln Gabriel (Jibril) förmedlade enligt islam Guds ord till profeten Muhammed."
+            },
+            {
+                q: "Vad kallas den månad då muslimer fastar?",
+                opts: ["Hajj", "Ramadan", "Zakat", "Muharram"],
+                correct: 1,
+                explain: "Under Ramadan, islamiska årets nionde månad, avstår vuxna friska muslimer från mat och dryck mellan gryning och solnedgång."
             }
         ],
         medium: [
             {
                 q: "Vad betyder ordet 'islam'?",
-                opts: ["Krig", "Fred och karlek", "Underkastelse", "Barmhartighet"],
+                opts: ["Krig", "Fred och kärlek", "Underkastelse", "Barmhärtighet"],
                 correct: 2,
-                explain: "Islam brukar oversattas med 'underkastelse' men ar ocksa besläktat med hebreiskans shalom (frid). Det kan ocksa tolkas som 'den frid som kommer av att lita pa Gud'."
+                explain: "Islam betyder ungefär 'underkastelse' eller 'överlåtelse åt Gud'. Ordet är besläktat med salam, som betyder 'frid'."
             },
             {
-                q: "Vad ar hijra?",
-                opts: ["En bon", "Muhammeds utvandring fran Mekka till Medina", "En fastemaanad", "Pilgrimsfarden till Mekka"],
+                q: "Vad är hijra?",
+                opts: ["En bön", "Muhammeds utvandring från Mekka till Medina", "En fastemånad", "Pilgrimsfärden till Mekka"],
                 correct: 1,
-                explain: "Hijra ar Muhammeds utvandring fran Mekka till Medina ar 622. Den ar sa viktig att den ar utgangspunkten for den islamiska tiderakningen."
+                explain: "Hijra är Muhammeds utvandring från Mekka till Medina år 622. Den är så viktig att den är startpunkten för den islamiska tideräkningen."
             },
             {
-                q: "Varfor kan Koranen enligt muslimer inte oversattas?",
-                opts: ["Den ar for laaang", "Arabiska ar det enda sprak som finns", "Varje oversattning andrar Guds exakta ord", "Det ar forbjudet att lasa den"],
-                correct: 2,
-                explain: "Eftersom Koranen anses vara Guds exakta ord pa arabiska, skulle varje oversattning forvanska inneborden nagot. Darfor har arabiskan en sarskild stallning."
+                q: "Varför anser många muslimer att en översättning av Koranen inte är 'riktig' Koran?",
+                opts: ["Det är förbjudet att läsa den på andra språk", "Koranen anses vara Guds ord på arabiska – en översättning blir alltid en tolkning", "Arabiska är det enda språk som finns", "Koranen är för lång för att översättas"],
+                correct: 1,
+                explain: "Koranen anses vara Guds ord på arabiska. En översättning blir därför en tolkning av innebörden. Koranen finns ändå översatt till många språk, och muslimer läser dem för att förstå innehållet."
             },
             {
                 q: "Vilken roll har haditherna i islam?",
-                opts: ["De ar lagtexter", "De beskriver Muhammeds liv och visar hur man ska leva", "De ar bonbocker", "De ar skrivna av anglar"],
+                opts: ["De är lagtexter", "De berättar om Muhammeds liv och ord och visar hur man kan leva", "De är bönböcker", "De är skrivna av änglar"],
                 correct: 1,
-                explain: "Haditherna ar korta berattelser som beskriver Muhammeds liv och levnadssatt (sunna). De fungerar som en handbok i muslimskt levnadssatt."
+                explain: "Haditherna är berättelser om vad Muhammed sa och gjorde. Hans sätt att leva kallas sunna och fungerar som förebild för muslimer."
             },
             {
-                q: "Vad innebar begreppet 'halal'?",
-                opts: ["Forbjudet", "Heligt", "Religiost godkant/tillatet", "Synd"],
+                q: "Vad betyder begreppet 'halal'?",
+                opts: ["Förbjudet", "Heligt", "Tillåtet enligt islam", "Synd"],
                 correct: 2,
-                explain: "Halal betyder 'godkant' pa arabiska och anvands for att beskriva vad som ar tillatet inom islam, till exempel vilken mat som far atas."
+                explain: "Halal betyder 'tillåtet' på arabiska och används om det som är godkänt inom islam, till exempel vilken mat man får äta. Motsatsen är haram."
+            },
+            {
+                q: "Vad kallas den person som leder bönen i moskén?",
+                opts: ["Rabbin", "Präst", "Imam", "Kalif"],
+                correct: 2,
+                explain: "Imamen leder bönen och undervisar. En imam är dock ingen präst som förmedlar mellan människan och Gud – enligt islam kan alla be direkt till Gud."
             }
         ],
         hard: [
             {
-                q: "Varfor kallas judendom, kristendom och islam for 'abrahamitiska religioner'?",
-                opts: ["De grundades samma ar", "Abraham har en grundlaggande roll i alla tre", "De har samma heliga skrift", "De har samma antal profeter"],
+                q: "Varför kallas judendom, kristendom och islam för 'abrahamitiska religioner'?",
+                opts: ["De grundades samma år", "Abraham har en central roll i alla tre", "De har samma heliga skrift", "De har samma antal profeter"],
                 correct: 1,
-                explain: "Alla tre religioner har Abraham (Ibrahim) som en central gestalt. Han ses som 'trons fader' och ar en viktig profet i samtliga tre religioner."
+                explain: "Alla tre religionerna har Abraham (Ibrahim) som en central gestalt. Han ses som en urfader för tron på en enda Gud."
             },
             {
-                q: "Hur skiljer sig islams syn pa Adam och Eva fran kristendomens?",
-                opts: ["Islam namner inte Adam och Eva", "I Koranen angrade de sig och fick forlaaatelse", "I islam ate de aldrig frukten", "Det finns ingen skillnad"],
+                q: "Hur skiljer sig berättelsen om Adam och Eva i Koranen från den kristna traditionen?",
+                opts: ["Koranen nämner inte Adam och Eva", "I Koranen ångrar sig Adam och Eva och blir förlåtna – islam har ingen lära om arvsynd", "I Koranen äter de aldrig av trädet", "Det finns ingen skillnad alls"],
                 correct: 1,
-                explain: "I bade Bibeln och Koranen at de av kunskapens frukt. Men i Koranen angrade de sig och bad om forlaaatelse, och Gud forlaat dem - till skillnad fran kristendomens arvsynd."
+                explain: "I både Bibeln och Koranen går Adam och Eva emot Guds förbud. I Koranen ångrar de sig och Gud förlåter dem. Därför finns i islam ingen lära om arvsynd, som i många kristna traditioner."
             },
             {
-                q: "Vad ar den viktigaste skillnaden mellan islams och kristendomens gudssyn?",
-                opts: ["Islam har manga gudar", "Kristendomen har en treenig Gud, islam menar att Gud ar strikt en", "Islam tror inte pa profeter", "Det finns ingen skillnad"],
+                q: "Vad är den viktigaste skillnaden mellan islams och kristendomens gudssyn?",
+                opts: ["Islam har många gudar", "Kristendomen talar om en treenig Gud, medan islam betonar att Gud är absolut en (tawhid)", "Islam tror inte på profeter", "Det finns ingen skillnad"],
                 correct: 1,
-                explain: "Den viktigaste larosatsen i islam ar att Gud ar en - inte treenig som i kristendomen. Gud ar bara en och kan inte delas upp."
+                explain: "Tawhid, tron på att Gud är en och odelbar, är islams viktigaste lära. Därför kan islam inte godta tanken på Gud som treenighet."
             },
             {
-                q: "Varfor anses Muhammed vara den viktigaste profeten trots att islam erkanner tidigare profeter som Mose och Jesus?",
-                opts: ["Han var den rikaste", "Han var den forste", "Genom honom fick Guds rena ord antligen faste utan forvrangningar", "Han hade flest anhangare"],
+                q: "Varför kallas Muhammed i islam för 'profeternas sigill' (den siste profeten)?",
+                opts: ["Han var den rikaste profeten", "Han var den förste profeten", "Enligt islam avslutar han raden av profeter, och Koranen anses vara Guds slutgiltiga och bevarade budskap", "Han hade flest anhängare under sin livstid"],
                 correct: 2,
-                explain: "Enligt islam blev alla tidigare profeter missforstaaadda eller forföljda. Genom Muhammed, den siste profeten, fick Guds rena budskap antligen faste bland manniskorna."
+                explain: "Enligt islam sändes budskapet till människor genom många profeter, bland dem Mose och Jesus. Muslimer menar att tidigare budskap med tiden förändrades och att Koranen är Guds slutgiltiga, oförändrade budskap genom Muhammed."
             },
             {
-                q: "Hur forklarar islam att manniskan har ett sarskilt ansvar jamfort med djuren?",
-                opts: ["Manniskan ar starkare", "Djur lever redan i islam automatiskt - manniskan maste valja det", "Djur har inga kanslor", "Manniskan skapades forst"],
+                q: "Enligt islamisk tro följer djur och natur Guds ordning av naturen själv. Vad skiljer då människan?",
+                opts: ["Människan är starkare", "Människan har fått förnuft och fri vilja och kan därför välja om hon vill följa Gud", "Djur har inga känslor", "Människan skapades först"],
                 correct: 1,
-                explain: "Enligt islam lever djur och vaxter kvar i sitt naturliga tillstaand (islam) automatiskt. Manniskan har fatt fornuft, sprak och fri vilja och maste daafor aktivt valja att leva i islam."
+                explain: "Enligt islam har människan fått förnuft och fri vilja. Därför har hon också ett eget ansvar att välja hur hon lever."
+            },
+            {
+                q: "Hur ser islam på Jesus (Isa)?",
+                opts: ["Som Guds son", "Som en av de viktiga profeterna och Messias, men inte som Guds son", "Han nämns inte alls i Koranen", "Som en vanlig människa utan uppdrag"],
+                correct: 1,
+                explain: "Jesus (Isa) nämns många gånger i Koranen och räknas som en av Guds största profeter och som Messias. Islam avvisar dock att han skulle vara Guds son eller gudomlig."
             }
         ]
     };
 
+    const QUIZ_XP = { easy: 10, medium: 20, hard: 30 };
     let currentQuizLevel = 'easy';
+    let currentQuiz = [];
     let currentQuizIndex = 0;
     let quizScore = 0;
     let quizXP = 0;
     let quizAnswered = false;
 
+    // Blandar frågor och svarsalternativ så att rätt svar inte alltid står på samma plats
+    function prepareQuiz(level) {
+        return shuffle(quizData[level].map(function(q, id) { return { q: q, id: id }; })).map(function(item) {
+            const order = shuffle(item.q.opts.map(function(_, i) { return i; }));
+            return {
+                id: item.id,
+                q: item.q.q,
+                opts: order.map(function(i) { return item.q.opts[i]; }),
+                correct: order.indexOf(item.q.correct),
+                explain: item.q.explain
+            };
+        });
+    }
+
     function startQuiz(level) {
         currentQuizLevel = level;
+        currentQuiz = prepareQuiz(level);
         currentQuizIndex = 0;
         quizScore = 0;
         quizXP = 0;
         quizAnswered = false;
-
-        document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
-        event.target.closest('.level-btn').classList.add('active');
 
         document.getElementById('quiz-level-selector').style.display = 'none';
         document.getElementById('quiz-area').style.display = 'block';
@@ -1495,62 +1748,77 @@
     }
 
     function loadQuizQuestion() {
-        const questions = quizData[currentQuizLevel];
-        if (currentQuizIndex >= questions.length) {
+        if (currentQuizIndex >= currentQuiz.length) {
             showQuizResult();
             return;
         }
 
-        const q = questions[currentQuizIndex];
+        const q = currentQuiz[currentQuizIndex];
         quizAnswered = false;
 
-        document.getElementById('quiz-progress').textContent = 'Fraga ' + (currentQuizIndex + 1) + '/' + questions.length;
+        document.getElementById('quiz-progress').textContent = 'Fråga ' + (currentQuizIndex + 1) + '/' + currentQuiz.length;
         document.getElementById('quiz-points').innerHTML = '&#11088; ' + quizXP + ' XP';
         document.getElementById('quiz-streak').innerHTML = '&#128293; ' + gameState.streak;
-        document.getElementById('quiz-progress-bar').style.width = ((currentQuizIndex / questions.length) * 100) + '%';
+        document.getElementById('quiz-progress-bar').style.width = ((currentQuizIndex / currentQuiz.length) * 100) + '%';
 
-        document.getElementById('quiz-content').innerHTML =
-            '<div class="quiz-question-text">' + q.q + '</div>' +
-            '<div class="quiz-options">' +
-            q.opts.map(function(opt, i) {
-                return '<div class="quiz-option" onclick="answerQuiz(' + i + ')">' + opt + '</div>';
-            }).join('') +
-            '</div>';
+        const content = document.getElementById('quiz-content');
+        content.innerHTML = '';
+        const qEl = document.createElement('div');
+        qEl.className = 'quiz-question-text';
+        qEl.textContent = q.q;
+        content.appendChild(qEl);
 
-        document.getElementById('quiz-feedback').className = 'feedback';
-        document.getElementById('quiz-feedback').style.display = 'none';
-        document.getElementById('quiz-next-btn').style.display = 'none';
+        const optsEl = document.createElement('div');
+        optsEl.className = 'quiz-options';
+        q.opts.forEach(function(opt, i) {
+            const o = document.createElement('div');
+            o.className = 'quiz-option';
+            o.textContent = opt;
+            makeButton(o);
+            o.onclick = function() { answerQuiz(i); };
+            optsEl.appendChild(o);
+        });
+        content.appendChild(optsEl);
+
+        const fb = document.getElementById('quiz-feedback');
+        fb.className = 'feedback';
+        fb.innerHTML = '';
+        const next = document.getElementById('quiz-next-btn');
+        next.style.display = 'none';
+        next.innerHTML = (currentQuizIndex === currentQuiz.length - 1 ? 'Se resultat' : 'Nästa fråga') + ' &#8594;';
     }
 
     function answerQuiz(idx) {
         if (quizAnswered) return;
         quizAnswered = true;
 
-        const q = quizData[currentQuizLevel][currentQuizIndex];
-        const options = document.querySelectorAll('.quiz-option');
+        const q = currentQuiz[currentQuizIndex];
+        const options = document.querySelectorAll('#quiz-content .quiz-option');
         const feedback = document.getElementById('quiz-feedback');
-        const xpPerQ = currentQuizLevel === 'easy' ? 10 : currentQuizLevel === 'medium' ? 20 : 30;
+        const xpPerQ = QUIZ_XP[currentQuizLevel];
 
         options[q.correct].classList.add('correct');
-        options.forEach(o => o.classList.add('disabled'));
+        options.forEach(function(o) { o.classList.add('disabled'); o.removeAttribute('tabindex'); });
 
         if (idx === q.correct) {
             quizScore++;
-            quizXP += xpPerQ;
             incrementStreak();
-            feedback.innerHTML = '<strong>&#10004; Ratt!</strong> ' + q.explain;
+            const gotXP = awardOnce('quiz-' + currentQuizLevel + '-' + q.id, xpPerQ, 'Rätt svar!');
+            if (gotXP) quizXP += xpPerQ;
+            feedback.innerHTML = '<strong>&#10004; Rätt!</strong> ' + q.explain;
             feedback.className = 'feedback show correct';
-            addXP(xpPerQ, 'Ratt svar');
         } else {
             options[idx].classList.add('incorrect');
             resetStreak();
-            feedback.innerHTML = '<strong>&#10008; Fel.</strong> ' + q.explain;
+            feedback.innerHTML = '<strong>&#10008; Inte riktigt.</strong> ' + q.explain;
             feedback.className = 'feedback show incorrect';
         }
 
         document.getElementById('quiz-points').innerHTML = '&#11088; ' + quizXP + ' XP';
         document.getElementById('quiz-streak').innerHTML = '&#128293; ' + gameState.streak;
-        document.getElementById('quiz-next-btn').style.display = 'inline-block';
+        const next = document.getElementById('quiz-next-btn');
+        next.style.display = 'inline-block';
+        next.focus();
     }
 
     function nextQuizQuestion() {
@@ -1559,7 +1827,7 @@
     }
 
     function showQuizResult() {
-        const total = quizData[currentQuizLevel].length;
+        const total = currentQuiz.length;
         const pct = Math.round((quizScore / total) * 100);
 
         document.getElementById('quiz-area').style.display = 'none';
@@ -1569,123 +1837,129 @@
         if (pct >= 80) stars = '&#11088;&#11088;&#11088;';
         else if (pct >= 60) stars = '&#11088;&#11088;';
         else if (pct >= 40) stars = '&#11088;';
-        else stars = '';
 
-        let msg = '';
-        if (pct === 100) msg = 'Perfekt! Du ar en riktig expert!';
-        else if (pct >= 80) msg = 'Utmarkt! Du har mycket goda kunskaper!';
+        let msg;
+        if (pct === 100) msg = 'Perfekt! Du är en riktig expert!';
+        else if (pct >= 80) msg = 'Utmärkt! Du har mycket goda kunskaper!';
         else if (pct >= 60) msg = 'Bra jobbat! Du har bra grundkunskaper.';
-        else if (pct >= 40) msg = 'Helt okej! Las igenom materialet och forsok igen.';
-        else msg = 'Fortsatt studera! Du lar dig mer for varje forsok.';
+        else if (pct >= 40) msg = 'Helt okej! Läs igenom materialet och försök igen.';
+        else msg = 'Fortsätt öva! Du lär dig mer för varje försök.';
 
         document.getElementById('quiz-result-stars').innerHTML = stars;
         document.getElementById('quiz-result-score').textContent = quizScore + ' / ' + total;
         document.getElementById('quiz-result-message').textContent = msg;
-        document.getElementById('quiz-result-xp').textContent = 'Du fick ' + quizXP + ' XP!';
+        document.getElementById('quiz-result-xp').textContent = quizXP > 0
+            ? 'Du fick ' + quizXP + ' XP!'
+            : 'Ingen ny XP den här gången – du har redan fått poäng för dessa frågor.';
         document.getElementById('quiz-result-icon').innerHTML = pct === 100 ? '&#127942;' : pct >= 60 ? '&#128170;' : '&#128218;';
 
-        if (pct === 100) unlockAchievement('ach-quiz');
+        if (quizScore > gameState.progress.quizBest[currentQuizLevel]) {
+            gameState.progress.quizBest[currentQuizLevel] = quizScore;
+        }
+        saveState();
+        renderDashboard();
+
+        const b = gameState.progress.quizBest;
+        if (b.easy === quizData.easy.length && b.medium === quizData.medium.length && b.hard === quizData.hard.length) {
+            unlockAchievement('ach-quiz');
+        }
         markFirstExercise();
-        document.getElementById('dash-quiz').textContent = quizScore + '/' + total;
     }
 
     function resetQuiz() {
         document.getElementById('quiz-level-selector').style.display = 'flex';
         document.getElementById('quiz-area').style.display = 'none';
         document.getElementById('quiz-result').style.display = 'none';
+        renderDashboard();
     }
 
     // ============================================================
-    //  3. FEM PELARE - MATCHNING
+    //  3. FEM PELARE – MATCHNING
     // ============================================================
     const pelareData = [
-        { id: 1, name: 'Trosbekannelsen (Shahada)', desc: '"Det finns ingen gud utom Gud och Muhammed ar hans sandebud."' },
-        { id: 2, name: 'Tidebonen (Salat)', desc: 'Bon fem ganger om dagen, riktat mot Mekka.' },
-        { id: 3, name: 'Allmosan (Zakat)', desc: 'En del av inkomsten ska fordelas till fattiga.' },
-        { id: 4, name: 'Fastan (Sawm)', desc: 'Ingen mat eller dryck under dagens ljusa timmar under Ramadan.' },
-        { id: 5, name: 'Vallfarden (Hajj)', desc: 'En resa till Mekka minst en gang i livet om man har mojlighet.' }
+        { id: 1, name: 'Trosbekännelsen (Shahada)', desc: '"Det finns ingen gud utom Gud, och Muhammed är Guds sändebud."' },
+        { id: 2, name: 'Bönen (Salat)', desc: 'Bön fem gånger om dagen, i riktning mot Kaba i Mecka.' },
+        { id: 3, name: 'Allmosan (Zakat)', desc: 'Att ge en bestämd del av sina tillgångar, ofta 2,5 %, till fattiga och behövande.' },
+        { id: 4, name: 'Fastan (Sawm)', desc: 'Att avstå från mat och dryck mellan gryning och solnedgång under månaden Ramadan.' },
+        { id: 5, name: 'Pilgrimsfärden (Hajj)', desc: 'En resa till Mecka minst en gång i livet för den som har hälsa och ekonomi att klara den.' }
     ];
 
     let pelareSelectedLeft = null;
     let pelareSelectedRight = null;
     let pelareMatched = 0;
     let pelareXP = 0;
+    let pelareLocked = false;
 
     function initPelare() {
         const leftCol = document.getElementById('pelare-left');
         const rightCol = document.getElementById('pelare-right');
+        leftCol.innerHTML = '<h3 style="margin-top:0; font-size:1.1em;">Pelare</h3>';
+        rightCol.innerHTML = '<h3 style="margin-top:0; font-size:1.1em;">Beskrivning</h3>';
 
-        leftCol.innerHTML = '<h4>Pelare</h4>';
-        rightCol.innerHTML = '<h4>Beskrivning</h4>';
-
-        const shuffledLeft = [...pelareData].sort(function() { return Math.random() - 0.5; });
-        const shuffledRight = [...pelareData].sort(function() { return Math.random() - 0.5; });
-
-        shuffledLeft.forEach(function(p) {
-            leftCol.innerHTML += '<div class="match-item" data-id="' + p.id + '" onclick="selectPelare(' + p.id + ', \'left\')">' + p.name + '</div>';
-        });
-
-        shuffledRight.forEach(function(p) {
-            rightCol.innerHTML += '<div class="match-item" data-id="' + p.id + '" onclick="selectPelare(' + p.id + ', \'right\')">' + p.desc + '</div>';
-        });
+        function addItem(col, p, text, side) {
+            const d = document.createElement('div');
+            d.className = 'match-item';
+            d.dataset.id = p.id;
+            d.textContent = text;
+            makeButton(d);
+            d.onclick = function() { selectPelare(p.id, side); };
+            col.appendChild(d);
+        }
+        shuffle(pelareData).forEach(function(p) { addItem(leftCol, p, p.name, 'left'); });
+        shuffle(pelareData).forEach(function(p) { addItem(rightCol, p, p.desc, 'right'); });
     }
 
     function selectPelare(id, side) {
+        if (pelareLocked) return;
         const col = side === 'left' ? 'pelare-left' : 'pelare-right';
         const item = document.querySelector('#' + col + ' .match-item[data-id="' + id + '"]');
-
         if (item.classList.contains('correct')) return;
 
-        if (side === 'left') {
-            const prev = document.querySelector('#pelare-left .match-item.selected');
-            if (prev) prev.classList.remove('selected');
-            pelareSelectedLeft = id;
-        } else {
-            const prev = document.querySelector('#pelare-right .match-item.selected');
-            if (prev) prev.classList.remove('selected');
-            pelareSelectedRight = id;
-        }
-
+        const prev = document.querySelector('#' + col + ' .match-item.selected');
+        if (prev) prev.classList.remove('selected');
+        if (side === 'left') pelareSelectedLeft = id; else pelareSelectedRight = id;
         item.classList.add('selected');
+        item.setAttribute('aria-pressed', 'true');
 
-        if (pelareSelectedLeft !== null && pelareSelectedRight !== null) {
-            checkPelareMatch();
-        }
+        if (pelareSelectedLeft !== null && pelareSelectedRight !== null) checkPelareMatch();
     }
 
     function checkPelareMatch() {
         const leftItem = document.querySelector('#pelare-left .match-item[data-id="' + pelareSelectedLeft + '"]');
         const rightItem = document.querySelector('#pelare-right .match-item[data-id="' + pelareSelectedRight + '"]');
+        const matchedId = pelareSelectedLeft;
 
         if (pelareSelectedLeft === pelareSelectedRight) {
-            leftItem.classList.remove('selected');
-            rightItem.classList.remove('selected');
-            leftItem.classList.add('correct');
-            rightItem.classList.add('correct');
+            [leftItem, rightItem].forEach(function(el) {
+                el.classList.remove('selected');
+                el.classList.add('correct');
+                el.removeAttribute('tabindex');
+            });
             pelareMatched++;
-            pelareXP += 15;
-            addXP(15, 'Ratt matchning!');
             incrementStreak();
+            if (awardOnce('pelare-' + matchedId, 15, 'Rätt matchning!')) pelareXP += 15;
 
-            document.getElementById('pelare-progress').textContent = pelareMatched + '/5 matchade';
+            document.getElementById('pelare-progress').textContent = pelareMatched + '/' + pelareData.length + ' matchade';
             document.getElementById('pelare-points').innerHTML = '&#11088; ' + pelareXP + ' XP';
-            document.getElementById('pelare-bar').style.width = ((pelareMatched / 5) * 100) + '%';
+            document.getElementById('pelare-bar').style.width = ((pelareMatched / pelareData.length) * 100) + '%';
+            setProgressMax('pelare', pelareMatched);
 
-            if (pelareMatched === 5) {
+            if (pelareMatched === pelareData.length) {
                 const fb = document.getElementById('pelare-feedback');
-                fb.innerHTML = '<strong>&#127881; Utmarkt!</strong> Du har matchat alla fem pelare korrekt! Islams fem pelare ar grunden for hur en muslim lever sitt liv.';
+                fb.innerHTML = '<strong>&#127881; Utmärkt!</strong> Du har matchat alla fem pelare. De fem pelarna är grunden för hur många muslimer lever sin tro.';
                 fb.className = 'feedback show correct';
                 unlockAchievement('ach-pelare');
                 markFirstExercise();
-                document.getElementById('dash-pelare').textContent = '5/5';
             }
         } else {
+            pelareLocked = true;
             leftItem.classList.add('incorrect');
             rightItem.classList.add('incorrect');
             resetStreak();
             setTimeout(function() {
                 leftItem.classList.remove('selected', 'incorrect');
                 rightItem.classList.remove('selected', 'incorrect');
+                pelareLocked = false;
             }, 800);
         }
 
@@ -1698,7 +1972,8 @@
         pelareXP = 0;
         pelareSelectedLeft = null;
         pelareSelectedRight = null;
-        document.getElementById('pelare-progress').textContent = '0/5 matchade';
+        pelareLocked = false;
+        document.getElementById('pelare-progress').textContent = '0/' + pelareData.length + ' matchade';
         document.getElementById('pelare-points').innerHTML = '&#11088; 0 XP';
         document.getElementById('pelare-bar').style.width = '0%';
         document.getElementById('pelare-feedback').className = 'feedback';
@@ -1706,247 +1981,292 @@
     }
 
     // ============================================================
-    //  4. TIDSLINJE
+    //  SORTERBARA LISTOR (tidslinje + profeter)
+    //  Fungerar med mus (dra), touch och tangentbord (pilknappar)
     // ============================================================
-    const timelineData = [
-        { order: 1, text: 'Muhammed fods i Mekka (ca 570)', year: '570' },
-        { order: 2, text: 'Muhammed gifter sig med Khadija (ca 595)', year: '595' },
-        { order: 3, text: 'Odets natt - Muhammed far sin forsta uppenbarelse (ca 610)', year: '610' },
-        { order: 4, text: 'Muhammed borjar predika offentligt i Mekka (ca 613)', year: '613' },
-        { order: 5, text: 'Hijra - Muhammed flyr till Medina (622)', year: '622' },
-        { order: 6, text: 'Muhammed atertar Mekka (630)', year: '630' },
-        { order: 7, text: 'Muhammed dor i Medina (632)', year: '632' },
-        { order: 8, text: 'Islamiska erövringar sprider riket (600-700-talet)', year: '650+' },
-        { order: 9, text: 'Osmanska riket grundas (ca 1299)', year: '1299' }
-    ];
-
     let dragItem = null;
 
-    function initTimeline() {
-        const container = document.getElementById('timeline-items');
-        const shuffled = [...timelineData].sort(function() { return Math.random() - 0.5; });
+    function clearSortMarks(container) {
+        container.querySelectorAll('.sort-item').forEach(function(el) {
+            el.classList.remove('correct-pos', 'incorrect-pos');
+            const n = el.querySelector('.sort-number');
+            n.textContent = '?';
+            n.classList.add('placeholder');
+            const y = el.querySelector('.sort-year');
+            if (y) y.remove();
+        });
+    }
 
+    function moveSortItem(container, div, dir, onChange) {
+        const sibling = dir < 0 ? div.previousElementSibling : div.nextElementSibling;
+        if (!sibling) return;
+        if (dir < 0) container.insertBefore(div, sibling);
+        else container.insertBefore(sibling, div);
+        clearSortMarks(container);
+        if (onChange) onChange();
+        const pos = Array.prototype.indexOf.call(container.children, div) + 1;
+        announce('Flyttade till plats ' + pos + ' av ' + container.children.length);
+        const btn = div.querySelector('.sort-move[data-dir="' + dir + '"]');
+        if (btn) btn.focus();
+    }
+
+    function dropBefore(container, from, target) {
+        if (!from || from === target) return;
+        const items = Array.prototype.slice.call(container.querySelectorAll('.sort-item'));
+        if (items.indexOf(from) < items.indexOf(target)) target.after(from);
+        else target.before(from);
+    }
+
+    function buildSortable(container, data, contentFn, labelFn, onChange) {
         container.innerHTML = '';
-        shuffled.forEach(function(item, i) {
+        let list;
+        do { list = shuffle(data); } while (list.every(function(d, i) { return d.order === i + 1; }));
+
+        list.forEach(function(item) {
             const div = document.createElement('div');
             div.className = 'sort-item';
             div.draggable = true;
             div.dataset.order = item.order;
-            div.innerHTML = '<span class="sort-number placeholder">?</span><span>' + item.text + '</span>';
+            if (item.year) div.dataset.year = item.year;
+            div.innerHTML =
+                '<span class="sort-number placeholder" aria-hidden="true">?</span>' +
+                '<span class="sort-text">' + contentFn(item) + '</span>' +
+                '<span class="sort-controls">' +
+                '<button type="button" class="sort-move" data-dir="-1" aria-label="Flytta upp: ' + labelFn(item) + '">&#9650;</button>' +
+                '<button type="button" class="sort-move" data-dir="1" aria-label="Flytta ner: ' + labelFn(item) + '">&#9660;</button>' +
+                '</span>';
 
-            div.addEventListener('dragstart', function() {
-                dragItem = div;
-                div.classList.add('dragging');
+            div.querySelectorAll('.sort-move').forEach(function(b) {
+                b.addEventListener('click', function() {
+                    moveSortItem(container, div, parseInt(b.dataset.dir, 10), onChange);
+                });
             });
+
+            // Mus
+            div.addEventListener('dragstart', function() { dragItem = div; div.classList.add('dragging'); });
             div.addEventListener('dragend', function() {
                 div.classList.remove('dragging');
                 container.querySelectorAll('.sort-item').forEach(function(el) { el.classList.remove('drag-over'); });
             });
-            div.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                div.classList.add('drag-over');
-            });
-            div.addEventListener('dragleave', function() {
-                div.classList.remove('drag-over');
-            });
+            div.addEventListener('dragover', function(e) { e.preventDefault(); div.classList.add('drag-over'); });
+            div.addEventListener('dragleave', function() { div.classList.remove('drag-over'); });
             div.addEventListener('drop', function(e) {
                 e.preventDefault();
                 div.classList.remove('drag-over');
-                if (dragItem && dragItem !== div) {
-                    const items = [...container.querySelectorAll('.sort-item')];
-                    const dragIdx = items.indexOf(dragItem);
-                    const targetIdx = items.indexOf(div);
-                    if (dragIdx < targetIdx) {
-                        div.after(dragItem);
-                    } else {
-                        div.before(dragItem);
-                    }
-                }
+                dropBefore(container, dragItem, div);
+                clearSortMarks(container);
+                if (onChange) onChange();
             });
 
-            // Touch support
+            // Touch
             div.addEventListener('touchstart', function(e) {
+                if (e.target.closest('.sort-controls')) return;
                 dragItem = div;
                 div.classList.add('dragging');
-            }, {passive: true});
+            }, { passive: true });
             div.addEventListener('touchmove', function(e) {
+                if (dragItem !== div) return;
                 e.preventDefault();
-                const touch = e.touches[0];
-                const target = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (target && target.closest('.sort-item') && target.closest('.sort-item') !== div) {
-                    container.querySelectorAll('.sort-item').forEach(function(el) { el.classList.remove('drag-over'); });
-                    target.closest('.sort-item').classList.add('drag-over');
-                }
-            });
-            div.addEventListener('touchend', function(e) {
+                const t = e.touches[0];
+                const over = document.elementFromPoint(t.clientX, t.clientY);
+                const row = over && over.closest('.sort-item');
+                container.querySelectorAll('.sort-item').forEach(function(el) { el.classList.remove('drag-over'); });
+                if (row && row !== div && container.contains(row)) row.classList.add('drag-over');
+            }, { passive: false });
+            div.addEventListener('touchend', function() {
+                if (dragItem !== div) return;
                 div.classList.remove('dragging');
-                const overItem = container.querySelector('.sort-item.drag-over');
-                if (overItem && dragItem && dragItem !== overItem) {
-                    const items = [...container.querySelectorAll('.sort-item')];
-                    const dragIdx = items.indexOf(dragItem);
-                    const targetIdx = items.indexOf(overItem);
-                    if (dragIdx < targetIdx) {
-                        overItem.after(dragItem);
-                    } else {
-                        overItem.before(dragItem);
-                    }
+                const over = container.querySelector('.sort-item.drag-over');
+                if (over) {
+                    dropBefore(container, div, over);
+                    clearSortMarks(container);
+                    if (onChange) onChange();
                 }
                 container.querySelectorAll('.sort-item').forEach(function(el) { el.classList.remove('drag-over'); });
+                dragItem = null;
             });
 
             container.appendChild(div);
         });
     }
 
-    function checkTimeline() {
-        const items = document.querySelectorAll('#timeline-items .sort-item');
+    // Markerar rätt/fel och returnerar antalet rätt placerade
+    function checkSortable(container, showYear) {
         let correct = 0;
-
-        items.forEach(function(item, i) {
-            const expected = parseInt(item.dataset.order);
+        container.querySelectorAll('.sort-item').forEach(function(item, i) {
             const numEl = item.querySelector('.sort-number');
             numEl.textContent = i + 1;
             numEl.classList.remove('placeholder');
-
-            if (expected === i + 1) {
-                item.classList.add('correct-pos');
-                item.classList.remove('incorrect-pos');
-                correct++;
-            } else {
-                item.classList.add('incorrect-pos');
-                item.classList.remove('correct-pos');
+            const ok = parseInt(item.dataset.order, 10) === i + 1;
+            item.classList.toggle('correct-pos', ok);
+            item.classList.toggle('incorrect-pos', !ok);
+            if (ok) correct++;
+            if (showYear && item.dataset.year && !item.querySelector('.sort-year')) {
+                const y = document.createElement('span');
+                y.className = 'sort-year';
+                y.textContent = item.dataset.year;
+                item.querySelector('.sort-text').after(y);
             }
         });
+        return correct;
+    }
 
+    // ============================================================
+    //  4. TIDSLINJE
+    // ============================================================
+    const timelineData = [
+        { order: 1, text: 'Muhammed föds i Mekka (ca 570)', year: 'ca 570' },
+        { order: 2, text: 'Muhammed gifter sig med Khadija (ca 595)', year: 'ca 595' },
+        { order: 3, text: 'Kraftens natt – Muhammed får sin första uppenbarelse (ca 610)', year: 'ca 610' },
+        { order: 4, text: 'Muhammed börjar predika offentligt i Mekka (ca 613)', year: 'ca 613' },
+        { order: 5, text: 'Hijra – Muhammed och hans anhängare flyttar till Medina', year: '622' },
+        { order: 6, text: 'Muhammed tar Mekka utan strid och rensar Kaba från avgudabilder', year: '630' },
+        { order: 7, text: 'Muhammed dör i Medina', year: '632' },
+        { order: 8, text: 'Umayyadkalifatet grundas med Damaskus som huvudstad', year: '661' },
+        { order: 9, text: 'Osmanska riket grundas', year: 'ca 1299' }
+    ];
+
+    function hideTimelineFeedback() { document.getElementById('tidslinje-feedback').className = 'feedback'; }
+
+    function initTimeline() {
+        buildSortable(
+            document.getElementById('timeline-items'), timelineData,
+            function(item) { return item.text; },
+            function(item) { return item.text; },
+            hideTimelineFeedback
+        );
+    }
+
+    function checkTimeline() {
+        const correct = checkSortable(document.getElementById('timeline-items'), true);
         const fb = document.getElementById('tidslinje-feedback');
         if (correct === timelineData.length) {
-            fb.innerHTML = '<strong>&#127881; Perfekt!</strong> Alla handelser ar i ratt ordning! Du har god koll pa islams historia.';
+            fb.innerHTML = '<strong>&#127881; Perfekt!</strong> Alla händelser står i rätt ordning. Du har god koll på islams tidiga historia.';
             fb.className = 'feedback show correct';
-            addXP(40, 'Tidslinjen klar!');
+            const got = awardOnce('timeline', 40, 'Tidslinjen klar!');
+            document.getElementById('tidslinje-points').innerHTML = '&#11088; ' + (got ? 40 : 0) + ' XP';
+            gameState.progress.timeline = true;
+            saveState();
+            renderDashboard();
             unlockAchievement('ach-timeline');
             markFirstExercise();
-            document.getElementById('dash-tidslinje').textContent = 'Klar!';
-            document.getElementById('tidslinje-points').innerHTML = '&#11088; 40 XP';
         } else {
-            fb.innerHTML = '<strong>' + correct + '/' + timelineData.length + ' ratt.</strong> Nara! Forsok flytta de markerade posterna och kontrollera igen.';
+            fb.innerHTML = '<strong>' + correct + '/' + timelineData.length + ' rätt.</strong> Nära! De röda raderna står fel – flytta dem och kontrollera igen.';
             fb.className = 'feedback show incorrect';
         }
     }
 
     function resetTimeline() {
-        document.getElementById('tidslinje-feedback').className = 'feedback';
-        document.querySelectorAll('#timeline-items .sort-item').forEach(function(item) {
-            item.classList.remove('correct-pos', 'incorrect-pos');
-        });
+        hideTimelineFeedback();
         document.getElementById('tidslinje-points').innerHTML = '&#11088; 0 XP';
         initTimeline();
     }
 
     // ============================================================
-    //  5. ISLAMISK ORDSKATT
+    //  5. ORDSKATT
     // ============================================================
     const ordskattData = [
-        { id: 1, arabic: 'Allah', swedish: 'Det arabiska ordet for Gud' },
-        { id: 2, arabic: 'Koranen', swedish: 'Islams heliga skrift med 114 suror' },
-        { id: 3, arabic: 'Hadith', swedish: 'Berattelser om Muhammeds liv och visdom' },
-        { id: 4, arabic: 'Sunna', swedish: 'Profetens vanor och levnadssatt' },
-        { id: 5, arabic: 'Hijra', swedish: 'Utvandringen fran Mekka till Medina ar 622' },
-        { id: 6, arabic: 'Halal', swedish: 'Religiost godkant eller tillatet' },
-        { id: 7, arabic: 'Haram', swedish: 'Religiost otillatet eller forbjudet' },
-        { id: 8, arabic: 'Umma', swedish: 'Den muslimska gemenskapen/forsamlingen' }
+        { id: 1, term: 'Allah', explain: 'Det arabiska ordet för Gud' },
+        { id: 2, term: 'Koranen', explain: 'Islams heliga skrift med 114 suror (kapitel)' },
+        { id: 3, term: 'Hadith', explain: 'Berättelser om vad Muhammed sa och gjorde' },
+        { id: 4, term: 'Sunna', explain: 'Profetens sätt att leva, som är en förebild för muslimer' },
+        { id: 5, term: 'Hijra', explain: 'Utvandringen från Mekka till Medina år 622' },
+        { id: 6, term: 'Halal', explain: 'Tillåtet enligt islam' },
+        { id: 7, term: 'Haram', explain: 'Förbjudet enligt islam' },
+        { id: 8, term: 'Umma', explain: 'Den världsvida gemenskapen av muslimer' }
     ];
 
     let ordskattSelected = null;
     let ordskattMatched = 0;
     let ordskattXP = 0;
     let ordskattStreakLocal = 0;
+    let ordskattLocked = false;
 
     function initOrdskatt() {
         const grid = document.getElementById('ordskatt-grid');
         grid.innerHTML = '';
-
-        const arabicCards = ordskattData.map(function(d) {
-            return { id: d.id, text: d.arabic, type: 'arabic', sub: 'Arabiska' };
-        }).sort(function() { return Math.random() - 0.5; });
-
-        const swedishCards = ordskattData.map(function(d) {
-            return { id: d.id, text: d.swedish, type: 'swedish', sub: 'Forklaring' };
-        }).sort(function() { return Math.random() - 0.5; });
-
-        const allCards = [];
-        arabicCards.forEach(function(c) { allCards.push(c); });
-        swedishCards.forEach(function(c) { allCards.push(c); });
-        allCards.sort(function() { return Math.random() - 0.5; });
-
-        allCards.forEach(function(card) {
+        const cards = [];
+        ordskattData.forEach(function(d) {
+            cards.push({ id: d.id, text: d.term, type: 'term', sub: 'Begrepp' });
+            cards.push({ id: d.id, text: d.explain, type: 'explain', sub: 'Förklaring' });
+        });
+        shuffle(cards).forEach(function(card) {
             const div = document.createElement('div');
             div.className = 'word-card';
             div.dataset.id = card.id;
             div.dataset.type = card.type;
-            div.innerHTML = card.text + '<div class="word-sub">' + card.sub + '</div>';
+            const t = document.createElement('span');
+            t.textContent = card.text;
+            const s = document.createElement('div');
+            s.className = 'word-sub';
+            s.textContent = card.sub;
+            div.appendChild(t);
+            div.appendChild(s);
+            makeButton(div);
             div.onclick = function() { selectOrdskatt(div); };
             grid.appendChild(div);
         });
     }
 
     function selectOrdskatt(el) {
-        if (el.classList.contains('matched')) return;
+        if (ordskattLocked || el.classList.contains('matched')) return;
 
         if (ordskattSelected === null) {
             el.classList.add('selected');
             ordskattSelected = el;
-        } else {
-            if (el === ordskattSelected) {
-                el.classList.remove('selected');
-                ordskattSelected = null;
-                return;
-            }
-
-            if (el.dataset.type === ordskattSelected.dataset.type) {
-                ordskattSelected.classList.remove('selected');
-                el.classList.add('selected');
-                ordskattSelected = el;
-                return;
-            }
-
-            if (el.dataset.id === ordskattSelected.dataset.id) {
-                el.classList.remove('selected');
-                el.classList.add('matched');
-                ordskattSelected.classList.remove('selected');
-                ordskattSelected.classList.add('matched');
-                ordskattMatched++;
-                ordskattXP += 15;
-                ordskattStreakLocal++;
-                addXP(15, 'Ratt term!');
-                incrementStreak();
-
-                document.getElementById('ordskatt-progress').textContent = ordskattMatched + '/8 matchade';
-                document.getElementById('ordskatt-points').innerHTML = '&#11088; ' + ordskattXP + ' XP';
-                document.getElementById('ordskatt-streak').innerHTML = '&#128293; ' + ordskattStreakLocal;
-                document.getElementById('ordskatt-bar').style.width = ((ordskattMatched / 8) * 100) + '%';
-
-                if (ordskattMatched === 8) {
-                    const fb = document.getElementById('ordskatt-feedback');
-                    fb.innerHTML = '<strong>&#127881; Fantastiskt!</strong> Du kan alla arabiska termer! Dessa ord ar nyckeln till att forsta islam pa djupet.';
-                    fb.className = 'feedback show correct';
-                    unlockAchievement('ach-ordskatt');
-                    markFirstExercise();
-                    document.getElementById('dash-ordskatt').textContent = '8/8';
-                }
-            } else {
-                el.classList.add('wrong');
-                ordskattSelected.classList.add('wrong');
-                resetStreak();
-                ordskattStreakLocal = 0;
-                document.getElementById('ordskatt-streak').innerHTML = '&#128293; 0';
-                const prev = ordskattSelected;
-                setTimeout(function() {
-                    el.classList.remove('wrong', 'selected');
-                    prev.classList.remove('wrong', 'selected');
-                }, 600);
-            }
-            ordskattSelected = null;
+            return;
         }
+        if (el === ordskattSelected) {
+            el.classList.remove('selected');
+            ordskattSelected = null;
+            return;
+        }
+        if (el.dataset.type === ordskattSelected.dataset.type) {
+            ordskattSelected.classList.remove('selected');
+            el.classList.add('selected');
+            ordskattSelected = el;
+            return;
+        }
+
+        const prev = ordskattSelected;
+        if (el.dataset.id === prev.dataset.id) {
+            [el, prev].forEach(function(c) {
+                c.classList.remove('selected');
+                c.classList.add('matched');
+                c.removeAttribute('tabindex');
+            });
+            ordskattMatched++;
+            ordskattStreakLocal++;
+            incrementStreak();
+            if (awardOnce('ord-' + el.dataset.id, 15, 'Rätt begrepp!')) ordskattXP += 15;
+
+            document.getElementById('ordskatt-progress').textContent = ordskattMatched + '/' + ordskattData.length + ' matchade';
+            document.getElementById('ordskatt-points').innerHTML = '&#11088; ' + ordskattXP + ' XP';
+            document.getElementById('ordskatt-streak').innerHTML = '&#128293; ' + ordskattStreakLocal;
+            document.getElementById('ordskatt-bar').style.width = ((ordskattMatched / ordskattData.length) * 100) + '%';
+            setProgressMax('ordskatt', ordskattMatched);
+
+            if (ordskattMatched === ordskattData.length) {
+                const fb = document.getElementById('ordskatt-feedback');
+                fb.innerHTML = '<strong>&#127881; Fantastiskt!</strong> Du kan alla begreppen. De är viktiga nycklar för att förstå islam.';
+                fb.className = 'feedback show correct';
+                unlockAchievement('ach-ordskatt');
+                markFirstExercise();
+            }
+        } else {
+            ordskattLocked = true;
+            el.classList.add('wrong');
+            prev.classList.add('wrong');
+            resetStreak();
+            ordskattStreakLocal = 0;
+            document.getElementById('ordskatt-streak').innerHTML = '&#128293; 0';
+            setTimeout(function() {
+                el.classList.remove('wrong', 'selected');
+                prev.classList.remove('wrong', 'selected');
+                ordskattLocked = false;
+            }, 600);
+        }
+        ordskattSelected = null;
     }
 
     function resetOrdskatt() {
@@ -1954,7 +2274,8 @@
         ordskattXP = 0;
         ordskattStreakLocal = 0;
         ordskattSelected = null;
-        document.getElementById('ordskatt-progress').textContent = '0/8 matchade';
+        ordskattLocked = false;
+        document.getElementById('ordskatt-progress').textContent = '0/' + ordskattData.length + ' matchade';
         document.getElementById('ordskatt-points').innerHTML = '&#11088; 0 XP';
         document.getElementById('ordskatt-streak').innerHTML = '&#128293; 0';
         document.getElementById('ordskatt-bar').style.width = '0%';
@@ -1966,115 +2287,48 @@
     //  6. PROFETERNAS KEDJA
     // ============================================================
     const prophetData = [
-        { order: 1, name: 'Adam', info: 'Den forsta manniskan och forsta profeten enligt islam' },
-        { order: 2, name: 'Nuh (Noa)', info: 'Byggde arken och raddade de troende fran syndafloden' },
-        { order: 3, name: 'Ibrahim (Abraham)', info: 'Stamfader for de abrahamitiska religionerna, byggde Kaba' },
-        { order: 4, name: 'Musa (Mose)', info: 'Fick Guds lag och ledde israeliterna ur Egypten' },
+        { order: 1, name: 'Adam', info: 'Den förste människan och förste profeten enligt islam' },
+        { order: 2, name: 'Nuh (Noa)', info: 'Byggde arken och räddade de troende från syndafloden' },
+        { order: 3, name: 'Ibrahim (Abraham)', info: 'Urfader för de abrahamitiska religionerna; byggde enligt islam Kaba tillsammans med sin son Ismail' },
+        { order: 4, name: 'Musa (Mose)', info: 'Fick Guds lag (Tawrat) och ledde israeliterna ur Egypten' },
         { order: 5, name: 'Dawud (David)', info: 'Kung och profet, fick Psaltaren (Zabur)' },
-        { order: 6, name: 'Isa (Jesus)', info: 'En viktig profet i islam, Messias, men inte Guds son' },
-        { order: 7, name: 'Muhammed', info: 'Den siste och storste profeten, fick Koranen' }
+        { order: 6, name: 'Isa (Jesus)', info: 'En av de viktigaste profeterna i islam och Messias, men inte Guds son; fick Evangeliet (Injil)' },
+        { order: 7, name: 'Muhammed', info: 'Den siste profeten enligt islam; fick Koranen' }
     ];
 
+    function hideProphetFeedback() { document.getElementById('profeter-feedback').className = 'feedback'; }
+
     function initProphets() {
-        const container = document.getElementById('prophet-items');
-        const shuffled = [...prophetData].sort(function() { return Math.random() - 0.5; });
-        container.innerHTML = '';
-
-        shuffled.forEach(function(item) {
-            const div = document.createElement('div');
-            div.className = 'sort-item';
-            div.draggable = true;
-            div.dataset.order = item.order;
-            div.innerHTML = '<span class="sort-number placeholder">?</span><span><strong>' + item.name + '</strong> - ' + item.info + '</span>';
-
-            div.addEventListener('dragstart', function() { dragItem = div; div.classList.add('dragging'); });
-            div.addEventListener('dragend', function() {
-                div.classList.remove('dragging');
-                container.querySelectorAll('.sort-item').forEach(function(el) { el.classList.remove('drag-over'); });
-            });
-            div.addEventListener('dragover', function(e) { e.preventDefault(); div.classList.add('drag-over'); });
-            div.addEventListener('dragleave', function() { div.classList.remove('drag-over'); });
-            div.addEventListener('drop', function(e) {
-                e.preventDefault();
-                div.classList.remove('drag-over');
-                if (dragItem && dragItem !== div) {
-                    const items = [...container.querySelectorAll('.sort-item')];
-                    const dIdx = items.indexOf(dragItem);
-                    const tIdx = items.indexOf(div);
-                    if (dIdx < tIdx) div.after(dragItem);
-                    else div.before(dragItem);
-                }
-            });
-
-            // Touch
-            div.addEventListener('touchstart', function() { dragItem = div; div.classList.add('dragging'); }, {passive: true});
-            div.addEventListener('touchmove', function(e) {
-                e.preventDefault();
-                const t = e.touches[0];
-                const target = document.elementFromPoint(t.clientX, t.clientY);
-                if (target && target.closest('.sort-item') && target.closest('.sort-item') !== div) {
-                    container.querySelectorAll('.sort-item').forEach(function(el) { el.classList.remove('drag-over'); });
-                    target.closest('.sort-item').classList.add('drag-over');
-                }
-            });
-            div.addEventListener('touchend', function() {
-                div.classList.remove('dragging');
-                const over = container.querySelector('.sort-item.drag-over');
-                if (over && dragItem && dragItem !== over) {
-                    const items = [...container.querySelectorAll('.sort-item')];
-                    const dIdx = items.indexOf(dragItem);
-                    const tIdx = items.indexOf(over);
-                    if (dIdx < tIdx) over.after(dragItem);
-                    else over.before(dragItem);
-                }
-                container.querySelectorAll('.sort-item').forEach(function(el) { el.classList.remove('drag-over'); });
-            });
-
-            container.appendChild(div);
-        });
+        buildSortable(
+            document.getElementById('prophet-items'), prophetData,
+            function(item) { return '<strong>' + item.name + '</strong> – ' + item.info; },
+            function(item) { return item.name; },
+            hideProphetFeedback
+        );
     }
 
     function checkProphets() {
-        const items = document.querySelectorAll('#prophet-items .sort-item');
-        let correct = 0;
-
-        items.forEach(function(item, i) {
-            const expected = parseInt(item.dataset.order);
-            const numEl = item.querySelector('.sort-number');
-            numEl.textContent = i + 1;
-            numEl.classList.remove('placeholder');
-
-            if (expected === i + 1) {
-                item.classList.add('correct-pos');
-                item.classList.remove('incorrect-pos');
-                correct++;
-            } else {
-                item.classList.add('incorrect-pos');
-                item.classList.remove('correct-pos');
-            }
-        });
-
+        const correct = checkSortable(document.getElementById('prophet-items'), false);
         const fb = document.getElementById('profeter-feedback');
         if (correct === prophetData.length) {
-            fb.innerHTML = '<strong>&#127881; Perfekt!</strong> Alla profeter ar i ratt ordning! Inom islam ses alla dessa som budbärare av samma budskap fran Gud.';
+            fb.innerHTML = '<strong>&#127881; Perfekt!</strong> Alla profeter står i rätt ordning. Enligt islam har alla profeter fört fram samma grundbudskap från Gud: att det finns en enda Gud.';
             fb.className = 'feedback show correct';
-            addXP(35, 'Profetkedjan klar!');
+            const got = awardOnce('prophets', 35, 'Profetkedjan klar!');
+            document.getElementById('profeter-points').innerHTML = '&#11088; ' + (got ? 35 : 0) + ' XP';
+            gameState.progress.prophets = true;
+            saveState();
+            renderDashboard();
             unlockAchievement('ach-profeter');
             markFirstExercise();
-            document.getElementById('dash-profeter').textContent = 'Klar!';
-            document.getElementById('profeter-points').innerHTML = '&#11088; 35 XP';
         } else {
-            fb.innerHTML = '<strong>' + correct + '/' + prophetData.length + ' ratt.</strong> Nara! Tips: Adam ar den forsta profeten och Muhammed ar den siste.';
+            fb.innerHTML = '<strong>' + correct + '/' + prophetData.length + ' rätt.</strong> Nära! Tips: Adam är den förste profeten och Muhammed den siste.';
             fb.className = 'feedback show incorrect';
         }
     }
 
     function resetProphets() {
-        document.getElementById('profeter-feedback').className = 'feedback';
+        hideProphetFeedback();
         document.getElementById('profeter-points').innerHTML = '&#11088; 0 XP';
-        document.querySelectorAll('#prophet-items .sort-item').forEach(function(item) {
-            item.classList.remove('correct-pos', 'incorrect-pos');
-        });
         initProphets();
     }
 
@@ -2084,25 +2338,38 @@
     const compareData = [
         {
             category: 'Helig skrift',
-            judendom: 'Tora (Gamla testamentet)',
-            kristendom: 'Bibeln (Gamla + Nya testamentet)',
+            judendom: 'Tanakh, den hebreiska bibeln (med Toran)',
+            kristendom: 'Bibeln (Gamla och Nya testamentet)',
             islam: 'Koranen'
         },
         {
             category: 'Gudssyn',
-            judendom: 'En Gud (monoteism)',
-            kristendom: 'En Gud, treenig (Fadern, Sonen, Anden)',
-            islam: 'En Gud, strikt monoteism (Allah)'
+            judendom: 'En Gud som slöt förbund med Israel',
+            kristendom: 'En Gud i tre personer (treenighet)',
+            islam: 'En enda, odelbar Gud (tawhid)'
         },
         {
             category: 'Central gestalt',
-            judendom: 'Abraham / Mose',
+            judendom: 'Abraham och Mose',
             kristendom: 'Jesus Kristus',
             islam: 'Profeten Muhammed'
+        },
+        {
+            category: 'Gudstjänstlokal',
+            judendom: 'Synagoga',
+            kristendom: 'Kyrka',
+            islam: 'Moské'
+        },
+        {
+            category: 'Veckans heliga dag',
+            judendom: 'Sabbat (fredag kväll–lördag)',
+            kristendom: 'Söndag',
+            islam: 'Fredag (gemensam bön vid middagstid)'
         }
     ];
+    const RELIGIONS = ['judendom', 'kristendom', 'islam'];
+    const COMPARE_TOTAL = compareData.length * RELIGIONS.length;
 
-    const allCompareAnswers = [];
     let placedAnswers = {};
     let selectedChip = null;
 
@@ -2116,15 +2383,14 @@
 
         const answers = [];
         compareData.forEach(function(row, ri) {
-            ['judendom', 'kristendom', 'islam'].forEach(function(rel, ci) {
-                answers.push({ row: ri, col: ci, text: row[rel], id: ri + '-' + ci });
+            RELIGIONS.forEach(function(rel, ci) {
+                answers.push({ text: row[rel], id: ri + '-' + ci });
             });
         });
 
-        answers.sort(function() { return Math.random() - 0.5; });
-
-        answers.forEach(function(a) {
-            const chip = document.createElement('span');
+        shuffle(answers).forEach(function(a) {
+            const chip = document.createElement('button');
+            chip.type = 'button';
             chip.className = 'drag-chip';
             chip.dataset.id = a.id;
             chip.textContent = a.text;
@@ -2134,21 +2400,24 @@
 
         compareData.forEach(function(row, ri) {
             const tr = document.createElement('tr');
-            tr.innerHTML = '<td style="font-weight:bold; color:var(--primary);">' + row.category + '</td>';
+            const th = document.createElement('th');
+            th.scope = 'row';
+            th.textContent = row.category;
+            th.style.cssText = 'font-weight:bold; color:var(--primary); text-align:left; background:transparent; padding:14px 16px;';
+            tr.appendChild(th);
 
-            for (let ci = 0; ci < 3; ci++) {
+            RELIGIONS.forEach(function(rel, ci) {
                 const td = document.createElement('td');
                 const cell = document.createElement('div');
-                cell.className = 'compare-cell';
+                cell.className = 'compare-cell is-empty';
                 cell.dataset.row = ri;
                 cell.dataset.col = ci;
-                cell.textContent = 'Klicka for att placera';
-                cell.style.color = 'var(--text-light)';
-                cell.style.fontSize = '0.9em';
+                cell.textContent = 'Klicka för att placera';
+                makeButton(cell, row.category + ', ' + rel + ': tom ruta');
                 cell.onclick = function() { placeInCell(cell); };
                 td.appendChild(cell);
                 tr.appendChild(td);
-            }
+            });
             body.appendChild(tr);
         });
 
@@ -2157,55 +2426,59 @@
 
     function selectChip(chip) {
         if (chip.classList.contains('placed')) return;
-        document.querySelectorAll('.drag-chip').forEach(function(c) { c.style.background = ''; c.style.color = ''; });
-        chip.style.background = 'var(--primary)';
-        chip.style.color = 'white';
+        document.querySelectorAll('.drag-chip').forEach(function(c) { c.classList.remove('chip-selected'); });
+        if (selectedChip === chip) { selectedChip = null; return; }
+        chip.classList.add('chip-selected');
         selectedChip = chip;
     }
 
+    function releaseCell(cell, key) {
+        const oldChip = document.querySelector('.drag-chip[data-id="' + placedAnswers[key] + '"]');
+        if (oldChip) oldChip.classList.remove('placed');
+        delete placedAnswers[key];
+        cell.textContent = 'Klicka för att placera';
+        cell.classList.remove('filled', 'correct-cell', 'incorrect-cell');
+        cell.classList.add('is-empty');
+    }
+
     function placeInCell(cell) {
-        if (!selectedChip) return;
         const key = cell.dataset.row + '-' + cell.dataset.col;
 
-        if (placedAnswers[key]) {
-            const oldChip = document.querySelector('.drag-chip[data-id="' + placedAnswers[key] + '"]');
-            if (oldChip) {
-                oldChip.classList.remove('placed');
-                oldChip.style.opacity = '';
-                oldChip.style.pointerEvents = '';
-            }
+        // Ingen vald bricka: klick på en fylld ruta tar tillbaka svaret
+        if (!selectedChip) {
+            if (placedAnswers[key]) { releaseCell(cell, key); updateCompareProgress(); }
+            return;
         }
+        if (placedAnswers[key]) releaseCell(cell, key);
 
         cell.textContent = selectedChip.textContent;
-        cell.style.color = 'var(--text-dark)';
-        cell.style.fontSize = '1em';
+        cell.classList.remove('is-empty', 'correct-cell', 'incorrect-cell');
         cell.classList.add('filled');
         placedAnswers[key] = selectedChip.dataset.id;
+        cell.setAttribute('aria-label', compareData[cell.dataset.row].category + ', ' + RELIGIONS[cell.dataset.col] + ': ' + selectedChip.textContent);
 
         selectedChip.classList.add('placed');
-        selectedChip.style.background = '';
-        selectedChip.style.color = '';
+        selectedChip.classList.remove('chip-selected');
+        selectedChip.disabled = true;
         selectedChip = null;
 
         updateCompareProgress();
     }
 
     function updateCompareProgress() {
+        document.querySelectorAll('.drag-chip').forEach(function(c) {
+            c.disabled = c.classList.contains('placed');
+        });
         const placed = Object.keys(placedAnswers).length;
-        document.getElementById('jamnfor-progress').textContent = placed + '/9 placerade';
+        document.getElementById('jamnfor-progress').textContent = placed + '/' + COMPARE_TOTAL + ' placerade';
     }
 
     function checkCompare() {
         let correct = 0;
-        const cells = document.querySelectorAll('.compare-cell');
-
-        cells.forEach(function(cell) {
+        document.querySelectorAll('.compare-cell').forEach(function(cell) {
             const key = cell.dataset.row + '-' + cell.dataset.col;
-            const expected = cell.dataset.row + '-' + cell.dataset.col;
-
             cell.classList.remove('correct-cell', 'incorrect-cell');
-
-            if (placedAnswers[key] === expected) {
+            if (placedAnswers[key] === key) {
                 cell.classList.add('correct-cell');
                 correct++;
             } else if (placedAnswers[key]) {
@@ -2213,17 +2486,20 @@
             }
         });
 
+        setProgressMax('compare', correct);
+
         const fb = document.getElementById('jamnfor-feedback');
-        if (correct === 9) {
-            fb.innerHTML = '<strong>&#127881; Perfekt!</strong> Du har plasserat alla ratt! Du forstaar skillnaderna och likheterna mellan de abrahamitiska religionerna.';
+        if (correct === COMPARE_TOTAL) {
+            fb.innerHTML = '<strong>&#127881; Perfekt!</strong> Du har placerat alla rätt. Du förstår likheter och skillnader mellan de abrahamitiska religionerna.';
             fb.className = 'feedback show correct';
-            addXP(45, 'Jamforelsen klar!');
+            const got = awardOnce('compare', 50, 'Jämförelsen klar!');
+            document.getElementById('jamnfor-points').innerHTML = '&#11088; ' + (got ? 50 : 0) + ' XP';
             unlockAchievement('ach-compare');
             markFirstExercise();
-            document.getElementById('dash-jamnfor').textContent = '9/9';
-            document.getElementById('jamnfor-points').innerHTML = '&#11088; 45 XP';
         } else {
-            fb.innerHTML = '<strong>' + correct + '/9 ratt.</strong> Forsok igen! Tänk pa vad som ar unikt for varje religion och vad de delar.';
+            const placed = Object.keys(placedAnswers).length;
+            const missing = placed < COMPARE_TOTAL ? ' Du har ' + (COMPARE_TOTAL - placed) + ' tomma rutor.' : '';
+            fb.innerHTML = '<strong>' + correct + '/' + COMPARE_TOTAL + ' rätt.</strong>' + missing + ' Försök igen! Klicka på en röd ruta för att ta bort svaret. Tänk på vad som är unikt för varje religion.';
             fb.className = 'feedback show incorrect';
         }
     }
@@ -2235,109 +2511,116 @@
     }
 
     // ============================================================
-    //  8. ETISKA VÄGSKÄLAR
+    //  8. ETISKA VÄGSKÄL
+    //  points: 3 = träffar kärnan, 2 = relevant, 0 = delvis, -1 = missar poängen
     // ============================================================
     const etikData = [
         {
             title: 'Allmosan i praktiken',
-            scenario: 'Fatima ar 15 ar och har sparat pengar fran sitt sommarjobb. Hon vet att zakat (allmosan) ar en av islams fem pelare och att man ska ge till behövande. Hennes kompis behöver pengar till en ny telefon, men Fatima vet ocksa att en familj i grannskapet har svart att ha rad med mat.',
-            question: 'Hur bör Fatima tanka enligt islamiska principer? Valj de perspektiv du tycker ar relevanta:',
+            scenario: 'Fatima är 15 år och har sparat pengar från sitt sommarjobb. Hon vet att zakat (allmosan) är en av islams fem pelare och att man ska ge till behövande. Hennes kompis vill ha pengar till en ny telefon, men Fatima vet också att en familj i grannskapet har svårt att ha råd med mat.',
+            question: 'Hur kan Fatima tänka enligt islamiska principer? Välj de perspektiv du tycker är relevanta:',
             perspectives: [
-                { text: 'Zakat handlar om att hjalpa de som verkligen behöver det, inte lyxkonsumtion. Familjen med matbrist bor prioriteras.', points: 3, feedback: 'Bra! Zakat ar avsedd for de verkligt behövande - detta ar kärnan i den tredje pelaren.' },
-                { text: 'En god muslim delar med sig av hela sitt hjarta - inte halvhjärtat. Det handlar om att kanna empati med de fattiga.', points: 3, feedback: 'Precis! Islam betonar att fastan under Ramadan lar oss forsta hur det kanns att vara utan, sa att vi delar med uppriktig empati.' },
-                { text: 'Det spelar ingen roll vem hon ger till - huvudsaken ar att hon ger nagot.', points: 1, feedback: 'Delvis ratt - att ge ar viktigt, men islam betonar att zakat specifikt ska ga till de behövande, inte till lyxkonsumtion.' },
-                { text: 'Hon behöver inte ge alls - hon ar ju bara 15 ar.', points: 1, feedback: 'Enligt islam ar zakat formellt obligatorisk forst nar man har en viss inkomst, men att vara generös uppmuntras fran tidig alder.' }
+                { text: 'Zakat handlar om att hjälpa dem som verkligen behöver det, inte om att betala för något som är önskvärt men inte nödvändigt. Familjen som saknar mat bör komma först.', points: 3, feedback: 'Bra! Zakat är avsedd för människor i verklig nöd. Det är kärnan i den tredje pelaren.' },
+                { text: 'Att ge handlar om att verkligen bry sig om andra och känna empati med dem som har det svårt, inte bara om att uppfylla en regel.', points: 3, feedback: 'Precis! Islam betonar medkänsla och solidaritet. Även fastan under Ramadan är tänkt att få en att förstå hur det är att sakna något och att därför dela med sig.' },
+                { text: 'Det spelar ingen roll vem hon ger till – huvudsaken är att hon ger något.', points: -1, feedback: 'Delvis rätt: att ge är viktigt. Men zakat är riktad till behövande, och därför spelar det roll vem som får hjälpen.' },
+                { text: 'Hon behöver inte ge något alls – hon är ju bara 15 år.', points: 0, feedback: 'Zakat är en plikt för den som har tillräckliga tillgångar, så det beror på hennes situation. Men att vara generös uppmuntras i islam även tidigt i livet (frivilliga gåvor kallas sadaqa).' }
             ],
-            reflection: 'Reflektera: Vilka principer inom islam styr hur man bor anvanda sina resurser? Finns det liknande tankar inom andra religioner?'
+            reflection: 'Reflektera: Vilka principer inom islam styr hur man bör använda sina resurser? Finns det liknande tankar i andra religioner?'
         },
         {
             title: 'Tradition möter vardag',
-            scenario: 'Ahmed ar 14 ar och bor i Sverige. Det ar Ramadan och han faster, men hans fotbollslag har en viktig turnering mitt pa dagen. Han kannar sig trott och torstig men vill inte svika laget. Hans tranare sager att han maste dricka vatten for att kunna spela sákert.',
-            question: 'Vilka perspektiv ar relevanta har?',
+            scenario: 'Ahmed är 14 år och bor i Sverige. Det är Ramadan och han fastar, men hans fotbollslag har en viktig turnering mitt på dagen. Han känner sig trött och törstig men vill inte svika laget. Hans tränare säger att han måste dricka vatten för att kunna spela säkert.',
+            question: 'Vilka perspektiv är relevanta här?',
             perspectives: [
-                { text: 'Halsan kommer forst - islam sager att fastan inte ska skada kroppen. Att dricka vatten under fysisk anstrangning kan vara nödvandigt.', points: 3, feedback: 'Ratt! Islam betonar att fastan inte ska vara halsofarlig. Det finns undantag for sjuka och de som riskerar skada.' },
-                { text: 'Ahmed kan valja att bryta fastan denna dag och kompensera genom att fasta en annan dag efter Ramadan.', points: 3, feedback: 'Korrekt! Koranen tillater att man tar igen missade fastedagar senare om man har giltiga skal.' },
-                { text: 'Han bör fasta oavsett - reglerna ar tydliga och man kan inte valja nar man foljer dem.', points: 1, feedback: 'Forstaaeligt perspektiv, men islam erkanner att det finns situationer dar flexibilitet tillats. Halsa ar en sadan.' },
-                { text: 'Han bör prata med en imam eller en vuxen muslim som kan ge rad baserat pa hans situation.', points: 2, feedback: 'Bra tanke! Att söka vagledning hos kunniga personer ar en viktig del av islamisk tradition.' }
+                { text: 'Hälsan kommer först – enligt islam ska fastan inte skada kroppen. Att dricka vatten under hård fysisk ansträngning kan vara nödvändigt.', points: 3, feedback: 'Rätt! Islam betonar att fastan inte ska vara hälsofarlig. Det finns undantag för sjuka och för dem som riskerar skada.' },
+                { text: 'Ahmed kan välja att bryta fastan den här dagen och fasta en annan dag efter Ramadan istället.', points: 3, feedback: 'Korrekt! Koranen tillåter att man tar igen missade fastedagar senare om man har giltiga skäl. Unga som ännu inte nått puberteten är dessutom inte skyldiga att fasta.' },
+                { text: 'Han bör fasta oavsett – reglerna är tydliga och man kan inte välja när man följer dem.', points: 0, feedback: 'Det är ett förståeligt perspektiv, men islam erkänner att det finns situationer där man får vara flexibel. Hälsa är en sådan.' },
+                { text: 'Han kan prata med en imam eller en kunnig vuxen muslim som kan ge råd utifrån hans situation.', points: 2, feedback: 'Bra tänkt! Att söka vägledning hos kunniga personer är en viktig del av islamisk tradition.' }
             ],
-            reflection: 'Reflektera: Hur kan religiösa regler anpassas till vardagslivet i ett modernt, sekulärt samhälle? Ar det annorlunda for en muslim i Sverige jamfort med i Saudiarabien?'
+            reflection: 'Reflektera: Hur kan religiösa regler anpassas till vardagslivet i ett modernt, sekulärt samhälle? Kan det vara olika för en muslim i Sverige och en muslim i ett land där de flesta är muslimer?'
         },
         {
             title: 'Identitet och tillhörighet',
-            scenario: 'Leila gar i attan och har nyligen börjat bara hijab (slöja). Nagra klasskamrater fragar varfor hon bar den och en sager "du behöver val inte bara den i Sverige?". Leila kannar sig stolt over sitt val men ocksa lite osaker.',
-            question: 'Vilka perspektiv ar viktiga i denna situation?',
+            scenario: 'Leila går i åttan och har nyligen börjat bära hijab (slöja). Några klasskamrater frågar varför, och en säger: "Du behöver väl inte bära den i Sverige?" Leila känner sig stolt över sitt val men också lite osäker.',
+            question: 'Vilka perspektiv är viktiga i den här situationen?',
             perspectives: [
-                { text: 'Hijab ar for manga unga muslimska kvinnor en symbol for religiös identitet och ett eget val - inte tvang.', points: 3, feedback: 'Ratt! Manga unga muslimska kvinnor i Sverige valjer att bara slöja som uttryck for sin identitet.' },
-                { text: 'Religionsfrihet innebar att alla har ratt att uttrycka sin tro, aven genom kladsel. Detta skyddas av svensk lag.', points: 3, feedback: 'Precis! Religionsfriheten ar en grundlaggande ratt i Sverige och i FN:s deklaration om manskliga rattigheter.' },
-                { text: 'Det finns olika tolkningar av kladreglerna inom islam - inte alla muslimska kvinnor bar hijab, och bada valen ar giltiga.', points: 3, feedback: 'Viktigt perspektiv! Det finns manga olika tolkningar inom islam och det ar viktigt att respektera individens val.' },
-                { text: 'Man bör anpassa sig efter det land man bor i och inte sticka ut.', points: 1, feedback: 'Detta ar ett perspektiv som ibland hörs, men religionsfrihet innebar just ratten att uttrycka sin tro aven om den skiljer sig fran majoritetskulturen.' }
+                { text: 'För många unga muslimska kvinnor är hijab en symbol för religiös identitet och ett eget val – inte tvång.', points: 3, feedback: 'Rätt! Många unga muslimska kvinnor i Sverige väljer att bära slöja som ett uttryck för sin identitet. Det är viktigt att också komma ihåg att det för vissa kvinnor i världen inte är ett fritt val.' },
+                { text: 'Religionsfrihet innebär att alla har rätt att uttrycka sin tro, även genom klädsel. Det skyddas av svensk lag.', points: 3, feedback: 'Precis! Religionsfriheten är en grundläggande rättighet i Sverige och i FN:s allmänna förklaring om de mänskliga rättigheterna.' },
+                { text: 'Det finns olika tolkningar av klädreglerna inom islam. Inte alla muslimska kvinnor bär hijab, och människor kan ha olika uppfattningar om vad tron kräver.', points: 3, feedback: 'Viktigt perspektiv! Det finns många olika tolkningar inom islam, och det är viktigt att inte se alla muslimer som en enda grupp.' },
+                { text: 'Man bör anpassa sig efter det land man bor i och inte sticka ut.', points: -1, feedback: 'Det är en åsikt som förekommer, men religionsfrihet innebär just rätten att uttrycka sin tro även när den skiljer sig från majoritetens.' }
             ],
-            reflection: 'Reflektera: Hur kan religiösa symboler bade starka en persons identitet och skapa missforstaand? Finns det liknande diskussioner kring andra religioners symboler?'
+            reflection: 'Reflektera: Hur kan religiösa symboler både stärka en persons identitet och skapa missförstånd? Finns det liknande diskussioner kring andra religioners symboler?'
         }
     ];
 
     let currentEtikIndex = 0;
     let etikXP = 0;
-    let etikSelectedPerspectives = [];
+    let etikSelected = [];
 
     function initEtik() {
         currentEtikIndex = 0;
         etikXP = 0;
-        etikSelectedPerspectives = [];
+        etikSelected = [];
         document.getElementById('etik-result').style.display = 'none';
+        document.getElementById('etik-points').innerHTML = '&#11088; 0 XP';
         loadEtikScenario();
     }
 
     function loadEtikScenario() {
-        if (currentEtikIndex >= etikData.length) {
-            showEtikResult();
-            return;
-        }
+        if (currentEtikIndex >= etikData.length) { showEtikResult(); return; }
 
         const s = etikData[currentEtikIndex];
-        etikSelectedPerspectives = [];
+        etikSelected = [];
 
         document.getElementById('etik-progress').textContent = 'Scenario ' + (currentEtikIndex + 1) + '/' + etikData.length;
         document.getElementById('etik-points').innerHTML = '&#11088; ' + etikXP + ' XP';
 
-        let html = '<div class="scenario-card">';
-        html += '<h4>' + s.title + '</h4>';
-        html += '<p>' + s.scenario + '</p>';
-        html += '<p style="font-weight:600;">' + s.question + '</p>';
-        html += '<div class="perspective-options">';
-        s.perspectives.forEach(function(p, i) {
-            html += '<div class="perspective-btn" id="etik-p-' + currentEtikIndex + '-' + i + '" onclick="togglePerspective(' + i + ')">' + p.text + '</div>';
-        });
-        html += '</div>';
-        html += '<div id="etik-perspective-feedback-' + currentEtikIndex + '"></div>';
-        html += '<div style="margin-top:15px;">';
-        html += '<button class="btn btn-primary" id="etik-check-btn" onclick="checkEtik()">Visa feedback</button>';
-        html += '</div>';
-        html += '<div id="etik-scenario-feedback" class="feedback" style="margin-top:15px;"></div>';
-        html += '<div class="reflection-area" id="etik-reflection" style="display:none; margin-top:20px;">';
-        html += '<h4 style="color:var(--primary); margin-bottom:10px;">&#129300; Reflektionsfraaga</h4>';
-        html += '<p style="font-style:italic;">' + s.reflection + '</p>';
-        html += '<textarea class="reflection-textarea" placeholder="Skriv dina tankar har..."></textarea>';
-        html += '<div style="margin-top:15px; text-align:right;">';
-        html += '<button class="btn btn-primary btn-small" onclick="nextEtik()">Nasta scenario &#8594;</button>';
-        html += '</div>';
-        html += '</div>';
-        html += '</div>';
+        const wrap = document.getElementById('etik-content');
+        wrap.innerHTML = '';
+        const card = document.createElement('div');
+        card.className = 'scenario-card';
+        card.innerHTML =
+            '<h3 style="margin-top:0; font-size:1.2em;"></h3>' +
+            '<p class="etik-scenario"></p>' +
+            '<p class="etik-question" style="font-weight:600;"></p>' +
+            '<div class="perspective-options" role="group" aria-label="Perspektiv"></div>' +
+            '<div style="margin-top:15px;"><button type="button" class="btn btn-primary" id="etik-check-btn">Visa feedback</button></div>' +
+            '<div id="etik-scenario-feedback" class="feedback" role="status" aria-live="polite" style="margin-top:15px;"></div>' +
+            '<div class="reflection-area" id="etik-reflection" style="display:none; margin-top:20px;">' +
+            '<h4 style="color:var(--primary); margin-bottom:10px;">&#129300; Reflektionsfråga</h4>' +
+            '<p class="etik-reflection-text" style="font-style:italic;"></p>' +
+            '<label class="sr-only" for="etik-textarea">Dina tankar</label>' +
+            '<textarea class="reflection-textarea" id="etik-textarea" placeholder="Skriv dina tankar här..."></textarea>' +
+            '<div style="margin-top:15px; text-align:right;"><button type="button" class="btn btn-primary btn-small" id="etik-next-btn"></button></div>' +
+            '</div>';
+        card.querySelector('h3').textContent = s.title;
+        card.querySelector('.etik-scenario').textContent = s.scenario;
+        card.querySelector('.etik-question').textContent = s.question;
+        card.querySelector('.etik-reflection-text').textContent = s.reflection;
+        card.querySelector('#etik-next-btn').innerHTML = (currentEtikIndex === etikData.length - 1 ? 'Se resultat' : 'Nästa scenario') + ' &#8594;';
 
-        document.getElementById('etik-content').innerHTML = html;
+        const opts = card.querySelector('.perspective-options');
+        s.perspectives.forEach(function(p, i) {
+            const b = document.createElement('div');
+            b.className = 'perspective-btn';
+            b.id = 'etik-p-' + i;
+            b.textContent = p.text;
+            makeButton(b);
+            b.setAttribute('aria-pressed', 'false');
+            b.onclick = function() { togglePerspective(i); };
+            opts.appendChild(b);
+        });
+        card.querySelector('#etik-check-btn').onclick = checkEtik;
+        card.querySelector('#etik-next-btn').onclick = nextEtik;
+        wrap.appendChild(card);
     }
 
     function togglePerspective(idx) {
-        const btn = document.getElementById('etik-p-' + currentEtikIndex + '-' + idx);
-        const pos = etikSelectedPerspectives.indexOf(idx);
-
-        if (pos === -1) {
-            etikSelectedPerspectives.push(idx);
-            btn.classList.add('selected');
-        } else {
-            etikSelectedPerspectives.splice(pos, 1);
-            btn.classList.remove('selected');
-        }
+        const btn = document.getElementById('etik-p-' + idx);
+        const pos = etikSelected.indexOf(idx);
+        if (pos === -1) etikSelected.push(idx); else etikSelected.splice(pos, 1);
+        btn.classList.toggle('selected', pos === -1);
+        btn.setAttribute('aria-pressed', pos === -1 ? 'true' : 'false');
     }
 
     function checkEtik() {
@@ -2345,62 +2628,58 @@
         let points = 0;
 
         s.perspectives.forEach(function(p, i) {
-            const btn = document.getElementById('etik-p-' + currentEtikIndex + '-' + i);
+            const btn = document.getElementById('etik-p-' + i);
+            const wasSelected = etikSelected.indexOf(i) !== -1;
             btn.classList.remove('selected');
             btn.classList.add('revealed');
             btn.style.pointerEvents = 'none';
+            btn.removeAttribute('tabindex');
 
-            const wasSelected = etikSelectedPerspectives.indexOf(i) !== -1;
-            const feedbackSpan = document.createElement('div');
-            feedbackSpan.style.marginTop = '8px';
-            feedbackSpan.style.fontSize = '0.9em';
-            feedbackSpan.style.fontStyle = 'italic';
-            feedbackSpan.style.color = 'var(--primary-dark)';
-            feedbackSpan.textContent = (wasSelected ? '(Ditt val) ' : '') + p.feedback;
-            btn.appendChild(feedbackSpan);
+            const note = document.createElement('div');
+            note.style.cssText = 'margin-top:8px; font-size:0.9em; font-style:italic; color:var(--primary-dark);';
+            note.textContent = (wasSelected ? '(Ditt val) ' : '') + p.feedback;
+            btn.appendChild(note);
 
-            if (wasSelected) {
-                points += p.points;
-            }
+            if (wasSelected) points += p.points;
         });
 
+        points = Math.max(points, 0);
         const xpEarned = Math.min(points * 5, 30);
-        etikXP += xpEarned;
-        addXP(xpEarned, 'Etiskt resonemang');
+        let gotXP = 0;
+        if (xpEarned > 0 && awardOnce('etik-' + currentEtikIndex, xpEarned, 'Etiskt resonemang')) gotXP = xpEarned;
+        etikXP += gotXP;
 
         const fb = document.getElementById('etik-scenario-feedback');
+        const xpText = gotXP > 0 ? ' +' + gotXP + ' XP' : '';
         if (points >= 6) {
-            fb.innerHTML = '<strong>Utmarkt resonemang!</strong> Du visar att du kan se flera perspektiv. +' + xpEarned + ' XP';
+            fb.innerHTML = '<strong>Utmärkt resonemang!</strong> Du visar att du kan se flera perspektiv.' + xpText;
             fb.className = 'feedback show correct';
         } else if (points >= 3) {
-            fb.innerHTML = '<strong>Bra!</strong> Du har fangat viktiga perspektiv. +' + xpEarned + ' XP';
+            fb.innerHTML = '<strong>Bra!</strong> Du har fångat viktiga perspektiv.' + xpText;
             fb.className = 'feedback show info';
         } else {
-            fb.innerHTML = '<strong>Tankvart!</strong> Las feedback under varje alternativ for att lara dig mer. +' + xpEarned + ' XP';
+            fb.innerHTML = '<strong>Tänkvärt!</strong> Läs feedbacken under varje alternativ för att lära dig mer.' + xpText;
             fb.className = 'feedback show info';
         }
 
         document.getElementById('etik-check-btn').style.display = 'none';
         document.getElementById('etik-reflection').style.display = 'block';
         document.getElementById('etik-points').innerHTML = '&#11088; ' + etikXP + ' XP';
+        setProgressMax('etik', currentEtikIndex + 1);
         markFirstExercise();
     }
 
     function nextEtik() {
         currentEtikIndex++;
-        if (currentEtikIndex >= etikData.length) {
-            showEtikResult();
-        } else {
-            loadEtikScenario();
-        }
+        loadEtikScenario();
     }
 
     function showEtikResult() {
         document.getElementById('etik-content').innerHTML = '';
         document.getElementById('etik-result').style.display = 'block';
         document.getElementById('etik-result-score').textContent = etikXP + ' XP';
-        document.getElementById('etik-result-message').textContent = 'Du har genomfort alla etiska scenarion! Att kunna se flera perspektiv ar en viktig del av religionskunskap.';
-        document.getElementById('dash-etik').textContent = '3/3';
+        document.getElementById('etik-result-message').textContent = 'Du har gått igenom alla etiska scenarier. Att kunna se flera perspektiv är en viktig del av religionskunskap.';
+        document.getElementById('etik-progress').textContent = 'Klart!';
     }
 
     function resetEtik() {
@@ -2409,7 +2688,7 @@
     }
 
     // ============================================================
-    //  INIT
+    //  START
     // ============================================================
     document.addEventListener('DOMContentLoaded', function() {
         loadState();
@@ -2420,6 +2699,9 @@
         initCompare();
         initEtik();
         updateXPDisplay();
+        renderDashboard();
+        const hash = location.hash.replace('#', '');
+        if (hash && SECTIONS.indexOf(hash) > 0) showSection(hash);
     });
     </script>
 </body>
