@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trädtäckning i Rättvik – Boverkets data</title>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<script src="vendor/leaflet/leaflet.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;display:flex;color:#1f2937}
+#panel{width:330px;min-width:330px;height:100vh;overflow-y:auto;background:#fff;border-right:1px solid #d1d5db;padding:1.1rem;z-index:1000}
+#map{flex:1;height:100vh}
+h1{font-size:1.25rem;color:#14532d;margin-bottom:.3rem}
+.lead{font-size:.85rem;color:#4b5563;margin-bottom:1rem;line-height:1.4}
+h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin:1rem 0 .4rem}
+label{display:flex;align-items:center;gap:.5rem;font-size:.9rem;padding:.25rem 0;cursor:pointer}
+.legend-row{display:flex;align-items:center;gap:.5rem;font-size:.85rem;padding:.12rem 0}
+.sw{width:22px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.2);flex:none}
+input[type=range]{width:100%}
+.stat{display:flex;gap:.5rem;margin:.5rem 0}
+.stat div{flex:1;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.5rem;text-align:center}
+.stat b{display:block;font-size:1.3rem;color:#166534}
+.stat span{font-size:.72rem;color:#4b5563}
+.src{font-size:.75rem;color:#6b7280;line-height:1.4;margin-top:1rem}
+.src a{color:#166534}
+#err{display:none;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:.5rem;border-radius:6px;font-size:.8rem;margin-top:.5rem}
+:focus-visible{outline:3px solid #1d4ed8;outline-offset:2px}
+@media(max-width:700px){body{flex-direction:column-reverse}#panel{width:100%;min-width:0;height:42vh;border-right:0;border-top:1px solid #d1d5db}#map{height:58vh}}
+</style>
+</head>
+<body>
+<aside id="panel">
+  <h1>Trädtäckning i Rättvik</h1>
+  <p class="lead">Boverkets kartläggning av träd högre än 3 meter, framtagen med laserskanning. Välj vilket lager du vill se.</p>
+
+  <div class="stat" aria-label="Nyckeltal för Rättviks tätort">
+    <div><b id="st-pct">–</b><span>trädtäckning i tätorten</span></div>
+    <div><b id="st-ha">–</b><span>hektar träd</span></div>
+  </div>
+
+  <h2>Rasterlager (välj ett)</h2>
+  <label><input type="radio" name="raster" value="klassad" checked> Trädhöjd i klasser</label>
+  <label><input type="radio" name="raster" value="binar"> Trädtäckning (träd &gt; 3 m)</label>
+  <label><input type="radio" name="raster" value="ingen"> Ingen raster</label>
+
+  <h2>Rastrets genomskinlighet</h2>
+  <input type="range" id="opacity" min="20" max="100" value="85" aria-label="Rastrets opacitet">
+
+  <h2>Områden (färgas efter trädtäckning)</h2>
+  <label><input type="checkbox" id="chk-deso" checked> Delområden (DeSo)</label>
+  <label><input type="checkbox" id="chk-tatort" checked> Tätortsgräns</label>
+
+  <h2>Teckenförklaring</h2>
+  <div id="legend-raster"></div>
+  <div id="legend-deso"></div>
+  <div id="err" role="alert"></div>
+
+  <p class="src">
+    Källa: Boverket, <a href="https://gis2.boverket.se/arcgis/rest/services/Tr%C3%A4dt%C3%A4ckningssdata/MapServer" target="_blank" rel="noopener">trädtäckningsdata</a> (rasterlager) och
+    <a href="https://gis2.boverket.se/arcgis/rest/services/Tr%C3%A4dt%C3%A4ckning_t%C3%A4torter_och_DeSo/MapServer" target="_blank" rel="noopener">trädtäckning per tätort och DeSo</a>.
+    Bakgrundskarta: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-bidragsgivare.
+    Kontrollera Boverkets licensvillkor innan du återpublicerar.
+  </p>
+</aside>
+<div id="map" role="application" aria-label="Karta över trädtäckning i Rättvik"></div>
+
+<script>
+const SERVICE = 'https://gis2.boverket.se/arcgis/rest/services/' + encodeURIComponent('Trädtäckningssdata') + '/MapServer/export';
+const RASTER = {
+  klassad: { layer: 43, legend: [['#ffffbe','3–5 m'],['#b3de84','5–10 m'],['#59bd55','10–15 m'],['#2f9d5f','15–20 m'],['#127c73','20–25 m'],['#00375b','över 25 m']], title: 'Trädhöjd' },
+  binar:   { layer: 40, legend: [['#76b82a','Träd över 3 meter']], title: 'Trädtäckning' }
+};
+const R = 6378137, ORIGIN = Math.PI * R;
+
+// Hämtar färdiga kartbilder (PNG) från Boverkets ArcGIS-tjänst, en per ruta.
+const BoverketLayer = L.TileLayer.extend({
+  initialize(layerId, options){ this._layerId = layerId; L.TileLayer.prototype.initialize.call(this, '', options); },
+  getTileUrl(c){
+    const size = (2*ORIGIN) / Math.pow(2, c.z);
+    const x0 = -ORIGIN + c.x*size, y1 = ORIGIN - c.y*size;
+    const bbox = [x0, y1-size, x0+size, y1].join(',');
+    return SERVICE + '?bbox=' + bbox + '&bboxSR=3857&imageSR=3857&size=256,256&format=png32&transparent=true&layers=show:' + this._layerId + '&f=image';
+  }
+});
+
+const map = L.map('map', { minZoom: 9, maxZoom: 18 }).setView([60.868, 15.108], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19, attribution: '© OpenStreetMap'
+}).addTo(map);
+
+let rasterLayer = null;
+let tileErrors = 0;
+function setRaster(key){
+  if (rasterLayer){ map.removeLayer(rasterLayer); rasterLayer = null; }
+  const box = document.getElementById('legend-raster');
+  if (key === 'ingen'){ box.innerHTML = ''; return; }
+  const cfg = RASTER[key];
+  rasterLayer = new BoverketLayer(cfg.layer, {
+    opacity: document.getElementById('opacity').value/100, maxZoom: 18, zIndex: 5, attribution: '© Boverket'
+  });
+  rasterLayer.on('tileerror', () => {
+    if (++tileErrors === 3){
+      const e = document.getElementById('err');
+      e.style.display = 'block';
+      e.textContent = 'Kunde inte hämta rasterbilder från Boverkets server just nu.';
+    }
+  });
+  rasterLayer.addTo(map);
+  box.innerHTML = '<h2>' + cfg.title + '</h2>' + cfg.legend.map(([c,t]) =>
+    '<div class="legend-row"><span class="sw" style="background:' + c + '"></span>' + t + '</div>').join('');
+}
+
+// Färgskala för områden (andel trädtäckning i procent)
+const STEPS = [[10,'#fef9c3'],[20,'#d9f0a3'],[30,'#addd8e'],[40,'#78c679'],[101,'#238443']];
+function pctColor(p){ for (const [max,c] of STEPS) if (p < max) return c; return STEPS[STEPS.length-1][1]; }
+document.getElementById('legend-deso').innerHTML = '<h2>Andel trädtäckning</h2>' +
+  STEPS.map(([max,c],i) => '<div class="legend-row"><span class="sw" style="background:'+c+'"></span>' +
+    (i===0 ? 'under 10 %' : i===STEPS.length-1 ? STEPS[i-1][0]+' % eller mer' : STEPS[i-1][0]+'–'+max+' %') + '</div>').join('');
+
+let desoLayer, tatortLayer;
+function toggle(layer, on){ if (!layer) return; on ? layer.addTo(map) : map.removeLayer(layer); }
+
+Promise.all([
+  fetch('rattvik-tradtackning/deso.geojson').then(r => r.json()),
+  fetch('rattvik-tradtackning/tatorter.geojson').then(r => r.json())
+]).then(([deso, tatorter]) => {
+  desoLayer = L.geoJSON(deso, {
+    style: f => ({ color:'#14532d', weight:1.5, fillColor: pctColor(f.properties.TRADTACKNING_PROCENT), fillOpacity:.35 }),
+    onEachFeature: (f, l) => {
+      const p = f.properties;
+      l.bindPopup('<b>DeSo ' + p.deso + '</b><br>Trädtäckning: <b>' + p.TRADTACKNING_PROCENT + ' %</b><br>' +
+        Math.round(p.TRADTACKNING_KVM/10000*10)/10 + ' ha träd av ' + Math.round(p.DESO_KVM/10000*10)/10 + ' ha');
+    }
+  });
+  tatortLayer = L.geoJSON(tatorter, {
+    style: { color:'#7c2d12', weight:2.5, dashArray:'6 4', fill:false },
+    onEachFeature: (f, l) => {
+      const p = f.properties;
+      l.bindPopup('<b>' + p.TATORT + ' (tätort)</b><br>Trädtäckning: <b>' + p.TRADTACKNING_PROCENT + ' %</b><br>' +
+        p.TRADTACKNING_HA + ' ha träd av ' + p.TATORT_HA + ' ha');
+    }
+  });
+  const t = tatorter.features[0].properties;
+  document.getElementById('st-pct').textContent = t.TRADTACKNING_PROCENT.toFixed(1).replace('.', ',') + ' %';
+  document.getElementById('st-ha').textContent = Math.round(t.TRADTACKNING_HA).toLocaleString('sv-SE');
+  toggle(desoLayer, document.getElementById('chk-deso').checked);
+  toggle(tatortLayer, document.getElementById('chk-tatort').checked);
+  map.invalidateSize();
+  map.fitBounds(tatortLayer.getBounds().pad(0.1), { animate: false });
+}).catch(() => {
+  const e = document.getElementById('err'); e.style.display = 'block';
+  e.textContent = 'Kunde inte läsa områdesdata.';
+});
+
+document.querySelectorAll('input[name=raster]').forEach(r => r.addEventListener('change', e => setRaster(e.target.value)));
+document.getElementById('opacity').addEventListener('input', e => rasterLayer && rasterLayer.setOpacity(e.target.value/100));
+document.getElementById('chk-deso').addEventListener('change', e => toggle(desoLayer, e.target.checked));
+document.getElementById('chk-tatort').addEventListener('change', e => toggle(tatortLayer, e.target.checked));
+setRaster('klassad');
+</script>
+</body>
+</html>

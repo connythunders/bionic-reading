@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miljöprofil Rättvik</title>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<script src="vendor/leaflet/leaflet.js"></script>
+<style>
+:root{--bg:#0f1b17;--panel:#14241e;--line:#254035;--txt:#e8f1ec;--mut:#9db5a8;--acc:#7be0a4;--warn:#ffcf6b;--no:#5b7468}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;display:flex;background:var(--bg);color:var(--txt)}
+#panel{width:380px;min-width:380px;height:100vh;overflow-y:auto;background:var(--panel);border-right:1px solid var(--line);padding:1.1rem;z-index:1000}
+#map{flex:1;height:100vh;background:#0b1410}
+h1{font-size:1.4rem;color:var(--acc);letter-spacing:.01em}
+.lead{font-size:.85rem;color:var(--mut);margin:.3rem 0 .9rem;line-height:1.45}
+h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:1.1rem 0 .45rem}
+label{display:flex;align-items:center;gap:.5rem;font-size:.88rem;padding:.2rem 0;cursor:pointer}
+.sw{width:14px;height:14px;border-radius:3px;flex:none;border:1px solid rgba(255,255,255,.3)}
+input[type=range]{width:100%;accent-color:var(--acc)}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:#1b3027;color:var(--txt);border-radius:8px;padding:.45rem .7rem;font-size:.85rem}
+button:hover{background:#244034}
+button.primary{background:var(--acc);color:#07140d;border-color:var(--acc);font-weight:600}
+.row{display:flex;gap:.4rem;flex-wrap:wrap}
+#report{background:#0f1b17;border:1px solid var(--line);border-radius:10px;padding:.7rem;font-size:.85rem;min-height:5rem}
+#report .hint{color:var(--mut);line-height:1.45}
+.hit{display:flex;gap:.5rem;padding:.4rem 0;border-top:1px solid var(--line)}
+.hit:first-of-type{border-top:0}
+.dot{width:10px;height:10px;border-radius:50%;margin-top:.3rem;flex:none}
+.hit.yes .dot{background:var(--acc);box-shadow:0 0 8px var(--acc)}
+.hit.no .dot{background:var(--no)}
+.hit.no{color:var(--mut)}
+.hit b{display:block}
+.hit small{color:var(--mut);display:block;line-height:1.35}
+.poi{display:block;width:100%;text-align:left;margin-bottom:.35rem}
+.poi small{display:block;color:var(--mut);font-size:.75rem}
+.src{font-size:.72rem;color:var(--mut);line-height:1.5;margin-top:1.1rem}
+.src a{color:var(--acc)}
+#toast{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);z-index:1200;background:rgba(10,20,16,.92);border:1px solid var(--line);color:var(--txt);padding:.7rem 1rem;border-radius:12px;max-width:min(560px,90vw);font-size:.9rem;line-height:1.45;display:none;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+#toast b{color:var(--acc)}
+.pulse{width:18px;height:18px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 0 rgba(123,224,164,.7);animation:p 1.6s infinite}
+@keyframes p{70%{box-shadow:0 0 0 22px rgba(123,224,164,0)}100%{box-shadow:0 0 0 0 rgba(123,224,164,0)}}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+:focus-visible{outline:3px solid #8ab4ff;outline-offset:2px}
+.leaflet-container{font-family:inherit}
+@media(max-width:800px){body{flex-direction:column-reverse}#panel{width:100%;min-width:0;height:48vh;border-right:0;border-top:1px solid var(--line)}#map{height:52vh}}
+</style>
+</head>
+<body>
+<aside id="panel">
+  <h1>Miljöprofil Rättvik</h1>
+  <p class="lead">Klicka var som helst på kartan. Rapporten hämtar direkt från Naturvårdsverkets och SGU:s öppna kartdatabaser och visar vad som gäller på just den platsen.</p>
+
+  <div class="row">
+    <button class="primary" id="tour" aria-label="Starta guidad rundtur">▶ Guidad tur</button>
+    <button id="stop" aria-label="Stoppa rundtur">■ Stopp</button>
+    <button id="loc">Min plats</button>
+  </div>
+
+  <h2>Rapport för vald plats</h2>
+  <div id="report" aria-live="polite"><p class="hint">Ingen plats vald än. Klicka på kartan – gärna vid Siljans strand. Två ringar visar 100 m och 300 m, strandskyddets avstånd.</p></div>
+
+  <h2>Lager</h2>
+  <label><input type="radio" name="base" value="sat" checked> Satellit</label>
+  <label><input type="radio" name="base" value="topo"> Terräng (OpenTopoMap)</label>
+  <label><input type="radio" name="base" value="osm"> Vanlig karta</label>
+  <div id="layers"></div>
+  <label><input type="checkbox" id="chk-ring" checked><span class="sw" style="background:#ff7a59"></span> Siljansringen (meteoritkrater)</label>
+  <h2>Genomskinlighet, datalager</h2>
+  <input type="range" id="op" min="20" max="100" value="70" aria-label="Genomskinlighet för datalager">
+
+  <h2>Platser att visa</h2>
+  <div id="pois"></div>
+
+  <p class="src">Källor: <a href="https://geodata.naturvardsverket.se/" target="_blank" rel="noopener">Naturvårdsverket geodata</a> (naturreservat, Natura 2000, vattenskyddsområden, naturtypskartan), <a href="https://apps.sgu.se/geolagret/" target="_blank" rel="noopener">SGU Geolagret</a> (jordarter, grundvattnets sårbarhet), Esri World Imagery, OpenTopoMap, © OpenStreetMap-bidragsgivare. Rapporten är en snabbindikation, inte ett myndighetsbeslut: kontrollera alltid mot gällande beslut.</p>
+</aside>
+<div id="map" role="application" aria-label="Karta över Rättvik"></div>
+<div id="toast" role="status"></div>
+
+<script>
+const NV='https://geodata.naturvardsverket.se/geoserver/ows';
+const SGU='https://maps3.sgu.se/geoserver/ows';
+const START=[60.8895,15.1190];
+
+const map=L.map('map',{zoomControl:true,maxZoom:18}).setView([60.93,15.05],10);
+const bases={
+  sat:L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18,attribution:'Esri World Imagery'}),
+  topo:L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',{maxZoom:17,attribution:'© OpenTopoMap, OSM'}),
+  osm:L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'})
+};
+let base=bases.sat.addTo(map);
+document.querySelectorAll('input[name=base]').forEach(r=>r.addEventListener('change',e=>{map.removeLayer(base);base=bases[e.target.value].addTo(map);base.bringToBack()}));
+
+// Datalager: {id, namn, färg, url, lager, frågelager, på}
+const DATA=[
+ {id:'nr',n:'Naturreservat',c:'#3fbf6f',u:NV,l:'ps-nvr:PS.ProtectedSites.NR',on:true,what:'Naturreservat'},
+ {id:'n2k',n:'Natura 2000',c:'#4aa3ff',u:NV,l:'ps-n2k:PS.ProtectedSites.Natura2000',on:true,what:'Natura 2000-område'},
+ {id:'vs',n:'Vattenskyddsområden',c:'#38d5e8',u:NV,l:'am-restriction:AM.drinkingWaterProtectionArea',on:true,what:'Vattenskyddsområde'},
+ {id:'nnk',n:'Naturtyper (Naturtypskartan)',c:'#c78bff',u:NV,l:'hb-nnk:HB.Naturanaturtypskartan.Ytor',on:false,what:'Kartlagd naturtyp'},
+ {id:'jord',n:'Jordarter (SGU)',c:'#d9a066',u:SGU,l:'jord:SE.GOV.SGU.JORD.GRUNDLAGER.25K',on:false,what:'Jordart (SGU 1:25 000)'},
+ {id:'gv',n:'Grundvattnets sårbarhet (SGU)',c:'#ff8f8f',u:SGU,l:'grundvatten:SE.GOV.SGU.GRUNDVATTEN.SARBARHET_3KL',on:false,what:'Grundvattnets sårbarhet'}
+];
+const wms={};
+const box=document.getElementById('layers');
+DATA.forEach(d=>{
+  wms[d.id]=L.tileLayer.wms(d.u,{layers:d.l,format:'image/png',transparent:true,version:'1.1.1',opacity:.7,attribution:d.u===NV?'Naturvårdsverket':'SGU'});
+  const lab=document.createElement('label');
+  lab.innerHTML=`<input type="checkbox" ${d.on?'checked':''}><span class="sw" style="background:${d.c}"></span> ${d.n}`;
+  lab.querySelector('input').addEventListener('change',e=>e.target.checked?wms[d.id].addTo(map):map.removeLayer(wms[d.id]));
+  box.appendChild(lab);
+  if(d.on) wms[d.id].addTo(map);
+});
+document.getElementById('op').addEventListener('input',e=>DATA.forEach(d=>wms[d.id].setOpacity(e.target.value/100)));
+
+// Siljansringen: ca 52 km i diameter, centrum nära Siljan
+const ring=L.circle([61.04,14.87],{radius:26000,color:'#ff7a59',weight:2,dashArray:'8 8',fill:false,interactive:false}).addTo(map);
+document.getElementById('chk-ring').addEventListener('change',e=>e.target.checked?ring.addTo(map):map.removeLayer(ring));
+
+// Platser
+const POIS=[
+ {n:'Rättvik och Långbryggan',lat:60.8745,lon:15.1190,z:14,t:'Långbryggan är 628 m lång och byggdes 1895 för ångbåten S/S Rättvik. Rättviks tätort ligger precis vid Siljans strand – där strandskyddet möter bebyggelsen.'},
+ {n:'Siljan',lat:60.869,lon:14.796,z:10,t:'293 km², största djup 134 m, 161 m ö.h. Vattenförekomst SE673490-145597. Enligt uppgift måttlig ekologisk status och god kemisk status (exkl. kvicksilver) – kontrollera aktuell klassning i VISS.'},
+ {n:'Siljansringen',lat:61.033,lon:14.867,z:9,t:'Europas största kända nedslagsstruktur: en 5 km stor kropp slog ned för ca 377 miljoner år sedan. Dagens ring är ca 52 km i diameter (ursprungligen 60–65 km). Bekräftades först 1971. Därför ser Siljan ut som en ring av vatten och kalkberg.'},
+ {n:'Dalhalla',lat:60.9485,lon:15.1043,z:15,t:'Gammalt kalkbrott (ca 400 × 175 × 60 m) som blev scen 1995 för ca 6 000 åskådare. Ett exempel på hur kalkbrytningen, som nedslaget gjorde möjlig, fått nytt liv.'},
+ {n:'Enån naturreservat',lat:60.900,lon:15.140,z:14,t:'Ca 4 km av ån nordost om Rättvik, mycket använt för friluftsliv. Reservat sedan 2017 (länsstyrelsen). Klicka i området och se rapporten få en träff.'},
+ {n:'Amtjärnsbrottet naturreservat',lat:60.938,lon:15.077,z:16,t:'Nedlagt kalkbrott på 3 ha, kommunalt naturreservat sedan 2002, skyddat för geologi och fossil – ca 6 km norr om Rättvik.'},
+ {n:'Rättviks kommun i siffror',lat:60.883,lon:15.133,z:9,t:'2 139 km², varav 218 km² vatten (ca 10 %). Enligt Wikipedia 27 naturreservat 2024 (25 länsstyrelse, 2 kommunala) – siffran skiljer sig mellan källor.'}
+];
+const poiBox=document.getElementById('pois');
+const poiMarkers=[];
+POIS.forEach((p,i)=>{
+  const m=L.circleMarker([p.lat,p.lon],{radius:7,color:'#07140d',weight:2,fillColor:'#7be0a4',fillOpacity:1}).addTo(map).bindTooltip(p.n);
+  m.on('click',()=>go(i));
+  const b=document.createElement('button');b.className='poi';b.innerHTML=`${p.n}<small>${p.t}</small>`;b.onclick=()=>{stopTour();go(i)};
+  poiBox.appendChild(b);poiMarkers.push(m);
+});
+const toast=document.getElementById('toast');
+function go(i){
+  const p=POIS[i];
+  map.flyTo([p.lat,p.lon],p.z||13,{duration:2.2});
+  toast.innerHTML=`<b>${p.n}</b><br>${p.t}`;toast.style.display='block';
+}
+let tourTimer=null,ti=0;
+function stopTour(){clearTimeout(tourTimer);tourTimer=null;}
+function step(){go(ti%POIS.length);ti++;tourTimer=setTimeout(step,7500)}
+document.getElementById('tour').onclick=()=>{stopTour();ti=0;if(POIS.length)step()};
+document.getElementById('stop').onclick=()=>{stopTour();toast.style.display='none'};
+map.on('dragstart',stopTour);
+
+// Rapport vid klick
+let mk=null,c1=null,c2=null,seq=0;
+function infoUrl(d,lat,lng){
+  const e=0.0004,bbox=[lng-e,lat-e,lng+e,lat+e].join(',');
+  return `${d.u}?service=WMS&version=1.1.1&request=GetFeatureInfo&layers=${encodeURIComponent(d.l)}&query_layers=${encodeURIComponent(d.l)}&styles=&srs=EPSG:4326&bbox=${bbox}&width=101&height=101&x=50&y=50&feature_count=3&info_format=application/json`;
+}
+function label(props){
+  const keys=Object.keys(props);
+  const pick=re=>keys.find(k=>re.test(k)&&props[k]!=null&&String(props[k]).trim()!=='');
+  const name=pick(/^(namn|name|nam|omrade|områdesnamn|NAMN|benamning|beteckning)/i)||pick(/namn|name/i);
+  const typ=['^jordart$','^sarbarhet$','^skyddstyp$','kategori','^typ','beskr','klass'].map(s=>pick(new RegExp(s,'i'))).find(Boolean);
+  const a=name?props[name]:null,b=typ&&typ!==name?props[typ]:null;
+  return [a,b].filter(Boolean).join(' · ')||'Träff (inga namn i data)';
+}
+async function ask(d,lat,lng){
+  try{
+    const r=await fetch(infoUrl(d,lat,lng));
+    if(!r.ok)throw new Error(r.status);
+    const j=await r.json();
+    const f=(j.features||[]);
+    return {d,ok:true,items:f.map(x=>label(x.properties||{}))};
+  }catch(e){return {d,ok:false,items:[]}}
+}
+map.on('click',async ev=>{
+  stopTour();toast.style.display='none';
+  const {lat,lng}=ev.latlng,my=++seq;
+  if(mk)map.removeLayer(mk);if(c1)map.removeLayer(c1);if(c2)map.removeLayer(c2);
+  mk=L.marker(ev.latlng,{icon:L.divIcon({className:'',html:'<div class="pulse"></div>',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(map);
+  c1=L.circle(ev.latlng,{radius:100,color:'#ffcf6b',weight:2,fillOpacity:.08,interactive:false}).addTo(map).bindTooltip('100 m',{permanent:true,direction:'top'});
+  c2=L.circle(ev.latlng,{radius:300,color:'#ff9f45',weight:1.5,dashArray:'6 6',fillOpacity:.03,interactive:false}).addTo(map);
+  const rep=document.getElementById('report');
+  rep.innerHTML=`<p class="hint">Frågar Naturvårdsverket och SGU…</p>`;
+  const res=await Promise.all(DATA.map(d=>ask(d,lat,lng)));
+  if(my!==seq)return;
+  const hits=res.filter(r=>r.items.length).length;
+  rep.innerHTML=`<p style="margin-bottom:.5rem"><b>${lat.toFixed(5)}° N, ${lng.toFixed(5)}° E</b><br><small style="color:var(--mut)">${hits} av ${res.length} datalager har träff här</small></p>`+
+   res.map(r=>{
+     if(!r.ok)return `<div class="hit no"><span class="dot"></span><div><b>${r.d.what}</b><small>Tjänsten svarade inte</small></div></div>`;
+     if(!r.items.length)return `<div class="hit no"><span class="dot"></span><div><b>${r.d.what}</b><small>Ingen träff</small></div></div>`;
+     const uniq=[...new Set(r.items)];
+     return `<div class="hit yes"><span class="dot"></span><div><b>${r.d.what}</b><small>${uniq.map(s=>s.replace(/</g,'&lt;')).join('<br>')}</small></div></div>`;
+   }).join('')+
+   `<p class="hint" style="margin-top:.5rem">Ringarna: generellt strandskydd 100 m (upp till 300 m där det beslutats) – mät mot strandlinjen.</p>`;
+});
+
+document.getElementById('loc').onclick=()=>navigator.geolocation&&navigator.geolocation.getCurrentPosition(p=>map.flyTo([p.coords.latitude,p.coords.longitude],14),()=>{});
+</script>
+</body>
+</html>
