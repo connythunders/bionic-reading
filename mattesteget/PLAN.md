@@ -100,7 +100,12 @@ Lesson  = { id, title, goal: RichText, representation: 'numberLine'|'fractionBar
 Step    = WorkedExample | GuidedStep | Practice | InteractiveStep
 
 WorkedExample = { type:'workedExample', id, structure, prompt: RichText,
-                  steps: { text: RichText, formula?: Formula }[], answer: Answer, fading?: 0|1|2 }
+                  steps: { text: RichText, formula?: Formula, ask?: RichText, answer?: Answer }[],
+                  answer: Answer, fading?: 0|1|2 }
+                  // De sista `fading` stegen döljs för eleven, som svarar på `ask` med facit `answer`.
+                  // Lektion: draft?: true undantar den från minimikraven (skelett). Praktik: parallel är valfri;
+                  // ledtråd 4 väljer annars nästa uppgift med samma strukturtagg.
+                  // RichText med %, /, =, +, ×, ÷ eller "kr" kräver egen talversion (speak).
 GuidedStep    = { type:'guidedStep', id, structure, prompt: RichText,
                   parts: { prompt: RichText, answer: Answer, hint?: RichText }[] }
 Practice      = { type:'practice', id, structure, itemType, context, prompt: RichText, answer: Answer,
