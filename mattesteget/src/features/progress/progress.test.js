@@ -200,8 +200,14 @@ test('Dagens pass: repetition som är dags kommer först, lägst låda först', 
   assert.ok(s.dueCount >= 2);
 });
 
-test('Dagens pass: uppgifter som setts längst sedan väljs först, och parallella versioner används när alla gjorts', async () => {
+/** Bara första lektionen i Procent, så att testerna inte beror på hur många lektioner som finns. */
+async function firstLessonOnly() {
   const { modules } = await loadRealContent();
+  return modules.map((m) => (m.id === 'procent-vardag' ? { ...m, lessons: m.lessons.slice(0, 1) } : m));
+}
+
+test('Dagens pass: uppgifter som setts längst sedan väljs först, och parallella versioner används när alla gjorts', async () => {
+  const modules = await firstLessonOnly();
   const types = new Map([['procent-av-tal', { box: 2, due: DAY, lastSeen: DAY, reviews: 1 }]]);
   const items = new Map([
     ['pv1-p1', { lastSeen: '2026-11-09', reviews: 0 }],
@@ -221,7 +227,7 @@ test('Dagens pass: uppgifter som setts längst sedan väljs först, och parallel
 });
 
 test('Dagens pass: en uppgift som gjorts ett udda antal gånger visas som parallell version', async () => {
-  const { modules } = await loadRealContent();
+  const modules = await firstLessonOnly();
   const types = new Map([['procent-fran-delen', { box: 2, due: DAY, lastSeen: DAY, reviews: 1 }]]);
   const items = new Map([['pv1-p6', { lastSeen: DAY, reviews: 1 }]]);
   const s = buildSession({ modules, items, types, today: DAY, size: 2 });

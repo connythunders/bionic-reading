@@ -1,6 +1,6 @@
 // Skapas av tools/precache.ps1. Redigera inte fÃ¶r hand.
 self.PRECACHE = {
-  version: "b1131d0145b9",
+  version: "4731465767cb",
   files: [
     "content/glossary.json",
     "content/index.json",
