@@ -4,12 +4,15 @@ import { h } from '../lib/dom.js';
 import { settingsView } from '../features/settings/settingsPage.js';
 import { createLessonPlayer } from '../features/lesson/lessonPlayer.js';
 import { createSpeech } from '../features/tts/speech.js';
+import { dailyView } from '../features/practice/dailySession.js';
+import { journeyView } from '../features/progress/myJourney.js';
 
 /**
  * @typedef {{
  *   settings: ReturnType<typeof import('../features/settings/settingsStore.js').createSettingsStore>,
  *   content?: { modules: any[], errors: string[] },
- *   speech?: ReturnType<typeof import('../features/tts/speech.js').createSpeech>
+ *   speech?: ReturnType<typeof import('../features/tts/speech.js').createSpeech>,
+ *   progress?: ReturnType<typeof import('../features/progress/progressStore.js').createProgress>
  * }} Ctx
  * @typedef {{ title: string, el: HTMLElement, dispose?: () => void }} View
  */
@@ -102,7 +105,10 @@ export function lessonView(ctx, params) {
   const lesson = (ctx.content?.modules ?? []).flatMap((m) => m.lessons).find((/** @type {any} */ l) => l.id === params.lessonId);
   if (!lesson) return notFoundView();
   const speech = ctx.speech ?? createSpeech({ synth: null });
-  const player = createLessonPlayer(lesson, { speech, settings: ctx.settings });
+  const player = createLessonPlayer(lesson, {
+    speech, settings: ctx.settings,
+    onStep: (step, info) => ctx.progress?.recordStep({ id: step.id, type: step.type, itemType: step.itemType }, info),
+  });
   return {
     title: lesson.title,
     el: h('div', null,
@@ -135,10 +141,10 @@ export { notFoundView };
  */
 export const routes = [
   { path: '/', name: 'Start', nav: false, view: () => homeView() },
-  { path: '/idag', name: 'Dagens pass', nav: true, view: () => placeholder('Dagens pass', 'Den här delen är inte klar än.') },
+  { path: '/idag', name: 'Dagens pass', nav: true, view: (ctx) => dailyView(ctx) },
   { path: '/moduler', name: 'Moduler', nav: true, view: (ctx) => modulesView(ctx) },
   { path: '/lektion/:lessonId', name: 'Lektion', nav: false, view: (ctx, params) => lessonView(ctx, params) },
-  { path: '/min-resa', name: 'Min resa', nav: true, view: () => placeholder('Min resa', 'Den här delen är inte klar än.') },
+  { path: '/min-resa', name: 'Min resa', nav: true, view: (ctx) => journeyView(ctx) },
   { path: '/installningar', name: 'Inställningar', nav: true, view: (ctx) => settingsView(ctx) },
   { path: '/hjalp', name: 'Hjälp', nav: false, view: () => helpView() },
 ];
