@@ -3,7 +3,7 @@
 import { h, createScope } from '../../lib/dom.js';
 import { formatAnswer } from '../../lib/answers.js';
 import { richToPlain } from '../../lib/richText.js';
-import { initialState, currentView, canContinue, reduce, PHASES } from './lessonFlow.js';
+import { initialState, currentView, canContinue, reduce, PHASES, HINT_LEVELS } from './lessonFlow.js';
 import { feedbackFor } from './feedbackText.js';
 import { renderRich, renderFormula } from './richView.js';
 import { createAnswerForm } from './answerForm.js';
@@ -12,6 +12,7 @@ import { createVoiceNotice } from '../tts/voiceNotice.js';
 import { createSpeedControl } from '../tts/speedControl.js';
 import { createSpeech } from '../tts/speech.js';
 import { createRepresentation } from '../interactives/representation.js';
+import { createHintLadder } from './hintLadder.js';
 
 /**
  * @param {any} lesson
@@ -62,7 +63,10 @@ export function createLessonPlayer(lesson, deps = {}) {
       speech.stop();
     }
     if (state === before) return;
-    render(action.type);
+    render(action.type === 'hint' ? 'hintlevel' : action.type);
+    // Nivå 1 i ledtrådstrappan: läs upp uppgiften igen. Utan svensk röst visas bara texten igen,
+    // så att fokus inte hoppar till röstmeddelandet.
+    if (action.type === 'hint' && state.hintLevel === 1 && speech.getState().support === 'ready') void primary?.speak();
   }
 
   /** @param {any[]} steps @param {number} count */
@@ -79,11 +83,12 @@ export function createLessonPlayer(lesson, deps = {}) {
     );
   }
 
-  /** @param {any} view @param {string} cause @returns {{ nodes: any[], input?: { focus: () => void }, cont?: HTMLElement }} */
+  /** @param {any} view @param {string} cause @returns {{ nodes: any[], input?: { focus: () => void }, cont?: HTMLElement, ladder?: { focusLatest: () => void } }} */
   function questionBlock(view, cause) {
     const q = view.question;
     const locked = canContinue(state);
-    const talk = say(q.label, 'frågan', { primary: view.kind === 'practice' });
+    const ladderQuestion = view.kind === 'practice'; // bara vanliga övningsuppgifter har ledtrådstrappa
+    const talk = say(q.label, 'frågan', { primary: view.kind === 'practice' || view.kind === 'parallel' });
     // Visas svaret på en tallinje ska markören stå på rätt plats.
     const shownValue = state.result === 'revealed' && q.answer.kind === 'numberLine' ? String(q.answer.target) : lastInput;
     const form = createAnswerForm({
@@ -94,7 +99,7 @@ export function createLessonPlayer(lesson, deps = {}) {
     const nodes = [talk.controls, form.el];
 
     if (state.result) {
-      const fb = feedbackFor(state.result, { attempts: state.attempts, answer: q.answer });
+      const fb = feedbackFor(state.result, { attempts: state.attempts, answer: q.answer, ladder: ladderQuestion, hintLevel: state.hintLevel });
       const message = state.result === 'incorrect' && state.matched ? state.matched.message : null;
       nodes.push(h('div', { class: `feedback ${fb.tone}`, 'aria-hidden': 'true' },
         message ? h('p', null, renderRich(message)) : h('p', null, fb.text),
@@ -115,17 +120,28 @@ export function createLessonPlayer(lesson, deps = {}) {
       ));
     }
 
+    /** @type {{ focusLatest: () => void } | undefined} */
+    let ladder;
+    if (ladderQuestion) {
+      ladder = createHintLadder({
+        step: view.step, level: state.hintLevel, locked,
+        say, solutionList, onHint: () => dispatch({ type: 'hint' }),
+      });
+      nodes.push(/** @type {any} */ (ladder).el);
+      if (cause === 'hintlevel') live.textContent = HINT_LEVELS[state.hintLevel - 1].announce;
+    }
+
     /** @type {HTMLElement | undefined} */
     let cont;
     if (canContinue(state)) {
       cont = h('button', { type: 'button', class: 'btn', onclick: () => dispatch({ type: 'next' }) }, 'Fortsätt');
       nodes.push(h('div', { class: 'actions' }, cont));
-    } else if (state.attempts > 0) {
+    } else if (state.attempts > 0 && !ladderQuestion) {
       nodes.push(h('div', { class: 'actions' },
         h('button', { type: 'button', class: 'btn btn-secondary', onclick: () => dispatch({ type: 'reveal' }) }, 'Visa svaret'),
       ));
     }
-    return { nodes, input: form, cont };
+    return { nodes, input: form, cont, ladder };
   }
 
   /** @param {any} step */
@@ -163,6 +179,8 @@ export function createLessonPlayer(lesson, deps = {}) {
     let input;
     /** @type {HTMLElement | undefined} */
     let cont;
+    /** @type {{ focusLatest: () => void } | undefined} */
+    let ladder;
 
     if (view.kind === 'workedStatic') {
       body.push(
@@ -189,17 +207,21 @@ export function createLessonPlayer(lesson, deps = {}) {
       body.push(...q.nodes);
       input = q.input;
       cont = q.cont;
+      ladder = q.ladder;
     }
 
     const n = lesson.steps.length;
     screen.replaceChildren(
       h('p', { class: 'stepper' }, `Steg ${state.stepIndex + 1} av ${n}`),
       heading,
-      h('p', { class: 'lead' }, phase.intro),
+      h('p', { class: 'lead' }, view.intro ?? phase.intro),
       ...body,
     );
 
-    if (cause === 'answer' && !canContinue(state)) input?.focus();
+    if (cause === 'hintlevel') {
+      // Flytta fokus till den nya hjälpen, så att skärmläsare läser den. På nivå 4 finns "Fortsätt".
+      ladder?.focusLatest();
+    } else if (cause === 'answer' && !canContinue(state)) input?.focus();
     else if (cont && (cause === 'answer' || cause === 'reveal')) cont.focus();
     else if (cause === 'hint') input?.focus();
     else if (cause !== 'init') heading.focus();

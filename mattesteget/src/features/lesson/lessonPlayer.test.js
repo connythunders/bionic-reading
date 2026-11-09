@@ -97,10 +97,14 @@ test('spelare: hela lektionen går att klara och slutar med en avslutsskärm', a
       if (root.querySelector('h2')?.textContent === 'Lektionen är klar') break;
       const input = root.querySelector('input.answer-input');
       if (input) {
-        // Svara med facit: leta upp det via "Visa svaret" så att testet inte duplicerar innehållet.
+        // Ge upp: visa svaret, eller (på övningsuppgifter) gå hela ledtrådstrappan.
         answer(root, 'abc');
         answer(root, '-99999');
-        button(root, 'Visa svaret')?.click();
+        const showAnswer = button(root, 'Visa svaret');
+        if (showAnswer) showAnswer.click();
+        else {
+          for (const label of ['Läs upp uppgiften igen', 'Visa en bild', 'Visa första steget', 'Visa hela lösningen']) button(root, label)?.click();
+        }
       }
       button(root, 'Fortsätt')?.click();
     }

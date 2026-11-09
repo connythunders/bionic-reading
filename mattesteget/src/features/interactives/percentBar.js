@@ -18,7 +18,7 @@ const spokenUnit = (unit) => (unit === 'kr' ? 'kronor' : unit);
  * }} o
  * @returns {{ el: HTMLElement, getPercent: () => number, setPercent: (p: number) => void, thumb: HTMLElement | null }}
  */
-export function createPercentBar({ whole, percent, part, unit = 'kr', hideWhole = false, hidePercent = false, interactive = false, step = 5, onChange }) {
+export function createPercentBar({ whole, percent, part, unit = 'kr', hideWhole = false, hidePercent = false, hideAmount = false, interactive = false, step = 5, onChange }) {
   let current = percent ?? (part !== undefined ? (part / whole) * 100 : 0);
   const amountOf = (/** @type {number} */ p) => (whole * p) / 100;
   const money = (/** @type {number} */ v) => `${formatNumber(Math.round(v * 100) / 100)} ${unit}`;
@@ -29,7 +29,8 @@ export function createPercentBar({ whole, percent, part, unit = 'kr', hideWhole 
   for (const p of [0, 25, 50, 75, 100]) {
     const label = h('span', { class: 'pb-tick' },
       h('span', null, `${p} %`),
-      h('span', null, hideWhole && p > 0 ? '?' : money(amountOf(p))),
+      // hideAmount: bilden ska hjälpa utan att avslöja svaret, så bara 0 och helheten visas.
+      h('span', null, hideWhole && p > 0 ? '?' : hideAmount && p > 0 && p < 100 ? '' : money(amountOf(p))),
     );
     label.style.left = `${p}%`;
     scale.append(label);
@@ -43,10 +44,11 @@ export function createPercentBar({ whole, percent, part, unit = 'kr', hideWhole 
   const texts = () => {
     const p = hidePercent && !interactive ? '?' : formatNumber(Math.round(current * 100) / 100);
     const w = hideWhole ? '?' : money(whole);
-    const a = hideWhole && !interactive ? '?' : money(amountOf(current));
+    const unknownAmount = (hideWhole || hideAmount) && !interactive;
+    const a = unknownAmount ? '?' : money(amountOf(current));
     return {
       visual: `${p} % av ${w} är ${a}.`,
-      spoken: `${hidePercent && !interactive ? 'okänt antal' : p} procent av ${hideWhole ? 'okänt belopp' : `${formatNumber(whole)} ${spokenUnit(unit)}`} är ${hideWhole && !interactive ? 'okänt' : `${formatNumber(Math.round(amountOf(current) * 100) / 100)} ${spokenUnit(unit)}`}.`,
+      spoken: `${hidePercent && !interactive ? 'okänt antal' : p} procent av ${hideWhole ? 'okänt belopp' : `${formatNumber(whole)} ${spokenUnit(unit)}`} är ${unknownAmount ? 'okänt' : `${formatNumber(Math.round(amountOf(current) * 100) / 100)} ${spokenUnit(unit)}`}.`,
     };
   };
 

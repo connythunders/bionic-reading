@@ -211,7 +211,7 @@ test('lektion med tallinje: placera markören med knappar och få återkoppling'
     assert.equal(live(), 'Placera markören på tallinjen och tryck på Kontrollera.');
     for (let i = 0; i < 3; i++) button(root, 'Åt höger').click();
     button(root, 'Kontrollera').click();
-    assert.equal(live(), 'Inte riktigt. Prova igen.');
+    assert.equal(live(), 'Inte riktigt. Prova igen, eller vill du höra uppgiften igen?');
     for (let i = 0; i < 4; i++) button(root, 'Åt höger').click();
     button(root, 'Kontrollera').click();
     assert.equal(live(), 'Rätt. Bra jobbat.');
