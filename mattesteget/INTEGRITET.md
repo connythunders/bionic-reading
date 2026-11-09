@@ -35,7 +35,9 @@ Under Min resa finns knappen "Ta bort mina uppgifter". Den tar bort allt som Mat
 
 ## Externa tjänster
 
-Inga. Typsnitt och allt annat som appen behöver ligger i appen själv. Första gången laddas appen från webbservern. Därefter fungerar den utan internet (från steg 10).
+Inga. Typsnitt och allt annat som appen behöver ligger i appen själv. Första gången laddas appen från webbservern. Därefter sparas appens filer på enheten (en så kallad service worker), och appen fungerar helt utan internet. Service workern anropar aldrig någon annan adress än appens egen, och den sparar inga personuppgifter, bara appens egna filer.
+
+När det finns en ny version av appen får du ett meddelande och väljer själv när du vill uppdatera.
 
 ## För skolans IT
 

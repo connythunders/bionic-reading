@@ -16,12 +16,15 @@ Dyslexi- och dyskalkylivänlig övningsapp (PWA) för gymnasieelever. Se `PLAN.m
 
 ```powershell
 ./tools/serve.ps1        # lokal server på http://localhost:8080/mattesteget/ (Ctrl+C stoppar)
-./tools/precache.ps1     # skriver om precache.json och höjer cache-versionen i sw.js
+./tools/precache.ps1     # skriver om precache.js (fillista + versionshash för offline)
+./tools/make-icons.ps1   # ritar om PNG-ikonerna i icons/
 ```
 
 - **Tester:** öppna `http://localhost:8080/mattesteget/tests/index.html`. Alla tester ska vara gröna.
 - **CI (GitHub Actions, Node i molnet):** `node tests/run-node.mjs`, `tsc --noEmit --checkJs`, Playwright + axe. Kör inte dessa lokalt.
-- Efter ändring av filer som ska cachas offline: kör `precache.ps1`.
+- **Efter varje ändring av en fil som följer med offline** (allt utom tester, verktyg, `*.md`, `sw.js`, `precache.js`): kör `./tools/precache.ps1`. Annars misslyckas testet "precache.js är inte gammal", och elever som har appen installerad får inte den nya versionen.
+- **Prova offline lokalt:** service workern registreras på localhost bara med `?sw=1` i adressen (annars cachar den gamla filer under utveckling). Stäng av servern och ladda om sidan för att se att allt fungerar. Avregistrera den efteråt (DevTools, Application, Service Workers).
+- Nya filer som ska följa med offline hamnar automatiskt i listan när du kör `precache.ps1`. Reglerna för vad som utesluts finns både i `precache.ps1` och i `tests/precacheHash.js` och ska vara lika.
 
 ## Stack och konventioner
 

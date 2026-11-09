@@ -8,6 +8,7 @@ import { loadContent, fetchReader } from './lib/contentLoader.js';
 import { createSpeech } from './features/tts/speech.js';
 import { createProgress } from './features/progress/progressStore.js';
 import { createBestBackend } from './features/progress/db.js';
+import { registerServiceWorker } from './app/pwa.js';
 import { createTeacherCode } from './features/teacher/teacherCode.js';
 import { createStudentsStore } from './features/teacher/studentsStore.js';
 
@@ -41,4 +42,6 @@ const root = document.getElementById('app');
 if (root) {
   const layout = buildLayout(root, routes, { speech, settings });
   startRouter({ routes, layout, ctx: { settings, content, speech, progress, teacher } });
+  // Offline: sparar appens filer på enheten efter första besöket.
+  void registerServiceWorker({ onUpdate: (apply) => layout.offerUpdate(apply) });
 }

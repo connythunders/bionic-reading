@@ -21,6 +21,10 @@ cd mattesteget
 - `INTEGRITET.md` – vad som sparas och var
 - `src/ai/README.md` – hur en framtida AI-tutor kan kopplas in
 
+## Offline och installation
+
+Appen är en PWA: efter första besöket sparas filerna på enheten och appen fungerar utan internet. Den kan installeras från webbläsaren (till exempel i Chrome på Chromebook eller Android). Listan över filer som sparas står i `precache.js` och skapas av `./tools/precache.ps1`. Kör skriptet efter varje ändring av appens filer.
+
 ## Publicering
 
 Mappen publiceras som den är av GitHub Pages på `bionicreading.se/mattesteget/`. GitHub Actions kör testerna i molnet.

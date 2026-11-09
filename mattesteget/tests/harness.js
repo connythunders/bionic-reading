@@ -1,16 +1,16 @@
 // @ts-check
 // Minimal testkörare som fungerar i både webbläsare (tests/index.html) och Node (CI).
 
-/** @type {{ name: string, fn: () => void | Promise<void>, browserOnly: boolean }[]} */
+/** @type {{ name: string, fn: () => void | Promise<void>, browserOnly: boolean, nodeOnly: boolean }[]} */
 export const registry = [];
 
 /**
  * @param {string} name
  * @param {() => void | Promise<void>} fn
- * @param {{ browserOnly?: boolean }} [opts]
+ * @param {{ browserOnly?: boolean, nodeOnly?: boolean }} [opts]  nodeOnly: kräver filsystemet (körs i CI)
  */
 export function test(name, fn, opts = {}) {
-  registry.push({ name, fn, browserOnly: !!opts.browserOnly });
+  registry.push({ name, fn, browserOnly: !!opts.browserOnly, nodeOnly: !!opts.nodeOnly });
 }
 
 export const assert = {
@@ -55,7 +55,7 @@ export async function runAll({ isBrowser }) {
   /** @type {{ name: string, status: 'ok' | 'fail' | 'skip', error?: string }[]} */
   const results = [];
   for (const t of registry) {
-    if (t.browserOnly && !isBrowser) {
+    if ((t.browserOnly && !isBrowser) || (t.nodeOnly && isBrowser)) {
       results.push({ name: t.name, status: 'skip' });
       continue;
     }

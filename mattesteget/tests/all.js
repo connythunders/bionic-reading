@@ -20,3 +20,4 @@ import '../src/features/lesson/lessonPlayer.test.js';
 import '../src/app/views.test.js';
 import './styles.test.js';
 import './content.test.js';
+import './pwa.test.js';

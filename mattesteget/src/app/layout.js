@@ -32,15 +32,32 @@ export function buildLayout(root, routes, extras = {}) {
     h('a', { class: 'btn btn-secondary help-link', href: '#/hjalp', 'data-path': '/hjalp' }, 'Hjälp'),
   );
 
+  // Meddelande när en ny version finns. Eleven väljer själv när hen vill uppdatera.
+  /** @type {(() => void) | null} */
+  let applyUpdate = null;
+  const updateBar = h('div', { class: 'update-bar', role: 'status', hidden: true },
+    h('p', null, 'Det finns en ny version av Mattesteget. Uppdatera när det passar dig, helst inte mitt i en uppgift.'),
+    h('div', { class: 'actions' },
+      h('button', { type: 'button', class: 'btn', onclick: () => applyUpdate?.() }, 'Uppdatera nu'),
+      h('button', { type: 'button', class: 'btn btn-secondary', onclick: () => { updateBar.hidden = true; } }, 'Senare'),
+    ),
+  );
+
   // Innehåll och miniräknare ligger bredvid varandra på breda skärmar och under varandra på smala.
   const workspace = h('div', { class: 'workspace' }, main, calculator.panel);
-  root.replaceChildren(skip, header, workspace);
+  root.replaceChildren(skip, header, updateBar, workspace);
 
   const helpLink = /** @type {HTMLElement} */ (header.querySelector('.help-link'));
 
   return {
     main,
     calculator,
+    updateBar,
+    /** Visar uppdateringsmeddelandet. @param {() => void} apply */
+    offerUpdate(apply) {
+      applyUpdate = apply;
+      updateBar.hidden = false;
+    },
     /** Markerar aktuell sida i menyn. @param {string} path */
     setCurrent(path) {
       for (const a of [...navLinks, helpLink]) {
