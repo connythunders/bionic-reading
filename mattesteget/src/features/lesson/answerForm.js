@@ -7,12 +7,13 @@ let counter = 0;
 /**
  * Svarsformulär för tal, bråk och flerval. Enter i fältet skickar svaret.
  * @param {{
- *   label: any, answer: any, value?: string, locked?: boolean,
+ *   label: any, labelNode?: Node, answer: any, value?: string, locked?: boolean,
  *   onSubmit: (input: string | number[]) => void
- * }} o
+ * }} o  labelNode: färdigritad frågetext (t.ex. uppläsningsbar), används i stället för label
  * @returns {{ el: HTMLElement, focus: () => void }}
  */
-export function createAnswerForm({ label, answer, value = '', locked = false, onSubmit }) {
+export function createAnswerForm({ label, labelNode, answer, value = '', locked = false, onSubmit }) {
+  const labelContent = () => labelNode ?? renderRich(label);
   const id = `svar-${++counter}`;
   const form = h('form', { class: 'answer-form', novalidate: true });
   /** @type {() => string | number[]} */
@@ -29,7 +30,7 @@ export function createAnswerForm({ label, answer, value = '', locked = false, on
       ),
     );
     form.append(h('fieldset', { class: 'setting' },
-      h('legend', { class: 'question' }, renderRich(label)),
+      h('legend', { class: 'question' }, labelContent()),
       multiple ? h('p', { class: 'lead' }, 'Du kan välja flera.') : null,
       h('div', { class: 'choices' }, inputs),
     ));
@@ -47,7 +48,7 @@ export function createAnswerForm({ label, answer, value = '', locked = false, on
       'aria-describedby': answer.unit ? unitId : null,
     }));
     form.append(
-      h('label', { for: id, class: 'question' }, renderRich(label)),
+      h('label', { for: id, class: 'question' }, labelContent()),
       h('div', { class: 'input-row' }, input, answer.unit ? h('span', { id: unitId, class: 'unit' }, answer.unit) : null),
     );
     read = () => input.value;

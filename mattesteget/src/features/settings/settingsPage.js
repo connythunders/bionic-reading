@@ -1,5 +1,8 @@
 // @ts-check
-import { h } from '../../lib/dom.js';
+import { h, createScope } from '../../lib/dom.js';
+import { createSpeedControl } from '../tts/speedControl.js';
+import { createVoiceNotice } from '../tts/voiceNotice.js';
+import { createSpeech } from '../tts/speech.js';
 
 const FONT_LABELS = [
   ['atkinson', 'Atkinson Hyperlegible (standard)'],
@@ -60,10 +63,13 @@ function rangeField(o) {
 }
 
 /**
- * @param {{ settings: ReturnType<typeof import('./settingsStore.js').createSettingsStore> }} ctx
+ * @param {{ settings: ReturnType<typeof import('./settingsStore.js').createSettingsStore>,
+ *           speech?: ReturnType<typeof import('../tts/speech.js').createSpeech> }} ctx
  */
 export function settingsView(ctx) {
   const s = ctx.settings.get();
+  const scope = createScope();
+  const speech = ctx.speech ?? createSpeech({ synth: null });
   const percent = (/** @type {number} */ v) => v.toFixed(2).replace('.', ',');
 
   const el = h('div', null,
@@ -94,16 +100,29 @@ export function settingsView(ctx) {
         h('span', null, 'Minska rörelse i appen'),
       ),
     ),
+    h('h2', null, 'Uppläsning'),
+    createVoiceNotice(speech, scope),
+    createSpeedControl(ctx.settings),
+    h('div', { class: 'setting' },
+      h('label', { class: 'choice' },
+        h('input', {
+          type: 'checkbox', checked: s.autoRead,
+          onchange: (/** @type {Event} */ e) => ctx.settings.update({ autoRead: /** @type {HTMLInputElement} */ (e.target).checked }),
+        }),
+        h('span', null, 'Läs upp ny text automatiskt'),
+      ),
+    ),
     h('div', { class: 'actions' },
       h('button', {
         type: 'button', class: 'btn btn-secondary',
         onclick: () => {
           ctx.settings.reset();
           // Rita om vyn så att reglage och val visar standardvärdena.
+          scope.dispose();
           el.replaceWith(settingsView(ctx).el);
         },
       }, 'Återställ standard'),
     ),
   );
-  return { title: 'Inställningar', el };
+  return { title: 'Inställningar', el, dispose: () => scope.dispose() };
 }

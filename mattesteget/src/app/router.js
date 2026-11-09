@@ -13,11 +13,16 @@ import { notFoundView } from './views.js';
  */
 export function startRouter({ routes, layout, ctx }) {
   let first = true;
+  /** @type {import('./views.js').View | null} */
+  let current = null;
 
   function render() {
+    current?.dispose?.(); // städa lyssnare och avbryt uppläsning från förra vyn
+    ctx.speech?.stop();
     const path = parseHash(location.hash);
     const match = matchRoute(path, routes);
     const view = match ? match.route.view(ctx, match.params) : notFoundView();
+    current = view;
     layout.main.replaceChildren(view.el);
     document.title = `${view.title} – Mattesteget`;
     layout.setCurrent(path);

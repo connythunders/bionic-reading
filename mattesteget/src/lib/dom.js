@@ -34,6 +34,23 @@ export function h(tag, attrs, ...children) {
 }
 
 /**
+ * Samlar upp städfunktioner (t.ex. avregistrering av lyssnare) som körs när en vy eller skärm byts ut.
+ * @returns {{ add: (fn: () => void) => void, dispose: () => void }}
+ */
+export function createScope() {
+  /** @type {(() => void)[]} */
+  let fns = [];
+  return {
+    add: (fn) => { fns.push(fn); },
+    dispose() {
+      const run = fns;
+      fns = [];
+      run.forEach((fn) => fn());
+    },
+  };
+}
+
+/**
  * Flyttar fokus till första rubriken i en behållare, så att skärmläsare
  * läser upp den nya vyn efter ett sidbyte.
  * @param {HTMLElement} root

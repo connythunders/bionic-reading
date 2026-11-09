@@ -5,6 +5,7 @@ import { buildLayout } from './app/layout.js';
 import { startRouter } from './app/router.js';
 import { routes } from './app/views.js';
 import { loadContent, fetchReader } from './lib/contentLoader.js';
+import { createSpeech } from './features/tts/speech.js';
 
 // Inställningarna tillämpas först, så att tema och typografi är rätt innan något ritas.
 const settings = createSettingsStore();
@@ -21,8 +22,12 @@ try {
   console.warn('Innehållet kunde inte läsas in', e);
 }
 
+// Uppläsningen läser hastigheten från inställningarna varje gång en mening startar.
+const speech = createSpeech({ getRate: () => settings.get().speechRate });
+void speech.init();
+
 const root = document.getElementById('app');
 if (root) {
   const layout = buildLayout(root, routes);
-  startRouter({ routes, layout, ctx: { settings, content } });
+  startRouter({ routes, layout, ctx: { settings, content, speech } });
 }

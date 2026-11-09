@@ -28,6 +28,16 @@ test('inställningar: sanitize begränsar till tillåtna intervall', () => {
   assert.equal(s.background, 'cream');
 });
 
+test('inställningar: uppläsningshastighet begränsas till 0,7-1,3 och autoRead är sant/falskt', () => {
+  assert.equal(DEFAULTS.speechRate, 1);
+  assert.equal(DEFAULTS.autoRead, false);
+  assert.equal(sanitize({ speechRate: 5 }).speechRate, 1.3);
+  assert.equal(sanitize({ speechRate: 0.1 }).speechRate, 0.7);
+  assert.equal(sanitize({ speechRate: 1.04 }).speechRate, 1);
+  assert.equal(sanitize({ autoRead: 'ja' }).autoRead, false);
+  assert.equal(sanitize({ autoRead: true }).autoRead, true);
+});
+
 test('inställningar: sanitize klarar skräp', () => {
   assert.deepEqual(sanitize(null), { ...DEFAULTS });
   assert.deepEqual(sanitize('text'), { ...DEFAULTS });

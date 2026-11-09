@@ -3,13 +3,15 @@
 import { h } from '../lib/dom.js';
 import { settingsView } from '../features/settings/settingsPage.js';
 import { createLessonPlayer } from '../features/lesson/lessonPlayer.js';
+import { createSpeech } from '../features/tts/speech.js';
 
 /**
  * @typedef {{
  *   settings: ReturnType<typeof import('../features/settings/settingsStore.js').createSettingsStore>,
- *   content?: { modules: any[], errors: string[] }
+ *   content?: { modules: any[], errors: string[] },
+ *   speech?: ReturnType<typeof import('../features/tts/speech.js').createSpeech>
  * }} Ctx
- * @typedef {{ title: string, el: HTMLElement }} View
+ * @typedef {{ title: string, el: HTMLElement, dispose?: () => void }} View
  */
 
 /** Tillfällig vy för delar som byggs i senare steg. */
@@ -99,7 +101,8 @@ export function modulesView(ctx) {
 export function lessonView(ctx, params) {
   const lesson = (ctx.content?.modules ?? []).flatMap((m) => m.lessons).find((/** @type {any} */ l) => l.id === params.lessonId);
   if (!lesson) return notFoundView();
-  const player = createLessonPlayer(lesson);
+  const speech = ctx.speech ?? createSpeech({ synth: null });
+  const player = createLessonPlayer(lesson, { speech, settings: ctx.settings });
   return {
     title: lesson.title,
     el: h('div', null,
@@ -108,6 +111,7 @@ export function lessonView(ctx, params) {
       h('p', { class: 'lead' }, lesson.goal.text),
       player.el,
     ),
+    dispose: () => player.dispose(),
   };
 }
 

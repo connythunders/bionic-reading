@@ -10,7 +10,7 @@ export const MOTIONS = ['system', 'reduce'];
 /**
  * @typedef {{
  *   font: string, fontSize: number, lineHeight: number, letterSpacing: number,
- *   background: string, motion: string
+ *   background: string, motion: string, speechRate: number, autoRead: boolean
  * }} Settings
  */
 
@@ -22,6 +22,8 @@ export const DEFAULTS = Object.freeze({
   letterSpacing: 0.02, // em, 0-0,12
   background: 'cream',
   motion: 'system',
+  speechRate: 1,       // 0,7-1,3
+  autoRead: false,     // läs upp ny text automatiskt
 });
 
 /** @param {unknown} v @param {number} min @param {number} max @param {number} fallback */
@@ -50,6 +52,8 @@ export function sanitize(raw) {
     letterSpacing: Math.round(clampNumber(r.letterSpacing, 0, 0.12, DEFAULTS.letterSpacing) * 100) / 100,
     background: pick(r.background, BACKGROUNDS, DEFAULTS.background),
     motion: pick(r.motion, MOTIONS, DEFAULTS.motion),
+    speechRate: Math.round(clampNumber(r.speechRate, 0.7, 1.3, DEFAULTS.speechRate) * 10) / 10,
+    autoRead: r.autoRead === true,
   };
 }
 

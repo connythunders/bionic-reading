@@ -23,6 +23,8 @@ test('teman: kontrast uppfyller WCAG AA i alla fyra bakgrunder', () => {
       const checks = [
         ['text mot bakgrund', c.text, c.bg, 4.5],
         ['text mot yta', c.text, c.surface, 4.5],
+        ['text mot meningsmarkering', c.text, themeVar('--hl-sentence'), 4.5],
+        ['text mot ordmarkering', c.text, themeVar('--hl-word'), 4.5],
         ['dämpad text mot bakgrund', c.muted, c.bg, 4.5],
         ['dämpad text mot yta', c.muted, c.surface, 4.5],
         ['länk/accent mot bakgrund', c.accent, c.bg, 4.5],
