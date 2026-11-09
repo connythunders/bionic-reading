@@ -10,7 +10,7 @@ export const MOTIONS = ['system', 'reduce'];
 /**
  * @typedef {{
  *   font: string, fontSize: number, lineHeight: number, letterSpacing: number,
- *   background: string, motion: string, speechRate: number, autoRead: boolean
+ *   background: string, motion: string, speechRate: number, autoRead: boolean, calcSpeak: boolean
  * }} Settings
  */
 
@@ -24,6 +24,7 @@ export const DEFAULTS = Object.freeze({
   motion: 'system',
   speechRate: 1,       // 0,7-1,3
   autoRead: false,     // läs upp ny text automatiskt
+  calcSpeak: false,    // läs upp miniräknarens knappar och resultat
 });
 
 /** @param {unknown} v @param {number} min @param {number} max @param {number} fallback */
@@ -54,6 +55,7 @@ export function sanitize(raw) {
     motion: pick(r.motion, MOTIONS, DEFAULTS.motion),
     speechRate: Math.round(clampNumber(r.speechRate, 0.7, 1.3, DEFAULTS.speechRate) * 10) / 10,
     autoRead: r.autoRead === true,
+    calcSpeak: r.calcSpeak === true,
   };
 }
 

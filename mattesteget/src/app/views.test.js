@@ -56,5 +56,8 @@ test('layout: hjälpknappen finns sist i sidhuvudet och menyn har etikett', () =
   const last = header.lastElementChild;
   assert.ok(last && last.classList.contains('help-link'), 'hjälpknappen ska vara sist i sidhuvudet');
   assert.equal(root.querySelector('nav')?.getAttribute('aria-label'), 'Huvudmeny');
+  const toggle = /** @type {HTMLElement} */ (header.querySelector('.calc-toggle'));
+  assert.ok(toggle, 'miniräknarknappen finns i sidhuvudet');
+  assert.equal(root.querySelector(`#${toggle.getAttribute('aria-controls')}`)?.tagName, 'ASIDE');
   assert.ok(root.querySelector('main#main'), 'main#main saknas');
 }, { browserOnly: true });

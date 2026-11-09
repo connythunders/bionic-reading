@@ -15,7 +15,7 @@ applySettings(settings.get());
 settings.subscribe((s) => applySettings(s));
 
 // Innehållet läses från den egna domänen. Valideringsfel visas bara i konsolen, inte för eleven.
-/** @type {{ modules: any[], errors: string[] }} */
+/** @type {{ modules: any[], errors: string[], glossary?: { terms: any[] } }} */
 let content = { modules: [], errors: [] };
 try {
   content = await loadContent(fetchReader(new URL('content/', document.baseURI).href));
@@ -34,6 +34,6 @@ void speech.init();
 
 const root = document.getElementById('app');
 if (root) {
-  const layout = buildLayout(root, routes);
+  const layout = buildLayout(root, routes, { speech, settings });
   startRouter({ routes, layout, ctx: { settings, content, speech, progress } });
 }

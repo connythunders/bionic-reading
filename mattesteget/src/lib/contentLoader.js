@@ -1,16 +1,16 @@
 // @ts-check
 // Läser innehållet. Själva filläsningen skickas in som en funktion, så att samma kod
 // fungerar i webbläsaren (fetch), i Node (fs) och i tester.
-import { validateModules } from './validate.js';
+import { validateModules, validateGlossary } from './validate.js';
 
 /**
  * @param {(relativePath: string) => Promise<string>} readText  läser en fil under content/
- * @returns {Promise<{ modules: any[], errors: string[] }>}
+ * @returns {Promise<{ modules: any[], glossary: { terms: any[] }, errors: string[] }>}
  */
 export async function loadContent(readText) {
   const index = JSON.parse(await readText('index.json'));
   if (!index || !Array.isArray(index.modules)) {
-    return { modules: [], errors: ['content/index.json: fältet modules saknas'] };
+    return { modules: [], glossary: { terms: [] }, errors: ['content/index.json: fältet modules saknas'] };
   }
   /** @type {any[]} */
   const modules = [];
@@ -25,7 +25,18 @@ export async function loadContent(readText) {
   }
   modules.sort((a, b) => (a?.order ?? 0) - (b?.order ?? 0));
   errors.push(...validateModules(modules));
-  return { modules, errors };
+
+  /** @type {{ terms: any[] }} */
+  let glossary = { terms: [] };
+  if (index.glossary) {
+    try {
+      glossary = JSON.parse(await readText(index.glossary));
+      errors.push(...validateGlossary(glossary));
+    } catch (e) {
+      errors.push(`${index.glossary}: kunde inte läsas (${e instanceof Error ? e.message : String(e)})`);
+    }
+  }
+  return { modules, glossary, errors };
 }
 
 /**

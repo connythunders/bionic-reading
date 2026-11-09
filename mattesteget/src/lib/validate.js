@@ -372,6 +372,43 @@ export function validateModule(mod) {
 }
 
 /**
+ * Validerar ordlistan: varje ord har en enkel förklaring (max två meningar), och kan ha
+ * exempel och en bild (representation). Talversioner krävs på samma sätt som i lektionerna.
+ * @param {unknown} glossary
+ * @returns {string[]}
+ */
+export function validateGlossary(glossary) {
+  const c = new Collector();
+  if (!isObj(glossary) || !Array.isArray(glossary.terms) || glossary.terms.length === 0) {
+    return ['ordlista: terms saknas eller är tom'];
+  }
+  const seen = new Set();
+  glossary.terms.forEach((/** @type {any} */ t, /** @type {number} */ i) => {
+    const path = `ordlista.terms[${i}]`;
+    if (!isObj(t)) return c.add(path, 'ordet måste vara ett objekt');
+    checkId(c, t.id, `${path}.id`);
+    if (!isStr(t.term)) c.add(`${path}.term`, 'ordet saknas');
+    else {
+      const key = t.term.toLowerCase();
+      if (seen.has(key)) c.add(`${path}.term`, `ordet "${t.term}" finns två gånger`);
+      seen.add(key);
+      if (t.term === t.term.toUpperCase() && /[A-ZÅÄÖ]{2,}/.test(t.term)) c.add(`${path}.term`, 'ord ska inte skrivas med versaler');
+    }
+    checkRichText(c, t.explanation, `${path}.explanation`, { prompt: true });
+    if (t.example !== undefined) checkRichText(c, t.example, `${path}.example`, { prompt: true });
+    if (t.representation !== undefined) {
+      const rep = t.representation;
+      if (!isObj(rep) || !INTERACTIVE_KINDS.includes(rep.kind)) c.add(`${path}.representation.kind`, 'okänd representation');
+      else {
+        checkRepresentationConfig(c, rep.kind, rep.config, `${path}.representation.config`);
+        checkRichText(c, rep.caption, `${path}.representation.caption`);
+      }
+    }
+  });
+  return c.errors;
+}
+
+/**
  * Validerar flera moduler och kontrollerar att id:n är unika över modulgränser.
  * @param {unknown[]} modules
  * @returns {string[]}

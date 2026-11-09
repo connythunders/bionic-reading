@@ -6,11 +6,12 @@ import { createLessonPlayer } from '../features/lesson/lessonPlayer.js';
 import { createSpeech } from '../features/tts/speech.js';
 import { dailyView } from '../features/practice/dailySession.js';
 import { journeyView } from '../features/progress/myJourney.js';
+import { glossaryView } from '../features/glossary/glossaryPage.js';
 
 /**
  * @typedef {{
  *   settings: ReturnType<typeof import('../features/settings/settingsStore.js').createSettingsStore>,
- *   content?: { modules: any[], errors: string[] },
+ *   content?: { modules: any[], errors: string[], glossary?: { terms: any[] } },
  *   speech?: ReturnType<typeof import('../features/tts/speech.js').createSpeech>,
  *   progress?: ReturnType<typeof import('../features/progress/progressStore.js').createProgress>
  * }} Ctx
@@ -31,6 +32,7 @@ export function homeView() {
   const cards = [
     ['#/idag', 'Dagens pass', 'Kort repetition och blandade uppgifter, 10–15 minuter.'],
     ['#/moduler', 'Moduler', 'Välj ett område och öva i din egen takt.'],
+    ['#/ordlista', 'Ordlista', 'Förklaringar av ord i matten, med bilder och uppläsning.'],
     ['#/min-resa', 'Min resa', 'Se hur långt du har kommit.'],
     ['#/installningar', 'Inställningar', 'Ändra typsnitt, textstorlek, bakgrund och rörelse.'],
   ];
@@ -144,6 +146,7 @@ export const routes = [
   { path: '/idag', name: 'Dagens pass', nav: true, view: (ctx) => dailyView(ctx) },
   { path: '/moduler', name: 'Moduler', nav: true, view: (ctx) => modulesView(ctx) },
   { path: '/lektion/:lessonId', name: 'Lektion', nav: false, view: (ctx, params) => lessonView(ctx, params) },
+  { path: '/ordlista', name: 'Ordlista', nav: true, view: (ctx) => glossaryView(ctx) },
   { path: '/min-resa', name: 'Min resa', nav: true, view: (ctx) => journeyView(ctx) },
   { path: '/installningar', name: 'Inställningar', nav: true, view: (ctx) => settingsView(ctx) },
   { path: '/hjalp', name: 'Hjälp', nav: false, view: () => helpView() },

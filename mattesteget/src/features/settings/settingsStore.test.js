@@ -36,6 +36,9 @@ test('inställningar: uppläsningshastighet begränsas till 0,7-1,3 och autoRead
   assert.equal(sanitize({ speechRate: 1.04 }).speechRate, 1);
   assert.equal(sanitize({ autoRead: 'ja' }).autoRead, false);
   assert.equal(sanitize({ autoRead: true }).autoRead, true);
+  assert.equal(DEFAULTS.calcSpeak, false);
+  assert.equal(sanitize({ calcSpeak: 'ja' }).calcSpeak, false);
+  assert.equal(sanitize({ calcSpeak: true }).calcSpeak, true);
 });
 
 test('inställningar: sanitize klarar skräp', () => {
