@@ -22,6 +22,7 @@ on:
       - 'riksdag-skola/**'
       - 'workshop-app/**'
       - 'mattetraning/**'
+      - 'mattesteget/**'
       - '.github/workflows/deploy-larplattform.yml'
       # Driftsätt även när statiska sidor/data i roten ändras
       - '*.html'
@@ -69,10 +70,18 @@ jobs:
 
           # Befintliga statiska filer i roten
           find . -maxdepth 1 \( -name "*.html" -o -name "*.json" \) ! -name "package*.json" -exec cp {} _site/ \;
-          for dir in css js fonts vendor quiz-games np-engelska np-engelska-gy riksdag-skola lashjalpen workshop-app ai-laromedel ai-kompetens religion-laromedel recept-app mattetraning; do
+          for dir in css js fonts vendor quiz-games np-engelska np-engelska-gy riksdag-skola lashjalpen workshop-app ai-laromedel ai-kompetens religion-laromedel recept-app mattetraning mattesteget; do
             [ -d "$dir" ] && cp -r "$dir" _site/ || true
           done
           [ -f CNAME ] && cp CNAME _site/
+
+          # Mattesteget publiceras som den är (ingen bygg). Tester och verktyg behövs inte på sajten.
+          if [ -d _site/mattesteget ]; then
+            rm -rf _site/mattesteget/tests _site/mattesteget/tools _site/mattesteget/node_modules
+            rm -f _site/mattesteget/package.json _site/mattesteget/package-lock.json _site/mattesteget/tsconfig.json \
+                  _site/mattesteget/playwright.config.js _site/mattesteget/lighthouserc.json
+            find _site/mattesteget -name '*.test.js' -delete
+          fi
 
           # React-appens build-output
           cp -r larplattform/dist/. _site/larplattform/
