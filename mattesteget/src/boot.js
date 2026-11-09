@@ -9,7 +9,9 @@
     if (!raw) return;
     var s = JSON.parse(raw);
     var root = document.documentElement;
+    /** @param {string[]} list @param {unknown} v */
     var has = function (list, v) { return typeof v === 'string' && list.indexOf(v) >= 0; };
+    /** @param {unknown} v @param {number} min @param {number} max @returns {number | null} */
     var num = function (v, min, max) { return typeof v === 'number' && isFinite(v) ? Math.min(max, Math.max(min, v)) : null; };
 
     if (has(['cream', 'grey', 'blue', 'dark'], s.background)) root.dataset.bg = s.background;

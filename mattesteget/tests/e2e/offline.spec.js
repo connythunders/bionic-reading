@@ -33,7 +33,7 @@ test('appen fungerar helt offline efter första besöket', async ({ page, contex
   // Innehåll, lektion, uppläsningsknappar och ordlista fungerar utan nätverk
   await page.goto(`${APP}?sw=1#/lektion/procent-vardag-1`);
   await expect(page.getByRole('heading', { name: 'Rabatt: procent av ett pris' })).toBeVisible();
-  await expect(page.locator('.formula math')).toBeVisible();
+  await expect(page.locator('.formula math').first()).toBeVisible();
   await page.goto(`${APP}?sw=1#/ordlista`);
   await expect(page.getByRole('heading', { name: 'Andel' })).toBeVisible();
   expectOnlySameOrigin(urls, baseURL);

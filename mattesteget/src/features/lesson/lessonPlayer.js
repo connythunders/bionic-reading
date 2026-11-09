@@ -257,7 +257,9 @@ export function createLessonPlayer(lesson, deps = {}) {
 
     // Automatisk uppläsning av ny text. Bara efter en knapptryckning, eftersom webbläsare
     // inte tillåter ljud utan att användaren gjort något.
-    if (cause === 'next' && settings?.get().autoRead && primary) void primary.speak();
+    // (primary sätts i say() under ritningen, vilket typkontrollen inte ser)
+    const first = /** @type {{ speak: () => unknown } | null} */ (primary);
+    if (cause === 'next' && settings?.get().autoRead && first) void first.speak();
   }
 
   render('init');

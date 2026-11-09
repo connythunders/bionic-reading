@@ -13,7 +13,7 @@ const spokenUnit = (unit) => (unit === 'kr' ? 'kronor' : unit);
 /**
  * @param {{
  *   whole: number, percent?: number, part?: number, unit?: string,
- *   hideWhole?: boolean, hidePercent?: boolean,
+ *   hideWhole?: boolean, hidePercent?: boolean, hideAmount?: boolean,
  *   interactive?: boolean, step?: number, onChange?: (percent: number) => void
  * }} o
  * @returns {{ el: HTMLElement, getPercent: () => number, setPercent: (p: number) => void, thumb: HTMLElement | null }}
