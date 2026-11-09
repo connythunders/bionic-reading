@@ -6,7 +6,8 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   retries: process.env.CI ? 1 : 0,
-  reporter: [['list']],
+  // I GitHub Actions visas varje misslyckat test som en kommentar på körningen, med felmeddelandet.
+  reporter: process.env.CI ? [['github'], ['list']] : [['list']],
   use: {
     baseURL: 'http://localhost:4173',
     locale: 'sv-SE',
