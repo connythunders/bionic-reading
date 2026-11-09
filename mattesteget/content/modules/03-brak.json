@@ -8,16 +8,180 @@
     {
       "id": "brak-1",
       "title": "Bråkstavar",
-      "draft": true,
       "goal": { "text": "Du lär dig att ett bråk visar hur många delar av en helhet som är ifyllda." },
       "representation": "fractionBars",
       "steps": [
         {
-          "type": "interactive",
-          "id": "br1-int1",
-          "kind": "fractionBars",
+          "type": "interactive", "id": "br1-int1", "kind": "fractionBars",
           "config": { "rows": [{ "n": 4, "k": 3 }] },
           "prompt": { "text": "Klicka på delarna och ändra antalet delar. Se hur bråket ändras." }
+        },
+        {
+          "type": "workedExample", "id": "br1-ex1", "structure": "omvandla", "fading": 0,
+          "prompt": { "text": "En stav är delad i 4 lika delar och 3 delar är ifyllda. Vilket bråk är det?" },
+          "steps": [
+            { "text": { "text": "Nämnaren visar hur många lika stora delar det finns." } },
+            { "text": { "text": "Täljaren visar hur många delar som är ifyllda." } },
+            {
+              "text": { "text": "Det finns 4 delar och 3 är ifyllda. Bråket är {{f1}}.", "formulas": { "f1": { "expr": "3/4", "speak": "tre fjärdedelar" } } }
+            }
+          ],
+          "answer": { "kind": "fraction", "num": 3, "den": 4 }
+        },
+        {
+          "type": "guidedStep", "id": "br1-gs1", "structure": "omvandla",
+          "prompt": { "text": "En pizza är delad i 8 lika stora bitar och du äter 3. Vilket bråk har du ätit?" },
+          "parts": [
+            { "prompt": { "text": "Hur många lika stora bitar är pizzan delad i?" }, "answer": { "kind": "number", "value": 8 }, "hint": { "text": "Det är nämnaren." } },
+            { "prompt": { "text": "Hur många bitar äter du?" }, "answer": { "kind": "number", "value": 3 }, "hint": { "text": "Det är täljaren." } },
+            { "prompt": { "text": "Skriv bråket som visar hur mycket du har ätit." }, "answer": { "kind": "fraction", "num": 3, "den": 8 }, "hint": { "text": "Täljaren först, sedan nämnaren, med ett streck emellan." } }
+          ]
+        },
+        {
+          "type": "workedExample", "id": "br1-ex2", "structure": "berakna", "fading": 1,
+          "prompt": { "text": "En pizza är delad i 8 bitar. Hur många åttondelar är hälften?" },
+          "steps": [
+            { "text": { "text": "Hela pizzan är 8 åttondelar." } },
+            { "text": { "text": "Hälften av 8 är 4." }, "formula": { "expr": "8 / 2 = 4", "speak": "8 delat med 2 är lika med 4" } },
+            {
+              "text": { "text": "Hälften är fyra åttondelar." },
+              "ask": { "text": "Hur många åttondelar är hälften?" },
+              "answer": { "kind": "number", "value": 4 }
+            }
+          ],
+          "answer": { "kind": "number", "value": 4 }
+        },
+        {
+          "type": "guidedStep", "id": "br1-gs2", "structure": "storst-minst",
+          "prompt": { "text": "Vilket är större: en tredjedel eller en femtedel? Tänk på hur stora delarna är." },
+          "parts": [
+            {
+              "prompt": { "text": "Du delar en helhet i 3 delar och en annan lika stor helhet i 5 delar. Vilka delar är störst?" },
+              "answer": { "kind": "choice", "options": [{ "text": "Tredjedelarna" }, { "text": "Femtedelarna" }], "correct": [0] },
+              "hint": { "text": "Ju färre delar helheten delas i, desto större blir varje del." }
+            },
+            {
+              "prompt": { "text": "Vilket är större: en tredjedel eller en femtedel?" },
+              "answer": { "kind": "choice", "options": [{ "text": "En tredjedel" }, { "text": "En femtedel" }], "correct": [0] }
+            }
+          ]
+        },
+        {
+          "type": "practice", "id": "br1-p1", "structure": "omvandla", "itemType": "brak-fran-bild", "context": "tal",
+          "prompt": { "text": "En stav är delad i 5 lika delar och 2 delar är ifyllda. Vilket bråk är det?" },
+          "answer": { "kind": "fraction", "num": 2, "den": 5 },
+          "parallel": {
+            "prompt": { "text": "En stav är delad i 6 lika delar och 5 delar är ifyllda. Vilket bråk är det?" },
+            "answer": { "kind": "fraction", "num": 5, "den": 6 }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 5, "k": 2 }], "hideLabel": true }, "caption": { "text": "Staven är delad i fem lika delar. Två delar är ifyllda." } },
+            "firstStep": { "text": "Nämnaren är antalet delar totalt. Täljaren är antalet ifyllda delar." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Det finns 5 lika delar. Det är nämnaren." } },
+              { "text": { "text": "2 delar är ifyllda. Det är täljaren." } },
+              { "text": { "text": "Bråket är {{f1}}.", "formulas": { "f1": { "expr": "2/5", "speak": "två femtedelar" } } } }
+            ] }
+          },
+          "commonWrong": [{ "value": "5/2", "message": { "text": "Nu har täljaren och nämnaren bytt plats. Antalet delar totalt står nederst." } }]
+        },
+        {
+          "type": "practice", "id": "br1-p2", "structure": "omvandla", "itemType": "brak-fran-bild", "context": "tal",
+          "prompt": { "text": "En stav är delad i 7 lika delar och 4 delar är ifyllda. Vilket bråk är det?" },
+          "answer": { "kind": "fraction", "num": 4, "den": 7 },
+          "parallel": {
+            "prompt": { "text": "En stav är delad i 9 lika delar och 2 delar är ifyllda. Vilket bråk är det?" },
+            "answer": { "kind": "fraction", "num": 2, "den": 9 }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 7, "k": 4 }], "hideLabel": true }, "caption": { "text": "Staven är delad i sju lika delar. Fyra delar är ifyllda." } },
+            "firstStep": { "text": "Nämnaren är antalet delar totalt. Täljaren är antalet ifyllda delar." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Det finns 7 lika delar. Det är nämnaren." } },
+              { "text": { "text": "4 delar är ifyllda. Det är täljaren." } },
+              { "text": { "text": "Bråket är {{f1}}.", "formulas": { "f1": { "expr": "4/7", "speak": "fyra sjundedelar" } } } }
+            ] }
+          },
+          "commonWrong": [{ "value": "7/4", "message": { "text": "Nu har täljaren och nämnaren bytt plats. Antalet delar totalt står nederst." } }]
+        },
+        {
+          "type": "practice", "id": "br1-p3", "structure": "delen-saknas", "itemType": "brak-av-helhet", "context": "mat",
+          "prompt": { "text": "Du delar 12 kakor i 4 lika stora högar. Hur många kakor är en fjärdedel?" },
+          "answer": { "kind": "number", "value": 3 },
+          "parallel": {
+            "prompt": { "text": "Du delar 20 kakor i 5 lika stora högar. Hur många kakor är en femtedel?" },
+            "answer": { "kind": "number", "value": 4 }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 4, "k": 1 }], "hideLabel": true }, "caption": { "text": "Staven är delad i fyra lika delar. En del är ifylld." } },
+            "firstStep": { "text": "En fjärdedel får du genom att dela med 4." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "En fjärdedel är en av fyra lika delar." } },
+              { "text": { "text": "Dela 12 med 4." }, "formula": { "expr": "12 / 4 = 3", "speak": "12 delat med 4 är lika med 3" } },
+              { "text": { "text": "En fjärdedel är 3 kakor." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "4", "message": { "text": "Det är antalet högar. Hur många kakor ligger i en hög?" } }]
+        },
+        {
+          "type": "practice", "id": "br1-p4", "structure": "delen-saknas", "itemType": "brak-av-helhet", "context": "mat",
+          "prompt": { "text": "Du har 12 kakor. Hur många kakor är tre fjärdedelar?" },
+          "answer": { "kind": "number", "value": 9 },
+          "parallel": {
+            "prompt": { "text": "Du har 20 kakor. Hur många kakor är tre femtedelar?" },
+            "answer": { "kind": "number", "value": 12 }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 4, "k": 3 }], "hideLabel": true }, "caption": { "text": "Staven är delad i fyra lika delar. Tre delar är ifyllda." } },
+            "firstStep": { "text": "Räkna först ut en fjärdedel. Ta sedan tre gånger så mycket." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "En fjärdedel av 12 är 12 delat med 4." }, "formula": { "expr": "12 / 4 = 3", "speak": "12 delat med 4 är lika med 3" } },
+              { "text": { "text": "Tre fjärdedelar är 3 gånger så mycket." }, "formula": { "expr": "3 * 3 = 9", "speak": "3 gånger 3 är lika med 9" } },
+              { "text": { "text": "Tre fjärdedelar är 9 kakor." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "3", "message": { "text": "Det är en fjärdedel. Du ska ta tre fjärdedelar, alltså tre gånger så mycket." } }]
+        },
+        {
+          "type": "practice", "id": "br1-p5", "structure": "storst-minst", "itemType": "jamfor-brak", "context": "tal",
+          "prompt": { "text": "Vilket är störst: en halv eller en tredjedel?" },
+          "answer": { "kind": "choice", "options": [{ "text": "En halv" }, { "text": "En tredjedel" }], "correct": [0] },
+          "parallel": {
+            "prompt": { "text": "Vilket är störst: en fjärdedel eller en femtedel?" },
+            "answer": { "kind": "choice", "options": [{ "text": "En fjärdedel" }, { "text": "En femtedel" }], "correct": [0] }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 2, "k": 1 }, { "n": 3, "k": 1 }], "hideLabel": true }, "caption": { "text": "Två lika långa stavar. Den ena är delad i två delar och den andra i tre. En del är ifylld i varje." } },
+            "firstStep": { "text": "Jämför hur stor en del är i de två stavarna." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "När en helhet delas i färre delar blir varje del större." } },
+              { "text": { "text": "Två delar ger större delar än tre delar. Alltså är en halv störst." } }
+            ] }
+          }
+        },
+        {
+          "type": "practice", "id": "br1-p6", "structure": "omvandla", "itemType": "forkorta-brak", "context": "tal",
+          "prompt": { "text": "Skriv {{f1}} så enkelt som möjligt.", "formulas": { "f1": { "expr": "2/4", "speak": "två fjärdedelar" } } },
+          "answer": { "kind": "fraction", "num": 1, "den": 2, "mustBeSimplified": true },
+          "parallel": {
+            "prompt": { "text": "Skriv {{f1}} så enkelt som möjligt.", "formulas": { "f1": { "expr": "3/9", "speak": "tre niondelar" } } },
+            "answer": { "kind": "fraction", "num": 1, "den": 3, "mustBeSimplified": true }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 4, "k": 2 }, { "n": 2, "k": 1 }], "hideLabel": true }, "caption": { "text": "Två lika långa stavar. Den ifyllda delen är lika stor i båda." } },
+            "firstStep": { "text": "Dela täljaren och nämnaren med samma tal. Vilket tal går i båda?" },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Både 2 och 4 går att dela med 2." } },
+              { "text": { "text": "Dela täljaren och nämnaren med 2." }, "formula": { "expr": "2/4 = 1/2", "speak": "två fjärdedelar är lika med en halv" } },
+              { "text": { "text": "Svaret är en halv." } }
+            ] }
+          }
         }
       ]
     }

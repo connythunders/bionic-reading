@@ -8,16 +8,165 @@
     {
       "id": "decimaltal-1",
       "title": "Pengar och positionssystemet",
-      "draft": true,
-      "goal": { "text": "Du lär dig hur siffrornas plats avgör deras värde." },
+      "goal": { "text": "Du lär dig hur siffrans plats avgör vad den är värd." },
       "representation": "money",
       "steps": [
         {
-          "type": "interactive",
-          "id": "dt1-int1",
-          "kind": "money",
+          "type": "interactive", "id": "dt1-int1", "kind": "money",
           "config": { "values": [0, 1, 2, 3, 5] },
           "prompt": { "text": "Lägg till och ta bort pengar. Tio av samma sort växlas mot en av nästa sort." }
+        },
+        {
+          "type": "workedExample", "id": "dt1-ex1", "structure": "berakna", "fading": 0,
+          "prompt": { "text": "Du har 3 tior, 2 enkronor och 5 tioöringar. Hur mycket pengar är det?" },
+          "steps": [
+            { "text": { "text": "3 tior är 30 kronor." } },
+            { "text": { "text": "2 enkronor är 2 kronor, och 5 tioöringar är 0,5 kronor." }, "formula": { "expr": "30 + 2 + 0,5 = 32,5", "speak": "30 plus 2 plus noll komma fem är lika med 32 komma 5" } },
+            { "text": { "text": "Det är 32,5 kr.", "speak": "Det är 32 komma 5 kronor." } }
+          ],
+          "answer": { "kind": "number", "value": 32.5, "unit": "kr" }
+        },
+        {
+          "type": "guidedStep", "id": "dt1-gs1", "structure": "omvandla",
+          "prompt": {
+            "text": "Du betalar 4,35 kr. Hur många enkronor, tioöringar och ettöringar är det?",
+            "speak": "Du betalar 4,35 kronor. Hur många enkronor, tioöringar och ettöringar är det?"
+          },
+          "parts": [
+            { "prompt": { "text": "Hur många enkronor är det?" }, "answer": { "kind": "number", "value": 4 }, "hint": { "text": "Siffran före kommat visar enkronorna." } },
+            { "prompt": { "text": "Hur många tioöringar är det?" }, "answer": { "kind": "number", "value": 3 }, "hint": { "text": "Första siffran efter kommat visar tioöringarna." } },
+            { "prompt": { "text": "Hur många ettöringar är det?" }, "answer": { "kind": "number", "value": 5 }, "hint": { "text": "Andra siffran efter kommat visar ettöringarna." } }
+          ]
+        },
+        {
+          "type": "workedExample", "id": "dt1-ex2", "structure": "omvandla", "fading": 1,
+          "prompt": { "text": "Vad är siffran 7 värd i talet 3,72?" },
+          "steps": [
+            { "text": { "text": "Första siffran efter kommat står på tiondelsplatsen." } },
+            { "text": { "text": "Siffran 7 står på tiondelsplatsen." } },
+            {
+              "text": { "text": "Siffran 7 är värd 7 tiondelar, alltså 0,7." },
+              "ask": { "text": "Vad är siffran 7 värd?" },
+              "answer": { "kind": "number", "value": 0.7 }
+            }
+          ],
+          "answer": { "kind": "number", "value": 0.7 }
+        },
+        {
+          "type": "guidedStep", "id": "dt1-gs2", "structure": "omvandla",
+          "prompt": { "text": "Du har 12 tioöringar och vill byta mot enkronor. Hur många blir det av varje?" },
+          "parts": [
+            { "prompt": { "text": "Tio tioöringar byts mot en enkrona. Hur många enkronor får du?" }, "answer": { "kind": "number", "value": 1 }, "hint": { "text": "Hur många gånger går 10 i 12?" } },
+            { "prompt": { "text": "Hur många tioöringar blir över?" }, "answer": { "kind": "number", "value": 2 }, "hint": { "text": "Ta 12 minus de 10 som du bytte." } }
+          ]
+        },
+        {
+          "type": "practice", "id": "dt1-p1", "structure": "omvandla", "itemType": "positionsvarde", "context": "pengar",
+          "prompt": { "text": "Vad är siffran 5 värd i talet 4,52?" },
+          "answer": { "kind": "number", "value": 0.5 },
+          "parallel": { "prompt": { "text": "Vad är siffran 3 värd i talet 7,34?" }, "answer": { "kind": "number", "value": 0.3 } },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "money", "config": { "values": [0, 0, 4, 5, 2], "hideTotal": true }, "caption": { "text": "Pengarna visar talet 4,52. Titta på vilken sort som har siffran 5." } },
+            "firstStep": { "text": "Siffran 5 står direkt efter kommat. Vilken plats är det?" },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Första siffran efter kommat står på tiondelsplatsen." } },
+              { "text": { "text": "Siffran 5 är värd 5 tiondelar, alltså 0,5." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "5", "message": { "text": "Siffran 5 är värd mindre än 5. Den står efter kommat." } }]
+        },
+        {
+          "type": "practice", "id": "dt1-p2", "structure": "omvandla", "itemType": "positionsvarde", "context": "pengar",
+          "prompt": { "text": "Vad är siffran 2 värd i talet 4,52?" },
+          "answer": { "kind": "number", "value": 0.02 },
+          "parallel": { "prompt": { "text": "Vad är siffran 9 värd i talet 6,09?" }, "answer": { "kind": "number", "value": 0.09 } },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "money", "config": { "values": [0, 0, 4, 5, 2], "hideTotal": true }, "caption": { "text": "Pengarna visar talet 4,52. Titta på vilken sort som har siffran 2." } },
+            "firstStep": { "text": "Siffran 2 är den andra siffran efter kommat. Vilken plats är det?" },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Andra siffran efter kommat står på hundradelsplatsen." } },
+              { "text": { "text": "Siffran 2 är värd 2 hundradelar, alltså 0,02." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "0,2", "message": { "text": "Siffran 2 är den andra efter kommat. Det är hundradelar, inte tiondelar." } }]
+        },
+        {
+          "type": "practice", "id": "dt1-p3", "structure": "berakna", "itemType": "pengar-till-decimal", "context": "pengar",
+          "prompt": { "text": "Du har 2 tior och 7 tioöringar. Hur mycket pengar är det?" },
+          "answer": { "kind": "number", "value": 20.7, "unit": "kr" },
+          "parallel": { "prompt": { "text": "Du har 1 tia och 4 tioöringar. Hur mycket pengar är det?" }, "answer": { "kind": "number", "value": 10.4, "unit": "kr" } },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "money", "config": { "values": [0, 2, 0, 7, 0], "hideTotal": true }, "caption": { "text": "Bilden visar dina pengar." } },
+            "firstStep": { "text": "Räkna hela kronor och delar av kronor var för sig." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "2 tior är 20 kronor." } },
+              { "text": { "text": "7 tioöringar är 0,7 kronor." }, "formula": { "expr": "20 + 0,7 = 20,7", "speak": "20 plus noll komma sju är lika med 20 komma 7" } },
+              { "text": { "text": "Du har 20,7 kr.", "speak": "Du har 20 komma 7 kronor." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "27", "message": { "text": "Tioöringar är delar av en krona. 7 tioöringar är 0,7 kronor." } }]
+        },
+        {
+          "type": "practice", "id": "dt1-p4", "structure": "berakna", "itemType": "pengar-till-decimal", "context": "pengar",
+          "prompt": { "text": "Du har 5 enkronor och 8 ettöringar. Hur mycket pengar är det?" },
+          "answer": { "kind": "number", "value": 5.08, "unit": "kr" },
+          "parallel": { "prompt": { "text": "Du har 3 enkronor och 4 ettöringar. Hur mycket pengar är det?" }, "answer": { "kind": "number", "value": 3.04, "unit": "kr" } },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "money", "config": { "values": [0, 0, 5, 0, 8], "hideTotal": true }, "caption": { "text": "Bilden visar dina pengar." } },
+            "firstStep": { "text": "En ettöring är en hundradel av en krona." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "5 enkronor är 5 kronor." } },
+              { "text": { "text": "8 ettöringar är 0,08 kronor." }, "formula": { "expr": "5 + 0,08 = 5,08", "speak": "5 plus noll komma noll åtta är lika med 5 komma noll åtta" } },
+              { "text": { "text": "Du har 5,08 kr.", "speak": "Du har 5 komma noll åtta kronor." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "5,8", "message": { "text": "8 ettöringar är 0,08 kronor, inte 0,8. En ettöring är en hundradel." } }]
+        },
+        {
+          "type": "practice", "id": "dt1-p5", "structure": "omvandla", "itemType": "vaxla-pengar", "context": "pengar",
+          "prompt": { "text": "Du har 15 tioöringar. Hur många kronor är det?" },
+          "answer": { "kind": "number", "value": 1.5, "unit": "kr" },
+          "parallel": { "prompt": { "text": "Du har 24 tioöringar. Hur många kronor är det?" }, "answer": { "kind": "number", "value": 2.4, "unit": "kr" } },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "money", "config": { "values": [0, 0, 1, 0, 0], "hideTotal": true }, "caption": { "text": "Tio tioöringar byts mot en enkrona." } },
+            "firstStep": { "text": "Tio tioöringar är en krona. Hur många hela kronor får du, och vad blir över?" },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Tio tioöringar är en krona." } },
+              { "text": { "text": "15 tioöringar är en krona och 5 tioöringar." } },
+              { "text": { "text": "Det är 1,5 kr.", "speak": "Det är 1 komma 5 kronor." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "15", "message": { "text": "Det är antalet tioöringar. Byt tio av dem mot en krona." } }]
+        },
+        {
+          "type": "practice", "id": "dt1-p6", "structure": "berakna", "itemType": "addera-decimaltal", "context": "pengar",
+          "prompt": {
+            "text": "Du har 0,6 kr och 0,7 kr. Hur mycket är det tillsammans?",
+            "speak": "Du har 0,6 kronor och 0,7 kronor. Hur mycket är det tillsammans?"
+          },
+          "answer": { "kind": "number", "value": 1.3, "unit": "kr" },
+          "parallel": {
+            "prompt": {
+              "text": "Du har 0,9 kr och 0,6 kr. Hur mycket är det tillsammans?",
+              "speak": "Du har 0,9 kronor och 0,6 kronor. Hur mycket är det tillsammans?"
+            },
+            "answer": { "kind": "number", "value": 1.5, "unit": "kr" }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "numberLine", "config": { "min": 0, "max": 2, "step": 0.1, "labelEvery": 5 }, "caption": { "text": "Tallinjen går från noll till två. Lägg ihop tiondelarna." } },
+            "firstStep": { "text": "Räkna tiondelar. Hur många tiondelar är det tillsammans?" },
+            "fullSolution": { "steps": [
+              { "text": { "text": "6 tiondelar och 7 tiondelar är 13 tiondelar." }, "formula": { "expr": "0,6 + 0,7 = 1,3", "speak": "noll komma sex plus noll komma sju är lika med 1 komma 3" } },
+              { "text": { "text": "13 tiondelar är 1,3 kr.", "speak": "13 tiondelar är 1 komma 3 kronor." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "0,13", "message": { "text": "Räkna tiondelar: 6 och 7 är 13 tiondelar, alltså 1,3." } }]
         }
       ]
     }

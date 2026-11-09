@@ -9,12 +9,12 @@ import { renderFormula } from '../lesson/richView.js';
 /**
  * @param {{
  *   rows: { n: number, k: number, label?: string }[],
- *   interactive?: boolean, maxParts?: number,
+ *   interactive?: boolean, maxParts?: number, hideLabel?: boolean,
  *   onChange?: (rows: { n: number, k: number }[]) => void
  * }} o
  * @returns {{ el: HTMLElement, getRows: () => { n: number, k: number }[] }}
  */
-export function createFractionBars({ rows, interactive = false, maxParts = interactive ? 8 : 12, onChange }) {
+export function createFractionBars({ rows, interactive = false, maxParts = interactive ? 8 : 12, hideLabel = false, onChange }) {
   const state = rows.map((r) => ({ n: r.n, k: r.k }));
   const root = h('div', { class: 'fb', role: 'group', 'aria-label': 'Bråkstavar' });
   const live = h('div', { class: 'visually-hidden', role: 'status', 'aria-live': 'polite' });
@@ -38,7 +38,8 @@ export function createFractionBars({ rows, interactive = false, maxParts = inter
         bar.append(h('span', { class: on ? 'fb-seg on' : 'fb-seg' }));
       }
     }
-    const label = h('div', { class: 'fb-label' }, renderFormula({ expr: `${k}/${n}`, speak: spoken }));
+    // hideLabel: bilden ska hjälpa utan att skriva ut bråket, när bråket är svaret på uppgiften.
+    const label = hideLabel ? null : h('div', { class: 'fb-label' }, renderFormula({ expr: `${k}/${n}`, speak: spoken }));
     /** @type {any[]} */
     const children = [label, bar];
     if (interactive) {
@@ -63,7 +64,7 @@ export function createFractionBars({ rows, interactive = false, maxParts = inter
       ));
     } else {
       bar.setAttribute('role', 'img');
-      bar.setAttribute('aria-label', `${sentenceCase(spoken)}: ${k} av ${n} delar är ifyllda`);
+      bar.setAttribute('aria-label', hideLabel ? `Stav med ${n} lika delar där ${k} är ifyllda` : `${sentenceCase(spoken)}: ${k} av ${n} delar är ifyllda`);
     }
     return h('div', { class: 'fb-row' }, children);
   }

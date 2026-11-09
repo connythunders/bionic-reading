@@ -55,10 +55,11 @@ export function removeOne(counts, index) {
 }
 
 /**
- * @param {{ values?: number[], interactive?: boolean, onChange?: (counts: number[]) => void }} o
+ * @param {{ values?: number[], interactive?: boolean, hideTotal?: boolean, onChange?: (counts: number[]) => void }} o
+ *   hideTotal: visar inte summan, när summan är svaret på uppgiften
  * @returns {{ el: HTMLElement, getCounts: () => number[] }}
  */
-export function createMoney({ values = [0, 0, 0, 0, 0], interactive = true, onChange }) {
+export function createMoney({ values = [0, 0, 0, 0, 0], interactive = true, hideTotal = false, onChange }) {
   let counts = COLUMNS.map((_, i) => Math.min(9, Math.max(0, Math.floor(values[i] ?? 0))));
   const root = h('div', { class: 'money', role: 'group', 'aria-label': 'Pengar och positionssystemet' });
   const total = h('p', { class: 'money-total' });
@@ -111,6 +112,6 @@ export function createMoney({ values = [0, 0, 0, 0, 0], interactive = true, onCh
   }
 
   draw();
-  root.append(cols, total, live);
+  root.append(cols, hideTotal ? null : total, live);
   return { el: root, getCounts: () => [...counts] };
 }

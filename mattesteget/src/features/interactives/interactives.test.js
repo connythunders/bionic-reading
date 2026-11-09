@@ -53,7 +53,7 @@ test('lektionsflöde: lektion med tallinje går att spela igenom', async () => {
   const lesson = await loadRealLesson('tallinjen-1');
   let s = initialState();
   const kinds = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 60; i++) {
     const v = currentView(lesson, s);
     if (v.kind === 'done') break;
     kinds.push(v.kind);
@@ -63,7 +63,10 @@ test('lektionsflöde: lektion med tallinje går att spela igenom', async () => {
     }
     s = reduce(lesson, s, { type: 'next' });
   }
-  assert.deepEqual(kinds, ['interactive', 'practice']);
+  assert.equal(kinds[0], 'interactive');
+  assert.ok(kinds.includes('workedStatic') && kinds.includes('guidedPart'), 'alla faser finns med');
+  assert.equal(kinds.filter((k) => k === 'practice').length, 6);
+  assert.equal(kinds[kinds.length - 1], 'practice');
   assert.ok(s.finished);
 });
 
@@ -179,6 +182,21 @@ test('bråkstavar: visningsläge beskriver bråket med ord', async () => {
   assert.equal(fb.el.querySelectorAll('button').length, 0, 'inga knappar i visningsläge');
 }, { browserOnly: true });
 
+test('bilder som hjälp: bråket respektive summan kan döljas så att svaret inte avslöjas', async () => {
+  const { createFractionBars } = await import('./fractionBars.js');
+  const { createMoney } = await import('./money.js');
+  const fb = createFractionBars({ rows: [{ n: 5, k: 2 }], hideLabel: true });
+  assert.equal(fb.el.querySelector('.fb-label'), null);
+  assert.equal(fb.el.querySelectorAll('.fb-seg.on').length, 2, 'delarna syns ändå');
+  assert.ok(!/femtedel/i.test(fb.el.textContent + (fb.el.querySelector('.fb-bar')?.getAttribute('aria-label') || '')), 'bråket nämns varken i text eller i aria-label');
+
+  const money = createMoney({ values: [0, 2, 0, 7, 0], interactive: false, hideTotal: true });
+  assert.equal(money.el.querySelector('.money-total'), null);
+  assert.ok(!money.el.textContent?.includes('20,70'));
+  const shown = createMoney({ values: [0, 2, 0, 7, 0], interactive: false });
+  assert.ok(shown.el.querySelector('.money-total')?.textContent?.replace(/\s/g, ' ').includes('20,70 kr'));
+}, { browserOnly: true });
+
 test('pengar: knappar lägger till, växlar och beskriver summan', async () => {
   const { createMoney } = await import('./money.js');
   const money = createMoney({ values: [0, 0, 0, 0, 9] });
@@ -204,7 +222,26 @@ test('lektion med tallinje: placera markören med knappar och få återkoppling'
   const player = createLessonPlayer(lesson);
   mounted(player.el, (root) => {
     assert.ok(root.querySelector('.nl-thumb'), 'utforska-steget visar en tallinje');
-    button(root, 'Fortsätt').click();
+    // Gå fram till första övningsuppgiften (den som har ledtrådstrappa) genom att ge upp på det som kommer före.
+    for (let i = 0; i < 60 && !root.querySelector('.hints'); i++) {
+      if (root.querySelector('input.answer-input')) {
+        // Fältet ritas om efter varje svar, så det hämtas på nytt varje gång.
+        for (const value of ['abc', '-99999']) {
+          const field = /** @type {HTMLInputElement} */ (root.querySelector('input.answer-input'));
+          field.value = value;
+          /** @type {HTMLFormElement} */ (field.form).requestSubmit();
+        }
+      } else if (root.querySelector('.nl-thumb')) {
+        button(root, 'Åt höger')?.click();
+        button(root, 'Kontrollera')?.click();
+      } else if (root.querySelector('.choices')) {
+        /** @type {HTMLInputElement} */ (root.querySelector('.choices input')).click();
+        button(root, 'Kontrollera')?.click();
+      }
+      button(root, 'Visa svaret')?.click();
+      button(root, 'Fortsätt')?.click();
+    }
+    assert.ok(root.querySelector('.hints'), 'övningsuppgiften har en hjälpsektion');
     assert.ok(root.querySelector('.nl-thumb'), 'uppgiften visar en tallinje');
     const live = () => root.querySelector('[role="status"]')?.textContent;
     button(root, 'Kontrollera').click();
