@@ -40,6 +40,20 @@ test('lektionsflöde: hela exempellektionen går att spela igenom med facit', as
   ]);
 });
 
+test('lektionsflöde: varje lektion i alla moduler går att spela igenom med facit', async () => {
+  const { loadRealContent } = await import('../../../tests/helpers.js');
+  const { modules } = await loadRealContent();
+  let lessons = 0;
+  for (const m of modules) {
+    for (const lesson of m.lessons) {
+      const { state } = playThrough(lesson);
+      assert.ok(state.finished, `${lesson.id} tar aldrig slut`);
+      lessons++;
+    }
+  }
+  assert.atLeast(lessons, 7, 'minst alla lektioner i modul 4 och 5 plus skeletten');
+});
+
 test('lektionsflöde: man kommer inte vidare utan att lösa frågan', async () => {
   const lesson = await loadRealLesson(LESSON_ID);
   let s = initialState();

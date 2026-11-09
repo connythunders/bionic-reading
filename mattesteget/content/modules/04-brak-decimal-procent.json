@@ -1,23 +1,545 @@
 {
   "id": "brak-decimal-procent",
   "title": "Bråk, decimaltal och procent",
-  "summary": "Se hur bråk, decimaltal och procent hänger ihop.",
+  "summary": "Se hur bråk, decimaltal och procent hänger ihop och räkna om mellan dem.",
   "order": 4,
-  "status": "skeleton",
+  "status": "full",
   "lessons": [
     {
       "id": "bdp-1",
-      "title": "Procentstapeln",
-      "draft": true,
-      "goal": { "text": "Du lär dig se hur stor del av ett belopp en procentsats är." },
-      "representation": "percentBar",
+      "title": "Från bråk till procent",
+      "goal": { "text": "Du lär dig skriva ett bråk som procent." },
+      "representation": "fractionBars",
       "steps": [
         {
-          "type": "interactive",
-          "id": "bdp1-int1",
-          "kind": "percentBar",
-          "config": { "whole": 800, "percent": 25, "unit": "kr" },
-          "prompt": { "text": "Flytta markören och se hur många kronor procenten blir. Börja gärna på 25 procent." }
+          "type": "interactive", "id": "bdp1-int1", "kind": "percentBar",
+          "config": { "whole": 100, "percent": 50, "unit": "kr" },
+          "prompt": { "text": "Flytta markören och se hur många procent som är ifyllda. Hela stapeln är 100 procent." }
+        },
+        {
+          "type": "workedExample", "id": "bdp1-ex1", "structure": "omvandla", "fading": 0,
+          "prompt": { "text": "Batteriet är laddat till {{f1}}. Hur många procent är det?", "formulas": { "f1": { "expr": "1/4", "speak": "en fjärdedel" } } },
+          "steps": [
+            { "text": { "text": "Procent betyder hundradelar. Hela batteriet är 100 procent." } },
+            { "text": { "text": "En fjärdedel är 100 delat med 4." }, "formula": { "expr": "100 / 4 = 25", "speak": "100 delat med 4 är lika med 25" } },
+            { "text": { "text": "En fjärdedel är 25 %.", "speak": "En fjärdedel är 25 procent." } }
+          ],
+          "answer": { "kind": "number", "value": 25, "unit": "%" }
+        },
+        {
+          "type": "guidedStep", "id": "bdp1-gs1", "structure": "omvandla",
+          "prompt": { "text": "En flaska är fylld till {{f1}}. Hur många procent är det?", "formulas": { "f1": { "expr": "3/5", "speak": "tre femtedelar" } } },
+          "parts": [
+            { "prompt": { "text": "Hur många procent är en femtedel?" }, "answer": { "kind": "number", "value": 20, "unit": "%" }, "hint": { "text": "Dela 100 med 5." } },
+            {
+              "prompt": { "text": "Hur många procent är {{f2}}?", "formulas": { "f2": { "expr": "3/5", "speak": "tre femtedelar" } } },
+              "answer": { "kind": "number", "value": 60, "unit": "%" },
+              "hint": { "text": "Tre femtedelar är tre gånger så mycket som en femtedel." }
+            }
+          ]
+        },
+        {
+          "type": "workedExample", "id": "bdp1-ex2", "structure": "omvandla", "fading": 1,
+          "prompt": { "text": "Laptopen har {{f1}} batteri kvar. Hur många procent är det?", "formulas": { "f1": { "expr": "1/10", "speak": "en tiondel" } } },
+          "steps": [
+            { "text": { "text": "Hela batteriet är 100 procent." } },
+            { "text": { "text": "En tiondel är 100 delat med 10." }, "formula": { "expr": "100 / 10 = 10", "speak": "100 delat med 10 är lika med 10" } },
+            {
+              "text": { "text": "En tiondel är 10 %.", "speak": "En tiondel är 10 procent." },
+              "ask": { "text": "Hur många procent är en tiondel?" },
+              "answer": { "kind": "number", "value": 10, "unit": "%" }
+            }
+          ],
+          "answer": { "kind": "number", "value": 10, "unit": "%" }
+        },
+        {
+          "type": "guidedStep", "id": "bdp1-gs2", "structure": "omvandla",
+          "prompt": { "text": "2 av 5 elever cyklar till skolan. Hur många procent är det?" },
+          "parts": [
+            { "prompt": { "text": "Hur många procent är en femtedel?" }, "answer": { "kind": "number", "value": 20, "unit": "%" }, "hint": { "text": "Dela 100 med 5." } },
+            { "prompt": { "text": "Hur många procent är två femtedelar?" }, "answer": { "kind": "number", "value": 40, "unit": "%" }, "hint": { "text": "Två femtedelar är två gånger så mycket som en femtedel." } }
+          ]
+        },
+        {
+          "type": "practice", "id": "bdp1-p1", "structure": "omvandla", "itemType": "brak-till-procent", "context": "dryck",
+          "prompt": { "text": "En drink är fylld till {{f1}}. Hur många procent är det?", "formulas": { "f1": { "expr": "1/2", "speak": "en halv" } } },
+          "answer": { "kind": "number", "value": 50, "unit": "%" },
+          "parallel": {
+            "prompt": { "text": "Ett glas är fyllt till {{f1}}. Hur många procent är det?", "formulas": { "f1": { "expr": "3/4", "speak": "tre fjärdedelar" } } },
+            "answer": { "kind": "number", "value": 75, "unit": "%" }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 2, "k": 1 }] }, "caption": { "text": "Staven är delad i två lika delar. En del är ifylld." } },
+            "firstStep": { "text": "Hela är 100 procent. Dela 100 med nämnaren 2." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Hela är 100 procent." } },
+              { "text": { "text": "En halv är 100 delat med 2." }, "formula": { "expr": "100 / 2 = 50", "speak": "100 delat med 2 är lika med 50" } },
+              { "text": { "text": "En halv är 50 %.", "speak": "En halv är 50 procent." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "2", "message": { "text": "Det är nämnaren. Dela 100 med nämnaren för att få procent." } }]
+        },
+        {
+          "type": "practice", "id": "bdp1-p2", "structure": "omvandla", "itemType": "brak-till-procent", "context": "mobil",
+          "prompt": { "text": "Mobilen har {{f1}} batteri kvar. Hur många procent är det?", "formulas": { "f1": { "expr": "1/4", "speak": "en fjärdedel" } } },
+          "answer": { "kind": "number", "value": 25, "unit": "%" },
+          "parallel": {
+            "prompt": { "text": "Surfplattan har {{f1}} batteri kvar. Hur många procent är det?", "formulas": { "f1": { "expr": "1/5", "speak": "en femtedel" } } },
+            "answer": { "kind": "number", "value": 20, "unit": "%" }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 4, "k": 1 }] }, "caption": { "text": "Staven är delad i fyra lika delar. En del är ifylld." } },
+            "firstStep": { "text": "Hela är 100 procent. Dela 100 med nämnaren 4." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Hela batteriet är 100 procent." } },
+              { "text": { "text": "En fjärdedel är 100 delat med 4." }, "formula": { "expr": "100 / 4 = 25", "speak": "100 delat med 4 är lika med 25" } },
+              { "text": { "text": "En fjärdedel är 25 %.", "speak": "En fjärdedel är 25 procent." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "4", "message": { "text": "Det är nämnaren. Dela 100 med nämnaren för att få procent." } }]
+        },
+        {
+          "type": "practice", "id": "bdp1-p3", "structure": "omvandla", "itemType": "brak-till-procent", "context": "buss",
+          "prompt": { "text": "Bussen är {{f1}} full. Hur många procent är det?", "formulas": { "f1": { "expr": "3/4", "speak": "tre fjärdedelar" } } },
+          "answer": { "kind": "number", "value": 75, "unit": "%" },
+          "parallel": {
+            "prompt": { "text": "Hallen är {{f1}} full. Hur många procent är det?", "formulas": { "f1": { "expr": "3/10", "speak": "tre tiondelar" } } },
+            "answer": { "kind": "number", "value": 30, "unit": "%" }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 4, "k": 3 }] }, "caption": { "text": "Staven är delad i fyra lika delar. Tre delar är ifyllda." } },
+            "firstStep": { "text": "En fjärdedel är 25 procent. Hur många fjärdedelar är det?", "speak": "En fjärdedel är 25 procent. Hur många fjärdedelar är det?" },
+            "fullSolution": { "steps": [
+              { "text": { "text": "En fjärdedel är 100 delat med 4." }, "formula": { "expr": "100 / 4 = 25", "speak": "100 delat med 4 är lika med 25" } },
+              { "text": { "text": "Tre fjärdedelar är 3 gånger så mycket." }, "formula": { "expr": "3 * 25 = 75", "speak": "3 gånger 25 är lika med 75" } },
+              { "text": { "text": "Tre fjärdedelar är 75 %.", "speak": "Tre fjärdedelar är 75 procent." } }
+            ] }
+          }
+        },
+        {
+          "type": "practice", "id": "bdp1-p4", "structure": "omvandla", "itemType": "brak-till-procent", "context": "skola",
+          "prompt": { "text": "Du har gjort {{f1}} av läxan. Hur många procent är det?", "formulas": { "f1": { "expr": "1/5", "speak": "en femtedel" } } },
+          "answer": { "kind": "number", "value": 20, "unit": "%" },
+          "parallel": {
+            "prompt": { "text": "Du har läst {{f1}} av boken. Hur många procent är det?", "formulas": { "f1": { "expr": "4/5", "speak": "fyra femtedelar" } } },
+            "answer": { "kind": "number", "value": 80, "unit": "%" }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 5, "k": 1 }] }, "caption": { "text": "Staven är delad i fem lika delar. En del är ifylld." } },
+            "firstStep": { "text": "Hela är 100 procent. Dela 100 med nämnaren 5." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Hela läxan är 100 procent." } },
+              { "text": { "text": "En femtedel är 100 delat med 5." }, "formula": { "expr": "100 / 5 = 20", "speak": "100 delat med 5 är lika med 20" } },
+              { "text": { "text": "En femtedel är 20 %.", "speak": "En femtedel är 20 procent." } }
+            ] }
+          }
+        },
+        {
+          "type": "practice", "id": "bdp1-p5", "structure": "omvandla", "itemType": "brak-till-procent", "context": "butik",
+          "prompt": { "text": "Tre av tio kunder betalar med Swish. Hur många procent är det?" },
+          "answer": { "kind": "number", "value": 30, "unit": "%" },
+          "parallel": {
+            "prompt": { "text": "Sju av tio kunder betalar med kort. Hur många procent är det?" },
+            "answer": { "kind": "number", "value": 70, "unit": "%" }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 10, "k": 3 }] }, "caption": { "text": "Staven är delad i tio lika delar. Tre delar är ifyllda." } },
+            "firstStep": { "text": "En tiondel är 10 procent. Hur många tiondelar är det?", "speak": "En tiondel är 10 procent. Hur många tiondelar är det?" },
+            "fullSolution": { "steps": [
+              { "text": { "text": "En tiondel är 100 delat med 10." }, "formula": { "expr": "100 / 10 = 10", "speak": "100 delat med 10 är lika med 10" } },
+              { "text": { "text": "Tre tiondelar är 3 gånger så mycket." }, "formula": { "expr": "3 * 10 = 30", "speak": "3 gånger 10 är lika med 30" } },
+              { "text": { "text": "Tre av tio är 30 %.", "speak": "Tre av tio är 30 procent." } }
+            ] }
+          }
+        },
+        {
+          "type": "practice", "id": "bdp1-p6", "structure": "omvandla", "itemType": "brak-till-procent", "context": "bygg",
+          "prompt": { "text": "Fem av åtta brädor är målade. Hur många procent är det?" },
+          "answer": { "kind": "number", "value": 62.5, "unit": "%" },
+          "parallel": {
+            "prompt": { "text": "Tre av åtta brädor är målade. Hur många procent är det?" },
+            "answer": { "kind": "number", "value": 37.5, "unit": "%" }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 8, "k": 5 }] }, "caption": { "text": "Staven är delad i åtta lika delar. Fem delar är ifyllda." } },
+            "firstStep": { "text": "Börja med en åttondel. Det är 100 delat med 8." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "En åttondel är 100 delat med 8." }, "formula": { "expr": "100 / 8 = 12,5", "speak": "100 delat med 8 är lika med 12 komma 5" } },
+              { "text": { "text": "Fem åttondelar är 5 gånger så mycket." }, "formula": { "expr": "5 * 12,5 = 62,5", "speak": "5 gånger 12 komma 5 är lika med 62 komma 5" } },
+              { "text": { "text": "Fem av åtta är 62,5 %.", "speak": "Fem av åtta är 62 komma 5 procent." } }
+            ] }
+          }
+        }
+      ]
+    },
+    {
+      "id": "bdp-2",
+      "title": "Från decimaltal till procent",
+      "goal": { "text": "Du lär dig skriva decimaltal som procent, och procent som decimaltal." },
+      "representation": "numberLine",
+      "steps": [
+        {
+          "type": "interactive", "id": "bdp2-int1", "kind": "numberLine",
+          "config": { "min": 0, "max": 1, "step": 0.05, "labelEvery": 4, "marks": [{ "value": 0.25 }, { "value": 0.5 }, { "value": 0.75 }] },
+          "prompt": { "text": "Flytta markören och se decimaltalet. Hela tallinjen från noll till ett är 100 procent." }
+        },
+        {
+          "type": "workedExample", "id": "bdp2-ex1", "structure": "omvandla", "fading": 0,
+          "prompt": { "text": "Du har gjort 0,6 av läxan. Hur många procent är det?" },
+          "steps": [
+            { "text": { "text": "Procent betyder hundradelar. Hela läxan är 1, och det är 100 procent." } },
+            { "text": { "text": "Multiplicera decimaltalet med 100." }, "formula": { "expr": "0,6 * 100 = 60", "speak": "noll komma sex gånger 100 är lika med 60" } },
+            { "text": { "text": "Talet 0,6 är 60 %.", "speak": "Talet 0,6 är 60 procent." } }
+          ],
+          "answer": { "kind": "number", "value": 60, "unit": "%" }
+        },
+        {
+          "type": "guidedStep", "id": "bdp2-gs1", "structure": "omvandla",
+          "prompt": { "text": "Skriv 0,08 som procent. Gör det i två steg." },
+          "parts": [
+            { "prompt": { "text": "Hur många hundradelar är 0,08?" }, "answer": { "kind": "number", "value": 8 }, "hint": { "text": "Läs talet som noll komma noll åtta. Det är åtta hundradelar." } },
+            { "prompt": { "text": "Hur många procent är 0,08?" }, "answer": { "kind": "number", "value": 8, "unit": "%" }, "hint": { "text": "Procent betyder hundradelar." } }
+          ]
+        },
+        {
+          "type": "workedExample", "id": "bdp2-ex2", "structure": "omvandla", "fading": 1,
+          "prompt": { "text": "Rabatten är 45 %. Vilket decimaltal är det?", "speak": "Rabatten är 45 procent. Vilket decimaltal är det?" },
+          "steps": [
+            { "text": { "text": "Procent betyder hundradelar." } },
+            { "text": { "text": "Dela procenten med 100." }, "formula": { "expr": "45 / 100 = 0,45", "speak": "45 delat med 100 är lika med noll komma fyra fem" } },
+            {
+              "text": { "text": "Talet 45 % är 0,45.", "speak": "Talet 45 procent är 0,45." },
+              "ask": { "text": "Vilket decimaltal är 45 procent?" },
+              "answer": { "kind": "number", "value": 0.45 }
+            }
+          ],
+          "answer": { "kind": "number", "value": 0.45 }
+        },
+        {
+          "type": "guidedStep", "id": "bdp2-gs2", "structure": "omvandla",
+          "prompt": { "text": "Skriv 0,25 som ett bråk. Först med hundradelar, sedan förkortat." },
+          "parts": [
+            { "prompt": { "text": "Skriv 0,25 som ett bråk med 100 som nämnare." }, "answer": { "kind": "fraction", "num": 25, "den": 100 }, "hint": { "text": "Talet 0,25 är 25 hundradelar." } },
+            { "prompt": { "text": "Förkorta bråket så mycket du kan." }, "answer": { "kind": "fraction", "num": 1, "den": 4, "mustBeSimplified": true }, "hint": { "text": "Dela täljaren och nämnaren med 25." } }
+          ]
+        },
+        {
+          "type": "practice", "id": "bdp2-p1", "structure": "omvandla", "itemType": "decimal-till-procent", "context": "skola",
+          "prompt": { "text": "Du har gjort 0,7 av läxan. Hur många procent är det?" },
+          "answer": { "kind": "number", "value": 70, "unit": "%" },
+          "parallel": { "prompt": { "text": "Du har läst 0,4 av boken. Hur många procent är det?" }, "answer": { "kind": "number", "value": 40, "unit": "%" } },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "numberLine", "config": { "min": 0, "max": 1, "step": 0.1, "value": 0.7, "labelEvery": 5 }, "caption": { "text": "Tallinjen går från noll till ett. Markören står på 0,7." } },
+            "firstStep": { "text": "Multiplicera decimaltalet med 100." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Procent betyder hundradelar." } },
+              { "text": { "text": "Multiplicera med 100." }, "formula": { "expr": "0,7 * 100 = 70", "speak": "noll komma sju gånger 100 är lika med 70" } },
+              { "text": { "text": "Talet 0,7 är 70 %.", "speak": "Talet 0,7 är 70 procent." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "7", "message": { "text": "Du flyttade kommat bara ett steg. Flytta det två steg åt höger." } }]
+        },
+        {
+          "type": "practice", "id": "bdp2-p2", "structure": "omvandla", "itemType": "decimal-till-procent", "context": "lan",
+          "prompt": { "text": "Du har betalat 0,15 av lånet. Hur många procent är det?" },
+          "answer": { "kind": "number", "value": 15, "unit": "%" },
+          "parallel": { "prompt": { "text": "Du har betalat 0,12 av skulden. Hur många procent är det?" }, "answer": { "kind": "number", "value": 12, "unit": "%" } },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "numberLine", "config": { "min": 0, "max": 0.5, "step": 0.05, "value": 0.15, "labelEvery": 2 }, "caption": { "text": "Tallinjen går från noll till en halv. Markören står på 0,15." } },
+            "firstStep": { "text": "Multiplicera decimaltalet med 100." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Procent betyder hundradelar." } },
+              { "text": { "text": "Multiplicera med 100." }, "formula": { "expr": "0,15 * 100 = 15", "speak": "noll komma ett fem gånger 100 är lika med 15" } },
+              { "text": { "text": "Talet 0,15 är 15 %.", "speak": "Talet 0,15 är 15 procent." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "1,5", "message": { "text": "Du flyttade kommat bara ett steg. Flytta det två steg åt höger." } }]
+        },
+        {
+          "type": "practice", "id": "bdp2-p3", "structure": "omvandla", "itemType": "decimal-till-procent", "context": "ranta",
+          "prompt": { "text": "Räntan är 0,05. Hur många procent är det?" },
+          "answer": { "kind": "number", "value": 5, "unit": "%" },
+          "parallel": { "prompt": { "text": "Räntan är 0,03. Hur många procent är det?" }, "answer": { "kind": "number", "value": 3, "unit": "%" } },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "numberLine", "config": { "min": 0, "max": 0.1, "step": 0.01, "value": 0.05, "labelEvery": 5 }, "caption": { "text": "Tallinjen går från noll till 0,1. Markören står på 0,05." } },
+            "firstStep": { "text": "Multiplicera decimaltalet med 100." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Procent betyder hundradelar." } },
+              { "text": { "text": "Multiplicera med 100." }, "formula": { "expr": "0,05 * 100 = 5", "speak": "noll komma noll fem gånger 100 är lika med 5" } },
+              { "text": { "text": "Talet 0,05 är 5 %.", "speak": "Talet 0,05 är 5 procent." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "50", "message": { "text": "Det blev för mycket. Talet 0,05 är fem hundradelar, alltså 5 procent." } }]
+        },
+        {
+          "type": "practice", "id": "bdp2-p4", "structure": "omvandla", "itemType": "procent-till-decimal", "context": "lon",
+          "prompt": { "text": "Lönen höjs med 12 %. Vilket decimaltal är det?", "speak": "Lönen höjs med 12 procent. Vilket decimaltal är det?" },
+          "answer": { "kind": "number", "value": 0.12 },
+          "parallel": {
+            "prompt": { "text": "Lönen höjs med 8 %. Vilket decimaltal är det?", "speak": "Lönen höjs med 8 procent. Vilket decimaltal är det?" },
+            "answer": { "kind": "number", "value": 0.08 }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "percentBar", "config": { "whole": 100, "percent": 12, "unit": "kr", "hideAmount": true }, "caption": { "text": "Stapeln visar 12 procent av 100 kronor." } },
+            "firstStep": { "text": "Procent betyder hundradelar. Dela med 100." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Procent betyder hundradelar." } },
+              { "text": { "text": "Dela procenten med 100." }, "formula": { "expr": "12 / 100 = 0,12", "speak": "12 delat med 100 är lika med noll komma ett två" } },
+              { "text": { "text": "Talet 12 % är 0,12.", "speak": "Talet 12 procent är 0,12." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "1,2", "message": { "text": "Du flyttade kommat bara ett steg. Flytta det två steg åt vänster." } }]
+        },
+        {
+          "type": "practice", "id": "bdp2-p5", "structure": "omvandla", "itemType": "procent-till-decimal", "context": "rabatt",
+          "prompt": { "text": "Rabatten är 30 %. Vilket decimaltal är det?", "speak": "Rabatten är 30 procent. Vilket decimaltal är det?" },
+          "answer": { "kind": "number", "value": 0.3 },
+          "parallel": {
+            "prompt": { "text": "Rabatten är 60 %. Vilket decimaltal är det?", "speak": "Rabatten är 60 procent. Vilket decimaltal är det?" },
+            "answer": { "kind": "number", "value": 0.6 }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "percentBar", "config": { "whole": 100, "percent": 30, "unit": "kr", "hideAmount": true }, "caption": { "text": "Stapeln visar 30 procent av 100 kronor." } },
+            "firstStep": { "text": "Procent betyder hundradelar. Dela med 100." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Procent betyder hundradelar." } },
+              { "text": { "text": "Dela procenten med 100." }, "formula": { "expr": "30 / 100 = 0,3", "speak": "30 delat med 100 är lika med noll komma tre" } },
+              { "text": { "text": "Talet 30 % är 0,3.", "speak": "Talet 30 procent är 0,3." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "0,03", "message": { "text": "Det blev för litet. Trettio hundradelar är 0,30, alltså 0,3." } }]
+        },
+        {
+          "type": "practice", "id": "bdp2-p6", "structure": "omvandla", "itemType": "decimal-till-brak", "context": "tal",
+          "prompt": { "text": "Skriv 0,2 som ett bråk. Förkorta så mycket du kan." },
+          "answer": { "kind": "fraction", "num": 1, "den": 5, "mustBeSimplified": true },
+          "parallel": {
+            "prompt": { "text": "Skriv 0,4 som ett bråk. Förkorta så mycket du kan." },
+            "answer": { "kind": "fraction", "num": 2, "den": 5, "mustBeSimplified": true }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 10, "k": 2 }] }, "caption": { "text": "Staven är delad i tio lika delar. Två delar är ifyllda." } },
+            "firstStep": { "text": "Talet 0,2 är två tiondelar. Förkorta bråket." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Talet 0,2 är två tiondelar." }, "formula": { "expr": "0,2 = 2/10", "speak": "noll komma två är lika med två tiondelar" } },
+              { "text": { "text": "Förkorta med 2." }, "formula": { "expr": "2/10 = 1/5", "speak": "två tiondelar är lika med en femtedel" } },
+              { "text": { "text": "Svaret är en femtedel." } }
+            ] }
+          }
+        }
+      ]
+    },
+    {
+      "id": "bdp-3",
+      "title": "Jämför och räkna om",
+      "goal": { "text": "Du lär dig jämföra bråk, decimaltal och procent genom att skriva dem på samma sätt." },
+      "representation": "numberLine",
+      "steps": [
+        {
+          "type": "interactive", "id": "bdp3-int1", "kind": "numberLine",
+          "config": { "min": 0, "max": 1, "step": 0.05, "labelEvery": 4, "marks": [{ "value": 0.5, "label": "0,5" }, { "value": 0.75, "label": "0,75" }] },
+          "prompt": { "text": "Flytta markören och jämför. Tal längre åt höger är större." }
+        },
+        {
+          "type": "workedExample", "id": "bdp3-ex1", "structure": "storst-minst", "fading": 0,
+          "prompt": { "text": "Vilket är störst: 0,6 eller 55 %?", "speak": "Vilket är störst: 0,6 eller 55 procent?" },
+          "steps": [
+            { "text": { "text": "Skriv båda som procent." } },
+            { "text": { "text": "Talet 0,6 gånger 100 är 60." }, "formula": { "expr": "0,6 * 100 = 60", "speak": "noll komma sex gånger 100 är lika med 60" } },
+            { "text": { "text": "Talet 60 % är mer än 55 %. Alltså är 0,6 störst.", "speak": "Talet 60 procent är mer än 55 procent. Alltså är 0,6 störst." } }
+          ],
+          "answer": { "kind": "choice", "options": [{ "text": "0,6" }, { "text": "55 %", "speak": "55 procent" }], "correct": [0] }
+        },
+        {
+          "type": "guidedStep", "id": "bdp3-gs1", "structure": "storst-minst",
+          "prompt": {
+            "text": "Vilket är störst: {{f1}} eller 40 %? Räkna om till procent först.",
+            "speak": "Vilket är störst: en halv eller 40 procent? Räkna om till procent först.",
+            "formulas": { "f1": { "expr": "1/2", "speak": "en halv" } }
+          },
+          "parts": [
+            {
+              "prompt": { "text": "Hur många procent är {{f2}}?", "formulas": { "f2": { "expr": "1/2", "speak": "en halv" } } },
+              "answer": { "kind": "number", "value": 50, "unit": "%" },
+              "hint": { "text": "Dela 100 med 2." }
+            },
+            {
+              "prompt": { "text": "Vilket är störst: 50 procent eller 40 procent?" },
+              "answer": { "kind": "choice", "options": [{ "text": "50 procent" }, { "text": "40 procent" }], "correct": [0] }
+            }
+          ]
+        },
+        {
+          "type": "workedExample", "id": "bdp3-ex2", "structure": "storst-minst", "fading": 1,
+          "prompt": { "text": "Vilket är störst: {{f1}} eller 0,7?", "formulas": { "f1": { "expr": "3/4", "speak": "tre fjärdedelar" } } },
+          "steps": [
+            { "text": { "text": "Skriv båda som procent." } },
+            { "text": { "text": "Tre fjärdedelar är 75 procent. Talet 0,7 är 70 procent." } },
+            {
+              "text": { "text": "Talet 75 procent är mer än 70 procent. Alltså är tre fjärdedelar störst." },
+              "ask": { "text": "Vilket är störst, tre fjärdedelar eller 0,7?" },
+              "answer": { "kind": "choice", "options": [{ "text": "Tre fjärdedelar" }, { "text": "0,7" }], "correct": [0] }
+            }
+          ],
+          "answer": { "kind": "choice", "options": [{ "text": "Tre fjärdedelar" }, { "text": "0,7" }], "correct": [0] }
+        },
+        {
+          "type": "guidedStep", "id": "bdp3-gs2", "structure": "storst-minst",
+          "prompt": {
+            "text": "Vilket är minst: 0,3, {{f1}} eller 20 %? Skriv alla som procent.",
+            "speak": "Vilket är minst: 0,3, en fjärdedel eller 20 procent? Skriv alla som procent.",
+            "formulas": { "f1": { "expr": "1/4", "speak": "en fjärdedel" } }
+          },
+          "parts": [
+            { "prompt": { "text": "Hur många procent är 0,3?" }, "answer": { "kind": "number", "value": 30, "unit": "%" }, "hint": { "text": "Multiplicera med 100." } },
+            { "prompt": { "text": "Hur många procent är en fjärdedel?" }, "answer": { "kind": "number", "value": 25, "unit": "%" }, "hint": { "text": "Dela 100 med 4." } },
+            {
+              "prompt": { "text": "Vilket är minst: 30 procent, 25 procent eller 20 procent?" },
+              "answer": { "kind": "choice", "options": [{ "text": "30 procent" }, { "text": "25 procent" }, { "text": "20 procent" }], "correct": [2] }
+            }
+          ]
+        },
+        {
+          "type": "practice", "id": "bdp3-p1", "structure": "storst-minst", "itemType": "jamfor-storst", "context": "tal",
+          "prompt": { "text": "Vilket är störst: 0,45 eller 40 %?", "speak": "Vilket är störst: 0,45 eller 40 procent?" },
+          "answer": { "kind": "choice", "options": [{ "text": "0,45" }, { "text": "40 %", "speak": "40 procent" }], "correct": [0] },
+          "parallel": {
+            "prompt": { "text": "Vilket är störst: 0,3 eller 35 %?", "speak": "Vilket är störst: 0,3 eller 35 procent?" },
+            "answer": { "kind": "choice", "options": [{ "text": "0,3" }, { "text": "35 %", "speak": "35 procent" }], "correct": [1] }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "numberLine", "config": { "min": 0, "max": 1, "step": 0.05, "labelEvery": 4, "marks": [{ "value": 0.45, "label": "0,45" }, { "value": 0.4, "label": "40 %" }] }, "caption": { "text": "Båda talen är utsatta på tallinjen. Det som ligger längst åt höger är störst." } },
+            "firstStep": { "text": "Skriv båda som procent. Talet 0,45 är 45 procent." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Skriv båda som procent." } },
+              { "text": { "text": "Talet 0,45 är 45 procent. Det andra är 40 procent." } },
+              { "text": { "text": "Talet 45 procent är mer än 40 procent. Alltså är 0,45 störst." } }
+            ] }
+          }
+        },
+        {
+          "type": "practice", "id": "bdp3-p2", "structure": "storst-minst", "itemType": "jamfor-minst", "context": "tal",
+          "prompt": {
+            "text": "Vilket är minst: {{f1}}, 0,5 eller 55 %?",
+            "speak": "Vilket är minst: tre femtedelar, 0,5 eller 55 procent?",
+            "formulas": { "f1": { "expr": "3/5", "speak": "tre femtedelar" } }
+          },
+          "answer": { "kind": "choice", "options": [{ "text": "Tre femtedelar" }, { "text": "0,5" }, { "text": "55 %", "speak": "55 procent" }], "correct": [1] },
+          "parallel": {
+            "prompt": {
+              "text": "Vilket är minst: {{f1}}, 0,6 eller 45 %?",
+              "speak": "Vilket är minst: en halv, 0,6 eller 45 procent?",
+              "formulas": { "f1": { "expr": "1/2", "speak": "en halv" } }
+            },
+            "answer": { "kind": "choice", "options": [{ "text": "En halv" }, { "text": "0,6" }, { "text": "45 %", "speak": "45 procent" }], "correct": [2] }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "numberLine", "config": { "min": 0, "max": 1, "step": 0.05, "labelEvery": 4, "marks": [{ "value": 0.6, "label": "3/5" }, { "value": 0.5, "label": "0,5" }, { "value": 0.55, "label": "55 %" }] }, "caption": { "text": "Alla tre är utsatta på tallinjen. Det som ligger längst åt vänster är minst." } },
+            "firstStep": { "text": "Skriv alla tre som procent." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Tre femtedelar är 60 procent." } },
+              { "text": { "text": "Talet 0,5 är 50 procent, och den tredje är 55 procent." } },
+              { "text": { "text": "Minst är 50 procent. Alltså är 0,5 minst." } }
+            ] }
+          }
+        },
+        {
+          "type": "practice", "id": "bdp3-p3", "structure": "storst-minst", "itemType": "jamfor-storst", "context": "tal",
+          "prompt": {
+            "text": "Vilket är störst: {{f1}}, 65 % eller 0,6?",
+            "speak": "Vilket är störst: sju tiondelar, 65 procent eller 0,6?",
+            "formulas": { "f1": { "expr": "7/10", "speak": "sju tiondelar" } }
+          },
+          "answer": { "kind": "choice", "options": [{ "text": "Sju tiondelar" }, { "text": "65 %", "speak": "65 procent" }, { "text": "0,6" }], "correct": [0] },
+          "parallel": {
+            "prompt": {
+              "text": "Vilket är störst: {{f1}}, 62 % eller 0,55?",
+              "speak": "Vilket är störst: tre femtedelar, 62 procent eller 0,55?",
+              "formulas": { "f1": { "expr": "3/5", "speak": "tre femtedelar" } }
+            },
+            "answer": { "kind": "choice", "options": [{ "text": "Tre femtedelar" }, { "text": "62 %", "speak": "62 procent" }, { "text": "0,55" }], "correct": [1] }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "numberLine", "config": { "min": 0, "max": 1, "step": 0.05, "labelEvery": 4, "marks": [{ "value": 0.7, "label": "7/10" }, { "value": 0.65, "label": "65 %" }, { "value": 0.6, "label": "0,6" }] }, "caption": { "text": "Alla tre är utsatta på tallinjen. Det som ligger längst åt höger är störst." } },
+            "firstStep": { "text": "Skriv alla tre som procent." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Sju tiondelar är 70 procent." } },
+              { "text": { "text": "Det andra är 65 procent, och 0,6 är 60 procent." } },
+              { "text": { "text": "Störst är 70 procent. Alltså är sju tiondelar störst." } }
+            ] }
+          }
+        },
+        {
+          "type": "practice", "id": "bdp3-p4", "structure": "omvandla", "itemType": "brak-till-decimal", "context": "mat",
+          "prompt": { "text": "Skriv {{f1}} som decimaltal.", "formulas": { "f1": { "expr": "3/5", "speak": "tre femtedelar" } } },
+          "answer": { "kind": "number", "value": 0.6 },
+          "parallel": {
+            "prompt": { "text": "Skriv {{f1}} som decimaltal.", "formulas": { "f1": { "expr": "4/5", "speak": "fyra femtedelar" } } },
+            "answer": { "kind": "number", "value": 0.8 }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 5, "k": 3 }] }, "caption": { "text": "Staven är delad i fem lika delar. Tre delar är ifyllda." } },
+            "firstStep": { "text": "Gör nämnaren till 10. Fem gånger två är tio." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Gör nämnaren till 10 genom att multiplicera med 2." }, "formula": { "expr": "3/5 = 6/10", "speak": "tre femtedelar är lika med sex tiondelar" } },
+              { "text": { "text": "Sex tiondelar är 0,6." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "3,5", "message": { "text": "Du skrev täljaren och nämnaren efter varandra. Gör i stället nämnaren till 10." } }]
+        },
+        {
+          "type": "practice", "id": "bdp3-p5", "structure": "omvandla", "itemType": "brak-till-decimal", "context": "pengar",
+          "prompt": { "text": "Skriv {{f1}} som decimaltal.", "formulas": { "f1": { "expr": "1/4", "speak": "en fjärdedel" } } },
+          "answer": { "kind": "number", "value": 0.25 },
+          "parallel": {
+            "prompt": { "text": "Skriv {{f1}} som decimaltal.", "formulas": { "f1": { "expr": "3/4", "speak": "tre fjärdedelar" } } },
+            "answer": { "kind": "number", "value": 0.75 }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "fractionBars", "config": { "rows": [{ "n": 4, "k": 1 }] }, "caption": { "text": "Staven är delad i fyra lika delar. En del är ifylld." } },
+            "firstStep": { "text": "Gör nämnaren till 100. Fyra gånger 25 är 100." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Gör nämnaren till 100 genom att multiplicera med 25." }, "formula": { "expr": "1/4 = 25/100", "speak": "en fjärdedel är lika med 25 hundradelar" } },
+              { "text": { "text": "Talet 25 hundradelar är 0,25." } }
+            ] }
+          },
+          "commonWrong": [{ "value": "0,4", "message": { "text": "Gör nämnaren till 100 och räkna hundradelar." } }]
+        },
+        {
+          "type": "practice", "id": "bdp3-p6", "structure": "omvandla", "itemType": "procent-till-brak", "context": "rabatt",
+          "prompt": { "text": "Skriv 40 % som ett bråk. Förkorta så mycket du kan.", "speak": "Skriv 40 procent som ett bråk. Förkorta så mycket du kan." },
+          "answer": { "kind": "fraction", "num": 2, "den": 5, "mustBeSimplified": true },
+          "parallel": {
+            "prompt": { "text": "Skriv 60 % som ett bråk. Förkorta så mycket du kan.", "speak": "Skriv 60 procent som ett bråk. Förkorta så mycket du kan." },
+            "answer": { "kind": "fraction", "num": 3, "den": 5, "mustBeSimplified": true }
+          },
+          "hints": {
+            "reread": true,
+            "representation": { "kind": "percentBar", "config": { "whole": 100, "percent": 40, "unit": "kr", "hideAmount": true }, "caption": { "text": "Stapeln visar 40 procent av en helhet." } },
+            "firstStep": { "text": "Procent betyder hundradelar. Skriv 40 hundradelar som bråk." },
+            "fullSolution": { "steps": [
+              { "text": { "text": "Procent betyder hundradelar." }, "formula": { "expr": "40% = 40/100", "speak": "40 procent är lika med 40 hundradelar" } },
+              { "text": { "text": "Förkorta med 20." }, "formula": { "expr": "40/100 = 2/5", "speak": "40 hundradelar är lika med två femtedelar" } },
+              { "text": { "text": "Svaret är två femtedelar." } }
+            ] }
+          }
         }
       ]
     }

@@ -129,17 +129,21 @@ test('Min resa: visar framsteg per modul, sparar smeknamn och tar bort allt i tv
   const { modules } = await loadRealContent();
   const progress = memoryProgress();
   const view = journeyView({ progress, content: { modules } });
+  // Antalet steg räknas ur innehållet, så testet följer med när lektioner läggs till.
+  const stepsOf = (/** @type {any[]} */ ms) => ms.flatMap((m) => m.lessons).reduce((n, l) => n + l.steps.length, 0);
+  const total = stepsOf(modules);
+  const procTotal = stepsOf(modules.filter((m) => m.id === 'procent-vardag'));
   await mounted(view.el, async () => {
     assert.equal(view.el.querySelectorAll('h1').length, 1);
-    assert.ok(view.el.textContent?.includes('Du har klarat 0 av 16 steg.'), view.el.textContent?.slice(0, 200));
+    assert.ok(view.el.textContent?.includes(`Du har klarat 0 av ${total} steg.`), view.el.textContent?.slice(0, 200));
 
     progress.recordStep({ id: 'pv1-ex1', type: 'workedExample' }, {});
     progress.recordStep({ id: 'pv1-p1', type: 'practice', itemType: 'procent-av-tal' }, { attempts: 1, correct: true });
-    assert.ok(view.el.textContent?.includes('Du har klarat 2 av 11 steg i Procent i vardagen.'));
-    assert.ok(view.el.textContent?.includes('Du har klarat 2 av 16 steg.'));
+    assert.ok(view.el.textContent?.includes(`Du har klarat 2 av ${procTotal} steg i Procent i vardagen.`));
+    assert.ok(view.el.textContent?.includes(`Du har klarat 2 av ${total} steg.`));
     const bar = /** @type {HTMLProgressElement} */ (view.el.querySelector('progress[aria-label="Framsteg i Procent i vardagen"]'));
     assert.equal(bar.value, 2);
-    assert.equal(bar.max, 11);
+    assert.equal(bar.max, procTotal);
 
     const nick = /** @type {HTMLInputElement} */ (view.el.querySelector('#smeknamn'));
     nick.value = 'Kim';
@@ -157,7 +161,7 @@ test('Min resa: visar framsteg per modul, sparar smeknamn och tar bort allt i tv
     await /** @type {HTMLButtonElement} */ (button(view.el, 'Ja, ta bort allt')).click();
     await new Promise((r) => setTimeout(r, 10));
     assert.ok(!progress.isDone('pv1-ex1'));
-    assert.ok(view.el.textContent?.includes('Du har klarat 0 av 16 steg.'));
+    assert.ok(view.el.textContent?.includes(`Du har klarat 0 av ${total} steg.`));
     assert.ok(!view.el.textContent?.includes('Hej Kim'));
   });
   view.dispose();

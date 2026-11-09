@@ -263,7 +263,8 @@ test('lärarvy: läs in elevfiler, se tabeller, ta bort en elev och alla', async
     const tables = [...view.el.querySelectorAll('table')];
     assert.equal(tables.length, 2, 'översikt och ledtrådar');
     assert.ok(tables.every((t) => t.querySelector('caption') && t.querySelector('th[scope="col"]') && t.querySelector('th[scope="row"]')), 'tabeller med rubriker');
-    assert.ok(tables[0].textContent?.includes('Pågår, 2 av 11'), 'status skrivs med ord, inte bara färg');
+    const procTotal = real.find((m) => m.id === 'procent-vardag').lessons.reduce((/** @type {number} */ n, /** @type {any} */ l) => n + l.steps.length, 0);
+    assert.ok(tables[0].textContent?.includes(`Pågår, 2 av ${procTotal}`), 'status skrivs med ord, inte bara färg');
     assert.ok(tables[1].textContent?.includes('jacka'), 'ledtrådstabellen visar uppgiftens text');
     assert.ok(tables[1].textContent?.includes('1 av 1'), 'en elev av en behövde ledtråd');
     assert.ok(text.includes('"7" – 1 elev'), 'vanligaste felsvar');
@@ -321,7 +322,8 @@ test('delning i Min resa: fil och sammanfattning, med reserv när urklipp är bl
     button(host, 'Kopiera sammanfattning')?.click();
     await wait();
     assert.equal(copied.length, 1);
-    assert.ok(copied[0].includes('Smeknamn: Kim') && copied[0].includes('Totalt: 1 av 16 steg') && copied[0].includes('Steg där jag använde ledtråd: 1'));
+    const total = real.flatMap((m) => m.lessons).reduce((/** @type {number} */ n, /** @type {any} */ l) => n + l.steps.length, 0);
+    assert.ok(copied[0].includes('Smeknamn: Kim') && copied[0].includes(`Totalt: 1 av ${total} steg`) && copied[0].includes('Steg där jag använde ledtråd: 1'));
     assert.equal(host.querySelector('.share-status')?.textContent, 'Sammanfattningen är kopierad. Klistra in den där du vill dela den.');
 
     clipboardWorks = false;
