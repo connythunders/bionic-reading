@@ -28,7 +28,7 @@ Version 1 av planen krävde Node 22 (Vite, React, Zod, Vitest). Node går inte a
 | Vitest + Testing Library | Egen minimal testkörare. Testsida `tests/index.html` körs i webbläsaren, samma filer körs med Node i CI | Lokalt öppnar du testsidan. |
 | Playwright + axe | **Bara i GitHub Actions**. Lokalt: manuell checklista + egna kontroller på testsidan (kontrast, rubriknivåer, klickytor, förbjudna ord) | Risk: första riktiga axe-körningen sker i CI, inte hos dig (se avsnitt 11). |
 | `npm run dev` | `tools/serve.ps1` (PowerShell, `http://localhost:8080/mattesteget/`) | PowerShell finns redan. Ingen installation. Service worker och moduler kräver http, inte `file://`. |
-| QR | Vendorad `qrcode-generator` (MIT, en fil) | Kräver en nedladdning i steg 9. Jag frågar då. Alternativ: egen kodare. |
+| QR | **Bortvalt tills vidare** (beslut i steg 9) | Lärarvyn läser filer, så QR tillför lite. I stället finns "Kopiera sammanfattning" (text). QR kan läggas till senare utan att något annat ändras. |
 
 ## 3. Arkitektur
 
@@ -132,7 +132,7 @@ progress:<itemId>   = { attempts, hintsUsed, hintMax, done, lastSeen, box: 1..5,
 lessonState:<id>    = { stepIndex, phase }
 profile             = { nickname?, teacherCodeHash?, createdAt }
 ```
-Export: JSON `{ version, exportedAt, nickname?, items }`. QR: bara `{ v, nick?, perModule: { id: { done, total } } }`.
+Export: JSON `{ app: 'mattesteget', version: 1, exportedAt, student: { id, nickname? }, items, types }`. Id:t är slumpat och skapas första gången eleven exporterar. Lärarens inlästa elevfiler sparas under `student:<id>`. QR är bortvalt tills vidare.
 
 ### 5.3 Inställningar (localStorage `ms.settings`)
 `font`, `fontSize` (18–28), `lineHeight` (1.5–2.0), `letterSpacing`, `background` (cream|grey|blue|dark), `autoRead`, `speechRate` (0.7–1.3), `representation`, `reducedMotion`.
@@ -173,7 +173,7 @@ Varje steg slutar med: testsidan körd, vad som är klart, vad du testar manuell
 6. **Ledtrådstrappa och återkoppling (ca 1,5 h).** Nivå 1–4, parallell uppgift, återkopplingstexter, riktade meddelanden för vanliga felsvar.
 7. **Progression och Dagens pass (ca 2 h).** IndexedDB, Min resa, Leitner, sessionBuilder, Dagens pass.
 8. **Inställningar, miniräknare, ordlista (ca 2 h).**
-9. **Lärarvy, export, import, QR (ca 2 h).** Här behövs en nedladdning av `qrcode-generator`. Jag frågar först.
+9. **Lärarvy, export, import (ca 2 h).** Klart utan QR: elevens export som JSON-fil och "Kopiera sammanfattning", lärarkod på enheten (skydd mot misstag, inte säkerhet), import av flera elevfiler, översikt per modul, ledtrådar per uppgift och vanligaste felsvar.
 10. **PWA och offline (ca 1,5 h).** `sw.js`, `precache.ps1`, manifest, ikoner, offlinetest (manuellt i DevTools lokalt, automatiskt i CI). Publicering sker automatiskt när mappen pushas.
 11. **Innehåll (flera pass).** 11a modul 4, 11b modul 5, 11c modul 1–3 (skelett + en lektion vardera). Du granskar 11a didaktiskt innan 11b.
 12. **Granskning (ca 2 h).** Manuell checklista, 1.4.12-test, Lighthouse, prestanda, README, `INTEGRITET.md`, `src/ai/README.md`.

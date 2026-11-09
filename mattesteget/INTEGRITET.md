@@ -14,16 +14,24 @@ Den här texten är till för elever, vårdnadshavare och skolans dataskyddsombu
 | Vad | Var | Varför |
 |---|---|---|
 | Dina inställningar (typsnitt, textstorlek, bakgrund) | Webbläsarens lokala lagring på din enhet | Så att appen ser ut som du vill nästa gång |
-| Smeknamn (valfritt, kommer i senare steg) | På din enhet | Visas bara för dig |
-| Dina svar och hur långt du kommit (kommer i senare steg) | IndexedDB på din enhet | Så att appen kan visa din progression och välja repetition |
+| Smeknamn (valfritt) | IndexedDB på din enhet | Visas bara för dig, och i filen om du väljer att dela |
+| Ett slumpat id | IndexedDB på din enhet | Skapas första gången du sparar en fil till läraren, så att läraren kan se att två filer kommer från samma elev. Har ingen koppling till dig som person |
+| Dina steg, antal försök, ledtrådar och de senaste svaren som inte blev rätt | IndexedDB på din enhet | Så att appen kan visa din progression och välja repetition |
+| Hur ofta uppgiftstyper ska repeteras (Leitner-lådor) | IndexedDB på din enhet | Så att Dagens pass kan välja uppgifter |
+| Lärarkoden (bara på lärarens enhet) | Webbläsarens lokala lagring, som ett hashat värde | Skyddar lärarvyn mot misstag. Den är inte ett säkert lösenord |
+| Elevfiler som läraren läst in (bara på lärarens enhet) | IndexedDB på lärarens enhet | Så att läraren kan se översikten utan att läsa in filerna igen |
 
 ## Delning med läraren
 
-Läraren får bara det du själv väljer att dela, genom att exportera en fil eller visa en QR-kod. Det sker helt manuellt. Lärarvyn skyddas av en kod som sätts på enheten. Koden är ett skydd mot misstag och är **inte** ett säkert lösenord.
+Läraren får bara det du själv väljer att dela. Under Min resa kan du spara en fil (JSON) eller kopiera en kort sammanfattning som text. Inget skickas automatiskt, och appen har ingen server att skicka till.
+
+Filen innehåller dina steg, antal försök, hur långt du kom i ledtrådstrappan och de senaste svaren som inte blev rätt, samt smeknamnet och det slumpade id:t. Den innehåller inget namn, ingen e-postadress och ingen annan information om dig. Sammanfattningen innehåller bara antal klara steg per modul.
+
+Läraren läser in filerna i lärarvyn, som skyddas av en kod som läraren sätter på sin enhet. Koden är ett skydd mot misstag och är **inte** ett säkert lösenord: vem som helst som har tillgång till enheten kan ta bort koden. Elevfilerna som läses in sparas på lärarens enhet tills läraren tar bort dem, en i taget eller alla på en gång.
 
 ## Ta bort dina uppgifter
 
-Du kan rensa webbplatsdata för sidan i webbläsarens inställningar. Då försvinner allt som Mattesteget har sparat på enheten.
+Under Min resa finns knappen "Ta bort mina uppgifter". Den tar bort allt som Mattesteget har sparat om dig på enheten, och du får ett nytt slumpat id nästa gång du sparar en fil. Du kan också rensa webbplatsdata för sidan i webbläsarens inställningar. En fil som du redan har gett till läraren finns kvar hos läraren tills läraren tar bort den.
 
 ## Externa tjänster
 

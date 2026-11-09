@@ -112,6 +112,8 @@ export function settingsView(ctx) {
         h('span', null, 'Läs upp ny text automatiskt'),
       ),
     ),
+    h('h2', null, 'För lärare'),
+    h('p', null, h('a', { href: '#/lararvy' }, 'Öppna lärarvyn'), ' (kräver lärarkod).'),
     h('div', { class: 'actions' },
       h('button', {
         type: 'button', class: 'btn btn-secondary',

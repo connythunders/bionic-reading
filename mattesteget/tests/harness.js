@@ -24,6 +24,10 @@ export const assert = {
       throw new Error(msg || `Förväntade ${JSON.stringify(expected)} men fick ${JSON.stringify(actual)}`);
     }
   },
+  /** @param {unknown} actual @param {unknown} other @param {string} [msg] */
+  notEqual(actual, other, msg) {
+    if (actual === other) throw new Error(msg || `Förväntade ett annat värde än ${JSON.stringify(other)}`);
+  },
   /** @param {unknown} actual @param {unknown} expected @param {string} [msg] */
   deepEqual(actual, expected, msg) {
     const a = JSON.stringify(actual);

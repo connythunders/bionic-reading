@@ -8,6 +8,8 @@ import { loadContent, fetchReader } from './lib/contentLoader.js';
 import { createSpeech } from './features/tts/speech.js';
 import { createProgress } from './features/progress/progressStore.js';
 import { createBestBackend } from './features/progress/db.js';
+import { createTeacherCode } from './features/teacher/teacherCode.js';
+import { createStudentsStore } from './features/teacher/studentsStore.js';
 
 // Inställningarna tillämpas först, så att tema och typografi är rätt innan något ritas.
 const settings = createSettingsStore();
@@ -25,8 +27,11 @@ try {
 }
 
 // Progressionen sparas på enheten (IndexedDB) och läses in innan appen startar.
-const progress = createProgress({ backend: createBestBackend() });
-await progress.ready;
+const backend = createBestBackend();
+const progress = createProgress({ backend });
+// Lärarens elevfiler ligger i samma lagring (andra nycklar) och rörs inte av elevens "ta bort allt".
+const teacher = { code: createTeacherCode(), students: createStudentsStore({ backend }) };
+await Promise.all([progress.ready, teacher.students.ready]);
 
 // Uppläsningen läser hastigheten från inställningarna varje gång en mening startar.
 const speech = createSpeech({ getRate: () => settings.get().speechRate });
@@ -35,5 +40,5 @@ void speech.init();
 const root = document.getElementById('app');
 if (root) {
   const layout = buildLayout(root, routes, { speech, settings });
-  startRouter({ routes, layout, ctx: { settings, content, speech, progress } });
+  startRouter({ routes, layout, ctx: { settings, content, speech, progress, teacher } });
 }

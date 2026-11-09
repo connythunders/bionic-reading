@@ -3,6 +3,7 @@
 import { h, createScope } from '../../lib/dom.js';
 import { summarize } from './summary.js';
 import { isDue } from '../practice/leitner.js';
+import { shareSection } from './shareSection.js';
 
 const STATUS_TEXT = { notStarted: 'Inte påbörjad', inProgress: 'Pågår', done: 'Klar' };
 
@@ -113,6 +114,7 @@ export function journeyView(ctx) {
       type: 'button', class: 'btn btn-secondary',
       onclick: () => { confirmBox.hidden = false; confirmBox.focus(); },
     }, 'Ta bort mina uppgifter');
+    parts.push(...shareSection({ progress, modules: ctx.content?.modules ?? [] }));
     parts.push(
       h('h2', null, 'Dina uppgifter'),
       h('p', null, 'Allt du gör sparas bara på den här enheten. Inget skickas någonstans.'),

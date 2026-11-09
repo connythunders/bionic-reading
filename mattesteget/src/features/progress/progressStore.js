@@ -21,6 +21,12 @@ import { nextTypeRecord, outcomeOf, localDay } from '../practice/leitner.js';
 
 const MAX_WRONG = 5;
 
+/** Slumpat id utan koppling till någon person. */
+function makeId() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  return Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+}
+
 /**
  * @param {{ backend: import('./db.js').Backend, today?: () => string }} o
  */
@@ -29,7 +35,7 @@ export function createProgress({ backend, today = () => localDay() }) {
   let items = new Map();
   /** @type {Map<string, import('../practice/leitner.js').TypeRecord>} */
   let types = new Map();
-  /** @type {{ nickname?: string, createdAt?: string }} */
+  /** @type {{ nickname?: string, createdAt?: string, studentId?: string }} */
   let profile = {};
   let persistent = backend.kind === 'idb';
   /** @type {Set<() => void>} */
@@ -103,12 +109,39 @@ export function createProgress({ backend, today = () => localDay() }) {
       notify();
     },
 
-    /** Tar bort allt som sparats på enheten. */
+    /** Elevens slumpade id, som används i exportfilen. Skapas första gången det behövs. */
+    ensureStudentId() {
+      if (!profile.studentId) {
+        profile = { ...profile, studentId: makeId() };
+        persist('profile', profile);
+      }
+      return /** @type {string} */ (profile.studentId);
+    },
+
+    /**
+     * Allt eleven väljer att dela med läraren: steg och uppgiftstyper. Inget namn, bara smeknamnet.
+     * @param {Date} [now]
+     */
+    exportData(now = new Date()) {
+      const id = this.ensureStudentId();
+      return {
+        app: 'mattesteget', version: 1, exportedAt: now.toISOString(),
+        student: { id, nickname: profile.nickname },
+        items: Object.fromEntries(items),
+        types: Object.fromEntries(types),
+      };
+    },
+
+    /** Tar bort allt eleven har sparat. Lärarens elevdata i samma lagring rörs inte. */
     async clearAll() {
       items = new Map();
       types = new Map();
       profile = {};
-      try { await backend.clear(); } catch { /* ingenting mer att göra */ }
+      try {
+        for (const [key] of await backend.all()) {
+          if (key.startsWith('item:') || key.startsWith('type:') || key === 'profile') await backend.del(key);
+        }
+      } catch { /* ingenting mer att göra */ }
       notify();
     },
 

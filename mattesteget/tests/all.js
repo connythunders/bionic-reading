@@ -8,6 +8,8 @@ import '../src/lib/math.test.js';
 import '../src/features/settings/settingsStore.test.js';
 import '../src/features/calculator/calculator.test.js';
 import '../src/features/glossary/glossary.test.js';
+import '../src/features/progress/export.test.js';
+import '../src/features/teacher/teacher.test.js';
 import '../src/features/progress/progress.test.js';
 import '../src/features/progress/progressViews.test.js';
 import '../src/features/tts/tts.test.js';

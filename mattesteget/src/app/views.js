@@ -7,13 +7,18 @@ import { createSpeech } from '../features/tts/speech.js';
 import { dailyView } from '../features/practice/dailySession.js';
 import { journeyView } from '../features/progress/myJourney.js';
 import { glossaryView } from '../features/glossary/glossaryPage.js';
+import { teacherView } from '../features/teacher/teacherView.js';
 
 /**
  * @typedef {{
  *   settings: ReturnType<typeof import('../features/settings/settingsStore.js').createSettingsStore>,
  *   content?: { modules: any[], errors: string[], glossary?: { terms: any[] } },
  *   speech?: ReturnType<typeof import('../features/tts/speech.js').createSpeech>,
- *   progress?: ReturnType<typeof import('../features/progress/progressStore.js').createProgress>
+ *   progress?: ReturnType<typeof import('../features/progress/progressStore.js').createProgress>,
+ *   teacher?: {
+ *     code: ReturnType<typeof import('../features/teacher/teacherCode.js').createTeacherCode>,
+ *     students: ReturnType<typeof import('../features/teacher/studentsStore.js').createStudentsStore>
+ *   }
  * }} Ctx
  * @typedef {{ title: string, el: HTMLElement, dispose?: () => void }} View
  */
@@ -149,5 +154,6 @@ export const routes = [
   { path: '/ordlista', name: 'Ordlista', nav: true, view: (ctx) => glossaryView(ctx) },
   { path: '/min-resa', name: 'Min resa', nav: true, view: (ctx) => journeyView(ctx) },
   { path: '/installningar', name: 'Inställningar', nav: true, view: (ctx) => settingsView(ctx) },
+  { path: '/lararvy', name: 'Lärarvy', nav: false, view: (ctx) => teacherView(ctx) },
   { path: '/hjalp', name: 'Hjälp', nav: false, view: () => helpView() },
 ];
