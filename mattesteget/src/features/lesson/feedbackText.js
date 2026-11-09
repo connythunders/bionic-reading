@@ -15,6 +15,7 @@ export function feedbackFor(result, { attempts, answer }) {
       return { tone: 'try', text: 'Rätt värde. Kan du förkorta bråket?' };
     case 'invalid':
       if (answer.kind === 'choice') return { tone: 'try', text: 'Välj minst ett alternativ.' };
+      if (answer.kind === 'numberLine') return { tone: 'try', text: 'Placera markören på tallinjen och tryck på Kontrollera.' };
       if (answer.kind === 'fraction') return { tone: 'try', text: 'Skriv ett bråk, till exempel 1/5.' };
       return { tone: 'try', text: 'Skriv ett tal, till exempel 25 eller 0,25.' };
     case 'revealed':

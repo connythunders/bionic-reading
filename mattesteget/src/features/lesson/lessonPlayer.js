@@ -11,6 +11,7 @@ import { createSpeakable } from '../tts/speakable.js';
 import { createVoiceNotice } from '../tts/voiceNotice.js';
 import { createSpeedControl } from '../tts/speedControl.js';
 import { createSpeech } from '../tts/speech.js';
+import { createRepresentation } from '../interactives/representation.js';
 
 /**
  * @param {any} lesson
@@ -83,8 +84,10 @@ export function createLessonPlayer(lesson, deps = {}) {
     const q = view.question;
     const locked = canContinue(state);
     const talk = say(q.label, 'frågan', { primary: view.kind === 'practice' });
+    // Visas svaret på en tallinje ska markören stå på rätt plats.
+    const shownValue = state.result === 'revealed' && q.answer.kind === 'numberLine' ? String(q.answer.target) : lastInput;
     const form = createAnswerForm({
-      label: q.label, labelNode: talk.text, answer: q.answer, value: lastInput, locked,
+      label: q.label, labelNode: talk.text, answer: q.answer, value: shownValue, locked,
       onSubmit: (input) => dispatch({ type: 'answer', input }),
     });
     /** @type {any[]} */
@@ -170,7 +173,10 @@ export function createLessonPlayer(lesson, deps = {}) {
       cont = h('button', { type: 'button', class: 'btn', onclick: () => dispatch({ type: 'next' }) }, 'Fortsätt');
       body.push(h('div', { class: 'actions' }, cont));
     } else if (view.kind === 'interactive') {
-      body.push(...promptBlock(view.step));
+      body.push(
+        ...promptBlock(view.step),
+        createRepresentation({ kind: view.step.kind, config: view.step.config, interactive: true, label: 'Utforska' }).el,
+      );
       cont = h('button', { type: 'button', class: 'btn', onclick: () => dispatch({ type: 'next' }) }, 'Fortsätt');
       body.push(h('div', { class: 'actions' }, cont));
     } else {

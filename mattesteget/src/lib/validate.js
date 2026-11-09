@@ -114,6 +114,42 @@ function checkRichText(c, v, path, opts = {}) {
   }
 }
 
+/** Inställningar för en tallinje: min, max och steg. @param {Collector} c @param {unknown} cfg @param {string} path */
+function checkNumberLineConfig(c, cfg, path) {
+  if (!isObj(cfg)) return c.add(path, 'saknas (min, max och step krävs)');
+  if (!isNum(cfg.min) || !isNum(cfg.max) || cfg.max <= cfg.min) c.add(path, 'min och max måste vara tal där max är större än min');
+  if (!isNum(cfg.step) || cfg.step <= 0) c.add(`${path}.step`, 'måste vara ett tal större än 0');
+  else if (isNum(cfg.min) && isNum(cfg.max) && (cfg.max - cfg.min) / cfg.step > 1000) c.add(`${path}.step`, 'för litet steg (över 1000 steg)');
+  if (cfg.marks !== undefined && !Array.isArray(cfg.marks)) c.add(`${path}.marks`, 'måste vara en lista');
+}
+
+/** Inställningar för en representation, beroende på typ.
+ * @param {Collector} c @param {unknown} kind @param {unknown} cfg @param {string} path */
+function checkRepresentationConfig(c, kind, cfg, path) {
+  if (!isObj(cfg)) return c.add(path, 'saknas');
+  switch (kind) {
+    case 'numberLine':
+      return checkNumberLineConfig(c, cfg, path);
+    case 'fractionBars':
+      if (!Array.isArray(cfg.rows) || cfg.rows.length === 0) return c.add(`${path}.rows`, 'minst en rad krävs');
+      cfg.rows.forEach((/** @type {any} */ r, /** @type {number} */ i) => {
+        if (!isObj(r) || !Number.isInteger(r.n) || r.n < 1 || !Number.isInteger(r.k) || r.k < 0 || r.k > r.n) {
+          c.add(`${path}.rows[${i}]`, 'n måste vara ett positivt heltal och k ett heltal mellan 0 och n');
+        }
+      });
+      return;
+    case 'percentBar':
+      if (!isNum(cfg.whole) || cfg.whole <= 0) c.add(`${path}.whole`, 'helheten måste vara ett tal större än 0');
+      if (!isNum(cfg.percent) && !isNum(cfg.part)) c.add(path, 'percent eller part krävs');
+      return;
+    case 'money':
+      if (cfg.values !== undefined && (!Array.isArray(cfg.values) || cfg.values.length !== 5)) c.add(`${path}.values`, 'måste vara en lista med fem antal');
+      return;
+    default:
+      return;
+  }
+}
+
 /**
  * @param {Collector} c @param {unknown} v @param {string} path
  */
@@ -142,6 +178,7 @@ function checkAnswer(c, v, path) {
     case 'numberLine':
       if (!isNum(v.target)) c.add(`${path}.target`, 'måste vara ett tal');
       if (!isNum(v.tolerance) || v.tolerance <= 0) c.add(`${path}.tolerance`, 'måste vara ett tal större än 0');
+      checkNumberLineConfig(c, v.config, `${path}.config`);
       break;
     default:
       c.add(`${path}.kind`, `okänd svarstyp "${String(v.kind)}"`);
@@ -211,7 +248,7 @@ function checkHints(c, h, path) {
   if (!isObj(rep)) c.add(`${path}.representation`, 'nivå 2 (bild/representation) saknas');
   else {
     if (!INTERACTIVE_KINDS.includes(rep.kind)) c.add(`${path}.representation.kind`, `okänd representation "${String(rep.kind)}"`);
-    if (!isObj(rep.config)) c.add(`${path}.representation.config`, 'saknas');
+    checkRepresentationConfig(c, rep.kind, rep.config, `${path}.representation.config`);
     checkRichText(c, rep.caption, `${path}.representation.caption`);
   }
   if (h.firstStep === undefined) c.add(`${path}.firstStep`, 'nivå 3 (första steget) saknas');
@@ -252,7 +289,7 @@ function checkPractice(c, v, path) {
 function checkInteractive(c, v, path) {
   checkId(c, v.id, `${path}.id`);
   if (!INTERACTIVE_KINDS.includes(v.kind)) c.add(`${path}.kind`, `okänd representation "${String(v.kind)}"`);
-  if (!isObj(v.config)) c.add(`${path}.config`, 'saknas');
+  checkRepresentationConfig(c, v.kind, v.config, `${path}.config`);
   checkRichText(c, v.prompt, `${path}.prompt`, { prompt: true });
 }
 

@@ -1,6 +1,7 @@
 // @ts-check
 import { h } from '../../lib/dom.js';
 import { renderRich } from './richView.js';
+import { createNumberLine } from '../interactives/numberLine.js';
 
 let counter = 0;
 
@@ -38,6 +39,19 @@ export function createAnswerForm({ label, labelNode, answer, value = '', locked 
       .filter((i) => /** @type {HTMLInputElement} */ (i).checked)
       .map((i) => Number(/** @type {HTMLInputElement} */ (i).value));
     focusTarget = /** @type {HTMLElement} */ (form.querySelector('input'));
+  } else if (answer.kind === 'numberLine') {
+    // Placera en markör på en tallinje: dra, klicka, piltangenter eller knapparna.
+    const start = parseFloat(String(value).replace(',', '.'));
+    const line = createNumberLine({
+      ...answer.config, value: Number.isFinite(start) ? start : null, interactive: !locked,
+      label: 'Tallinje där du placerar svaret',
+    });
+    form.append(
+      h('div', { class: 'question', id: `${id}-fraga` }, labelContent()),
+      line.el,
+    );
+    read = () => (line.getValue() === null ? '' : String(line.getValue()));
+    focusTarget = line.thumb ?? form;
   } else {
     const unitId = `${id}-enhet`;
     const input = /** @type {HTMLInputElement} */ (h('input', {

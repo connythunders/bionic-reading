@@ -15,7 +15,7 @@ function practice(id) {
     answer: { kind: 'number', value: 5 },
     hints: {
       reread: true,
-      representation: { kind: 'percentBar', config: {}, caption: rt('Stapeln visar tio.') },
+      representation: { kind: 'percentBar', config: { whole: 100, percent: 10 }, caption: rt('Stapeln visar tio.') },
       firstStep: rt('Dela med 2.'),
       fullSolution: solution(),
     },
@@ -165,6 +165,28 @@ test('validering: ogiltiga svar och okänd struktur ger fel', () => {
   const errors = validateModule(m);
   assert.ok(has(errors, 'finns inte bland alternativen'));
   assert.ok(has(errors, 'strukturtagg'));
+});
+
+test('validering: representationernas inställningar kontrolleras', () => {
+  const m = mod();
+  const p = /** @type {any} */ (m.lessons[0].steps[3]);
+  p.hints.representation.config = {};
+  assert.ok(has(validateModule(m), 'helheten'), 'percentBar utan whole');
+  p.hints.representation = { kind: 'numberLine', config: { min: 0, max: 1, step: 0.1 }, caption: rt('Linjen.') };
+  assert.deepEqual(validateModule(m), []);
+  p.hints.representation.config = { min: 1, max: 0, step: 0.1 };
+  assert.ok(has(validateModule(m), 'max är större än min'));
+  p.hints.representation = { kind: 'fractionBars', config: { rows: [{ n: 4, k: 5 }] }, caption: rt('Staven.') };
+  assert.ok(has(validateModule(m), 'k ett heltal mellan 0 och n'));
+});
+
+test('validering: tallinjesvar kräver inställningar för linjen', () => {
+  const m = mod();
+  const p = /** @type {any} */ (m.lessons[0].steps[3]);
+  p.answer = { kind: 'numberLine', target: 0.5, tolerance: 0.05 };
+  assert.ok(has(validateModule(m), 'answer.config'));
+  p.answer.config = { min: 0, max: 1, step: 0.1 };
+  assert.deepEqual(validateModule(m), []);
 });
 
 test('validering: skräpindata kastar inte', () => {
