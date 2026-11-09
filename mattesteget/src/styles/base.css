@@ -1,0 +1,43 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+main {
+  display: block;
+  max-width: 62rem;
+  margin-inline: auto;
+  padding: var(--space-4) var(--gutter) var(--space-5);
+}
+main:focus { outline: none; }
+
+a { color: var(--accent); }
+
+/* Fokus syns alltid och täcks aldrig (WCAG 2.4.7, 2.4.11). */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+html { scroll-padding: var(--space-5) 0; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.noscript { padding: var(--space-3) var(--gutter); }
+
+/* Rörelse: följ systemet, eller stäng av helt om eleven valt det. */
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="allow"]) *, html:not([data-motion="allow"]) *::before, html:not([data-motion="allow"]) *::after {
+    animation: none !important; transition: none !important; scroll-behavior: auto !important;
+  }
+}
+html[data-motion="reduce"] *, html[data-motion="reduce"] *::before, html[data-motion="reduce"] *::after {
+  animation: none !important; transition: none !important; scroll-behavior: auto !important;
+}

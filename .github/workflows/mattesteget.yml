@@ -1,0 +1,32 @@
+name: Mattesteget – tester
+
+# Körs bara när appen ändras. Node används här (i molnet), inte på utvecklingsdatorn.
+# Appen publiceras som den är av GitHub Pages, så inget bygge behövs.
+on:
+  push:
+    paths:
+      - 'mattesteget/**'
+      - '.github/workflows/mattesteget.yml'
+  pull_request:
+    paths:
+      - 'mattesteget/**'
+      - '.github/workflows/mattesteget.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mattesteget
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Installera (endast typkontroll)
+        run: npm install --no-audit --no-fund
+      - name: Enhetstester och innehållstester
+        run: npm test
+      - name: Typkontroll av JSDoc (varnar tills koden körts här första gången)
+        run: npm run typecheck
+        continue-on-error: true
