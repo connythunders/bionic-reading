@@ -1,6 +1,6 @@
 // Skapas av tools/precache.ps1. Redigera inte fÃ¶r hand.
 self.PRECACHE = {
-  version: "1f2883688059",
+  version: "ecfd8eecf532",
   files: [
     "content/glossary.json",
     "content/index.json",
@@ -24,6 +24,7 @@ self.PRECACHE = {
     "src/app/pwa.js",
     "src/app/router.js",
     "src/app/views.js",
+    "src/boot.js",
     "src/features/calculator/calcLogic.js",
     "src/features/calculator/calculatorPanel.js",
     "src/features/glossary/glossaryPage.js",

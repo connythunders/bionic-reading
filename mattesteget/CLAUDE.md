@@ -21,7 +21,8 @@ Dyslexi- och dyskalkylivänlig övningsapp (PWA) för gymnasieelever. Se `PLAN.m
 ```
 
 - **Tester:** öppna `http://localhost:8080/mattesteget/tests/index.html`. Alla tester ska vara gröna.
-- **CI (GitHub Actions, Node i molnet):** `node tests/run-node.mjs`, `tsc --noEmit --checkJs`, Playwright + axe. Kör inte dessa lokalt.
+- **CI (GitHub Actions, Node i molnet):** `node tests/run-node.mjs`, `tsc --noEmit --checkJs`, Playwright + axe (`tests/e2e/`) och Lighthouse (`lighthouserc.json`). Kör inte dessa lokalt. Webbläsartesterna i `tests/layout.test.js` (textavstånd och reflow) körs på testsidan.
+- **Granskning:** se `TILLGANGLIGHET.md` för vad som testas automatiskt och den manuella checklistan.
 - **Efter varje ändring av en fil som följer med offline** (allt utom tester, verktyg, `*.md`, `sw.js`, `precache.js`): kör `./tools/precache.ps1`. Annars misslyckas testet "precache.js är inte gammal", och elever som har appen installerad får inte den nya versionen.
 - **Prova offline lokalt:** service workern registreras på localhost bara med `?sw=1` i adressen (annars cachar den gamla filer under utveckling). Stäng av servern och ladda om sidan för att se att allt fungerar. Avregistrera den efteråt (DevTools, Application, Service Workers).
 - Nya filer som ska följa med offline hamnar automatiskt i listan när du kör `precache.ps1`. Reglerna för vad som utesluts finns både i `precache.ps1` och i `tests/precacheHash.js` och ska vara lika.

@@ -3,7 +3,7 @@
 // precache.js är gammal, både i webbläsaren och i Node (CI).
 
 const TEXT_EXT = ['.html', '.js', '.css', '.json', '.webmanifest', '.svg', '.txt'];
-const EXCLUDED_FILES = ['sw.js', 'precache.js', 'package.json', 'package-lock.json', 'tsconfig.json', '.gitignore'];
+const EXCLUDED_FILES = ['sw.js', 'precache.js', 'package.json', 'package-lock.json', 'tsconfig.json', '.gitignore', 'playwright.config.js', 'lighthouserc.json'];
 
 /** Ska filen följa med offline? Samma regler som Test-Precached i precache.ps1. @param {string} path */
 export function isPrecached(path) {

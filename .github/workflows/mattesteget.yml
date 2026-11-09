@@ -14,6 +14,7 @@ on:
 
 jobs:
   test:
+    name: Enhetstester och innehåll
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -23,10 +24,46 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Installera (endast typkontroll)
+      - name: Installera (typkontroll och e2e-verktyg)
         run: npm install --no-audit --no-fund
-      - name: Enhetstester och innehållstester
+      - name: Enhetstester, innehållstester och offline-listan
         run: npm test
       - name: Typkontroll av JSDoc (varnar tills koden körts här första gången)
         run: npm run typecheck
         continue-on-error: true
+
+  e2e:
+    name: Playwright och axe (tillgänglighet, flöden, offline)
+    runs-on: ubuntu-latest
+    # Tills första körningen är verifierad stoppar den inte bygget. Ta bort raden när den är grön.
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: mattesteget
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Installera
+        run: npm install --no-audit --no-fund
+      - name: Installera Chromium för Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Kör e2e- och tillgänglighetstester
+        run: npx playwright test
+
+  lighthouse:
+    name: Lighthouse (tillgänglighet minst 95)
+    runs-on: ubuntu-latest
+    # Samma sak här: stoppar inte bygget förrän första körningen är verifierad.
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: mattesteget
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Kör Lighthouse
+        run: npx --yes @lhci/cli@0.14.0 autorun

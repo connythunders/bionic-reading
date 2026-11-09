@@ -1,6 +1,6 @@
-# Integritet i Mattesteget (utkast)
+# Integritet i Mattesteget
 
-Den här texten är till för elever, vårdnadshavare och skolans dataskyddsombud. Den slutförs i steg 12.
+Den här texten är till för elever, vårdnadshavare och skolans dataskyddsombud. Den beskriver vad Mattesteget sparar, var det sparas, och vad som aldrig sker. Den ska läsas tillsammans med skolans dataskyddsombud innan appen används med elever.
 
 ## Kort version
 

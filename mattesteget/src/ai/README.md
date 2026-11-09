@@ -1,6 +1,6 @@
 # AI-tutor (framtida, inte byggd)
 
-Mattesteget innehåller **ingen AI** i MVP. Den här mappen är tom med avsikt. Texten beskriver hur en AI-tutor skulle kunna kopplas in senare utan att bryta mot appens dataskydd. Den slutförs i steg 12.
+Mattesteget innehåller **ingen AI**. Den här mappen innehåller bara den här texten, med avsikt. Den beskriver hur en AI-tutor skulle kunna kopplas in senare utan att bryta mot appens dataskydd. Inget av det här är byggt.
 
 ## Principer
 

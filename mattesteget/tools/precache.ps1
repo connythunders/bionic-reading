@@ -10,7 +10,7 @@ function Test-Precached([string]$rel) {
   if ($rel -match '^(tests|tools|node_modules|\.github)/') { return $false }
   if ($rel -match '\.(md|ps1)$') { return $false }
   if ($rel -match '\.test\.js$') { return $false }
-  if (@('sw.js', 'precache.js', 'package.json', 'package-lock.json', 'tsconfig.json', '.gitignore') -contains $rel) { return $false }
+  if (@('sw.js', 'precache.js', 'package.json', 'package-lock.json', 'tsconfig.json', '.gitignore', 'playwright.config.js', 'lighthouserc.json') -contains $rel) { return $false }
   return $true
 }
 

@@ -1,6 +1,6 @@
 # PLAN.md – Mattesteget (MVP), version 2: utan Node
 
-Status: **UTKAST – väntar på godkännande. Ingen kod är skriven.**
+Status: **MVP byggd (steg 1 till 12).** Planen nedan är den ursprungliga och är kvar som dokumentation. Avvikelser mot den: inga QR-koder (se avsnitt 2), MathML i stället för KaTeX, och Playwright, axe och Lighthouse körs bara i GitHub Actions. Öppna punkter finns i `TILLGANGLIGHET.md` (manuell granskning på riktiga enheter) och att e2e- och Lighthouse-jobben i CI ska göras obligatoriska när de är verifierat gröna.
 
 Mattesteget är en dyslexi- och dyskalkylivänlig övningsapp (PWA) för gymnasieelever. Den tar eleven från taluppfattning (Lgr22 åk 7–9) mot Matematik 1a (Gy25).
 
