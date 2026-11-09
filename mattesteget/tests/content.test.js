@@ -1,16 +1,7 @@
 // @ts-check
 // Kontrollerar det riktiga innehållet i content/. Körs i både webbläsare och Node (CI).
 import { test, assert } from './harness.js';
-import { loadContent, fetchReader } from '../src/lib/contentLoader.js';
-
-async function readerForEnvironment() {
-  const base = new URL('../content/', import.meta.url);
-  if (typeof document !== 'undefined') return fetchReader(base.href);
-  // Node (CI): läs från disk. Importen sker här så att webbläsaren aldrig försöker ladda den.
-  // @ts-ignore node:fs/promises saknar typer i den här konfigurationen
-  const { readFile } = await import('node:fs/promises');
-  return (/** @type {string} */ p) => readFile(new URL(p, base), 'utf8');
-}
+import { loadRealContent } from './helpers.js';
 
 /** Hämtar alla formler (objekt med expr) rekursivt.
  * @param {unknown} node @param {string} path @param {{ path: string, formula: any }[]} out */
@@ -24,13 +15,13 @@ function collectFormulas(node, path, out = []) {
 }
 
 test('innehåll: alla moduler i content/ klarar valideringen', async () => {
-  const { modules, errors } = await loadContent(await readerForEnvironment());
+  const { modules, errors } = await loadRealContent();
   assert.ok(modules.length > 0, 'inga moduler hittades');
   assert.deepEqual(errors, [], `Innehållsfel:\n${errors.join('\n')}`);
 });
 
 test('innehåll: varje formel har en talversion (speak)', async () => {
-  const { modules } = await loadContent(await readerForEnvironment());
+  const { modules } = await loadRealContent();
   const formulas = collectFormulas(modules, 'moduler');
   assert.ok(formulas.length > 0, 'inga formler hittades');
   for (const { path, formula } of formulas) {
@@ -39,7 +30,7 @@ test('innehåll: varje formel har en talversion (speak)', async () => {
 });
 
 test('innehåll: exempellektionen i Procent har alla tre faserna', async () => {
-  const { modules } = await loadContent(await readerForEnvironment());
+  const { modules } = await loadRealContent();
   const procent = modules.find((m) => m.id === 'procent-vardag');
   assert.ok(procent, 'modulen procent-vardag saknas');
   const steps = procent.lessons[0].steps;

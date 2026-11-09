@@ -2,9 +2,13 @@
 // Vyer och rutter. Varje vy returnerar { title, el } och har exakt en h1.
 import { h } from '../lib/dom.js';
 import { settingsView } from '../features/settings/settingsPage.js';
+import { createLessonPlayer } from '../features/lesson/lessonPlayer.js';
 
 /**
- * @typedef {{ settings: ReturnType<typeof import('../features/settings/settingsStore.js').createSettingsStore> }} Ctx
+ * @typedef {{
+ *   settings: ReturnType<typeof import('../features/settings/settingsStore.js').createSettingsStore>,
+ *   content?: { modules: any[], errors: string[] }
+ * }} Ctx
  * @typedef {{ title: string, el: HTMLElement }} View
  */
 
@@ -61,6 +65,52 @@ export function helpView() {
   };
 }
 
+/** @param {Ctx} ctx @returns {View} */
+export function modulesView(ctx) {
+  const modules = ctx.content?.modules ?? [];
+  if (modules.length === 0) {
+    return {
+      title: 'Moduler',
+      el: h('div', null, h('h1', null, 'Moduler'), h('p', null, 'Innehållet kunde inte läsas in. Ladda om sidan och försök igen.')),
+    };
+  }
+  return {
+    title: 'Moduler',
+    el: h('div', null,
+      h('h1', null, 'Moduler'),
+      h('p', { class: 'lead' }, 'Välj ett område och en lektion. Du bestämmer själv tempot.'),
+      h('div', { class: 'card-grid' },
+        modules.map((m) =>
+          h('section', { class: 'card' },
+            h('h2', null, m.title),
+            h('p', null, m.summary),
+            m.lessons.length === 0
+              ? h('p', null, 'Kommer snart.')
+              : h('ul', { class: 'lesson-list' },
+                m.lessons.map((/** @type {any} */ l) => h('li', null, h('a', { href: `#/lektion/${l.id}` }, l.title)))),
+          ),
+        ),
+      ),
+    ),
+  };
+}
+
+/** @param {Ctx} ctx @param {Record<string, string>} params @returns {View} */
+export function lessonView(ctx, params) {
+  const lesson = (ctx.content?.modules ?? []).flatMap((m) => m.lessons).find((/** @type {any} */ l) => l.id === params.lessonId);
+  if (!lesson) return notFoundView();
+  const player = createLessonPlayer(lesson);
+  return {
+    title: lesson.title,
+    el: h('div', null,
+      h('p', null, h('a', { href: '#/moduler' }, 'Till modulerna')),
+      h('h1', null, lesson.title),
+      h('p', { class: 'lead' }, lesson.goal.text),
+      player.el,
+    ),
+  };
+}
+
 /** @returns {View} */
 function notFoundView() {
   return {
@@ -82,7 +132,8 @@ export { notFoundView };
 export const routes = [
   { path: '/', name: 'Start', nav: false, view: () => homeView() },
   { path: '/idag', name: 'Dagens pass', nav: true, view: () => placeholder('Dagens pass', 'Den här delen är inte klar än.') },
-  { path: '/moduler', name: 'Moduler', nav: true, view: () => placeholder('Moduler', 'Den här delen är inte klar än.') },
+  { path: '/moduler', name: 'Moduler', nav: true, view: (ctx) => modulesView(ctx) },
+  { path: '/lektion/:lessonId', name: 'Lektion', nav: false, view: (ctx, params) => lessonView(ctx, params) },
   { path: '/min-resa', name: 'Min resa', nav: true, view: () => placeholder('Min resa', 'Den här delen är inte klar än.') },
   { path: '/installningar', name: 'Inställningar', nav: true, view: (ctx) => settingsView(ctx) },
   { path: '/hjalp', name: 'Hjälp', nav: false, view: () => helpView() },
