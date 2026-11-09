@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Islam - Begreppsspelet | Religion</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #1a7a5a; --primary-dark: #145e45; --accent: #2ea87e; --gold: #e0b92e;
+  --text: #1a1a1a; --muted: #5d6670; --bg: #f5f7fa; --border: #dde3e8;
+  --ok: #2e9d4f; --ok-bg: #e5f6ea; --bad: #d6402f; --bad-bg: #fdebe8;
+}
+body { font-family: 'Segoe UI', Tahoma, Verdana, sans-serif; background: linear-gradient(135deg,#1a7a5a,#0f4a37 60%,#0a2f24); min-height: 100vh; padding: 16px; line-height: 1.5; color: var(--text); }
+.container { max-width: 960px; margin: 0 auto; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 16px 50px rgba(0,0,0,.4); }
+header { background: linear-gradient(135deg,var(--primary),var(--primary-dark)); color: #fff; padding: 22px 28px; display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: center; }
+header h1 { font-size: 1.8em; }
+header p { opacity: .9; }
+.stats { text-align: right; }
+.level { font-weight: 700; font-size: 1.15em; }
+.xpbar { background: rgba(0,0,0,.3); border-radius: 12px; height: 18px; width: 220px; overflow: hidden; margin: 4px 0 2px auto; }
+.xpbar div { height: 100%; background: linear-gradient(90deg,var(--gold),#ffe98a); transition: width .5s; }
+.xptext { font-size: .82em; opacity: .9; }
+nav { display: flex; flex-wrap: wrap; background: var(--bg); border-bottom: 2px solid var(--border); }
+nav button { flex: 1 1 0; min-width: 110px; padding: 13px 10px; border: 0; background: transparent; font: inherit; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; }
+nav button:hover { color: var(--primary); background: #fff6; }
+nav button.active { color: var(--primary); border-bottom-color: var(--primary); background: #fff; }
+button:focus-visible { outline: 3px solid #1565c0; outline-offset: 2px; }
+main { padding: 26px 28px 32px; }
+h2 { color: var(--primary); margin-bottom: 6px; }
+.lead { color: var(--muted); margin-bottom: 18px; }
+.btn { display: inline-block; background: var(--primary); color: #fff; border: 0; border-radius: 10px; padding: 11px 22px; font: inherit; font-weight: 700; cursor: pointer; }
+.btn:hover { background: var(--primary-dark); }
+.btn.alt { background: #fff; color: var(--primary); border: 2px solid var(--primary); }
+.btn:disabled { opacity: .5; cursor: default; }
+.menu { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 14px; margin-top: 10px; }
+.tile { background: var(--bg); border: 2px solid var(--border); border-radius: 14px; padding: 18px; text-align: left; font: inherit; cursor: pointer; }
+.tile:hover { border-color: var(--primary); transform: translateY(-2px); }
+.tile .ic { font-size: 2em; }
+.tile h3 { color: var(--primary); margin: 4px 0; }
+.tile p { color: var(--muted); font-size: .92em; }
+.bar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; font-weight: 600; color: var(--muted); }
+.card-q { background: var(--bg); border-left: 6px solid var(--primary); border-radius: 10px; padding: 18px 20px; font-size: 1.15em; margin-bottom: 16px; }
+.card-q small { display: block; color: var(--muted); font-size: .75em; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+.options { display: grid; gap: 10px; }
+.opt { text-align: left; background: #fff; border: 2px solid var(--border); border-radius: 10px; padding: 12px 16px; font: inherit; cursor: pointer; }
+.opt:hover:not(:disabled) { border-color: var(--primary); background: #f0faf6; }
+.opt.right { background: var(--ok-bg); border-color: var(--ok); }
+.opt.wrong { background: var(--bad-bg); border-color: var(--bad); }
+.feedback { margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-weight: 600; }
+.feedback.ok { background: var(--ok-bg); color: #1b6b35; }
+.feedback.no { background: var(--bad-bg); color: #9c2a1d; }
+.feedback .def { display: block; font-weight: 400; margin-top: 4px; color: var(--text); }
+/* flashcards */
+.flash { perspective: 1000px; margin: 8px auto 16px; max-width: 520px; }
+.flash-inner { position: relative; min-height: 230px; transition: transform .5s; transform-style: preserve-3d; cursor: pointer; border: 0; background: none; width: 100%; font: inherit; }
+.flash.flipped .flash-inner { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 22px; text-align: center; }
+.front { background: linear-gradient(135deg,var(--primary),var(--accent)); color: #fff; font-size: 2em; font-weight: 700; }
+.front small { font-size: .38em; font-weight: 400; opacity: .85; margin-top: 12px; }
+.back { background: #fff; border: 3px solid var(--primary); transform: rotateY(180deg); font-size: 1.1em; }
+.row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+/* matching */
+.match { display: grid; grid-template-columns: 1fr 2fr; gap: 10px 18px; align-items: start; }
+.match .col { display: grid; gap: 8px; }
+.m { border: 2px solid var(--border); background: #fff; border-radius: 10px; padding: 10px 12px; font: inherit; text-align: left; cursor: pointer; }
+.m.term { font-weight: 700; color: var(--primary); }
+.m:hover:not(:disabled) { border-color: var(--primary); }
+.m.sel { border-color: var(--primary); background: #e3f6ee; }
+.m.done { background: var(--ok-bg); border-color: var(--ok); opacity: .75; cursor: default; }
+.m.shake { animation: shake .35s; border-color: var(--bad); background: var(--bad-bg); }
+@keyframes shake { 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+/* type */
+.typebox { display: flex; gap: 10px; flex-wrap: wrap; }
+.typebox input { flex: 1 1 200px; padding: 12px 14px; font: inherit; font-size: 1.1em; border: 2px solid var(--border); border-radius: 10px; }
+.typebox input:focus { border-color: var(--primary); outline: none; }
+.hint { color: var(--muted); margin: 8px 0; font-family: Consolas, monospace; font-size: 1.15em; letter-spacing: .2em; }
+.result { text-align: center; padding: 20px 0; }
+.result .big { font-size: 3em; }
+.result .score { font-size: 1.4em; font-weight: 700; color: var(--primary); margin: 6px 0 16px; }
+.badges { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 10px; margin-top: 12px; }
+.badge { border: 2px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; opacity: .4; background: var(--bg); }
+.badge.on { opacity: 1; border-color: var(--gold); background: #fffbe6; }
+.badge .ic { font-size: 1.8em; }
+.badge small { color: var(--muted); display: block; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); background: #222; color: #fff; padding: 12px 20px; border-radius: 30px; transition: transform .4s; z-index: 10; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.back-link { display: inline-block; margin: 0 0 14px; color: var(--primary); font-weight: 600; text-decoration: none; }
+@media (max-width: 640px) {
+  header { padding: 16px; } main { padding: 18px 14px 26px; }
+  .stats { text-align: left; } .xpbar { margin-left: 0; width: 100%; }
+  .match { grid-template-columns: 1fr; }
+  .front { font-size: 1.6em; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>&#9770; Islam – Begreppsspelet</h1>
+      <p>Träna på 25 viktiga begrepp om islam</p>
+    </div>
+    <div class="stats" aria-live="polite">
+      <div class="level" id="level">Nivå 1</div>
+      <div class="xpbar" role="progressbar" aria-label="Erfarenhetspoäng"><div id="xpfill" style="width:0"></div></div>
+      <div class="xptext" id="xptext">0 XP</div>
+    </div>
+  </header>
+  <nav id="nav">
+    <button data-v="home" class="active">Start</button>
+    <button data-v="flash">Lär dig</button>
+    <button data-v="match">Para ihop</button>
+    <button data-v="quiz">Quiz</button>
+    <button data-v="type">Skriv begreppet</button>
+    <button data-v="prog">Mina poäng</button>
+  </nav>
+  <main id="main"></main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const TERMS = [
+ {t:"Allah", a:["allah"], d:"Det arabiska ordet för Gud. Muslimer tror på en enda Gud, Allah."},
+ {t:"Arabiska halvön", a:["arabiska halvön","arabiska halvon"], d:"Ett stort område i Mellanöstern där bland annat Saudiarabien ligger."},
+ {t:"Beduinstammar", a:["beduinstammar","beduinstam","beduiner"], d:"Grupper av människor som lever som nomader i öknen och flyttar runt."},
+ {t:"Domedagen", a:["domedagen","domedag"], d:"Den dag då Gud, enligt islam, ska döma alla människor."},
+ {t:"Gabriel", a:["gabriel"], d:"En ängel som förde Guds budskap till Muhammed."},
+ {t:"Helgedom", a:["helgedom"], d:"En helig plats där människor ber eller visar respekt för Gud."},
+ {t:"Jihad", a:["jihad"], d:"Ett arabiskt ord som betyder ”kamp”. Det kan betyda att kämpa för sin tro eller att förbättra sig själv."},
+ {t:"Kalifer", a:["kalifer","kalif"], d:"Ledare som tog över efter Muhammed och hjälpte till att sprida islam."},
+ {t:"Kaba", a:["kaba","kaaba","kabba"], d:"En kubliknande byggnad i Mekka och islams heligaste helgedom. Muslimer runt om i världen vänder sig mot Kaba när de ber."},
+ {t:"Koranen", a:["koranen","koran"], d:"Islams heliga skrift, byggd på Muhammeds uppenbarelser och en skildring av Guds (Allahs) budskap till mänskligheten. Den skrevs ursprungligen ner på arabiska och ska helst läsas på arabiska."},
+ {t:"Mekka", a:["mekka","mecka"], d:"Islams heligaste plats, en stad i nuvarande Saudiarabien, dit en muslim helst bör vallfärda minst en gång i livet."},
+ {t:"Medina", a:["medina"], d:"Staden dit Muhammed flydde och där han fick stöd. Muhammed bodde där en stor del av sitt liv."},
+ {t:"Monoteism", a:["monoteism"], d:"Tron på en enda gud (mono = en, teos = gud)."},
+ {t:"Moské", a:["moské","moske"], d:"En byggnad där muslimer samlas för att be, ungefär som en kyrka inom kristendomen eller en synagoga inom judendomen."},
+ {t:"Muhammed", a:["muhammed","muhammad","mohammed"], d:"Islams grundare och, enligt muslimerna, Guds sista profet."},
+ {t:"Muslim", a:["muslim"], d:"En person som tror på islam och följer Koranen."},
+ {t:"Nomader", a:["nomader","nomad"], d:"Människor som inte har någon fast bostad utan flyttar runt."},
+ {t:"Pilgrim", a:["pilgrim"], d:"En person som genomför en helig resa, med både ett inre mål (t.ex. frid eller gudsnärvaro) och ett yttre mål (platsen där resan slutar)."},
+ {t:"Profet", a:["profet"], d:"En person som fått i uppdrag av Gud att berätta vad Gud vill."},
+ {t:"Recitation", a:["recitation","recitera"], d:"Att läsa högt, ofta med en särskild rytm. Koranen brukar läsas så."},
+ {t:"Underkastelse", a:["underkastelse"], d:"Att följa någon annans vilja. I islam betyder det att följa Allahs vilja."},
+ {t:"Uppenbarelse", a:["uppenbarelse"], d:"Ett budskap från Gud som visar sig på ett särskilt sätt, till exempel genom en ängel."},
+ {t:"Vallfärd", a:["vallfärd","vallfard"], d:"Ett besök på en helig plats för att fullgöra en religiös plikt, be och få välsignelse."},
+ {t:"Ängel", a:["ängel","angel"], d:"Ett sändebud från Gud som för Guds budskap vidare."}
+];
+
+const BADGES = [
+ {id:"first", ic:"🌱", n:"Första steget", s:"Svara rätt första gången", f:s=>s.correct>=1},
+ {id:"ten", ic:"🔟", n:"Tio rätt", s:"10 rätta svar totalt", f:s=>s.correct>=10},
+ {id:"fifty", ic:"🏅", n:"Hundra procent flit", s:"50 rätta svar totalt", f:s=>s.correct>=50},
+ {id:"streak", ic:"🔥", n:"Heta fingrar", s:"7 rätt i rad", f:s=>s.best>=7},
+ {id:"flash", ic:"🃏", n:"Kortkoll", s:"Markera alla 25 kort som kända", f:s=>Object.keys(s.known).length>=TERMS.length},
+ {id:"perfect", ic:"💎", n:"Felfri runda", s:"Full pott i en runda", f:s=>s.perfect>=1},
+ {id:"match", ic:"🧩", n:"Mattemästare", s:"Klara 3 parövningar", f:s=>s.matches>=3},
+ {id:"lvl5", ic:"👑", n:"Nivå 5", s:"Nå nivå 5", f:s=>Math.floor(s.xp/100)+1>=5}
+];
+
+const KEY = "islam-begrepp-spel-v1";
+let S = load();
+function load(){ try { return Object.assign({xp:0,correct:0,best:0,streak:0,perfect:0,matches:0,known:{},badges:{},hard:{}}, JSON.parse(localStorage.getItem(KEY)||"{}")); } catch(e){ return {xp:0,correct:0,best:0,streak:0,perfect:0,matches:0,known:{},badges:{},hard:{}}; } }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+
+const $ = s => document.querySelector(s);
+const main = $("#main");
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm = s => s.toLowerCase().trim().replace(/\s+/g," ").replace(/[.!?,]/g,"");
+
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast.h); toast.h=setTimeout(()=>t.classList.remove("show"),2600); }
+
+function header(){
+  const lvl = Math.floor(S.xp/100)+1, into = S.xp%100;
+  $("#level").textContent = "Nivå " + lvl;
+  $("#xpfill").style.width = into + "%";
+  $("#xptext").textContent = S.xp + " XP · " + (100-into) + " till nästa nivå";
+}
+function award(xp){
+  const before = Math.floor(S.xp/100)+1;
+  S.xp += xp;
+  if (Math.floor(S.xp/100)+1 > before) toast("🎉 Ny nivå: " + (Math.floor(S.xp/100)+1) + "!");
+  checkBadges(); save(); header();
+}
+function right(term){
+  S.correct++; S.streak++; if (S.streak>S.best) S.best=S.streak;
+  if (term) delete S.hard[term];
+  award(10 + (S.streak>=3 ? 5 : 0));
+}
+function wrong(term){ S.streak = 0; if (term) S.hard[term]=(S.hard[term]||0)+1; save(); }
+function checkBadges(){
+  BADGES.forEach(b => { if (!S.badges[b.id] && b.f(S)) { S.badges[b.id]=true; toast("🏆 Ny utmärkelse: " + b.n); } });
+}
+
+/* ---------- Mask the term inside a definition ---------- */
+function mask(def, term){
+  const T = TERMS.find(x=>x.t===term);
+  let out = def;
+  T.a.concat([T.t]).sort((a,b)=>b.length-a.length).forEach(w => {
+    out = out.replace(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"), "gi"), "_____");
+  });
+  return out;
+}
+
+/* ---------- Views ---------- */
+const views = {home, flash, match, quiz, type:typeGame, prog};
+document.getElementById("nav").addEventListener("click", e => { const b=e.target.closest("button"); if(b) go(b.dataset.v); });
+function go(v){
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active", b.dataset.v===v));
+  views[v](); window.scrollTo({top:0});
+}
+
+function home(){
+  main.innerHTML = `
+   <h2>Välkommen!</h2>
+   <p class="lead">Här övar du på begrepp om islam. Samla XP, bygg en rad av rätta svar och lås upp utmärkelser. Börja gärna med att lära dig orden och spela sedan de andra spelen.</p>
+   <div class="menu">
+    <button class="tile" data-go="flash"><div class="ic">🃏</div><h3>Lär dig</h3><p>Vänd på korten och träna begreppen ett i taget.</p></button>
+    <button class="tile" data-go="match"><div class="ic">🧩</div><h3>Para ihop</h3><p>Koppla rätt begrepp till rätt förklaring.</p></button>
+    <button class="tile" data-go="quiz"><div class="ic">❓</div><h3>Quiz</h3><p>Flervalsfrågor åt båda hållen – förklaring eller begrepp.</p></button>
+    <button class="tile" data-go="type"><div class="ic">⌨️</div><h3>Skriv begreppet</h3><p>Läs förklaringen och skriv rätt ord. Svårast!</p></button>
+   </div>`;
+  main.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+}
+
+/* ---- Flashcards ---- */
+function flash(){
+  let order = shuffle(TERMS), i = 0;
+  function draw(){
+    const T = order[i], known = S.known[T.t];
+    main.innerHTML = `
+     <h2>Lär dig begreppen</h2>
+     <div class="bar"><span>Kort ${i+1} av ${order.length}</span><span>Kända: ${Object.keys(S.known).length} / ${TERMS.length}</span></div>
+     <div class="flash" id="fl"><button class="flash-inner" id="fi" aria-label="Vänd kortet: ${esc(T.t)}">
+        <div class="face front">${esc(T.t)}${known?" ✓":""}<small>Klicka för att se förklaringen</small></div>
+        <div class="face back"><p>${esc(T.d)}</p></div>
+     </button></div>
+     <div class="row">
+       <button class="btn alt" id="prev" ${i===0?"disabled":""}>← Föregående</button>
+       <button class="btn alt" id="again">Behöver öva</button>
+       <button class="btn" id="got">Jag kan den ✓</button>
+     </div>
+     <p class="lead" style="text-align:center;margin-top:14px"><button class="btn alt" id="sh">Blanda om</button></p>`;
+    $("#fi").onclick = () => $("#fl").classList.toggle("flipped");
+    $("#prev").onclick = () => { i--; draw(); };
+    $("#again").onclick = () => { delete S.known[T.t]; save(); next(); };
+    $("#got").onclick = () => { if(!S.known[T.t]){ S.known[T.t]=true; award(3); } next(); };
+    $("#sh").onclick = () => { order = shuffle(TERMS); i=0; draw(); };
+  }
+  function next(){ if (i < order.length-1) { i++; draw(); } else { main.innerHTML = `<div class="result"><div class="big">🎓</div><h2>Du har gått igenom alla kort!</h2><p class="score">Kända begrepp: ${Object.keys(S.known).length} av ${TERMS.length}</p><div class="row"><button class="btn" id="r">Gå igenom igen</button><button class="btn alt" id="q">Testa i quizet</button></div></div>`; $("#r").onclick=flash; $("#q").onclick=()=>go("quiz"); } }
+  draw();
+}
+
+/* ---- Matching ---- */
+function match(){
+  const round = shuffle(TERMS).slice(0,6);
+  const defs = shuffle(round);
+  let selT = null, done = 0, mistakes = 0;
+  main.innerHTML = `
+   <h2>Para ihop</h2>
+   <p class="lead">Klicka på ett begrepp och sedan på dess förklaring.</p>
+   <div class="bar"><span id="mc">Par: 0 / ${round.length}</span><span id="mm">Fel: 0</span></div>
+   <div class="match">
+     <div class="col" id="ct">${round.map(r=>`<button class="m term" data-t="${esc(r.t)}">${esc(r.t)}</button>`).join("")}</div>
+     <div class="col" id="cd">${defs.map(r=>`<button class="m def" data-t="${esc(r.t)}">${esc(r.d)}</button>`).join("")}</div>
+   </div>`;
+  const terms = main.querySelectorAll(".term"), dfs = main.querySelectorAll(".def");
+  terms.forEach(b => b.onclick = () => { if(b.classList.contains("done")) return; terms.forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); selT=b; });
+  dfs.forEach(b => b.onclick = () => {
+    if (b.classList.contains("done") || !selT) return;
+    if (selT.dataset.t === b.dataset.t) {
+      selT.classList.remove("sel"); selT.classList.add("done"); b.classList.add("done");
+      selT.disabled = b.disabled = true; right(b.dataset.t); selT=null; done++;
+      $("#mc").textContent = `Par: ${done} / ${round.length}`;
+      if (done===round.length) finish();
+    } else {
+      mistakes++; wrong(selT.dataset.t); $("#mm").textContent = "Fel: "+mistakes;
+      b.classList.add("shake"); setTimeout(()=>b.classList.remove("shake"),400);
+    }
+  });
+  function finish(){
+    S.matches++; if (mistakes===0){ S.perfect++; award(20); } else { award(5); } checkBadges(); save();
+    setTimeout(()=>{ main.innerHTML = `<div class="result"><div class="big">${mistakes===0?"💎":"🧩"}</div><h2>Alla par klara!</h2><p class="score">${mistakes===0?"Felfritt! +20 bonus-XP":mistakes+" felklick"}</p><div class="row"><button class="btn" id="a">Ny omgång</button><button class="btn alt" id="h">Till start</button></div></div>`; $("#a").onclick=match; $("#h").onclick=()=>go("home"); }, 700);
+  }
+}
+
+/* ---- Quiz ---- */
+function quiz(){
+  main.innerHTML = `<h2>Quiz</h2><p class="lead">10 frågor. Välj vad du vill öva på:</p>
+   <div class="menu">
+     <button class="tile" data-m="d2t"><div class="ic">📖</div><h3>Förklaring → begrepp</h3><p>Du får förklaringen och väljer rätt ord.</p></button>
+     <button class="tile" data-m="t2d"><div class="ic">🔤</div><h3>Begrepp → förklaring</h3><p>Du får ordet och väljer rätt förklaring.</p></button>
+     <button class="tile" data-m="mix"><div class="ic">🎲</div><h3>Blandat</h3><p>Båda sorterna om vartannat.</p></button>
+   </div>`;
+  main.querySelectorAll("[data-m]").forEach(b => b.onclick = () => runQuiz(b.dataset.m));
+}
+function runQuiz(mode){
+  // Prioritera begrepp man har missat tidigare
+  const hardFirst = TERMS.filter(t=>S.hard[t.t]);
+  const rest = shuffle(TERMS.filter(t=>!S.hard[t.t]));
+  const qs = shuffle(hardFirst).concat(rest).slice(0,10).map((T,n) => {
+    const dir = mode==="mix" ? (n%2?"t2d":"d2t") : mode;
+    const wrongs = shuffle(TERMS.filter(x=>x!==T)).slice(0,3);
+    return {T, dir, opts: shuffle([T].concat(wrongs))};
+  });
+  let i=0, score=0;
+  function draw(){
+    const q = qs[i];
+    const prompt = q.dir==="d2t" ? `<small>Vilket begrepp passar?</small>${esc(mask(q.T.d,q.T.t))}` : `<small>Vad betyder begreppet?</small><strong>${esc(q.T.t)}</strong>`;
+    main.innerHTML = `
+     <div class="bar"><span>Fråga ${i+1} av ${qs.length}</span><span>Poäng: ${score}</span><span>🔥 Rad: ${S.streak}</span></div>
+     <div class="card-q">${prompt}</div>
+     <div class="options">${q.opts.map((o,k)=>`<button class="opt" data-k="${k}">${esc(q.dir==="d2t"?o.t:mask(o.d,o.t))}</button>`).join("")}</div>
+     <div id="fb"></div>`;
+    main.querySelectorAll(".opt").forEach(b => b.onclick = () => answer(b, q));
+  }
+  function answer(btn, q){
+    const chosen = q.opts[btn.dataset.k], ok = chosen===q.T;
+    main.querySelectorAll(".opt").forEach(b => { b.disabled=true; if (q.opts[b.dataset.k]===q.T) b.classList.add("right"); });
+    if (ok) { score++; right(q.T.t); } else { btn.classList.add("wrong"); wrong(q.T.t); }
+    $("#fb").innerHTML = `<div class="feedback ${ok?"ok":"no"}">${ok?"Rätt! 🎉":"Inte riktigt."}<span class="def"><b>${esc(q.T.t)}:</b> ${esc(q.T.d)}</span></div><p style="margin-top:14px"><button class="btn" id="nx">${i<qs.length-1?"Nästa fråga →":"Se resultat"}</button></p>`;
+    $("#nx").focus(); $("#nx").onclick = () => { if (i<qs.length-1){ i++; draw(); } else end(); };
+  }
+  function end(){ endRound("Quiz klart!", score, qs.length, ()=>runQuiz(mode)); }
+  draw();
+}
+function endRound(title, score, total, again){
+  if (score===total){ S.perfect++; award(25); }
+  checkBadges(); save();
+  const emoji = score===total?"🏆":score>=total*0.7?"😀":"💪";
+  main.innerHTML = `<div class="result"><div class="big">${emoji}</div><h2>${title}</h2><p class="score">${score} av ${total} rätt${score===total?" – full pott! +25 bonus-XP":""}</p><div class="row"><button class="btn" id="a">Spela igen</button><button class="btn alt" id="h">Till start</button></div></div>`;
+  $("#a").onclick = again; $("#h").onclick = () => go("home");
+}
+
+/* ---- Skriv begreppet ---- */
+function typeGame(){
+  const hardFirst = TERMS.filter(t=>S.hard[t.t]);
+  const qs = shuffle(hardFirst).concat(shuffle(TERMS.filter(t=>!S.hard[t.t]))).slice(0,8);
+  let i=0, score=0, hint=false;
+  function draw(){
+    const T = qs[i]; hint=false;
+    main.innerHTML = `
+     <h2>Skriv begreppet</h2>
+     <div class="bar"><span>Fråga ${i+1} av ${qs.length}</span><span>Poäng: ${score}</span></div>
+     <div class="card-q"><small>Vilket begrepp beskrivs?</small>${esc(mask(T.d,T.t))}</div>
+     <div class="hint" id="hint" aria-live="polite">${"_ ".repeat(T.t.replace(/ /g,"").length).trim()}</div>
+     <form class="typebox" id="f" autocomplete="off">
+       <input id="in" aria-label="Ditt svar" placeholder="Skriv ditt svar här" autofocus>
+       <button class="btn" type="submit">Svara</button>
+       <button class="btn alt" type="button" id="hb">Ledtråd (−halva XP)</button>
+     </form><div id="fb"></div>`;
+    $("#in").focus();
+    $("#hb").onclick = () => { hint=true; $("#hint").textContent = T.t[0] + " " + "_ ".repeat(T.t.length-1).trim() + "  (" + T.t.length + " bokstäver)"; $("#in").focus(); };
+    $("#f").onsubmit = ev => { ev.preventDefault(); submit(T); };
+  }
+  function submit(T){
+    const v = norm($("#in").value); if (!v) return;
+    const ok = T.a.some(a => norm(a)===v);
+    $("#in").disabled = true; $("#f button[type=submit]").disabled = true; $("#hb").disabled = true;
+    if (ok){ score++; S.correct++; S.streak++; if(S.streak>S.best)S.best=S.streak; delete S.hard[T.t]; award(hint?10:20); }
+    else wrong(T.t);
+    $("#fb").innerHTML = `<div class="feedback ${ok?"ok":"no"}">${ok?"Rätt! 🎉":"Rätt svar var: "+esc(T.t)}<span class="def">${esc(T.d)}</span></div><p style="margin-top:14px"><button class="btn" id="nx">${i<qs.length-1?"Nästa →":"Se resultat"}</button></p>`;
+    $("#nx").focus(); $("#nx").onclick = () => { if(i<qs.length-1){ i++; draw(); } else endRound("Skrivövning klar!", score, qs.length, typeGame); };
+  }
+  draw();
+}
+
+/* ---- Progress ---- */
+function prog(){
+  const hard = Object.keys(S.hard);
+  main.innerHTML = `
+   <h2>Mina poäng</h2>
+   <div class="menu">
+     <div class="tile"><div class="ic">⭐</div><h3>${S.xp} XP</h3><p>Nivå ${Math.floor(S.xp/100)+1}</p></div>
+     <div class="tile"><div class="ic">✅</div><h3>${S.correct} rätt</h3><p>Totalt</p></div>
+     <div class="tile"><div class="ic">🔥</div><h3>${S.best} i rad</h3><p>Din längsta svit</p></div>
+     <div class="tile"><div class="ic">🃏</div><h3>${Object.keys(S.known).length} / ${TERMS.length}</h3><p>Kända kort</p></div>
+   </div>
+   <h3 style="margin:22px 0 4px;color:var(--primary)">Begrepp att öva mer på</h3>
+   <p class="lead">${hard.length ? hard.map(esc).join(", ") : "Inga just nu – bra jobbat!"}</p>
+   <h3 style="margin:10px 0 4px;color:var(--primary)">Utmärkelser</h3>
+   <div class="badges">${BADGES.map(b=>`<div class="badge ${S.badges[b.id]?"on":""}"><div class="ic">${b.ic}</div><b>${b.n}</b><small>${b.s}</small></div>`).join("")}</div>
+   <p style="margin-top:24px"><button class="btn alt" id="reset">Nollställ mina poäng</button></p>`;
+  $("#reset").onclick = () => { if (confirm("Vill du nollställa alla poäng och utmärkelser på den här datorn?")) { try{localStorage.removeItem(KEY);}catch(e){} S=load(); header(); prog(); } };
+}
+
+header(); home();
+</script>
+</body>
+</html>
