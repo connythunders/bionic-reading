@@ -6,8 +6,8 @@ Appen har **inget bygge och inga beroenden i körtid**. Den är vanlig HTML, CSS
 
 ## Vad appen kan
 
-- **Tio moduler** med lektioner enligt Visa, Tillsammans, Själv: löst exempel, guidade steg och egna uppgifter. Modul 4 och 5 har tre fulla lektioner var, övriga moduler en vardera.
-- **Förberedande stöd till Matematik nivå 1a (Gy25)**, till exempel de första 50 poängen på Komvux. Appen täcker taluppfattning, bråk, decimaltal, procent, förändringsfaktor, överslag och avrundning, rimliga svar, enhetsbyten, proportionalitet, skala och ränta, men inte hela kursen. Se `KURSPLAN-MATEMATIK-1A.md` för vad som täcks och vad som saknas.
+- **Elva moduler** med lektioner enligt Visa, Tillsammans, Själv: löst exempel, guidade steg och egna uppgifter. Modul 4 och 5 har tre fulla lektioner var, övriga moduler en vardera.
+- **Förberedande stöd till Matematik nivå 1a (Gy25)**, till exempel de första 50 poängen på Komvux. Appen täcker taluppfattning, bråk, decimaltal, procent, förändringsfaktor, överslag och avrundning, rimliga svar, enhetsbyten, proportionalitet, skala, ränta och kritisk granskning av procent, men inte hela kursen. Se `KURSPLAN-MATEMATIK-1A.md` för vad som täcks och vad som saknas.
 - **Ledtrådstrappa** på varje övning: läs upp igen, bild, första steget, hela lösningen och en parallell uppgift.
 - **Dagens pass** med Leitner-lådor: kort, blandad repetition av det eleven redan övat. Genomskinligt och utan AI.
 - **Uppläsning** med svensk röst (Web Speech API), ordmarkering, hastighet och talversion av varje formel.

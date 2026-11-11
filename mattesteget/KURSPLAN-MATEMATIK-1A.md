@@ -70,7 +70,7 @@ Appen kan **inte ersätta** bedömning av resonemang och kommunikation. Det mås
 2. ~~Enheter och enhetsbyten~~ **Klart:** modul 8 (punkt 4). Kostnader per enhet och vinklar saknas fortfarande.
 3. ~~Proportionalitet och skala~~ **Klart:** modul 9 (punkt 1). Likformighet, vinklar och Pythagoras sats saknas fortfarande.
 4. ~~Ränta och sparande~~ **Klart:** modul 10 (punkt 15, delvis). Ränta för ett år, ränta på ränta i två år och förändringsfaktor. Kalkylprogram och amortering saknas.
-5. **Kritisk granskning av procent i media** (punkt 18). Procent som används vilseledande: "50 % mer", procent av olika helheter och procentenheter.
+5. ~~Kritisk granskning av procent i media~~ **Klart:** modul 11 (punkt 18, delvis). Procent i flera steg, procentenheter, olika helheter och relativ mot absolut risk. Hållbar utveckling saknas fortfarande.
 6. **Algebra och linjära ekvationer**, därefter **funktioner**, **sannolikhet** och **statistik** (andra delen).
 
 Säg till vilka av dessa du vill ha, och i vilken ordning, så bygger jag dem med samma upplägg som i modul 4 till 6: löst exempel, guidade steg, sex övningar med ledtrådar och parallella uppgifter.
