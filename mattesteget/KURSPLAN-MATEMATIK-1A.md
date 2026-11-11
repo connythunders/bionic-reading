@@ -69,7 +69,7 @@ Appen kan **inte ersätta** bedömning av resonemang och kommunikation. Det mås
 1. ~~Rimlighetsbedömning, överslagsräkning och avrundning~~ **Klart:** modul 7 (punkt 2 och kunskapskravet om rimlighet).
 2. ~~Enheter och enhetsbyten~~ **Klart:** modul 8 (punkt 4). Kostnader per enhet och vinklar saknas fortfarande.
 3. ~~Proportionalitet och skala~~ **Klart:** modul 9 (punkt 1). Likformighet, vinklar och Pythagoras sats saknas fortfarande.
-4. **Ränta och sparande** (punkt 15). Ränta som upprepad förändringsfaktor. Förbereder exponentialfunktionen.
+4. ~~Ränta och sparande~~ **Klart:** modul 10 (punkt 15, delvis). Ränta för ett år, ränta på ränta i två år och förändringsfaktor. Kalkylprogram och amortering saknas.
 5. **Kritisk granskning av procent i media** (punkt 18). Procent som används vilseledande: "50 % mer", procent av olika helheter och procentenheter.
 6. **Algebra och linjära ekvationer**, därefter **funktioner**, **sannolikhet** och **statistik** (andra delen).
 
