@@ -1,6 +1,6 @@
 // Skapas av tools/precache.ps1. Redigera inte fÃ¶r hand.
 self.PRECACHE = {
-  version: "941b0e12db48",
+  version: "1fb811cf96e7",
   files: [
     "content/glossary.json",
     "content/index.json",
@@ -12,6 +12,7 @@ self.PRECACHE = {
     "content/modules/06-forandringsfaktor.json",
     "content/modules/07-rimlighet.json",
     "content/modules/08-enheter.json",
+    "content/modules/09-proportionalitet.json",
     "fonts/OpenDyslexic-Bold.woff",
     "fonts/OpenDyslexic-Regular.woff",
     "fonts/atkinson-400.woff2",
