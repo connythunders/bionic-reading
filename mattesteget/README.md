@@ -6,7 +6,8 @@ Appen har **inget bygge och inga beroenden i körtid**. Den är vanlig HTML, CSS
 
 ## Vad appen kan
 
-- **Fem moduler** med lektioner enligt Visa, Tillsammans, Själv: löst exempel, guidade steg och egna uppgifter. Modul 4 och 5 har tre fulla lektioner var, modul 1 till 3 en vardera.
+- **Sex moduler** med lektioner enligt Visa, Tillsammans, Själv: löst exempel, guidade steg och egna uppgifter. Modul 4 och 5 har tre fulla lektioner var, modul 1 till 3 och 6 en vardera.
+- **Förberedande stöd till Matematik nivå 1a (Gy25)**, till exempel de första 50 poängen på Komvux. Appen täcker taluppfattning, bråk, decimaltal, procent och förändringsfaktor, men inte hela kursen. Se `KURSPLAN-MATEMATIK-1A.md` för vad som täcks och vad som saknas.
 - **Ledtrådstrappa** på varje övning: läs upp igen, bild, första steget, hela lösningen och en parallell uppgift.
 - **Dagens pass** med Leitner-lådor: kort, blandad repetition av det eleven redan övat. Genomskinligt och utan AI.
 - **Uppläsning** med svensk röst (Web Speech API), ordmarkering, hastighet och talversion av varje formel.
@@ -44,6 +45,7 @@ Allt innehåll ligger som JSON i `content/` och valideras av `src/lib/validate.j
 |---|---|
 | `PLAN.md` | Arkitektur, datamodell och byggsteg |
 | `CLAUDE.md` | Konventioner och tillgänglighetsregler för utveckling |
+| `KURSPLAN-MATEMATIK-1A.md` | Jämförelse med Skolverkets Gy25-ämnesplan för Matematik nivå 1a: vad som täcks, vad som saknas och förslag på nästa moduler |
 | `TILLGANGLIGHET.md` | Vad som testas automatiskt, och en manuell checklista för granskning på riktiga enheter |
 | `INTEGRITET.md` | Vad som sparas och var, för elever, vårdnadshavare och dataskyddsombud |
 | `src/ai/README.md` | Hur en framtida AI-tutor skulle kunna kopplas in (finns inte i appen) |
