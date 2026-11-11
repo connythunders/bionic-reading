@@ -8,6 +8,7 @@ export const INTERACTIVE_KINDS = ['numberLine', 'fractionBars', 'percentBar', 'm
 export const STRUCTURES = [
   'delen-saknas', 'helheten-saknas', 'procenten-saknas',
   'storst-minst', 'placera', 'omvandla', 'berakna',
+  'avrunda', 'overslag', 'rimlighet', 'enhetsbyte',
 ];
 export const MODULE_STATUS = ['full', 'skeleton'];
 

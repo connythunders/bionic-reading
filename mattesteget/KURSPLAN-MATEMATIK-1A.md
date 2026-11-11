@@ -21,9 +21,9 @@ Mattesteget är ett **förberedande och stödjande övningsmaterial** för eleve
 |---|---|---|---|---|
 | | **Program- eller yrkesspecifikt innehåll** | | | |
 | 1 | Begrepp relevanta för arbetslivet: proportionalitet, skala, likformighet, vinklar, Pythagoras sats, **procent och andelar**, index, vinstmarginal, felmarginaler med mera | **Delvis** | Procent och andelar täcks i modul 4 till 6. Resten saknas | Första delen (procent, andelar, proportionalitet, skala) |
-| 2 | Beräkningsmetoder: uppskattning, mätfel, spill och svinn, överslagsräkning, avrundning, kalkylprogram, kontrollberäkning | **Delvis** | Miniräknare finns. Överslag, avrundning och kontrollberäkning tränas inte | Första delen |
+| 2 | Beräkningsmetoder: uppskattning, mätfel, spill och svinn, överslagsräkning, avrundning, kalkylprogram, kontrollberäkning | **Delvis** | Överslagsräkning, avrundning och bedömning av svar täcks i modul 7. Miniräknare finns. Mätfel, spill och svinn, och kalkylprogram saknas | Första delen |
 | 3 | Hantering av formler relevanta för arbetslivet | **Saknas** | | Andra delen |
-| 4 | Mätning, storheter och enheter: enhetsbyten, vinklar, tidsuppskattning, materialåtgång, kostnader, mätosäkerhet | **Saknas** | | Första delen (enhetsbyten, kostnader) |
+| 4 | Mätning, storheter och enheter: enhetsbyten, vinklar, tidsuppskattning, materialåtgång, kostnader, mätosäkerhet | **Delvis** | Enhetsbyten för längd, vikt, volym och tid, samt en enkel materialåtgång, täcks i modul 8. Vinklar, mätosäkerhet och kostnadsberäkning saknas | Första delen |
 | 5 | Hjälpmedel och verktyg: formulär, mallar, tumregler, manualer, handböcker | **Saknas** | | Andra delen |
 | | **Aritmetik, algebra och funktioner** | | | |
 | 6 | Formler och algebraiska uttryck, faktorisering och multiplicering | **Saknas** | | Andra delen |
@@ -45,7 +45,7 @@ Mattesteget är ett **förberedande och stödjande övningsmaterial** för eleve
 | 19 | Matematiska modeller i realistiska situationer, och utvärdering av deras begränsningar | **Saknas** | | Andra delen |
 | 20 | Orientering ur matematikens historia | **Saknas** | | Valfritt |
 
-Slutsats: **procent, andelar och förändringsfaktor är väl täckta.** Algebra, funktioner, sannolikhet och statistik saknas helt. Av det jag föreslår som första delen saknas fortfarande enheter och enhetsbyten, överslagsräkning och avrundning, och proportionalitet och skala.
+Slutsats: **procent, andelar, förändringsfaktor, överslag, avrundning och enhetsbyten är täckta.** Algebra, funktioner, sannolikhet och statistik saknas helt. Av det jag föreslår som första delen saknas fortfarande proportionalitet och skala, ränta och kritisk granskning av procent.
 
 Det som såvitt jag kan se är nytt eller tydligare i Gy25 jämfört med den äldre planen (Gy11) är att "digitala verktyg" är en egen rubrik, att "procent och andelar" nämns uttryckligen, och punkt 18 om **hållbar utveckling och kritisk granskning av fakta och påståenden**. Den sista är värd att ta på allvar, och passar bra ihop med procent (till exempel "stämmer rubriken '50 % dyrare'?").
 
@@ -57,7 +57,7 @@ För godkänt ska **alla** kriterier för E vara uppfyllda. Nyckelorden i kraven
 |---|---|
 | Använda och beskriva begrepp och samband mellan begrepp med godtagbar bredd och säkerhet | **Bra stöd** inom tal, bråk, decimaltal, procent och förändringsfaktor: ordlista, bilder, löst exempel, parallella uppgifter |
 | Hantera procedurer och rutinuppgifter med godtagbar bredd och säkerhet, utan och med digitala verktyg | **Bra stöd** inom samma område. Miniräknare finns |
-| Lösa enkla problem inom nivåns områden och **bedöma resultatens rimlighet** | **Delvis**: problemlösning finns. Rimlighetsbedömning tränas inte uttryckligen |
+| Lösa enkla problem inom nivåns områden och **bedöma resultatens rimlighet** | **Bra stöd** för rimlighet (modul 7: överslag, avrundning och "kan svaret stämma?") och för problemlösning i vardagen. Problem utanför tal, procent och enheter täcks inte |
 | Tillämpa och formulera matematiska modeller i enkla uppgifter | **Inget stöd** ännu |
 | Föra delvis underbyggda och följa enkla matematiska **resonemang** | **Inget stöd.** Appen bedömer bara svar, inte resonemang |
 | Kommunicera matematik med symboler och andra representationer på ett i huvudsak fungerande sätt | **Delvis**: eleven möter symboler och representationer, men skriver dem bara som svar |
@@ -66,8 +66,8 @@ Appen kan **inte ersätta** bedömning av resonemang och kommunikation. Det mås
 
 ## Förslag på nästa steg (i den ordning jag tycker att de är mest värda)
 
-1. **Rimlighetsbedömning, överslagsräkning och avrundning** (första delen, punkt 2 och kunskapskravet om rimlighet). En kort lektion där eleven uppskattar svaret före beräkningen och bedömer om det är rimligt, till exempel "kan en rabatt på 25 % göra att priset blir högre?".
-2. **Enheter och enhetsbyten** (första delen, punkt 4). Längd, vikt, volym, tid, och kostnader per enhet, med yrkesnära exempel (materialåtgång, doser).
+1. ~~Rimlighetsbedömning, överslagsräkning och avrundning~~ **Klart:** modul 7 (punkt 2 och kunskapskravet om rimlighet).
+2. ~~Enheter och enhetsbyten~~ **Klart:** modul 8 (punkt 4). Kostnader per enhet och vinklar saknas fortfarande.
 3. **Proportionalitet och skala** (första delen, punkt 1). Förhållanden, recept, ritningar och skala, som bygger på bråk.
 4. **Ränta och sparande** (punkt 15). Ränta som upprepad förändringsfaktor. Förbereder exponentialfunktionen.
 5. **Kritisk granskning av procent i media** (punkt 18). Procent som används vilseledande: "50 % mer", procent av olika helheter och procentenheter.
