@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { harBudgetKvar, kapa, FULLT_SVAR } from "@/lib/skydd";
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -7,14 +8,19 @@ const client = new Anthropic({
 
 export async function POST(request: NextRequest) {
   try {
-    const { text, taskTitle, genre, wordCountMin, wordCountMax, assessmentCriteria } =
-      await request.json();
+    const body = await request.json();
+    const text = kapa(body.text, 15000);
+    const { taskTitle, genre, wordCountMin, wordCountMax, assessmentCriteria } = body;
 
-    if (!text || text.trim().length < 20) {
+    if (typeof text !== "string" || text.trim().length < 20) {
       return NextResponse.json(
         { error: "Text is too short to evaluate." },
         { status: 400 }
       );
+    }
+
+    if (!harBudgetKvar("feedback", Number(process.env.MAX_FEEDBACK_PER_DAY) || 400)) {
+      return NextResponse.json(FULLT_SVAR, { status: 429 });
     }
 
     const wordCount = text.trim().split(/\s+/).length;

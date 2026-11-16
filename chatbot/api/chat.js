@@ -5,6 +5,18 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// Grov daglig gräns per serverinstans (nollställs vid omstart) som skydd mot missbruk.
+const MAX_PER_DAY = Number(process.env.MAX_REQUESTS_PER_DAY) || 300;
+let dagensAntal = 0;
+let dagensDatum = new Date().toDateString();
+function harBudgetKvar() {
+  const idag = new Date().toDateString();
+  if (idag !== dagensDatum) { dagensDatum = idag; dagensAntal = 0; }
+  if (dagensAntal >= MAX_PER_DAY) return false;
+  dagensAntal++;
+  return true;
+}
+
 // Load chunks once at cold start
 let chunks;
 function getChunks() {
@@ -97,9 +109,21 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { message, history = [] } = req.body;
-  if (!message || typeof message !== 'string') {
+  const body = req.body || {};
+  if (!body.message || typeof body.message !== 'string') {
     return res.status(400).json({ error: 'Meddelande saknas' });
+  }
+  // Begränsa indata så att en manipulerad klient inte kan skicka orimligt
+  // mycket text (och därmed dra kostnad på API-nyckeln).
+  const message = body.message.slice(0, 2000);
+  const history = (Array.isArray(body.history) ? body.history : [])
+    .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
+    .slice(-20)
+    .map(m => ({ role: m.role, content: m.content.slice(0, 4000) }));
+  while (history.length && history[0].role !== 'user') history.shift();
+
+  if (!harBudgetKvar()) {
+    return res.status(429).json({ error: 'Chatboten har använts väldigt mycket i dag. Försök igen i morgon.' });
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -152,6 +176,6 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error('Chat API error:', err);
-    return res.status(500).json({ error: 'Serverfel: ' + err.message });
+    return res.status(500).json({ error: 'Serverfel. Försök igen om en stund.' });
   }
 }

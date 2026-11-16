@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { harBudgetKvar, kapa, FULLT_SVAR } from "@/lib/skydd";
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 const VOICE_FEMALE = process.env.ELEVENLABS_VOICE_FEMALE || "XB0fDUnXU5powFXDhCwa"; // Charlotte
@@ -6,7 +7,9 @@ const VOICE_MALE = process.env.ELEVENLABS_VOICE_MALE || "onwK4e9ZLuTAKqWW03F9"; 
 
 export async function POST(request: NextRequest) {
   try {
-    const { text, voice = "female" } = await request.json();
+    const body = await request.json();
+    const text = kapa(body.text, 4000);
+    const voice = body.voice === "male" ? "male" : "female";
 
     if (!text) {
       return NextResponse.json({ error: "Text is required" }, { status: 400 });
@@ -17,6 +20,10 @@ export async function POST(request: NextRequest) {
         { error: "ElevenLabs API key not configured" },
         { status: 503 }
       );
+    }
+
+    if (!harBudgetKvar("tts", Number(process.env.MAX_TTS_PER_DAY) || 600)) {
+      return NextResponse.json(FULLT_SVAR, { status: 429 });
     }
 
     const voiceId = voice === "male" ? VOICE_MALE : VOICE_FEMALE;

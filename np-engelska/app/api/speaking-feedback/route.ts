@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { harBudgetKvar, kapa, FULLT_SVAR } from "@/lib/skydd";
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -7,13 +8,19 @@ const client = new Anthropic({
 
 export async function POST(request: NextRequest) {
   try {
-    const { transcript, taskTitle, taskContext, taskType } = await request.json();
+    const body = await request.json();
+    const transcript = kapa(body.transcript, 15000);
+    const { taskTitle, taskContext, taskType } = body;
 
-    if (!transcript || transcript.trim().length < 10) {
+    if (typeof transcript !== "string" || transcript.trim().length < 10) {
       return NextResponse.json(
         { error: "Transcript is too short to evaluate." },
         { status: 400 }
       );
+    }
+
+    if (!harBudgetKvar("feedback", Number(process.env.MAX_FEEDBACK_PER_DAY) || 400)) {
+      return NextResponse.json(FULLT_SVAR, { status: 429 });
     }
 
     const systemPrompt = `You are an experienced English language examiner for Swedish year 9 students (approximately 15 years old) taking Nationella Provet (National Test) in English. Your role is to provide encouraging, constructive, and specific feedback in Swedish on spoken English.
