@@ -1105,14 +1105,18 @@ function updateApiDisplay() {
 // ===================================================
 // PROFILES
 // ===================================================
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function toBionic(text) {
   if (!text) return '';
   return text.split(/(\s+)/).map(word => {
     if (!word.trim()) return word;
     const clean = word.replace(/[^a-zA-ZåäöÅÄÖéèüúùóòíìàâêîôûæøëïœñ]/g, '');
-    if (clean.length === 0) return word;
+    if (clean.length === 0) return escapeHtml(word);
     const boldLen = Math.max(1, Math.ceil(clean.length * 0.4));
-    return `<strong>${word.substring(0, boldLen)}</strong>${word.substring(boldLen)}`;
+    return `<strong>${escapeHtml(word.substring(0, boldLen))}</strong>${escapeHtml(word.substring(boldLen))}`;
   }).join('');
 }
 
@@ -1293,7 +1297,7 @@ async function generateExercises() {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 4000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }]
@@ -1924,7 +1928,7 @@ function hideLoading() {
 
 function showError(msg) {
   const box = document.getElementById('error-box');
-  box.innerHTML = `<strong>Fel</strong>${msg}`;
+  box.innerHTML = `<strong>Fel</strong>${escapeHtml(msg)}`;
   box.classList.add('visible');
 }
 

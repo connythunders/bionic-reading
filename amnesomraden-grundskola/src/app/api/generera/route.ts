@@ -24,10 +24,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const ankaramne = (body.ankaramne || "").trim();
-  const tema = (body.tema || "").trim();
+  const ankaramne = String(body.ankaramne || "").trim().slice(0, 100);
+  const tema = String(body.tema || "").trim().slice(0, 300);
   const amnen = Array.isArray(body.amnen)
     ? body.amnen.filter((p) => typeof p === "string" && p.trim())
+        .slice(0, 20)
+        .map((p) => p.slice(0, 100))
     : [];
 
   if (!tema) {

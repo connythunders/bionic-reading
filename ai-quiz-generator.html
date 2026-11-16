@@ -886,29 +886,31 @@
             }
         }
 
+        function escapeHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+
         function displayAIFeedback(feedback) {
             const feedbackContent = document.getElementById('ai-feedback-content');
 
             if (typeof feedback === 'string') {
-                feedbackContent.innerHTML = `<p>${feedback}</p>`;
+                feedbackContent.innerHTML = `<p>${escapeHtml(feedback)}</p>`;
             } else if (feedback.overall) {
-                let html = `<p><strong>Sammanfattning:</strong> ${feedback.overall}</p>`;
+                let html = `<p><strong>Sammanfattning:</strong> ${escapeHtml(feedback.overall)}</p>`;
 
                 if (feedback.strengths) {
-                    html += `<p><strong>Styrkor:</strong> ${feedback.strengths}</p>`;
+                    html += `<p><strong>Styrkor:</strong> ${escapeHtml(feedback.strengths)}</p>`;
                 }
 
                 if (feedback.improvements) {
-                    html += `<p><strong>Förbättringsområden:</strong> ${feedback.improvements}</p>`;
+                    html += `<p><strong>Förbättringsområden:</strong> ${escapeHtml(feedback.improvements)}</p>`;
                 }
 
                 if (feedback.encouragement) {
-                    html += `<p><strong>Uppmuntran:</strong> ${feedback.encouragement}</p>`;
+                    html += `<p><strong>Uppmuntran:</strong> ${escapeHtml(feedback.encouragement)}</p>`;
                 }
 
                 feedbackContent.innerHTML = html;
             } else {
-                feedbackContent.innerHTML = `<p>${feedback}</p>`;
+                feedbackContent.innerHTML = `<p>${escapeHtml(feedback)}</p>`;
             }
         }
 

@@ -441,7 +441,7 @@ function ritaFilLista(){
     const klar = p.text!=='' ? '✓' : '…';
     const d = document.createElement('div');
     d.className='fil-rad';
-    d.innerHTML = `<span>${klar} 📄 ${p.namn}</span><button data-i="${i}">✕</button>`;
+    d.innerHTML = `<span>${klar} 📄 ${esc(p.namn)}</span><button data-i="${i}">✕</button>`;
     d.querySelector('button').onclick = ()=>{ uppladdadeFiler.splice(i,1); ritaFilLista(); };
     filLista.appendChild(d);
   });
@@ -499,7 +499,7 @@ async function generera(){
   }catch(err){
     console.error(err);
     settLaddar(false);
-    visaFel('Kunde inte skapa förslaget: ' + err.message);
+    visaFel('Kunde inte skapa förslaget: ' + esc(err.message));
     settSteg(1);
   }finally{
     document.getElementById('generera').disabled = false;
@@ -536,13 +536,13 @@ Svara ENBART med giltig JSON enligt detta schema, utan förklarande text och uta
 }
 
 async function anropaGemini(prompt){
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
   const res = await fetch(url, {
     method:'POST',
     headers:{'Content-Type':'application/json','x-goog-api-key':apiNyckel},
     body: JSON.stringify({
       contents:[{parts:[{text:prompt}]}],
-      generationConfig:{temperature:0.7, maxOutputTokens:4096, responseMimeType:"application/json"}
+      generationConfig:{temperature:0.7, maxOutputTokens:4096, responseMimeType:"application/json", thinkingConfig:{thinkingBudget:0}}
     })
   });
   if(!res.ok){
@@ -680,11 +680,11 @@ function byggPowerPoint(){
       settSteg(5);
       statusEl.innerHTML = '<div class="ruta-ok">✓ Klart! PowerPoint-filen har laddats ner. Du kan öppna och redigera den vidare i PowerPoint, Keynote eller Google Slides.</div>';
     }).catch(err=>{
-      statusEl.innerHTML = '<div class="ruta-fel">⚠️ Kunde inte skapa filen: '+err.message+'</div>';
+      statusEl.innerHTML = '<div class="ruta-fel">⚠️ Kunde inte skapa filen: '+esc(err.message)+'</div>';
     });
   }catch(err){
     console.error(err);
-    statusEl.innerHTML = '<div class="ruta-fel">⚠️ Kunde inte bygga presentationen: '+err.message+'</div>';
+    statusEl.innerHTML = '<div class="ruta-fel">⚠️ Kunde inte bygga presentationen: '+esc(err.message)+'</div>';
   }
 }
 </script>
