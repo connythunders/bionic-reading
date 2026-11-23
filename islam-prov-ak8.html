@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prov – Islam åk 8</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --card: #ffffff;
+    --ink: #1f2430;
+    --muted: #5d6475;
+    --line: #dcd6c8;
+    --accent: #1f6f5c;
+    --accent-ink: #ffffff;
+    --soft: #e7f1ed;
+    --warn: #b4441f;
+    --warn-soft: #fbeae3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15181e; --card: #1e222a; --ink: #e9e6df; --muted: #a2a8b5;
+      --line: #343a46; --accent: #4fb596; --accent-ink: #0d1512; --soft: #1f2e29;
+      --warn: #ef8a63; --warn-soft: #3a2219;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15181e; --card: #1e222a; --ink: #e9e6df; --muted: #a2a8b5;
+    --line: #343a46; --accent: #4fb596; --accent-ink: #0d1512; --soft: #1f2e29;
+    --warn: #ef8a63; --warn-soft: #3a2219;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 18px; line-height: 1.55;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 28px; margin-top: 16px;
+  }
+  h1 { font-size: 1.7rem; margin: 0 0 4px; }
+  h2 { font-size: 1.25rem; margin: 0 0 12px; }
+  .sub { color: var(--muted); margin: 0; }
+  label { display: block; font-weight: 600; margin: 16px 0 6px; }
+  input[type=text], textarea {
+    width: 100%; font: inherit; color: var(--ink); background: var(--bg);
+    border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px;
+  }
+  textarea { min-height: 150px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  button {
+    font: inherit; font-weight: 600; border-radius: 10px; padding: 12px 22px;
+    border: 1.5px solid var(--accent); cursor: pointer;
+  }
+  .primary { background: var(--accent); color: var(--accent-ink); }
+  .secondary { background: transparent; color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+  .rules { padding-left: 20px; margin: 12px 0 0; }
+  .rules li { margin: 4px 0; }
+  .topbar {
+    position: sticky; top: 0; z-index: 5; background: var(--bg);
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--line);
+  }
+  .timer {
+    font-variant-numeric: tabular-nums; font-weight: 700; font-size: 1.3rem;
+    padding: 6px 14px; border-radius: 999px; background: var(--soft); color: var(--accent);
+  }
+  .timer.low { background: var(--warn-soft); color: var(--warn); }
+  .qnum { color: var(--muted); font-size: .95rem; }
+  .question { font-size: 1.2rem; font-weight: 600; margin: 0 0 14px; }
+  .hint { color: var(--muted); font-size: .9rem; margin-top: 8px; }
+  .msg { margin-top: 12px; color: var(--warn); min-height: 1.4em; font-size: .95rem; }
+  .hidden { display: none !important; }
+  .done-box { background: var(--soft); border-radius: 10px; padding: 16px; margin: 12px 0; }
+  .small-link { background: none; border: none; color: var(--muted); padding: 0; font-weight: 400; text-decoration: underline; font-size: .9rem; margin-top: 28px; }
+  @media (max-width: 520px) {
+    .card { padding: 20px; }
+    .row button { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- START -->
+  <section id="view-start">
+    <h1>Prov: Islam</h1>
+    <p class="sub">Religionskunskap, årskurs 8</p>
+    <div class="card">
+      <h2>Innan du börjar</h2>
+      <ul class="rules">
+        <li>Du har <strong>15 minuter</strong> på dig.</li>
+        <li>Du får en fråga i taget. Svara med egna ord, gärna med hela meningar.</li>
+        <li>När du har skickat ett svar kommer nästa fråga. Du kan inte gå tillbaka.</li>
+        <li>Om du inte kan svara trycker du på <strong>Kan inte</strong>, eller skriver "kan inte". Då får du en ny fråga.</li>
+        <li>Frågorna anpassas efter hur du svarar.</li>
+        <li>När tiden är slut laddar du ner dina svar och skickar filen till din lärare.</li>
+      </ul>
+      <label for="name">Ditt namn</label>
+      <input type="text" id="name" autocomplete="name">
+      <label for="klass">Klass</label>
+      <input type="text" id="klass" placeholder="t.ex. 8B">
+      <div class="msg" id="start-msg"></div>
+      <div class="row">
+        <button class="primary" id="btn-start">Starta provet</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="view-quiz" class="hidden">
+    <div class="topbar">
+      <span class="qnum" id="qnum">Fråga 1</span>
+      <span class="timer" id="timer" aria-live="off">15:00</span>
+    </div>
+    <div class="card">
+      <p class="question" id="question"></p>
+      <label for="answer" class="hidden">Ditt svar</label>
+      <textarea id="answer" placeholder="Skriv ditt svar här …" spellcheck="true"></textarea>
+      <div class="msg" id="quiz-msg"></div>
+      <div class="row">
+        <button class="primary" id="btn-submit">Skicka svar</button>
+        <button class="secondary" id="btn-cant">Kan inte</button>
+      </div>
+      <p class="hint">Tips: Tryck Ctrl + Enter för att skicka.</p>
+    </div>
+  </section>
+
+  <!-- DONE -->
+  <section id="view-done" class="hidden">
+    <h1>Provet är slut</h1>
+    <div class="card">
+      <p id="done-reason">Tiden är slut.</p>
+      <div class="done-box">
+        <strong>Gör så här nu:</strong>
+        <ol class="rules">
+          <li>Ladda ner dina svar med knappen nedan.</li>
+          <li>Skicka filen till din lärare.</li>
+        </ol>
+      </div>
+      <div class="row">
+        <button class="primary" id="btn-dl-word">Ladda ner svar (Word)</button>
+        <button class="secondary" id="btn-dl-txt">Ladda ner svar (text)</button>
+      </div>
+      <p class="hint" id="done-summary"></p>
+      <button class="small-link" id="btn-reset">Starta ett nytt prov på den här datorn</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  const TEST_MINUTES = 15;
+  const STORE_KEY = "islam-prov-ak8-v1";
+
+  // Frågebank. level: 1 = fakta, 2 = förklara, 3 = resonera/analysera.
+  // k: grupper av nyckelord (används bara internt för att anpassa svårighetsgraden).
+  const BANK = [
+    // ---------- NIVÅ 1 ----------
+    { id: "a1", level: 1, topic: "koranen", q: "Vad heter islams heliga skrift?", k: [["koran"]] },
+    { id: "a2", level: 1, topic: "muhammed", q: "I vilken stad föddes Muhammed?", k: [["mekka", "mecka"]] },
+    { id: "a3", level: 1, topic: "grund", q: "Vad betyder ordet islam?", k: [["underkast"]] },
+    { id: "a4", level: 1, topic: "grund", q: "Vad kallas en person som tror på islam?", k: [["muslim"]] },
+    { id: "a5", level: 1, topic: "grund", q: "Vad är det arabiska ordet för Gud?", k: [["allah"]] },
+    { id: "a6", level: 1, topic: "spridning", q: "Ungefär hur många muslimer finns det i världen i dag?", k: [["2 miljard", "tva miljard", "2000 miljon", "2 000 miljon"]] },
+    { id: "a7", level: 1, topic: "moske", q: "Vad kallas byggnaden där muslimer samlas för att be?", k: [["moske"]] },
+    { id: "a8", level: 1, topic: "muhammed", q: "Vilken ängel kom med Guds budskap till Muhammed?", k: [["gabriel", "jibril"]] },
+    { id: "a9", level: 1, topic: "historia", q: "Till vilken stad flydde Muhammed år 622?", k: [["medina"]] },
+    { id: "a10", level: 1, topic: "pelare", q: "Hur många gånger om dagen ska en muslim be?", k: [["fem", "5"]] },
+    { id: "a11", level: 1, topic: "pelare", q: "Under vilken månad fastar muslimer?", k: [["ramadan"]] },
+    { id: "a12", level: 1, topic: "koranen", q: "Vad kallas ett kapitel i Koranen?", k: [["sura"]] },
+    { id: "a13", level: 1, topic: "koranen", q: "Hur många kapitel (suror) finns det i Koranen?", k: [["114"]] },
+    { id: "a14", level: 1, topic: "koranen", q: "På vilket språk är Koranen skriven?", k: [["arabisk"]] },
+    { id: "a15", level: 1, topic: "mekka", q: "Vad heter islams heligaste byggnad, som finns i Mekka?", k: [["kaba", "kaaba"]] },
+    { id: "a16", level: 1, topic: "moske", q: "Vad kallas de höga, smala tornen på en moské?", k: [["minaret"]] },
+    { id: "a17", level: 1, topic: "grund", q: "Islam är en monoteistisk religion. Vad betyder monoteism?", k: [["en gud", "en enda gud", "1 gud", "ende gud", "bara en gud", "en guds"]] },
+    { id: "a18", level: 1, topic: "muhammed", q: "Vad hette kvinnan som Muhammed först arbetade för och sedan gifte sig med?", k: [["khadidja", "khadija", "kadidja", "kadija", "khadi"]] },
+    { id: "a19", level: 1, topic: "pelare", q: "Vad kallas de fem viktigaste plikterna inom islam?", k: [["pelar"]] },
+    { id: "a20", level: 1, topic: "hogtider", q: "Vad heter festen som firas när fastemånaden ramadan är slut?", k: [["fitr", "eid", "fastebrytand", "id al"]] },
+    { id: "a21", level: 1, topic: "hogtider", q: "Från vilket år (enligt vår tideräkning) räknar muslimerna sin tideräkning?", k: [["622"]] },
+    { id: "a22", level: 1, topic: "muhammed", q: "Vilket arbete hade Muhammed när han var ung?", k: [["kamel", "karavan"]] },
+    { id: "a23", level: 1, topic: "moske", q: "Vad kallas ledaren som leder bönen i moskén?", k: [["imam"]] },
+    { id: "a24", level: 1, topic: "pelare", q: "Åt vilket håll vänder sig muslimer när de ber?", k: [["mekka", "mecka", "kaba"]] },
+    { id: "a25", level: 1, topic: "pelare", q: "Vilken hederstitel får den som har gjort vallfärden till Mekka?", k: [["hajj", "hadj", "hajji", "hadji", "haji"]] },
+    { id: "a26", level: 1, topic: "historia", q: "Vad kallas människor som flyttar runt och inte har någon fast bostad?", k: [["nomad"]] },
+    { id: "a27", level: 1, topic: "spridning", q: "Vilken religion är den enda som är större än islam i världen?", k: [["kristendom", "kristen"]] },
+    { id: "a28", level: 1, topic: "spridning", q: "I vilken världsdel bor de flesta muslimer?", k: [["asien"]] },
+    { id: "a29", level: 1, topic: "pelare", q: "Allmosor kallas också för ett annat ord. Vilket?", k: [["zakat"]] },
+    { id: "a30", level: 1, topic: "pelare", q: "Ungefär hur stor del av sin inkomst bör en muslim ge till de behövande?", k: [["2,5", "2.5", "tva och en halv", "2 och en halv", "två och en halv"]] },
+    { id: "a31", level: 1, topic: "mekka", q: "Vilken färg har den heliga stenen som sitter inmurad i Kaba?", k: [["svart"]] },
+    { id: "a32", level: 1, topic: "sharia", q: "Vad kallas den islamiska lagen?", k: [["sharia"]] },
+
+    // ---------- NIVÅ 2 ----------
+    { id: "b1", level: 2, topic: "pelare", q: "Islam har fem pelare. Skriv vilka de är och förklara kort vad de innebär.", k: [["trosbekann"], ["bon", "be "], ["allmos", "zakat", "fattig", "ge pengar", "gav"], ["fast", "ramadan"], ["vallfard", "pilgrim", "hajj", "resa till mekka"]] },
+    { id: "b2", level: 2, topic: "pelare", q: "Vad säger man i den muslimska trosbekännelsen?", k: [["ingen gud", "ingen annan gud", "en gud", "ende gud", "enda gud"], ["profet", "sandebud", "budbar"]] },
+    { id: "b3", level: 2, topic: "historia", q: "Förklara vad som hände år 622 och varför året är viktigt för muslimer.", k: [["flydde", "flykt", "utvandr", "hijra", "flytta", "jagades"], ["medina"], ["tiderakning", "kalender", "ar 1", "borjan", "grund"]] },
+    { id: "b4", level: 2, topic: "mekka", q: "Varför ska muslimer helst vallfärda till just Mekka?", k: [["fodd", "fodde"], ["kaba", "helig", "kallelse", "hira"], ["lydnad", "samhorighet", "allah", "gud"]] },
+    { id: "b5", level: 2, topic: "pelare", q: "Vilka grupper av människor brukar inte fasta under ramadan?", k: [["sjuk"], ["barn"], ["gravid"]] },
+    { id: "b6", level: 2, topic: "pelare", q: "Vad får man inte göra under fastan, och under vilken tid på dygnet gäller det?", k: [["ata", "mat"], ["dricka"], ["sol"]] },
+    { id: "b7", level: 2, topic: "koranen", q: "Vad är skillnaden mellan Koranen och haditherna?", k: [["allah", "gud"], ["muhammed", "profeten"], ["liv", "levde", "gjorde", "sa ", "vanor", "handling", "berattelse"]] },
+    { id: "b8", level: 2, topic: "koranen", q: "Vad är sunna?", k: [["muhammed", "profeten"], ["levde", "liv", "seder", "bruk", "vanor", "foredome", "exempel", "satt"]] },
+    { id: "b9", level: 2, topic: "sharia", q: "Vad är sharia och vad bygger den på?", k: [["lag", "regler"], ["koran"], ["sunna", "muhammed", "hadith"]] },
+    { id: "b10", level: 2, topic: "historia", q: "Beskriv hur det såg ut på Arabiska halvön innan islam kom.", k: [["stam", "beduin"], ["strid", "brak", "splitt", "fejd", "oense", "krig", "sams"], ["gudar", "olika gud"]] },
+    { id: "b11", level: 2, topic: "grund", q: "Varför behövs inga präster inom islam?", k: [["sjalv", "ansvar", "eget", "egen"], ["direkt", "bon", "moter", "ingen mellan", "mellan"]] },
+    { id: "b12", level: 2, topic: "pelare", q: "Beskriv den rituella tvättningen som görs före bönen.", k: [["tvatt"], ["ansikt", "hand", "arm", "fot", "fotter", "huvud"], ["lilla", "storre", "stora", "torr"]] },
+    { id: "b13", level: 2, topic: "pelare", q: "Vad är torrtvätt och när används den?", k: [["vatten"], ["samma", "kroppsdel", "ansikt", "hand"]] },
+    { id: "b14", level: 2, topic: "moske", q: "Beskriv hur en moské ser ut och vad som finns där.", k: [["kupol", "minaret", "torn"], ["nisch", "mekka", "riktning"], ["bild", "bank", "golv", "matta", "tvatt"]] },
+    { id: "b15", level: 2, topic: "moske", q: "Varför finns det inga bilder av människor eller djur i en moské?", k: [["bildforbud", "forbud", "forbjud", "tradition", "inte tillat"]] },
+    { id: "b16", level: 2, topic: "moske", q: "Varför ber män och kvinnor på olika platser i moskén?", k: [["koncentr", "fokus", "tanka pa gud"], ["rorelse", "nara", "kon"]] },
+    { id: "b17", level: 2, topic: "hogtider", q: "Varför är det islamiska året kortare än vårt år?", k: [["manen", "manar", "manfas", "manens", "manad"], ["354", "355", "11", "elva", "kortare"]] },
+    { id: "b18", level: 2, topic: "hogtider", q: "Varför infaller ramadan vid olika tider på året?", k: [["manen", "manar", "manfas", "manens", "kalender"], ["11", "elva", "kortare", "forskjut", "flytt"]] },
+    { id: "b19", level: 2, topic: "hogtider", q: "Berätta vad som hände under Muhammeds himmelsfärd.", k: [["jerusalem"], ["himl"], ["fem", "5", "be ", "bon"], ["gabriel", "profet", "mose", "abraham"]] },
+    { id: "b20", level: 2, topic: "muhammed", q: "Hur fick Muhammed sina uppenbarelser?", k: [["gabriel", "angel"], ["medit", "ensam", "enskild", "berg", "hira", "grotta", "tillbaka"]] },
+    { id: "b21", level: 2, topic: "historia", q: "Vad gjorde Muhammed när han kom tillbaka till Mekka år 630?", k: [["gudabild", "bilder", "avgud", "rensa", "statyer"], ["kaba", "templ"], ["allah", "en gud", "helig stad", "heliga stad"]] },
+    { id: "b22", level: 2, topic: "koranen", q: "Muhammed kunde varken läsa eller skriva. Hur blev Koranen ändå nedskriven?", k: [["berattade", "berätta", "andra", "sa till"], ["skrev", "nedskriv", "skrevs"]] },
+    { id: "b23", level: 2, topic: "koranen", q: "Vad betyder ordet Koranen, och vad har det med hur boken används att göra?", k: [["recit", "upplasning", "lasa hogt", "laser hogt", "lasas"], ["rytm", "hogt", "arabiska", "upplas"]] },
+    { id: "b24", level: 2, topic: "mekka", q: "Hur klär sig pilgrimerna under vallfärden till Mekka, och varför?", k: [["vit", "enkel", "drakt", "skynke"], ["lika", "likform", "skillnad", "jamlik", "samma"]] },
+    { id: "b25", level: 2, topic: "pelare", q: "När under dagen ber en muslim sina böner?", k: [["morgon", "soluppgang"], ["mitt pa dagen", "middag", "eftermiddag"], ["solnedgang", "kvall"]] },
+    { id: "b26", level: 2, topic: "spridning", q: "Varför finns det inget säkert mått på hur många muslimer det finns i Sverige?", k: [["folkbokfor", "registrer", "forbjud", "far inte"], ["religionsfrihet", "grundlag"]] },
+    { id: "b27", level: 2, topic: "historia", q: "Vad betyder ordet jihad?", k: [["kamp", "kampa", "kampar"]] },
+    { id: "b28", level: 2, topic: "historia", q: "Vilka var kaliferna?", k: [["ledare", "efterträd", "eftertrad", "tog over"], ["muhammed", "sprida", "spred"]] },
+    { id: "b29", level: 2, topic: "koranen", q: "Vad uppmanar Koranen människor att göra? Ge minst två exempel.", k: [["en gud", "tillbe", "allah", "monote"], ["vanlig", "alska", "gott", "god", "foraldrar", "hjalpa", "onda"]] },
+    { id: "b30", level: 2, topic: "hogtider", q: "Hur firar muslimer nyårsdagen?", k: [["muharram", "berattar", "muhammed", "mat", "gott nytt", "onska"]] },
+    { id: "b31", level: 2, topic: "mekka", q: "Beskriv Kaba. Vad är det och hur ser den ut?", k: [["byggnad", "sten", "kub"], ["mekka"], ["svart", "15", "guds hus", "abraham", "helgedom"]] },
+    { id: "b32", level: 2, topic: "grund", q: "Ordet muslim betyder \"den som underkastar sig\". Förklara vad det betyder.", k: [["lyd", "folja", "foljer"], ["allah", "gud"], ["vilja"]] },
+
+    // ---------- NIVÅ 3 ----------
+    { id: "c1", level: 3, topic: "historia", q: "Varför mötte Muhammed motstånd från köpmännen i Mekka? Förklara med flera orsaker.", k: [["kopm", "handel", "pengar", "affar", "tjana"], ["gudar", "gudabild", "kaba", "pilgrim", "vallfard"], ["en gud", "radd", "skramm", "forsamra"]] },
+    { id: "c2", level: 3, topic: "historia", q: "Förklara hur islam kunde ena de splittrade arabiska stammarna.", k: [["stam"], ["gemensam", "samma", "en gud", "levnadsregler", "regler"], ["strid", "fiend", "tillsammans", "enade", "forenade"]] },
+    { id: "c3", level: 3, topic: "jamforelse", q: "I texten beskrivs judendom, kristendom och islam som \"Guds ord 1.0, 2.0 och 3.0\". Förklara vad det betyder.", k: [["judendom", "judar", "jud"], ["kristendom", "kristna", "jesus"], ["muhammed", "islam", "sista profet"], ["messias", "uppdater", "version"]] },
+    { id: "c4", level: 3, topic: "jamforelse", q: "Hur ser muslimer på Bibeln? Förklara varför.", k: [["viktig"], ["saknar", "inte korrekt", "stamde inte", "fel", "inte ratt"], ["muhammed", "uppenbarelse", "koran"]] },
+    { id: "c5", level: 3, topic: "muhammed", q: "Varför menar muslimer att det inte behövs några fler profeter efter Muhammed?", k: [["sista", "slutgilt", "storsta"], ["koran", "nedteckn", "budskap"]] },
+    { id: "c6", level: 3, topic: "historia", q: "Texten beskriver fattigdom och social oro på Muhammeds tid. Vad orsakade det, och hur kan det kopplas till islams budskap?", k: [["stad", "bofast", "flytta"], ["rik", "fattig", "skillnad"], ["allmos", "zakat", "hjalpa", "fattiga", "skyddsnat"]] },
+    { id: "c7", level: 3, topic: "pelare", q: "Varför tror du att allmosor (zakat) blev en av islams pelare? Koppla till texten.", k: [["fattig", "behovande"], ["skyddsnat", "hjalp", "social", "stod", "rika", "slakt"]] },
+    { id: "c8", level: 3, topic: "pelare", q: "Vallfärden är den enda pelaren som inte är obligatorisk för alla. Varför, tror du?", k: [["halsa", "frisk", "sjuk"], [" rad", "pengar", "ekonomi", "dyr"]] },
+    { id: "c9", level: 3, topic: "mekka", q: "Alla pilgrimer bär likadana enkla, vita kläder. Vad säger det om hur islam ser på människor?", k: [["lika", "likform", "jamlik", "skillnad", "samma"], ["gud", "allah", "samhorighet", "rik", "fattig"]] },
+    { id: "c10", level: 3, topic: "sharia", q: "Förklara skillnaden mellan en sekulär (världslig) lag och sharia. Ge exempel på länder där sharia är viktig.", k: [["sekul", "varldslig", "icke-religios", "skild", "inte religios"], ["religion", "koran", "sunna"], ["saudi", "iran"]] },
+    { id: "c11", level: 3, topic: "sharia", q: "Varför finns det olika shariaskolor, och vad betyder det att sharia är föränderlig?", k: [["tolk"], ["forandr", "omarbet", "samhalle", "utveckl", "andras"]] },
+    { id: "c12", level: 3, topic: "pelare", q: "Varför är bönen så viktig för en muslim? Använd exempel från texten.", k: [["allah", "gud", "moter"], ["samhorighet", "andra troende", "gemenskap"], ["plikt", "pelare", "fem"]] },
+    { id: "c13", level: 3, topic: "spridning", q: "Varför kan man inte använda det land en person kommer ifrån för att räkna hur många muslimer som finns i Sverige?", k: [["annan religion", "annan tro", "inte samma", "majoritet"], ["praktiser", "religios", "tror inte"]] },
+    { id: "c14", level: 3, topic: "spridning", q: "Islam är den yngsta världsreligionen och den enda som blev erkänd under grundarens livstid. Förklara vad det innebär.", k: [["yngst", "600", "senast", "nyast"], ["livstid", "levde", "medan", "erkand"], ["muhammed"]] },
+    { id: "c15", level: 3, topic: "jamforelse", q: "Varför är Muhammed en förebild för muslimer? Jämför med kristendomen.", k: [["folj", "bast", "levde", "liv"], ["jesus", "kristen"]] },
+    { id: "c16", level: 3, topic: "sharia", q: "Förklara hur Koranen, sunna och sharia hänger ihop.", k: [["koran"], ["sunna", "hadith", "muhammed"], ["sharia", "lag", "regler"]] },
+    { id: "c17", level: 3, topic: "grund", q: "Ordet islam betyder underkastelse. Ge exempel på hur det kan synas i en muslims vardag.", k: [["allah", "gud"], ["bon", "be ", "fast", "plikt", "pelare", "lyd", "allmos"]] },
+    { id: "c18", level: 3, topic: "hogtider", q: "Varför är ramadan en särskilt viktig månad för muslimer?", k: [["koran", "ta emot", "borjade", "uppenbar"], ["fast"]] },
+    { id: "c19", level: 3, topic: "pelare", q: "Vilka svårigheter kan fastan innebära, till exempel i varma länder? Förklara med hjälp av texten.", k: [["varm", "hetta", "sommar", "dricka", "torst"], ["manar", "manen", "forskjut", "lang", "ljus", "sol", "11", "elva"]] },
+    { id: "c20", level: 3, topic: "muhammed", q: "Hur förändrades Muhammeds liv när han gifte sig med Khadidja, och varför var det viktigt för islams uppkomst?", k: [["rik", "tjanare", "pengar"], ["fritid", "medit", "tid", "fundera"], ["uppenbar", "gabriel", "angel"]] },
+    { id: "c21", level: 3, topic: "jamforelse", q: "Hur kom Muhammed i kontakt med judendom och kristendom, och hur påverkade det honom?", k: [["karavan", "kamel", "handel", "mekka", "resor"], ["en gud", "monote", "bibel"]] },
+    { id: "c22", level: 3, topic: "jamforelse", q: "Vilka likheter finns mellan judendom, kristendom och islam enligt texten?", k: [["samma gud", "en gud", "monote"], ["abraham", "mose", "profet", "jesus", "bibel"]] },
+    { id: "c23", level: 3, topic: "mekka", q: "Förklara varför Mekka blev islams heliga stad.", k: [["fodd", "fodde", "muhammed"], ["kaba", "gudabild", "rensa", "allah", "kallelse"]] },
+    { id: "c24", level: 3, topic: "historia", q: "Hur spreds islam efter Muhammeds död?", k: [["kalif", "eftertrad"], ["krigsmakt", "krig", "erovr", "stormakt", "arme"]] },
+    { id: "c25", level: 3, topic: "historia", q: "Ordet jihad betyder kamp. Förklara två olika saker som ordet kan betyda.", k: [["tro", "sprida", "krig", "strid", "heliga"], ["sig sjalv", "forbattra", "battre manniska"]] },
+    { id: "c26", level: 3, topic: "muhammed", q: "Varför kan man säga att Muhammed var både en religiös och en politisk ledare?", k: [["religios", "profet", "budskap"], ["politisk", "ledare", "stormakt", "arabien", "enade", "styrde"]] },
+    { id: "c27", level: 3, topic: "grund", q: "Många ser islam som en enkel och lättbegriplig religion. Vad kan det bero på?", k: [["prast"], ["sjalv", "ansvar", "direkt", "pelare", "regler"]] },
+    { id: "c28", level: 3, topic: "historia", q: "Varför tror du att islam spred sig så snabbt på Arabiska halvön? Ge flera förklaringar.", k: [["stam", "splitt", "enade"], ["regler", "gemensam", "en gud", "levnad"], ["fattig", "social", "krig", "militar", "fiend", "medina"]] }
+  ];
+
+  // ---------- hjälpfunktioner ----------
+  const $ = (id) => document.getElementById(id);
+  const norm = (s) => (" " + s + " ").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ");
+
+  function storeGet() {
+    try { const v = localStorage.getItem(STORE_KEY); return v ? JSON.parse(v) : null; } catch (e) { return null; }
+  }
+  function storeSet(v) { try { localStorage.setItem(STORE_KEY, JSON.stringify(v)); } catch (e) {} }
+  function storeClear() { try { localStorage.removeItem(STORE_KEY); } catch (e) {} }
+
+  function isCantAnswer(text) {
+    const t = norm(text).trim();
+    if (t.length === 0) return false;
+    if (t.length > 40) return false;
+    return /^(jag )?(kan|vet) (inte|ej)\b/.test(t) ||
+      /^(vet ej|vetej|kan ej|idk|ingen aning|nej|pass|\?+|-+|\.+)$/.test(t);
+  }
+
+  // Uppskattar (internt) hur väl svaret träffar nyckelorden: 0–1.
+  function score(item, text) {
+    const t = norm(text);
+    if (t.trim().length < 2) return 0;
+    let hits = 0;
+    item.k.forEach((group) => {
+      if (group.some((kw) => t.includes(kwNorm(kw)))) hits++;
+    });
+    return hits / item.k.length;
+  }
+  function kwNorm(kw) {
+    // behåll ledande/avslutande mellanslag i nyckelordet (t.ex. "be ")
+    return kw.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  }
+
+  function nextLevel(level, s, cant) {
+    if (cant || s < 0.34) return Math.max(1, level - 1);
+    if (s >= 0.6) return Math.min(3, level + 1);
+    return level;
+  }
+
+  function pickQuestion(state) {
+    const used = new Set(state.log.map((e) => e.id));
+    const recentTopics = state.log.slice(-2).map((e) => e.topic);
+    const order = [state.level, state.level - 1, state.level + 1, state.level - 2, state.level + 2]
+      .filter((l) => l >= 1 && l <= 3);
+    for (const lvl of order) {
+      let pool = BANK.filter((b) => b.level === lvl && !used.has(b.id));
+      if (!pool.length) continue;
+      const fresh = pool.filter((b) => !recentTopics.includes(b.topic));
+      if (fresh.length) pool = fresh;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+    return null;
+  }
+
+  // ---------- tillstånd ----------
+  let state = null;
+  let current = null;
+  let tick = null;
+
+  function save() {
+    if (state) { state.draft = $("answer").value; state.currentId = current ? current.id : null; storeSet(state); }
+  }
+
+  function show(view) {
+    ["view-start", "view-quiz", "view-done"].forEach((v) => $(v).classList.toggle("hidden", v !== view));
+  }
+
+  function fmt(ms) {
+    const s = Math.max(0, Math.ceil(ms / 1000));
+    return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+  }
+
+  function updateTimer() {
+    const left = state.endsAt - Date.now();
+    $("timer").textContent = fmt(left);
+    $("timer").classList.toggle("low", left <= 2 * 60 * 1000);
+    if (left <= 0) finish("time");
+  }
+
+  function showQuestion(item) {
+    current = item;
+    $("qnum").textContent = "Fråga " + (state.log.length + 1);
+    $("question").textContent = item.q;
+    $("quiz-msg").textContent = "";
+    $("answer").focus();
+    save();
+  }
+
+  function startQuiz() {
+    const name = $("name").value.trim();
+    const klass = $("klass").value.trim();
+    if (!name) { $("start-msg").textContent = "Skriv ditt namn först."; $("name").focus(); return; }
+    const now = Date.now();
+    state = {
+      name, klass,
+      startedAt: now,
+      endsAt: now + TEST_MINUTES * 60 * 1000,
+      level: 1,
+      log: [],
+      finished: false,
+      draft: ""
+    };
+    $("answer").value = "";
+    show("view-quiz");
+    runQuiz(pickQuestion(state));
+  }
+
+  function runQuiz(item) {
+    if (!item) { finish("empty"); return; }
+    showQuestion(item);
+    updateTimer();
+    clearInterval(tick);
+    tick = setInterval(updateTimer, 500);
+  }
+
+  function submit(cantButton) {
+    if (!state || state.finished || !current) return;
+    const text = $("answer").value.trim();
+    const cant = cantButton || isCantAnswer(text);
+    if (!cant && text.length === 0) {
+      $("quiz-msg").textContent = "Skriv ett svar, eller tryck på Kan inte.";
+      return;
+    }
+    const s = cant ? 0 : score(current, text);
+    state.log.push({
+      id: current.id, topic: current.topic, level: current.level, q: current.q,
+      answer: cant ? (text && !cantButton ? text : "Kan inte") : text,
+      cant, at: Date.now()
+    });
+    state.level = nextLevel(state.level, s, cant);
+    $("answer").value = "";
+    const next = pickQuestion(state);
+    if (!next) { finish("empty"); return; }
+    showQuestion(next);
+  }
+
+  function finish(reason) {
+    if (!state) return;
+    clearInterval(tick);
+    if (!state.finished) {
+      const draft = $("answer").value.trim();
+      if (current && draft) {
+        state.log.push({ id: current.id, topic: current.topic, level: current.level, q: current.q,
+          answer: draft + "  [ej skickat – tiden tog slut]", cant: false, at: Date.now(), unsent: true });
+      }
+      state.finished = true;
+      state.finishedAt = Date.now();
+      state.reason = reason;
+      current = null;
+      $("answer").value = "";
+    }
+    save();
+    renderDone();
+  }
+
+  function renderDone() {
+    show("view-done");
+    $("done-reason").textContent = state.reason === "empty"
+      ? "Bra jobbat, du har svarat på alla frågor som fanns."
+      : "Tiden är slut. Bra jobbat, " + state.name + "!";
+    const n = state.log.length;
+    $("done-summary").textContent = "Du har svarat på " + n + (n === 1 ? " fråga." : " frågor.");
+  }
+
+  // ---------- nedladdning ----------
+  const levelName = { 1: "Nivå 1 (fakta)", 2: "Nivå 2 (förklara)", 3: "Nivå 3 (resonera)" };
+
+  function dateStr(ts) {
+    const d = new Date(ts);
+    return d.toLocaleDateString("sv-SE") + " " + d.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+  }
+  function fileBase() {
+    const safe = (state.name + (state.klass ? "_" + state.klass : "")).replace(/[^\p{L}\p{N}_-]+/gu, "_");
+    return "Islamprov_" + safe + "_" + new Date(state.startedAt).toLocaleDateString("sv-SE");
+  }
+  function summaryCounts() {
+    const c = { 1: 0, 2: 0, 3: 0 };
+    let cant = 0;
+    state.log.forEach((e) => { c[e.level]++; if (e.cant) cant++; });
+    return { c, cant, max: state.log.reduce((m, e) => Math.max(m, e.level), 0) };
+  }
+
+  function download(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  function buildText() {
+    const s = summaryCounts();
+    const L = [];
+    L.push("PROV: ISLAM – ÅK 8");
+    L.push("==================");
+    L.push("Namn:   " + state.name);
+    L.push("Klass:  " + (state.klass || "-"));
+    L.push("Start:  " + dateStr(state.startedAt));
+    L.push("Slut:   " + dateStr(state.finishedAt || Date.now()));
+    L.push("Antal frågor: " + state.log.length + "  (\"Kan inte\": " + s.cant + ")");
+    L.push("Frågor per nivå: N1 " + s.c[1] + ", N2 " + s.c[2] + ", N3 " + s.c[3] + "   Högsta nivå: " + (s.max || "-"));
+    L.push("");
+    state.log.forEach((e, i) => {
+      L.push("------------------------------------------------------------");
+      L.push("Fråga " + (i + 1) + "  –  " + levelName[e.level]);
+      L.push(e.q);
+      L.push("");
+      L.push("Svar:");
+      L.push(e.answer);
+      L.push("");
+    });
+    return L.join("\r\n");
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  }
+
+  function buildWord() {
+    const s = summaryCounts();
+    let rows = "";
+    state.log.forEach((e, i) => {
+      rows += "<h3>Fråga " + (i + 1) + " <span style='font-weight:normal;color:#666;font-size:10pt'>– " + levelName[e.level] + "</span></h3>" +
+        "<p><b>" + esc(e.q) + "</b></p>" +
+        "<p style='border-left:3px solid #1f6f5c;padding-left:8px;" + (e.cant ? "color:#888;font-style:italic;" : "") + "'>" +
+        esc(e.answer).replace(/\n/g, "<br>") + "</p>";
+    });
+    return "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>" +
+      "<head><meta charset='utf-8'><title>Prov Islam</title>" +
+      "<style>body{font-family:Calibri,Arial,sans-serif;font-size:12pt}h1{font-size:18pt}h3{font-size:12pt;margin:18pt 0 4pt}td{padding:2pt 10pt 2pt 0}</style></head><body>" +
+      "<h1>Prov: Islam – åk 8</h1>" +
+      "<table><tr><td><b>Namn</b></td><td>" + esc(state.name) + "</td></tr>" +
+      "<tr><td><b>Klass</b></td><td>" + esc(state.klass || "-") + "</td></tr>" +
+      "<tr><td><b>Start</b></td><td>" + dateStr(state.startedAt) + "</td></tr>" +
+      "<tr><td><b>Slut</b></td><td>" + dateStr(state.finishedAt || Date.now()) + "</td></tr>" +
+      "<tr><td><b>Antal frågor</b></td><td>" + state.log.length + " (\"Kan inte\": " + s.cant + ")</td></tr>" +
+      "<tr><td><b>Frågor per nivå</b></td><td>N1: " + s.c[1] + ", N2: " + s.c[2] + ", N3: " + s.c[3] + " – högsta nivå: " + (s.max || "-") + "</td></tr></table>" +
+      "<hr>" + rows + "</body></html>";
+  }
+
+  // ---------- händelser ----------
+  $("btn-start").addEventListener("click", startQuiz);
+  $("klass").addEventListener("keydown", (e) => { if (e.key === "Enter") startQuiz(); });
+  $("name").addEventListener("keydown", (e) => { if (e.key === "Enter") $("klass").focus(); });
+  $("btn-submit").addEventListener("click", () => submit(false));
+  $("btn-cant").addEventListener("click", () => submit(true));
+  $("answer").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); submit(false); }
+  });
+  $("answer").addEventListener("input", () => { $("quiz-msg").textContent = ""; save(); });
+  $("btn-dl-word").addEventListener("click", () => download("﻿" + buildWord(), fileBase() + ".doc", "application/msword"));
+  $("btn-dl-txt").addEventListener("click", () => download("﻿" + buildText(), fileBase() + ".txt", "text/plain;charset=utf-8"));
+  $("btn-reset").addEventListener("click", () => {
+    if (confirm("Har du laddat ner dina svar? Om du startar ett nytt prov försvinner de gamla svaren från den här datorn.")) {
+      storeClear(); state = null; current = null;
+      $("name").value = ""; $("klass").value = ""; $("start-msg").textContent = "";
+      show("view-start");
+    }
+  });
+  window.addEventListener("beforeunload", (e) => {
+    save();
+    if (state && !state.finished) { e.preventDefault(); e.returnValue = ""; }
+  });
+
+  // ---------- återuppta om sidan laddats om ----------
+  const saved = storeGet();
+  if (saved && saved.log) {
+    state = saved;
+    if (state.finished) {
+      renderDone();
+    } else {
+      show("view-quiz");
+      const item = BANK.find((b) => b.id === state.currentId) || pickQuestion(state);
+      $("answer").value = state.draft || "";
+      if (Date.now() >= state.endsAt) { current = item; finish("time"); }
+      else runQuiz(item);
+    }
+  }
+})();
+</script>
+</body>
+</html>
