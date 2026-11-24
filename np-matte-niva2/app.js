@@ -118,6 +118,37 @@
   function normText(s) {
     return String(s || '').toLowerCase().replace(/[\s ]/g, '').replace(/[*·⋅]/g, '').replace(/,/g, '.').replace(/[−–]/g, '-').replace(/²/g, '^2').replace(/³/g, '^3');
   }
+  /* Algebraisk likvärdighet: jämför uttryck numeriskt i slumpade punkter. */
+  function kompilera(raw) {
+    var s = String(raw || '').toLowerCase().replace(/[\s\u00a0]/g, '').replace(/[·⋅×]/g, '*').replace(/,/g, '.').replace(/[−–]/g, '-').replace(/²/g, '^2').replace(/³/g, '^3');
+    if (s.indexOf('=') !== -1) s = s.slice(s.lastIndexOf('=') + 1);
+    if (!s || !/^[0-9.+\-*/()^a-z]+$/.test(s) || /[a-z]{2,}/.test(s.replace(/sqrt/g, ''))) return null;
+    var vars = (s.replace(/sqrt/g, '').match(/[a-z]/g) || []).filter(function (c, i, a) { return a.indexOf(c) === i; });
+    var js = s.replace(/sqrt/g, '#')
+      .replace(/(\d|\))(?=[a-z#(])/g, '$1*')
+      .replace(/([a-z])(?=[a-z#(\d])/g, '$1*')
+      .replace(/\^/g, '**').replace(/#/g, 'Math.sqrt');
+    try { return { vars: vars, f: Function(vars.join(','), '"use strict";return (' + js + ');') }; } catch (e) { return null; }
+  }
+  function likvardiga(a, b) {
+    /* oförenklade svar (med parentes) godtas bara om facit självt har parentes */
+    var ra = String(a).replace(/^[^=]*=/, ''), rb = String(b).replace(/^[^=]*=/, '');
+    if (rb.indexOf('(') !== -1 && ra.indexOf('(') === -1) return false;
+    var A = kompilera(a), B = kompilera(b);
+    if (!A || !B) return false;
+    var vars = A.vars.slice(); B.vars.forEach(function (v) { if (vars.indexOf(v) === -1) vars.push(v); });
+    if (vars.length > 4) return false;
+    for (var t = 0; t < 6; t++) {
+      var pt = {}; vars.forEach(function (v) { pt[v] = 0.5 + Math.random() * 3; });
+      try {
+        var x = A.f.apply(null, A.vars.map(function (v) { return pt[v]; }));
+        var y = B.f.apply(null, B.vars.map(function (v) { return pt[v]; }));
+        if (typeof x !== 'number' || typeof y !== 'number' || !isFinite(x) || !isFinite(y)) return false;
+        if (Math.abs(x - y) > 1e-7 * Math.max(1, Math.abs(x))) return false;
+      } catch (e) { return false; }
+    }
+    return true;
+  }
   /* returnerar true/false eller null (kan ej rättas automatiskt) */
   function ratta(u, svar) {
     var s = u.svar || {};
@@ -137,7 +168,8 @@
     }
     if (u.typ === 'text') {
       var n = normText(svar);
-      return (s.godkanda || []).some(function (g) { return normText(g) === n; });
+      if ((s.godkanda || []).some(function (g) { return normText(g) === n; })) return true;
+      return (s.godkanda || []).some(function (g) { return likvardiga(g, svar); });
     }
     return false;
   }
@@ -295,6 +327,7 @@
       '<section class="hero">' +
         '<div class="card">' +
           '<h1>Träna inför NP i Matematik nivå ' + store.kurs + '</h1>' +
+          '<p class="pill" style="margin:0 0 8px">Läsåret 26/27 · Gy25</p>' +
           '<p class="muted">Provet skrivs <strong>fredag 11 december 2026 kl. 9.00</strong>. Det består av del A, B och C. Du tränar just nu på nivå <strong>' + store.kurs + '</strong> – byt nivå uppe till höger.</p>' +
           '<div class="countdown" id="cd" aria-live="off"></div>' +
           '<p class="small muted">' + lista.length + ' uppgifter finns för nivå ' + store.kurs + '. Du har övat på ' + gjorda + ' av dem.</p>' +
