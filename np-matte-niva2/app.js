@@ -46,7 +46,20 @@
   function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch (e) { /* privat läge */ } }
 
   /* ---------- Data ---------- */
+  /* "<" och ">" inuti \( \) eller \[ \] tolkas annars som HTML-taggar och förstör formeln */
+  function texSakra(html) {
+    if (typeof html !== 'string') return html;
+    return html.replace(/\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]/g, function (m) { return m.replace(/</g, '&lt;').replace(/>/g, '&gt;'); });
+  }
   var ALLA = (window.NP_UPPGIFTER || []).filter(function (u) { return u && u.id && u.fraga; });
+  ALLA.forEach(function (u) {
+    u.fraga = texSakra(u.fraga);
+    u.losning = texSakra(u.losning);
+    if (u.ledtradar) u.ledtradar = u.ledtradar.map(texSakra);
+    if (u.bedomning) u.bedomning = u.bedomning.map(texSakra);
+    if (u.svar && u.svar.alternativ) u.svar.alternativ = u.svar.alternativ.map(texSakra);
+    if (u.svar && u.svar.facit) u.svar.facit = texSakra(u.svar.facit);
+  });
   var BYID = {};
   ALLA.forEach(function (u) { BYID[u.id] = u; });
   function uppgifter() {
@@ -127,6 +140,7 @@
     var js = s.replace(/sqrt/g, '#')
       .replace(/(\d|\))(?=[a-z#(])/g, '$1*')
       .replace(/([a-z])(?=[a-z#(\d])/g, '$1*')
+      .replace(/(^|\()-/g, '$10-') /* JS tillåter inte -x**2 */
       .replace(/\^/g, '**').replace(/#/g, 'Math.sqrt');
     try { return { vars: vars, f: Function(vars.join(','), '"use strict";return (' + js + ');') }; } catch (e) { return null; }
   }
@@ -618,7 +632,8 @@
       '<div class="exam-bar"><strong>' + DELAR[D.del].namn + ' · ' + DELAR[D.del].verktyg + '</strong><span class="timer" id="timer" role="timer" aria-label="Återstående tid"></span>' +
         '<span class="spacer"></span>' + (D.del === 'C' ? '<button class="btn small" data-open-calc>Räknare</button>' : '') +
         (D.del === 'B' ? '<a class="btn small" href="https://www.geogebra.org/calculator" target="_blank" rel="noopener">GeoGebra ↗</a>' : '') +
-        '<button class="btn small" id="lamna">' + (prov.d < prov.delar.length - 1 ? 'Lämna in del ' + D.del : 'Lämna in provet') + '</button></div>' +
+        '<button class="btn small" id="lamna">' + (prov.d < prov.delar.length - 1 ? 'Lämna in del ' + D.del : 'Lämna in provet') + '</button>' +
+        '<button class="btn btn-ghost small" id="avbrytSkriv">Avbryt</button></div>' +
       '<nav class="qdots" aria-label="Uppgifter i delen">' + D.ids.map(function (qid, i) {
         return '<button class="qdot' + (prov.svar[qid] !== undefined && prov.svar[qid] !== '' ? ' answered' : '') + (i === prov.q ? ' current' : '') + (prov.flagg[qid] ? ' flag' : '') + '" data-q="' + i + '"' + (i === prov.q ? ' aria-current="step"' : '') + ' aria-label="Uppgift ' + (i + 1) + (prov.flagg[qid] ? ', markerad' : '') + '">' + (i + 1) + '</button>';
       }).join('') + '</nav>' +
@@ -639,6 +654,7 @@
       if (!confirm((tomma ? 'Du har ' + tomma + ' obesvarade uppgifter. ' : '') + 'Vill du lämna in ' + DELAR[D.del].namn + '? Du kan inte gå tillbaka till den.')) return;
       nastaDel();
     });
+    $('#avbrytSkriv', v).addEventListener('click', function () { spara(); avbrytProv(); });
     function tick() {
       var kvar = (D.deadline - Date.now()) / 1000, t = $('#timer');
       if (!t) return;
