@@ -315,7 +315,7 @@ window.NP_UPPGIFTER.push(
     typ: "tal",
     fraga: "<p>En rektangel är inskriven i en halvcirkel med radien 5 cm så att en sida ligger längs diametern och två hörn ligger på cirkelbågen, se figuren.</p><p>Bestäm den största möjliga arean som rektangeln kan ha. Använd digitala verktyg.</p><p><em>Figuren är inte skalenlig.</em></p>",
     figur: `<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" fill="none" stroke-width="2" font-family="sans-serif" font-size="15"><path d="M30,170 A120,120 0 0 1 270,170 Z"/><rect x="65" y="85" width="170" height="85"/><line x1="150" y1="170" x2="254" y2="110" stroke-dasharray="5 4"/><circle cx="150" cy="170" r="2.5" fill="currentColor"/><text x="210" y="152" fill="currentColor" stroke="none">5 cm</text><text x="144" y="190" fill="currentColor" stroke="none" font-style="italic">x</text><line x1="150" y1="178" x2="235" y2="178" stroke-width="1"/></svg>`,
-    svar: { varde: 25, tolerans: 0.1, enhet: "cm²" },
+    svar: { varde: 25, tolerans: 0.05, enhet: "cm²" },
     ledtradar: [
       "Låt \\(x\\) vara halva rektangelns bredd (avståndet från medelpunkten till ett hörn längs diametern).",
       "Höjden fås med Pythagoras sats: \\(h = \\sqrt{25 - x^2}\\).",
@@ -340,7 +340,7 @@ window.NP_UPPGIFTER.push(
       "Om cylinderns höjd är \\(h\\) och radie \\(r\\) gäller enligt Pythagoras \\(r^2 + \\left(\\tfrac{h}{2}\\right)^2 = 10^2\\).",
       "Uttryck volymen \\(V = \\pi r^2 h\\) som funktion av enbart \\(h\\) och bestäm maximum grafiskt."
     ],
-    losning: "<ol><li>I ett tvärsnitt genom klotets medelpunkt syns en rektangel med bredd \\(2r\\) och höjd \\(h\\) inskriven i en cirkel med radien 10. Från medelpunkten till ett hörn: \\(r^2 + \\left(\\tfrac{h}{2}\\right)^2 = 100\\), alltså \\(r^2 = 100 - \\dfrac{h^2}{4}\\).</li><li>Volymen: \\(V(h) = \\pi r^2 h = \\pi\\left(100 - \\dfrac{h^2}{4}\\right)h\\), där \\(0 < h < 20\\).</li><li>I GeoGebra: <code>V(x) = pi (100 - x^2/4) x</code>, därefter <code>Max(V, 0, 20)</code>.</li><li>Maximum: \\(h \\approx 11{,}55\\) cm och \\(V \\approx 2\\,418\\ \\text{cm}^3\\). Då är \\(r = \\sqrt{100 - 11{,}55^2/4} \\approx 8{,}16\\) cm.</li></ol><p>Största volymen är ca \\(2\\,400\\ \\text{cm}^3\\) (\\(\\approx 2{,}4\\) liter).</p>",
+    losning: "<ol><li>I ett tvärsnitt genom klotets medelpunkt syns en rektangel med bredd \\(2r\\) och höjd \\(h\\) inskriven i en cirkel med radien 10. Från medelpunkten till ett hörn: \\(r^2 + \\left(\\tfrac{h}{2}\\right)^2 = 100\\), alltså \\(r^2 = 100 - \\dfrac{h^2}{4}\\).</li><li>Volymen: \\(V(h) = \\pi r^2 h = \\pi\\left(100 - \\dfrac{h^2}{4}\\right)h\\), där \\(0 < h < 20\\).</li><li>I GeoGebra: <code>V(x) = pi (100 - x^2/4) x</code>, därefter <code>Max(V, 0, 20)</code>.</li><li>Maximum: \\(h \\approx 11{,}55\\) cm och \\(V \\approx 2\\,418\\ \\text{cm}^3\\). Då är \\(r = \\sqrt{100 - 11{,}55^2/4} \\approx 8{,}16\\) cm.</li></ol><p>Största volymen är ca \\(2\\,420\\ \\text{cm}^3\\) (\\(\\approx 2{,}4\\) liter).</p>",
     bedomning: [
       "+C<sub>PL</sub> för att med Pythagoras sats korrekt ställa upp sambandet mellan cylinderns radie och höjd",
       "+A<sub>M</sub> för att ställa upp en korrekt modell för volymen som funktion av en variabel, med rimlig definitionsmängd",
@@ -358,7 +358,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>En triangel har sidorna 7 cm, 9 cm och 12 cm. Konstruera triangeln med ett digitalt verktyg, t.ex. GeoGebra, och bestäm triangelns största vinkel. Svara med en decimal.</p>",
-    svar: { varde: 96.4, tolerans: 0.2, enhet: "°" },
+    svar: { varde: 96.4, tolerans: 0.05, enhet: "°" },
     ledtradar: [
       "Rita sträckan med längden 12 och rita cirklar med radierna 7 och 9 kring ändpunkterna.",
       "Cirklarnas skärningspunkt blir det tredje hörnet. Den största vinkeln ligger mitt emot den längsta sidan."
@@ -376,7 +376,7 @@ window.NP_UPPGIFTER.push(
     poang: "2/0/0",
     typ: "tal",
     fraga: "<p>En triangel har hörnen \\(A = (1,\\ 2)\\), \\(B = (9,\\ 4)\\) och \\(C = (3,\\ 8)\\). Bestäm triangelns omkrets. Svara med två decimaler.</p>",
-    svar: { varde: 21.78, tolerans: 0.02, enhet: "l.e." },
+    svar: { varde: 21.78, tolerans: 0.005, enhet: "l.e." },
     ledtradar: [
       "Beräkna längden av varje sida med avståndsformeln \\(d = \\sqrt{(\\Delta x)^2 + (\\Delta y)^2}\\).",
       "I GeoGebra kan du skriva <code>Polygon(A, B, C)</code> och sedan <code>Omkrets(t1)</code>."
@@ -438,7 +438,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/1/0",
     typ: "flera",
     fraga: "<p>En rätvinklig triangel har två sidor som är 6 cm och 8 cm. Hur lång kan den tredje sidan vara? Ange alla möjligheter med två decimaler.</p>",
-    svar: { varden: [10, 5.29], tolerans: 0.01 },
+    svar: { varden: [10, 5.29], tolerans: 0.005 },
     ledtradar: [
       "Det står inte vilka sidor som är kateter. Den längsta sidan i en rätvinklig triangel är alltid hypotenusan.",
       "Fall 1: 6 och 8 är kateter. Fall 2: 8 är hypotenusa och 6 en katet."
@@ -479,7 +479,7 @@ window.NP_UPPGIFTER.push(
     poang: "0/1/0",
     typ: "tal",
     fraga: "<p>En dryckesflaska är 20 cm hög och rymmer 0,5 liter. En annan flaska är likformig med den första men är 30 cm hög. Hur mycket rymmer den större flaskan? Svara i liter med två decimaler.</p>",
-    svar: { varde: 1.69, tolerans: 0.01, enhet: "liter" },
+    svar: { varde: 1.69, tolerans: 0.005, enhet: "liter" },
     ledtradar: [
       "Längdskalan är \\(\\dfrac{30}{20} = 1{,}5\\).",
       "Volymskalan är längdskalan i kubik."
@@ -497,7 +497,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>En solig dag kastar en flaggstång en 12,6 m lång skugga på horisontell mark. Samtidigt kastar Ella, som är 1,80 m lång, en 2,4 m lång skugga. Hur hög är flaggstången? Svara med två decimaler.</p>",
-    svar: { varde: 9.45, tolerans: 0.01, enhet: "m" },
+    svar: { varde: 9.45, tolerans: 0.005, enhet: "m" },
     ledtradar: [
       "Solstrålarna är (nästan) parallella, så trianglarna som bildas av föremål, skugga och solstråle är likformiga.",
       "Ställ upp \\(\\dfrac{h}{12{,}6} = \\dfrac{1{,}80}{2{,}4}\\)."
@@ -540,7 +540,7 @@ window.NP_UPPGIFTER.push(
     typ: "tal",
     fraga: "<p>En altan har formen av en rektangel med en halvcirkel i ena änden, se figuren. Bestäm altanens area. Svara med en decimal.</p><p><em>Figuren är inte skalenlig.</em></p>",
     figur: `<svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" fill="none" stroke-width="2" font-family="sans-serif" font-size="15"><path d="M40,60 H200 A50,50 0 0 1 200,160 H40 Z"/><line x1="200" y1="60" x2="200" y2="160" stroke-dasharray="5 4" stroke-width="1"/><text x="105" y="182" fill="currentColor" stroke="none">8 m</text><text x="5" y="115" fill="currentColor" stroke="none">5 m</text></svg>`,
-    svar: { varde: 49.8, tolerans: 0.1, enhet: "m²" },
+    svar: { varde: 49.8, tolerans: 0.05, enhet: "m²" },
     ledtradar: [
       "Dela upp figuren i en rektangel och en halvcirkel.",
       "Halvcirkelns diameter är 5 m, så radien är 2,5 m."

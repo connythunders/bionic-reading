@@ -470,7 +470,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "flera",
     fraga: "<p>Lös ekvationen \\(0{,}4x^2-2{,}3x-1{,}7=0\\). Svara med två decimaler.</p>",
-    svar: { varden: [-0.66, 6.41], tolerans: 0.01 },
+    svar: { varden: [-0.66, 6.41], tolerans: 0.005 },
     ledtradar: [
       "Rita grafen till \\(y=0{,}4x^2-2{,}3x-1{,}7\\) och bestäm nollställena.",
       "I GeoGebra kan du använda <code>Nollställen(...)</code> eller <code>Lös(...)</code> i CAS."
@@ -532,7 +532,7 @@ window.NP_UPPGIFTER.push(
     poang: "0/1/0",
     typ: "flera",
     fraga: "<p>Lös ekvationen \\(2^x=3x+1\\). Svara med två decimaler där det behövs.</p>",
-    svar: { varden: [0, 3.54], tolerans: 0.01 },
+    svar: { varden: [0, 3.54], tolerans: 0.005 },
     ledtradar: [
       "Ekvationen kan inte lösas med vanliga algebraiska metoder. Rita båda leden som funktioner.",
       "Det finns mer än en skärningspunkt – zooma ut och undersök hela grafen."
@@ -590,7 +590,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>Lös ekvationen \\(3\\cdot 10^{0{,}2x}=50\\). Svara med två decimaler.</p>",
-    svar: { varde: 6.11, tolerans: 0.01 },
+    svar: { varde: 6.11, tolerans: 0.005 },
     ledtradar: [
       "Dividera först med 3. Använd sedan definitionen av \\(\\lg\\): om \\(10^y=a\\) så är \\(y=\\lg a\\).",
       "Du kan också lösa ekvationen grafiskt eller med <code>NLös</code> i GeoGebra."
@@ -650,7 +650,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>En ny bil kostar 280 000 kr. Bilens värde antas minska med 15 % per år.</p><p>Vad är bilens värde efter 6 år? Avrunda till hela hundratal kronor.</p>",
-    svar: { varde: 105600, tolerans: 100, enhet: "kr" },
+    svar: { varde: 105600, tolerans: 50, enhet: "kr" },
     ledtradar: [
       "Förändringsfaktorn per år är \\(0{,}85\\).",
       "Efter 6 år har värdet multiplicerats med \\(0{,}85\\) sex gånger."
@@ -668,7 +668,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>Hyran för en lägenhet har höjts med 4 % per år under tre år. Nu är hyran 7 874 kr per månad.</p><p>Vad var hyran för tre år sedan? Svara i hela kronor.</p>",
-    svar: { varde: 7000, tolerans: 1, enhet: "kr" },
+    svar: { varde: 7000, tolerans: 0.5, enhet: "kr" },
     ledtradar: [
       "Kalla den ursprungliga hyran \\(x\\). Teckna en ekvation med förändringsfaktorn \\(1{,}04\\).",
       "\\(x\\cdot 1{,}04^3=7874\\)."
@@ -887,7 +887,7 @@ window.NP_UPPGIFTER.push(
     bedomning: [
       "+C<sub>PL</sub> för korrekt uppställd ekvation, t.ex. \\(\\frac{7200}{n-2}-\\frac{7200}{n}=120\\)",
       "+A<sub>PL</sub> för korrekt omskrivning till andragradsekvation och korrekt lösning",
-      "+A<sub>K</sub> för välstrukturerad redovisning med tydligt infört beteckning, förkastad negativ lösning och kontrollerat svar (12 personer)"
+      "+A<sub>K</sub> för välstrukturerad redovisning med tydligt införda beteckningar, förkastad negativ lösning och kontrollerat svar (12 personer)"
     ]
   },
 

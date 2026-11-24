@@ -349,7 +349,10 @@ window.NP_UPPGIFTER.push(
       "-x²+2x+3",
       "f(x)=3+2x-x^2",
       "f(x)=-(x+1)(x-3)",
-      "f(x)=-1x^2+2x+3"
+      "f(x)=-1x^2+2x+3",
+      "f(x)=-x^2+3+2x",
+      "y=-x^2+3+2x",
+      "-x^2+3+2x"
     ]
   },
   "ledtradar": [
@@ -484,14 +487,12 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Grafen till exponentialfunktionen \\(f(x)=C\\cdot a^x\\), där \\(a>0\\), går genom punkterna \\((1,\\,6)\\) och \\((3,\\,54)\\).</p><p>Bestäm \\(f(x)\\).</p>",
   "svar": {
     "godkanda": [
-      "f(x)=2*3^x",
-      "f(x)=2·3^x",
-      "f(x)=23^x",
-      "y=23^x",
-      "23^x",
+      "f(x)=2×3^x",
+      "y=2×3^x",
+      "2×3^x",
       "f(x)=2(3^x)",
-      "2(3^x)",
-      "f(x)=2×3^x"
+      "y=2(3^x)",
+      "2(3^x)"
     ]
   },
   "ledtradar": [
@@ -516,7 +517,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Antalet bakterier i en odling kan beskrivas med modellen \\[N(t)=1500\\cdot1{,}12^t\\] där \\(t\\) är tiden i timmar.</p><p>Efter hur lång tid har antalet bakterier ökat till 5000? Svara med en decimal.</p>",
   "svar": {
     "varde": 10.6,
-    "tolerans": 0.1,
+    "tolerans": 0.05,
     "enhet": "timmar"
   },
   "ledtradar": [
@@ -544,7 +545,7 @@ window.NP_UPPGIFTER.push(
       -0.21,
       4.71
     ],
-    "tolerans": 0.01
+    "tolerans": 0.005
   },
   "ledtradar": [
     "Rita vänsterledet och högerledet som två separata funktioner.",
@@ -623,7 +624,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Två orter, Åby och Bystad, har idag 12 000 respektive 18 000 invånare. Folkmängden i Åby antas öka med \\(2{,}5\\,\\%\\) per år, medan folkmängden i Bystad antas minska med \\(1\\,\\%\\) per år.</p><p>Efter hur många år har orterna lika många invånare enligt modellerna? Svara med en decimal.</p>",
   "svar": {
     "varde": 11.7,
-    "tolerans": 0.1,
+    "tolerans": 0.05,
     "enhet": "år"
   },
   "ledtradar": [
@@ -677,7 +678,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>En patient får en dos på 400 mg av ett läkemedel. Läkemedlet har en halveringstid på 6 timmar i kroppen.</p><p>Efter hur lång tid finns det 30 mg kvar av läkemedlet i kroppen? Svara med en decimal.</p>",
   "svar": {
     "varde": 22.4,
-    "tolerans": 0.1,
+    "tolerans": 0.05,
     "enhet": "timmar"
   },
   "ledtradar": [
@@ -758,7 +759,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Funktionerna \\(f\\) och \\(g\\) ges av \\[f(x)=a\\cdot1{,}2^x \\quad\\text{och}\\quad g(x)=0{,}5x+3\\] där \\(a\\) är en positiv konstant.</p><p>Bestäm det största värdet på \\(a\\) för vilket graferna till \\(f\\) och \\(g\\) har minst en gemensam punkt. Svara med två decimaler.</p>",
   "svar": {
     "varde": 3.01,
-    "tolerans": 0.01
+    "tolerans": 0.005
   },
   "ledtradar": [
     "Prova med en glidare för \\(a\\) i GeoGebra och se vad som händer med skärningspunkterna när \\(a\\) ökar.",
@@ -783,7 +784,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Lös ekvationen \\(3\\cdot0{,}8^x=1{,}2\\). Svara med två decimaler.</p>",
   "svar": {
     "varde": 4.11,
-    "tolerans": 0.01
+    "tolerans": 0.005
   },
   "ledtradar": [
     "Rita \\(y=3\\cdot0{,}8^x\\) och \\(y=1{,}2\\) och bestäm skärningspunkten.",
@@ -862,7 +863,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>En lägenhet är idag värd 2,4 miljoner kronor. Anta att värdet ökar med \\(3\\,\\%\\) per år.</p><p>Vad är lägenheten värd om 5 år? Svara i miljoner kronor med två decimaler.</p>",
   "svar": {
     "varde": 2.78,
-    "tolerans": 0.01,
+    "tolerans": 0.005,
     "enhet": "miljoner kr"
   },
   "ledtradar": [
@@ -884,7 +885,7 @@ window.NP_UPPGIFTER.push(
   "niva": "C",
   "poang": "0/2/0",
   "typ": "redovisning",
-  "fraga": "<p>Antalet sälda biljetter till en teater minskade från 18 000 till 12 500 på fyra år. Anta att minskningen var lika många procent varje år.</p><p>Med hur många procent per år minskade antalet sålda biljetter? Svara med en decimal.</p>",
+  "fraga": "<p>Antalet sålda biljetter till en teater minskade från 18 000 till 12 500 på fyra år. Anta att minskningen var lika många procent varje år.</p><p>Med hur många procent per år minskade antalet sålda biljetter? Svara med en decimal.</p>",
   "svar": {
     "facit": "Ca \\(8{,}7\\,\\%\\) per år"
   },

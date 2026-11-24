@@ -105,7 +105,7 @@ window.NP_UPPGIFTER.push(
       alternativ: [
         "Att äta glass ökar risken att drunkna.",
         "Drunkningsolyckor gör att människor köper mer glass.",
-        "En bakomliggande faktor, t.ex. varmt väder, påverkar både glasförsäljningen och antalet badande.",
+        "En bakomliggande faktor, t.ex. varmt väder, påverkar både glassförsäljningen och antalet badande.",
         "Sambandet är bara slump eftersom \\(r\\) inte är exakt 1."
       ],
       ratt: 2
@@ -265,7 +265,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>Tolv elever registrerade sin skärmtid (minuter) en viss dag:</p><table><tr><td>135</td><td>210</td><td>95</td><td>180</td><td>240</td><td>160</td></tr><tr><td>125</td><td>300</td><td>175</td><td>145</td><td>220</td><td>190</td></tr></table><p>Bestäm standardavvikelsen för skärmtiden. Använd stickprovsstandardavvikelsen \\(s\\) (division med \\(n-1\\)). Svara med en decimal.</p>",
-    svar: { varde: 56.0, tolerans: 0.1, enhet: "min" },
+    svar: { varde: 56.0, tolerans: 0.05, enhet: "min" },
     ledtradar: [
       "Skriv in värdena i en lista eller ett kalkylblad.",
       "I GeoGebra: <code>SampleSD({135, 210, ...})</code>. I kalkylblad: <code>=STDAV.S(A1:A12)</code>."
@@ -282,7 +282,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>Vikten hos ägg från ett hönseri är normalfördelad med medelvärdet 62 g och standardavvikelsen 4,5 g. Ägg som väger mer än 68 g sorteras som storlek XL.</p><p>Hur många procent av äggen blir storlek XL? Svara med en decimal.</p>",
-    svar: { varde: 9.1, tolerans: 0.15, enhet: "%" },
+    svar: { varde: 9.1, tolerans: 0.05, enhet: "%" },
     ledtradar: [
       "<code>Normal(μ, σ, x)</code> i GeoGebra ger andelen som är <em>mindre än</em> \\(x\\).",
       "Andelen större än 68 g är \\(1 - \\text{Normal}(62, 4.5, 68)\\)."
@@ -299,7 +299,7 @@ window.NP_UPPGIFTER.push(
     poang: "0/1/0",
     typ: "tal",
     fraga: "<p>Batteritiden för en viss mobiltelefon är normalfördelad med medelvärdet 9,4 timmar och standardavvikelsen 1,1 timmar.</p><p>Hur stor är sannolikheten att batteriet i en slumpvis vald telefon räcker mellan 8 och 10 timmar? Svara i procent med en decimal.</p>",
-    svar: { varde: 60.6, tolerans: 0.3, enhet: "%" },
+    svar: { varde: 60.6, tolerans: 0.05, enhet: "%" },
     ledtradar: [
       "Andelen mellan två värden får du som skillnaden mellan två andelar <em>mindre än</em>.",
       "Beräkna \\(\\text{Normal}(9.4, 1.1, 10) - \\text{Normal}(9.4, 1.1, 8)\\)."
@@ -411,7 +411,7 @@ window.NP_UPPGIFTER.push(
     poang: "0/1/0",
     typ: "flera",
     fraga: "<p>Resultaten på ett högskoleprov kan beskrivas med en normalfördelning med medelvärdet 64 poäng och standardavvikelsen 9 poäng.</p><p>Bestäm det intervall, symmetriskt kring medelvärdet, som innehåller de mittersta 90 % av resultaten. Ange gränserna med en decimal.</p>",
-    svar: { varden: [49.2, 78.8], tolerans: 0.1 },
+    svar: { varden: [49.2, 78.8], tolerans: 0.05 },
     ledtradar: [
       "Om de mittersta 90 % ligger i intervallet, hur många procent ligger då under den nedre gränsen?",
       "Lös \\(\\text{Normal}(64, 9, x) = 0.05\\) och \\(\\text{Normal}(64, 9, x) = 0.95\\)."
@@ -451,7 +451,7 @@ window.NP_UPPGIFTER.push(
     poang: "0/1/0",
     typ: "tal",
     fraga: "<p>Tabellen visar antalet publika laddstolpar för elbilar i en kommun i slutet av respektive år.</p><table><tr><th>År</th><td>2018</td><td>2019</td><td>2020</td><td>2021</td><td>2022</td><td>2023</td><td>2024</td></tr><tr><th>Antal laddstolpar</th><td>12</td><td>19</td><td>27</td><td>33</td><td>42</td><td>48</td><td>57</td></tr></table><p>Anpassa en linjär modell till mätvärdena med linjär regression, där \\(x\\) är antal år efter 2018. Hur många år efter 2018 når antalet laddstolpar 100 enligt modellen? Svara med en decimal.</p>",
-    svar: { varde: 11.9, tolerans: 0.1, enhet: "år" },
+    svar: { varde: 11.9, tolerans: 0.05, enhet: "år" },
     ledtradar: [
       "Låt \\(x = 0\\) motsvara år 2018, \\(x = 1\\) år 2019 osv.",
       "Bestäm regressionslinjen \\(y = kx + m\\) och lös sedan ekvationen \\(kx + m = 100\\)."
@@ -554,7 +554,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>En glasskiosk har undersökt sambandet mellan dagens maxtemperatur \\(x\\) (°C) och antal sålda glassar \\(y\\). Med linjär regression fick man modellen</p>\\[y = 14{,}5x + 120\\]<p>Vid vilken temperatur förutsäger modellen att kiosken säljer 500 glassar? Svara med en decimal.</p>",
-    svar: { varde: 26.2, tolerans: 0.1, enhet: "°C" },
+    svar: { varde: 26.2, tolerans: 0.05, enhet: "°C" },
     ledtradar: [
       "Sätt \\(y = 500\\) och lös ut \\(x\\)."
     ],
