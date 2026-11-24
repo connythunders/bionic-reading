@@ -264,7 +264,7 @@
   }
   function losningHTML(u) {
     var s = '<div class="sol"><h4>Lösning</h4>' + (u.losning || '') ;
-    if (u.typ === 'redovisning' && u.svar && u.svar.facit) s += '<p><strong>Svar:</strong> ' + u.svar.facit + '</p>';
+    if (u.typ === 'redovisning' && u.svar && u.svar.facit && !/Svar\s*(<\/[a-z]+>\s*)?:/i.test(u.losning || '')) s += '<p><strong>Svar:</strong> ' + u.svar.facit + '</p>';
     s += '</div>';
     return s;
   }
@@ -331,7 +331,7 @@
           '<p class="muted">Provet skrivs <strong>fredag 11 december 2026 kl. 9.00</strong>. Det består av del A, B och C. Du tränar just nu på nivå <strong>' + store.kurs + '</strong> – byt nivå uppe till höger.</p>' +
           '<div class="countdown" id="cd" aria-live="off"></div>' +
           '<p class="small muted">' + lista.length + ' uppgifter finns för nivå ' + store.kurs + '. Du har övat på ' + gjorda + ' av dem.</p>' +
-          '<div class="row"><a class="btn btn-primary" href="#trana">Börja träna</a><a class="btn" href="#prov">Gör ett provsimulering</a></div>' +
+          '<div class="row"><a class="btn btn-primary" href="#trana">Börja träna</a><a class="btn" href="#prov">Gör en provsimulering</a></div>' +
         '</div>' +
         '<div class="card"><h2 style="margin-top:0">Så ser provdagen ut</h2><div class="parts">' +
           ['A', 'B', 'C'].map(function (d, i) {
@@ -396,7 +396,8 @@
       filt.antal = Number($('#antal', v).value);
       $('#matchCount', v).textContent = filtrera().length + ' uppgifter matchar';
     }
-    v.addEventListener('change', upd);
+    /* lyssna på filterkortet, inte #view som återanvänds mellan vyer */
+    $('.filters', v).parentNode.addEventListener('change', upd);
     upd();
     $('#startTrana', v).addEventListener('click', function () {
       var l = shuffle(filtrera());
@@ -455,7 +456,7 @@
       '<span class="counter">Uppgift ' + (S.i + 1) + ' av ' + S.lista.length + ' · ' + ratt + ' rätt av ' + klara + ' rättade</span></div>' +
       '<div class="bar" style="margin-bottom:14px"><i style="width:' + Math.round(100 * (S.i + 1) / S.lista.length) + '%"></i></div>' +
       verktygsNot(u.del) +
-      '<article class="card" id="task">' + uppgiftHTML(u, { svar: st.svar, ordning: st.ordning }) +
+      '<article class="card" id="task" data-id="' + esc(u.id) + '">' + uppgiftHTML(u, { svar: st.svar, ordning: st.ordning }) +
       '<div id="fb"></div>' +
       '<div class="task-nav">' +
         (u.typ === 'redovisning' ? '<button class="btn btn-primary" id="visaBed">Visa lösning och bedöm dig själv</button>' : '<button class="btn btn-primary" id="kontroll">Rätta</button>') +
@@ -481,7 +482,7 @@
       if (u.typ === 'val' && st.korrekt !== null) {
         $$('.option', task).forEach(function (o) {
           var i = Number(o.getAttribute('data-i'));
-          o.classList.toggle('is-right', st.visaLos && i === u.svar.ratt);
+          o.classList.toggle('is-right', (st.visaLos || st.korrekt === true) && i === u.svar.ratt);
           o.classList.toggle('is-wrong', String(i) === String(st.svar) && st.korrekt === false);
         });
       }
@@ -493,6 +494,7 @@
         var p = poangFor(u, null, sj), max = parsePoang(u.poang);
         var frac = sumP(max) ? sumP(p) / sumP(max) : 0;
         if (!st.klar) { logga(u, frac >= 0.999, frac); st.klar = true; }
+        else if (store.hist[u.id]) { store.hist[u.id].senast = frac >= 0.999 ? 1 : frac; save(); }
         st.korrekt = frac >= 0.999 ? true : null;
         $('#bedRes', v).textContent = 'Sparat: ' + poangText(p) + ' av ' + poangText(max) + ' poäng.';
       });
@@ -617,10 +619,10 @@
         '<span class="spacer"></span>' + (D.del === 'C' ? '<button class="btn small" data-open-calc>Räknare</button>' : '') +
         (D.del === 'B' ? '<a class="btn small" href="https://www.geogebra.org/calculator" target="_blank" rel="noopener">GeoGebra ↗</a>' : '') +
         '<button class="btn small" id="lamna">' + (prov.d < prov.delar.length - 1 ? 'Lämna in del ' + D.del : 'Lämna in provet') + '</button></div>' +
-      '<div class="qdots" aria-label="Uppgifter">' + D.ids.map(function (qid, i) {
-        return '<button class="qdot' + (prov.svar[qid] !== undefined && prov.svar[qid] !== '' ? ' answered' : '') + (i === prov.q ? ' current' : '') + (prov.flagg[qid] ? ' flag' : '') + '" data-q="' + i + '" aria-label="Uppgift ' + (i + 1) + '">' + (i + 1) + '</button>';
-      }).join('') + '</div>' +
-      '<article class="card" id="task" style="margin-top:12px">' + uppgiftHTML(u, { nr: prov.q + 1, svar: prov.svar[id] || '', ordning: prov.ordning[id] }) +
+      '<nav class="qdots" aria-label="Uppgifter i delen">' + D.ids.map(function (qid, i) {
+        return '<button class="qdot' + (prov.svar[qid] !== undefined && prov.svar[qid] !== '' ? ' answered' : '') + (i === prov.q ? ' current' : '') + (prov.flagg[qid] ? ' flag' : '') + '" data-q="' + i + '"' + (i === prov.q ? ' aria-current="step"' : '') + ' aria-label="Uppgift ' + (i + 1) + (prov.flagg[qid] ? ', markerad' : '') + '">' + (i + 1) + '</button>';
+      }).join('') + '</nav>' +
+      '<article class="card" id="task" data-id="' + esc(id) + '" style="margin-top:12px">' + uppgiftHTML(u, { nr: prov.q + 1, svar: prov.svar[id] || '', ordning: prov.ordning[id] }) +
       '<div class="task-nav"><button class="btn" id="prev"' + (prov.q === 0 ? ' disabled' : '') + '>← Föregående</button>' +
       '<label class="chip"><input type="checkbox" id="flagga"' + (prov.flagg[id] ? ' checked' : '') + '> Markera för att återkomma</label><span class="spacer"></span>' +
       (prov.q < D.ids.length - 1 ? '<button class="btn btn-primary" id="next">Nästa →</button>' : '') + '</div></article>';
@@ -841,6 +843,7 @@
     var s = disp.value.replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
     s = s.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
     if (!/^[0-9.+\-*/()^sqrt ]*$/.test(s)) { disp.value = 'Fel'; return; }
+    s = s.replace(/\s+/g, '').replace(/([\d.)])(?=\(|sqrt)/g, '$1*').replace(/\)(?=[\d.])/g, ')*');
     s = s.replace(/\^/g, '**').replace(/sqrt/g, 'Math.sqrt');
     try {
       var v = Function('"use strict";return (' + s + ');')();
@@ -889,6 +892,11 @@
     document.documentElement.setAttribute('data-theme', ny);
     try { localStorage.setItem(LS_KEY + '_tema', ny); } catch (e) { /* ignorera */ }
   });
+
+  /* provlisten ska fästa precis under den klibbiga toppraden, vars höjd varierar */
+  function topbarH() { document.documentElement.style.setProperty('--topbar-h', $('.topbar').offsetHeight + 'px'); }
+  topbarH();
+  window.addEventListener('resize', topbarH);
 
   window.addEventListener('hashchange', route);
   /* exponera för test */
