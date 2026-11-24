@@ -368,7 +368,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "val",
     fraga: "<p>I koordinatsystemet visas graferna till de två linjerna \\(y=x-1\\) och \\(y=-x+3\\).</p><p>Använd figuren för att bestämma lösningen till ekvationssystemet \\[\\begin{cases}y=x-1\\\\y=-x+3\\end{cases}\\]</p>",
-    figur: "<svg viewBox='0 0 280 280' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' font-family='sans-serif' font-size='12'><g stroke-width='0.5' opacity='0.35'><path d='M20 20V260M60 20V260M100 20V260M140 20V260M180 20V260M220 20V260M260 20V260'/><path d='M20 20H260M20 60H260M20 100H260M20 140H260M20 180H260M20 220H260M20 260H260'/></g><g stroke-width='1.2'><path d='M20 180H268'/><path d='M60 268V12'/><path d='M268 180l-6 -3v6z' fill='currentColor'/><path d='M60 12l-3 6h6z' fill='currentColor'/></g><g stroke-width='2'><path d='M20 260L260 20'/><path d='M20 20L260 260' stroke-dasharray='6 4'/></g><g fill='currentColor' stroke='none'><text x='264' y='196'>x</text><text x='66' y='18'>y</text><text x='96' y='195'>1</text><text x='136' y='195'>2</text><text x='176' y='195'>3</text><text x='216' y='195'>4</text><text x='48' y='144'>1</text><text x='48' y='104'>2</text><text x='48' y='64'>3</text><text x='48' y='196'>0</text><text x='200' y='70'>y = x − 1</text><text x='190' y='240'>y = −x + 3</text></g></svg>",
+    figur: "<svg viewBox='0 0 280 280' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' font-family='sans-serif' font-size='12'><g stroke-width='0.5' opacity='0.35'><path d='M20 20V260M60 20V260M100 20V260M140 20V260M180 20V260M220 20V260M260 20V260'/><path d='M20 20H260M20 60H260M20 100H260M20 140H260M20 180H260M20 220H260M20 260H260'/></g><g stroke-width='1.2'><path d='M20 180H268'/><path d='M60 268V12'/><path d='M268 180l-6 -3v6z' fill='currentColor'/><path d='M60 12l-3 6h6z' fill='currentColor'/></g><g stroke-width='2'><path d='M20 260L260 20'/><path d='M20 20L260 260' stroke-dasharray='6 4'/></g><g fill='currentColor' stroke='none'><text x='264' y='196'>x</text><text x='66' y='18'>y</text><text x='96' y='195'>1</text><text x='136' y='195'>2</text><text x='176' y='195'>3</text><text x='216' y='195'>4</text><text x='48' y='144'>1</text><text x='48' y='104'>2</text><text x='48' y='64'>3</text><text x='48' y='196'>0</text><text x='212' y='94'>y = x − 1</text><text x='200' y='228' text-anchor='end'>y = −x + 3</text></g></svg>",
     svar: {
       alternativ: ["\\(x=2,\\; y=1\\)", "\\(x=1,\\; y=2\\)", "\\(x=0,\\; y=3\\)", "\\(x=3,\\; y=0\\)"],
       ratt: 0
@@ -505,13 +505,13 @@ window.NP_UPPGIFTER.push(
     niva: "C",
     poang: "0/1/0",
     typ: "val",
-    fraga: "<p>För vilka värden på \\(x\\) gäller olikheten \\[0{,}5x^2-2x-3<0\\,?\\]</p>",
+    fraga: "<p>För vilka värden på \\(x\\) gäller olikheten \\[0{,}5x^2-2x-3\\lt 0\\,?\\]</p>",
     svar: {
       alternativ: [
-        "\\(-1{,}16<x<5{,}16\\)",
-        "\\(x<-1{,}16\\) eller \\(x>5{,}16\\)",
-        "\\(-5{,}16<x<1{,}16\\)",
-        "\\(x<5{,}16\\)"
+        "\\(-1{,}16\\lt x\\lt 5{,}16\\)",
+        "\\(x\\lt -1{,}16\\) eller \\(x\\gt 5{,}16\\)",
+        "\\(-5{,}16\\lt x\\lt 1{,}16\\)",
+        "\\(x\\lt 5{,}16\\)"
       ],
       ratt: 0
     },
@@ -519,7 +519,7 @@ window.NP_UPPGIFTER.push(
       "Rita grafen till \\(y=0{,}5x^2-2x-3\\). Var ligger grafen <em>under</em> \\(x\\)-axeln?",
       "Bestäm nollställena – olikheten gäller mellan eller utanför dem?"
     ],
-    losning: "<ol><li>I GeoGebra: rita \\(f(x)=0.5x^2-2x-3\\) och bestäm <code>Nollställen(f)</code>: \\(x\\approx -1{,}16\\) och \\(x\\approx 5{,}16\\).</li><li>Grafen är en parabel som öppnar sig uppåt (positiv \\(x^2\\)-koefficient), så den ligger under \\(x\\)-axeln <em>mellan</em> nollställena.</li><li>(Exakt: \\(x=2\\pm\\sqrt{10}\\).) Man kan också skriva olikheten direkt i GeoGebra CAS: <code>Lös(0.5x^2-2x-3&lt;0)</code>.</li></ol><p><strong>Svar:</strong> \\(-1{,}16<x<5{,}16\\)</p>"
+    losning: "<ol><li>I GeoGebra: rita \\(f(x)=0.5x^2-2x-3\\) och bestäm <code>Nollställen(f)</code>: \\(x\\approx -1{,}16\\) och \\(x\\approx 5{,}16\\).</li><li>Grafen är en parabel som öppnar sig uppåt (positiv \\(x^2\\)-koefficient), så den ligger under \\(x\\)-axeln <em>mellan</em> nollställena.</li><li>(Exakt: \\(x=2\\pm\\sqrt{10}\\).) Man kan också skriva olikheten direkt i GeoGebra CAS: <code>Lös(0.5x^2-2x-3&lt;0)</code>.</li></ol><p><strong>Svar:</strong> \\(-1{,}16\\lt x\\lt 5{,}16\\)</p>"
   },
 
   {
