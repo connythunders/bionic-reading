@@ -169,7 +169,11 @@
     if (u.typ === 'redovisning') return null;
     if (svar == null || svar === '') return false;
     if (u.typ === 'val') return Number(svar) === Number(s.ratt);
-    if (u.typ === 'tal') { var v = parseNum(svar); return !isNaN(v) && near(v, Number(s.varde), Number(s.tolerans) || 0); }
+    if (u.typ === 'tal') {
+      /* godta att eleven skriver uppgiftens egen enhet efter talet, t.ex. "12 paket" eller "3,5 kr/kg" */
+      var raw = String(svar).toLowerCase().replace(/\s/g, ''), enh = String(s.enhet || '').toLowerCase().replace(/\s/g, '');
+      if (enh && raw.length > enh.length && raw.slice(-enh.length) === enh) svar = raw.slice(0, -enh.length);
+      var v = parseNum(svar); return !isNaN(v) && near(v, Number(s.varde), Number(s.tolerans) || 0); }
     if (u.typ === 'flera') {
       var delar = splitFlera(svar).map(parseNum);
       var facit = (s.varden || []).slice();
