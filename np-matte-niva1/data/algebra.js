@@ -100,7 +100,7 @@ window.NP_UPPGIFTER.push(
       "Använd formelbladet: milli betyder \\(10^{-3}\\) och mikro betyder \\(10^{-6}\\).",
       "1 mm \\(=1000\\) µm."
     ],
-    losning: "<ol><li>\\(1\\text{ mm}=10^{-3}\\text{ m}\\) och \\(1\\text{ µm}=10^{-6}\\text{ m}\\), alltså är \\(1\\text{ mm}=1000\\text{ µm}\\).</li><li>\\(0{,}04\\text{ mm}=0{,}04\\cdot 1000\\text{ µm}=40\\text{ µm}\\).</li></ol><p><strong>Svar:</strong> 40 µm</p>"
+    losning: "<ol><li>\\(1\\text{ mm}=10^{-3}\\text{ m}\\) och \\(1\\,\\mu\\text{m}=10^{-6}\\text{ m}\\), alltså är \\(1\\text{ mm}=1000\\,\\mu\\text{m}\\).</li><li>\\(0{,}04\\text{ mm}=0{,}04\\cdot 1000\\,\\mu\\text{m}=40\\,\\mu\\text{m}\\).</li></ol><p><strong>Svar:</strong> 40 µm</p>"
   },
 
   {
@@ -650,10 +650,10 @@ window.NP_UPPGIFTER.push(
     fraga: "<p>Ett hårstrå är ungefär 70 µm tjockt.</p><p>Ungefär hur många hårstrån behöver läggas tätt bredvid varandra för att bredden ska bli 1 cm? Svara i hela tal.</p>",
     svar: { varde: 143, tolerans: 1 },
     ledtradar: [
-      "Gör om båda längderna till samma enhet, t.ex. meter: \\(1\\text{ cm}=10^{-2}\\text{ m}\\) och \\(70\\text{ µm}=70\\cdot 10^{-6}\\text{ m}\\).",
+      "Gör om båda längderna till samma enhet, t.ex. meter: \\(1\\text{ cm}=10^{-2}\\text{ m}\\) och \\(70\\,\\mu\\text{m}=70\\cdot 10^{-6}\\text{ m}\\).",
       "Dividera den totala bredden med tjockleken för ett hårstrå."
     ],
-    losning: "<ol><li>\\(1\\text{ cm}=10^{-2}\\text{ m}=0{,}01\\text{ m}\\).</li><li>\\(70\\text{ µm}=70\\cdot 10^{-6}\\text{ m}=0{,}000\\,07\\text{ m}\\).</li><li>Antal: \\(\\frac{0{,}01}{0{,}000\\,07}\\approx 142{,}9\\).</li></ol><p>Alternativt: \\(1\\text{ cm}=10\\,000\\text{ µm}\\) och \\(\\frac{10\\,000}{70}\\approx 143\\).</p><p><strong>Svar:</strong> ca 143 hårstrån</p>"
+    losning: "<ol><li>\\(1\\text{ cm}=10^{-2}\\text{ m}=0{,}01\\text{ m}\\).</li><li>\\(70\\,\\mu\\text{m}=70\\cdot 10^{-6}\\text{ m}=0{,}000\\,07\\text{ m}\\).</li><li>Antal: \\(\\frac{0{,}01}{0{,}000\\,07}\\approx 142{,}9\\).</li></ol><p>Alternativt: \\(1\\text{ cm}=10\\,000\\,\\mu\\text{m}\\) och \\(\\frac{10\\,000}{70}\\approx 143\\).</p><p><strong>Svar:</strong> ca 143 hårstrån</p>"
   },
 
   {
