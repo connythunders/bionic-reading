@@ -820,26 +820,40 @@
   VIEWS.formler = function (v) {
     var k = store.kurs;
     var logg = k !== '2a';
-    v.innerHTML = '<h1>Formler &amp; tips</h1><p class="muted">Ett urval formler som är bra att kunna inför provet. På provet får du ett formelblad – lär dig hitta i det i förväg.</p>' +
+    var INNEHALL = {
+      '2a': ['Räta linjens ekvation och metoder för att bestämma linjära funktioner', 'Linjära ekvationssystem', 'Potensfunktioner, räkneregler för potenser och potensekvationer', 'Digitala metoder för att lösa exponentialekvationer', 'Konjugatregeln och kvadreringsreglerna', 'Andragradsfunktioner (symmetrilinje, extrempunkt, nollställen) och andragradsekvationer', 'Lägesmått och spridningsmått, däribland percentiler och standardavvikelse', 'Normalfördelning – enklare beräkningar', 'Pythagoras sats, även i koordinatsystem', 'Problemlösning, modeller och kritisk granskning av fakta och påståenden'],
+      '2b': ['Linjära ekvationssystem', 'Logaritmer och räkneregler för logaritmer vid lösning av exponentialekvationer', 'Likheter och skillnader mellan exponential- och potensekvationer', 'Konjugatregeln och kvadreringsreglerna', 'Andragradsfunktioner och andragradsekvationer', 'Lägesmått och spridningsmått, däribland percentiler och standardavvikelse', 'Normalfördelning med digitala metoder', 'Regressionsanalys och korrelationskoefficient', 'Implikation och ekvivalens; definition, sats och bevis', 'Geometriska satser om vinklar och likformighet, Pythagoras sats i koordinatsystem', 'Problemlösning, modeller och kritisk granskning av fakta och påståenden'],
+      '2c': ['Linjära ekvationssystem', 'Logaritmer – motivering och hantering av logaritmlagarna, exponentialekvationer', 'Likheter och skillnader mellan exponential- och potensekvationer', 'Konjugatregeln och kvadreringsreglerna', 'Andragradsfunktioner och andragradsekvationer', 'Rotekvationer', 'Lägesmått och spridningsmått, däribland percentiler och standardavvikelse', 'Normalfördelning med digitala metoder', 'Regressionsanalys och korrelationskoefficient', 'Implikation och ekvivalens; definition, sats och bevis', 'Geometriska satser om vinklar och likformighet, Pythagoras sats i koordinatsystem', 'Programmering som verktyg vid problemlösning', 'Problemlösning, modeller och kritisk granskning av fakta och påståenden']
+    };
+    var FB = 'https://www.skolverket.se/download/18.3ad8749019c2712301fca0a/1770379884800/Formelblad_Ma_niva_2.pdf';
+    v.innerHTML = '<h1>Formler &amp; tips</h1><p class="muted">På provet får du Skolverkets <strong>Formelblad Matematik nivå 2</strong> (gäller för 2a, 2b och 2c). Här är innehållet sammanställt så att du kan lära dig hitta i det. ' +
+      '<a href="' + FB + '" target="_blank" rel="noopener">Öppna det officiella formelbladet (PDF) ↗</a></p>' +
+      '<div class="card" style="margin-bottom:14px"><h2 style="margin-top:0">Det här ingår i nivå ' + k + '</h2><p class="small muted">Centralt innehåll enligt Skolverkets ämnesplan i matematik (Gy25).</p><ul class="tips">' +
+        INNEHALL[k].map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul></div>' +
       '<div class="formula-grid">' +
-      card('Algebra', '<p>Kvadreringsreglerna och konjugatregeln</p>\\[(a+b)^2=a^2+2ab+b^2\\]\\[(a-b)^2=a^2-2ab+b^2\\]\\[(a+b)(a-b)=a^2-b^2\\]' +
-        '<p>Andragradsekvationer, pq-formeln</p>\\[x^2+px+q=0 \\;\\Rightarrow\\; x=-\\frac{p}{2}\\pm\\sqrt{\\left(\\frac{p}{2}\\right)^2-q}\\]') +
-      card('Potenser' + (logg ? ' och logaritmer' : ''), '\\[a^x\\cdot a^y=a^{x+y}\\qquad \\frac{a^x}{a^y}=a^{x-y}\\qquad (a^x)^y=a^{xy}\\]\\[a^{-x}=\\frac{1}{a^x}\\qquad a^{1/n}=\\sqrt[n]{a}\\qquad a^0=1\\]' +
-        (logg ? '<p>Logaritmer</p>\\[y=10^x \\;\\Leftrightarrow\\; x=\\lg y\\]\\[\\lg(xy)=\\lg x+\\lg y\\qquad \\lg\\frac{x}{y}=\\lg x-\\lg y\\qquad \\lg x^p=p\\lg x\\]' : '')) +
-      card('Funktioner', '<p>Räta linjens ekvation</p>\\[y=kx+m\\qquad k=\\frac{\\Delta y}{\\Delta x}=\\frac{y_2-y_1}{x_2-x_1}\\]' +
-        (k !== '2a' ? '<p>Vinkelräta linjer: \\(k_1\\cdot k_2=-1\\). Parallella linjer: \\(k_1=k_2\\).</p>' : '') +
-        '<p>Andragradsfunktion \\(f(x)=ax^2+bx+c\\): symmetrilinjen ligger mitt emellan nollställena. \\(a>0\\) ger minimipunkt, \\(a<0\\) maximipunkt.</p>' +
-        '<p>Exponentialfunktion</p>\\[y=C\\cdot a^x\\]<p>\\(C\\) = startvärde, \\(a\\) = förändringsfaktor. Ökning 5 % ger \\(a=1{,}05\\), minskning 5 % ger \\(a=0{,}95\\).</p>') +
-      card('Geometri', '<p>Pythagoras sats: \\(a^2+b^2=c^2\\) (c = hypotenusan)</p>' +
-        '<p>Likformighet: motsvarande sidor har samma förhållande. Längdskala \\(k\\) ger areaskala \\(k^2\\) och volymskala \\(k^3\\).</p>' +
-        '<p>Vinkelsumma i triangel 180°, i fyrhörning 360°.</p>' +
-        (k === '2c' || k === '2b' ? '<p>Randvinkelsatsen: randvinkeln är hälften så stor som medelpunktsvinkeln på samma båge. Randvinkel på en diameter är 90°.</p>' : '') +
-        '<p>Avstånd mellan punkter</p>\\[d=\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\\]<p>Mittpunkt: \\(\\left(\\frac{x_1+x_2}{2},\\frac{y_1+y_2}{2}\\right)\\)</p>') +
-      card('Statistik', '<p>Medelvärde \\(\\bar x=\\frac{\\sum x}{n}\\). Median = mittersta värdet i storleksordning.</p>' +
-        '<p>Standardavvikelse anger hur mycket värdena i genomsnitt avviker från medelvärdet. På provet beräknas den normalt med digitalt verktyg.</p>' +
+      card('Algebra', '<p>Regler</p>\\[(a+b)^2=a^2+2ab+b^2\\]\\[(a-b)^2=a^2-2ab+b^2\\]\\[(a+b)(a-b)=a^2-b^2\\]' +
+        '<p>Andragradsekvationer</p>\\[x^2+px+q=0\\]\\[x=-\\frac{p}{2}\\pm\\sqrt{\\left(\\frac{p}{2}\\right)^2-q}\\]\\[ax^2+bx+c=0\\]\\[x=-\\frac{b}{2a}\\pm\\frac{\\sqrt{b^2-4ac}}{2a}\\]') +
+      card('Aritmetik', '<p>Potenser</p>\\[a^x a^y=a^{x+y}\\]\\[\\frac{a^x}{a^y}=a^{x-y}\\]\\[(a^x)^y=a^{xy}\\]\\[a^x b^x=(ab)^x\\]\\[\\frac{a^x}{b^x}=\\left(\\frac{a}{b}\\right)^x\\]\\[a^{-x}=\\frac{1}{a^x}\\]\\[a^{\\frac{1}{n}}=\\sqrt[n]{a}\\]\\[a^0=1\\]' +
+        '<p>Logaritmer' + (logg ? '' : ' <span class="small muted">(ingår inte i 2a)</span>') + '</p>\\[y=10^x \\;\\Leftrightarrow\\; x=\\lg y\\]\\[\\lg x+\\lg y=\\lg xy\\]\\[\\lg x-\\lg y=\\lg\\frac{x}{y}\\]\\[\\lg x^p=p\\cdot\\lg x\\]' +
+        '<p>Prefix: T 10<sup>12</sup>, G 10<sup>9</sup>, M 10<sup>6</sup>, k 10<sup>3</sup>, h 10<sup>2</sup>, d 10<sup>−1</sup>, c 10<sup>−2</sup>, m 10<sup>−3</sup>, µ 10<sup>−6</sup>, n 10<sup>−9</sup>, p 10<sup>−12</sup></p>') +
+      card('Funktioner och samband', '<p>Räta linjen</p>\\[y=kx+m\\qquad k=\\frac{y_2-y_1}{x_2-x_1}\\]<p>\\(ax+by+c=0\\), där inte både \\(a\\) och \\(b\\) är noll. Vinkelräta linjer: \\(k_1\\cdot k_2=-1\\).</p>' +
+        '<p>Andragradsfunktioner: \\(y=ax^2+bx+c,\\; a\\neq 0\\). Symmetrilinjen går mitt emellan nollställena; \\(a\\gt 0\\) ger minimipunkt, \\(a\\lt 0\\) maximipunkt.</p>' +
+        '<p>Potensfunktioner: \\(y=C\\cdot x^a\\)</p><p>Exponentialfunktioner: \\(y=C\\cdot a^x\\), där \\(a\\gt 0\\) och \\(a\\neq 1\\). \\(C\\) = startvärde, \\(a\\) = förändringsfaktor.</p>') +
+      card('Geometri – area och volym', '<p>Triangel \\(A=\\frac{bh}{2}\\) · Parallellogram \\(A=bh\\) · Parallelltrapets \\(A=\\frac{h(a+b)}{2}\\)</p>' +
+        '<p>Cirkel \\(A=\\pi r^2=\\frac{\\pi d^2}{4}\\), \\(O=2\\pi r=\\pi d\\)</p><p>Cirkelsektor \\(b=\\frac{v}{360^\\circ}\\cdot 2\\pi r\\), \\(A=\\frac{v}{360^\\circ}\\cdot \\pi r^2=\\frac{br}{2}\\)</p>' +
+        '<p>Prisma \\(V=Bh\\) · Pyramid \\(V=\\frac{Bh}{3}\\) · Cylinder \\(V=\\pi r^2h\\), mantelarea \\(A=2\\pi rh\\)</p><p>Kon \\(V=\\frac{\\pi r^2h}{3}\\), mantelarea \\(A=\\pi rs\\) · Klot \\(V=\\frac{4\\pi r^3}{3}\\), \\(A=4\\pi r^2\\)</p>') +
+      card('Geometri – satser', '<p>Likformiga trianglar: \\(\\frac{a}{d}=\\frac{b}{e}=\\frac{c}{f}\\). Areaskalan = (längdskalan)², volymskalan = (längdskalan)³.</p>' +
+        '<p>Topptriangelsatsen, transversalsatsen och bisektrissatsen (DE parallell med AB).</p>' +
+        '<p>Sidovinklar \\(u+v=180^\\circ\\) · Vertikalvinklar är lika · Likbelägna vinklar och alternatvinklar vid parallella linjer är lika.</p>' +
+        '<p>Vinkelsumman i en n-hörning: \\(S=(n-2)\\cdot 180^\\circ\\). Yttervinkelsatsen: \\(y=u+v\\).</p>' +
+        '<p>Pythagoras sats \\(a^2+b^2=c^2\\) · Kordasatsen \\(ab=cd\\) · Randvinkelsatsen \\(u=2v\\)</p>' +
+        '<p>Avståndsformeln \\(d=\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\\) · Mittpunktsformeln \\(x_m=\\frac{x_1+x_2}{2},\\; y_m=\\frac{y_1+y_2}{2}\\)</p>' +
+        '<p>Trigonometri: \\(\\sin v=\\frac{a}{c},\\; \\cos v=\\frac{b}{c},\\; \\tan v=\\frac{a}{b}\\)</p>') +
+      card('Statistik och sannolikhet', '<p>Formelbladet visar ett <strong>lådagram</strong> (minsta värde, nedre kvartil, median, övre kvartil, största värde) och <strong>normalfördelningskurvan</strong>.</p>' +
         '<p>Normalfördelning: ca 68 % inom \\(\\mu\\pm\\sigma\\), ca 95 % inom \\(\\mu\\pm2\\sigma\\), ca 99,7 % inom \\(\\mu\\pm3\\sigma\\).</p>' +
-        '<p>Korrelationskoefficienten \\(r\\) ligger mellan −1 och 1. Nära ±1 = starkt linjärt samband. Korrelation är inte samma sak som orsakssamband.</p>') +
-      card('Procent', '<p>Förändringsfaktor = ny / gammal. Upprepad förändring: \\(\\text{nytt}=\\text{gammalt}\\cdot a^n\\)</p><p>Procentenhet = skillnad mellan två procentsatser.</p>') +
+        '<p>Percentil: den 90:e percentilen är det värde som 90 % av observationerna ligger under.</p>' +
+        (logg ? '<p>Korrelationskoefficienten \\(r\\) ligger mellan −1 och 1. Nära ±1 = starkt linjärt samband. Korrelation är inte samma sak som orsakssamband.</p>' : '') +
+        '<p class="small muted">Medelvärde, median och standardavvikelse står inte på formelbladet – lär dig dem.</p>') +
       '</div>' +
       '<h2>Strategier för varje del</h2><div class="grid grid-3">' +
       card('Del A – utan räknare', '<ul class="tips"><li>Talen är valda så att de går jämnt ut. Får du ett konstigt svar – kontrollräkna.</li><li>Öva på bråk, negativa tal, potenser och huvudräkning.</li><li>Skriv mellanled – det ger poäng även om slutsvaret blir fel.</li><li>Hoppa över och kom tillbaka om du fastnar.</li></ul>') +
