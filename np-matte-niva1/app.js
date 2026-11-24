@@ -180,7 +180,11 @@
     if (u.typ === 'redovisning') return null;
     if (svar == null || svar === '') return false;
     if (u.typ === 'val') return Number(svar) === Number(s.ratt);
-    if (u.typ === 'tal') { var v = parseNum(svar); return !isNaN(v) && near(v, Number(s.varde), Number(s.tolerans) || 0); }
+    if (u.typ === 'tal') {
+      /* godta att eleven skriver uppgiftens egen enhet efter talet, t.ex. "12 paket" eller "3,5 kr/kg" */
+      var raw = String(svar).toLowerCase().replace(/\s/g, ''), enh = String(s.enhet || '').toLowerCase().replace(/\s/g, '');
+      if (enh && raw.length > enh.length && raw.slice(-enh.length) === enh) svar = raw.slice(0, -enh.length);
+      var v = parseNum(svar); return !isNaN(v) && near(v, Number(s.varde), Number(s.tolerans) || 0); }
     if (u.typ === 'flera') {
       var delar = splitFlera(svar).map(parseNum);
       var facit = (s.varden || []).slice();
@@ -615,7 +619,7 @@
     v.innerHTML = '<h1>Provsimulering</h1><p class="muted">Skriv ett prov under tidspress, precis som på riktigt. Du ser inte facit förrän du lämnat in. Redovisningsuppgifterna bedömer du själv efteråt med hjälp av bedömningsanvisningen.</p>' +
       '<div class="grid grid-2">' +
         '<div class="card"><h2 style="margin-top:0">Helt prov</h2><p>Del A 60 min, del B 60 min, del C 120 min. Cirka 58 poäng, ungefär som tidigare nationella prov. Raster mellan delarna.</p><button class="btn btn-primary" data-start="hel">Starta helt prov</button></div>' +
-        '<div class="card"><h2 style="margin-top:0">Kortprov</h2><p>Del A 15 min, del B 15 min, del C 30 min. Cirka 19 poäng – bra för att testa formen på en dryg timme.</p><button class="btn btn-primary" data-start="kort">Starta kortprov</button></div>' +
+        '<div class="card"><h2 style="margin-top:0">Kortprov</h2><p>Del A 15 min, del B 15 min, del C 30 min. Cirka 20 poäng – bra för att testa formen på en dryg timme.</p><button class="btn btn-primary" data-start="kort">Starta kortprov</button></div>' +
       '</div>' +
       '<p class="small muted">Nivå: <strong>' + store.kurs + '</strong> · Uppgiftsbank: ' + antal.A + ' st del A, ' + antal.B + ' st del B, ' + antal.C + ' st del C.</p>' +
       (store.prov.length ? '<h2>Tidigare provsimuleringar</h2><div class="card">' + store.prov.slice().reverse().slice(0, 10).map(function (p) {
