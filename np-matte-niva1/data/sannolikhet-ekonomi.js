@@ -366,7 +366,7 @@ window.NP_UPPGIFTER.push(
     niva: "C",
     poang: "0/1/0",
     typ: "val",
-    fraga: "<p>På en skolmarknad erbjuds ett tärningsspel. Det kostar 10 kr att spela en gång. Man kastar två vanliga tärningar och vinner om summan blir 7 eller 11. Vid vinst får man 40 kr (insatsen ingår inte i vinsten, dvs. man får 40 kr totalt tillbaka).</p><p>Lönar det sig för spelaren att spela många gånger?</p>",
+    fraga: "<p>På en skolmarknad erbjuds ett tärningsspel. Det kostar 10 kr att spela en gång. Man kastar två vanliga tärningar och vinner om summan blir 7 eller 11. Vid vinst får man tillbaka 40 kr totalt (insatsen på 10 kr ingår alltså i de 40 kr).</p><p>Lönar det sig för spelaren att spela många gånger?</p>",
     svar: {
       alternativ: [
         "Ja, i genomsnitt går spelaren med ungefär 1 kr i vinst per spel.",
@@ -697,7 +697,7 @@ window.NP_UPPGIFTER.push(
     poang: "0/1/0",
     typ: "tal",
     fraga: "<p>En chipsförpackning brukade innehålla 400 g och kosta 30 kr. Nu står det på förpackningen:</p><p style='text-align:center'><strong>\"NU 50 % MER – TILL SAMMA PRIS!\"</strong></p><p>Den nya förpackningen innehåller 600 g och kostar fortfarande 30 kr. Daniel tror att kilopriset har sjunkit med 50 %.</p><p>Med hur många procent har kilopriset sjunkit? Avrunda till en decimal.</p>",
-    svar: { varde: 33.3, tolerans: 0.35, enhet: "%" },
+    svar: { varde: 33.3, tolerans: 0.05, enhet: "%" },
     ledtradar: [
       "Beräkna kilopriset före och efter förändringen.",
       "Jämför minskningen med det <em>ursprungliga</em> kilopriset."
@@ -780,7 +780,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>Sara sätter in 20 000 kr på ett sparkonto med 3 % årlig ränta. Räntan läggs till kontot i slutet av varje år och hon gör inga fler insättningar eller uttag.</p><p>Hur mycket finns på kontot efter 5 år? Avrunda till hela kronor.</p>",
-    svar: { varde: 23185, tolerans: 1, enhet: "kr" },
+    svar: { varde: 23185, tolerans: 0.5, enhet: "kr" },
     ledtradar: [
       "Vilken förändringsfaktor motsvarar en ökning med 3 %?",
       "Beloppet multipliceras med förändringsfaktorn en gång per år, alltså fem gånger: \\(20\\,000 \\cdot 1{,}03^5\\)."

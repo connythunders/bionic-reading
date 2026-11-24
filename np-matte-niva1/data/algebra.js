@@ -648,7 +648,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>Ett hårstrå är ungefär 70 µm tjockt.</p><p>Ungefär hur många hårstrån behöver läggas tätt bredvid varandra för att bredden ska bli 1 cm? Svara i hela tal.</p>",
-    svar: { varde: 143, tolerans: 1 },
+    svar: { varde: 143, tolerans: 0.5 },
     ledtradar: [
       "Gör om båda längderna till samma enhet, t.ex. meter: \\(1\\text{ cm}=10^{-2}\\text{ m}\\) och \\(70\\,\\mu\\text{m}=70\\cdot 10^{-6}\\text{ m}\\).",
       "Dividera den totala bredden med tjockleken för ett hårstrå."
