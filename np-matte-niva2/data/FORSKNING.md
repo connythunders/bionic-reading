@@ -2,8 +2,108 @@
 
 Sammanställt 2026-11-24. Underlag för övningssajten inför provet **fredag 11 december 2026 kl. 9.00**.
 
-> **Metodnotis, läs först.** Webbhämtning (WebFetch/curl) var blockerad i sessionen för skolverket.se,
-> syllabuswebb.skolverket.se, gy25.se, umu.se, eddler.se m.fl. Allt nedan bygger därför på **utdrag ur
+---
+
+## 0. Verifierat mot Skolverkets officiella källor (2026-11-24)
+
+Det här avsnittet bygger på **helläsning av originalkällorna** (hämtade 2026-11-24) och gäller före allt annat i dokumentet.
+Där avsnitt 1–5 säger något annat gäller avsnitt 0.
+
+**Källor (lästa i sin helhet):**
+- Skolverkets Syllabus-API, ämnet MATE (Gy25, i kraft 2025-07-01): https://api.skolverket.se/syllabus/v1/subjects/MATE?timespan=LATEST
+  (centralt innehåll för MATE2A00X, MATE2B00X, MATE2C00X sparat ordagrant i `data/AMNESPLAN-MATE-NIVA2.txt`)
+- Skolverket, Nationellt prov i matematik nivå 2 (lärarinformation, gymnasieskolan): https://www.skolverket.se/prov-och-bedomning/nationella-prov/lararinformation-for-gymnasieskolan/nationellt-prov-i-matematik-niva-2
+  samt Skolverkets sida *Delprov och innehåll – gymnasieskolan*
+- Skolverket, Formelblad Matematik nivå 2 och formelblad Matematik 2 (daterat 2025-06-26, 4 sidor): https://www.skolverket.se/download/18.3ad8749019c2712301fca0a/1770379884800/Formelblad_Ma_niva_2.pdf
+- Skolverkets kommentarmaterial i matematik (Gy11-revisionen 2021/22), används bara som tolkningsstöd: https://www.skolverket.se/download/18.66960151804bed21fd1de9/1653898443913/pdf9917.pdf
+
+### 0.1 Centralt innehåll per nivå (ordagrant enligt API:t, förkortat)
+
+| Innehåll | 2a | 2b | 2c |
+|---|:-:|:-:|:-:|
+| Räta linjens ekvation. Metoder för att bestämma linjära funktioner | ✔ | – (förkunskap från 1b) | – (förkunskap från 1c) |
+| Begreppet linjärt ekvationssystem, lösningsmetoder | ✔ | ✔ | ✔ |
+| Begreppet potensfunktion | ✔ | – | – |
+| Motivering och hantering av räkneregler för potenser. Metoder för att lösa potensekvationer | ✔ | (potensekvationer förutsätts, se nästa rader) | (dito) |
+| Exponentialekvationer | **endast digitala metoder** | ✔ metoder (algebraiskt) | ✔ metoder (algebraiskt) |
+| Begreppet logaritm | ✖ | ✔ | ✔ |
+| Räkneregler för logaritmer | ✖ | hantering **i samband med lösning av exponentialekvationer** | **motivering** och hantering |
+| Likheter och skillnader mellan exponential- och potensekvationer | – | ✔ | ✔ |
+| Motivering och hantering av konjugatregeln och kvadreringsreglerna | ✔ | ✔ | ✔ |
+| Andragradsfunktion (symmetrilinje, extrempunkt, nollställen), andragradsekvationer | ✔ | ✔ | ✔ |
+| Rotekvationer | ✖ | ✖ | ✔ |
+| Lägesmått och spridningsmått, däribland percentiler och standardavvikelse, samt digitala metoder | ✔ | ✔ | ✔ |
+| Normalfördelning: begrepp och egenskaper | ✔ | ✔ | ✔ |
+| Normalfördelning: beräkningar | **"enklare beräkningar"** | **digitala metoder** | **digitala metoder** |
+| Regressionsanalys och korrelationskoefficient, digitala metoder för regression | ✖ | ✔ | ✔ |
+| Implikation och ekvivalens. Definition, sats och bevis | ✖ | ✔ | ✔ |
+| Motivering och användning av enklare geometriska satser om **vinklar och likformighet** | ✖ | ✔ | ✔ |
+| Pythagoras sats (2a: "användning och motivering") med beräkningar i koordinatsystem | ✔ | ✔ | ✔ |
+| Programmering som verktyg vid problemlösning, databearbetning, numeriska metoder | ✖ | ✖ | ✔ |
+| Digitala verktyg för att effektivisera beräkningar och komplettera metoder | ✔ | ✔ | ✔ |
+| Problemlösning (2a: arbets- och samhällsliv; 2b/2c: utbildningens karaktär och samhällsliv), hållbar utveckling, kritisk granskning, modeller, matematikhistoria | ✔ | ✔ | ✔ |
+| Program- eller yrkesspecifikt innehåll (breddning/fördjupning, hjälpmedel) | ✔ | – | – |
+
+Viktiga slutsatser:
+- **Kongruens nämns inte** i något av nivå 2-kursernas centrala innehåll (bara "vinklar och likformighet"). Övningsbanken har därför ingen kongruensuppgift längre (geo-014 är omskriven till likformighet).
+- **2a har ingen logik/geometri utöver Pythagoras sats** (inga vinkel- eller likformighetssatser, inga bevisbegrepp) och **ingen regression eller korrelation**.
+- **Potensregler och potensfunktion står uttryckligen bara i 2a.** I 2b/2c förutsätts potensekvationer (jämförelsen exponential- och potensekvationer) och potensreglerna finns på formelbladet för alla.
+- **Räta linjens ekvation står bara i 2a** men är förkunskap från 1b/1c. Formelbladet (gemensamt) har k₁·k₂ = −1 och ax + by + c = 0.
+- Kommentarmaterialet (Gy11) säger dessutom att **linjära olikheter inte ingår i a-spåret** (1a/2a), och att 2a-algebran är mer tillämpningsnära än 2b/2c.
+
+### 0.2 Formelbladet "Formelblad Matematik nivå 2 och formelblad Matematik 2" (2025-06-26)
+
+Samma blad gäller för 2a, 2b, 2c och för Gy11-elever i Ma2. Innehåll (verifierat ord för ord ur PDF:en):
+- **Algebra:** kvadreringsreglerna, konjugatregeln. Andragradsekvationer: **pq-formeln och abc-formeln** x = −b/(2a) ± √(b² − 4ac)/(2a).
+- **Aritmetik:** prefix tera–piko (10¹² … 10⁻¹²). Potenslagar: aˣaʸ, aˣ/aʸ, (aˣ)ʸ, aˣbˣ = (ab)ˣ, aˣ/bˣ = (a/b)ˣ, a⁻ˣ = 1/aˣ, a^(1/n) = ⁿ√a, a⁰ = 1.
+- **Logaritmer:** y = 10ˣ ⇔ x = lg y; lg x + lg y = lg xy; lg x − lg y = lg(x/y); lg xᵖ = p·lg x.
+- **Funktioner:** räta linjen y = kx + m, k = (y₂ − y₁)/(x₂ − x₁), **k₁·k₂ = −1** (vinkelräta linjer), **ax + by + c = 0**. Andragradsfunktion y = ax² + bx + c. **Potensfunktion y = C·xᵃ.** Exponentialfunktion y = C·aˣ (a > 0, a ≠ 1).
+- **Geometri:** area av triangel, parallellogram, parallelltrapets, cirkel (även πd²/4), omkrets, cirkelsektor (båge och area, även A = br/2). Volym av prisma, cylinder (och mantelarea), pyramid, kon (och mantelarea πrs), klot (och area 4πr²).
+- **Likformighet:** definition via a/d = b/e = c/f. **Skala:** areaskala = (längdskala)², volymskala = (längdskala)³. **Topptriangelsatsen, bisektrissatsen, transversalsatsen.**
+- **Vinklar:** sidovinklar, vertikalvinklar, likbelägna vinklar och alternatvinklar vid parallella linjer, vinkelsumman i en n-hörning S = (n − 2)·180°. **Yttervinkelsatsen, Pythagoras sats, kordasatsen (ab = cd), randvinkelsatsen (u = 2v).**
+- **Avståndsformeln och mittpunktsformeln.**
+- **Trigonometri:** sin, cos, tan i rätvinklig triangel.
+- **Statistik och sannolikhet:** figur för **lådagram** och figur för **normalfördelning** (andelar per standardavvikelse).
+- Obs: **ingen formel för standardavvikelse** syns i den extraherade texten (kan finnas som bild – kontrollera PDF:en visuellt), och inga procent-/förändringsfaktorformler.
+
+### 0.3 Provet (Skolverkets NP-sida)
+
+- Ett gemensamt prov, "Matematik nivå 2a, 2b, 2c", med **tre delprov samma dag**.
+- **Delprov A:** kortsvarsuppgifter **utan digitala verktyg**, svar i provhäftet.
+- **Delprov B:** uppgifter **med digitala verktyg**, svar i provhäftet.
+- **Delprov C:** uppgifter med **enkel räknare**, fullständiga lösningar på separat papper.
+- Uppgiftsformat: **flervalsfrågor, kortsvar och uppgifter med fullständiga lösningar**.
+- Provet kan även skrivas av **Gy11-elever i Matematik 2a/2b/2c** (därav det dubbla namnet på formelbladet).
+
+### 0.4 Status för tidigare osäkra påståenden
+
+| Tidigare påstående (avsnitt) | Status nu |
+|---|---|
+| Logik och geometri (bevis, likformighet, implikation) ingår i 2a (2.1, 2.3) | **AVGJORT: NEJ.** 2a har bara Pythagoras sats under "Logik och geometri". |
+| Regression och korrelation saknas i 2a (2.2) | **AVGJORT: saknas i 2a**, ingår i 2b och 2c. |
+| Normalfördelning digitalt i 2b/2c, "enklare beräkningar" i 2a (2.1, 2.3) | **AVGJORT: stämmer.** |
+| Rotekvationer i 2c (2.2) | **AVGJORT: JA, ingår i 2c** ("Metoder för att lösa rotekvationer"), inte i 2a/2b. |
+| Programmering i 2c | **AVGJORT: JA, bara 2c.** |
+| Kongruens ingår i 2b/2c (2.2) | **AVGJORT: NEJ**, nämns inte i Gy25 nivå 2. |
+| Randvinkelsatsen/kordasatsen ingår (2.2, 2.3, 5.4) | **AVGJORT: står på formelbladet** och täcks av "satser om vinklar" i 2b/2c. Ej 2a. |
+| Potensregler/potensekvationer i 2b/2c (2.2) | **Delvis avgjort:** står uttryckligen bara i 2a; i 2b/2c förutsätts potensekvationer. Potenslagarna finns på formelbladet. |
+| Räta linjens ekvation förkunskap i 2b/2c (2.2) | **AVGJORT:** står bara i 2a:s innehåll. Formelbladet (för alla) har k₁k₂ = −1 och ax + by + c = 0. |
+| Formelbladets innehåll (3, 5.5) | **AVGJORT**, se 0.2. Nytt jämfört med antagandet: **abc-formeln, bisektrissatsen, kordasatsen, yttervinkelsatsen, vinkelsumma i n-hörning, prefix, ax + by + c = 0, lådagram.** Standardavvikelseformeln syns inte i texten. |
+| 2c "mer abstrakt algebra och funktionslära" (2.1) | **Delvis avgjort:** det som skiljer 2c från 2b i texten är motivering av logaritmlagar, rotekvationer och programmering. |
+| Kvadratkomplettering/härledning av pq-formeln (2.2) | **Fortfarande ej i texten** (bara "metoder för att lösa andragradsekvationer"). |
+| Totalpoäng, E/C/A-märkning, förmågebeteckningar, andel gemensamma uppgifter (1.4, 1.5, 5.1–5.2, 5.6) | **Fortfarande EJ VERIFIERAT.** Bekräftat är bara att provet är gemensamt och har flerval, kortsvar och fullständiga lösningar. |
+
+### 0.5 Konsekvenser för övningsbanken (genomfört 2026-11-24)
+
+Alla 160 uppgifters `kurser` har granskats mot 0.1. Principen är att en uppgift får nivån bara om allt innehåll den kräver
+ingår i nivån eller är tydlig förkunskap från nivå 1 i samma spår (procent, förändringsfaktor, exponentialfunktioner som
+modeller, linjära ekvationer, area/volym, skala). Exponentialekvationer märks 2a bara i delprov B (digitalt). Följd:
+17 taggar ändrade (16 uppgifter fick 2a, alg-020 med linjär olikhet förlorade 2a), geo-014 (kongruens) skrevs om till likformighet,
+och momentnamnen slogs ihop till färre, konsekventa namn. Bankens saknade 2c-innehåll (rotekvationer, motivering av logaritmlagar,
+programmering) behöver kompletteras separat.
+
+> **Metodnotis för avsnitt 1–5 (äldre sammanställning; avsnitt 0 ovan går före).** Webbhämtning (WebFetch/curl) var blockerad i sessionen för skolverket.se,
+> syllabuswebb.skolverket.se, gy25.se, umu.se, eddler.se m.fl. Avsnitt 1–5 bygger därför på **utdrag ur
 > sökresultat** (WebSearch), inte på helläsning av dokumenten. Punkter märkta **[VERIFIERAT]** förekom
 > konsekvent i flera utdrag, varav minst ett från Skolverket eller gy25.se (kopia av Skolverkets text).
 > **[TROLIGT]** = en källa eller en icke-officiell källa. **[EJ VERIFIERAT]** = egen kunskap eller

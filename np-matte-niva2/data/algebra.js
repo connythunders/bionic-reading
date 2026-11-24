@@ -203,7 +203,7 @@ window.NP_UPPGIFTER.push(
 
   {
     id: "alg-011",
-    kurser: ["2b", "2c"],
+    kurser: ["2a", "2b", "2c"],
     del: "A",
     omrade: "Taluppfattning, aritmetik och algebra",
     moment: "Rationella uttryck",
@@ -227,7 +227,7 @@ window.NP_UPPGIFTER.push(
     kurser: ["2a", "2b", "2c"],
     del: "A",
     omrade: "Taluppfattning, aritmetik och algebra",
-    moment: "Potenser och kvadratrötter",
+    moment: "Potenslagar",
     niva: "E",
     poang: "1/0/0",
     typ: "tal",
@@ -242,10 +242,10 @@ window.NP_UPPGIFTER.push(
 
   {
     id: "alg-013",
-    kurser: ["2b", "2c"],
+    kurser: ["2a", "2b", "2c"],
     del: "A",
     omrade: "Taluppfattning, aritmetik och algebra",
-    moment: "Potenser med rationella exponenter",
+    moment: "Potenslagar",
     niva: "C",
     poang: "0/1/0",
     typ: "tal",
@@ -260,7 +260,7 @@ window.NP_UPPGIFTER.push(
 
   {
     id: "alg-014",
-    kurser: ["2b", "2c"],
+    kurser: ["2a", "2b", "2c"],
     del: "A",
     omrade: "Taluppfattning, aritmetik och algebra",
     moment: "Potenslagar",
@@ -321,7 +321,7 @@ window.NP_UPPGIFTER.push(
 
   {
     id: "alg-017",
-    kurser: ["2b", "2c"],
+    kurser: ["2a", "2b", "2c"],
     del: "A",
     omrade: "Taluppfattning, aritmetik och algebra",
     moment: "Andragradsekvationer",
@@ -382,10 +382,10 @@ window.NP_UPPGIFTER.push(
 
   {
     id: "alg-020",
-    kurser: ["2a", "2b", "2c"],
+    kurser: ["2b", "2c"],
     del: "A",
     omrade: "Taluppfattning, aritmetik och algebra",
-    moment: "Linjära olikheter",
+    moment: "Olikheter",
     niva: "E",
     poang: "1/0/0",
     typ: "val",
@@ -424,7 +424,7 @@ window.NP_UPPGIFTER.push(
 
   {
     id: "alg-022",
-    kurser: ["2b", "2c"],
+    kurser: ["2a", "2b", "2c"],
     del: "A",
     omrade: "Problemlösning",
     moment: "Kvadreringsreglerna",
@@ -582,7 +582,7 @@ window.NP_UPPGIFTER.push(
 
   {
     id: "alg-030",
-    kurser: ["2b", "2c"],
+    kurser: ["2a", "2b", "2c"],
     del: "B",
     omrade: "Taluppfattning, aritmetik och algebra",
     moment: "Exponentialekvationer",
@@ -592,10 +592,10 @@ window.NP_UPPGIFTER.push(
     fraga: "<p>Lös ekvationen \\(3\\cdot 10^{0{,}2x}=50\\). Svara med två decimaler.</p>",
     svar: { varde: 6.11, tolerans: 0.005 },
     ledtradar: [
-      "Dividera först med 3. Använd sedan definitionen av \\(\\lg\\): om \\(10^y=a\\) så är \\(y=\\lg a\\).",
-      "Du kan också lösa ekvationen grafiskt eller med <code>NLös</code> i GeoGebra."
+      "Rita \\(y=3\\cdot 10^{0{,}2x}\\) och \\(y=50\\) i GeoGebra och bestäm skärningspunkten, eller använd <code>NLös</code>.",
+      "2b/2c: Du kan också dividera med 3 och använda definitionen av \\(\\lg\\): om \\(10^y=a\\) så är \\(y=\\lg a\\)."
     ],
-    losning: "<ol><li>Dividera med 3: \\(10^{0{,}2x}=\\frac{50}{3}\\).</li><li>Logaritmera: \\(0{,}2x=\\lg\\frac{50}{3}\\approx 1{,}2218\\).</li><li>\\(x=\\frac{1{,}2218}{0{,}2}\\approx 6{,}11\\).</li><li>I GeoGebra CAS: <code>NLös(3*10^(0.2x)=50)</code> ger samma svar.</li></ol><p><strong>Svar:</strong> \\(x\\approx 6{,}11\\)</p>"
+    losning: "<ol><li>Dividera med 3: \\(10^{0{,}2x}=\\frac{50}{3}\\).</li><li>Logaritmera: \\(0{,}2x=\\lg\\frac{50}{3}\\approx 1{,}2218\\).</li><li>\\(x=\\frac{1{,}2218}{0{,}2}\\approx 6{,}11\\).</li><li>I GeoGebra CAS: <code>NLös(3*10^(0.2x)=50)</code> ger samma svar. Grafiskt: <code>Skärning(3*10^(0.2x), y=50)</code> ger punkten \\((6{,}11;\\;50)\\). (I 2a löses exponentialekvationer bara digitalt; logaritmmetoden i steg 2–3 hör till 2b/2c.)</li></ol><p><strong>Svar:</strong> \\(x\\approx 6{,}11\\)</p>"
   },
 
   {
@@ -627,7 +627,7 @@ window.NP_UPPGIFTER.push(
     kurser: ["2a", "2b", "2c"],
     del: "C",
     omrade: "Taluppfattning, aritmetik och algebra",
-    moment: "Procent",
+    moment: "Procent och förändringsfaktor",
     niva: "E",
     poang: "1/0/0",
     typ: "tal",
@@ -826,7 +826,7 @@ window.NP_UPPGIFTER.push(
 
   {
     id: "alg-042",
-    kurser: ["2b", "2c"],
+    kurser: ["2a", "2b", "2c"],
     del: "C",
     omrade: "Taluppfattning, aritmetik och algebra",
     moment: "Algebraiska bevis",
@@ -893,10 +893,10 @@ window.NP_UPPGIFTER.push(
 
   {
     id: "alg-045",
-    kurser: ["2b", "2c"],
+    kurser: ["2a", "2b", "2c"],
     del: "C",
     omrade: "Taluppfattning, aritmetik och algebra",
-    moment: "Potenser med rationella exponenter",
+    moment: "Potensekvationer",
     niva: "C",
     poang: "0/1/0",
     typ: "redovisning",

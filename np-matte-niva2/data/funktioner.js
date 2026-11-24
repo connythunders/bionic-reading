@@ -274,12 +274,13 @@ window.NP_UPPGIFTER.push(
 {
   "id": "fun-011",
   "kurser": [
+    "2a",
     "2b",
     "2c"
   ],
   "del": "A",
   "omrade": "Funktioner",
-  "moment": "Vinkelräta linjer",
+  "moment": "Räta linjens ekvation",
   "niva": "C",
   "poang": "0/1/0",
   "typ": "val",
@@ -399,7 +400,7 @@ window.NP_UPPGIFTER.push(
   ],
   "del": "A",
   "omrade": "Funktioner",
-  "moment": "Definitions- och värdemängd",
+  "moment": "Funktionsbegreppet",
   "niva": "C",
   "poang": "0/1/0",
   "typ": "val",
@@ -423,6 +424,7 @@ window.NP_UPPGIFTER.push(
 {
   "id": "fun-016",
   "kurser": [
+    "2a",
     "2b",
     "2c"
   ],
@@ -447,12 +449,13 @@ window.NP_UPPGIFTER.push(
 {
   "id": "fun-017",
   "kurser": [
+    "2a",
     "2b",
     "2c"
   ],
   "del": "A",
   "omrade": "Funktioner",
-  "moment": "Linjer och parabler",
+  "moment": "Andragradsfunktioner",
   "niva": "A",
   "poang": "0/1/1",
   "typ": "flera",
@@ -671,7 +674,7 @@ window.NP_UPPGIFTER.push(
   ],
   "del": "B",
   "omrade": "Funktioner",
-  "moment": "Halveringstid",
+  "moment": "Exponentiell modellering",
   "niva": "C",
   "poang": "0/1/0",
   "typ": "tal",
@@ -747,6 +750,7 @@ window.NP_UPPGIFTER.push(
 {
   "id": "fun-028",
   "kurser": [
+    "2a",
     "2b",
     "2c"
   ],
@@ -801,7 +805,7 @@ window.NP_UPPGIFTER.push(
   ],
   "del": "C",
   "omrade": "Funktioner",
-  "moment": "Linjära funktioner",
+  "moment": "Linjära modeller",
   "niva": "E",
   "poang": "1/0/0",
   "typ": "tal",
@@ -826,7 +830,7 @@ window.NP_UPPGIFTER.push(
   ],
   "del": "C",
   "omrade": "Funktioner",
-  "moment": "Tolka linjära modeller",
+  "moment": "Linjära modeller",
   "niva": "E",
   "poang": "1/0/0",
   "typ": "val",
@@ -881,7 +885,7 @@ window.NP_UPPGIFTER.push(
   ],
   "del": "C",
   "omrade": "Funktioner",
-  "moment": "Förändringsfaktor",
+  "moment": "Exponentiell modellering",
   "niva": "C",
   "poang": "0/2/0",
   "typ": "redovisning",
@@ -966,7 +970,7 @@ window.NP_UPPGIFTER.push(
   ],
   "del": "C",
   "omrade": "Funktioner",
-  "moment": "Halveringstid",
+  "moment": "Exponentiell modellering",
   "niva": "E",
   "poang": "1/0/0",
   "typ": "val",
@@ -990,6 +994,7 @@ window.NP_UPPGIFTER.push(
 {
   "id": "fun-037",
   "kurser": [
+    "2a",
     "2b",
     "2c"
   ],
@@ -1042,12 +1047,13 @@ window.NP_UPPGIFTER.push(
 {
   "id": "fun-039",
   "kurser": [
+    "2a",
     "2b",
     "2c"
   ],
   "del": "C",
   "omrade": "Funktioner",
-  "moment": "Parallella linjer",
+  "moment": "Räta linjens ekvation",
   "niva": "C",
   "poang": "1/1/0",
   "typ": "redovisning",
@@ -1095,6 +1101,7 @@ window.NP_UPPGIFTER.push(
 {
   "id": "fun-041",
   "kurser": [
+    "2a",
     "2b",
     "2c"
   ],
@@ -1150,6 +1157,7 @@ window.NP_UPPGIFTER.push(
 {
   "id": "fun-043",
   "kurser": [
+    "2a",
     "2b",
     "2c"
   ],
