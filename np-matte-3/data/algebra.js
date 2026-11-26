@@ -399,7 +399,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "flera",
     fraga: "<p>Bestäm samtliga nollställen till polynomfunktionen \\[p(x)=0{,}5x^3-3x^2+2x+4\\]</p><p>Svara med två decimaler.</p>",
-    svar: { varden: [-0.83, 2, 4.83], tolerans: 0.01 },
+    svar: { varden: [-0.83, 2, 4.83], tolerans: 0.005 },
     ledtradar: [
       "Ett tredjegradspolynom har högst tre nollställen.",
       "I GeoGebra: skriv in funktionen och använd <code>Nollställe(p)</code>, eller <code>Lös(p(x)=0)</code> i CAS."
@@ -417,7 +417,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>Lös ekvationen \\(5e^{0{,}3x}=40\\). Svara med två decimaler.</p>",
-    svar: { varde: 6.93, tolerans: 0.01 },
+    svar: { varde: 6.93, tolerans: 0.005 },
     ledtradar: [
       "Dividera först med 5 så att potensen står ensam.",
       "\\(e^{0{,}3x}=8\\) ger \\(0{,}3x=\\ln 8\\). Eller använd <code>Lös()</code> i CAS."
@@ -453,7 +453,7 @@ window.NP_UPPGIFTER.push(
     poang: "0/1/0",
     typ: "tal",
     fraga: "<p>En kopp kaffe har temperaturen 90 °C när den ställs på ett bord i ett rum med temperaturen 20 °C. Kaffets temperatur \\(T\\) °C efter \\(t\\) minuter kan beskrivas med modellen \\[T(t)=20+70e^{-kt}\\] där \\(k\\) är en konstant. Efter 10 minuter är temperaturen 62 °C.</p><p>Hur lång tid tar det, enligt modellen, från det att kaffet ställs på bordet tills temperaturen är 40 °C? Svara med en decimal.</p>",
-    svar: { varde: 24.5, tolerans: 0.2, enhet: "min" },
+    svar: { varde: 24.5, tolerans: 0.05, enhet: "min" },
     ledtradar: [
       "Bestäm först \\(k\\) med hjälp av att \\(T(10)=62\\).",
       "När du vet \\(k\\): lös \\(T(t)=40\\). I CAS kan du använda <code>Lös()</code> två gånger."
@@ -517,7 +517,7 @@ window.NP_UPPGIFTER.push(
     poang: "0/1/0",
     typ: "flera",
     fraga: "<p>Lös ekvationen \\(|x^2-4|=3\\). Svara exakt eller med två decimaler.</p>",
-    svar: { varden: [-2.6458, -1, 1, 2.6458], tolerans: 0.01 },
+    svar: { varden: [-2.6458, -1, 1, 2.6458], tolerans: 0.005 },
     ledtradar: [
       "Absolutbeloppet är 3 om uttrycket innanför är \\(3\\) eller \\(-3\\).",
       "Grafiskt: rita \\(y=|x^2-4|\\) (i GeoGebra <code>abs(x^2-4)</code>) och \\(y=3\\) och använd <code>Skärning()</code>. Hur många skärningspunkter finns?"
@@ -535,7 +535,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>Elias sätter in 12 000 kr på ett sparkonto i början av varje år under 10 år. Räntesatsen är 3 % per år och oförändrad under hela tiden.</p><p>Hur mycket finns på kontot direkt efter den tionde insättningen? Svara i hela kronor.</p>",
-    svar: { varde: 137567, tolerans: 2, enhet: "kr" },
+    svar: { varde: 137567, tolerans: 0.5, enhet: "kr" },
     ledtradar: [
       "Den första insättningen hinner växa i 9 år, den andra i 8 år, …, den sista i 0 år.",
       "Summan \\(12\\,000+12\\,000\\cdot 1{,}03+\\ldots+12\\,000\\cdot 1{,}03^9\\) är geometrisk med \\(n=10\\) termer."
@@ -553,7 +553,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>En patient tar en tablett med 200 mg av ett läkemedel en gång per dygn. Under ett dygn bryts 60 % av den mängd läkemedel som finns i kroppen ned.</p><p>Hur mycket läkemedel finns i kroppen direkt efter att patienten tagit sin tionde tablett? Svara med en decimal.</p>",
-    svar: { varde: 333.3, tolerans: 0.1, enhet: "mg" },
+    svar: { varde: 333.3, tolerans: 0.05, enhet: "mg" },
     ledtradar: [
       "Efter ett dygn finns 40 % kvar, dvs. mängden multipliceras med \\(0{,}4\\).",
       "Direkt efter tionde tabletten: \\(200+200\\cdot 0{,}4+200\\cdot 0{,}4^2+\\ldots+200\\cdot 0{,}4^9\\)."
@@ -675,7 +675,7 @@ window.NP_UPPGIFTER.push(
     poang: "0/1/0",
     typ: "flera",
     fraga: "<p>Lös ekvationen \\[e^{2x}-5e^{x}+6=0\\] Svara med tre decimaler.</p>",
-    svar: { varden: [0.693, 1.099], tolerans: 0.002 },
+    svar: { varden: [0.693, 1.099], tolerans: 0.0005 },
     ledtradar: [
       "Observera att \\(e^{2x}=(e^x)^2\\). Inför en ny variabel \\(t=e^x\\).",
       "Lös andragradsekvationen \\(t^2-5t+6=0\\) och gå sedan tillbaka till \\(x\\) med naturlig logaritm."
@@ -784,7 +784,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>Lös ekvationen \\(\\ln(2x+1)=3\\). Svara med två decimaler.</p>",
-    svar: { varde: 9.54, tolerans: 0.01 },
+    svar: { varde: 9.54, tolerans: 0.005 },
     ledtradar: [
       "Använd definitionen: \\(\\ln y=3\\Leftrightarrow y=e^3\\).",
       "Lös sedan den linjära ekvationen \\(2x+1=e^3\\)."

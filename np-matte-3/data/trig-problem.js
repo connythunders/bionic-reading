@@ -238,7 +238,7 @@ window.NP_UPPGIFTER.push(
     typ: "tal",
     fraga: "<p>I triangeln \\(ABC\\) är vinkeln \\(A = 40^\\circ\\), vinkeln \\(B = 65^\\circ\\) och sidan \\(BC = 12\\) cm. Bestäm längden \\(x\\) av sidan \\(AC\\). Svara med en decimal.</p><p><em>Figuren är inte skalenlig.</em></p>",
     figur: `<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" fill="none" stroke-width="2" font-family="sans-serif" font-size="15"><polygon points="35,180 269.4,180 203.5,38.6"/><path d="M69,180 A34,34 0 0 0 61,158.1" stroke-width="1.5"/><text x="85.7" y="166.5" fill="currentColor" stroke="none" text-anchor="middle">40°</text><path d="M241.4,180 A28,28 0 0 1 257.6,154.6" stroke-width="1.5"/><text x="228.9" y="159.2" fill="currentColor" stroke="none" text-anchor="middle">65°</text><text x="243.7" y="110.9" fill="currentColor" stroke="none">12 cm</text><text x="114.1" y="108.2" fill="currentColor" stroke="none" text-anchor="end" font-style="italic">x</text><text x="19.9" y="190.3" fill="currentColor" stroke="none" text-anchor="middle">A</text><text x="283.9" y="191.8" fill="currentColor" stroke="none" text-anchor="middle">B</text><text x="209" y="28.6" fill="currentColor" stroke="none" text-anchor="middle">C</text></svg>`,
-    svar: { varde: 16.9, tolerans: 0.1, enhet: "cm" },
+    svar: { varde: 16.9, tolerans: 0.05, enhet: "cm" },
     ledtradar: [
       "Sidan \\(BC\\) står mittemot vinkeln \\(A\\) och sidan \\(AC\\) står mittemot vinkeln \\(B\\).",
       "Sinussatsen: \\(\\dfrac{\\sin A}{a} = \\dfrac{\\sin B}{b}\\)."
@@ -256,7 +256,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/1/0",
     typ: "flera",
     fraga: "<p>I triangeln \\(ABC\\) är \\(BC = 7{,}0\\) cm, \\(AC = 10{,}0\\) cm och vinkeln \\(A = 35^\\circ\\).</p><p>Det finns <strong>två</strong> olika trianglar som uppfyller dessa villkor. Bestäm längden av sidan \\(AB\\) i båda fallen. Svara med en decimal.</p>",
-    svar: { varden: [12.2, 4.2], tolerans: 0.1 },
+    svar: { varden: [12.2, 4.2], tolerans: 0.05 },
     ledtradar: [
       "Bestäm först vinkeln \\(B\\) med sinussatsen. Kom ihåg att \\(\\sin B = \\sin(180^\\circ - B)\\).",
       "Kontrollera att båda vinklarna för \\(B\\) ger en vinkelsumma mindre än \\(180^\\circ\\). Bestäm sedan \\(C\\) och därefter \\(AB\\).",
@@ -276,7 +276,7 @@ window.NP_UPPGIFTER.push(
     typ: "tal",
     fraga: "<p>En segelbåt seglar \\(8{,}5\\) km rakt fram till en vändpunkt. Där ändrar den kurs och seglar \\(6{,}2\\) km till målet. Vinkeln mellan de två sträckorna vid vändpunkten är \\(128^\\circ\\), se figuren.</p><p>Hur långt är det fågelvägen från start till mål? Svara med en decimal.</p><p><em>Figuren är inte skalenlig.</em></p>",
     figur: `<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" fill="none" stroke-width="2" font-family="sans-serif" font-size="15"><line x1="30" y1="150" x2="172.3" y2="124.9"/><line x1="172.3" y1="124.9" x2="221.8" y2="31.8"/><line x1="30" y1="150" x2="221.8" y2="31.8" stroke-dasharray="6 4"/><path d="M156.5,127.7 A16,16 0 0 1 179.8,110.8" stroke-width="1.5"/><text x="153.5" y="104" fill="currentColor" stroke="none" text-anchor="middle">128°</text><text x="102.5" y="150.3" fill="currentColor" stroke="none" text-anchor="middle">8,5 km</text><text x="204.1" y="87.1" fill="currentColor" stroke="none">6,2 km</text><circle cx="30" cy="150" r="3.5" fill="currentColor"/><circle cx="172.3" cy="124.9" r="3.5" fill="currentColor"/><circle cx="221.8" cy="31.8" r="3.5" fill="currentColor"/><text x="28" y="172" fill="currentColor" stroke="none" text-anchor="middle">Start</text><text x="176.3" y="148.9" fill="currentColor" stroke="none" text-anchor="middle">Vändpunkt</text><text x="229.8" y="25.8" fill="currentColor" stroke="none">Mål</text></svg>`,
-    svar: { varde: 13.3, tolerans: 0.1, enhet: "km" },
+    svar: { varde: 13.3, tolerans: 0.05, enhet: "km" },
     ledtradar: [
       "Start, vändpunkt och mål bildar en triangel där två sidor och den mellanliggande vinkeln är kända.",
       "Använd cosinussatsen."
@@ -320,7 +320,7 @@ window.NP_UPPGIFTER.push(
     typ: "tal",
     fraga: "<p>En lantmätare vill bestämma höjden \\(h\\) av ett radiotorn. Hon mäter höjdvinkeln till tornets topp \\(T\\) från två punkter \\(A\\) och \\(B\\) som ligger på en rät linje mot tornets fot, på samma horisontella mark. Avståndet \\(AB = 50\\) m. Från \\(A\\) är höjdvinkeln \\(32^\\circ\\) och från \\(B\\) är den \\(47^\\circ\\).</p><p>Bestäm tornets höjd \\(h\\). Svara i hela meter.</p><p><em>Figuren är inte skalenlig.</em></p>",
     figur: `<svg viewBox="0 0 320 225" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" fill="none" stroke-width="2" font-family="sans-serif" font-size="15"><line x1="10" y1="195" x2="310" y2="195" stroke-width="1.5"/><line x1="295" y1="195" x2="295" y2="52.7" stroke-width="3"/><line x1="67.3" y1="195" x2="295" y2="52.7"/><line x1="162.3" y1="195" x2="295" y2="52.7"/><polyline points="285,195 285,185 295,185" stroke-width="1.5"/><path d="M101.3,195 A34,34 0 0 0 96.2,177" stroke-width="1.5"/><text x="121.2" y="184.6" fill="currentColor" stroke="none" text-anchor="middle">32°</text><path d="M188.3,195 A26,26 0 0 0 180.1,176" stroke-width="1.5"/><text x="204.5" y="181.7" fill="currentColor" stroke="none" text-anchor="middle">47°</text><text x="67.3" y="214" fill="currentColor" stroke="none" text-anchor="middle" font-style="italic">A</text><text x="162.3" y="214" fill="currentColor" stroke="none" text-anchor="middle" font-style="italic">B</text><text x="114.8" y="214" fill="currentColor" stroke="none" text-anchor="middle">50 m</text><text x="295" y="44.7" fill="currentColor" stroke="none" text-anchor="middle" font-style="italic">T</text><text x="285" y="123.9" fill="currentColor" stroke="none" text-anchor="end" font-style="italic">h</text></svg>`,
-    svar: { varde: 75, tolerans: 0.6, enhet: "m" },
+    svar: { varde: 75, tolerans: 0.5, enhet: "m" },
     ledtradar: [
       "Titta på triangeln \\(ABT\\). Bestäm alla dess vinklar – vinkeln vid \\(B\\) är sidovinkel till \\(47^\\circ\\).",
       "Använd sinussatsen i triangeln \\(ABT\\) för att bestämma \\(BT\\). Använd sedan den rätvinkliga triangeln med \\(BT\\) som hypotenusa."
@@ -341,7 +341,7 @@ window.NP_UPPGIFTER.push(
     typ: "tal",
     fraga: "<p>En triangelformad tomt har två sidor som är \\(45\\) m och \\(62\\) m. Vinkeln mellan dessa sidor är \\(105^\\circ\\).</p><p>Bestäm tomtens area. Svara i hela kvadratmeter.</p><p><em>Figuren är inte skalenlig.</em></p>",
     figur: `<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" fill="none" stroke-width="2" font-family="sans-serif" font-size="15"><polygon points="70,170 280.8,170 30.4,22.2"/><path d="M92,170 A22,22 0 0 0 64.3,148.7" stroke-width="1.5"/><text x="96.8" y="140.1" fill="currentColor" stroke="none" text-anchor="middle">105°</text><text x="175.4" y="183" fill="currentColor" stroke="none" text-anchor="middle">62 m</text><text x="42.5" y="103.2" fill="currentColor" stroke="none" text-anchor="end">45 m</text></svg>`,
-    svar: { varde: 1347, tolerans: 1, enhet: "m²" },
+    svar: { varde: 1347, tolerans: 0.5, enhet: "m²" },
     ledtradar: [
       "Två sidor och den mellanliggande vinkeln är kända.",
       "Areasatsen: \\(T = \\dfrac{ab\\sin C}{2}\\)."
@@ -360,7 +360,7 @@ window.NP_UPPGIFTER.push(
     typ: "tal",
     fraga: "<p>En trädgårdsrabatt har formen av en triangel. Två av sidorna är \\(14\\) m och \\(9\\) m och vinkeln mellan dem är \\(72^\\circ\\). Bestäm längden \\(x\\) av den tredje sidan. Svara med en decimal.</p><p><em>Figuren är inte skalenlig.</em></p>",
     figur: `<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" fill="none" stroke-width="2" font-family="sans-serif" font-size="15"><polygon points="40,170 278,170 87.3,24.5"/><path d="M64,170 A24,24 0 0 0 47.4,147.2" stroke-width="1.5"/><text x="74" y="150.3" fill="currentColor" stroke="none" text-anchor="middle">72°</text><text x="159" y="183" fill="currentColor" stroke="none" text-anchor="middle">14 m</text><text x="56" y="99.8" fill="currentColor" stroke="none" text-anchor="end">9 m</text><text x="187.5" y="95.9" fill="currentColor" stroke="none" font-style="italic">x</text></svg>`,
-    svar: { varde: 14.1, tolerans: 0.1, enhet: "m" },
+    svar: { varde: 14.1, tolerans: 0.05, enhet: "m" },
     ledtradar: [
       "Två sidor och den mellanliggande vinkeln är kända – vilken sats ger den tredje sidan?",
       "\\(x^2 = 14^2 + 9^2 - 2\\cdot 14\\cdot 9\\cos 72^\\circ\\)"
@@ -378,7 +378,7 @@ window.NP_UPPGIFTER.push(
     poang: "0/1/0",
     typ: "tal",
     fraga: "<p>En triangel har sidorna \\(4\\) cm, \\(6\\) cm och \\(9\\) cm. Bestäm triangelns största vinkel. Svara med en decimal.</p>",
-    svar: { varde: 127.2, tolerans: 0.2, enhet: "°" },
+    svar: { varde: 127.2, tolerans: 0.05, enhet: "°" },
     ledtradar: [
       "Den största vinkeln står mittemot den längsta sidan.",
       "Lös ut \\(\\cos v\\) ur cosinussatsen \\(9^2 = 4^2 + 6^2 - 2\\cdot 4\\cdot 6\\cos v\\). Ett negativt värde betyder att vinkeln är trubbig."
@@ -494,7 +494,7 @@ window.NP_UPPGIFTER.push(
     typ: "tal",
     fraga: "<p>Två fartyg lämnar samma hamn samtidigt. Fartyg A håller kursen \\(040^\\circ\\) med farten 18 knop och fartyg B håller kursen \\(155^\\circ\\) med farten 24 knop. Kurser mäts medurs från norr och 1 knop = 1 nautisk mil per timme.</p><p>Hur långt från varandra är fartygen efter 1,5 timmar? Svara i nautiska mil med en decimal.</p><p><em>Figuren är inte skalenlig.</em></p>",
     figur: `<svg viewBox="0 0 300 250" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" fill="none" stroke-width="2" font-family="sans-serif" font-size="15"><line x1="100" y1="105" x2="100" y2="35" stroke-width="1.5"/><polyline points="94,41 100,35 106,41" stroke-width="1.5"/><text x="100" y="28" fill="currentColor" stroke="none" text-anchor="middle">N</text><line x1="100" y1="105" x2="162.5" y2="30.5"/><line x1="100" y1="105" x2="154.8" y2="222.5"/><line x1="162.5" y1="30.5" x2="154.8" y2="222.5" stroke-dasharray="6 4"/><path d="M100,83 A22,22 0 0 1 114.1,88.1" stroke-width="1.5"/><text x="113" y="74" fill="currentColor" stroke="none" text-anchor="middle">40°</text><path d="M100,55 A50,50 0 0 1 121.1,150.3" stroke-width="1.5"/><text x="124" y="120" fill="currentColor" stroke="none" text-anchor="middle">155°</text><circle cx="100" cy="105" r="3.5" fill="currentColor"/><circle cx="162.5" cy="30.5" r="3.5" fill="currentColor"/><circle cx="154.8" cy="222.5" r="3.5" fill="currentColor"/><text x="90" y="123" fill="currentColor" stroke="none" text-anchor="end">Hamn</text><text x="170.5" y="34.5" fill="currentColor" stroke="none">Fartyg A</text><text x="164.8" y="227.5" fill="currentColor" stroke="none">Fartyg B</text></svg>`,
-    svar: { varde: 53.4, tolerans: 0.2, enhet: "nautiska mil" },
+    svar: { varde: 53.4, tolerans: 0.05, enhet: "nautiska mil" },
     ledtradar: [
       "Hur långt har varje fartyg färdats efter 1,5 timmar?",
       "Vinkeln mellan fartygens kurser är skillnaden mellan kursvinklarna: \\(155^\\circ - 40^\\circ\\).",
@@ -663,7 +663,7 @@ window.NP_UPPGIFTER.push(
     poang: "1/0/0",
     typ: "tal",
     fraga: "<p>Ett lands utsläpp av växthusgaser beskrivs med modellen \\[U(t) = 52\\cdot 0{,}96^t\\] där \\(U\\) är utsläppen i miljoner ton koldioxidekvivalenter per år och \\(t\\) är tiden i år efter år 2025.</p><p>Hur många år tar det enligt modellen innan utsläppen har halverats jämfört med år 2025? Svara med en decimal.</p>",
-    svar: { varde: 17.0, tolerans: 0.1, enhet: "år" },
+    svar: { varde: 17.0, tolerans: 0.05, enhet: "år" },
     ledtradar: [
       "Hälften av utsläppen år 2025 är \\(26\\) miljoner ton.",
       "Lös ekvationen \\(52\\cdot 0{,}96^t = 26\\), t.ex. med <code>Lös()</code> i GeoGebra."
@@ -705,7 +705,7 @@ window.NP_UPPGIFTER.push(
     poang: "0/1/0",
     typ: "tal",
     fraga: "<p>Utsläppstakten från en industri beskrivs av \\(u(t) = 40 - 0{,}05t^2\\), där \\(u\\) är i tusen ton per år och \\(t\\) är tiden i år. För att uppskatta de totala utsläppen under perioden \\(0 \\le t \\le 20\\) har en elev skrivit följande Python-program:</p><pre><code>def u(t):\n    return 40 - 0.05 * t**2\n\na = 0\nb = 20\nn = 4\nh = (b - a) / n\nsumma = 0\nfor i in range(n):\n    x1 = a + i * h\n    x2 = x1 + h\n    summa = summa + (u(x1) + u(x2)) / 2 * h\nprint(summa)</code></pre><p>Hur stor är skillnaden mellan det värde som programmet skriver ut och det exakta värdet av de totala utsläppen? Svara i tusen ton med två decimaler.</p>",
-    svar: { varde: 4.17, tolerans: 0.02, enhet: "tusen ton" },
+    svar: { varde: 4.17, tolerans: 0.005, enhet: "tusen ton" },
     ledtradar: [
       "Programmet delar intervallet i <code>n = 4</code> delar och beräknar arean av fyra parallelltrapets (trapetsmetoden).",
       "Det exakta värdet är \\(\\displaystyle\\int_0^{20} u(t)\\,dt\\). Använd <code>Integral()</code>."
@@ -785,7 +785,7 @@ window.NP_UPPGIFTER.push(
 
   {
     id: "tp-036",
-    kurser: ["3b", "3c"],
+    kurser: ["3b"],
     del: "C",
     omrade: "Problemlösning",
     moment: "Programmering – simulering",

@@ -132,7 +132,7 @@ window.NP_UPPGIFTER.push(
     "\\(f'(x)\\lt 0\\) betyder att funktionen är <em>avtagande</em>.",
     "Läs av mellan vilka \\(x\\)-värden grafen går nedåt (från vänster till höger)."
   ],
-  "losning": "<p>Derivatan är negativ där grafen är avtagande. Grafen har en maximipunkt i \\(x=-1\\) och en minimipunkt i \\(x=1\\) och går nedåt däremellan.</p><p>Svar: \\(-1\\lt x\\lt 1\\)</p><p>Observera att \\(x\\lt 0\\) är de \\(x\\) där grafen ligger ovanför \\(x\\)-axeln för \\(x \\lt 0\\) – men tecknet på \\(f(x)\\) säger inget om tecknet på \\(f'(x)\\).</p>"
+  "losning": "<p>Derivatan är negativ där grafen är avtagande. Grafen har en maximipunkt i \\(x=-1\\) och en minimipunkt i \\(x=1\\) och går nedåt däremellan.</p><p>Svar: \\(-1\\lt x\\lt 1\\)</p><p>Observera att grafens nollställen (\\(x\\approx\\pm 1{,}7\\)) och var grafen ligger ovanför eller under \\(x\\)-axeln, dvs. tecknet på \\(f(x)\\), inte säger något om tecknet på \\(f'(x)\\).</p>"
 },
 {
   "id": "der-006",
@@ -615,7 +615,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>En kopp kaffe svalnar. Kaffets temperatur \\(T\\) °C efter \\(t\\) minuter kan beskrivas med modellen</p><p>\\[T(t)=20+65e^{-0{,}08t}\\]</p><p>Bestäm \\(T'(10)\\) och avrunda till två decimaler.</p>",
   "svar": {
     "varde": -2.34,
-    "tolerans": 0.01,
+    "tolerans": 0.005,
     "enhet": "°C/min"
   },
   "ledtradar": [
@@ -643,7 +643,7 @@ window.NP_UPPGIFTER.push(
       1.68,
       2.85
     ],
-    "tolerans": 0.011
+    "tolerans": 0.005
   },
   "ledtradar": [
     "Rita grafen i GeoGebra och använd kommandot <code>Extrempunkt(f)</code>.",
@@ -666,7 +666,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Funktionen \\(f\\) ges av \\(f(x)=3e^{0{,}4x}-x^2\\).</p><p>Bestäm \\(f''(2)\\) med två decimaler.</p>",
   "svar": {
     "varde": -0.93,
-    "tolerans": 0.01
+    "tolerans": 0.005
   },
   "ledtradar": [
     "Använd <code>Derivata(f, 2)</code> i GeoGebra för att få andraderivatan direkt.",
@@ -742,7 +742,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Funktionen \\(f\\) ges av \\(f(x)=2^x+x^2\\).</p><p>Tangenten till grafen i punkten där \\(x=1\\) skär \\(x\\)-axeln. Bestäm skärningspunktens \\(x\\)-koordinat med tre decimaler.</p>",
   "svar": {
     "varde": 0.114,
-    "tolerans": 0.001
+    "tolerans": 0.0005
   },
   "ledtradar": [
     "Använd <code>Tangent(1, f)</code> i GeoGebra för att få tangentens ekvation.",
@@ -889,7 +889,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Linjen \\(y=3x\\) är tangent till kurvan \\(y=e^{kx}\\), där \\(k\\gt 0\\) är en konstant.</p><p>Bestäm \\(k\\) med två decimaler.</p>",
   "svar": {
     "varde": 1.1,
-    "tolerans": 0.01
+    "tolerans": 0.005
   },
   "ledtradar": [
     "I tangeringspunkten \\(x=a\\) ska kurvan och linjen ha samma \\(y\\)-värde <em>och</em> samma lutning.",
@@ -985,7 +985,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Värdet \\(V\\) kr av en begagnad mobiltelefon \\(t\\) år efter inköpet beskrivs med modellen</p><p>\\[V(t)=1\\,500\\cdot 0{,}92^{t}\\]</p><p>Beräkna \\(V'(2)\\) och avrunda till heltal.</p>",
   "svar": {
     "varde": -106,
-    "tolerans": 1,
+    "tolerans": 0.5,
     "enhet": "kr/år"
   },
   "ledtradar": [
@@ -1009,7 +1009,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>En boll kastas rakt upp. Bollens höjd \\(y\\) meter över marken efter \\(t\\) sekunder ges av</p><p>\\[y(t)=1{,}5+12t-4{,}9t^2\\]</p><p>Bestäm bollens största höjd. Svara med två decimaler.</p>",
   "svar": {
     "varde": 8.85,
-    "tolerans": 0.01,
+    "tolerans": 0.005,
     "enhet": "m"
   },
   "ledtradar": [

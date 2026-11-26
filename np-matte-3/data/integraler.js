@@ -330,8 +330,8 @@ window.NP_UPPGIFTER.push(
   "typ": "tal",
   "fraga": "<p>Kurvan \\(y=x^2\\) och linjen \\(y=2x\\) begränsar ett område.</p><p>Beräkna områdets area. Svara exakt, t.ex. i bråkform.</p>",
   "svar": {
-    "varde": 1.333333,
-    "tolerans": 0.002,
+    "varde": 1.3333333333,
+    "tolerans": 0.0005,
     "enhet": "a.e."
   },
   "ledtradar": [
@@ -405,7 +405,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Beräkna \\[\\int_0^3\\left(e^{0{,}5x}+x^2\\right)dx\\] Svara med två decimaler.</p>",
   "svar": {
     "varde": 15.96,
-    "tolerans": 0.006
+    "tolerans": 0.005
   },
   "ledtradar": [
     "I GeoGebra kan du definiera funktionen och använda kommandot <code>Integral(f, a, b)</code>.",
@@ -428,7 +428,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Kurvan \\(y=6x-x^2-5\\) och \\(x\\)-axeln begränsar ett område.</p><p>Bestäm områdets area. Svara med två decimaler.</p>",
   "svar": {
     "varde": 10.67,
-    "tolerans": 0.006,
+    "tolerans": 0.005,
     "enhet": "a.e."
   },
   "ledtradar": [
@@ -480,7 +480,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>Funktionen \\(F\\) är en primitiv funktion till \\(f(x)=3e^{0{,}4x}+2x\\) och \\(F(0)=10\\).</p><p>Bestäm \\(F(5)\\). Svara med en decimal.</p>",
   "svar": {
     "varde": 82.9,
-    "tolerans": 0.06
+    "tolerans": 0.05
   },
   "ledtradar": [
     "Bestäm samtliga primitiva funktioner för hand eller med CAS-kommandot <code>Integral(f)</code>.",
@@ -503,7 +503,7 @@ window.NP_UPPGIFTER.push(
   "fraga": "<p>En bil accelererar från stillastående. Bilens hastighet \\(v\\) m/s efter \\(t\\) sekunder kan beskrivas med \\[v(t)=30\\left(1-e^{-0{,}25t}\\right)\\]</p><p>Hur lång sträcka färdas bilen under de första 10 sekunderna? Svara i hela meter.</p>",
   "svar": {
     "varde": 190,
-    "tolerans": 0.6,
+    "tolerans": 0.5,
     "enhet": "m"
   },
   "ledtradar": [
@@ -662,8 +662,8 @@ window.NP_UPPGIFTER.push(
   "typ": "tal",
   "fraga": "<p>Beräkna \\[\\int_1^3\\left(4x^3-\\frac{2}{x^2}\\right)dx\\] Svara exakt eller med två decimaler.</p>",
   "svar": {
-    "varde": 78.6667,
-    "tolerans": 0.006
+    "varde": 78.6666667,
+    "tolerans": 0.005
   },
   "ledtradar": [
     "Skriv om \\(\\dfrac{2}{x^2}\\) som \\(2x^{-2}\\).",
