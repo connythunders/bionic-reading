@@ -25,6 +25,7 @@ on:
       - 'mattesteget/**'
       - 'np-matte-niva2/**'
       - 'np-matte-niva1/**'
+      - 'np-matte-3/**'
       - '.github/workflows/deploy-larplattform.yml'
       # Driftsätt även när statiska sidor/data i roten ändras
       - '*.html'
@@ -72,7 +73,7 @@ jobs:
 
           # Befintliga statiska filer i roten
           find . -maxdepth 1 \( -name "*.html" -o -name "*.json" \) ! -name "package*.json" -exec cp {} _site/ \;
-          for dir in css js fonts vendor quiz-games np-engelska np-engelska-gy riksdag-skola lashjalpen workshop-app ai-laromedel ai-kompetens religion-laromedel recept-app mattetraning mattesteget np-matte-niva2 np-matte-niva1; do
+          for dir in css js fonts vendor quiz-games np-engelska np-engelska-gy riksdag-skola lashjalpen workshop-app ai-laromedel ai-kompetens religion-laromedel recept-app mattetraning mattesteget np-matte-niva2 np-matte-niva1 np-matte-3; do
             [ -d "$dir" ] && cp -r "$dir" _site/ || true
           done
           [ -f CNAME ] && cp CNAME _site/
@@ -88,6 +89,7 @@ jobs:
           # NP Matematik nivå 2: interna arbetsfiler behövs inte på sajten
           rm -f _site/np-matte-niva2/data/*.md _site/np-matte-niva2/data/*.txt
           rm -f _site/np-matte-niva1/data/*.md _site/np-matte-niva1/data/*.txt
+          rm -f _site/np-matte-3/data/*.md _site/np-matte-3/data/*.txt
 
           # React-appens build-output
           cp -r larplattform/dist/. _site/larplattform/
