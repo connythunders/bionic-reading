@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Ordklassjakten: ett rymdäventyr där elever i åk 8 tränar substantiv, verb, adjektiv och pronomen genom sex olika spellägen.">
+<title>Ordklassjakten</title>
+<style>
+:root{
+  --bg:#0d1030; --bg2:#1a1f4d; --surface:#1d2357; --surface-2:#262d6b;
+  --text:#f2f4ff; --soft:#b9bfe8; --line:#3a4290;
+  --accent:#ffcf3f; --accent-text:#1b1b2f;
+  --good:#5ee39a; --bad:#ff7a7a; --warn:#ffb347;
+  --subst:#4fa3ff; --verb:#ff6b5e; --adj:#46d68c; --pron:#c38bff; --x:#9aa0c3;
+  --shadow:0 6px 24px rgba(0,0,0,.35); --on-c:#10142e;
+  --r:18px;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#eef1ff; --bg2:#dfe5ff; --surface:#ffffff; --surface-2:#f1f3ff;
+    --text:#1b1f45; --soft:#55608f; --line:#c9cff0;
+    --accent:#6c3df5; --accent-text:#ffffff;
+    --good:#16924f; --bad:#d23b3b; --warn:#c86b00;
+    --subst:#1f6fd6; --verb:#d8402f; --adj:#14935a; --pron:#8a3fe0; --x:#6b7196;
+    --shadow:0 4px 18px rgba(30,40,110,.12); --on-c:#ffffff;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#eef1ff; --bg2:#dfe5ff; --surface:#ffffff; --surface-2:#f1f3ff;
+  --text:#1b1f45; --soft:#55608f; --line:#c9cff0;
+  --accent:#6c3df5; --accent-text:#ffffff;
+  --good:#16924f; --bad:#d23b3b; --warn:#c86b00;
+  --subst:#1f6fd6; --verb:#d8402f; --adj:#14935a; --pron:#8a3fe0; --x:#6b7196;
+  --shadow:0 4px 18px rgba(30,40,110,.12); --on-c:#ffffff;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(1200px 600px at 70% -10%,var(--bg2),var(--bg));background-color:var(--bg);color:var(--text);font:18px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:12px 16px 40px}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3{line-height:1.2}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 0 14px}
+.logo{font-weight:900;font-size:1.45rem;letter-spacing:.5px;margin-right:auto;display:flex;align-items:center;gap:8px}
+.logo span{background:linear-gradient(90deg,var(--subst),var(--verb),var(--adj),var(--pron));-webkit-background-clip:text;background-clip:text;color:transparent}
+.pill{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:700;font-size:.9rem;white-space:nowrap}
+.iconbtn{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:4px 10px}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.btn{background:var(--accent);color:var(--accent-text);border:0;border-radius:14px;padding:12px 22px;font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.btn:hover{filter:brightness(1.08)} .btn:active{transform:translateY(3px);box-shadow:none}
+.btn.ghost{background:var(--surface-2);color:var(--text);border:2px solid var(--line);box-shadow:none}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--soft)}
+.hidden{display:none!important}
+
+/* Hub */
+.hero{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.hero h1{margin:0 0 6px;font-size:1.7rem}
+.hero p{margin:0}
+.crew{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+.mate{border-radius:16px;padding:10px;text-align:center;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 14%,var(--surface))}
+.mate .em{font-size:2rem;display:block;animation:bob 3s ease-in-out infinite}
+.mate:nth-child(2) .em{animation-delay:.4s}.mate:nth-child(3) .em{animation-delay:.8s}.mate:nth-child(4) .em{animation-delay:1.2s}
+.mate b{display:block;color:var(--c)} .mate small{color:var(--soft);font-size:.78rem;line-height:1.2;display:block}
+@keyframes bob{50%{transform:translateY(-5px)}}
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;margin-top:16px}
+.mode{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);transition:transform .15s,border-color .15s;position:relative;overflow:hidden}
+.mode:hover{transform:translateY(-4px);border-color:var(--accent)}
+.mode .ic{font-size:2.3rem}
+.mode h3{margin:4px 0;font-size:1.15rem}
+.mode p{margin:0;color:var(--soft);font-size:.9rem}
+.mode .best{position:absolute;top:12px;right:14px;font-size:.8rem;font-weight:800;color:var(--accent)}
+.mode .lvl{display:inline-block;margin-top:8px;font-size:.75rem;font-weight:800;border-radius:99px;padding:2px 10px;background:var(--surface-2);color:var(--soft)}
+.rank{display:flex;align-items:center;gap:12px;margin-top:14px}
+.xpbar{flex:1;height:14px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--subst),var(--pron));transition:width .6s}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.stat{border-radius:14px;padding:10px;background:var(--surface-2);border-left:6px solid var(--c)}
+.stat b{font-size:1.3rem;display:block}
+.stat small{color:var(--soft)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.badge{border:2px dashed var(--line);border-radius:12px;padding:6px 10px;font-size:.85rem;color:var(--soft)}
+.badge.got{border-style:solid;border-color:var(--accent);color:var(--text);background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+
+/* Game common */
+.gamehead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.gamehead h2{margin:0 auto 0 0;font-size:1.3rem}
+.hearts{font-size:1.2rem;letter-spacing:2px}
+.timer{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-bottom:12px;border:1px solid var(--line)}
+.timer i{display:block;height:100%;background:linear-gradient(90deg,var(--good),var(--warn),var(--bad));transition:width .2s linear}
+.fb{min-height:1.6em;font-weight:700;margin:10px 0}
+.fb.good{color:var(--good)} .fb.bad{color:var(--bad)}
+.classbtns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.cbtn{border:0;border-radius:14px;padding:14px 6px;font-weight:900;color:var(--on-c);background:var(--c);box-shadow:0 4px 0 rgba(0,0,0,.3);font-size:1rem;}
+.cbtn small{display:block;font-weight:600;font-size:.72rem;opacity:.9}
+.cbtn:active{transform:translateY(3px);box-shadow:none}
+.cbtn.sel{outline:4px solid var(--text);outline-offset:2px}
+.c-subst{--c:var(--subst)} .c-verb{--c:var(--verb)} .c-adj{--c:var(--adj)} .c-pron{--c:var(--pron)} .c-x{--c:var(--x)}
+.combo{font-weight:900;color:var(--accent)}
+
+/* Ordregn */
+#rainField{position:relative;height:min(58vh,460px);border-radius:var(--r);border:2px solid var(--line);background:linear-gradient(180deg,color-mix(in srgb,var(--bg2) 60%,transparent),transparent),var(--surface);overflow:hidden}
+#rainField .ground{position:absolute;left:0;right:0;bottom:0;height:8px;background:repeating-linear-gradient(90deg,var(--bad) 0 18px,transparent 18px 30px);opacity:.7}
+.drop{position:absolute;transform:translateX(-50%);padding:6px 14px;border-radius:999px;background:var(--surface-2);border:2px solid var(--line);font-weight:800;white-space:nowrap;box-shadow:var(--shadow);font-size:1.05rem}
+.drop::before{content:"☄️";position:absolute;top:-18px;left:50%;transform:translateX(-50%) rotate(180deg);font-size:.9rem;opacity:.8}
+.drop.target{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 35%,transparent),var(--shadow);z-index:2}
+.drop.pop{animation:pop .45s forwards}
+.drop.miss{animation:miss .6s forwards}
+@keyframes pop{to{transform:translateX(-50%) scale(1.6);opacity:0}}
+@keyframes miss{30%{transform:translateX(-58%)}60%{transform:translateX(-42%)}to{opacity:0}}
+.floater{position:absolute;font-weight:900;pointer-events:none;animation:up 1s forwards;transform:translateX(-50%);z-index:3}
+@keyframes up{to{transform:translate(-50%,-50px);opacity:0}}
+
+/* Sentence modes */
+.sentence{font-size:1.45rem;line-height:2.4;margin:14px 0;text-align:center}
+.tok{display:inline-block;padding:0 8px;margin:0 2px;border-radius:10px;border:2px solid transparent;cursor:pointer;transition:background .15s,transform .1s;user-select:none}
+.tok:hover{background:var(--surface-2)}
+.tok:active{transform:scale(.95)}
+.tok.chosen{background:color-mix(in srgb,var(--accent) 28%,transparent);border-color:var(--accent)}
+.tok.ok{background:color-mix(in srgb,var(--good) 25%,transparent);border-color:var(--good)}
+.tok.wrong{background:color-mix(in srgb,var(--bad) 25%,transparent);border-color:var(--bad);text-decoration:line-through}
+.tok.missed{border:2px dashed var(--warn)}
+.tok.painted{color:var(--on-c);background:var(--c)}
+.tok.locked{cursor:default}
+.punct{display:inline-block;margin-left:-4px}
+.mission{font-size:1.1rem;text-align:center}
+.mission b{padding:2px 10px;border-radius:8px;color:var(--on-c);background:var(--c)}
+.legend{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;font-size:.8rem;margin-top:6px}
+.legend span{padding:2px 8px;border-radius:8px;color:var(--on-c);background:var(--c)}
+
+/* Blixt */
+.bigword{font-size:clamp(1.8rem,7vw,3rem);font-weight:900;text-align:center;margin:20px 0 6px}
+.claim{text-align:center;font-size:1.2rem}
+.claim b{color:var(--on-c);background:var(--c);padding:2px 12px;border-radius:10px}
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.tf button{font-size:1.2rem;padding:18px}
+
+/* Boss */
+.arena{display:grid;grid-template-columns:1fr;gap:12px}
+.bossrow{display:flex;align-items:center;gap:14px}
+#bossSvg{width:120px;height:120px;flex:none;transition:transform .2s}
+#bossSvg.hit{animation:hit .4s}
+#bossSvg.attack{animation:attack .5s}
+@keyframes hit{20%{transform:translateX(10px) rotate(8deg);filter:brightness(2)}60%{transform:translateX(-6px)}}
+@keyframes attack{40%{transform:scale(1.25) translateY(10px)}}
+.hp{flex:1}
+.hp .bar{height:18px;border-radius:99px;background:var(--surface-2);border:2px solid var(--line);overflow:hidden}
+.hp .bar i{display:block;height:100%;background:linear-gradient(90deg,#ff3d6e,#ff9a3d);transition:width .4s}
+.bossq{font-size:1.15rem}
+.opts{display:grid;gap:10px;margin-top:12px;grid-template-columns:1fr 1fr}
+.opt{text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-weight:600}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 20%,var(--surface-2))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 20%,var(--surface-2));animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .3s}
+.why{background:var(--surface-2);border-left:5px solid var(--accent);padding:10px 14px;border-radius:10px;margin-top:10px;font-size:.95rem}
+
+/* Theory */
+.theory{display:grid;gap:14px}
+.tcard{border-left:8px solid var(--c)}
+.tcard h3{margin:0 0 6px;color:var(--c);display:flex;align-items:center;gap:8px}
+.tcard ul{margin:6px 0;padding-left:20px}
+.tcard li{margin:3px 0}
+.test{display:inline-block;background:var(--surface-2);border-radius:10px;padding:4px 10px;margin:3px 4px 3px 0;font-size:.92rem}
+table.forms{border-collapse:collapse;margin:8px 0;font-size:.92rem;width:100%}
+table.forms th,table.forms td{border:1px solid var(--line);padding:5px 8px;text-align:left}
+table.forms th{background:var(--surface-2)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 14px;font-weight:700}
+.tab.on{background:var(--c);color:var(--on-c);border-color:var(--c)}
+
+/* Result */
+.result{text-align:center}
+.result .big{font-size:3.5rem}
+.result h2{margin:6px 0}
+.resstars{font-size:2.2rem;letter-spacing:6px;color:var(--accent)}
+.reslist{text-align:left;max-height:240px;overflow:auto;margin:12px auto;max-width:560px;font-size:.92rem}
+.reslist div{padding:4px 8px;border-bottom:1px solid var(--line)}
+
+/* Toast & confetti */
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(calc(100% + 60px));visibility:hidden;background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:10px 18px;font-weight:800;z-index:50;transition:transform .35s;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+#toast.show{transform:translateX(-50%) translateY(0);visibility:visible}
+.confetti{position:fixed;top:-20px;width:10px;height:14px;z-index:40;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+.kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;font-size:.8rem;background:var(--surface-2)}
+@media (max-width:640px){
+  body{font-size:16px}
+  .crew,.statgrid{grid-template-columns:repeat(2,1fr)}
+  .opts{grid-template-columns:1fr}
+  .sentence{font-size:1.2rem;line-height:2.3}
+  .classbtns{gap:6px}
+  .cbtn{padding:12px 2px;font-size:.9rem}
+  .cbtn small{display:none}
+  #bossSvg{width:84px;height:84px}
+  .hide-sm{display:none}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">🚀 <span>Ordklassjakten</span></div>
+    <span class="pill" id="rankPill">Kadett</span>
+    <span class="pill" id="xpPill">0 XP</span>
+    <button class="iconbtn" id="soundBtn" title="Ljud på/av" aria-label="Ljud på/av">🔊</button>
+    <button class="iconbtn" id="themeBtn" title="Byt ljust/mörkt" aria-label="Byt ljust/mörkt tema">🌓</button>
+  </header>
+  <main id="app"></main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="ordklassjakten-data.js"></script>
+<script>
+"use strict";
+/* ============ DATA ============ */
+const D = window.ORDKLASS_DATA || {words:[],sentences:[],quiz:[],pronTypes:[]};
+const CL = {
+  subst:{name:"Substantiv",short:"Subst",em:"📦",crew:"Kapten Sak",hint:"Saker, djur, personer, platser, känslor"},
+  verb:{name:"Verb",short:"Verb",em:"⚡",crew:"Ingenjör Gör",hint:"Vad någon gör eller vad som händer"},
+  adj:{name:"Adjektiv",short:"Adj",em:"🎨",crew:"Pilot Hur",hint:"Hur något eller någon är"},
+  pron:{name:"Pronomen",short:"Pron",em:"🎭",crew:"Agent Ersätt",hint:"Ord som ersätter eller pekar ut"},
+  x:{name:"Annan ordklass",short:"Annat",em:"⬜",crew:"",hint:"Adverb, prepositioner, konjunktioner m.m."}
+};
+const MAIN = ["subst","verb","adj","pron"];
+const KEYMAP = {"1":"subst","s":"subst","2":"verb","v":"verb","3":"adj","a":"adj","4":"pron","p":"pron","5":"x","x":"x"};
+
+const parsed = D.sentences.map(s=>s.trim().split(/\s+/).map(t=>{
+  const i=t.lastIndexOf("|");
+  return i>0?{w:t.slice(0,i),k:t.slice(i+1)}:{w:t,k:null};
+})).filter(arr=>arr.some(t=>t.k));
+
+/* ============ STATE ============ */
+const SKEY="ordklassjakten-v1";
+let S = {xp:0,best:{},stats:{subst:[0,0],verb:[0,0],adj:[0,0],pron:[0,0]},badges:[],sound:true,theme:null};
+try{const raw=localStorage.getItem(SKEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(SKEY,JSON.stringify(S));}catch(e){}}
+function track(k,ok){ if(!S.stats[k]) return; S.stats[k][1]++; if(ok) S.stats[k][0]++; }
+
+const RANKS=[[0,"Kadett"],[150,"Rymdlärling"],[400,"Navigatör"],[800,"Pilot"],[1400,"Löjtnant"],[2200,"Kapten"],[3300,"Kommendör"],[5000,"Amiral av Grammatica"]];
+function rankOf(xp){let r=RANKS[0],n=null;for(let i=0;i<RANKS.length;i++){if(xp>=RANKS[i][0]){r=RANKS[i];n=RANKS[i+1]||null;}}return {name:r[1],min:r[0],next:n};}
+function addXP(n){
+  const before=rankOf(S.xp).name; S.xp+=Math.max(0,Math.round(n)); save(); updateTop();
+  const after=rankOf(S.xp).name; if(after!==before){toast("🎖️ Befordran! Du är nu "+after);confetti();sfx("level");}
+}
+const BADGES=[
+  {id:"first",em:"🌱",name:"Första uppdraget"},
+  {id:"rain30",em:"☄️",name:"Meteorstoppare (30 ord i Ordregn)"},
+  {id:"combo10",em:"🔥",name:"10 i rad"},
+  {id:"scanPerfect",em:"🔍",name:"Felfri skanning"},
+  {id:"painter",em:"🎨",name:"Mästerfärgare"},
+  {id:"boss",em:"👾",name:"Besegrade Ordslukaren"},
+  {id:"blixt20",em:"⚡",name:"Blixtsnabb (20 poäng)"},
+  {id:"theory",em:"📚",name:"Läst manualen"}
+];
+function badge(id){ if(S.badges.includes(id)) return; S.badges.push(id); save(); const b=BADGES.find(x=>x.id===id); if(b){toast(b.em+" Ny medalj: "+b.name);sfx("level");} }
+
+/* ============ HELPERS ============ */
+const $=s=>document.querySelector(s);
+const app=$("#app");
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let cleanup=[]; // functions to call when leaving a screen
+function leave(){cleanup.forEach(f=>{try{f()}catch(e){}});cleanup=[];}
+function on(el,ev,fn,opt){el.addEventListener(ev,fn,opt);cleanup.push(()=>el.removeEventListener(ev,fn,opt));}
+function toast(msg){const t=$("#toast");t.innerHTML=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2600);}
+function confetti(n=60){
+  const cols=["var(--subst)","var(--verb)","var(--adj)","var(--pron)","var(--accent)"];
+  for(let i=0;i<n;i++){const c=document.createElement("div");c.className="confetti";c.style.left=Math.random()*100+"vw";c.style.background=rnd(cols);c.style.animationDuration=(1.6+Math.random()*1.8)+"s";c.style.animationDelay=Math.random()*.4+"s";document.body.appendChild(c);setTimeout(()=>c.remove(),4000);}
+}
+function sentenceText(toks){return toks.map((t,i)=>t.k?(i?" ":"")+t.w:t.w).join("");}
+
+/* ============ SOUND ============ */
+let actx=null;
+function sfx(type){
+  if(!S.sound) return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const seq={good:[[660,.07],[880,.09]],bad:[[220,.15],[160,.18]],pop:[[1000,.05]],level:[[523,.1],[659,.1],[784,.1],[1047,.2]],tick:[[1200,.03]],boss:[[110,.25],[90,.3]]}[type]||[[440,.1]];
+    let t=actx.currentTime;
+    seq.forEach(([f,d])=>{const o=actx.createOscillator(),g=actx.createGain();o.type=type==="bad"||type==="boss"?"sawtooth":"triangle";o.frequency.value=f;g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+d+.02);t+=d*.9;});
+  }catch(e){}
+}
+
+/* ============ TOP BAR ============ */
+function updateTop(){const r=rankOf(S.xp);$("#rankPill").textContent="🎖️ "+r.name;$("#xpPill").textContent=S.xp+" XP";$("#soundBtn").textContent=S.sound?"🔊":"🔇";}
+$("#soundBtn").onclick=()=>{S.sound=!S.sound;save();updateTop();};
+$("#themeBtn").onclick=()=>{
+  const cur=document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");
+  S.theme=cur==="light"?"dark":"light";document.documentElement.dataset.theme=S.theme;save();
+};
+if(S.theme) document.documentElement.dataset.theme=S.theme;
+
+/* ============ STARFIELD ============ */
+(function(){
+  const c=$("#stars"),x=c.getContext("2d");let st=[];
+  function rs(){c.width=innerWidth;c.height=innerHeight;st=Array.from({length:Math.min(140,innerWidth/8)},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.6+.3,s:Math.random()*.3+.05}));}
+  rs();addEventListener("resize",rs);
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  (function loop(){x.clearRect(0,0,c.width,c.height);const col=getComputedStyle(document.documentElement).getPropertyValue("--soft");x.fillStyle=col;x.globalAlpha=.6;st.forEach(s=>{if(!reduce){s.y+=s.s;if(s.y>c.height){s.y=0;s.x=Math.random()*c.width;}}x.beginPath();x.arc(s.x,s.y,s.r,0,7);x.fill();});requestAnimationFrame(loop);})();
+})();
+
+/* ============ HUB ============ */
+const MODES=[
+  {id:"theory",ic:"📚",name:"Träningsbasen",desc:"Läs på om de fyra ordklasserna och lär dig knepen för att känna igen dem.",lvl:"Starta här"},
+  {id:"rain",ic:"☄️",name:"Ordregn",desc:"Meteorer med ord faller mot stationen. Sortera dem i rätt ordklass innan de slår ner!",lvl:"Lätt → svår"},
+  {id:"blixt",ic:"⚡",name:"Blixtrundan",desc:"60 sekunder. Sant eller falskt? Så många rätt du hinner.",lvl:"Snabbhet"},
+  {id:"scan",ic:"🔍",name:"Meningsskannern",desc:"Hitta alla ord av en viss ordklass i en mening. Missa inget, klicka inte fel!",lvl:"Medel"},
+  {id:"paint",ic:"🎨",name:"Färgläggaren",desc:"Ge varje ord i meningen rätt färg. Den svåraste utmaningen för ordklassproffs.",lvl:"Svår"},
+  {id:"boss",ic:"👾",name:"Bossen Ordslukaren",desc:"Ett monster äter upp ordklasser! Besegra det med kunskap om tempus, komparation och pronomen.",lvl:"Fördjupning"}
+];
+function hub(){
+  leave();
+  const r=rankOf(S.xp); const pct=r.next?Math.round((S.xp-r.min)/(r.next[0]-r.min)*100):100;
+  const weak=MAIN.filter(k=>S.stats[k][1]>=5).sort((a,b)=>S.stats[a][0]/S.stats[a][1]-S.stats[b][0]/S.stats[b][1])[0];
+  app.innerHTML=`
+  <section class="card">
+    <div class="hero">
+      <div style="font-size:3.4rem">🛰️</div>
+      <div style="flex:1;min-width:240px">
+        <h1>Välkommen till rymdstationen Grammatica!</h1>
+        <p class="muted">En meteorstorm har blandat ihop alla ord. Besättningen behöver din hjälp att sortera dem i rätt ordklass innan stationens språkdator kraschar.</p>
+      </div>
+    </div>
+    <div class="crew">${MAIN.map(k=>`<div class="mate c-${k}"><span class="em">${CL[k].em}</span><b>${CL[k].name}</b><small>${CL[k].crew}<br>${CL[k].hint}</small></div>`).join("")}</div>
+    <div class="rank"><b>🎖️ ${r.name}</b><div class="xpbar"><i style="width:${pct}%"></i></div><span class="muted" style="font-size:.85rem">${r.next?`${r.next[0]-S.xp} XP till ${r.next[1]}`:"Högsta rang!"}</span></div>
+  </section>
+  <div class="modes">${MODES.map(m=>`<button class="mode" data-m="${m.id}">${S.best[m.id]!=null?`<span class="best">🏆 ${S.best[m.id]}</span>`:""}<div class="ic">${m.ic}</div><h3>${m.name}</h3><p>${m.desc}</p><span class="lvl">${m.lvl}</span></button>`).join("")}</div>
+  <section class="card" style="margin-top:16px">
+    <h3 style="margin:0">📊 Din träffsäkerhet</h3>
+    <div class="statgrid">${MAIN.map(k=>{const [a,t]=S.stats[k];return `<div class="stat c-${k}"><small>${CL[k].name}</small><b>${t?Math.round(a/t*100)+" %":"–"}</b><small>${a} av ${t} rätt</small></div>`}).join("")}</div>
+    ${weak?`<p style="margin:10px 0 0">💡 Tips: Du behöver träna mest på <b style="color:var(--${weak})">${CL[weak].name.toLowerCase()}</b>. Kolla Träningsbasen!</p>`:`<p class="muted" style="margin:10px 0 0">Spela några rundor så visas din statistik här.</p>`}
+    <h3 style="margin:16px 0 0">🏅 Medaljer</h3>
+    <div class="badges">${BADGES.map(b=>`<span class="badge ${S.badges.includes(b.id)?"got":""}">${b.em} ${b.name}</span>`).join("")}</div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost" id="resetBtn" style="font-size:.85rem;padding:6px 12px">Nollställ mina framsteg</button></div>
+  </section>`;
+  app.querySelectorAll(".mode").forEach(b=>b.onclick=()=>({theory,rain,blixt,scan,paint,boss})[b.dataset.m]());
+  $("#resetBtn").onclick=()=>{if(confirm("Vill du verkligen nollställa all XP, statistik och alla medaljer?")){const keep={sound:S.sound,theme:S.theme};S={xp:0,best:{},stats:{subst:[0,0],verb:[0,0],adj:[0,0],pron:[0,0]},badges:[],...keep};save();updateTop();hub();}};
+  window.scrollTo(0,0);
+}
+
+function header(title,extra=""){
+  return `<div class="gamehead"><button class="btn ghost" id="backBtn" style="padding:6px 14px">← Basen</button><h2>${title}</h2>${extra}</div>`;
+}
+function bindBack(){$("#backBtn").onclick=hub;}
+
+function finish(mode,score,{title,sub,stars,list}){
+  leave();
+  const prev=S.best[mode]; const rec=prev==null||score>prev; if(rec) S.best[mode]=score;
+  badge("first"); save();
+  const xp=Math.max(5,score);
+  addXP(xp);
+  if(stars>=3) confetti();
+  app.innerHTML=`<section class="card result">
+    <div class="big">${stars>=3?"🏆":stars===2?"🚀":stars===1?"🛰️":"🌑"}</div>
+    <div class="resstars">${"★".repeat(stars)}${"☆".repeat(3-stars)}</div>
+    <h2>${title}</h2>
+    <p>${sub}</p>
+    <p><b>+${xp} XP</b> ${rec?" · 🎉 Nytt personbästa!":` · Ditt bästa: ${prev}`}</p>
+    ${list&&list.length?`<details><summary>Visa genomgång (${list.length})</summary><div class="reslist">${list.join("")}</div></details>`:""}
+    <div class="row" style="justify-content:center;margin-top:14px">
+      <button class="btn" id="again">Spela igen</button>
+      <button class="btn ghost" id="home">Till basen</button>
+    </div></section>`;
+  $("#again").onclick=()=>({rain,blixt,scan,paint,boss})[mode]();
+  $("#home").onclick=hub;
+  window.scrollTo(0,0);
+}
+
+/* ============ THEORY ============ */
+function theory(){
+  leave();
+  const T={
+    subst:`<p><b>Substantiv</b> är namn på saker, djur, personer, platser, känslor och företeelser. <i>mobil, katt, Stockholm, glädje, match</i>.</p>
+      <p><b>Test:</b> <span class="test">Kan du sätta <b>en</b> eller <b>ett</b> framför? → en mobil, ett lag</span> <span class="test">Kan det få <b>-en/-et</b> på slutet? → mobilen, laget</span></p>
+      <p>Egennamn (Lisa, Ikea, Sverige) är också substantiv – de skrivs med stor bokstav.</p>
+      <table class="forms"><tr><th></th><th>Obestämd form</th><th>Bestämd form</th></tr>
+      <tr><th>Singular</th><td>en bok / ett äpple</td><td>boken / äpplet</td></tr>
+      <tr><th>Plural</th><td>böcker / äpplen</td><td>böckerna / äpplena</td></tr></table>
+      <ul><li><b>Genus:</b> en-ord = <i>utrum</i>, ett-ord = <i>neutrum</i>.</li>
+      <li><b>Numerus:</b> singular (en) eller plural (flera).</li>
+      <li><b>Genitiv:</b> visar ägande med -s: <i>Lisas</i> cykel, <i>lagets</i> tränare.</li></ul>`,
+    verb:`<p><b>Verb</b> berättar vad någon gör eller vad som händer/är. <i>springa, spela, tänka, vara, regna</i>.</p>
+      <p><b>Test:</b> <span class="test">Går det att sätta <b>att</b> framför? → att spela</span> <span class="test">Går det att sätta <b>jag</b> framför? → jag spelar</span> <span class="test">Kan det byta tid? → spelar, spelade, har spelat</span></p>
+      <table class="forms"><tr><th>Form</th><th>Exempel</th><th>När?</th></tr>
+      <tr><td>Infinitiv</td><td>(att) spela</td><td>Grundform</td></tr>
+      <tr><td>Presens</td><td>spelar</td><td>Nu / brukar</td></tr>
+      <tr><td>Preteritum</td><td>spelade</td><td>Då (avslutat)</td></tr>
+      <tr><td>Perfekt</td><td>har spelat</td><td>Har hänt, påverkar nu</td></tr>
+      <tr><td>Pluskvamperfekt</td><td>hade spelat</td><td>Före något annat i dåtid</td></tr>
+      <tr><td>Futurum</td><td>ska spela / kommer att spela</td><td>Framtid</td></tr>
+      <tr><td>Imperativ</td><td>Spela!</td><td>Uppmaning</td></tr></table>
+      <p><b>Supinum</b> är formen efter har/hade: <i>(har) spelat, (hade) skrivit</i>. <b>Hjälpverb</b> som <i>har, ska, kan, vill, måste</i> är också verb.</p>`,
+    adj:`<p><b>Adjektiv</b> beskriver hur något eller någon är. <i>snabb, rolig, grön, trött, svår</i>.</p>
+      <p><b>Test:</b> <span class="test">Passar det in i: <b>en ___ sak</b>? → en rolig sak</span> <span class="test">Kan det jämföras? → rolig, roligare, roligast</span></p>
+      <table class="forms"><tr><th>Positiv</th><th>Komparativ</th><th>Superlativ</th></tr>
+      <tr><td>snabb</td><td>snabbare</td><td>snabbast</td></tr>
+      <tr><td>bra</td><td>bättre</td><td>bäst</td></tr>
+      <tr><td>gammal</td><td>äldre</td><td>äldst</td></tr>
+      <tr><td>liten</td><td>mindre</td><td>minst</td></tr>
+      <tr><td>intressant</td><td>mer intressant</td><td>mest intressant</td></tr></table>
+      <p>Adjektivet böjs efter substantivet: <i>en stor hund – ett stort hus – stora hundar – den stora hunden</i>.</p>`,
+    pron:`<p><b>Pronomen</b> ersätter eller pekar ut substantiv, så att vi slipper upprepa. <i>Lisa tränar. <b>Hon</b> tränar varje dag.</i></p>
+      <table class="forms"><tr><th>Sort</th><th>Exempel</th><th>Funktion</th></tr>
+      <tr><td>Personliga</td><td>jag, du, hon, han, hen, den, det, vi, ni, de · mig, dig, henne, honom, oss, er, dem</td><td>Ersätter personer/saker</td></tr>
+      <tr><td>Possessiva</td><td>min, din, hans, hennes, vår, er, deras</td><td>Visar ägande</td></tr>
+      <tr><td>Reflexiva</td><td>sig, sin, sitt, sina</td><td>Syftar tillbaka på subjektet</td></tr>
+      <tr><td>Demonstrativa</td><td>den här, det där, denna, detta, dessa</td><td>Pekar ut</td></tr>
+      <tr><td>Interrogativa</td><td>vem, vad, vilken, vilket, vilka</td><td>Frågar</td></tr>
+      <tr><td>Relativa</td><td>som, vilken, vars</td><td>Inleder en bisats som beskriver något</td></tr>
+      <tr><td>Indefinita</td><td>någon, något, ingen, inget, man, varje</td><td>Obestämd mängd/person</td></tr></table>
+      <p><b>Knep:</b> <i>de</i> = subjekt (De spelar), <i>dem</i> = objekt (Jag ser dem). Byt mot <i>vi/oss</i>: säger du <i>oss</i> → skriv <i>dem</i>.</p>`
+  };
+  let cur="subst";
+  function draw(){
+    app.innerHTML=header("📚 Träningsbasen")+`
+    <div class="tabs">${MAIN.map(k=>`<button class="tab c-${k} ${k===cur?"on":""}" data-k="${k}">${CL[k].em} ${CL[k].name}</button>`).join("")}</div>
+    <section class="card tcard c-${cur}"><h3>${CL[cur].em} ${CL[cur].name} <small class="muted" style="font-weight:600;font-size:.85rem">– ${CL[cur].crew}</small></h3>${T[cur]}</section>
+    <section class="card" style="margin-top:14px"><h3 style="margin-top:0">🧠 Snabbkoll: vilken ordklass?</h3><div id="mini"></div></section>`;
+    bindBack();
+    app.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{cur=b.dataset.k;draw();});
+    miniQuiz();
+  }
+  function miniQuiz(){
+    if(!$("#mini")) return;
+    const pool=D.words.filter(w=>w.k===cur); const others=D.words.filter(w=>w.k!==cur);
+    if(!pool.length){$("#mini").innerHTML="<p class='muted'>Ordbanken saknas.</p>";return;}
+    const w=Math.random()<.6?rnd(pool):rnd(others);
+    $("#mini").innerHTML=`<div class="bigword" style="margin:6px 0">${esc(w.w)}</div><div class="classbtns">${MAIN.map(k=>`<button class="cbtn c-${k}" data-k="${k}">${CL[k].em} ${CL[k].short}</button>`).join("")}</div><div class="fb" id="mfb"></div>`;
+    $("#mini").querySelectorAll(".cbtn").forEach(b=>b.onclick=()=>{
+      const ok=b.dataset.k===w.k; track(w.k,ok); save();
+      $("#mfb").className="fb "+(ok?"good":"bad");
+      $("#mfb").innerHTML=(ok?"✅ Rätt! ":"❌ Det var "+CL[w.k].name.toLowerCase()+". ")+`<span class="muted" style="font-weight:500">${esc(w.tip||"")}</span>`;
+      sfx(ok?"good":"bad"); if(ok) addXP(1);
+      $("#mini").querySelectorAll(".cbtn").forEach(x=>x.disabled=true);
+      setTimeout(miniQuiz,ok?1100:2600);
+    });
+  }
+  badge("theory");
+  draw(); window.scrollTo(0,0);
+}
+
+/* ============ ORDREGN ============ */
+function rain(){
+  leave();
+  app.innerHTML=header("☄️ Ordregn",`<span class="pill">Poäng <b id="rScore">0</b></span><span class="pill combo" id="rCombo">x1</span><span class="pill hearts" id="rHearts">❤️❤️❤️</span>`)+`
+  <p class="muted hide-sm" style="margin:0 0 8px;font-size:.9rem">Sortera ordet med gul ram. Tangenter: <span class="kbd">1</span>/<span class="kbd">S</span> subst · <span class="kbd">2</span>/<span class="kbd">V</span> verb · <span class="kbd">3</span>/<span class="kbd">A</span> adj · <span class="kbd">4</span>/<span class="kbd">P</span> pron</p>
+  <div id="rainField"><div class="ground"></div></div>
+  <div class="classbtns">${MAIN.map((k,i)=>`<button class="cbtn c-${k}" data-k="${k}">${CL[k].em} ${CL[k].short}<small>${CL[k].name} · ${i+1}</small></button>`).join("")}</div>
+  <div class="fb" id="rFb"></div>`;
+  bindBack();
+  const field=$("#rainField"); let drops=[],score=0,lives=3,combo=0,maxCombo=0,caught=0,spawnT=0,last=performance.now(),elapsed=0,running=true,raf;
+  const log=[]; let deck=shuffle(D.words);
+  function speed(){return 38+Math.min(elapsed,120)*0.9;} // px/s
+  function interval(){return Math.max(.9,2.6-elapsed*0.018);}
+  function spawn(){
+    if(!deck.length) deck=shuffle(D.words);
+    const w=deck.pop(); const el=document.createElement("div");el.className="drop";el.textContent=w.w;
+    const fw=field.clientWidth; el.style.left=(12+Math.random()*76)+"%"; el.style.top="-40px";
+    field.appendChild(el); drops.push({w,el,y:-40,fw});
+    mark();
+  }
+  function mark(){drops.forEach((d,i)=>d.el.classList.toggle("target",i===0));}
+  function floater(text,col,x,y){const f=document.createElement("div");f.className="floater";f.textContent=text;f.style.color=col;f.style.left=x;f.style.top=y+"px";field.appendChild(f);setTimeout(()=>f.remove(),1000);}
+  function hearts(){$("#rHearts").textContent="❤️".repeat(lives)+"🖤".repeat(Math.max(0,3-lives));}
+  function lose(d,why){
+    lives--; combo=0; hearts(); $("#rCombo").textContent="x1"; sfx("bad");
+    field.classList.add("shake"); setTimeout(()=>field.classList.remove("shake"),300);
+    $("#rFb").className="fb bad"; $("#rFb").innerHTML=`${why} <b>${esc(d.w.w)}</b> är <b style="color:var(--${d.w.k})">${CL[d.w.k].name.toLowerCase()}</b>. <span class="muted" style="font-weight:500">${esc(d.w.tip||"")}</span>`;
+    log.push(`<div>❌ <b>${esc(d.w.w)}</b> – ${CL[d.w.k].name}</div>`);
+    if(lives<=0) end();
+  }
+  function answer(k){
+    if(!running||!drops.length) return;
+    const d=drops.shift(); const ok=d.w.k===k; track(d.w.k,ok);
+    if(ok){
+      combo++; maxCombo=Math.max(maxCombo,combo); caught++;
+      const mult=1+Math.floor(combo/5); const pts=10*mult; score+=pts;
+      d.el.classList.add("pop"); d.el.style.borderColor=`var(--${k})`; floater("+"+pts,`var(--${k})`,d.el.style.left,d.y);
+      $("#rScore").textContent=score; $("#rCombo").textContent="x"+mult; sfx("pop");
+      $("#rFb").className="fb good"; $("#rFb").textContent=combo>=5?`🔥 ${combo} i rad!`:"✅ Rätt!";
+      if(combo===10) badge("combo10");
+      setTimeout(()=>d.el.remove(),450);
+    }else{
+      d.el.classList.add("miss"); setTimeout(()=>d.el.remove(),600);
+      lose(d,"Fel ordklass!");
+    }
+    mark();
+  }
+  function loop(now){
+    if(!running) return;
+    const dt=Math.max(0,Math.min(.05,(now-last)/1000)); last=now; elapsed+=dt; spawnT-=dt;
+    if(spawnT<=0){spawn();spawnT=interval();}
+    const h=field.clientHeight-40; const v=speed();
+    for(let i=drops.length-1;i>=0;i--){const d=drops[i];d.y+=v*dt;d.el.style.top=d.y+"px";
+      if(d.y>h){drops.splice(i,1);d.el.classList.add("miss");setTimeout(()=>d.el.remove(),600);lose(d,"Nedslag!");mark();if(!running)return;}}
+    raf=requestAnimationFrame(loop);
+  }
+  function end(){
+    running=false; cancelAnimationFrame(raf); save();
+    if(caught>=30) badge("rain30");
+    const stars=score>=600?3:score>=300?2:score>=100?1:0;
+    setTimeout(()=>alive&&finish("rain",score,{title:`Du räddade ${caught} ord!`,sub:`Poäng: <b>${score}</b> · Längsta svit: <b>${maxCombo}</b>`,stars,list:log}),700);
+  }
+  app.querySelectorAll(".cbtn").forEach(b=>on(b,"click",()=>answer(b.dataset.k)));
+  on(document,"keydown",e=>{const k=KEYMAP[e.key.toLowerCase()];if(k&&k!=="x"){e.preventDefault();answer(k);}});
+  let alive=true;
+  cleanup.push(()=>{running=false;alive=false;cancelAnimationFrame(raf);});
+  raf=requestAnimationFrame(t=>{last=t;loop(t);});
+}
+
+/* ============ BLIXT ============ */
+function blixt(){
+  leave();
+  const DUR=60; let t=DUR,score=0,streak=0,cur=null,claim=null,locked=false; const log=[];
+  app.innerHTML=header("⚡ Blixtrundan",`<span class="pill">Poäng <b id="bScore">0</b></span><span class="pill">⏱ <b id="bTime">${DUR}</b> s</span>`)+`
+  <div class="timer"><i id="bBar" style="width:100%"></i></div>
+  <section class="card">
+    <div class="bigword" id="bWord"></div>
+    <div class="claim" id="bClaim"></div>
+    <div class="tf"><button class="btn ghost" id="bNo">❌ Falskt <span class="kbd hide-sm">←</span></button><button class="btn" id="bYes">✅ Sant <span class="kbd hide-sm">→</span></button></div>
+    <div class="fb" id="bFb"></div>
+    <p class="muted" style="text-align:center;font-size:.85rem;margin:0">Rätt: +1 · Fel: −1 · Var 5:e i rad: +1 bonus</p>
+  </section>`;
+  bindBack();
+  function next(){
+    if(!$("#bWord")) return;
+    cur=rnd(D.words); claim=Math.random()<.5?cur.k:rnd(MAIN.filter(k=>k!==cur.k));
+    $("#bWord").textContent=cur.w;
+    $("#bClaim").innerHTML=`är ett <b class="c-${claim}" style="background:var(--${claim})">${CL[claim].name.toLowerCase()}</b>`;
+    locked=false;
+  }
+  function ans(yes){
+    if(locked||t<=0) return; locked=true;
+    const truth=cur.k===claim; const ok=yes===truth; track(cur.k,ok);
+    if(ok){score++;streak++;if(streak%5===0){score++;toast("🔥 "+streak+" i rad! +1 bonus");}sfx("good");$("#bFb").className="fb good";$("#bFb").textContent="✅ Rätt!";}
+    else{score=Math.max(0,score-1);streak=0;sfx("bad");$("#bFb").className="fb bad";$("#bFb").innerHTML=`❌ <b>${esc(cur.w)}</b> är ${CL[cur.k].name.toLowerCase()}.`;log.push(`<div>❌ <b>${esc(cur.w)}</b> – ${CL[cur.k].name}. ${esc(cur.tip||"")}</div>`);}
+    $("#bScore").textContent=score;
+    setTimeout(next,ok?250:900);
+  }
+  on($("#bYes"),"click",()=>ans(true)); on($("#bNo"),"click",()=>ans(false));
+  on(document,"keydown",e=>{if(e.key==="ArrowRight"){e.preventDefault();ans(true);}if(e.key==="ArrowLeft"){e.preventDefault();ans(false);}});
+  const iv=setInterval(()=>{t--;$("#bTime").textContent=t;$("#bBar").style.width=(t/DUR*100)+"%";if(t<=5&&t>0)sfx("tick");
+    if(t<=0){clearInterval(iv);save();if(score>=20)badge("blixt20");const stars=score>=25?3:score>=15?2:score>=8?1:0;finish("blixt",score,{title:`${score} poäng på 60 sekunder!`,sub:score>=20?"Blixtsnabbt! ⚡":"Träna mer så går det ännu snabbare.",stars,list:log});}},1000);
+  cleanup.push(()=>clearInterval(iv));
+  next();
+}
+
+/* ============ SKANNERN ============ */
+function renderSentence(toks,cls){
+  return toks.map((t,i)=>t.k?`<span class="tok ${cls||""}" data-i="${i}" role="button" tabindex="0">${esc(t.w)}</span>`:`<span class="punct">${esc(t.w)}</span>`).join(" ");
+}
+function scan(){
+  leave();
+  const ROUNDS=8; let round=0,score=0,perfectAll=true; const log=[];
+  const pool=shuffle(parsed);
+  app.innerHTML=header("🔍 Meningsskannern",`<span class="pill">Runda <b id="sR">1</b>/${ROUNDS}</span><span class="pill">Poäng <b id="sScore">0</b></span>`)+`<section class="card" id="sCard"></section>`;
+  bindBack();
+  function play(){
+    if(round>=ROUNDS||!pool.length){
+      save(); if(perfectAll) badge("scanPerfect");
+      const max=ROUNDS*10; const stars=score>=max*.85?3:score>=max*.6?2:score>=max*.3?1:0;
+      return finish("scan",score,{title:"Skanningen är klar!",sub:`Du fick <b>${score}</b> poäng av ${max} möjliga.${perfectAll?" Helt felfritt! 🔍":""}`,stars,list:log});
+    }
+    const toks=pool[round%pool.length]; round++; $("#sR").textContent=round;
+    const present=MAIN.filter(k=>toks.some(t=>t.k===k));
+    const target=rnd(present);
+    const card=$("#sCard");
+    card.innerHTML=`<div class="mission c-${target}">Klicka på <u>alla</u> ord som är <b>${CL[target].em} ${CL[target].name.toLowerCase()}</b></div>
+      <div class="sentence">${renderSentence(toks)}</div>
+      <div class="row" style="justify-content:center"><button class="btn" id="sGo">🔍 Skanna!</button></div><div class="fb" id="sFb" style="text-align:center"></div>`;
+    const els=[...card.querySelectorAll(".tok")];
+    els.forEach(el=>{const tg=()=>{if(!el.classList.contains("locked")){el.classList.toggle("chosen");sfx("tick");}};el.onclick=tg;el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tg();}};});
+    $("#sGo").onclick=()=>{
+      let right=0,wrong=0,missed=0,total=0;
+      els.forEach(el=>{const t=toks[+el.dataset.i];const isT=t.k===target;const ch=el.classList.contains("chosen");el.classList.add("locked");el.classList.remove("chosen");
+        if(isT){total++; if(ch){right++;el.classList.add("ok");}else{missed++;el.classList.add("missed");} track(target,ch);}
+        else if(ch){wrong++;el.classList.add("wrong"); if(MAIN.includes(t.k)) track(t.k,false);}
+      });
+      const pts=Math.max(0,Math.round(10*(right/total))-3*wrong); score+=pts; $("#sScore").textContent=score;
+      const perfect=right===total&&wrong===0; if(!perfect) perfectAll=false;
+      const answer=toks.filter(t=>t.k===target).map(t=>t.w).join(", ");
+      $("#sFb").className="fb "+(perfect?"good":"bad");
+      $("#sFb").innerHTML=perfect?`✅ Perfekt! +${pts}`:`${right} av ${total} hittade${wrong?`, ${wrong} fel`:""}. +${pts}<br><span class="muted" style="font-weight:500">${CL[target].name}: <b>${esc(answer)}</b></span>`;
+      sfx(perfect?"good":"bad");
+      if(!perfect) log.push(`<div>${esc(sentenceText(toks))}<br><small class="muted">${CL[target].name}: ${esc(answer)}</small></div>`);
+      $("#sGo").textContent="Nästa →"; $("#sGo").onclick=play;
+    };
+  }
+  play();
+}
+
+/* ============ FÄRGLÄGGAREN ============ */
+function paint(){
+  leave();
+  const ROUNDS=6; let round=0,score=0,maxScore=0,brush="subst"; const log=[];
+  const pool=shuffle(parsed.filter(s=>s.filter(t=>t.k).length<=10));
+  const BR=["subst","verb","adj","pron","x"];
+  app.innerHTML=header("🎨 Färgläggaren",`<span class="pill">Runda <b id="pR">1</b>/${ROUNDS}</span><span class="pill">Poäng <b id="pScore">0</b></span>`)+`<section class="card" id="pCard"></section>`;
+  bindBack();
+  function play(){
+    if(round>=ROUNDS||!pool.length){
+      save(); const pct=maxScore?score/maxScore:0; if(pct>=.9) badge("painter");
+      const stars=pct>=.9?3:pct>=.7?2:pct>=.4?1:0;
+      return finish("paint",score,{title:`${Math.round(pct*100)} % rätt färgade ord!`,sub:`Du fick <b>${score}</b> av ${maxScore} möjliga poäng.`,stars,list:log});
+    }
+    const toks=pool[round%pool.length]; round++; $("#pR").textContent=round;
+    const card=$("#pCard"); const painted={};
+    card.innerHTML=`<p class="mission">Välj en pensel och klicka på orden. Ge <u>varje</u> ord rätt färg!</p>
+      <div class="classbtns" style="grid-template-columns:repeat(5,1fr)">${BR.map((k,i)=>`<button class="cbtn c-${k} ${k===brush?"sel":""}" data-k="${k}">${CL[k].em} ${CL[k].short}<small>${i+1}</small></button>`).join("")}</div>
+      <p class="muted" style="text-align:center;font-size:.82rem;margin:6px 0 0">⬜ Annat = adverb, prepositioner, konjunktioner, artiklar, räkneord m.m.</p>
+      <div class="sentence">${renderSentence(toks)}</div>
+      <div class="row" style="justify-content:center"><button class="btn" id="pGo">✔ Rätta</button></div><div class="fb" id="pFb" style="text-align:center"></div>`;
+    const btns=[...card.querySelectorAll(".cbtn")];
+    function setBrush(k){brush=k;btns.forEach(b=>b.classList.toggle("sel",b.dataset.k===k));}
+    btns.forEach(b=>b.onclick=()=>setBrush(b.dataset.k));
+    const keyh=e=>{const k=KEYMAP[e.key.toLowerCase()];if(k&&!e.ctrlKey&&!e.metaKey){setBrush(k);}};
+    document.addEventListener("keydown",keyh); cleanup.push(()=>document.removeEventListener("keydown",keyh));
+    const els=[...card.querySelectorAll(".tok")];
+    els.forEach(el=>{const pt=()=>{if(el.classList.contains("locked"))return;const i=el.dataset.i;
+        if(painted[i]===brush){delete painted[i];el.classList.remove("painted");el.className="tok";}
+        else{painted[i]=brush;el.className="tok painted c-"+brush;}sfx("tick");};
+      el.onclick=pt; el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pt();}};});
+    $("#pGo").onclick=()=>{
+      const un=els.filter(el=>!painted[el.dataset.i]).length;
+      if(un>0&&!$("#pGo").dataset.warned){$("#pGo").dataset.warned=1;$("#pFb").className="fb bad";$("#pFb").textContent=`Du har ${un} ord kvar att färga. Klicka Rätta igen för att rätta ändå.`;return;}
+      document.removeEventListener("keydown",keyh);
+      let ok=0; const fix=[];
+      els.forEach(el=>{const t=toks[+el.dataset.i];const p=painted[el.dataset.i];el.classList.add("locked");
+        const right=p===t.k; if(MAIN.includes(t.k)) track(t.k,right);
+        if(right){ok++;el.classList.add("ok");}else{el.className="tok locked painted wrong c-"+t.k;el.title="Rätt: "+CL[t.k].name;fix.push(`${t.w} = ${CL[t.k].name.toLowerCase()}`);}
+      });
+      score+=ok; maxScore+=els.length; $("#pScore").textContent=score;
+      $("#pFb").className="fb "+(fix.length?"bad":"good");
+      $("#pFb").innerHTML=fix.length?`${ok} av ${els.length} rätt. De överstrukna visar nu rätt färg.<br><span class="muted" style="font-weight:500">${esc(fix.join(" · "))}</span>`:"✅ Alla rätt! Mästerligt!";
+      sfx(fix.length?"bad":"good");
+      if(fix.length) log.push(`<div>${esc(sentenceText(toks))}<br><small class="muted">${esc(fix.join(" · "))}</small></div>`);
+      $("#pGo").textContent="Nästa →"; delete $("#pGo").dataset.warned; $("#pGo").onclick=play;
+    };
+  }
+  play();
+}
+
+/* ============ BOSS ============ */
+const PTYPES=["personligt","possessivt","reflexivt","demonstrativt","interrogativt","indefinit","relativt"];
+function bossQuestions(){
+  const qs=D.quiz.map(q=>({q:q.q,o:q.o,a:q.a,why:q.why}));
+  D.pronTypes.forEach(p=>{
+    const wrong=shuffle(PTYPES.filter(x=>x!==p.a)).slice(0,3);
+    const o=shuffle([p.a,...wrong]);
+    qs.push({q:`Vilken sorts pronomen är det fetstilta ordet?<br><span style="font-size:1.2rem">${p.s}</span>`,o:o.map(x=>x+" pronomen"),a:o.indexOf(p.a),why:p.why});
+  });
+  return shuffle(qs);
+}
+function boss(){
+  leave();
+  const BOSS_HP=10; let hp=BOSS_HP,lives=3,qi=0,correct=0,answered=0,rage=false; const qs=bossQuestions(); const log=[];
+  if(!qs.length){app.innerHTML=header("👾 Bossen")+"<p>Frågebanken saknas.</p>";bindBack();return;}
+  app.innerHTML=header("👾 Bossen Ordslukaren",`<span class="pill hearts" id="bH">❤️❤️❤️</span>`)+`
+  <section class="card arena">
+    <div class="bossrow">
+      <svg id="bossSvg" viewBox="0 0 120 120" aria-hidden="true">
+        <defs><radialGradient id="bg1" cx="40%" cy="35%"><stop offset="0" stop-color="#b78bff"/><stop offset="1" stop-color="#5b2bb5"/></radialGradient></defs>
+        <path id="bossBody" d="M20 70 Q10 30 45 18 Q60 8 78 18 Q112 30 100 72 Q104 100 84 106 Q72 98 64 108 Q54 98 44 108 Q34 98 26 104 Q12 96 20 70Z" fill="url(#bg1)"/>
+        <circle cx="44" cy="48" r="11" fill="#fff"/><circle cx="78" cy="48" r="11" fill="#fff"/>
+        <circle id="eyeL" cx="46" cy="50" r="5" fill="#1b1036"/><circle id="eyeR" cx="76" cy="50" r="5" fill="#1b1036"/>
+        <path id="brow" d="M32 34 L54 40 M90 34 L68 40" stroke="#1b1036" stroke-width="4" stroke-linecap="round" opacity="0"/>
+        <path d="M38 74 Q60 92 84 74 Z" fill="#1b1036"/><path d="M44 76 l4 6 l4 -6 M64 76 l4 6 l4 -6" fill="#fff"/>
+        <text x="96" y="22" font-size="14" font-weight="900" fill="#ffcf3f">Å</text><text x="8" y="40" font-size="12" font-weight="900" fill="#4fa3ff">b</text>
+      </svg>
+      <div class="hp"><b>Ordslukaren</b> <span class="muted" id="bossTalk" style="font-size:.9rem">”Mmm… ordklasser! Jag ska äta upp alla!”</span>
+        <div class="bar" style="margin-top:6px"><i id="bossHp" style="width:100%"></i></div>
+        <small class="muted"><span id="hpTxt">${BOSS_HP}</span>/${BOSS_HP} HP</small></div>
+    </div>
+    <div id="bq"></div>
+  </section>`;
+  bindBack();
+  const svg=$("#bossSvg");
+  const taunts=["”Ha! Fel! Det smakade gott!”","”Grrr… dina ord är mina!”","”Du kommer aldrig att slå mig!”","”Nam nam, en ordklass till!”"];
+  const ouch=["”AJ! Hur visste du det?!”","”Nej, inte grammatik!”","”Det där kittlas!”","”Sluta kunna saker!”"];
+  function hearts(){$("#bH").textContent="❤️".repeat(lives)+"🖤".repeat(Math.max(0,3-lives));}
+  function ask(){
+    if(hp<=0||lives<=0) return end();
+    const q=qs[qi%qs.length]; qi++;
+    $("#bq").innerHTML=`<div class="bossq">${q.q}</div><div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join("")}</div><div id="bWhy"></div>`;
+    const opts=[...$("#bq").querySelectorAll(".opt")];
+    opts.forEach(b=>b.onclick=()=>{
+      opts.forEach(x=>x.disabled=true); answered++;
+      const i=+b.dataset.i; const ok=i===q.a;
+      opts[q.a].classList.add("right");
+      if(ok){correct++;hp--;const dmg=rage?"💥 KRITISK TRÄFF!":"💥 Träff!";svg.classList.remove("hit");void svg.offsetWidth;svg.classList.add("hit");sfx("good");$("#bossTalk").textContent=rnd(ouch);
+        if(hp===Math.floor(BOSS_HP/2)&&!rage){rage=true;$("#brow").setAttribute("opacity","1");$("#bossBody").setAttribute("fill","#d0396b");$("#bossTalk").textContent="”NU BLIR JAG ARG!!!”";sfx("boss");}
+        $("#bWhy").innerHTML=`<div class="fb good">${dmg}</div><div class="why">${q.why||""}</div>`;}
+      else{b.classList.add("wrong");lives--;hearts();svg.classList.remove("attack");void svg.offsetWidth;svg.classList.add("attack");sfx("boss");$("#bossTalk").textContent=rnd(taunts);
+        $("#bWhy").innerHTML=`<div class="fb bad">😵 Ordslukaren attackerar!</div><div class="why">${q.why||""}</div>`;
+        log.push(`<div>${q.q.replace(/<br>.*/,"")} ${q.q.includes("<br>")?q.q.split("<br>")[1]:""}<br><small class="muted">Rätt: ${q.o[q.a]}</small></div>`);}
+      $("#bossHp").style.width=(hp/BOSS_HP*100)+"%"; $("#hpTxt").textContent=hp;
+      const nb=document.createElement("button");nb.className="btn";nb.style.marginTop="12px";nb.textContent=hp<=0?"🏆 Avsluta striden":lives<=0?"Avsluta":"Nästa fråga →";nb.onclick=ask;$("#bWhy").appendChild(nb);nb.focus({preventScroll:true});
+    });
+  }
+  function end(){
+    save(); const win=hp<=0; if(win) badge("boss");
+    const score=correct*10+(win?lives*20:0);
+    const stars=win?(lives===3?3:lives===2?2:1):0;
+    finish("boss",score,{title:win?"Ordslukaren är besegrad! 🎉":"Ordslukaren vann den här gången…",sub:win?`Du svarade rätt på ${correct} av ${answered} frågor och hade ${lives} ❤️ kvar.`:`Du gav bossen ${BOSS_HP-hp} träffar. Läs på i Träningsbasen och försök igen!`,stars,list:log});
+  }
+  ask();
+}
+
+/* ============ START ============ */
+updateTop();
+hub();
+</script>
+</body>
+</html>
