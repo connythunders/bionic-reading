@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Word Class Quest: a space adventure where Year 8 students practise English nouns, verbs, adjectives and pronouns in six game modes.">
+<title>Word Class Quest</title>
+<style>
+:root{
+  --bg:#0d1030; --bg2:#1a1f4d; --surface:#1d2357; --surface-2:#262d6b;
+  --text:#f2f4ff; --soft:#b9bfe8; --line:#3a4290;
+  --accent:#ffcf3f; --accent-text:#1b1b2f;
+  --good:#5ee39a; --bad:#ff7a7a; --warn:#ffb347;
+  --subst:#4fa3ff; --verb:#ff6b5e; --adj:#46d68c; --pron:#c38bff; --x:#9aa0c3;
+  --shadow:0 6px 24px rgba(0,0,0,.35); --on-c:#10142e;
+  --r:18px;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#eef1ff; --bg2:#dfe5ff; --surface:#ffffff; --surface-2:#f1f3ff;
+    --text:#1b1f45; --soft:#55608f; --line:#c9cff0;
+    --accent:#6c3df5; --accent-text:#ffffff;
+    --good:#16924f; --bad:#d23b3b; --warn:#c86b00;
+    --subst:#1f6fd6; --verb:#d8402f; --adj:#14935a; --pron:#8a3fe0; --x:#6b7196;
+    --shadow:0 4px 18px rgba(30,40,110,.12); --on-c:#ffffff;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#eef1ff; --bg2:#dfe5ff; --surface:#ffffff; --surface-2:#f1f3ff;
+  --text:#1b1f45; --soft:#55608f; --line:#c9cff0;
+  --accent:#6c3df5; --accent-text:#ffffff;
+  --good:#16924f; --bad:#d23b3b; --warn:#c86b00;
+  --subst:#1f6fd6; --verb:#d8402f; --adj:#14935a; --pron:#8a3fe0; --x:#6b7196;
+  --shadow:0 4px 18px rgba(30,40,110,.12); --on-c:#ffffff;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(1200px 600px at 70% -10%,var(--bg2),var(--bg));background-color:var(--bg);color:var(--text);font:18px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:12px 16px 40px}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3{line-height:1.2}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 0 14px}
+.logo{font-weight:900;font-size:1.45rem;letter-spacing:.5px;margin-right:auto;display:flex;align-items:center;gap:8px}
+.logo span{background:linear-gradient(90deg,var(--subst),var(--verb),var(--adj),var(--pron));-webkit-background-clip:text;background-clip:text;color:transparent}
+.pill{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:700;font-size:.9rem;white-space:nowrap}
+.iconbtn{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:4px 10px}
+.card{background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.btn{background:var(--accent);color:var(--accent-text);border:0;border-radius:14px;padding:12px 22px;font-weight:800;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.btn:hover{filter:brightness(1.08)} .btn:active{transform:translateY(3px);box-shadow:none}
+.btn.ghost{background:var(--surface-2);color:var(--text);border:2px solid var(--line);box-shadow:none}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--soft)}
+.hidden{display:none!important}
+
+/* Hub */
+.hero{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.hero h1{margin:0 0 6px;font-size:1.7rem}
+.hero p{margin:0}
+.crew{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+.mate{border-radius:16px;padding:10px;text-align:center;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 14%,var(--surface))}
+.mate .em{font-size:2rem;display:block;animation:bob 3s ease-in-out infinite}
+.mate:nth-child(2) .em{animation-delay:.4s}.mate:nth-child(3) .em{animation-delay:.8s}.mate:nth-child(4) .em{animation-delay:1.2s}
+.mate b{display:block;color:var(--c)} .mate small{color:var(--soft);font-size:.78rem;line-height:1.2;display:block}
+@keyframes bob{50%{transform:translateY(-5px)}}
+.modes{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;margin-top:16px}
+.mode{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);transition:transform .15s,border-color .15s;position:relative;overflow:hidden}
+.mode:hover{transform:translateY(-4px);border-color:var(--accent)}
+.mode .ic{font-size:2.3rem}
+.mode h3{margin:4px 0;font-size:1.15rem}
+.mode p{margin:0;color:var(--soft);font-size:.9rem}
+.mode .best{position:absolute;top:12px;right:14px;font-size:.8rem;font-weight:800;color:var(--accent)}
+.mode .lvl{display:inline-block;margin-top:8px;font-size:.75rem;font-weight:800;border-radius:99px;padding:2px 10px;background:var(--surface-2);color:var(--soft)}
+.rank{display:flex;align-items:center;gap:12px;margin-top:14px}
+.xpbar{flex:1;height:14px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.xpbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--subst),var(--pron));transition:width .6s}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.stat{border-radius:14px;padding:10px;background:var(--surface-2);border-left:6px solid var(--c)}
+.stat b{font-size:1.3rem;display:block}
+.stat small{color:var(--soft)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.badge{border:2px dashed var(--line);border-radius:12px;padding:6px 10px;font-size:.85rem;color:var(--soft)}
+.badge.got{border-style:solid;border-color:var(--accent);color:var(--text);background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+
+/* Game common */
+.gamehead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.gamehead h2{margin:0 auto 0 0;font-size:1.3rem}
+.hearts{font-size:1.2rem;letter-spacing:2px}
+.timer{height:10px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-bottom:12px;border:1px solid var(--line)}
+.timer i{display:block;height:100%;background:linear-gradient(90deg,var(--good),var(--warn),var(--bad));transition:width .2s linear}
+.fb{min-height:1.6em;font-weight:700;margin:10px 0}
+.fb.good{color:var(--good)} .fb.bad{color:var(--bad)}
+.classbtns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.cbtn{border:0;border-radius:14px;padding:14px 6px;font-weight:900;color:var(--on-c);background:var(--c);box-shadow:0 4px 0 rgba(0,0,0,.3);font-size:1rem;}
+.cbtn small{display:block;font-weight:600;font-size:.72rem;opacity:.9}
+.cbtn:active{transform:translateY(3px);box-shadow:none}
+.cbtn.sel{outline:4px solid var(--text);outline-offset:2px}
+.c-subst{--c:var(--subst)} .c-verb{--c:var(--verb)} .c-adj{--c:var(--adj)} .c-pron{--c:var(--pron)} .c-x{--c:var(--x)}
+.combo{font-weight:900;color:var(--accent)}
+
+/* Ordregn */
+#rainField{position:relative;height:min(58vh,460px);border-radius:var(--r);border:2px solid var(--line);background:linear-gradient(180deg,color-mix(in srgb,var(--bg2) 60%,transparent),transparent),var(--surface);overflow:hidden}
+#rainField .ground{position:absolute;left:0;right:0;bottom:0;height:8px;background:repeating-linear-gradient(90deg,var(--bad) 0 18px,transparent 18px 30px);opacity:.7}
+.drop{position:absolute;transform:translateX(-50%);padding:6px 14px;border-radius:999px;background:var(--surface-2);border:2px solid var(--line);font-weight:800;white-space:nowrap;box-shadow:var(--shadow);font-size:1.05rem}
+.drop::before{content:"☄️";position:absolute;top:-18px;left:50%;transform:translateX(-50%) rotate(180deg);font-size:.9rem;opacity:.8}
+.drop.target{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 35%,transparent),var(--shadow);z-index:2}
+.drop.pop{animation:pop .45s forwards}
+.drop.miss{animation:miss .6s forwards}
+@keyframes pop{to{transform:translateX(-50%) scale(1.6);opacity:0}}
+@keyframes miss{30%{transform:translateX(-58%)}60%{transform:translateX(-42%)}to{opacity:0}}
+.floater{position:absolute;font-weight:900;pointer-events:none;animation:up 1s forwards;transform:translateX(-50%);z-index:3}
+@keyframes up{to{transform:translate(-50%,-50px);opacity:0}}
+
+/* Sentence modes */
+.sentence{font-size:1.45rem;line-height:2.4;margin:14px 0;text-align:center}
+.tok{display:inline-block;padding:0 8px;margin:0 2px;border-radius:10px;border:2px solid transparent;cursor:pointer;transition:background .15s,transform .1s;user-select:none}
+.tok:hover{background:var(--surface-2)}
+.tok:active{transform:scale(.95)}
+.tok.chosen{background:color-mix(in srgb,var(--accent) 28%,transparent);border-color:var(--accent)}
+.tok.ok{background:color-mix(in srgb,var(--good) 25%,transparent);border-color:var(--good)}
+.tok.wrong{background:color-mix(in srgb,var(--bad) 25%,transparent);border-color:var(--bad);text-decoration:line-through}
+.tok.missed{border:2px dashed var(--warn)}
+.tok.painted{color:var(--on-c);background:var(--c)}
+.tok.locked{cursor:default}
+.punct{display:inline-block;margin-left:-4px}
+.mission{font-size:1.1rem;text-align:center}
+.mission b{padding:2px 10px;border-radius:8px;color:var(--on-c);background:var(--c)}
+.legend{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;font-size:.8rem;margin-top:6px}
+.legend span{padding:2px 8px;border-radius:8px;color:var(--on-c);background:var(--c)}
+
+/* Blixt */
+.bigword{font-size:clamp(1.8rem,7vw,3rem);font-weight:900;text-align:center;margin:20px 0 6px}
+.claim{text-align:center;font-size:1.2rem}
+.claim b{color:var(--on-c);background:var(--c);padding:2px 12px;border-radius:10px}
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.tf button{font-size:1.2rem;padding:18px}
+
+/* Boss */
+.arena{display:grid;grid-template-columns:1fr;gap:12px}
+.bossrow{display:flex;align-items:center;gap:14px}
+#bossSvg{width:120px;height:120px;flex:none;transition:transform .2s}
+#bossSvg.hit{animation:hit .4s}
+#bossSvg.attack{animation:attack .5s}
+@keyframes hit{20%{transform:translateX(10px) rotate(8deg);filter:brightness(2)}60%{transform:translateX(-6px)}}
+@keyframes attack{40%{transform:scale(1.25) translateY(10px)}}
+.hp{flex:1}
+.hp .bar{height:18px;border-radius:99px;background:var(--surface-2);border:2px solid var(--line);overflow:hidden}
+.hp .bar i{display:block;height:100%;background:linear-gradient(90deg,#ff3d6e,#ff9a3d);transition:width .4s}
+.bossq{font-size:1.15rem}
+.opts{display:grid;gap:10px;margin-top:12px;grid-template-columns:1fr 1fr}
+.opt{text-align:left;background:var(--surface-2);border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-weight:600}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 20%,var(--surface-2))}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 20%,var(--surface-2));animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.shake{animation:shake .3s}
+.why{background:var(--surface-2);border-left:5px solid var(--accent);padding:10px 14px;border-radius:10px;margin-top:10px;font-size:.95rem}
+
+/* Theory */
+.theory{display:grid;gap:14px}
+.tcard{border-left:8px solid var(--c)}
+.tcard h3{margin:0 0 6px;color:var(--c);display:flex;align-items:center;gap:8px}
+.tcard ul{margin:6px 0;padding-left:20px}
+.tcard li{margin:3px 0}
+.test{display:inline-block;background:var(--surface-2);border-radius:10px;padding:4px 10px;margin:3px 4px 3px 0;font-size:.92rem}
+table.forms{border-collapse:collapse;margin:8px 0;font-size:.92rem;width:100%}
+table.forms th,table.forms td{border:1px solid var(--line);padding:5px 8px;text-align:left}
+table.forms th{background:var(--surface-2)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 14px;font-weight:700}
+.tab.on{background:var(--c);color:var(--on-c);border-color:var(--c)}
+
+/* Result */
+.result{text-align:center}
+.result .big{font-size:3.5rem}
+.result h2{margin:6px 0}
+.resstars{font-size:2.2rem;letter-spacing:6px;color:var(--accent)}
+.reslist{text-align:left;max-height:240px;overflow:auto;margin:12px auto;max-width:560px;font-size:.92rem}
+.reslist div{padding:4px 8px;border-bottom:1px solid var(--line)}
+
+/* Toast & confetti */
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(calc(100% + 60px));visibility:hidden;background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:10px 18px;font-weight:800;z-index:50;transition:transform .35s;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+#toast.show{transform:translateX(-50%) translateY(0);visibility:visible}
+.confetti{position:fixed;top:-20px;width:10px;height:14px;z-index:40;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+.kbd{display:inline-block;border:1px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 6px;font-size:.8rem;background:var(--surface-2)}
+@media (max-width:640px){
+  body{font-size:16px}
+  .crew,.statgrid{grid-template-columns:repeat(2,1fr)}
+  .opts{grid-template-columns:1fr}
+  .sentence{font-size:1.2rem;line-height:2.3}
+  .classbtns{gap:6px}
+  .cbtn{padding:12px 2px;font-size:.9rem}
+  .cbtn small{display:none}
+  #bossSvg{width:84px;height:84px}
+  .hide-sm{display:none}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">🚀 <span>Word Class Quest</span></div>
+    <span class="pill" id="rankPill">Cadet</span>
+    <span class="pill" id="xpPill">0 XP</span>
+    <button class="iconbtn" id="soundBtn" title="Sound on/off" aria-label="Sound on/off">🔊</button>
+    <button class="iconbtn" id="themeBtn" title="Light/dark" aria-label="Switch light/dark theme">🌓</button>
+  </header>
+  <main id="app"></main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(typeof window!=='undefined'?window:globalThis).ORDKLASS_DATA = {
+  words: [
+    // ---------- NOUNS (subst) ----------
+    { w: "kitchen", k: "subst", tip: "A place in a house. You can say: the kitchen." },
+    { w: "homework", k: "subst", tip: "A thing you do after school. You can say: my homework." },
+    { w: "teacher", k: "subst", tip: "A person. You can put a/the in front: a teacher." },
+    { w: "mountains", k: "subst", tip: "Places in nature. Plural -s: one mountain, two mountains." },
+    { w: "hamburger", k: "subst", tip: "Food. You can put a/the in front: a hamburger." },
+    { w: "keyboard", k: "subst", tip: "A thing. You can put a/the in front: a keyboard." },
+    { w: "helmet", k: "subst", tip: "A thing you wear. You can say: a helmet." },
+    { w: "library", k: "subst", tip: "A place with books. You can say: the library." },
+    { w: "classroom", k: "subst", tip: "A place at school. You can say: the classroom." },
+    { w: "headphones", k: "subst", tip: "Things for your ears. You can say: my headphones." },
+    { w: "dinner", k: "subst", tip: "A meal. You can say: the dinner was good." },
+    { w: "island", k: "subst", tip: "A place. You can put an/the in front: an island." },
+    { w: "ruler", k: "subst", tip: "A thing in your pencil case. You can say: a ruler." },
+    { w: "umbrella", k: "subst", tip: "A thing. You can put an/the in front: an umbrella." },
+    { w: "birthday", k: "subst", tip: "A special day. You can say: my birthday, a birthday." },
+    { w: "festival", k: "subst", tip: "An event. You can put a/the in front: a festival." },
+    { w: "hospital", k: "subst", tip: "A place. You can put a/the in front: a hospital." },
+    { w: "village", k: "subst", tip: "A small place. You can say: a village." },
+    { w: "elephant", k: "subst", tip: "An animal. You can put an/the in front: an elephant." },
+    { w: "strawberry", k: "subst", tip: "A fruit. You can say: a strawberry, two strawberries." },
+    { w: "pizza", k: "subst", tip: "Food. You can put a/the in front: a pizza." },
+    { w: "forest", k: "subst", tip: "A place in nature. You can say: the forest." },
+    { w: "ocean", k: "subst", tip: "A place in nature. You can say: the ocean." },
+    { w: "afternoon", k: "subst", tip: "A time of day. You can say: the afternoon." },
+    { w: "friendship", k: "subst", tip: "An idea or feeling. You can say: a friendship." },
+    { w: "computer", k: "subst", tip: "A thing. You can put a/the in front: a computer." },
+    { w: "schoolbag", k: "subst", tip: "A thing you carry. You can say: my schoolbag." },
+    { w: "teenager", k: "subst", tip: "A person aged 13-19. You can say: a teenager." },
+    { w: "grandmother", k: "subst", tip: "A person in your family. You can say: my grandmother." },
+    { w: "classmate", k: "subst", tip: "A person in your class. You can say: a classmate." },
+    { w: "restaurant", k: "subst", tip: "A place to eat. You can say: a restaurant." },
+    { w: "airport", k: "subst", tip: "A place with planes. You can say: the airport." },
+    { w: "children", k: "subst", tip: "People. Irregular plural: one child, two children." },
+    { w: "mice", k: "subst", tip: "Animals. Irregular plural: one mouse, two mice." },
+    { w: "teeth", k: "subst", tip: "Things in your mouth. Irregular plural: one tooth, two teeth." },
+    { w: "knives", k: "subst", tip: "Things in the kitchen. Plural: one knife, two knives." },
+    { w: "tomatoes", k: "subst", tip: "Food. Plural: one tomato, two tomatoes." },
+    { w: "science", k: "subst", tip: "A school subject. You can say: I like science." },
+    { w: "history", k: "subst", tip: "A school subject. You can say: the history of Sweden." },
+    { w: "music", k: "subst", tip: "A thing you listen to. You can say: the music." },
+    { w: "freedom", k: "subst", tip: "An idea. You can say: the freedom to choose." },
+    { w: "happiness", k: "subst", tip: "A feeling. Ends in -ness, a typical noun ending." },
+    { w: "knowledge", k: "subst", tip: "An idea. You can say: the knowledge you have." },
+    { w: "luggage", k: "subst", tip: "Bags for travel. You can say: the luggage." },
+    { w: "tournament", k: "subst", tip: "A sports event. You can say: a tournament." },
+    { w: "stadium", k: "subst", tip: "A place for sports. You can say: the stadium." },
+    { w: "player", k: "subst", tip: "A person. You can put a/the in front: a player." },
+    { w: "goalkeeper", k: "subst", tip: "A person in a team. You can say: the goalkeeper." },
+    { w: "cinema", k: "subst", tip: "A place for films. You can say: the cinema." },
+    { w: "information", k: "subst", tip: "A thing you know. You can say: the information." },
+    { w: "advice", k: "subst", tip: "Help with words. You can say: good advice, the advice." },
+    { w: "furniture", k: "subst", tip: "Tables, chairs, beds. You can say: the furniture." },
+    { w: "uncle", k: "subst", tip: "A person in your family. You can say: my uncle." },
+    { w: "cousin", k: "subst", tip: "A person in your family. You can say: a cousin." },
+    { w: "lemonade", k: "subst", tip: "A drink. You can say: the lemonade." },
+    { w: "grandparents", k: "subst", tip: "People in your family. You can say: my grandparents." },
+    { w: "sunglasses", k: "subst", tip: "Things you wear. You can say: my sunglasses." },
+    { w: "trousers", k: "subst", tip: "Clothes. You can say: the trousers." },
+    { w: "vegetables", k: "subst", tip: "Food. Plural -s: one vegetable, many vegetables." },
+    { w: "guitar", k: "subst", tip: "An instrument. You can put a/the in front: a guitar." },
+    { w: "dentist", k: "subst", tip: "A person who checks teeth. You can say: the dentist." },
+    { w: "banana", k: "subst", tip: "A fruit. You can put a/the in front: a banana." },
+    { w: "giraffe", k: "subst", tip: "An animal. You can put a/the in front: a giraffe." },
+    { w: "museum", k: "subst", tip: "A place. You can put a/the in front: a museum." },
+
+    // ---------- VERBS (verb) ----------
+    { w: "ate", k: "verb", tip: "Something you did. Past of eat: I ate." },
+    { w: "wrote", k: "verb", tip: "Something you did. Past of write: She wrote." },
+    { w: "went", k: "verb", tip: "Something you did. Past of go: We went." },
+    { w: "swam", k: "verb", tip: "Something you did. Past of swim: They swam." },
+    { w: "bought", k: "verb", tip: "Something you did. Past of buy: I bought." },
+    { w: "thinks", k: "verb", tip: "An action. Put 'he' in front: he thinks." },
+    { w: "forgets", k: "verb", tip: "An action. Put 'she' in front: she forgets." },
+    { w: "choose", k: "verb", tip: "An action. Can you put 'to' in front? to choose." },
+    { w: "borrow", k: "verb", tip: "An action. Can you put 'to' in front? to borrow." },
+    { w: "explained", k: "verb", tip: "Something you did. Put 'I' in front: I explained." },
+    { w: "brought", k: "verb", tip: "Something you did. Past of bring: I brought." },
+    { w: "caught", k: "verb", tip: "Something you did. Past of catch: He caught." },
+    { w: "taught", k: "verb", tip: "Something you did. Past of teach: She taught." },
+    { w: "sang", k: "verb", tip: "Something you did. Past of sing: We sang." },
+    { w: "drank", k: "verb", tip: "Something you did. Past of drink: I drank." },
+    { w: "began", k: "verb", tip: "Something that happened. Past of begin: It began." },
+    { w: "forgot", k: "verb", tip: "Something you did. Past of forget: I forgot." },
+    { w: "understood", k: "verb", tip: "Past of understand. Put 'I' in front: I understood." },
+    { w: "arrived", k: "verb", tip: "Something you did. Put 'we' in front: we arrived." },
+    { w: "remember", k: "verb", tip: "An action. Put 'I' in front: I remember." },
+    { w: "believe", k: "verb", tip: "An action. Put 'I' in front: I believe." },
+    { w: "became", k: "verb", tip: "Something that happened. Past of become: she became." },
+    { w: "gave", k: "verb", tip: "Something you did. Past of give: I gave." },
+    { w: "took", k: "verb", tip: "Something you did. Past of take: He took." },
+    { w: "flew", k: "verb", tip: "Something you did. Past of fly: We flew." },
+    { w: "threw", k: "verb", tip: "Something you did. Past of throw: She threw." },
+    { w: "sold", k: "verb", tip: "Something you did. Past of sell: He sold." },
+    { w: "told", k: "verb", tip: "Something you did. Past of tell: I told." },
+    { w: "knew", k: "verb", tip: "Past of know. Put 'they' in front: they knew." },
+    { w: "enjoys", k: "verb", tip: "An action. Put 'he' in front: he enjoys." },
+    { w: "listens", k: "verb", tip: "An action. Put 'she' in front: she listens." },
+    { w: "learns", k: "verb", tip: "An action. Put 'he' in front: he learns." },
+    { w: "understands", k: "verb", tip: "An action. Put 'she' in front: she understands." },
+    { w: "agree", k: "verb", tip: "An action. Can you put 'to' in front? to agree." },
+    { w: "imagine", k: "verb", tip: "An action. Can you put 'to' in front? to imagine." },
+    { w: "describe", k: "verb", tip: "An action. Can you put 'to' in front? to describe." },
+    { w: "discuss", k: "verb", tip: "An action. Can you put 'to' in front? to discuss." },
+    { w: "happen", k: "verb", tip: "Something that takes place. Try: to happen, it will happen." },
+    { w: "apologise", k: "verb", tip: "An action: say sorry. Try: to apologise." },
+    { w: "complain", k: "verb", tip: "An action. Can you put 'to' in front? to complain." },
+    { w: "wondered", k: "verb", tip: "Something you did. Put 'I' in front: I wondered." },
+    { w: "shouted", k: "verb", tip: "Something you did. Put 'he' in front: he shouted." },
+    { w: "is", k: "verb", tip: "A form of 'be'. He is, she is, it is." },
+    { w: "are", k: "verb", tip: "A form of 'be'. We are, you are, they are." },
+    { w: "was", k: "verb", tip: "Past of 'be'. I was, he was." },
+    { w: "were", k: "verb", tip: "Past of 'be'. We were, they were." },
+    { w: "has", k: "verb", tip: "A form of 'have'. She has, it has." },
+    { w: "should", k: "verb", tip: "A helping verb. Put a verb after: you should go." },
+    { w: "did", k: "verb", tip: "Past of do. Put 'I' in front: I did." },
+    { w: "kept", k: "verb", tip: "Something you did. Past of keep: I kept." },
+    { w: "met", k: "verb", tip: "Something you did. Past of meet: We met." },
+    { w: "came", k: "verb", tip: "Something you did. Past of come: They came." },
+    { w: "wore", k: "verb", tip: "Something you did. Past of wear: She wore." },
+    { w: "disappeared", k: "verb", tip: "Something that happened. Try: it disappeared." },
+    { w: "replied", k: "verb", tip: "Something you did. Put 'he' in front: he replied." },
+    { w: "explain", k: "verb", tip: "An action. Can you put 'to' in front? to explain." },
+    { w: "chose", k: "verb", tip: "Something you did. Past of choose: I chose." },
+    { w: "forgive", k: "verb", tip: "An action. Can you put 'to' in front? to forgive." },
+    { w: "decide", k: "verb", tip: "An action. Can you put 'to' in front? to decide." },
+    { w: "seems", k: "verb", tip: "Put 'it' in front: it seems." },
+    { w: "belongs", k: "verb", tip: "Put 'it' in front: it belongs to me." },
+    { w: "relax", k: "verb", tip: "An action. Can you put 'to' in front? to relax." },
+    { w: "laughed", k: "verb", tip: "Something you did. Put 'we' in front: we laughed." },
+    { w: "grew", k: "verb", tip: "Something that happened. Past of grow: it grew." },
+    { w: "ran", k: "verb", tip: "Something you did. Past of run: I ran." },
+
+    // ---------- ADJECTIVES (adj) ----------
+    { w: "beautiful", k: "adj", tip: "Describes. Does it fit 'a ___ thing'? a beautiful thing." },
+    { w: "lazy", k: "adj", tip: "Describes a person. Try: a lazy cat." },
+    { w: "expensive", k: "adj", tip: "Describes. Does it fit 'a ___ thing'? an expensive thing." },
+    { w: "biggest", k: "adj", tip: "Superlative of big: big, bigger, the biggest." },
+    { w: "happier", k: "adj", tip: "Comparative of happy: happy, happier, the happiest." },
+    { w: "cheap", k: "adj", tip: "Describes a price. Does it fit 'a ___ thing'? a cheap thing." },
+    { w: "delicious", k: "adj", tip: "Describes food. Try: a delicious pizza." },
+    { w: "angry", k: "adj", tip: "Describes a feeling. Try: an angry teacher." },
+    { w: "hungry", k: "adj", tip: "Describes how you feel. Try: a hungry dog." },
+    { w: "thirsty", k: "adj", tip: "Describes how you feel. Try: I am thirsty." },
+    { w: "funny", k: "adj", tip: "Describes. Does it fit 'a ___ thing'? a funny thing." },
+    { w: "generous", k: "adj", tip: "Describes a person. Try: a generous friend." },
+    { w: "ugly", k: "adj", tip: "Describes. Does it fit 'a ___ thing'? an ugly thing." },
+    { w: "huge", k: "adj", tip: "Describes size. Does it fit 'a ___ thing'? a huge thing." },
+    { w: "tiny", k: "adj", tip: "Describes size. Does it fit 'a ___ thing'? a tiny thing." },
+    { w: "famous", k: "adj", tip: "Describes. Try: a famous singer." },
+    { w: "honest", k: "adj", tip: "Describes a person. Try: an honest friend." },
+    { w: "careful", k: "adj", tip: "Describes. Ends in -ful, a typical adjective ending." },
+    { w: "dangerous", k: "adj", tip: "Describes. Ends in -ous, a typical adjective ending." },
+    { w: "polite", k: "adj", tip: "Describes a person. Try: a polite boy." },
+    { w: "rude", k: "adj", tip: "Describes a person. Try: a rude answer." },
+    { w: "noisy", k: "adj", tip: "Describes a sound. Try: a noisy classroom." },
+    { w: "difficult", k: "adj", tip: "Describes. Does it fit 'a ___ thing'? a difficult thing." },
+    { w: "spicy", k: "adj", tip: "Describes food. Try: spicy food." },
+    { w: "heavy", k: "adj", tip: "Describes. Does it fit 'a ___ thing'? a heavy thing." },
+    { w: "comfortable", k: "adj", tip: "Describes. Ends in -able, a typical adjective ending." },
+    { w: "popular", k: "adj", tip: "Describes. Try: a popular game." },
+    { w: "important", k: "adj", tip: "Describes. Does it fit 'an ___ thing'? an important thing." },
+    { w: "useful", k: "adj", tip: "Describes. Ends in -ful, a typical adjective ending." },
+    { w: "sunny", k: "adj", tip: "Describes the weather. Try: a sunny day." },
+    { w: "rainy", k: "adj", tip: "Describes the weather. Try: a rainy day." },
+    { w: "cloudy", k: "adj", tip: "Describes the weather. Try: a cloudy day." },
+    { w: "windy", k: "adj", tip: "Describes the weather. Try: a windy day." },
+    { w: "salty", k: "adj", tip: "Describes food. Try: salty chips." },
+    { w: "crazy", k: "adj", tip: "Describes. Does it fit 'a ___ thing'? a crazy thing." },
+    { w: "lucky", k: "adj", tip: "Describes. Try: a lucky player." },
+    { w: "healthy", k: "adj", tip: "Describes. Try: healthy food." },
+    { w: "strong", k: "adj", tip: "Describes. Try: a strong player. Stronger, the strongest." },
+    { w: "weak", k: "adj", tip: "Describes. Try: a weak battery. Weaker, the weakest." },
+    { w: "nervous", k: "adj", tip: "Describes a feeling. Ends in -ous: I am nervous." },
+    { w: "curious", k: "adj", tip: "Describes a person. Ends in -ous: a curious cat." },
+    { w: "excellent", k: "adj", tip: "Describes. Does it fit 'an ___ thing'? an excellent thing." },
+    { w: "terrible", k: "adj", tip: "Describes. Does it fit 'a ___ thing'? a terrible thing." },
+    { w: "horrible", k: "adj", tip: "Describes. Does it fit 'a ___ thing'? a horrible thing." },
+    { w: "wonderful", k: "adj", tip: "Describes. Ends in -ful: a wonderful day." },
+    { w: "awful", k: "adj", tip: "Describes. Does it fit 'an ___ thing'? an awful thing." },
+    { w: "scary", k: "adj", tip: "Describes. Try: a scary film." },
+    { w: "silly", k: "adj", tip: "Describes. Try: a silly joke." },
+    { w: "clever", k: "adj", tip: "Describes a person. Try: a clever girl." },
+    { w: "modern", k: "adj", tip: "Describes. Try: a modern phone." },
+    { w: "ancient", k: "adj", tip: "Describes something very old. Try: an ancient castle." },
+    { w: "enormous", k: "adj", tip: "Describes size. Try: an enormous pizza." },
+    { w: "fantastic", k: "adj", tip: "Describes. Does it fit 'a ___ thing'? a fantastic thing." },
+    { w: "impossible", k: "adj", tip: "Describes. Ends in -ible: an impossible task." },
+    { w: "invisible", k: "adj", tip: "Describes. Ends in -ible: an invisible man." },
+    { w: "colourful", k: "adj", tip: "Describes. Ends in -ful: a colourful T-shirt." },
+    { w: "tallest", k: "adj", tip: "Superlative of tall: tall, taller, the tallest." },
+    { w: "funnier", k: "adj", tip: "Comparative of funny: funny, funnier, the funniest." },
+    { w: "jealous", k: "adj", tip: "Describes a feeling. Ends in -ous: a jealous brother." },
+    { w: "sleepy", k: "adj", tip: "Describes how you feel. Try: a sleepy cat." },
+    { w: "cute", k: "adj", tip: "Describes. Does it fit 'a ___ thing'? a cute thing." },
+    { w: "proud", k: "adj", tip: "Describes a feeling. Try: I am proud of you." },
+    { w: "gorgeous", k: "adj", tip: "Describes. Means very beautiful: a gorgeous view." },
+    { w: "awesome", k: "adj", tip: "Describes. Does it fit 'an ___ thing'? an awesome thing." },
+
+    // ---------- PRONOUNS (pron) ----------
+    { w: "I", k: "pron", tip: "Replaces your own name. Subject: I like pizza." },
+    { w: "me", k: "pron", tip: "Replaces your own name. Object: Call me!" },
+    { w: "you", k: "pron", tip: "Replaces the name of the person you talk to." },
+    { w: "he", k: "pron", tip: "Replaces a boy's or man's name. Subject: he runs." },
+    { w: "him", k: "pron", tip: "Replaces a boy's name. Object: I saw him." },
+    { w: "she", k: "pron", tip: "Replaces a girl's or woman's name. Subject: she sings." },
+    { w: "her", k: "pron", tip: "Replaces a girl's name: I saw her. Or owner: her bag." },
+    { w: "it", k: "pron", tip: "Replaces a thing or an animal: it is broken." },
+    { w: "we", k: "pron", tip: "Replaces 'my friends and I'. Subject: we play." },
+    { w: "us", k: "pron", tip: "Replaces 'my friends and me'. Object: help us." },
+    { w: "they", k: "pron", tip: "Replaces names of several people or things. Subject." },
+    { w: "them", k: "pron", tip: "Replaces several people or things. Object: I like them." },
+    { w: "my", k: "pron", tip: "Shows who owns something: my phone." },
+    { w: "your", k: "pron", tip: "Shows who owns something: your bag." },
+    { w: "his", k: "pron", tip: "Shows a boy owns something: his bike." },
+    { w: "its", k: "pron", tip: "Shows a thing or animal owns something: its tail. No apostrophe!" },
+    { w: "our", k: "pron", tip: "Shows we own something: our school." },
+    { w: "their", k: "pron", tip: "Shows they own something: their house." },
+    { w: "mine", k: "pron", tip: "Stands alone and shows owner: The bike is mine." },
+    { w: "yours", k: "pron", tip: "Stands alone and shows owner: Is this yours?" },
+    { w: "hers", k: "pron", tip: "Stands alone and shows owner: The bag is hers." },
+    { w: "ours", k: "pron", tip: "Stands alone and shows owner: The seats are ours." },
+    { w: "theirs", k: "pron", tip: "Stands alone and shows owner: The car is theirs." },
+    { w: "myself", k: "pron", tip: "Reflexive, ends in -self: I hurt myself." },
+    { w: "yourself", k: "pron", tip: "Reflexive, ends in -self: Look at yourself!" },
+    { w: "himself", k: "pron", tip: "Reflexive, ends in -self: He taught himself." },
+    { w: "herself", k: "pron", tip: "Reflexive, ends in -self: She made it herself." },
+    { w: "itself", k: "pron", tip: "Reflexive, ends in -self: The cat washed itself." },
+    { w: "ourselves", k: "pron", tip: "Reflexive, ends in -selves: We did it ourselves." },
+    { w: "yourselves", k: "pron", tip: "Reflexive, ends in -selves: Enjoy yourselves!" },
+    { w: "themselves", k: "pron", tip: "Reflexive, ends in -selves: They hurt themselves." },
+    { w: "this", k: "pron", tip: "Points at one thing near you: this is mine." },
+    { w: "these", k: "pron", tip: "Points at several things near you: these are cool." },
+    { w: "those", k: "pron", tip: "Points at several things far away: look at those!" },
+    { w: "who", k: "pron", tip: "Asks about a person: Who is that? Or: the girl who..." },
+    { w: "whom", k: "pron", tip: "Formal 'who' as object: To whom did you write?" },
+    { w: "what", k: "pron", tip: "Asks about a thing: What is your name?" },
+    { w: "which", k: "pron", tip: "Asks about a choice: Which do you want?" },
+    { w: "whose", k: "pron", tip: "Asks about the owner: Whose bag is this?" },
+    { w: "someone", k: "pron", tip: "A person, but we do not know who." },
+    { w: "somebody", k: "pron", tip: "A person, but we do not know who. Same as someone." },
+    { w: "something", k: "pron", tip: "A thing, but we do not say which." },
+    { w: "anyone", k: "pron", tip: "Any person. Often in questions: Is anyone here?" },
+    { w: "anybody", k: "pron", tip: "Any person. Same as anyone: Can anybody help?" },
+    { w: "anything", k: "pron", tip: "Any thing. Often in questions: Do you need anything?" },
+    { w: "everyone", k: "pron", tip: "All people: Everyone is here." },
+    { w: "everybody", k: "pron", tip: "All people. Same as everyone." },
+    { w: "everything", k: "pron", tip: "All things: Everything is ready." },
+    { w: "nobody", k: "pron", tip: "No person: Nobody came." },
+    { w: "nothing", k: "pron", tip: "No thing: There is nothing in the fridge." },
+    { w: "none", k: "pron", tip: "Not one: None of my friends came." },
+    { w: "whoever", k: "pron", tip: "Any person who: Whoever wins gets a prize." }
+  ],
+
+  sentences: [
+    "She|pron bought|verb a|x new|adj phone|subst yesterday|x .",
+    "My|pron little|adj brother|subst ate|verb my|pron pizza|subst again|x !",
+    "We|pron have|verb a|x difficult|adj test|subst on|x Friday|subst .",
+    "They|pron played|verb football|subst in|x the|x cold|adj rain|subst .",
+    "He|pron forgot|verb his|pron heavy|adj schoolbag|subst on|x the|x bus|subst .",
+    "I|pron think|verb this|pron game|subst is|verb too|x easy|adj .",
+    "Our|pron teacher|subst told|verb us|pron a|x funny|adj story|subst .",
+    "Can|verb you|pron help|verb me|pron with|x this|pron question|subst ?",
+    "The|x hungry|adj dog|subst stole|verb my|pron sandwich|subst .",
+    "Who|pron ate|verb the|x last|adj cookie|subst ?",
+    "Emma|subst and|x I|pron went|verb to|x the|x cinema|subst .",
+    "Your|pron headphones|subst are|verb under|x the|x sofa|subst .",
+    "Those|pron shoes|subst look|verb very|x expensive|adj .",
+    "He|pron is|verb the|x tallest|adj boy|subst in|x our|pron class|subst .",
+    "Is|verb this|pron jacket|subst yours|pron or|x hers|pron ?",
+    "I|pron made|verb breakfast|subst for|x myself|pron today|x .",
+    "The|x players|subst were|verb hungry|adj after|x the|x long|adj match|subst .",
+    "Nobody|pron knew|verb the|x answer|subst to|x the|x last|adj question|subst .",
+    "My|pron cousin|subst lives|verb on|x a|x small|adj island|subst .",
+    "We|pron will|verb visit|verb London|subst in|x July|subst .",
+    "The|x new|adj keyboard|subst is|verb really|x noisy|adj .",
+    "Someone|pron left|verb a|x red|adj umbrella|subst in|x the|x classroom|subst .",
+    "They|pron built|verb a|x huge|adj snowman|subst in|x the|x garden|subst .",
+    "Her|pron grandmother|subst makes|verb delicious|adj pancakes|subst .",
+    "The|x sun|subst was|verb hot|adj , so|x we|pron swam|verb in|x the|x lake|subst .",
+    "Which|pron phone|subst did|verb you|pron choose|verb ?",
+    "He|pron hurt|verb himself|pron in|x the|x football|subst match|subst .",
+    "These|pron are|verb the|x best|adj chips|subst in|x the|x world|subst !",
+    "Mum|subst gave|verb me|pron money|subst for|x a|x new|adj game|subst .",
+    "Do|verb you|pron like|verb spicy|adj food|subst ?",
+    "The|x old|adj museum|subst was|verb quiet|adj and|x dark|adj .",
+    "Everyone|pron laughed|verb at|x his|pron silly|adj joke|subst .",
+    "We|pron should|verb take|verb a|x short|adj break|subst now|x .",
+    "Whose|pron muddy|adj bag|subst is|verb this|pron ?",
+    "My|pron friends|subst and|x I|pron love|verb scary|adj films|subst .",
+    "The|x cat|subst hid|verb under|x the|x warm|adj blanket|subst .",
+    "Our|pron school|subst has|verb a|x beautiful|adj library|subst .",
+    "They|pron did|verb their|pron homework|subst together|x on|x Sunday|subst .",
+    "You|pron must|verb wear|verb a|x helmet|subst on|x your|pron bike|subst .",
+    "It|pron is|verb a|x lovely|adj day|subst for|x a|x picnic|subst .",
+    "I|pron found|verb something|pron strange|adj in|x my|pron locker|subst .",
+    "The|x boy|subst who|pron won|verb the|x race|subst is|verb my|pron neighbour|subst .",
+    "She|pron writes|verb short|adj stories|subst about|x dragons|subst .",
+    "He|pron bought|verb these|pron sunglasses|subst at|x the|x airport|subst .",
+    "We|pron cooked|verb dinner|subst by|x ourselves|pron .",
+    "Grandpa|subst tells|verb the|x funniest|adj stories|subst .",
+    "My|pron sister|subst is|verb older|adj than|x me|pron .",
+    "The|x pizza|subst was|verb cold|adj , but|x we|pron ate|verb it|pron anyway|x .",
+    "Did|verb anybody|pron see|verb my|pron blue|adj ruler|subst ?",
+    "They|pron visited|verb a|x famous|adj castle|subst in|x Scotland|subst .",
+    "Max|subst scored|verb a|x brilliant|adj goal|subst yesterday|x .",
+    "I|pron usually|x walk|verb to|x school|subst with|x Leo|subst .",
+    "The|x weather|subst in|x Sweden|subst is|verb often|x cold|adj .",
+    "What|pron did|verb you|pron eat|verb for|x lunch|subst ?",
+    "Our|pron dog|subst is|verb smaller|adj than|x theirs|pron .",
+    "She|pron taught|verb herself|pron to|x play|verb the|x guitar|subst .",
+    "My|pron phone|subst battery|subst is|verb almost|x empty|adj .",
+    "We|pron need|verb fresh|adj bread|subst and|x six|x eggs|subst .",
+    "He|pron was|verb nervous|adj before|x his|pron first|x speech|subst .",
+    "The|x monkey|subst threw|verb a|x banana|subst at|x us|pron !",
+    "You|pron are|verb a|x really|x good|adj friend|subst .",
+    "Nothing|pron is|verb impossible|adj for|x my|pron clever|adj sister|subst .",
+    "Mine|pron is|verb the|x green|adj bike|subst over|x there|x .",
+    "Will|verb they|pron come|verb to|x my|pron party|subst on|x Saturday|subst ?",
+    "The|x teacher|subst gave|verb him|pron extra|adj homework|subst .",
+    "I|pron sent|verb her|pron a|x funny|adj message|subst .",
+    "These|pron trainers|subst are|verb more|x comfortable|adj than|x those|pron .",
+    "My|pron uncle|subst drives|verb a|x tiny|adj yellow|adj car|subst ."
+  ],
+
+  quiz: [
+    // ----- Verb tenses -----
+    { q: "Which tense is the verb in? We <b>have eaten</b> lunch.", o: ["present simple","past simple","present perfect","past perfect"], a: 2, why: "have + past participle = present perfect." },
+    { q: "Look! It <b>___</b> outside.", o: ["is snowing","snows","snowed","has snow"], a: 0, why: "'Look!' = it is happening now. Use am/is/are + -ing (present continuous)." },
+    { q: "Which tense is the verb in? She <b>had left</b> before we arrived.", o: ["present perfect","past simple","present continuous","past perfect"], a: 3, why: "had + past participle = past perfect. It happened before another past action." },
+    { q: "Yesterday I <b>___</b> my grandmother.", o: ["visit","visited","have visited","am visiting"], a: 1, why: "'Yesterday' is a finished time, so use past simple. (Inte 'have visited' med yesterday.)" },
+    { q: "I <b>___</b> in Malmö since 2020.", o: ["live","lived","have lived","am living"], a: 2, why: "'since' + a time that continues now = present perfect. (På svenska: 'Jag har bott/bor här sedan 2020'.)" },
+    { q: "Look at those black clouds! It <b>___</b> rain.", o: ["is going to","will be","goes to","is"], a: 0, why: "We can see it now (black clouds), so use 'going to' for the future." },
+    { q: "Which tense is the verb in? My brother <b>plays</b> football every Tuesday.", o: ["present continuous","past simple","present perfect","present simple"], a: 3, why: "'every Tuesday' = a habit. Habits use present simple." },
+    { q: "'I am thirsty.' – 'OK, I <b>___</b> get you a glass of water.'", o: ["going","will","have","did"], a: 1, why: "A quick decision at the moment of speaking = will + verb." },
+
+    // ----- Irregular verbs -----
+    { q: "Last summer we <b>___</b> to Spain. (go)", o: ["goed","gone","went","going"], a: 2, why: "go – went – gone. Past simple is 'went'." },
+    { q: "I have never <b>___</b> a shark. (see)", o: ["seen","saw","seed","seeing"], a: 0, why: "see – saw – seen. After 'have' use the past participle: seen." },
+    { q: "She <b>___</b> new trainers last week. (buy)", o: ["buyed","boughted","brought","bought"], a: 3, why: "buy – bought – bought. Careful: 'brought' comes from 'bring'." },
+    { q: "Have you <b>___</b> your essay yet? (write)", o: ["wrote","written","writed","writing"], a: 1, why: "write – wrote – written. After 'have' use 'written'." },
+    { q: "He <b>___</b> across the lake. (swim)", o: ["swimmed","swum","swam","swims"], a: 2, why: "swim – swam – swum. Past simple is 'swam'." },
+    { q: "I <b>___</b> my lunch to school. (bring)", o: ["brought","bringed","bought","brang"], a: 0, why: "bring – brought – brought. 'bought' comes from 'buy'." },
+    { q: "The goalkeeper <b>___</b> the ball. (catch)", o: ["catched","caughted","cought","caught"], a: 3, why: "catch – caught – caught." },
+    { q: "We have <b>___</b> the whole cake! (eat)", o: ["ate","eaten","eated","eat"], a: 1, why: "eat – ate – eaten. After 'have' use 'eaten'." },
+    { q: "I <b>___</b> the test was easy. (think)", o: ["thinked","thank","thought","taught"], a: 2, why: "think – thought – thought. 'taught' comes from 'teach'." },
+    { q: "Who has <b>___</b> my charger? (take)", o: ["taken","took","taked","tooken"], a: 0, why: "take – took – taken. After 'has' use 'taken'." },
+
+    // ----- Third-person -s -----
+    { q: "He <b>___</b> football every day. (play)", o: ["play","playes","plaies","plays"], a: 3, why: "he/she/it + verb + -s in present simple. Vowel + y: just add -s." },
+    { q: "My sister <b>___</b> TV after school. (watch)", o: ["watchs","watches","watch","watchies"], a: 1, why: "Verbs ending in -ch, -sh, -s, -x, -o get -es: watches." },
+    { q: "Leo <b>___</b> maths at home. (study)", o: ["studys","study","studies","studyes"], a: 2, why: "Consonant + y: change y to i and add -es: studies." },
+    { q: "<b>___</b> your brother like pizza?", o: ["Does","Do","Is","Doing"], a: 0, why: "he/she/it in questions: Does ...? (På svenska ändras inte verbet efter person, men på engelska gör det.)" },
+
+    // ----- Nouns -----
+    { q: "One child, two <b>___</b>.", o: ["childs","childes","childrens","children"], a: 3, why: "Irregular plural: child – children." },
+    { q: "One mouse, three <b>___</b>.", o: ["mouses","mice","mices","mouse"], a: 1, why: "Irregular plural: mouse – mice." },
+    { q: "I brush my <b>___</b> twice a day. (tooth)", o: ["tooths","toothes","teeth","teeths"], a: 2, why: "Irregular plural: tooth – teeth." },
+    { q: "The farmer has twenty <b>___</b>. (sheep)", o: ["sheep","sheeps","sheepes","shoop"], a: 0, why: "'sheep' is the same in plural. (Som svenska 'får' – ett får, två får.)" },
+    { q: "Put the <b>___</b> in the drawer. (knife)", o: ["knifes","knife's","knivs","knives"], a: 3, why: "Many nouns ending in -f/-fe change to -ves: knife – knives." },
+    { q: "Which sentence is correct? (<b>advice</b>)", o: ["She gave me an advice.","She gave me some advice.","She gave me advices.","She gave me a advices."], a: 1, why: "'advice' is uncountable: no a/an, no -s. (På svenska: 'ett råd' – på engelska: some advice / a piece of advice.)" },
+    { q: "Which sentence is correct? (<b>homework</b>)", o: ["I have many homeworks.","I have a homework.","I have a lot of homework.","I have homeworks."], a: 2, why: "'homework' is uncountable: no a, no -s. Say 'a lot of homework'." },
+    { q: "Which sentence is correct? (<b>furniture</b>)", o: ["We bought new furniture.","We bought new furnitures.","We bought a furniture.","We bought many furnitures."], a: 0, why: "'furniture' is uncountable. (På svenska: 'möbler' i plural – på engelska aldrig 'furnitures'.)" },
+    { q: "This is my <b>___</b> room. (I have one sister.)", o: ["sisters","sisters'","sister","sister's"], a: 3, why: "One owner: add 's. My sister's room." },
+    { q: "The <b>___</b> changing room is on the left. (many boys)", o: ["boy's","boys'","boys's","boy"], a: 1, why: "Plural owner ending in -s: just add an apostrophe: boys'." },
+    { q: "Which sentence is correct? (<b>information</b>)", o: ["Can you give me an information?","Can you give me informations?","Can you give me some information?","Can you give me a informations?"], a: 2, why: "'information' is uncountable: no an, no -s. (Svenska: 'en information', men inte på engelska.)" },
+
+    // ----- Adjectives -----
+    { q: "My new phone is <b>___</b> than my old one. (good)", o: ["better","gooder","more good","best"], a: 0, why: "Irregular: good – better – best." },
+    { q: "This is the <b>___</b> film I have ever seen. (bad)", o: ["baddest","most bad","worse","worst"], a: 3, why: "Irregular: bad – worse – worst. 'the ...' = superlative: the worst." },
+    { q: "I cannot walk any <b>___</b>. (far)", o: ["farer","further","furthest","more far"], a: 1, why: "Irregular: far – further (or farther) – furthest." },
+    { q: "This is the <b>___</b> question in the test. (difficult)", o: ["difficultest","more difficult","most difficult","difficulter"], a: 2, why: "Long adjectives use more/most: the most difficult." },
+    { q: "Spain is <b>___</b> than Sweden in July. (hot)", o: ["hotter","hoter","more hot","hottest"], a: 0, why: "Short adjective, one vowel + one consonant: double it + -er: hotter." },
+    { q: "My cat is <b>___</b> than my dog. (lazy)", o: ["lazyer","more lazy","laziest","lazier"], a: 3, why: "Adjective ending in -y: change y to i + -er: lazier." },
+    { q: "She is a very <b>___</b> runner.", o: ["quickly","quick","quicklier","more quickly"], a: 1, why: "'runner' is a noun, so we need an adjective: quick. 'quickly' is an adverb – it describes a verb (She runs quickly)." },
+    { q: "This bag is <b>___</b> than that one. (expensive)", o: ["expensiver","most expensive","more expensive","expensivest"], a: 2, why: "Long adjectives use 'more' in the comparative: more expensive." },
+    { q: "The test was <b>___</b>.", o: ["easy","easily","easilier","more easily"], a: 0, why: "After 'was' (a form of be) we need an adjective: easy. 'easily' is an adverb." },
+    { q: "The soup smells <b>___</b>.", o: ["badly","worstly","more badly","bad"], a: 3, why: "After smell/look/taste/feel we use an adjective: bad. 'badly' is an adverb and is wrong here." },
+
+    // ----- Pronouns -----
+    { q: "My friends and <b>___</b> went to the beach.", o: ["me","I","myself","mine"], a: 1, why: "Subject = I. Test: take away 'my friends and': I went." },
+    { q: "Can you help <b>___</b> with his homework?", o: ["he","his","him","himself"], a: 2, why: "Object after a verb = him. (Som svenska 'honom'.)" },
+    { q: "I gave <b>___</b> my old games.", o: ["them","they","their","theirs"], a: 0, why: "Object after a verb = them. (Som svenska 'dem'.)" },
+    { q: "This is not your pen. It is <b>___</b>.", o: ["my","me","I","mine"], a: 3, why: "'mine' stands alone; 'my' needs a noun after it (my pen)." },
+    { q: "Is this <b>___</b> bag?", o: ["yours","your","you","yourself"], a: 1, why: "Before a noun use 'your'. 'yours' stands alone: Is this yours?" },
+    { q: "She looked at <b>___</b> in the mirror.", o: ["her","she","herself","hers"], a: 2, why: "Same person as the subject = reflexive: herself. (Svenska: 'sig själv'.)" },
+    { q: "We enjoyed <b>___</b> at the party.", o: ["ourselves","ourself","us","ours"], a: 0, why: "Reflexive for 'we' = ourselves (plural -selves)." },
+    { q: "The girl <b>___</b> sits next to me is from Iran.", o: ["which","whose","what","who"], a: 3, why: "Use 'who' for people and 'which' for things and animals." },
+    { q: "The phone <b>___</b> I bought is broken.", o: ["who","which","whom","whose"], a: 1, why: "A phone is a thing, so use 'which'." },
+    { q: "The dog wagged <b>___</b> tail.", o: ["it's","its'","its","it is"], a: 2, why: "'its' (no apostrophe) shows owner. 'it's' = it is." },
+    { q: "<b>___</b> raining again!", o: ["It's","Its","Its'","It"], a: 0, why: "It's = it is. 'Its' shows owner (its tail)." }
+  ],
+
+  pronTypes: [
+    { s: "<b>She</b> plays the drums.", a: "personligt", why: "Replaces a person's name. Subject form." },
+    { s: "Can you call <b>me</b> later?", a: "personligt", why: "Replaces your own name. Object form." },
+    { s: "<b>We</b> are going to the beach.", a: "personligt", why: "Replaces 'my friends and I'. Subject form." },
+    { s: "I saw <b>them</b> at the cinema.", a: "personligt", why: "Replaces several people. Object form." },
+    { s: "Give the ball to <b>him</b>!", a: "personligt", why: "Replaces a boy's name. Object form." },
+
+    { s: "This is <b>my</b> jacket.", a: "possessivt", why: "Shows who owns something." },
+    { s: "The red bike is <b>mine</b>.", a: "possessivt", why: "Shows who owns something. Stands alone." },
+    { s: "Is this <b>your</b> phone?", a: "possessivt", why: "Shows who owns the phone." },
+    { s: "These seats are <b>ours</b>.", a: "possessivt", why: "Shows who owns the seats. Stands alone." },
+    { s: "The dog wagged <b>its</b> tail.", a: "possessivt", why: "Shows the tail belongs to the dog." },
+
+    { s: "He hurt <b>himself</b> in the match.", a: "reflexivt", why: "Goes back to the subject 'he'. Ends in -self." },
+    { s: "We made the pizza <b>ourselves</b>.", a: "reflexivt", why: "Goes back to the subject 'we'. Ends in -selves." },
+    { s: "She taught <b>herself</b> to code.", a: "reflexivt", why: "Goes back to the subject 'she'. Ends in -self." },
+    { s: "Did you enjoy <b>yourselves</b>?", a: "reflexivt", why: "Goes back to the subject 'you'. Ends in -selves." },
+    { s: "The cat washed <b>itself</b>.", a: "reflexivt", why: "Goes back to the subject 'the cat'. Ends in -self." },
+
+    { s: "<b>This</b> is my best friend, Sam.", a: "demonstrativt", why: "Points at someone near you." },
+    { s: "I love <b>these</b> shoes!", a: "demonstrativt", why: "Points at several things near you." },
+    { s: "Are <b>those</b> your headphones?", a: "demonstrativt", why: "Points at several things far away." },
+    { s: "<b>That</b> was an amazing goal!", a: "demonstrativt", why: "Points at something that happened, not here now." },
+    { s: "Look at <b>this</b>!", a: "demonstrativt", why: "Points at something near you." },
+
+    { s: "<b>Who</b> ate my sandwich?", a: "interrogativt", why: "Asks a question about a person." },
+    { s: "<b>What</b> is your favourite game?", a: "interrogativt", why: "Asks a question about a thing." },
+    { s: "<b>Which</b> team do you support?", a: "interrogativt", why: "Asks a question about a choice." },
+    { s: "<b>Whose</b> charger is this?", a: "interrogativt", why: "Asks a question about the owner." },
+    { s: "<b>Who</b> did you meet at the party?", a: "interrogativt", why: "Asks a question about a person." },
+
+    { s: "<b>Somebody</b> took my pen.", a: "indefinit", why: "A person, but we do not know who." },
+    { s: "<b>Nobody</b> knows the answer.", a: "indefinit", why: "No person – not a specific person." },
+    { s: "Is <b>anyone</b> at home?", a: "indefinit", why: "Any person – not a specific person." },
+    { s: "<b>Everything</b> was delicious.", a: "indefinit", why: "All things – not a specific thing." },
+    { s: "I have <b>nothing</b> to wear.", a: "indefinit", why: "No thing – not a specific thing." },
+
+    { s: "The boy <b>who</b> lives next door is funny.", a: "relativt", why: "Starts extra information about 'the boy'. Not a question." },
+    { s: "I lost the book <b>which</b> you lent me.", a: "relativt", why: "Starts extra information about 'the book'. Not a question." },
+    { s: "This is the girl <b>whose</b> dog won the prize.", a: "relativt", why: "Connects the girl and her dog. Not a question." },
+    { s: "The film <b>that</b> we saw was scary.", a: "relativt", why: "Starts extra information about 'the film'. Means 'which'." },
+    { s: "Do you know the man <b>who</b> owns this shop?", a: "relativt", why: "Starts extra information about 'the man'. Not a question here." }
+  ]
+};
+</script>
+<script>
+"use strict";
+/* ============ DATA ============ */
+const D = window.ORDKLASS_DATA || {words:[],sentences:[],quiz:[],pronTypes:[]};
+if(!D.words.length){document.addEventListener("DOMContentLoaded",()=>{document.getElementById("app").innerHTML='<section class="card"><h2>The word bank could not load</h2><p>Reload the page (Ctrl+F5). If that does not help, ask your teacher.</p></section>';});}
+const CL = {
+  subst:{name:"Noun",short:"Noun",em:"📦",crew:"Captain Thing",hint:"Things, animals, people, places, feelings"},
+  verb:{name:"Verb",short:"Verb",em:"⚡",crew:"Engineer Do",hint:"What someone does or what happens"},
+  adj:{name:"Adjective",short:"Adj",em:"🎨",crew:"Pilot How",hint:"What someone or something is like"},
+  pron:{name:"Pronoun",short:"Pron",em:"🎭",crew:"Agent Swap",hint:"Words that replace or point out"},
+  x:{name:"Other word class",short:"Other",em:"⬜",crew:"",hint:"Adverb, prepositioner, konjunktioner m.m."}
+};
+const MAIN = ["subst","verb","adj","pron"];
+const aN=k=>{const n=CL[k].name.toLowerCase();return (/^[aeiou]/.test(n)?"an ":"a ")+n;};
+const KEYMAP = {"1":"subst","n":"subst","2":"verb","v":"verb","3":"adj","a":"adj","4":"pron","p":"pron","5":"x","x":"x","o":"x"};
+
+const parsed = D.sentences.map(s=>s.trim().split(/\s+/).map(t=>{
+  const i=t.lastIndexOf("|");
+  return i>0?{w:t.slice(0,i),k:t.slice(i+1)}:{w:t,k:null};
+})).filter(arr=>arr.some(t=>t.k));
+
+/* ============ STATE ============ */
+const SKEY="wordclassquest-en-v1";
+let S = {xp:0,best:{},stats:{subst:[0,0],verb:[0,0],adj:[0,0],pron:[0,0]},badges:[],sound:true,theme:null};
+try{const raw=localStorage.getItem(SKEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(SKEY,JSON.stringify(S));}catch(e){}}
+function track(k,ok){ if(!S.stats[k]) return; S.stats[k][1]++; if(ok) S.stats[k][0]++; }
+
+const RANKS=[[0,"Cadet"],[150,"Space Trainee"],[400,"Navigator"],[800,"Pilot"],[1400,"Lieutenant"],[2200,"Captain"],[3300,"Commander"],[5000,"Admiral of Grammatica"]];
+function rankOf(xp){let r=RANKS[0],n=null;for(let i=0;i<RANKS.length;i++){if(xp>=RANKS[i][0]){r=RANKS[i];n=RANKS[i+1]||null;}}return {name:r[1],min:r[0],next:n};}
+function addXP(n){
+  const before=rankOf(S.xp).name; S.xp+=Math.max(0,Math.round(n)); save(); updateTop();
+  const after=rankOf(S.xp).name; if(after!==before){toast("🎖️ Promotion! You are now "+after);confetti();sfx("level");}
+}
+const BADGES=[
+  {id:"first",em:"🌱",name:"First mission"},
+  {id:"rain30",em:"☄️",name:"Meteor stopper (30 words in Word Rain)"},
+  {id:"combo10",em:"🔥",name:"10 in a row"},
+  {id:"scanPerfect",em:"🔍",name:"Perfect scan"},
+  {id:"painter",em:"🎨",name:"Master painter"},
+  {id:"boss",em:"👾",name:"Beat the Word Muncher"},
+  {id:"blixt20",em:"⚡",name:"Lightning fast (20 points)"},
+  {id:"theory",em:"📚",name:"Read the manual"}
+];
+function badge(id){ if(S.badges.includes(id)) return; S.badges.push(id); save(); const b=BADGES.find(x=>x.id===id); if(b){toast(b.em+" New medal: "+b.name);sfx("level");} }
+
+/* ============ HELPERS ============ */
+const $=s=>document.querySelector(s);
+const app=$("#app");
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let cleanup=[]; // functions to call when leaving a screen
+function leave(){cleanup.forEach(f=>{try{f()}catch(e){}});cleanup=[];}
+function on(el,ev,fn,opt){el.addEventListener(ev,fn,opt);cleanup.push(()=>el.removeEventListener(ev,fn,opt));}
+function toast(msg){const t=$("#toast");t.innerHTML=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2600);}
+function confetti(n=60){
+  const cols=["var(--subst)","var(--verb)","var(--adj)","var(--pron)","var(--accent)"];
+  for(let i=0;i<n;i++){const c=document.createElement("div");c.className="confetti";c.style.left=Math.random()*100+"vw";c.style.background=rnd(cols);c.style.animationDuration=(1.6+Math.random()*1.8)+"s";c.style.animationDelay=Math.random()*.4+"s";document.body.appendChild(c);setTimeout(()=>c.remove(),4000);}
+}
+function sentenceText(toks){return toks.map((t,i)=>t.k?(i?" ":"")+t.w:t.w).join("");}
+
+/* ============ SOUND ============ */
+let actx=null;
+function sfx(type){
+  if(!S.sound) return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const seq={good:[[660,.07],[880,.09]],bad:[[220,.15],[160,.18]],pop:[[1000,.05]],level:[[523,.1],[659,.1],[784,.1],[1047,.2]],tick:[[1200,.03]],boss:[[110,.25],[90,.3]]}[type]||[[440,.1]];
+    let t=actx.currentTime;
+    seq.forEach(([f,d])=>{const o=actx.createOscillator(),g=actx.createGain();o.type=type==="bad"||type==="boss"?"sawtooth":"triangle";o.frequency.value=f;g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+d+.02);t+=d*.9;});
+  }catch(e){}
+}
+
+/* ============ TOP BAR ============ */
+function updateTop(){const r=rankOf(S.xp);$("#rankPill").textContent="🎖️ "+r.name;$("#xpPill").textContent=S.xp+" XP";$("#soundBtn").textContent=S.sound?"🔊":"🔇";}
+$("#soundBtn").onclick=()=>{S.sound=!S.sound;save();updateTop();};
+$("#themeBtn").onclick=()=>{
+  const cur=document.documentElement.dataset.theme||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");
+  S.theme=cur==="light"?"dark":"light";document.documentElement.dataset.theme=S.theme;save();
+};
+if(S.theme) document.documentElement.dataset.theme=S.theme;
+
+/* ============ STARFIELD ============ */
+(function(){
+  const c=$("#stars"),x=c.getContext("2d");let st=[];
+  function rs(){c.width=innerWidth;c.height=innerHeight;st=Array.from({length:Math.min(140,innerWidth/8)},()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.6+.3,s:Math.random()*.3+.05}));}
+  rs();addEventListener("resize",rs);
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  (function loop(){x.clearRect(0,0,c.width,c.height);const col=getComputedStyle(document.documentElement).getPropertyValue("--soft");x.fillStyle=col;x.globalAlpha=.6;st.forEach(s=>{if(!reduce){s.y+=s.s;if(s.y>c.height){s.y=0;s.x=Math.random()*c.width;}}x.beginPath();x.arc(s.x,s.y,s.r,0,7);x.fill();});requestAnimationFrame(loop);})();
+})();
+
+/* ============ HUB ============ */
+const MODES=[
+  {id:"theory",ic:"📚",name:"Training Base",desc:"Learn about the four word classes and the tricks to recognise them.",lvl:"Start here"},
+  {id:"rain",ic:"☄️",name:"Word Rain",desc:"Word meteors are falling towards the station. Sort them into the right class before they hit!",lvl:"Easy → hard"},
+  {id:"blixt",ic:"⚡",name:"Lightning Round",desc:"60 seconds. True or false? Get as many right as you can.",lvl:"Speed"},
+  {id:"scan",ic:"🔍",name:"Sentence Scanner",desc:"Find all the words of one word class in a sentence. Miss nothing, click nothing wrong!",lvl:"Medium"},
+  {id:"paint",ic:"🎨",name:"Colour Painter",desc:"Give every word in the sentence the right colour. The hardest challenge for word class pros.",lvl:"Hard"},
+  {id:"boss",ic:"👾",name:"Boss: The Word Muncher",desc:"A monster is eating word classes! Beat it with what you know about tenses, irregular verbs, plurals, comparison and pronouns.",lvl:"Challenge"}
+];
+function hub(){
+  leave();
+  const r=rankOf(S.xp); const pct=r.next?Math.round((S.xp-r.min)/(r.next[0]-r.min)*100):100;
+  const weak=MAIN.filter(k=>S.stats[k][1]>=5).sort((a,b)=>S.stats[a][0]/S.stats[a][1]-S.stats[b][0]/S.stats[b][1])[0];
+  app.innerHTML=`
+  <section class="card">
+    <div class="hero">
+      <div style="font-size:3.4rem">🛰️</div>
+      <div style="flex:1;min-width:240px">
+        <h1>Welcome to Space Station Grammatica!</h1>
+        <p class="muted">A meteor storm has mixed up all the English words. The crew needs your help to sort them into the right word class before the station's language computer crashes. <span style="opacity:.85">(Ordklasser på engelska!)</span></p>
+      </div>
+    </div>
+    <div class="crew">${MAIN.map(k=>`<div class="mate c-${k}"><span class="em">${CL[k].em}</span><b>${CL[k].name}</b><small>${CL[k].crew}<br>${CL[k].hint}</small></div>`).join("")}</div>
+    <div class="rank"><b>🎖️ ${r.name}</b><div class="xpbar"><i style="width:${pct}%"></i></div><span class="muted" style="font-size:.85rem">${r.next?`${r.next[0]-S.xp} XP to ${r.next[1]}`:"Highest rank!"}</span></div>
+  </section>
+  <div class="modes">${MODES.map(m=>`<button class="mode" data-m="${m.id}">${S.best[m.id]!=null?`<span class="best">🏆 ${S.best[m.id]}</span>`:""}<div class="ic">${m.ic}</div><h3>${m.name}</h3><p>${m.desc}</p><span class="lvl">${m.lvl}</span></button>`).join("")}</div>
+  <section class="card" style="margin-top:16px">
+    <h3 style="margin:0">📊 Your accuracy</h3>
+    <div class="statgrid">${MAIN.map(k=>{const [a,t]=S.stats[k];return `<div class="stat c-${k}"><small>${CL[k].name}</small><b>${t?Math.round(a/t*100)+" %":"–"}</b><small>${a} of ${t} right</small></div>`}).join("")}</div>
+    ${weak?`<p style="margin:10px 0 0">💡 Tip: You need to practise <b style="color:var(--${weak})">${CL[weak].name.toLowerCase()}s</b> the most. Visit the Training Base!</p>`:`<p class="muted" style="margin:10px 0 0">Play a few rounds and your statistics will appear here.</p>`}
+    <h3 style="margin:16px 0 0">🏅 Medals</h3>
+    <div class="badges">${BADGES.map(b=>`<span class="badge ${S.badges.includes(b.id)?"got":""}">${b.em} ${b.name}</span>`).join("")}</div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost" id="resetBtn" style="font-size:.85rem;padding:6px 12px">Reset my progress</button></div>
+  </section>`;
+  app.querySelectorAll(".mode").forEach(b=>b.onclick=()=>({theory,rain,blixt,scan,paint,boss})[b.dataset.m]());
+  $("#resetBtn").onclick=()=>{if(confirm("Do you really want to reset all XP, statistics and medals?")){const keep={sound:S.sound,theme:S.theme};S={xp:0,best:{},stats:{subst:[0,0],verb:[0,0],adj:[0,0],pron:[0,0]},badges:[],...keep};save();updateTop();hub();}};
+  window.scrollTo(0,0);
+}
+
+function header(title,extra=""){
+  return `<div class="gamehead"><button class="btn ghost" id="backBtn" style="padding:6px 14px">← Base</button><h2>${title}</h2>${extra}</div>`;
+}
+function bindBack(){$("#backBtn").onclick=hub;}
+
+function finish(mode,score,{title,sub,stars,list}){
+  leave();
+  const prev=S.best[mode]; const rec=prev==null||score>prev; if(rec) S.best[mode]=score;
+  badge("first"); save();
+  const xp=Math.max(5,score);
+  addXP(xp);
+  if(stars>=3) confetti();
+  app.innerHTML=`<section class="card result">
+    <div class="big">${stars>=3?"🏆":stars===2?"🚀":stars===1?"🛰️":"🌑"}</div>
+    <div class="resstars">${"★".repeat(stars)}${"☆".repeat(3-stars)}</div>
+    <h2>${title}</h2>
+    <p>${sub}</p>
+    <p><b>+${xp} XP</b> ${rec?" · 🎉 New personal best!":` · Your best: ${prev}`}</p>
+    ${list&&list.length?`<details><summary>Show review (${list.length})</summary><div class="reslist">${list.join("")}</div></details>`:""}
+    <div class="row" style="justify-content:center;margin-top:14px">
+      <button class="btn" id="again">Play again</button>
+      <button class="btn ghost" id="home">Back to base</button>
+    </div></section>`;
+  $("#again").onclick=()=>({rain,blixt,scan,paint,boss})[mode]();
+  $("#home").onclick=hub;
+  window.scrollTo(0,0);
+}
+
+/* ============ THEORY ============ */
+function theory(){
+  leave();
+  const T={
+    subst:`<p>A <b>noun</b> is a word for a thing, an animal, a person, a place, a feeling or an idea. <i>phone, cat, London, happiness, match</i>. <span class="muted">(Sv: substantiv)</span></p>
+      <p><b>Test:</b> <span class="test">Can you put <b>a / an / the</b> in front? → a phone, the team</span> <span class="test">Can it become plural? → phones, teams</span></p>
+      <p>Names (Lisa, Spotify, Sweden) are nouns too – they start with a capital letter.</p>
+      <table class="forms"><tr><th>Singular</th><th>Plural</th><th>Note</th></tr>
+      <tr><td>a book</td><td>books</td><td>+ s</td></tr>
+      <tr><td>a bus / a box</td><td>buses / boxes</td><td>+ es</td></tr>
+      <tr><td>a city</td><td>cities</td><td>y → ies</td></tr>
+      <tr><td>a child / a mouse / a tooth</td><td>children / mice / teeth</td><td>irregular</td></tr></table>
+      <ul><li><b>Uncountable:</b> some nouns have no plural: <i>information, advice, homework, furniture</i>. Not "informations"!</li>
+      <li><b>Possessive:</b> <i>Lisa<b>'s</b> bike</i> (one owner), <i>the players<b>'</b> shirts</i> (many owners).</li></ul>`,
+    verb:`<p>A <b>verb</b> tells you what someone does or what happens. <i>run, play, think, be, have</i>. <span class="muted">(Sv: verb)</span></p>
+      <p><b>Test:</b> <span class="test">Can you put <b>to</b> in front? → to play</span> <span class="test">Can you put <b>I / she</b> in front? → she plays</span> <span class="test">Can it change tense? → plays, played, has played</span></p>
+      <table class="forms"><tr><th>Tense</th><th>Example</th><th>When?</th></tr>
+      <tr><td>Present simple</td><td>she plays</td><td>Habits, facts</td></tr>
+      <tr><td>Present continuous</td><td>she is playing</td><td>Right now</td></tr>
+      <tr><td>Past simple</td><td>she played / she went</td><td>Finished, then</td></tr>
+      <tr><td>Present perfect</td><td>she has played</td><td>Up to now, result now</td></tr>
+      <tr><td>Past perfect</td><td>she had played</td><td>Before something else in the past</td></tr>
+      <tr><td>Future</td><td>she will play / is going to play</td><td>Later</td></tr></table>
+      <p><b>Remember:</b> he/she/it + <b>-s</b> in present simple: <i>she play<b>s</b>, he watche<b>s</b></i>. Irregular verbs: <i>go – went – gone, see – saw – seen, buy – bought – bought</i>.</p>`,
+    adj:`<p>An <b>adjective</b> describes what someone or something is like. <i>fast, funny, green, tired, difficult</i>. <span class="muted">(Sv: adjektiv)</span></p>
+      <p><b>Test:</b> <span class="test">Does it fit: <b>a ___ thing</b>? → a funny thing</span> <span class="test">Can you compare it? → funny, funnier, funniest</span></p>
+      <table class="forms"><tr><th>Positive</th><th>Comparative</th><th>Superlative</th></tr>
+      <tr><td>fast</td><td>faster</td><td>the fastest</td></tr>
+      <tr><td>happy</td><td>happier</td><td>the happiest</td></tr>
+      <tr><td>good</td><td>better</td><td>the best</td></tr>
+      <tr><td>bad</td><td>worse</td><td>the worst</td></tr>
+      <tr><td>interesting</td><td>more interesting</td><td>the most interesting</td></tr></table>
+      <p>English adjectives never change form: <i>a big dog – two big dogs</i>. <span class="muted">(Sv: en stor hund – två stora hundar)</span> Don't mix up the adjective <i>quick</i> with the adverb <i>quickly</i>!</p>`,
+    pron:`<p>A <b>pronoun</b> replaces a noun so we don't have to repeat it. <i>Lisa plays football. <b>She</b> trains every day.</i> <span class="muted">(Sv: pronomen)</span></p>
+      <table class="forms"><tr><th>Type</th><th>Examples</th><th>Job</th></tr>
+      <tr><td>Personal</td><td>I, you, he, she, it, we, they · me, him, her, us, them</td><td>Replace people/things</td></tr>
+      <tr><td>Possessive</td><td>my, your, his, her, our, their · mine, yours, hers, ours, theirs</td><td>Show who owns it</td></tr>
+      <tr><td>Reflexive</td><td>myself, yourself, himself, herself, ourselves, themselves</td><td>Point back to the subject</td></tr>
+      <tr><td>Demonstrative</td><td>this, that, these, those</td><td>Point things out</td></tr>
+      <tr><td>Interrogative</td><td>who, what, which, whose</td><td>Ask questions</td></tr>
+      <tr><td>Relative</td><td>who, which, that, whose</td><td>Start a clause that describes something</td></tr>
+      <tr><td>Indefinite</td><td>someone, anything, nobody, everyone, nothing</td><td>No specific person/thing</td></tr></table>
+      <p><b>Tip:</b> <i>they</i> = subject (They play), <i>them</i> = object (I see them). <i>its</i> = possessive (the dog wags its tail), <i>it's</i> = it is.</p>`
+  };
+  let cur="subst";
+  function draw(){
+    app.innerHTML=header("📚 Training Base")+`
+    <div class="tabs">${MAIN.map(k=>`<button class="tab c-${k} ${k===cur?"on":""}" data-k="${k}">${CL[k].em} ${CL[k].name}</button>`).join("")}</div>
+    <section class="card tcard c-${cur}"><h3>${CL[cur].em} ${CL[cur].name} <small class="muted" style="font-weight:600;font-size:.85rem">– ${CL[cur].crew}</small></h3>${T[cur]}</section>
+    <section class="card" style="margin-top:14px"><h3 style="margin-top:0">🧠 Quick check: which word class?</h3><div id="mini"></div></section>`;
+    bindBack();
+    app.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{cur=b.dataset.k;draw();});
+    miniQuiz();
+  }
+  function miniQuiz(){
+    if(!$("#mini")) return;
+    const pool=D.words.filter(w=>w.k===cur); const others=D.words.filter(w=>w.k!==cur);
+    if(!pool.length){$("#mini").innerHTML="<p class='muted'>The word bank is missing.</p>";return;}
+    const w=Math.random()<.6?rnd(pool):rnd(others);
+    $("#mini").innerHTML=`<div class="bigword" style="margin:6px 0">${esc(w.w)}</div><div class="classbtns">${MAIN.map(k=>`<button class="cbtn c-${k}" data-k="${k}">${CL[k].em} ${CL[k].short}</button>`).join("")}</div><div class="fb" id="mfb"></div>`;
+    $("#mini").querySelectorAll(".cbtn").forEach(b=>b.onclick=()=>{
+      const ok=b.dataset.k===w.k; track(w.k,ok); save();
+      $("#mfb").className="fb "+(ok?"good":"bad");
+      $("#mfb").innerHTML=(ok?"✅ Correct! ":"❌ It was "+aN(w.k)+". ")+`<span class="muted" style="font-weight:500">${esc(w.tip||"")}</span>`;
+      sfx(ok?"good":"bad"); if(ok) addXP(1);
+      $("#mini").querySelectorAll(".cbtn").forEach(x=>x.disabled=true);
+      setTimeout(miniQuiz,ok?1100:2600);
+    });
+  }
+  badge("theory");
+  draw(); window.scrollTo(0,0);
+}
+
+/* ============ ORDREGN ============ */
+function rain(){
+  leave();
+  app.innerHTML=header("☄️ Word Rain",`<span class="pill">Score <b id="rScore">0</b></span><span class="pill combo" id="rCombo">x1</span><span class="pill hearts" id="rHearts">❤️❤️❤️</span>`)+`
+  <p class="muted hide-sm" style="margin:0 0 8px;font-size:.9rem">Sort the word with the yellow frame. Keys: <span class="kbd">1</span>/<span class="kbd">N</span> noun · <span class="kbd">2</span>/<span class="kbd">V</span> verb · <span class="kbd">3</span>/<span class="kbd">A</span> adj · <span class="kbd">4</span>/<span class="kbd">P</span> pron</p>
+  <div id="rainField"><div class="ground"></div></div>
+  <div class="classbtns">${MAIN.map((k,i)=>`<button class="cbtn c-${k}" data-k="${k}">${CL[k].em} ${CL[k].short}<small>${CL[k].name} · ${i+1}</small></button>`).join("")}</div>
+  <div class="fb" id="rFb"></div>`;
+  bindBack();
+  const field=$("#rainField"); let drops=[],score=0,lives=3,combo=0,maxCombo=0,caught=0,spawnT=0,last=performance.now(),elapsed=0,running=true,raf;
+  const log=[]; let deck=shuffle(D.words);
+  function speed(){return 38+Math.min(elapsed,120)*0.9;} // px/s
+  function interval(){return Math.max(.9,2.6-elapsed*0.018);}
+  function spawn(){
+    if(!deck.length) deck=shuffle(D.words);
+    const w=deck.pop(); const el=document.createElement("div");el.className="drop";el.textContent=w.w;
+    const fw=field.clientWidth; el.style.left=(12+Math.random()*76)+"%"; el.style.top="-40px";
+    field.appendChild(el); drops.push({w,el,y:-40,fw});
+    mark();
+  }
+  function mark(){drops.forEach((d,i)=>d.el.classList.toggle("target",i===0));}
+  function floater(text,col,x,y){const f=document.createElement("div");f.className="floater";f.textContent=text;f.style.color=col;f.style.left=x;f.style.top=y+"px";field.appendChild(f);setTimeout(()=>f.remove(),1000);}
+  function hearts(){$("#rHearts").textContent="❤️".repeat(lives)+"🖤".repeat(Math.max(0,3-lives));}
+  function lose(d,why){
+    lives--; combo=0; hearts(); $("#rCombo").textContent="x1"; sfx("bad");
+    field.classList.add("shake"); setTimeout(()=>field.classList.remove("shake"),300);
+    $("#rFb").className="fb bad"; $("#rFb").innerHTML=`${why} <b>${esc(d.w.w)}</b> is ${aN(d.w.k).split(" ")[0]} <b style="color:var(--${d.w.k})">${CL[d.w.k].name.toLowerCase()}</b>. <span class="muted" style="font-weight:500">${esc(d.w.tip||"")}</span>`;
+    log.push(`<div>❌ <b>${esc(d.w.w)}</b> – ${CL[d.w.k].name}</div>`);
+    if(lives<=0) end();
+  }
+  function answer(k){
+    if(!running||!drops.length) return;
+    const d=drops.shift(); const ok=d.w.k===k; track(d.w.k,ok);
+    if(ok){
+      combo++; maxCombo=Math.max(maxCombo,combo); caught++;
+      const mult=1+Math.floor(combo/5); const pts=10*mult; score+=pts;
+      d.el.classList.add("pop"); d.el.style.borderColor=`var(--${k})`; floater("+"+pts,`var(--${k})`,d.el.style.left,d.y);
+      $("#rScore").textContent=score; $("#rCombo").textContent="x"+mult; sfx("pop");
+      $("#rFb").className="fb good"; $("#rFb").textContent=combo>=5?`🔥 ${combo} in a row!`:"✅ Correct!";
+      if(combo===10) badge("combo10");
+      setTimeout(()=>d.el.remove(),450);
+    }else{
+      d.el.classList.add("miss"); setTimeout(()=>d.el.remove(),600);
+      lose(d,"Wrong word class!");
+    }
+    mark();
+  }
+  function loop(now){
+    if(!running) return;
+    const dt=Math.max(0,Math.min(.05,(now-last)/1000)); last=now; elapsed+=dt; spawnT-=dt;
+    if(spawnT<=0){spawn();spawnT=interval();}
+    const h=field.clientHeight-40; const v=speed();
+    for(let i=drops.length-1;i>=0;i--){const d=drops[i];d.y+=v*dt;d.el.style.top=d.y+"px";
+      if(d.y>h){drops.splice(i,1);d.el.classList.add("miss");setTimeout(()=>d.el.remove(),600);lose(d,"Impact!");mark();if(!running)return;}}
+    raf=requestAnimationFrame(loop);
+  }
+  function end(){
+    running=false; cancelAnimationFrame(raf); save();
+    if(caught>=30) badge("rain30");
+    const stars=score>=600?3:score>=300?2:score>=100?1:0;
+    setTimeout(()=>alive&&finish("rain",score,{title:`You saved ${caught} words!`,sub:`Score: <b>${score}</b> · Longest streak: <b>${maxCombo}</b>`,stars,list:log}),700);
+  }
+  app.querySelectorAll(".cbtn").forEach(b=>on(b,"click",()=>answer(b.dataset.k)));
+  on(document,"keydown",e=>{const k=KEYMAP[e.key.toLowerCase()];if(k&&k!=="x"){e.preventDefault();answer(k);}});
+  let alive=true;
+  cleanup.push(()=>{running=false;alive=false;cancelAnimationFrame(raf);});
+  raf=requestAnimationFrame(t=>{last=t;loop(t);});
+}
+
+/* ============ BLIXT ============ */
+function blixt(){
+  leave();
+  const DUR=60; let t=DUR,score=0,streak=0,cur=null,claim=null,locked=false; const log=[];
+  app.innerHTML=header("⚡ Lightning Round",`<span class="pill">Score <b id="bScore">0</b></span><span class="pill">⏱ <b id="bTime">${DUR}</b> s</span>`)+`
+  <div class="timer"><i id="bBar" style="width:100%"></i></div>
+  <section class="card">
+    <div class="bigword" id="bWord"></div>
+    <div class="claim" id="bClaim"></div>
+    <div class="tf"><button class="btn ghost" id="bNo">❌ False <span class="kbd hide-sm">←</span></button><button class="btn" id="bYes">✅ True <span class="kbd hide-sm">→</span></button></div>
+    <div class="fb" id="bFb"></div>
+    <p class="muted" style="text-align:center;font-size:.85rem;margin:0">Right: +1 · Wrong: −1 · Every 5 in a row: +1 bonus</p>
+  </section>`;
+  bindBack();
+  function next(){
+    if(!$("#bWord")) return;
+    cur=rnd(D.words); claim=Math.random()<.5?cur.k:rnd(MAIN.filter(k=>k!==cur.k));
+    $("#bWord").textContent=cur.w;
+    $("#bClaim").innerHTML=`is ${aN(claim).split(" ")[0]} <b class="c-${claim}" style="background:var(--${claim})">${CL[claim].name.toLowerCase()}</b>`;
+    locked=false;
+  }
+  function ans(yes){
+    if(locked||t<=0) return; locked=true;
+    const truth=cur.k===claim; const ok=yes===truth; track(cur.k,ok);
+    if(ok){score++;streak++;if(streak%5===0){score++;toast("🔥 "+streak+" in a row! +1 bonus");}sfx("good");$("#bFb").className="fb good";$("#bFb").textContent="✅ Correct!";}
+    else{score=Math.max(0,score-1);streak=0;sfx("bad");$("#bFb").className="fb bad";$("#bFb").innerHTML=`❌ <b>${esc(cur.w)}</b> is ${aN(cur.k)}.`;log.push(`<div>❌ <b>${esc(cur.w)}</b> – ${CL[cur.k].name}. ${esc(cur.tip||"")}</div>`);}
+    $("#bScore").textContent=score;
+    setTimeout(next,ok?250:900);
+  }
+  on($("#bYes"),"click",()=>ans(true)); on($("#bNo"),"click",()=>ans(false));
+  on(document,"keydown",e=>{if(e.key==="ArrowRight"){e.preventDefault();ans(true);}if(e.key==="ArrowLeft"){e.preventDefault();ans(false);}});
+  const iv=setInterval(()=>{t--;$("#bTime").textContent=t;$("#bBar").style.width=(t/DUR*100)+"%";if(t<=5&&t>0)sfx("tick");
+    if(t<=0){clearInterval(iv);save();if(score>=20)badge("blixt20");const stars=score>=25?3:score>=15?2:score>=8?1:0;finish("blixt",score,{title:`${score} points in 60 seconds!`,sub:score>=20?"Lightning fast! ⚡":"Keep practising and you will get even faster.",stars,list:log});}},1000);
+  cleanup.push(()=>clearInterval(iv));
+  next();
+}
+
+/* ============ SKANNERN ============ */
+function renderSentence(toks,cls){
+  return toks.map((t,i)=>t.k?`<span class="tok ${cls||""}" data-i="${i}" role="button" tabindex="0">${esc(t.w)}</span>`:`<span class="punct">${esc(t.w)}</span>`).join(" ");
+}
+function scan(){
+  leave();
+  const ROUNDS=8; let round=0,score=0,perfectAll=true; const log=[];
+  const pool=shuffle(parsed);
+  app.innerHTML=header("🔍 Sentence Scanner",`<span class="pill">Round <b id="sR">1</b>/${ROUNDS}</span><span class="pill">Score <b id="sScore">0</b></span>`)+`<section class="card" id="sCard"></section>`;
+  bindBack();
+  function play(){
+    if(round>=ROUNDS||!pool.length){
+      save(); if(perfectAll) badge("scanPerfect");
+      const max=ROUNDS*10; const stars=score>=max*.85?3:score>=max*.6?2:score>=max*.3?1:0;
+      return finish("scan",score,{title:"Scan complete!",sub:`You got <b>${score}</b> out of ${max} points.${perfectAll?" Perfect! 🔍":""}`,stars,list:log});
+    }
+    const toks=pool[round%pool.length]; round++; $("#sR").textContent=round;
+    const present=MAIN.filter(k=>toks.some(t=>t.k===k));
+    const target=rnd(present);
+    const card=$("#sCard");
+    card.innerHTML=`<div class="mission c-${target}">Click <u>all</u> the words that are <b>${CL[target].em} ${CL[target].name.toLowerCase()}s</b></div>
+      <div class="sentence">${renderSentence(toks)}</div>
+      <div class="row" style="justify-content:center"><button class="btn" id="sGo">🔍 Scan!</button></div><div class="fb" id="sFb" style="text-align:center"></div>`;
+    const els=[...card.querySelectorAll(".tok")];
+    els.forEach(el=>{const tg=()=>{if(!el.classList.contains("locked")){el.classList.toggle("chosen");sfx("tick");}};el.onclick=tg;el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tg();}};});
+    $("#sGo").onclick=()=>{
+      let right=0,wrong=0,missed=0,total=0;
+      els.forEach(el=>{const t=toks[+el.dataset.i];const isT=t.k===target;const ch=el.classList.contains("chosen");el.classList.add("locked");el.classList.remove("chosen");
+        if(isT){total++; if(ch){right++;el.classList.add("ok");}else{missed++;el.classList.add("missed");} track(target,ch);}
+        else if(ch){wrong++;el.classList.add("wrong"); if(MAIN.includes(t.k)) track(t.k,false);}
+      });
+      const pts=Math.max(0,Math.round(10*(right/total))-3*wrong); score+=pts; $("#sScore").textContent=score;
+      const perfect=right===total&&wrong===0; if(!perfect) perfectAll=false;
+      const answer=toks.filter(t=>t.k===target).map(t=>t.w).join(", ");
+      $("#sFb").className="fb "+(perfect?"good":"bad");
+      $("#sFb").innerHTML=perfect?`✅ Perfect! +${pts}`:`${right} of ${total} found${wrong?`, ${wrong} wrong`:""}. +${pts}<br><span class="muted" style="font-weight:500">${CL[target].name}: <b>${esc(answer)}</b></span>`;
+      sfx(perfect?"good":"bad");
+      if(!perfect) log.push(`<div>${esc(sentenceText(toks))}<br><small class="muted">${CL[target].name}: ${esc(answer)}</small></div>`);
+      $("#sGo").textContent="Next →"; $("#sGo").onclick=play;
+    };
+  }
+  play();
+}
+
+/* ============ FÄRGLÄGGAREN ============ */
+function paint(){
+  leave();
+  const ROUNDS=6; let round=0,score=0,maxScore=0,brush="subst"; const log=[];
+  const pool=shuffle(parsed.filter(s=>s.filter(t=>t.k).length<=10));
+  const BR=["subst","verb","adj","pron","x"];
+  app.innerHTML=header("🎨 Colour Painter",`<span class="pill">Round <b id="pR">1</b>/${ROUNDS}</span><span class="pill">Score <b id="pScore">0</b></span>`)+`<section class="card" id="pCard"></section>`;
+  bindBack();
+  function play(){
+    if(round>=ROUNDS||!pool.length){
+      save(); const pct=maxScore?score/maxScore:0; if(pct>=.9) badge("painter");
+      const stars=pct>=.9?3:pct>=.7?2:pct>=.4?1:0;
+      return finish("paint",score,{title:`${Math.round(pct*100)} % of the words coloured correctly!`,sub:`You got <b>${score}</b> out of ${maxScore} points.`,stars,list:log});
+    }
+    const toks=pool[round%pool.length]; round++; $("#pR").textContent=round;
+    const card=$("#pCard"); const painted={};
+    card.innerHTML=`<p class="mission">Choose a brush and click the words. Give <u>every</u> word the right colour!</p>
+      <div class="classbtns" style="grid-template-columns:repeat(5,1fr)">${BR.map((k,i)=>`<button class="cbtn c-${k} ${k===brush?"sel":""}" data-k="${k}">${CL[k].em} ${CL[k].short}<small>${i+1}</small></button>`).join("")}</div>
+      <p class="muted" style="text-align:center;font-size:.82rem;margin:6px 0 0">⬜ Other = adverbs, prepositions, conjunctions, articles (a, an, the), numbers, "to" etc.</p>
+      <div class="sentence">${renderSentence(toks)}</div>
+      <div class="row" style="justify-content:center"><button class="btn" id="pGo">✔ Check</button></div><div class="fb" id="pFb" style="text-align:center"></div>`;
+    const btns=[...card.querySelectorAll(".cbtn")];
+    function setBrush(k){brush=k;btns.forEach(b=>b.classList.toggle("sel",b.dataset.k===k));}
+    btns.forEach(b=>b.onclick=()=>setBrush(b.dataset.k));
+    const keyh=e=>{const k=KEYMAP[e.key.toLowerCase()];if(k&&!e.ctrlKey&&!e.metaKey){setBrush(k);}};
+    document.addEventListener("keydown",keyh); cleanup.push(()=>document.removeEventListener("keydown",keyh));
+    const els=[...card.querySelectorAll(".tok")];
+    els.forEach(el=>{const pt=()=>{if(el.classList.contains("locked"))return;const i=el.dataset.i;
+        if(painted[i]===brush){delete painted[i];el.classList.remove("painted");el.className="tok";}
+        else{painted[i]=brush;el.className="tok painted c-"+brush;}sfx("tick");};
+      el.onclick=pt; el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pt();}};});
+    $("#pGo").onclick=()=>{
+      const un=els.filter(el=>!painted[el.dataset.i]).length;
+      if(un>0&&!$("#pGo").dataset.warned){$("#pGo").dataset.warned=1;$("#pFb").className="fb bad";$("#pFb").textContent=`You have ${un} words left to colour. Click Check again to check anyway.`;return;}
+      document.removeEventListener("keydown",keyh);
+      let ok=0; const fix=[];
+      els.forEach(el=>{const t=toks[+el.dataset.i];const p=painted[el.dataset.i];el.classList.add("locked");
+        const right=p===t.k; if(MAIN.includes(t.k)) track(t.k,right);
+        if(right){ok++;el.classList.add("ok");}else{el.className="tok locked painted wrong c-"+t.k;el.title="Correct: "+CL[t.k].name;fix.push(`${t.w} = ${CL[t.k].name.toLowerCase()}`);}
+      });
+      score+=ok; maxScore+=els.length; $("#pScore").textContent=score;
+      $("#pFb").className="fb "+(fix.length?"bad":"good");
+      $("#pFb").innerHTML=fix.length?`${ok} of ${els.length} right. The crossed-out words now show the right colour.<br><span class="muted" style="font-weight:500">${esc(fix.join(" · "))}</span>`:"✅ All correct! Masterful!";
+      sfx(fix.length?"bad":"good");
+      if(fix.length) log.push(`<div>${esc(sentenceText(toks))}<br><small class="muted">${esc(fix.join(" · "))}</small></div>`);
+      $("#pGo").textContent="Next →"; delete $("#pGo").dataset.warned; $("#pGo").onclick=play;
+    };
+  }
+  play();
+}
+
+/* ============ BOSS ============ */
+const PTNAME={personligt:"personal",possessivt:"possessive",reflexivt:"reflexive",demonstrativt:"demonstrative",interrogativt:"interrogative",indefinit:"indefinite",relativt:"relative"};
+const PTYPES=["personligt","possessivt","reflexivt","demonstrativt","interrogativt","indefinit","relativt"];
+function bossQuestions(){
+  const qs=D.quiz.map(q=>({q:q.q,o:q.o,a:q.a,why:q.why}));
+  D.pronTypes.forEach(p=>{
+    const wrong=shuffle(PTYPES.filter(x=>x!==p.a)).slice(0,3);
+    const o=shuffle([p.a,...wrong]);
+    qs.push({q:`What type of pronoun is the word in bold?<br><span style="font-size:1.2rem">${p.s}</span>`,o:o.map(x=>(PTNAME[x]||x)+" pronoun"),a:o.indexOf(p.a),why:p.why});
+  });
+  return shuffle(qs);
+}
+function boss(){
+  leave();
+  const BOSS_HP=10; let hp=BOSS_HP,lives=3,qi=0,correct=0,answered=0,rage=false; const qs=bossQuestions(); const log=[];
+  if(!qs.length){app.innerHTML=header("👾 Boss")+"<p>The question bank is missing.</p>";bindBack();return;}
+  app.innerHTML=header("👾 Boss: The Word Muncher",`<span class="pill hearts" id="bH">❤️❤️❤️</span>`)+`
+  <section class="card arena">
+    <div class="bossrow">
+      <svg id="bossSvg" viewBox="0 0 120 120" aria-hidden="true">
+        <defs><radialGradient id="bg1" cx="40%" cy="35%"><stop offset="0" stop-color="#b78bff"/><stop offset="1" stop-color="#5b2bb5"/></radialGradient></defs>
+        <path id="bossBody" d="M20 70 Q10 30 45 18 Q60 8 78 18 Q112 30 100 72 Q104 100 84 106 Q72 98 64 108 Q54 98 44 108 Q34 98 26 104 Q12 96 20 70Z" fill="url(#bg1)"/>
+        <circle cx="44" cy="48" r="11" fill="#fff"/><circle cx="78" cy="48" r="11" fill="#fff"/>
+        <circle id="eyeL" cx="46" cy="50" r="5" fill="#1b1036"/><circle id="eyeR" cx="76" cy="50" r="5" fill="#1b1036"/>
+        <path id="brow" d="M32 34 L54 40 M90 34 L68 40" stroke="#1b1036" stroke-width="4" stroke-linecap="round" opacity="0"/>
+        <path d="M38 74 Q60 92 84 74 Z" fill="#1b1036"/><path d="M44 76 l4 6 l4 -6 M64 76 l4 6 l4 -6" fill="#fff"/>
+        <text x="96" y="22" font-size="14" font-weight="900" fill="#ffcf3f">W</text><text x="8" y="40" font-size="12" font-weight="900" fill="#4fa3ff">b</text>
+      </svg>
+      <div class="hp"><b>The Word Muncher</b> <span class="muted" id="bossTalk" style="font-size:.9rem">"Mmm… word classes! I am going to eat them all!"</span>
+        <div class="bar" style="margin-top:6px"><i id="bossHp" style="width:100%"></i></div>
+        <small class="muted"><span id="hpTxt">${BOSS_HP}</span>/${BOSS_HP} HP</small></div>
+    </div>
+    <div id="bq"></div>
+  </section>`;
+  bindBack();
+  const svg=$("#bossSvg");
+  const taunts=["\"Ha! Wrong! That was tasty!\"","\"Grrr… your words are mine!\"","\"You will never beat me!\"","\"Yum yum, another word class!\""];
+  const ouch=["\"OUCH! How did you know that?!\"","\"No, not grammar!\"","\"That tickles!\"","\"Stop knowing things!\""];
+  function hearts(){$("#bH").textContent="❤️".repeat(lives)+"🖤".repeat(Math.max(0,3-lives));}
+  function ask(){
+    if(hp<=0||lives<=0) return end();
+    const q=qs[qi%qs.length]; qi++;
+    $("#bq").innerHTML=`<div class="bossq">${q.q}</div><div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join("")}</div><div id="bWhy"></div>`;
+    const opts=[...$("#bq").querySelectorAll(".opt")];
+    opts.forEach(b=>b.onclick=()=>{
+      opts.forEach(x=>x.disabled=true); answered++;
+      const i=+b.dataset.i; const ok=i===q.a;
+      opts[q.a].classList.add("right");
+      if(ok){correct++;hp--;const dmg=rage?"💥 CRITICAL HIT!":"💥 Hit!";svg.classList.remove("hit");void svg.offsetWidth;svg.classList.add("hit");sfx("good");$("#bossTalk").textContent=rnd(ouch);
+        if(hp===Math.floor(BOSS_HP/2)&&!rage){rage=true;$("#brow").setAttribute("opacity","1");$("#bossBody").setAttribute("fill","#d0396b");$("#bossTalk").textContent="\"NOW I AM ANGRY!!!\"";sfx("boss");}
+        $("#bWhy").innerHTML=`<div class="fb good">${dmg}</div><div class="why">${q.why||""}</div>`;}
+      else{b.classList.add("wrong");lives--;hearts();svg.classList.remove("attack");void svg.offsetWidth;svg.classList.add("attack");sfx("boss");$("#bossTalk").textContent=rnd(taunts);
+        $("#bWhy").innerHTML=`<div class="fb bad">😵 The Word Muncher attacks!</div><div class="why">${q.why||""}</div>`;
+        log.push(`<div>${q.q.replace(/<br>.*/,"")} ${q.q.includes("<br>")?q.q.split("<br>")[1]:""}<br><small class="muted">Correct: ${q.o[q.a]}</small></div>`);}
+      $("#bossHp").style.width=(hp/BOSS_HP*100)+"%"; $("#hpTxt").textContent=hp;
+      const nb=document.createElement("button");nb.className="btn";nb.style.marginTop="12px";nb.textContent=hp<=0?"🏆 End the battle":lives<=0?"Finish":"Next question →";nb.onclick=ask;$("#bWhy").appendChild(nb);nb.focus({preventScroll:true});
+    });
+  }
+  function end(){
+    save(); const win=hp<=0; if(win) badge("boss");
+    const score=correct*10+(win?lives*20:0);
+    const stars=win?(lives===3?3:lives===2?2:1):0;
+    finish("boss",score,{title:win?"The Word Muncher is defeated! 🎉":"The Word Muncher won this time…",sub:win?`You answered ${correct} of ${answered} questions correctly and had ${lives} ❤️ left.`:`You hit the boss ${BOSS_HP-hp} times. Study in the Training Base and try again!`,stars,list:log});
+  }
+  ask();
+}
+
+/* ============ START ============ */
+updateTop();
+hub();
+</script>
+</body>
+</html>
