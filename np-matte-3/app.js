@@ -352,7 +352,7 @@
     v.innerHTML =
       '<section class="hero">' +
         '<div class="card">' +
-          '<h1>Träna inför NP i Matematik ' + store.kurs.replace('3', '3') + ' <span class="muted" style="font-size:.6em;font-weight:500">(fortsättning nivå 1' + store.kurs.slice(1) + ')</span></h1>' +
+          '<h1>Träna inför NP i Matematik ' + store.kurs + ' <span class="muted" style="font-size:.6em;font-weight:500">(fortsättning nivå 1' + store.kurs.slice(1) + ')</span></h1>' +
           '<p class="pill" style="margin:0 0 8px">Läsåret 26/27 · Gy25</p>' +
           '<p class="muted">Provet skrivs <strong>torsdag 10 december 2026 kl. 9.00</strong>. Det består av del A, B och C. Du tränar just nu på <strong>Ma ' + store.kurs + '</strong> – byt nivå uppe till höger.</p>' +
           '<div class="countdown" id="cd" aria-live="off"></div>' +
