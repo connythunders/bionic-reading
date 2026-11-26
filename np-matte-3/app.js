@@ -847,7 +847,7 @@
         '<p>Andragradsekvationer</p>\\[x^2+px+q=0\\]\\[x=-\\frac{p}{2}\\pm\\sqrt{\\left(\\frac{p}{2}\\right)^2-q}\\]\\[ax^2+bx+c=0\\]\\[x=-\\frac{b}{2a}\\pm\\frac{\\sqrt{b^2-4ac}}{2a}\\]') +
       card('Potenser, logaritmer och summor', '\\[a^xa^y=a^{x+y}\\]\\[\\frac{a^x}{a^y}=a^{x-y}\\]\\[(a^x)^y=a^{xy}\\]\\[a^{-x}=\\frac{1}{a^x}\\]\\[a^{\\frac{1}{n}}=\\sqrt[n]{a}\\]' +
         '<p>Logaritmer</p>\\[y=10^x\\Leftrightarrow x=\\lg y\\]\\[y=e^x\\Leftrightarrow x=\\ln y\\]\\[\\lg xy=\\lg x+\\lg y\\]\\[\\lg\\frac{x}{y}=\\lg x-\\lg y\\]\\[\\lg x^p=p\\cdot\\lg x\\]' +
-        '<p>Geometrisk summa' + ej('3b') + '</p>\\[a+ak+ak^2+\\dots+ak^{n-1}=\\frac{a(k^n-1)}{k-1},\\quad k\\neq 1\\]' +
+        '<p>Geometrisk summa' + ej('3b') + '</p>\\[a+ak+ak^2+\\dots+ak^{n-1}=\\frac{a(k^n-1)}{k-1}\\]<p class="small">där \\(k\\neq 1\\)</p>' +
         '<p>Absolutbelopp' + ej('3c') + ': \\(|a|=a\\) om \\(a\\ge 0\\), \\(|a|=-a\\) om \\(a\\lt 0\\)</p>') +
       card('Derivata', '<p>Derivatans definition</p>\\[f\'(a)=\\lim_{h\\to 0}\\frac{f(a+h)-f(a)}{h}\\]\\[f\'(a)=\\lim_{x\\to a}\\frac{f(x)-f(a)}{x-a}\\]' +
         '<table><tr><th>Funktion</th><th>Derivata</th></tr><tr><td>\\(x^n\\), n reellt</td><td>\\(nx^{n-1}\\)</td></tr><tr><td>\\(\\frac{1}{x}\\)</td><td>\\(-\\frac{1}{x^2}\\)</td></tr><tr><td>\\(a^x\\) (a &gt; 0)</td><td>\\(a^x\\ln a\\)</td></tr><tr><td>\\(e^x\\)</td><td>\\(e^x\\)</td></tr><tr><td>\\(e^{kx}\\)</td><td>\\(k\\cdot e^{kx}\\)</td></tr><tr><td>\\(k\\cdot f(x)\\)</td><td>\\(k\\cdot f\'(x)\\)</td></tr><tr><td>\\(f(x)+g(x)\\)</td><td>\\(f\'(x)+g\'(x)\\)</td></tr></table>') +
